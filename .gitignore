@@ -1,0 +1,14 @@
+.idea
+.tmp
+.sass-cache
+node_modules/
+dist/
+client/app/bower_components
+public/
+/heroku*
+.env
+db.json
+config.*.json
+newrelic.js
+npm-debug.log
+/test

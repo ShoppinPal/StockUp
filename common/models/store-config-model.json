@@ -1,0 +1,114 @@
+{
+  "name": "StoreConfigModel",
+  "base": "PersistedModel",
+  "idInjection": false,
+  "properties": {
+    "objectId": {
+      "type": "number",
+      "id": true,
+      "generated": true
+    },
+    "name": {
+      "type": "string"
+    },
+    "owner_email": {
+      "type": "string"
+    },
+    "posVendor": {
+      "type": "string",
+      "required": true
+    },
+    "posUrl": {
+      "type": "string"
+    },
+    "username": {
+      "type": "string"
+    },
+    "password": {
+      "type": "string"
+    },
+    "productImportRules": {
+      "type": "object",
+      "required": true
+    },
+    "transactionFee": {
+      "type": "number"
+    },
+    "customPayerEmailMessage": {
+      "type": "string"
+    },
+    "promos": {
+      "type": [
+        "object"
+      ]
+    },
+    "categoryMapping": {
+      "type": "string"
+    },
+    "showCategories": {
+      "type": "object"
+    },
+    "tagToCategoryMappingPrefix": {
+      "type": "string"
+    },
+    "refreshToken": {
+      "type": "string"
+    },
+    "wepayAccessToken": {
+      "type": "string"
+    },
+    "wepayAccountId": {
+      "type": "string"
+    },
+    "wepayAccountState": {
+      "type": "object"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "userModel": {
+      "type": "belongsTo",
+      "model": "UserModel",
+      "foreignKey": "userModelToStoreConfigModelId"
+    },
+    "storeModels": {
+      "type": "hasMany",
+      "model": "StoreModel",
+      "foreignKey": "storeConfigModelToStoreModelId"
+    }
+  },
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "create"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "admin",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "getVendAccessToken"
+    }
+  ],
+  "methods": []
+}
