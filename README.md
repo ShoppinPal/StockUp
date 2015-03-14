@@ -49,18 +49,18 @@ npm link vend-nodejs-sdk
 
 * Unit tests: `grunt test`
 * End-to-End Tests:
-** Setup:
-*** sudo npm install --unsafe-perm
-*** cd test/utils
-*** sudo npm install
-*** cd ../..
-** One Specific Test:
-*** `grunt test:e2e --specs='test/protractor/e2eTest1.js'`
-*** `grunt test:e2e --specs='test/protractor/e2eTest2.js'`
-** Multiple Tests
-** `grunt test:e2e --specs='test/protractor/e2eTest1.js,e2eTest2.js'`
-** All Tests
-** `grunt test:e2e`
+  ** Setup:
+    *** sudo npm install --unsafe-perm
+    *** cd test/utils
+    *** sudo npm install
+    *** cd ../..
+  ** One Specific Test:
+    *** `grunt test:e2e --specs='test/protractor/e2eTest1.js'`
+    *** `grunt test:e2e --specs='test/protractor/e2eTest2.js'`
+  ** Multiple Tests
+  ** `grunt test:e2e --specs='test/protractor/e2eTest1.js,e2eTest2.js'`
+  ** All Tests
+  ** `grunt test:e2e`
 
 #### Front-End
 
