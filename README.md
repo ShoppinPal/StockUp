@@ -11,7 +11,7 @@ Please follow the [Git-Flow Branching](http://blog.sourcetreeapp.com/2012/08/01/
 In order to hack on this you'll need a few things installed and setup first:
 
 #### Install These:
-
+```
 * [NodeJS] (http://nodejs.org)
   * __Recommended:__ Use [nvm](https://github.com/creationix/nvm) so you can have multiple NodeJS versions.
 * [Ruby](https://www.ruby-lang.org/en/)
