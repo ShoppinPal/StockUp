@@ -31,7 +31,7 @@ gem install compass --no-ri --no-rdoc
 npm install -g yo
 npm install
 bower install
-sudo npm install grunt-contrib-compass --save-dev
+npm install grunt-contrib-compass --save-dev
 ```
 
 #### For developing dependencies alongside:
@@ -49,18 +49,18 @@ npm link vend-nodejs-sdk
 
 * Unit tests: `grunt test`
 * End-to-End Tests:
-  ** Setup:
-    *** sudo npm install --unsafe-perm
-    *** cd test/utils
-    *** sudo npm install
-    *** cd ../..
-  ** One Specific Test:
-    *** `grunt test:e2e --specs='test/protractor/e2eTest1.js'`
-    *** `grunt test:e2e --specs='test/protractor/e2eTest2.js'`
-  ** Multiple Tests
-  ** `grunt test:e2e --specs='test/protractor/e2eTest1.js,e2eTest2.js'`
-  ** All Tests
-  ** `grunt test:e2e`
+  * Setup:
+    * `npm install --unsafe-perm`
+    * `cd test/utils`
+    * `npm install`
+    * `cd ../..`
+  * One Specific Test:
+    * `grunt test:e2e --specs='test/protractor/e2eTest1.js'`
+    * `grunt test:e2e --specs='test/protractor/e2eTest2.js'`
+  * Multiple Tests
+  * `grunt test:e2e --specs='test/protractor/e2eTest1.js,e2eTest2.js'`
+  * All Tests
+  * `grunt test:e2e`
 
 #### Front-End
 
