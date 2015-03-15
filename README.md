@@ -34,6 +34,35 @@ bower install
 npm install grunt-contrib-compass --save-dev
 ```
 
+#### Setup a `server/config.development.json` file
+```
+{
+  "restApiRoot": "/api",
+  "host": "0.0.0.0",
+  "port": 3000,
+  "aclErrorStatus": 403,
+  "site": {
+    "baseUrl": "http://localhost:3000"
+  },
+  "vend":{
+    "auth_endpoint":"https://secure.vendhq.com/connect",
+    "token_service":".vendhq.com/api/1.0/token",
+    "client_id":"<fill it in>",
+    "client_secret":"<fill it in>"
+  },
+  "logging": {
+    "console": true,
+    "file": false
+  },
+  "vend":{
+    "auth_endpoint":"https://secure.vendhq.com/connect",
+    "token_service":".vendhq.com/api/1.0/token",
+    "client_id":"<fill it in>",
+    "client_secret":"<fill it in>"
+  }
+}
+```
+
 #### For developing dependencies alongside:
 ```
 cd ~/dev/
