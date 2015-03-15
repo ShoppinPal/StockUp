@@ -12,3 +12,4 @@ config.*.json
 newrelic.js
 npm-debug.log
 /test
+server/config.*.json

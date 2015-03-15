@@ -1,0 +1,226 @@
+<div ng-include=" 'views/header.html' "></div>
+
+<div class="row" cg-busy="myPromise">
+    <alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)">{{alert.msg}}</alert>
+
+    <div class="row">
+        <div class="col-md-4 col-md-offset-2">
+            <h4 class="h3-logo h4-title">Point of Sale (POS)</h4>
+            <div class="required">
+                <label for="posVendor">Select the POS or e-commerce service your store is running on</label>
+                <select required class="form-control gt" name="posVendor" id="posVendor"
+                        ng-model="newStoreConfig.posSystem"
+                        ng-options="pos as pos.display for pos in posSystems">
+                <option value="">-- Select your system --</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!--Form for Vend view-->
+    <form name="vendForm" role="form"
+          ng-show="newStoreConfig.posSystem.name === 'vend'"
+          ng-submit="vendForm.$valid && addNewStoreConfig()"
+          novalidate>
+        <div ng-show="!storeConfigId || (storeConfigId && storeConfig && !storeConfig.vendRefreshToken)">
+            <div class="row">
+                <div class="col-md-4 col-md-offset-2">
+                    <div class="form-group"></div>
+                    <div class="form-group">
+                        <a class="btn custom-btn btn-primary"
+                           ng-href="{{vend.loginUrl()}}">
+                            Login with Vend
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" ng-show="storeConfigId">
+            <div class="col-md-4 col-md-offset-2">
+                <div class="form-group"></div> <!-- HACK-y approach to create some space before form fields start-->
+                <div class="form-group required" ng-class="{ 'has-error' : (submitted && vendForm.businessName.$invalid) || vendForm.businessName.$invalid && !vendForm.businessName.$pristine}">
+                    <label for="businessName">Name</label>
+                    <input type="text" class="form-control" name="businessName" id="businessName" ng-model="newStoreConfig.businessName" required=""/>
+                    <p ng-hide="(submitted && vendForm.businessName.$invalid) || vendForm.businessName.$invalid && !vendForm.businessName.$pristine" class="help-block">
+                        If you have multiple stores, you may have an umbrella business/brand name. For single store owners, use your store name.
+                    </p>
+                    <p ng-show="(submitted && vendForm.businessName.$invalid) || vendForm.businessName.$invalid && !vendForm.businessName.$pristine" class="help-block">Business Name is required.</p>
+                </div>
+                <div class="form-group required" ng-class="{ 'has-error' : (submitted && vendForm.currencyCode.$invalid) || vendForm.currencyCode.$invalid && !vendForm.currencyCode.$pristine}">
+                    <label for="currencyCode">Currency Code</label>
+                    <select class="form-control gt" name="currencyCode" id="currencyCode" required=""
+                            ng-model="newStoreConfig.currencyCode">
+                        <option value="">-- Select the Currency Code --</option>
+                        <option value="USD" selected>USD</option>
+                        <option value="DKK" selected>DKK</option>
+                        <option value="EUR" selected>EUR</option>
+                    </select>
+                    <p ng-show="(submitted && vendForm.currencyCode.$invalid) || vendForm.currencyCode.$invalid && !vendForm.currencyCode.$pristine" class="help-block">Please select a currency code from the listed options</p>
+                </div>
+                <div class="form-group">
+                    <label for="categoryMapping">How should products be categorized for viewing by mobile shoppers?</label>
+                    <select class="form-control gt" name="categoryMapping" id="categoryMapping"
+                            ng-model="newStoreConfig.categoryMapping">
+                        <option value="">-- Category mapping options --</option>
+                        <option value="type" selected>Product Type</option>
+                        <option value="tags" selected>Tags</option>
+                    </select>
+                    <p class="help-block">(Optional: if you don't have this setup in your POS, you don't need to make a selection here)</p>
+                </div>
+                <!--
+                <div class="form-group required" ng-class="{ 'has-error' : (submitted && vendForm.vendurl.$invalid) || vendForm.vendurl.$invalid && !vendForm.vendurl.$pristine}">
+                    <label for="vendurl">Vend URL</label>
+                    <div class="input-group">
+                        <span class="input-group-addon">https://</span>
+                        <input type="text" class="form-control"
+                               name="vendurl" id="vendurl" placeholder="mystore.vendhq.com" required=""
+                               ng-pattern="/^([\da-z-]+)\.([a-z\.]{2,6})\.([\w])+$/"
+                               ng-model="newStoreConfig.vendurl"/>
+                    </div>
+                    <p ng-show="(submitted && vendForm.vendurl.$invalid) || vendForm.vendurl.$invalid && !vendForm.vendurl.$pristine" class="help-block">URL is required. Ex: mystore.vendhq.com</p>
+                </div>
+                <div class="form-group required" ng-class="{ 'has-error' : (submitted && vendForm.vendusername.$invalid) || vendForm.vendusername.$invalid && !vendForm.vendusername.$pristine}">
+                    <label for="vendusername">Username</label>
+                    <input type="text" class="form-control" name="vendusername" id="vendusername" ng-model="newStoreConfig.vendusername" required=""/>
+                    <p ng-show="(submitted && vendForm.vendusername.$invalid) || vendForm.vendusername.$invalid && !vendForm.vendusername.$pristine" class="help-block">Username is required.</p>
+                </div>
+                <div class="form-group required" ng-class="{ 'has-error' : (submitted && vendForm.vendpassword.$invalid) || vendForm.vendpassword.$invalid && !vendForm.vendpassword.$pristine}">
+                    <label for="vendpassword">Password</label>
+                    <input type="password" class="form-control" name="vendpassword" id="vendpassword" ng-model="newStoreConfig.vendpassword" required=""/>
+                    <p ng-show="(submitted && vendForm.vendpassword.$invalid) || vendForm.vendpassword.$invalid && !vendForm.vendpassword.$pristine" class="help-block">Password is required.</p>
+                </div>
+                -->
+            </div>
+        </div>
+
+        <div class="row" ng-show="storeConfigId">
+            <div class="col-md-4 col-md-offset-2">
+                <button type="submit" class="btn custom-btn btn-primary" ng-click="submitted=true">Validate</button>
+            </div>
+        </div>
+    </form>
+
+
+    <!--Form for PrestaShop view-->
+    <form ng-show="newStoreConfig.posSystem.name === 'prestashop'" name="prestaForm" role="form" ng-submit="prestaForm.$valid && addNewStoreConfig()" novalidate>
+        <div class="row">
+            <div class="col-md-4 col-md-offset-2">
+                <div class="form-group"></div> <!-- HACK-y approach to create some space before form fields start-->
+                <div class="form-group required" ng-class="{ 'has-error' : (submitted && prestaForm.businessName.$invalid) || prestaForm.businessName.$invalid && !prestaForm.businessName.$pristine}">
+                    <label for="businessName">Name</label>
+                    <input type="text" class="form-control" name="businessName" id="businessName" ng-model="newStoreConfig.businessName" required=""/>
+                    <p ng-hide="(submitted && prestaForm.businessName.$invalid) || prestaForm.businessName.$invalid && !prestaForm.businessName.$pristine" class="help-block">
+                        If you have multiple stores, you may have an umbrella business/brand name. For single store owners, use your store name.
+                    </p>
+                    <p ng-show="(submitted && prestaForm.businessName.$invalid) || prestaForm.businessName.$invalid && !prestaForm.businessName.$pristine" class="help-block">Business Name is required.</p>
+                </div>
+                <div class="form-group required" ng-class="{ 'has-error' : (submitted && prestaForm.currencyCode.$invalid) || prestaForm.currencyCode.$invalid && !prestaForm.currencyCode.$pristine}">
+                    <label for="currencyCode">Currency Code</label>
+                    <select class="form-control gt" name="currencyCode" id="currencyCode" required=""
+                            ng-model="newStoreConfig.currencyCode">
+                        <option value="">-- Select the Currency Code --</option>
+                        <option value="USD" selected>USD</option>
+                        <option value="DKK" selected>DKK</option>
+                        <option value="EUR" selected>EUR</option>
+                    </select>
+                    <p ng-show="(submitted && prestaForm.currencyCode.$invalid) || prestaForm.currencyCode.$invalid && !prestaForm.currencyCode.$pristine" class="help-block">Please select a currency code from the options above.</p>
+                </div>
+                <div class="form-group required" ng-class="{ 'has-error' : (submitted && prestaForm.prestaurl.$invalid) || prestaForm.prestaurl.$invalid && !prestaForm.prestaurl.$pristine}">
+                    <label for="prestaurl">PrestaShop URL</label>
+                    <div class="input-group">
+                        <span class="input-group-addon">https://</span>
+                        <input type="text" class="form-control"
+                               name="prestaurl" id="prestaurl" placeholder="myprestashop.com" required=""
+                               ng-pattern="/^(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?$/"
+                               ng-model="newStoreConfig.prestaurl"/>
+                    </div>
+                    <p ng-show="(submitted && prestaForm.prestaurl.$invalid) || prestaForm.prestaurl.$invalid && !prestaForm.prestaurl.$pristine" class="help-block">URL is required. Ex: myprestashop.com</p>
+                </div>
+                <div class="form-group required" ng-class="{ 'has-error' : (submitted && prestaForm.prestawstoken.$invalid) || prestaForm.prestawstoken.$invalid && !prestaForm.prestawstoken.$pristine}">
+                    <label for="prestawstoken">PrestaShop Web Service token</label>
+                    <input type="text" class="form-control" name="prestawstoken" id="prestawstoken" ng-model="newStoreConfig.prestawstoken" required=""/>
+                    <p ng-show="(submitted && prestaForm.prestawstoken.$invalid) || prestaForm.prestawstoken.$invalid && !prestaForm.prestawstoken.$pristine" class="help-block">Web service token is required. Please generate this token from the PrestaShop admin panel 'Web Services' view.</p>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 col-md-offset-2">
+                <button type="submit" class="btn custom-btn" ng-click="submitted=true">Validate</button>
+            </div>
+        </div>
+    </form>
+
+    <!--Form for Lightspeed view-->
+    <!--
+    <form ng-show="newStoreConfig.posSystem.name === 'lightspeed'" name="lightspeedForm" role="form" ng-submit="addNewStoreConfig(lightspeedForm.$valid)" novalidate>
+        <div class="row">
+            <div class="col-md-4 col-md-offset-2">
+                <div class="form-group" ng-class="{ 'has-error' : lightspeedForm.lsurl.$invalid && !lightspeedForm.lsurl.$pristine}">
+                    <label for="lsurl">LightSpeed URL</label>
+                    <input type="url" class="form-control" name="lsurl" id="lsurl" ng-model="newStoreConfig.lsurl" required=""/>
+                    <p ng-show="lightspeedForm.lsurl.$invalid && !lightspeedForm.lsurl.$pristine" class="help-block">Url is required</p>
+                </div>
+                <div class="form-group" ng-class="{ 'has-error' : lightspeedForm.lslicensekey.$invalid && !lightspeedForm.lslicensekey.$pristine}">
+                    <label for="lslicensekey">LightSpeed License Key</label>
+                    <input type="text" class="form-control" name="lslicensekey" id="lslicensekey" ng-model="newStoreConfig.lslicensekey" required=""/>
+                    <p ng-show="lightspeedForm.lslicensekey.$invalid && !lightspeedForm.lslicensekey.$pristine" class="help-block">License Key is required.</p>
+                </div>
+                <div class="form-group" ng-class="{ 'has-error' : lightspeedForm.lstaxrate.$invalid && !lightspeedForm.lstaxrate.$pristine}">
+                    <label for="lstaxrate">Tax Rate</label>
+                    <input type="number" class="form-control" name="lstaxrate" id="lstaxrate" ng-model="newStoreConfig.taxrate" required=""/>
+                    <p ng-show="lightspeedForm.lstaxrate.$invalid && !lightspeedForm.lstaxrate.$pristine" class="help-block">Tax Rate is required and should be in format(i.e, 0.4894)</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-1 col-md-offset-2">
+                <button type="button" class="btn custom-btn btn-default" ui-sref="onboarding.step0">Back</button>
+            </div>
+            <div class="col-md-3">
+                <div ng-show="newStoreConfig.posSystem">
+                    <button type="submit" class="btn custom-btn btn-default">Save</button>
+                </div>
+            </div>
+        </div>
+    </form>
+    -->
+
+    <!--Form for Intuit view-->
+    <!--
+    <form ng-show="newStoreConfig.posSystem.name === 'intuit'" name="intuitForm" role="form" ng-submit="addNewStoreConfig(intuitForm.$valid)" novalidate>
+
+        <div class="row">
+            <div class="col-md-4 col-md-offset-2">
+                <div class="form-group" ng-class="{ 'has-error' : intuitForm.intuiturl.$invalid && !intuitForm.intuiturl.$pristine}">
+                    <label for="intuiturl">Intuit URL</label>
+                    <input type="url" class="form-control" name="intuiturl" id="intuiturl" ng-model="newStoreConfig.intuiturl" required=""/>
+                    <p ng-show="intuitForm.intuiturl.$invalid && !intuitForm.intuiturl.$pristine" class="help-block">Url is required.</p>
+                </div>
+                <div class="form-group" ng-class="{ 'has-error' : intuitForm.intuitlicensekey.$invalid && !intuitForm.intuitlicensekey.$pristine}">
+                    <label for="intuitlicensekey">Intuit License Key</label>
+                    <input type="text" class="form-control" name="intuitlicensekey" id="intuitlicensekey" ng-model="newStoreConfig.intuitlicensekey" required=""/>
+                    <p ng-show="intuitForm.intuitlicensekey.$invalid && !intuitForm.intuitlicensekey.$pristine" class="help-block">License Key is required.</p>
+                </div>
+                <div class="form-group" ng-class="{ 'has-error' : intuitForm.intuittaxrate.$invalid && !intuitForm.intuittaxrate.$pristine}">
+                    <label for="intuittaxrate">Tax Rate</label>
+                    <input type="number" class="form-control" name="intuittaxrate" id="intuittaxrate" ng-model="newStoreConfig.taxrate" required=""/>
+                    <p ng-show="intuitForm.intuittaxrate.$invalid && !intuitForm.intuittaxrate.$pristine" class="help-block">Tax Rate is required and should be in format(i.e, 0.4894)</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-1 col-md-offset-2">
+                <button type="button" class="btn custom-btn btn-default" ui-sref="onboarding.step0">Back</button>
+            </div>
+            <div class="col-md-3">
+                <div ng-show="newStoreConfig.posSystem">
+                    <button type="submit" class="btn custom-btn btn-default">Save</button>
+                </div>
+            </div>
+        </div>
+    </form>
+    -->
+
+</div>

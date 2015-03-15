@@ -1,0 +1,58 @@
+
+<div class="row">
+
+    <div class="col-sm-3">
+        <div ng-include src="'views/sidemenu.html'"></div>
+    </div>
+
+    <div class="col-xs-9">
+        <div class="jumbotron" cg-busy="myPromise">
+
+            <alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)">
+                {{alert.msg}}
+                <div style="float: right">({{countdownInMilliSeconds/1000}})</div>
+            </alert>
+
+            <!--admins may need to choose between multiple chains-->
+            <div class="btn-group" ng-show="storeConfigs.length>1">
+                <button ng-repeat="myStoreConfig in storeConfigs"
+                        type="button" class="btn custom-btn btn-primary"
+                        ng-model="selected.storeConfig"
+                        btn-radio="myStoreConfig.objectId">
+                    {{myStoreConfig.name || myStoreConfig.objectId}}
+                </button>
+                <p><i><b>Admins <u>CAN</u> use this page to manage multiple chains...</b></i></p>
+            </div>
+
+            <div ng-show="storeConfigs.length > 0">
+                <div ng-repeat="storeConfig in storeConfigs">
+                    <div ng-show="storeConfig.objectId === storeConfigsById[selected.storeConfig].objectId">
+                        <h4 class="h4-title">Current Locations</h4>
+                        <div ng-repeat="store in storeConfig.storeModels track by $index">
+                            <div class="list-group">
+                                <!--<a ng-click="drillDown(storeConfig, store)" class="list-group-item">-->
+                                <a class="list-group-item">
+                                    <div class="media">
+                                        <div class="pull-left">
+                                            <img class="media-object" src="images/Regular_symbol_small.jpg" alt="ShoppinPal Logo">
+                                        </div>
+                                        <div class="media-body">
+                                            <h3>{{store.name}}</h3>
+                                            <h4>{{store.addressLine1}} {{store.addressLine2}} {{store.city}} {{store.country}}</h4>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        <button type="button" id="autoAdd" name="autoAdd"
+                                class="btn custom-btn btn-sm dropdown-toggle"
+                                ng-click="autoAddRemainingStores(storeConfig)">
+                            Auto-add from {{storeConfig.posVendor}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

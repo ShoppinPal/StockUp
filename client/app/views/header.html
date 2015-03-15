@@ -1,0 +1,53 @@
+<!--This file is used for displaying different images of Shoppinpal Logo during Run time-->
+<header class="row">
+    <div class="col-md-3 col-sm-4">
+        <a href="#">
+            <img class="img-responsive" src="images/splogo.jpg" alt="ShoppinPal Logo">
+        </a>
+    </div>
+    <div class="col-md-4">
+        <h2>{{heading}}</h2>
+    </div>
+    <div class="col-md-5">
+        <div class="row">
+            <form name="loginForm" ng-if="!('onboarding.step0' | isState) && !('onboarding.addStoreConfig' | isState)" ng-submit="loginForm.$valid && login()" novalidate>
+                <div class="col-md-5">
+                    <div class="form-group required" ng-class="{ 'has-error' : (submit && loginForm.inputEmail.$invalid) || loginForm.inputEmail.$invalid && !loginForm.inputEmail.$pristine}">
+                        <label for="inputEmail">Email</label>
+                        <input type="email" class="form-control" name="inputEmail" id="inputEmail"
+                               placeholder="Email" required
+                               ng-model="credentials.username">
+                        <p name="emailError" ng-show="(submit && loginForm.inputEmail.$invalid) || loginForm.inputEmail.$invalid && !loginForm.inputEmail.$pristine" class="help-block">Email is required</p>
+                        <br/>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="div-tag form-group required" ng-class="{ 'has-error' : (submit && loginForm.inputPassword.$invalid) || loginForm.inputPassword.$invalid && !loginForm.inputPassword.$pristine}">
+                        <label for="inputPassword">Password</label>
+                        <input type="password" class="form-control" name="inputPassword" id="inputPassword"
+                               placeholder="Password" required
+                               ng-model="credentials.password">
+                        <a ng-click="resetPassword()" style="font-size: 12px">Forgot Password?</a>
+                        <p name="passwordError" ng-show="(submit && loginForm.inputPassword.$invalid) || loginForm.inputPassword.$invalid && !loginForm.inputPassword.$pristine" class="help-block">Password is required</p>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <br/>
+                        <button type="submit" class="btn custom-btn" ng-click="submit=true">Login</button>
+                    </div>
+                </div>
+            </form>
+            <!--html code for logout for future use-->
+            <form name="logoutForm" ng-if="('onboarding.step0' | isState) || ('onboarding.addStoreConfig' | isState)">
+                <div class="col-md-3 col-md-offset-9">
+                    <div class="form-group">
+                        <br/>
+                        <button type="button" class="btn custom-btn" ui-sref="logout">Logout</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</header>
+<hr>
