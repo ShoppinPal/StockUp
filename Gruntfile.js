@@ -360,7 +360,11 @@ module.exports = function (grunt) {
           subdomain: grunt.option('subdomain') || 'pleaseSetSubDomain',
           port: '<%= connect.options.port %>',
           open: true,
-          keepalive: false
+          keepalive: false,
+          handleTunnelSuccess: function(tunnel) {
+            grunt.config('buildProperties.site.baseUrl', tunnel.url);
+            grunt.log.ok('baseUrl updated');
+          }
         }
       }
     }
