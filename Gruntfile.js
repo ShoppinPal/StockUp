@@ -440,7 +440,7 @@ module.exports = function (grunt) {
     grunt.option('environment', env);
     grunt.task.run([
       'jshint',
-      'loadConfig:' + env,
+      //'loadConfig:' + env, // if called from grunt:server, previous work by tasks such as localtunnel:<env> and env:<env> will get nuked
       'loopback_sdk_angular',
       'clean:dist',
       'useminPrepare',
