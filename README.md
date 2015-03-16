@@ -26,7 +26,8 @@ In order to hack on this you'll need a few things installed and setup first:
 cd ~/dev/
 git clone https://github.com/ShoppinPal/warehouse.git warehouse
 cd warehouse
-nvm use v0.10.36
+nvm install v0.10.37
+nvm use v0.10.37
 gem install compass --no-ri --no-rdoc
 npm install -g yo
 npm install
