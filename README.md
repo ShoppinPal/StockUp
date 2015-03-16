@@ -30,6 +30,7 @@ nvm use v0.10.36
 gem install compass --no-ri --no-rdoc
 npm install -g yo
 npm install
+npm install -g bower
 bower install
 npm install grunt-contrib-compass --save-dev
 ```
@@ -43,12 +44,6 @@ npm install grunt-contrib-compass --save-dev
   "aclErrorStatus": 403,
   "site": {
     "baseUrl": "http://localhost:3000"
-  },
-  "vend":{
-    "auth_endpoint":"https://secure.vendhq.com/connect",
-    "token_service":".vendhq.com/api/1.0/token",
-    "client_id":"<fill it in>",
-    "client_secret":"<fill it in>"
   },
   "logging": {
     "console": true,
