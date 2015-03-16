@@ -360,8 +360,7 @@ module.exports = function (grunt) {
           subdomain: grunt.option('subdomain') || 'pleaseSetSubDomain',
           port: '<%= connect.options.port %>',
           open: true,
-          keepalive: false,
-          parseAppId: '<%= buildProperties.parse.appId %>'
+          keepalive: false
         }
       }
     }
