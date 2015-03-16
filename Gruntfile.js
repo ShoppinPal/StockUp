@@ -267,19 +267,10 @@ module.exports = function (grunt) {
       }
     },
     concurrent: {
-      server: {
+      development: {
         tasks: [
           'compass:server',
           'copy:styles'
-        ]
-      },
-      dist:{
-        tasks: [
-          'compass:dist',
-          'copy:styles',
-          'imagemin',
-          'svgmin',
-          'htmlmin'
         ]
       }
     },
@@ -363,7 +354,7 @@ module.exports = function (grunt) {
           keepalive: false,
           handleTunnelSuccess: function(tunnel) {
             grunt.config('buildProperties.site.baseUrl', tunnel.url);
-            grunt.log.ok('baseUrl updated');
+            grunt.log.ok('updated buildProperties.site.baseUrl: ' + grunt.config('buildProperties.site.baseUrl'));
           }
         }
       }
@@ -425,7 +416,7 @@ module.exports = function (grunt) {
         'loopback_sdk_angular',
         'localtunnel:' + env,
         'clean:server',
-        'concurrent:server',
+        'concurrent:' + env,
         'env:' + env,
         'build:' + env,
         'run:' + env,
@@ -444,7 +435,7 @@ module.exports = function (grunt) {
       'loopback_sdk_angular',
       'clean:dist',
       'useminPrepare',
-      'concurrent:dist',
+      'concurrent:' + env,
       'concat',
       'copy:dist',
       'cdnify',
