@@ -67,8 +67,8 @@ angular.module('shoppinpal-utils',['ngResource', 'ngStorage', 'geocoder', 'shopp
                   console.log(controllerName + ' 2) added all of the storeConfigs (for current user) to the $scope');
                   //console.log('storeConfigs:\n' + JSON.stringify(storeConfigs, null, 2));
                   if (storeConfigs.length === 0) {
-                    console.log(controllerName + ' No StoreConfigModels found! Redirecting to onboarding.step0');
-                    $aState.go('onboarding.step0');
+                    console.log(controllerName + ' No StoreConfigModels found! Redirecting to onboarding');
+                    $aState.go('onboarding');
                     //return Parse.Promise.error(''); not returning a promise should break the chain and have the intended effect?
                   }
                   else {

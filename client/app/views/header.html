@@ -13,7 +13,7 @@
     </div>
     <div class="col-md-5">
         <div class="row">
-            <form name="loginForm" ng-if="!('onboarding.step0' | isState) && !('onboarding.addStoreConfig' | isState)" ng-submit="loginForm.$valid && login()" novalidate>
+            <form name="loginForm" ng-if="!('onboarding' | isState)" ng-submit="loginForm.$valid && login()" novalidate>
                 <div class="col-md-5">
                     <div class="form-group required" ng-class="{ 'has-error' : (submit && loginForm.inputEmail.$invalid) || loginForm.inputEmail.$invalid && !loginForm.inputEmail.$pristine}">
                         <label for="inputEmail">Email</label>
@@ -42,7 +42,7 @@
                 </div>
             </form>
             <!--html code for logout for future use-->
-            <form name="logoutForm" ng-if="('onboarding.step0' | isState) || ('onboarding.addStoreConfig' | isState)">
+            <form name="logoutForm" ng-if="('onboarding' | isState)">
                 <div class="col-md-3 col-md-offset-9">
                     <div class="form-group">
                         <br/>

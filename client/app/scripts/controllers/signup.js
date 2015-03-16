@@ -33,12 +33,12 @@ angular.module('ShoppinPalApp')
               .$promise.then(function(accessToken){
                 console.log('accessToken', accessToken);
                 $sessionStorage.currentUser = accessToken;
-                $state.go('onboarding.step0');
+                $state.go('onboarding');
                 // TODO: implement promoteToRetailer in loopback?
                 /*return Users.promoteToRetailer({'userId':user.objectId})
                  .$promise.then(function(role){
                  console.log('applied role: ' + role.name);
-                 $state.go('onboarding.step0');
+                 $state.go('onboarding');
                  },
                  function(error){
                  console.log('Error:'+ error);

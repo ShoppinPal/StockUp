@@ -39,19 +39,8 @@ angular.module('ShoppinPalApp', [
         controller: 'LogoutCtrl'
       })
       .state('onboarding', {
-        abstract: true,
-        url: '/onboarding',
-        template: '<div><div ui-view></div></div>',
-        authenticate: true
-      })
-      .state('onboarding.step0', {
-        url: '/step0',
-        templateUrl: '../views/onboarding_step0.html',
-        authenticate: true
-      })
-      .state('onboarding.addStoreConfig', {
-        url: '/addStoreConfig/:storeConfigId/:pos',
-        templateUrl: '../views/onboarding_addStoreConfig.html',
+        url: '/onboarding/:storeConfigId/:pos',
+        templateUrl: '../views/onboarding.html',
         controller: 'OnboardingCtrl', // without this line, $stateParams does not have storeConfigId set!!!
                                       // with it, the controller gets loaded twice ... huh?
                                       // so you will see the logs from OnboardingCtrl twice!

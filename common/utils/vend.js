@@ -130,7 +130,7 @@ var token = function(code, domainPrefix, state, /*baseUrl,*/ restApiRoot, vendCo
     })
     .then(function(storeConfigObject){
       var redirectToThisUrl = process.env['site:baseUrl'] +
-        '/#/onboarding/addStoreConfig' +
+        '/#/onboarding' +
         '/' + storeConfigObject.objectId +
         '/vend';
       log.debug('redirecting to: ' + redirectToThisUrl);

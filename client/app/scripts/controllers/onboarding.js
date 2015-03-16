@@ -84,7 +84,7 @@ angular.module('ShoppinPalApp')
       };
 
       // ====================================================
-      // Data Binding code for onboarding_addStoreConfig.html view
+      // Data Binding code for onboarding.html view
       // ====================================================
 
       $scope.addNewStoreConfig = function(){
