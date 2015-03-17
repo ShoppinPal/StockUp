@@ -415,11 +415,11 @@ module.exports = function (grunt) {
       return grunt.task.run([
         'jshint',
         'loadConfig:' + env,
-        'loopback_sdk_angular',
+        'loopback_sdk_angular', // TODO: this is eventually called by `build` task too, remove from here?
         'localtunnel:' + env,
         'clean:server',
         'concurrent:' + env,
-        'env:' + env,
+        'env:' + env, // TODO: move this to be right after `localtunnel` task? or will it exacerbate the race condition?
         'build:' + env,
         'run:' + env,
         'watch'
