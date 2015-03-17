@@ -1,6 +1,6 @@
 (function(window, angular, undefined) {'use strict';
 
-var urlBase = "https://mppulkit8.localtunnel.me/api";
+var urlBase = "/api";
 var authHeader = 'authorization';
 
 /**

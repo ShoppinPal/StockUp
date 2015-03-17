@@ -20,35 +20,40 @@ angular.module('ShoppinPalApp', [
     ,'sp-alerts'
     ,'uuid4'
   ])
-  .config(['$stateProvider', '$urlRouterProvider',function ($stateProvider, $urlRouterProvider) {
-    $stateProvider
-      .state('signup', {
-        url: '/signup',
-        templateUrl: 'views/signup.html',
-        controller: 'SignupCtrl',
-        authenticate: false
-      })
-      .state('mystores', {
-        url: '/mystores',
-        templateUrl: '../views/mystores.html',
-        controller: 'MyStoresCtrl',
-        authenticate: true
-      })
-      .state('logout', {
-        url: '/logout',
-        controller: 'LogoutCtrl'
-      })
-      .state('onboarding', {
-        url: '/onboarding/:storeConfigId/:pos',
-        templateUrl: '../views/onboarding.html',
-        controller: 'OnboardingCtrl', // without this line, $stateParams does not have storeConfigId set!!!
-                                      // with it, the controller gets loaded twice ... huh?
-                                      // so you will see the logs from OnboardingCtrl twice!
-        authenticate: true
-      });
 
-    $urlRouterProvider.otherwise('/signup');
-  }])
+  .config([
+    '$stateProvider', '$urlRouterProvider', 'LoopBackResourceProvider', 'baseUrl', 'loopbackApiRoot',
+    function ($stateProvider, $urlRouterProvider, LoopBackResourceProvider, baseUrl, loopbackApiRoot) {
+      $stateProvider
+        .state('signup', {
+          url: '/signup',
+          templateUrl: 'views/signup.html',
+          controller: 'SignupCtrl',
+          authenticate: false
+        })
+        .state('mystores', {
+          url: '/mystores',
+          templateUrl: '../views/mystores.html',
+          controller: 'MyStoresCtrl',
+          authenticate: true
+        })
+        .state('logout', {
+          url: '/logout',
+          controller: 'LogoutCtrl'
+        })
+        .state('onboarding', {
+          url: '/onboarding/:storeConfigId/:pos',
+          templateUrl: '../views/onboarding.html',
+          controller: 'OnboardingCtrl',
+          authenticate: true
+        });
+
+      $urlRouterProvider.otherwise('/signup');
+
+      // Configure backend URL
+      LoopBackResourceProvider.setUrlBase(baseUrl + loopbackApiRoot);
+    }
+  ])
 
   .run(['$rootScope', '$sessionStorage', '$state', '$timeout', '$interval',
     function($rootScope, $sessionStorage, $state, $timeout, $interval){

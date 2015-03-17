@@ -27,8 +27,7 @@ module.exports = function (grunt) {
         options: {
           input: './server/server.js',
           output: './client/app/scripts/shoppinpal-loopback.js',
-          ngModuleName: 'shoppinpal-loopback',
-          apiUrl: 'https://' + grunt.option('subdomain') + '.localtunnel.me' + '<%= buildProperties.restApiRoot %>'
+          ngModuleName: 'shoppinpal-loopback'
         }
       }
     },
@@ -330,9 +329,12 @@ module.exports = function (grunt) {
           patterns: [
             {
               json: {
+                apiKey: '<%= buildProperties.prestashop.apiKey %>',
+                baseUrl: '<%= buildProperties.site.baseUrl %>',
+                loopbackApiRoot: '<%= buildProperties.restApiRoot %>',
+                proxyUrl: '<%= buildProperties.site.proxyUrl %>',
                 vendAuthEndpoint: '<%= buildProperties.vend.auth_endpoint %>',
-                vendClientId: '<%= buildProperties.vend.client_id %>',
-                baseUrl: '<%= buildProperties.site.baseUrl %>'
+                vendClientId: '<%= buildProperties.vend.client_id %>'
               }
             }
           ]
