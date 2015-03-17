@@ -44,11 +44,15 @@ npm install grunt-contrib-compass --save-dev
   "port": 3000,
   "aclErrorStatus": 403,
   "site": {
-    "baseUrl": "http://localhost:3000"
+    "baseUrl": "http://localhost:3000",
+    "proxyUrl": ""
   },
   "logging": {
     "console": true,
     "file": false
+  },
+  "prestashop":{
+    "apiKey":""
   },
   "vend":{
     "auth_endpoint":"https://secure.vendhq.com/connect",
