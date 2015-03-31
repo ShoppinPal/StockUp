@@ -71,8 +71,20 @@ git clone https://github.com/ShoppinPal/vend-nodejs-sdk.git vend-nodejs-sdk
 cd vend-nodejs-sdk
 npm install
 npm link
+```
+
+```
+cd ~/dev/
+git clone https://github.com/strongloop-community/loopback-connector-elastic-search.git loopback-connector-elastic-search
+cd loopback-connector-elastic-search
+npm install
+npm link
+```
+
+```
 cd ~/dev/warehouse/
 npm link vend-nodejs-sdk
+npm link loopback-connector-es
 ```
 
 #### Testing
