@@ -53,6 +53,31 @@
             "type": "date"
           }
         }
+      },
+      {
+        "name": "GlobalConfigModel",
+        "properties": {
+          "objectId": {
+            "type": "string",
+            "index" : "not_analyzed"
+          },
+          "vendClientId": {
+            "type": "string",
+            "index" : "not_analyzed"
+          },
+          "vendClientSecret": {
+            "type": "string",
+            "index" : "not_analyzed"
+          },
+          "vendTokenService": {
+            "type": "string",
+            "index" : "not_analyzed"
+          },
+          "userModelToGlobalConfigModelId": {
+            "type": "string",
+            "index" : "not_analyzed"
+          }
+        }
       }
     ]
   }
