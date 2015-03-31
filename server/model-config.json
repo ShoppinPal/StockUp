@@ -35,7 +35,7 @@
     "public": false
   },
   "UserModel": {
-    "dataSource": "db"
+    "dataSource": "elasticsearch"
   },
   "TeamModel": {
     "dataSource": "db",
