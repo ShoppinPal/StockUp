@@ -21,6 +21,7 @@
     "serve-favicon": "^2.0.1",
     "supertest-as-promised": "2.0.1",
     "underscore": "^1.7.0",
+    "vend-nodejs-sdk": "git://github.com/shoppinpal/vend-nodejs-sdk",
     "winston": "^0.8.3"
   },
   "optionalDependencies": {

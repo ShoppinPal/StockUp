@@ -4,7 +4,7 @@
   "idInjection": false,
   "properties": {
     "objectId": {
-      "type": "number",
+      "type": "string",
       "id": true,
       "generated": true
     },

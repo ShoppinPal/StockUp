@@ -46,7 +46,7 @@
     "public": true
   },
   "StoreConfigModel": {
-    "dataSource": "db",
+    "dataSource": "elasticsearch",
     "public": true
   },
   "StoreModel": {
