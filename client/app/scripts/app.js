@@ -46,9 +46,21 @@ angular.module('ShoppinPalApp', [
           templateUrl: '../views/onboarding.html',
           controller: 'OnboardingCtrl',
           authenticate: true
+        })
+        .state('login', {
+          url: '/login',
+          templateUrl: '../views/login.html',
+          controller: 'LoginCtrl',
+          authenticate: false
+        })
+        .state('/select-store', {
+          url: '/select-store',
+          templateUrl: '../views/select-store.html',
+          controller: 'SelectStoreCtrl',
+          authenticate: false
         });
 
-      $urlRouterProvider.otherwise('/signup');
+      $urlRouterProvider.otherwise('/login');
 
       // Configure backend URL
       LoopBackResourceProvider.setUrlBase(baseUrl + loopbackApiRoot);

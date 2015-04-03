@@ -1,0 +1,57 @@
+ <div class="row">
+      <div class="col-sm-12 col-md-12">
+        <!-- Select store header -->
+          <div class="select-store-header">
+              <div class="row">
+                  <div class="col-md-5 col-sm-5 col-xs-12"><img src="images/img_store_logo.jpg" alt="Shopping Pal"></div>
+                  <div class="col-md-7 col-sm-7 col-xs-12"> 
+                    <div class="report-manager-text">You are logged in as a <span><a href="#">Store Manager/WH/SR</a>&nbsp;&nbsp; </span>|&nbsp;&nbsp;<a href="#" class="font">Logout </a></div>&nbsp;&nbsp;
+                    <div class="inline"><button type="submit" class="btn btn-primary" ng-click="showCompletedReport()">Show Completed</button>
+                    <button type="submit" class="btn btn-success">Submit To Warehouse</button></div>
+                  </div>
+              </div>
+          </div>
+          <!-- Report Manager page content -->
+          <div class="report-manager-container">
+              <div>
+                <table class="table table-responsive">
+                    <thead class="table-header">
+                        <tr>
+                            <th>No</th>
+                            <th>SKU</th>
+                            <th>Name</th>
+                            <th>O.H.<br> Qty</th>
+                            <th>D.S.<br>Level</th>
+                            <th>O.<br>Qty</th>
+                            <th>JUMPTO</th>
+                        </tr>
+                    </thead>
+                    <tbody ng-repeat="storereport in storesReport | orderBy:'type'| groupBy: 'type'">
+                      <tr>
+                        <td id="jumpto{{storereport.type}}" colspan="8"><span class="table-heading-font" ng-show="storereport.group_by_CHANGED">{{storereport.type}}</span></td>
+                      </tr>
+                      <tr ng-hide="$index==selectedStore" ng-swipe-right="deleteStore(storereport)" ng-swipe-left="editStore($index)"
+                      ng-class="{changestorebgcolor: $index==selectedStore}">
+                        <td><strong>{{$index+1}}</strong></td>
+                        <td>{{storereport.sku}}</td>
+                        <td>{{storereport.name}}</td>
+                        <td>{{storereport.quantityinhand}}</td>
+                        <td>{{storereport.desiredStockLevel}}</td>
+                        <td>{{storereport.orderqty}}</td>
+                      </tr>
+                      <tr>
+                       <tr ng-show="$index==selectedStore">
+                       <td>Desired stock level:<input type="text" value="{{selectedStore}}" /></td><td>Order Qty:<input type="text" value="{{storereport.orderqty}}"/></td><td><button>ADD COMMENT</button></td></tr>
+                      </tr>
+                    </tbody>
+                </table> 
+              </div> 
+
+               
+                <div class="content">
+                    <ul ng-repeat="value in alphabets track by $index">
+                      <li><span><a href="" ng-click="gotoDepartment(value)">{{value}}</a></span></li>
+                    </ul>
+                </div>
+              </div>
+          </div>

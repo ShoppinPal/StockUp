@@ -1,0 +1,21 @@
+@media (min-width: 768px) and (max-width: 991px) { 
+	
+	
+}
+
+@media (max-width: 768px) { 
+	
+}
+
+@media (max-width: 767px) {
+	.panel{
+		padding: 20px 20px 12px;
+    	width: 280px;
+	}
+	.log-in-text{
+		text-align: left;
+    }
+    .btn-align{
+		text-align: left;
+	}
+}
