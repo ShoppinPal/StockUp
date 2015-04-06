@@ -5,6 +5,7 @@ angular.module('ShoppinPalApp', [
     ,'ngCookies'
     ,'ngResource'
     ,'ngSanitize'
+    ,'ngTouch'
     ,'ui.router'
     ,'geocoder'
     ,'google-maps'
@@ -49,14 +50,20 @@ angular.module('ShoppinPalApp', [
         })
         .state('login', {
           url: '/login',
-          templateUrl: '../views/login.html',
+          templateUrl: 'views/login.html',
           controller: 'LoginCtrl',
           authenticate: false
         })
-        .state('/select-store', {
-          url: '/select-store',
-          templateUrl: '../views/select-store.html',
+        .state('selectStore', {
+          url: '/selectStore',
+          templateUrl: 'views/selectStore.html',
           controller: 'SelectStoreCtrl',
+          authenticate: false
+        }) 
+        .state('store-report-manager', {
+          url: '/store-report-manager',
+          templateUrl: 'views/store-report-manager.html',
+          controller: 'StoreManagerCtrl',
           authenticate: false
         });
 

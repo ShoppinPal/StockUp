@@ -9,7 +9,7 @@
  */
 angular.module('ShoppinPalApp')
   .controller('LoginCtrl',['$scope','$state',
-    function ($scope,$state,$location) {
+    function ($scope, $state){
 
     $scope.userName ='';
     $scope.password ='';
@@ -17,8 +17,7 @@ angular.module('ShoppinPalApp')
     $scope.login = function () {
 
         // validate login and transition to select store page
-        $location.path('/select-store');
-        //$state.go('select-store');
+        $state.go('store-report-manager');
       };
 
   }

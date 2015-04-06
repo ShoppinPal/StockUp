@@ -15,7 +15,7 @@ angular.module('ShoppinPalApp')
     $scope.completedReports = [];
     $scope.alphabets = [];
     $scope.editStoreSwiped = false;
-  
+    $scope.showCommentText = false;
 
     /** @method editStore()
       * @param selecte_row
@@ -42,7 +42,7 @@ angular.module('ShoppinPalApp')
       * @param value
       * This method 
       */ 
-     $scope.gotoDepartment = function(value){
+    $scope.gotoDepartment = function(value){
         var jumpToHash = 'jumpto' + 'electronics';
         for (var i =0;i< $scope.storesReport.length; i++) {
              var type = $scope.storesReport[i].type,
@@ -59,19 +59,19 @@ angular.module('ShoppinPalApp')
 
                   $anchorScroll();
            }
-     };
+    };
 
      /** @method JumtoDepartment
        * This method will return avilable departments firstChar for jumpTo department functionality
        */
-     $scope.JumtoDepartment = function(){
+    $scope.JumtoDepartment = function(){
         for (var i =0;i< $scope.storesReport.length; i++) {
              var type = $scope.storesReport[i].type,
                  typefirstChar = type.slice(0, 1).toUpperCase();
                  $scope.alphabets.push(typefirstChar);
                  $.unique($scope.alphabets); // This method remove the duplicates from array
             }   
-     };
+    };
   
      /** @method showCompletedReport
        * This display completed report on screen
@@ -79,6 +79,33 @@ angular.module('ShoppinPalApp')
     $scope.showCompletedReport = function() {
          $scope.storesReport =  $scope.completedReports;
     }; 
+
+    /** @method decreaseQty
+      * @param storereport
+      * This method decreases the ordered quantity ,when user tap on '-'' sign
+      */
+    $scope.decreaseQty = function(storereport){
+      storereport.orderqty = parseInt(storereport.orderqty); // parse it from string to integer
+      storereport.orderqty -= 1;
+
+    };
+
+    /** @method increaseQty
+      * @param storereport
+      * This method increase the ordered quantity ,when user tap on '+' sign
+      */
+    $scope.increaseQty = function(storereport) {
+      storereport.orderqty = parseInt(storereport.orderqty);
+      storereport.orderqty += 1;
+    };
+
+    /****/
+    $scope.showComment = function (comments) {
+      $scope.showCommentText = true;
+      if ($scope.showCommentText && comments != undefined) {
+          $scope.showCommentText = false;
+      }
+    };
 
     /** @method viewContentLoaded
       * This method will load the storesReport from api on view load

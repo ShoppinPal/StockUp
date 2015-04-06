@@ -1,57 +1,99 @@
- <div class="row">
+<div class="container">
+    <div class="row">
       <div class="col-sm-12 col-md-12">
         <!-- Select store header -->
-          <div class="select-store-header">
+          <header class="header">
               <div class="row">
-                  <div class="col-md-5 col-sm-5 col-xs-12"><img src="images/img_store_logo.jpg" alt="Shopping Pal"></div>
-                  <div class="col-md-7 col-sm-7 col-xs-12"> 
-                    <div class="report-manager-text">You are logged in as a <span><a href="#">Store Manager/WH/SR</a>&nbsp;&nbsp; </span>|&nbsp;&nbsp;<a href="#" class="font">Logout </a></div>&nbsp;&nbsp;
-                    <div class="inline"><button type="submit" class="btn btn-primary" ng-click="showCompletedReport()">Show Completed</button>
-                    <button type="submit" class="btn btn-success">Submit To Warehouse</button></div>
+                  <div class="col-md-5 col-sm-3 col-xs-12"><div class="logo">Glenstone</div></div>
+                  <div class="col-md-7 col-sm-9 col-xs-12"> 
+                    <div class="log-in-text">You are logged in as a <span><a href="#">Store Manager/WH/SR</a>&nbsp;&nbsp; </span>|&nbsp;&nbsp;<a href="#" class="logout-text">LOGOUT</a></div>
+                    <div class="btn-align">
+                    <button type="submit" class="btn btn-primary button-large-blue" ng-click="showCompletedReport()">Show Completed</button>  
+                    <button type="submit" class="btn btn-primary button-large-green">Submit To Warehouse</button></div>
                   </div>
               </div>
-          </div>
+          </header>
           <!-- Report Manager page content -->
-          <div class="report-manager-container">
-              <div>
-                <table class="table table-responsive">
-                    <thead class="table-header">
-                        <tr>
-                            <th>No</th>
+          <div class="main-container">
+              <table class="table table-responsive store-table">
+                 <tr class="store-table-tr">
+                   <td>
+                     <table class="table table-responsive left-table">
+                       <thead>
+                         <tr>
+                            
                             <th>SKU</th>
                             <th>Name</th>
-                            <th>O.H.<br> Qty</th>
-                            <th>D.S.<br>Level</th>
-                            <th>O.<br>Qty</th>
-                            <th>JUMPTO</th>
-                        </tr>
-                    </thead>
-                    <tbody ng-repeat="storereport in storesReport | orderBy:'type'| groupBy: 'type'">
-                      <tr>
-                        <td id="jumpto{{storereport.type}}" colspan="8"><span class="table-heading-font" ng-show="storereport.group_by_CHANGED">{{storereport.type}}</span></td>
-                      </tr>
-                      <tr ng-hide="$index==selectedStore" ng-swipe-right="deleteStore(storereport)" ng-swipe-left="editStore($index)"
-                      ng-class="{changestorebgcolor: $index==selectedStore}">
-                        <td><strong>{{$index+1}}</strong></td>
-                        <td>{{storereport.sku}}</td>
-                        <td>{{storereport.name}}</td>
-                        <td>{{storereport.quantityinhand}}</td>
-                        <td>{{storereport.desiredStockLevel}}</td>
-                        <td>{{storereport.orderqty}}</td>
-                      </tr>
-                      <tr>
-                       <tr ng-show="$index==selectedStore">
-                       <td>Desired stock level:<input type="text" value="{{selectedStore}}" /></td><td>Order Qty:<input type="text" value="{{storereport.orderqty}}"/></td><td><button>ADD COMMENT</button></td></tr>
-                      </tr>
-                    </tbody>
-                </table> 
-              </div> 
+                            <th>O.H.<br/>QTY.</th>
+                            <th>D.S<br/>Level</th>
+                            <th>O.<br/>Qty.</th>
+                         </tr>
+                       </thead>
+                       <tbody ng-repeat="storereport in storesReport | orderBy:'type'| groupBy: 'type'">
+                         <tr class="inner-table-heading"><td colspan="6">
+                         <span class="table-heading-font" ng-show="storereport.group_by_CHANGED">{{storereport.type}}</span>
+                         </td></tr>
+                         <tr ng-hide="$index==selectedStore" ng-swipe-right="deleteStore(storereport)" ng-swipe-left="editStore($index)">
+                            <td>{{storereport.sku}}</td>
+                            <td>{{storereport.name}}</td>
+                            <td>{{storereport.quantityinhand}}</td>
+                            <td>{{storereport.desiredStockLevel}}</td>
+                            <td>{{storereport.orderqty}}</td>
+                          </tr>
+                          <tr ng-if="comments">
+                            <td colspan="8"><strong>Comments:</strong>{{comments}}</td>
+                          </tr>
 
-               
-                <div class="content">
-                    <ul ng-repeat="value in alphabets track by $index">
-                      <li><span><a href="" ng-click="gotoDepartment(value)">{{value}}</a></span></li>
-                    </ul>
-                </div>
-              </div>
-          </div>
+                          <!-- Edit store-report start -->
+                          <tr ng-show="$index==selectedStore" class="edit-row">
+                              <td colspan="6">
+                                  <div>
+                                    <div class="float-left number margin-right"><span>{{$index}}</span></div>
+                                    <div class="float-left column-text margin-right">Desired<br/> Stock Level:</div>
+                                    <div class="float-left margin-right">
+                                        <input type="text" class="form-control input-small" ng-model="storereport.desiredStockLevel">
+                                    </div>
+                                    <div class="float-left column-text margin-right">Order<br/> Qty:</div>
+                                    <div class="float-left margin-right-10px margin-top">
+                                       <span class="fa fa-plus-circle fa-lg edit-icon" ng-click="increaseQty(storereport)"></span>
+                                    </div>
+                                    <div class="float-left margin-right-10px">
+                                        <input type="text" class="form-control input-small" ng-model="storereport.orderqty">
+                                    </div>
+                                    <div class="float-left margin-right margin-top">
+                                        <span class="fa fa-minus-circle fa-lg edit-icon" ng-click="decreaseQty(storereport)"></span>
+                                    </div>
+                                    <div class="float-left margin-right margin-bottom20px">
+                                      <input type="button" class="btn btn-primary comment-btn" value="Add Comment" ng-click="showComment(comments)">
+                                    </div>
+                                    <div class="row">
+                                      <input type="text" class="form-control comment-input" placeholder="-- Add your Comments --" ng-show="showCommentText" ng-model="comments">
+                                    </div>
+                                  </div>
+                              </td>
+                          </tr>
+                          <!-- Edit store-report end -->
+
+                       </tbody>
+                     </table>
+                   </td>
+                   <td>
+                     <table class="table table-responsive right-table">
+                       <thead>
+                         <tr>
+                           <th>Jump <br/>To</th>
+                         </tr>
+                       </thead>
+                       <tbody ng-repeat="value in alphabets track by $index">
+                         <tr><td><a href="" ng-click="gotoDepartment(value)">{{value}}</a></td></tr>
+                       </tbody>
+                     </table>
+                   </td>
+                 </tr>
+              </table>
+           </div>
+      </div>
+          
+          
+      </div>
+    </div>
