@@ -30,9 +30,11 @@
                          </tr>
                        </thead>
                        <tbody ng-repeat="storereport in storesReport | orderBy:'type'| groupBy: 'type'">
-                         <tr class="inner-table-heading"><td colspan="6">
-                         <span class="table-heading-font" ng-show="storereport.group_by_CHANGED">{{storereport.type}}</span>
-                         </td></tr>
+                         <tr class="inner-table-heading">
+                             <td colspan="6" id="jumpto{{storereport.type}}">
+                             <span class="table-heading-font" ng-show="storereport.group_by_CHANGED">{{storereport.type}}</span>
+                             </td>
+                         </tr>
                          <tr ng-hide="$index==selectedStore" ng-swipe-right="deleteStore(storereport)" ng-swipe-left="editStore($index)">
                             <td>{{storereport.sku}}</td>
                             <td>{{storereport.name}}</td>
@@ -41,7 +43,10 @@
                             <td>{{storereport.orderqty}}</td>
                           </tr>
                           <tr ng-if="comments">
-                            <td colspan="8"><strong>Comments:</strong>{{comments}}</td>
+                            <td colspan="2">
+                                <span class="glyphicon glyphicon-comment"></span>&nbsp;&nbsp;
+                                <strong>Comments:</strong>{{comments}}
+                            </td>
                           </tr>
 
                           <!-- Edit store-report start -->
@@ -84,7 +89,7 @@
                            <th>Jump <br/>To</th>
                          </tr>
                        </thead>
-                       <tbody ng-repeat="value in alphabets track by $index">
+                       <tbody ng-repeat="value in alphabets | unique:'value'">
                          <tr><td><a href="" ng-click="gotoDepartment(value)">{{value}}</a></td></tr>
                        </tbody>
                      </table>
