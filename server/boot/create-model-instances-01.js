@@ -19,6 +19,7 @@ module.exports = function(app) {
   var GlobalConfigModel = app.models.GlobalConfigModel;
   var StoreConfig = app.models.StoreConfigModel;
   var Store = app.models.StoreModel;
+  var ReportModel = app.models.ReportModel;
 
   var Application = app.models.Application;
 
@@ -151,9 +152,40 @@ module.exports = function(app) {
                   UserModel.login(
                     {realm: 'portal', username: retailUser.username, password: 'merchant1'},
                     function(err, accessToken) {
-                      if (err) return debug('%j', err);
+                      if (err) {
+                        return debug('%j', err);
+                      }
                       debug(accessToken);
                       debug('logged in w/ ' + retailUser.username + ' and token ' + accessToken.id);
+
+                      // create a default/empty report for merchant1
+                      retailUser.reportModels.create(
+                        {
+                          id: 1,
+                          state: 'empty',
+                          outlet: {
+                            id: 'aea67e1a-b85c-11e2-a415-bc764e10976c',
+                            name: 'OKC'
+                          },
+                          supplier: {
+                            id: 'c364c506-f8f4-11e3-a0f5-b8ca3a64f8f4',
+                            name: 'FFCC'
+                          }
+                        }, // create
+                        function(err, reportModelInstance) {
+                          if (err) {
+                            return debug('%j', err);
+                          }
+                          //debug('created', JSON.stringify(reportModelInstance,null,2));
+
+                          ReportModel.findOne({}, function(err, reportModelInstance) {
+                            if (err) {
+                              return debug('%j', err);
+                            }
+                            debug('found a ReportModel entry: ' + JSON.stringify(reportModelInstance,null,2));
+                          });
+                        });
+
                     });
                 });
             });
