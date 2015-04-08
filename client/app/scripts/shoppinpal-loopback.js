@@ -2379,6 +2379,596 @@ module.factory(
 
 /**
  * @ngdoc object
+ * @name shoppinpal-loopback.ReportModel
+ * @header shoppinpal-loopback.ReportModel
+ * @object
+ *
+ * @description
+ *
+ * A $resource object for interacting with the `ReportModel` model.
+ *
+ * ## Example
+ *
+ * See
+ * {@link http://docs.angularjs.org/api/ngResource.$resource#example $resource}
+ * for an example of using this object.
+ *
+ */
+module.factory(
+  "ReportModel",
+  ['LoopBackResource', 'LoopBackAuth', '$injector', function(Resource, LoopBackAuth, $injector) {
+    var R = Resource(
+      urlBase + "/ReportModels/:id",
+      { 'id': '@id' },
+      {
+
+        // INTERNAL. Use ReportModel.userModel() instead.
+        "prototype$__get__userModel": {
+          url: urlBase + "/ReportModels/:id/userModel",
+          method: "GET"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.ReportModel#create
+         * @methodOf shoppinpal-loopback.ReportModel
+         *
+         * @description
+         *
+         * Create a new instance of the model and persist it into the data source
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *   This method does not accept any parameters.
+         *   Supply an empty object or omit this argument altogether.
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `ReportModel` object.)
+         * </em>
+         */
+        "create": {
+          url: urlBase + "/ReportModels",
+          method: "POST"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.ReportModel#upsert
+         * @methodOf shoppinpal-loopback.ReportModel
+         *
+         * @description
+         *
+         * Update an existing model instance or insert a new one into the data source
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *   This method does not accept any parameters.
+         *   Supply an empty object or omit this argument altogether.
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `ReportModel` object.)
+         * </em>
+         */
+        "upsert": {
+          url: urlBase + "/ReportModels",
+          method: "PUT"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.ReportModel#exists
+         * @methodOf shoppinpal-loopback.ReportModel
+         *
+         * @description
+         *
+         * Check whether a model instance exists in the data source
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - Model id
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * Data properties:
+         *
+         *  - `exists` – `{boolean=}` - 
+         */
+        "exists": {
+          url: urlBase + "/ReportModels/:id/exists",
+          method: "GET"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.ReportModel#findById
+         * @methodOf shoppinpal-loopback.ReportModel
+         *
+         * @description
+         *
+         * Find a model instance by id from the data source
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - Model id
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `ReportModel` object.)
+         * </em>
+         */
+        "findById": {
+          url: urlBase + "/ReportModels/:id",
+          method: "GET"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.ReportModel#find
+         * @methodOf shoppinpal-loopback.ReportModel
+         *
+         * @description
+         *
+         * Find all instances of the model matched by filter from the data source
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `filter` – `{object=}` - Filter defining fields, where, orderBy, offset, and limit
+         *
+         * @param {function(Array.<Object>,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Array.<Object>} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `ReportModel` object.)
+         * </em>
+         */
+        "find": {
+          isArray: true,
+          url: urlBase + "/ReportModels",
+          method: "GET"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.ReportModel#findOne
+         * @methodOf shoppinpal-loopback.ReportModel
+         *
+         * @description
+         *
+         * Find first instance of the model matched by filter from the data source
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `filter` – `{object=}` - Filter defining fields, where, orderBy, offset, and limit
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `ReportModel` object.)
+         * </em>
+         */
+        "findOne": {
+          url: urlBase + "/ReportModels/findOne",
+          method: "GET"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.ReportModel#updateAll
+         * @methodOf shoppinpal-loopback.ReportModel
+         *
+         * @description
+         *
+         * Update instances of the model matched by where from the data source
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `where` – `{object=}` - Criteria to match model instances
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
+        "updateAll": {
+          url: urlBase + "/ReportModels/update",
+          method: "POST"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.ReportModel#deleteById
+         * @methodOf shoppinpal-loopback.ReportModel
+         *
+         * @description
+         *
+         * Delete a model instance by id from the data source
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - Model id
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
+        "deleteById": {
+          url: urlBase + "/ReportModels/:id",
+          method: "DELETE"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.ReportModel#count
+         * @methodOf shoppinpal-loopback.ReportModel
+         *
+         * @description
+         *
+         * Count instances of the model matched by where from the data source
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `where` – `{object=}` - Criteria to match model instances
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * Data properties:
+         *
+         *  - `count` – `{number=}` - 
+         */
+        "count": {
+          url: urlBase + "/ReportModels/count",
+          method: "GET"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.ReportModel#prototype$updateAttributes
+         * @methodOf shoppinpal-loopback.ReportModel
+         *
+         * @description
+         *
+         * Update attributes for a model instance and persist it into the data source
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - PersistedModel id
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `ReportModel` object.)
+         * </em>
+         */
+        "prototype$updateAttributes": {
+          url: urlBase + "/ReportModels/:id",
+          method: "PUT"
+        },
+
+        // INTERNAL. Use UserModel.reportModels.findById() instead.
+        "::findById::UserModel::reportModels": {
+          url: urlBase + "/UserModels/:id/reportModels/:fk",
+          method: "GET"
+        },
+
+        // INTERNAL. Use UserModel.reportModels.destroyById() instead.
+        "::destroyById::UserModel::reportModels": {
+          url: urlBase + "/UserModels/:id/reportModels/:fk",
+          method: "DELETE"
+        },
+
+        // INTERNAL. Use UserModel.reportModels.updateById() instead.
+        "::updateById::UserModel::reportModels": {
+          url: urlBase + "/UserModels/:id/reportModels/:fk",
+          method: "PUT"
+        },
+
+        // INTERNAL. Use UserModel.reportModels() instead.
+        "::get::UserModel::reportModels": {
+          isArray: true,
+          url: urlBase + "/UserModels/:id/reportModels",
+          method: "GET"
+        },
+
+        // INTERNAL. Use UserModel.reportModels.create() instead.
+        "::create::UserModel::reportModels": {
+          url: urlBase + "/UserModels/:id/reportModels",
+          method: "POST"
+        },
+
+        // INTERNAL. Use UserModel.reportModels.destroyAll() instead.
+        "::delete::UserModel::reportModels": {
+          url: urlBase + "/UserModels/:id/reportModels",
+          method: "DELETE"
+        },
+
+        // INTERNAL. Use UserModel.reportModels.count() instead.
+        "::count::UserModel::reportModels": {
+          url: urlBase + "/UserModels/:id/reportModels/count",
+          method: "GET"
+        },
+      }
+    );
+
+
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.ReportModel#updateOrCreate
+         * @methodOf shoppinpal-loopback.ReportModel
+         *
+         * @description
+         *
+         * Update an existing model instance or insert a new one into the data source
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *   This method does not accept any parameters.
+         *   Supply an empty object or omit this argument altogether.
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `ReportModel` object.)
+         * </em>
+         */
+        R["updateOrCreate"] = R["upsert"];
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.ReportModel#update
+         * @methodOf shoppinpal-loopback.ReportModel
+         *
+         * @description
+         *
+         * Update instances of the model matched by where from the data source
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `where` – `{object=}` - Criteria to match model instances
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
+        R["update"] = R["updateAll"];
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.ReportModel#destroyById
+         * @methodOf shoppinpal-loopback.ReportModel
+         *
+         * @description
+         *
+         * Delete a model instance by id from the data source
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - Model id
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
+        R["destroyById"] = R["deleteById"];
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.ReportModel#removeById
+         * @methodOf shoppinpal-loopback.ReportModel
+         *
+         * @description
+         *
+         * Delete a model instance by id from the data source
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - Model id
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
+        R["removeById"] = R["deleteById"];
+
+
+    /**
+    * @ngdoc property
+    * @name shoppinpal-loopback.ReportModel#modelName
+    * @propertyOf shoppinpal-loopback.ReportModel
+    * @description
+    * The name of the model represented by this $resource,
+    * i.e. `ReportModel`.
+    */
+    R.modelName = "ReportModel";
+
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.ReportModel#userModel
+         * @methodOf shoppinpal-loopback.ReportModel
+         *
+         * @description
+         *
+         * Fetches belongsTo relation userModel
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - PersistedModel id
+         *
+         *  - `refresh` – `{boolean=}` - 
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `UserModel` object.)
+         * </em>
+         */
+        R.userModel = function() {
+          var TargetResource = $injector.get("UserModel");
+          var action = TargetResource["::get::ReportModel::userModel"];
+          return action.apply(R, arguments);
+        };
+
+    return R;
+  }]);
+
+/**
+ * @ngdoc object
  * @name shoppinpal-loopback.UserModel
  * @header shoppinpal-loopback.UserModel
  * @object
@@ -2568,6 +3158,24 @@ module.factory(
           method: "PUT"
         },
 
+        // INTERNAL. Use UserModel.reportModels.findById() instead.
+        "prototype$__findById__reportModels": {
+          url: urlBase + "/UserModels/:id/reportModels/:fk",
+          method: "GET"
+        },
+
+        // INTERNAL. Use UserModel.reportModels.destroyById() instead.
+        "prototype$__destroyById__reportModels": {
+          url: urlBase + "/UserModels/:id/reportModels/:fk",
+          method: "DELETE"
+        },
+
+        // INTERNAL. Use UserModel.reportModels.updateById() instead.
+        "prototype$__updateById__reportModels": {
+          url: urlBase + "/UserModels/:id/reportModels/:fk",
+          method: "PUT"
+        },
+
         /**
          * @ngdoc method
          * @name shoppinpal-loopback.UserModel#prototype$__get__accessTokens
@@ -2752,6 +3360,31 @@ module.factory(
         // INTERNAL. Use UserModel.storeModels.count() instead.
         "prototype$__count__storeModels": {
           url: urlBase + "/UserModels/:id/storeModels/count",
+          method: "GET"
+        },
+
+        // INTERNAL. Use UserModel.reportModels() instead.
+        "prototype$__get__reportModels": {
+          isArray: true,
+          url: urlBase + "/UserModels/:id/reportModels",
+          method: "GET"
+        },
+
+        // INTERNAL. Use UserModel.reportModels.create() instead.
+        "prototype$__create__reportModels": {
+          url: urlBase + "/UserModels/:id/reportModels",
+          method: "POST"
+        },
+
+        // INTERNAL. Use UserModel.reportModels.destroyAll() instead.
+        "prototype$__delete__reportModels": {
+          url: urlBase + "/UserModels/:id/reportModels",
+          method: "DELETE"
+        },
+
+        // INTERNAL. Use UserModel.reportModels.count() instead.
+        "prototype$__count__reportModels": {
+          url: urlBase + "/UserModels/:id/reportModels/count",
           method: "GET"
         },
 
@@ -3278,6 +3911,12 @@ module.factory(
         // INTERNAL. Use StoreModel.userModel() instead.
         "::get::StoreModel::userModel": {
           url: urlBase + "/StoreModels/:id/userModel",
+          method: "GET"
+        },
+
+        // INTERNAL. Use ReportModel.userModel() instead.
+        "::get::ReportModel::userModel": {
+          url: urlBase + "/ReportModels/:id/userModel",
           method: "GET"
         },
 
@@ -4177,6 +4816,269 @@ module.factory(
         R.storeModels.updateById = function() {
           var TargetResource = $injector.get("StoreModel");
           var action = TargetResource["::updateById::UserModel::storeModels"];
+          return action.apply(R, arguments);
+        };
+    /**
+     * @ngdoc object
+     * @name lbServices.UserModel.reportModels
+     * @header lbServices.UserModel.reportModels
+     * @object
+     * @description
+     *
+     * The object `UserModel.reportModels` groups methods
+     * manipulating `ReportModel` instances related to `UserModel`.
+     *
+     * Call {@link lbServices.UserModel#reportModels UserModel.reportModels()}
+     * to query all related instances.
+     */
+
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel#reportModels
+         * @methodOf shoppinpal-loopback.UserModel
+         *
+         * @description
+         *
+         * Queries reportModels of UserModel.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `filter` – `{object=}` - 
+         *
+         * @param {function(Array.<Object>,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Array.<Object>} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `ReportModel` object.)
+         * </em>
+         */
+        R.reportModels = function() {
+          var TargetResource = $injector.get("ReportModel");
+          var action = TargetResource["::get::UserModel::reportModels"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel.reportModels#count
+         * @methodOf shoppinpal-loopback.UserModel.reportModels
+         *
+         * @description
+         *
+         * Counts reportModels of UserModel.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `where` – `{object=}` - Criteria to match model instances
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * Data properties:
+         *
+         *  - `count` – `{number=}` - 
+         */
+        R.reportModels.count = function() {
+          var TargetResource = $injector.get("ReportModel");
+          var action = TargetResource["::count::UserModel::reportModels"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel.reportModels#create
+         * @methodOf shoppinpal-loopback.UserModel.reportModels
+         *
+         * @description
+         *
+         * Creates a new instance in reportModels of this model.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `ReportModel` object.)
+         * </em>
+         */
+        R.reportModels.create = function() {
+          var TargetResource = $injector.get("ReportModel");
+          var action = TargetResource["::create::UserModel::reportModels"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel.reportModels#destroyAll
+         * @methodOf shoppinpal-loopback.UserModel.reportModels
+         *
+         * @description
+         *
+         * Deletes all reportModels of this model.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
+        R.reportModels.destroyAll = function() {
+          var TargetResource = $injector.get("ReportModel");
+          var action = TargetResource["::delete::UserModel::reportModels"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel.reportModels#destroyById
+         * @methodOf shoppinpal-loopback.UserModel.reportModels
+         *
+         * @description
+         *
+         * Delete a related item by id for reportModels
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `fk` – `{*}` - Foreign key for reportModels
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
+        R.reportModels.destroyById = function() {
+          var TargetResource = $injector.get("ReportModel");
+          var action = TargetResource["::destroyById::UserModel::reportModels"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel.reportModels#findById
+         * @methodOf shoppinpal-loopback.UserModel.reportModels
+         *
+         * @description
+         *
+         * Find a related item by id for reportModels
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `fk` – `{*}` - Foreign key for reportModels
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `ReportModel` object.)
+         * </em>
+         */
+        R.reportModels.findById = function() {
+          var TargetResource = $injector.get("ReportModel");
+          var action = TargetResource["::findById::UserModel::reportModels"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel.reportModels#updateById
+         * @methodOf shoppinpal-loopback.UserModel.reportModels
+         *
+         * @description
+         *
+         * Update a related item by id for reportModels
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `fk` – `{*}` - Foreign key for reportModels
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `ReportModel` object.)
+         * </em>
+         */
+        R.reportModels.updateById = function() {
+          var TargetResource = $injector.get("ReportModel");
+          var action = TargetResource["::updateById::UserModel::reportModels"];
           return action.apply(R, arguments);
         };
 

@@ -1,0 +1,94 @@
+<div class="container">
+    <div class="row">
+      <div class="col-sm-12 col-md-12">
+        <!-- Select store header -->
+          <header class="header">
+              <div class="row">
+                  <div class="col-md-5 col-sm-3 col-xs-12"><div class="logo">Glenstone</div></div>
+                  <div class="col-md-7 col-sm-9 col-xs-12"> 
+                    <div class="log-in-text">You are logged in as a <span><a href="#">Store Manager/WH/SR</a>&nbsp;&nbsp; </span>|&nbsp;&nbsp;<a href="#" class="logout-text">LOGOUT</a></div>
+                    <div class="btn-align">
+                    <button type="submit" class="btn btn-primary button-large-green">Submit To Store Receiver</button></div>
+                  </div>
+              </div>
+          </header>
+          <!-- Report Manager page content -->
+          <div class="main-container">
+            <table cellpadding="0" cellspacing="0" class="table table-responsive main-table" width="100%" border="0">
+				<tr class="table-header-main">
+					<td class="td-height v-align-middle" width="10%"><span class="td-padding">Jump <br/>To</span></td>
+					<td width="81%" rowspan="2" valign="top">
+						<table cellpadding="0" cellspacing="0" width="100%" class="table table-responsive left-table">
+						   <thead>
+							 <tr>
+								
+								<th>SKU</th>
+								<th>Name</th>
+								<th>O.H.<br/>QTY.</th>
+								<th>D.S<br/>Level</th>
+								<th>O.<br/>Qty.</th>
+							 </tr>
+						   </thead>
+						   <tbody  ng-repeat="storereport in storesReport | orderBy:'type'| groupBy: 'type'">
+							 <tr class="inner-table-heading"><td colspan="6">
+                   <span class="table-heading-font" ng-show="storereport.group_by_CHANGED">{{storereport.type}}</span></td>
+               </tr>
+							 <tr>
+								
+								<td>{{storereport.sku}}</td>
+								<td>{{storereport.name}}</td>
+								<td>{{storereport.quantityinhand}}</td>
+								<td>{{storereport.desiredStockLevel}}</td>
+								<td>{{storereport.orderqty}}</td>
+							 </tr>
+						   </tbody>
+						</table>    
+					</td>
+					<td class="td-height v-align-middle" width="9%"><strong>Box<br> Items</strong></td>
+				</tr>
+			  <tr class="tr-bg" valign="top">
+				<td>
+					<table cellpadding="0" cellspacing="0" class="table table-responsive right-table">
+					  <tbody ng-repeat="value in alphabets | unique:'value'">
+						<tr>
+						  <td><a href="" ng-click="gotoDepartment(value)">{{value}}</a></td>
+						</tr>
+					  </tbody>
+					</table>
+				</td>
+				<td class="v-align-middle" valign="middle">
+					<table class="table table-responsive right-table">
+						   <tbody>
+							<tr>
+								<td>
+								  <div> 
+									  <div class="main-box">
+										<span class="dropbox-qty">08</span>
+										<span class="folder-icon"></span>
+										<span class="dropbox-name">Box1</span>
+									  </div>
+									  <div class="main-box">
+										<div class="dropbox-qty">08</div>
+										<div><img src="images/img_open_folder.png"></div>
+										<div class="dropbox-name">Box1</div>
+									  </div>
+									  <div class="main-box">
+										<div class="dropbox-qty">08</div>
+										<div><img src="images/img_open_folder.png"></div>
+										<div class="dropbox-name">Box1</div>
+									  </div>
+									  <div><button type="submit" class="btn btn-primary add-btn">Add Box</button></div>
+								  </div>
+								 </td>
+							</tr>
+							</tbody>
+				    </table>    
+				</td>
+				</tr>
+              </table>
+            </div>
+        </div>
+          
+          
+    </div>
+</div>

@@ -15,7 +15,7 @@ angular.module('ShoppinPalApp')
     $scope.onSelectStore = function () {
             // alert("selected storename ==>"+store.storename);
             //  $location.path('/store-manager');
-            };
+    };
 
 
     $scope.$on('$viewContentLoaded', function() {

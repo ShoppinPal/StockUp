@@ -9,7 +9,7 @@
                     <div class="log-in-text">You are logged in as a <span><a href="#">Store Manager/WH/SR</a>&nbsp;&nbsp; </span>|&nbsp;&nbsp;<a href="#" class="logout-text">LOGOUT</a></div>
                     <div class="btn-align">
                     <button type="submit" class="btn btn-primary button-large-blue" ng-click="showCompletedReport()">Show Completed</button>  
-                    <button type="submit" class="btn btn-primary button-large-green">Submit To Warehouse</button></div>
+                    <button type="submit" class="btn btn-primary button-large-green" ng-click="submitToWarehouse()">Submit To Warehouse</button></div>
                   </div>
               </div>
           </header>
@@ -30,9 +30,10 @@
                          </tr>
                        </thead>
                        <tbody ng-repeat="storereport in storesReport | orderBy:'type'| groupBy: 'type'">
+                    
                          <tr class="inner-table-heading">
-                             <td colspan="6" id="jumpto{{storereport.type}}">
-                             <span class="table-heading-font" ng-show="storereport.group_by_CHANGED">{{storereport.type}}</span>
+                             <td colspan="6" id="jumpto{{storereport.type}}" ng-if="storereport.group_by_CHANGED">
+                             <span class="table-heading-font">{{storereport.type}}</span>
                              </td>
                          </tr>
                          <tr ng-hide="$index==selectedStore" ng-swipe-right="deleteStore(storereport)" ng-swipe-left="editStore($index)">
@@ -43,9 +44,15 @@
                             <td>{{storereport.orderqty}}</td>
                           </tr>
                           <tr ng-if="comments">
+<<<<<<< HEAD
                             <td colspan="5">
                                 <span class="fa fa-comment comment-icon"></span>&nbsp;&nbsp;
                                 <strong>Comments:</strong><span class="comment-span"> {{comments}}</span>
+=======
+                            <td colspan="2">
+                                <span class="glyphicon glyphicon-comment">&nbsp;&nbsp;</span>
+                                <strong>Comments:</strong>{{comments}}
+>>>>>>> 951b69ce169229f8dd52cb8138342aba6173498f
                             </td>
                           </tr>
 
@@ -53,7 +60,6 @@
                           <tr ng-show="$index==selectedStore" class="edit-row">
                               <td colspan="6">
                                   <div>
-                                    <div class="float-left number margin-right"><span>{{$index}}</span></div>
                                     <div class="float-left column-text margin-right">Desired<br/> Stock Level:</div>
                                     <div class="float-left margin-right">
                                         <input type="text" class="form-control input-small" ng-model="storereport.desiredStockLevel">
@@ -68,11 +74,8 @@
                                     <div class="float-left margin-right margin-top">
                                         <span class="fa fa-minus-circle fa-lg edit-icon" ng-click="decreaseQty(storereport)"></span>
                                     </div>
-                                    <div class="float-left margin-right margin-bottom20px">
-                                      <input type="button" class="btn btn-primary comment-btn" value="Add Comment" ng-click="showComment(comments)">
-                                    </div>
                                     <div class="row">
-                                      <input type="text" class="form-control comment-input" placeholder="-- Add your Comments --" ng-show="showCommentText" ng-model="comments">
+                                      <input type="text" class="form-control comment-input" placeholder="-- Add your Comments --" ng-model="comments">
                                     </div>
                                   </div>
                               </td>

@@ -26,12 +26,6 @@ angular.module('ShoppinPalApp', [
     '$stateProvider', '$urlRouterProvider', 'LoopBackResourceProvider', 'baseUrl', 'loopbackApiRoot',
     function ($stateProvider, $urlRouterProvider, LoopBackResourceProvider, baseUrl, loopbackApiRoot) {
       $stateProvider
-        .state('signup', {
-          url: '/signup',
-          templateUrl: 'views/signup.html',
-          controller: 'SignupCtrl',
-          authenticate: false
-        })
         .state('mystores', {
           url: '/mystores',
           templateUrl: '../views/mystores.html',
@@ -59,11 +53,17 @@ angular.module('ShoppinPalApp', [
           templateUrl: 'views/selectStore.html',
           controller: 'SelectStoreCtrl',
           authenticate: false
-        }) 
+        })
         .state('store-report-manager', {
           url: '/store-report-manager',
           templateUrl: 'views/store-report-manager.html',
           controller: 'StoreManagerCtrl',
+          authenticate: false
+        })
+         .state('warehouse-report', {
+          url: '/warehouse-report',
+          templateUrl: 'views/warehouse-report.html',
+          controller: 'WarehouseReportCtrl',
           authenticate: false
         });
 
@@ -79,7 +79,7 @@ angular.module('ShoppinPalApp', [
 
       $rootScope.$on('$stateChangeStart', function(event, toState){
         if(toState.authenticate && !$sessionStorage.currentUser) {
-          $state.go('signup');
+          $state.go('login');
           event.preventDefault();
         }
       });

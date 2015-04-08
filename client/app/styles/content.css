@@ -1,4 +1,4 @@
-@import url(http://fonts.googleapis.com/css?family=Lato);
+@import url(//fonts.googleapis.com/css?family=Lato);
 
 
 
@@ -408,8 +408,4 @@ input:focus{
 }
 .comment-label{
 	width: 90%;
-	padding: 10px;
-	margin: 20px;
-	border-radius: 5px;
-	color: #ffffff;
 }
