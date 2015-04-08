@@ -19,6 +19,11 @@
       "type": "hasMany",
       "model": "StoreModel",
       "foreignKey": "userModelToStoreModelId"
+    },
+    "reportModels": {
+      "type": "hasMany",
+      "model": "ReportModel",
+      "foreignKey": "userModelToReportModelId"
     }
   },
   "acls": [
