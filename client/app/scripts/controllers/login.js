@@ -30,7 +30,7 @@ angular.module('ShoppinPalApp')
             console.log('accessToken', accessToken);
             $sessionStorage.currentUser = accessToken;
             console.log('sessiontoken:', $sessionStorage.currentUser.id);
-            $state.go('store-report-manager');
+            $state.go('store-report-list');
           },
           function(error){
             console.log('login() failed');
