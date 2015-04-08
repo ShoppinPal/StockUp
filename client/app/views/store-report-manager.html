@@ -3,15 +3,18 @@
       <div class="col-sm-12 col-md-12">
         <!-- Select store header -->
           <header class="header">
-              <div class="row">
+				<div class="row">
                   <div class="col-md-5 col-sm-3 col-xs-12"><div class="logo">Glenstone</div></div>
                   <div class="col-md-7 col-sm-9 col-xs-12"> 
                     <div class="log-in-text">You are logged in as a <span><a href="#">Store Manager/WH/SR</a>&nbsp;&nbsp; </span>|&nbsp;&nbsp;<a href="#" class="logout-text">LOGOUT</a></div>
                     <div class="btn-align">
                     <button type="submit" class="btn btn-primary button-large-blue" ng-click="showCompletedReport()">Show Completed</button>  
-                    <button type="submit" class="btn btn-primary button-large-green" ng-click="submitToWarehouse()">Submit To Warehouse</button></div>
-                  </div>
-              </div>
+                    <button type="submit" class="btn btn-primary button-large-green" ng-click="submitToWarehouse()">{{submitToWarehouseButton}}</button></div>
+				  </div>
+				</div>
+				<div class="row">
+					<p>Note: Swipe left to re-edit or tap 'Submit' to send to the Warehouse</p>
+				</div>
           </header>
           <!-- Report Manager page content -->
           <div class="main-container">
@@ -44,15 +47,9 @@
                             <td>{{storereport.orderqty}}</td>
                           </tr>
                           <tr ng-if="comments">
-<<<<<<< HEAD
                             <td colspan="5">
                                 <span class="fa fa-comment comment-icon"></span>&nbsp;&nbsp;
                                 <strong>Comments:</strong><span class="comment-span"> {{comments}}</span>
-=======
-                            <td colspan="2">
-                                <span class="glyphicon glyphicon-comment">&nbsp;&nbsp;</span>
-                                <strong>Comments:</strong>{{comments}}
->>>>>>> 951b69ce169229f8dd52cb8138342aba6173498f
                             </td>
                           </tr>
 

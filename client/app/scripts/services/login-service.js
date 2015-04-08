@@ -23,7 +23,7 @@ angular.module('ShoppinPalApp')
          */
         getSelectStore : function () {
           return $http({
-            url: 'scripts/json/stores.json',
+            url: 'scripts/json/storesReport.json',
             method: 'GET'
           }).then(function (response) {
               return response;

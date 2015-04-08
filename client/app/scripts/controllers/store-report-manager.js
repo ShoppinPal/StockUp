@@ -14,6 +14,7 @@ angular.module('ShoppinPalApp')
     $scope.completedReports = [];
     $scope.alphabets = [];
     $scope.editVisible = false;
+    $scope.submitToWarehouseButton = "Submit To Warehouse";
 
     /** @method editStore()
      * @param selecte_row
@@ -76,6 +77,7 @@ angular.module('ShoppinPalApp')
      */
     $scope.showCompletedReport = function() {
         $scope.storesReport = $scope.completedReports;
+        $scope.submitToWarehouseButton = "Review & Submit";
     };
 
     /** @method submitToWarehouse
@@ -116,9 +118,10 @@ angular.module('ShoppinPalApp')
      * This method will load the storesReport from api on view load
      */
     $scope.$on('$viewContentLoaded', function() {
-        loginService.getSelectStore().then(function (response) {
-               // $scope.storesReport = response;
-                $scope.storesReport = response.data.storesReport;
+        //loginService.getSelectStore().then(function (response) {
+        loginService.getStoreReport().then(function (response) {
+                $scope.storesReport = response;
+                //$scope.storesReport = response.data.storesReport;
                 // $scope.storesReport = response;
                 $scope.JumtoDepartment();
         });

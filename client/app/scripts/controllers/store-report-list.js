@@ -8,7 +8,7 @@
  * Controller of the ShoppinPalApp
  */
 angular.module('ShoppinPalApp')
-  .controller('StoreReportListCtrl', function ($scope,$state) {
+  .controller('StoreReportListCtrl',['$scope','$state', function ($scope,$state) {
 
     $scope.reportList = ['GlenStone','Skelly','ParkWay','kellog'];
  
@@ -20,4 +20,5 @@ angular.module('ShoppinPalApp')
       $state.go('store-report-manager');
     };
 
-  });
+  }]
+  );
