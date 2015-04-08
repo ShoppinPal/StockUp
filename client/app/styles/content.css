@@ -67,12 +67,21 @@ h1{
 .container{
 	max-width: 1024px;
 }
+.table .table {
+    background-color: transparent;
+}
 .main-container{
 	max-width: 1024px;
 	margin: 0px auto;
 	border-left:1px solid #d1d1d1;
 	border-right:1px solid #d1d1d1;
 	border-bottom: 1px solid #d1d1d1; 
+}
+.main-container table{
+	font-size:14px;
+}
+.table > tbody + tbody {
+    border-top: 1px solid #ffffff;
 }
 .table-heading-font{
 	color: #02b8de;
@@ -84,6 +93,9 @@ h1{
 }
 .table.store-table{
 	margin-bottom: 0px;
+}
+.store-table-tr > td:last-child{
+	background:#93c8ca;
 }
 .table.table-responsive.right-table th{
 	border-right:0px;
@@ -333,9 +345,19 @@ input:focus{
 .margin-top{
 	margin-top: 10px;
 }
+.fa-lg {
+    font-size: 2em;
+}
 .edit-icon{
 	color: #2d8d5a;
 	vertical-align: middle;
+}
+.comment-icon{
+	color: #788bab;
+	vertical-align: middle;
+}
+.comment-span{
+	color: #2d8d5a;
 }
 .add-btn{
 	border:none;

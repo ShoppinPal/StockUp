@@ -1,18 +1,16 @@
 @media (max-width: 1024px) { 
-	.content ul{
-		width: 105px;
-	}
 	
 }
 @media (min-width: 768px) and (max-width: 991px) { 
-	
+	.comment-input {
+    margin: 10px 20px;
+    width: 93%;
+	}
 	
 }
 
 @media (max-width: 768px) { 
-	.content ul{
-		width: 80px;
-	}
+	
 }
 
 @media (max-width: 767px) {
