@@ -6,7 +6,8 @@
  * # StoreManagerCtrl
  * Controller of the ShoppinPalApp
  */
-angular.module('ShoppinPalApp').controller('StoreManagerCtrl', function($scope, $anchorScroll, $location, loginService) {
+angular.module('ShoppinPalApp')
+  .controller('StoreManagerCtrl', function($scope, $anchorScroll, $location, loginService) {
 
     $anchorScroll.yOffset = 50;
     $scope.storesReport = [];
@@ -115,11 +116,11 @@ angular.module('ShoppinPalApp').controller('StoreManagerCtrl', function($scope, 
      * This method will load the storesReport from api on view load
      */
     $scope.$on('$viewContentLoaded', function() {
-        loginService.getStoreReport().then(function (response) {
-        $scope.storesReport = response;
-        // loginService.getStoreReport().then(function(response) {
-        //$scope.storesReport = response.data.storesReport;
-        $scope.JumtoDepartment();
+        loginService.getSelectStore().then(function (response) {
+               // $scope.storesReport = response;
+                $scope.storesReport = response.data.storesReport;
+                // $scope.storesReport = response;
+                $scope.JumtoDepartment();
         });
     });
 });
