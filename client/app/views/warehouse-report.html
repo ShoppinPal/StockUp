@@ -29,12 +29,13 @@
 								<th>O.<br/>Qty.</th>
 							 </tr>
 						   </thead>
-						   <tbody  ng-repeat="storereport in storesReport | orderBy:'type'| groupBy: 'type'">
-							 <tr class="inner-table-heading"><td colspan="6">
-                   <span class="table-heading-font" ng-show="storereport.group_by_CHANGED">{{storereport.type}}</span></td>
-               </tr>
-							 <tr>
-								
+						   <tbody ng-repeat="storereport in storesReport | orderBy:'type'| groupBy: 'type'">
+							 <tr class="inner-table-heading">
+								<td colspan="6" ng-if="storereport.group_by_CHANGED">
+				                   <span class="table-heading-font">{{storereport.type}}</span>
+				                </td>
+			                 </tr>
+							 <tr ng-swipe-right="moveToBox(storereport)">
 								<td>{{storereport.sku}}</td>
 								<td>{{storereport.name}}</td>
 								<td>{{storereport.quantityinhand}}</td>
@@ -62,19 +63,19 @@
 							<tr>
 								<td>
 								  <div> 
-									  <div class="main-box">
-										<span class="dropbox-qty">08</span>
-										<span class="folder-icon"></span>
+									  <div class="main-box" popover-placement="left" popover="On the Left!">
+										<span class="dropbox-qty">{{boxItems}}</span>
+										<div><img src="images/img_open_folder.png"></div>
 										<span class="dropbox-name">Box1</span>
 									  </div>
 									  <div class="main-box">
-										<div class="dropbox-qty">08</div>
-										<div><img src="images/img_open_folder.png"></div>
+										<div class="dropbox-qty"></div>
+										<div><img src="images/img_closed_folder.png"></div>
 										<div class="dropbox-name">Box1</div>
 									  </div>
 									  <div class="main-box">
-										<div class="dropbox-qty">08</div>
-										<div><img src="images/img_open_folder.png"></div>
+										<div class="dropbox-qty"></div>
+										<div><img src="images/img_closed_folder.png"></div>
 										<div class="dropbox-name">Box1</div>
 									  </div>
 									  <div><button type="submit" class="btn btn-primary add-btn">Add Box</button></div>

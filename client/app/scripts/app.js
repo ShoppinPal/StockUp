@@ -48,17 +48,17 @@ angular.module('ShoppinPalApp', [
           controller: 'LoginCtrl',
           authenticate: false
         })
-        .state('selectStore', {
-          url: '/selectStore',
-          templateUrl: 'views/selectStore.html',
-          controller: 'SelectStoreCtrl',
+        .state('store-report-list', {
+          url: '/store-report-list',
+          templateUrl: 'views/store-report-list.html',
+          controller: 'StoreReportListCtrl',
           authenticate: false
         })
         .state('store-report-manager', {
           url: '/store-report-manager',
           templateUrl: 'views/store-report-manager.html',
           controller: 'StoreManagerCtrl',
-          authenticate: false
+          authenticate: true
         })
          .state('warehouse-report', {
           url: '/warehouse-report',

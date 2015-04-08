@@ -12,6 +12,24 @@ angular.module('ShoppinPalApp')
     function ($scope,$state,loginService){
 
      $scope.alphabets = []; 
+     $scope.movedToBox = [];
+     $scope.boxItems= 0;
+
+    /**
+      *
+      */
+    $scope.moveToBox = function(storereport) {
+        $scope.boxItems += 1;
+        for (var i = 0; i < $scope.storesReport.length; i++) {
+            if ($scope.storesReport[i].sku == storereport.sku) {
+                $scope.movedToBox.push($scope.storesReport[i]); //push completed row in movedToBox array 
+                $scope.storesReport.splice(i, 1); //Remove the particular row from storeReports
+            }
+        }
+        if($scope.boxItems == 10){
+          
+        }
+    };
 
     /** @method JumtoDepartment
       * This method will return avilable departments firstChar for jumpTo department functionality
@@ -29,7 +47,7 @@ angular.module('ShoppinPalApp')
       * This method will load the storesReport from api on view load
       */
     $scope.$on('$viewContentLoaded', function() {
-      loginService.getStoreReport().then(function (response) {
+      loginService.getSelectStore().then(function (response) {
             $scope.storesReport = response.data.storesReport;
             $scope.JumtoDepartment();
         });

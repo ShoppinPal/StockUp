@@ -1,0 +1,29 @@
+<div class="container">
+    <div class="row">
+      <div class="col-sm-12 col-md-12">
+        <!-- Select store header -->
+          <header class="header">
+              <div class="row">
+                  <div class="col-md-5 col-sm-3 col-xs-12"><div class="logo">Glenstone</div></div>
+                  <div class="col-md-7 col-sm-9 col-xs-12"> 
+                    <div class="log-in-text">You are logged in as a <span><a href="#">Store Manager/WH/SR</a>&nbsp;&nbsp; </span>|&nbsp;&nbsp;<a href="#" class="logout-text">LOGOUT</a></div>
+                    <div class="btn-align">
+                    <button type="submit" class="btn btn-primary button-large-blue" ng-click="showCompletedReport()">Show Completed</button>  
+                    <button type="submit" class="btn btn-primary button-large-green" ng-click="submitToWarehouse()">Submit To Warehouse</button></div>
+                  </div>
+              </div>
+          </header>
+          <!-- Report Manager page content -->
+          <div class="main-container">
+		        <div class="row"><button  class="btn btn-primary" ng-click="generateOrder()">GENERATE ORDER</button></div>
+             <div class="row">
+               <P>ORDER IN PROGRESS</P>
+                <ul class="list-group" ng-repeat="name in reportList">
+                  <li class="list-group-item"><span class="badge"></span> {{name}}</li>
+                </ul>
+             </div>
+		      </div>
+	  </div>
+	</div>
+ </div>	
+	
