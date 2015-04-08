@@ -58,7 +58,13 @@ angular.module('ShoppinPalApp', [
           url: '/store-report-manager',
           templateUrl: 'views/store-report-manager.html',
           controller: 'StoreManagerCtrl',
-          authenticate: true
+          authenticate: false
+        })
+         .state('warehouse-report', {
+          url: '/warehouse-report',
+          templateUrl: 'views/warehouse-report.html',
+          controller: 'WarehouseReportCtrl',
+          authenticate: false
         });
 
       $urlRouterProvider.otherwise('/login');
