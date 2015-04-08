@@ -112,7 +112,7 @@ angular.module('ShoppinPalApp')
       */
     $scope.$on('$viewContentLoaded', function() {
       loginService.getStoreReport().then(function (response) {
-            $scope.storesReport = response.data.storesReport;
+            $scope.storesReport = response;
             $scope.JumtoDepartment();
         });
     });
