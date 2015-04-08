@@ -30,9 +30,10 @@
                          </tr>
                        </thead>
                        <tbody ng-repeat="storereport in storesReport | orderBy:'type'| groupBy: 'type'">
+                    
                          <tr class="inner-table-heading">
-                             <td colspan="6" id="jumpto{{storereport.type}}">
-                             <span class="table-heading-font" ng-if="storereport.group_by_CHANGED">{{storereport.type}}</span>
+                             <td colspan="6" id="jumpto{{storereport.type}}" ng-if="storereport.group_by_CHANGED">
+                             <span class="table-heading-font">{{storereport.type}}</span>
                              </td>
                          </tr>
                          <tr ng-hide="$index==selectedStore" ng-swipe-right="deleteStore(storereport)" ng-swipe-left="editStore($index)">
