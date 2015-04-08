@@ -323,29 +323,8 @@ module.exports = function (grunt) {
       staging: {},
       production: {}
     },
-      replace: {
-        staging:{
-          options: {
-          patterns: [
-            {
-              json: {
-                apiKey: '<%= buildProperties.prestashop.apiKey %>',
-                baseUrl: '<%= buildProperties.site.baseUrl %>',
-                loopbackApiRoot: '<%= buildProperties.restApiRoot %>',
-                proxyUrl: '<%= buildProperties.site.proxyUrl %>',
-                vendAuthEndpoint: '<%= buildProperties.vend.auth_endpoint %>',
-                vendClientId: '<%= buildProperties.vend.client_id %>'
-              }
-            }
-          ]
-        },
-        files: [
-          {
-            src: '<%= yeoman.app %>/scripts/shoppinpal-constants.js',
-            dest: '.tmp/scripts/shoppinpal-constants.js'
-          }
-        ]},
-      development: {
+    replace: {
+      allEnvs: {
         options: {
           patterns: [
             {
@@ -421,10 +400,6 @@ module.exports = function (grunt) {
       });
   });
 
-  /**
-   * Expecting "target" to be development|staging:
-   *   grunt server:staging --subdomain mpstagingpulkit
-   */
   grunt.registerTask('server',
     'For example:' +
       '\n\tgrunt server:local' +
@@ -454,7 +429,7 @@ module.exports = function (grunt) {
     grunt.option('environment', env);
     grunt.task.run([
       'jshint',
-      'loadConfig:' + env, // if called from grunt:server, previous work by tasks such as localtunnel:<env> and env:<env> will get nuked
+      //'loadConfig:' + env, // if called from grunt:server, previous work by tasks such as localtunnel:<env> and env:<env> will get nuked
       'loopback_sdk_angular',
       'clean:dist',
       'useminPrepare',
@@ -466,10 +441,11 @@ module.exports = function (grunt) {
       'uglify',
       'rev',
       'usemin',
-      'replace:' + env
+      'replace:allEnvs'
     ]);
   });
-grunt.registerTask('deploy', function(env) {
+
+  grunt.registerTask('deploy', function(env) {
     if (!env) {
       return grunt.util.error('You must specify an environment');
     }
@@ -488,8 +464,8 @@ grunt.registerTask('deploy', function(env) {
       'uglify',
       'rev',
       'usemin',
-      'replace:' + env
-
+      'replace:allEnvs'
     ]);
   });
+
 };
