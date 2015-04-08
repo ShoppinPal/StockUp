@@ -8,17 +8,19 @@
  * Controller of the ShoppinPalApp
  */
 angular.module('ShoppinPalApp')
-  .controller('StoreReportListCtrl',['$scope','$state', function ($scope,$state) {
+  .controller('StoreReportListCtrl',[
+    '$scope', '$state',
+    function ($scope, $state)
+    {
+      $scope.reportList = ['GlenStone','Skelly','ParkWay','kellog'];
 
-    $scope.reportList = ['GlenStone','Skelly','ParkWay','kellog'];
- 
 
-    /** @method generateOrder
-      * This method will move to generate store report for particular store
-      */
-    $scope.generateOrder = function(){
-      $state.go('store-report-manager');
-    };
+      /** @method generateOrder
+       * This method will move to generate store report for particular store
+       */
+      $scope.generateOrder = function(){
+        $state.go('store-report-manager');
+      };
 
-  }]
-  );
+    }
+  ]);
