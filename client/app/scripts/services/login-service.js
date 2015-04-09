@@ -30,6 +30,7 @@ angular.module('ShoppinPalApp')
             },
             function (error) {
               alert('Somthing went wrong.');
+              console.error(error);
             });
         },
 
