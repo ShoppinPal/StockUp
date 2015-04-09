@@ -5,6 +5,10 @@ var Promise = require('bluebird');
 var request = require('request-promise');
 var _ = require('underscore');
 
+var path = require('path');
+var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
+var log = require('debug')('common:models:'+fileName);
+
 module.exports = function(ReportModel) {
 
   // https://github.com/strongloop/loopback/issues/418
@@ -34,7 +38,7 @@ module.exports = function(ReportModel) {
     var ctx = loopback.getCurrentContext();
     var currentUser = ctx && ctx.get('currentUser');
     if (currentUser) {
-      console.log('inside ReportModel.getCurrentUserModel() - currentUser: ', currentUser.username);
+      log('inside ReportModel.getCurrentUserModel() - currentUser: ', currentUser.username);
       //return currentUser;
       return Promise.promisifyAll(
         currentUser,
@@ -50,6 +54,9 @@ module.exports = function(ReportModel) {
     }
   };
 
+  var ClientError = function ClientError(e) {
+    return e.statusCode >= 400 && e.statusCode < 500;
+  };
   var successHandler = function(response) {
     if(_.isArray(response)) {
       console.log('response is an array');
@@ -80,15 +87,18 @@ module.exports = function(ReportModel) {
 
     if(currentUser) {
       // (1) fetch the reportModelInstance in question
-      ReportModel.findOneAsync(
+      ReportModel.findByIdAsync(
         //{filter:{where: {id: id}}}
-        {id: 1}
+        //{id: id}
+        id
       )
         .then(function(reportModelInstance) {
-          console.log('print object for reportModelInstance: ', reportModelInstance);
-          cb(null, reportModelInstance);
+          log('print object for reportModelInstance: ', reportModelInstance);
 
           // TODO: (2) get the config settings for calling iron.io
+          log('ReportModel.app.get(\'site:baseUrl\')', ReportModel.app.get('site:baseUrl'));
+          log('process.env[\'site:baseUrl\']', process.env['site:baseUrl']);
+
           // TODO: (3) generate a token for the worker to use on the currentUser's behalf
           // TODO: (4) trigger a rest call to iron.io w/ arguments from reportModelInstance
           var options = {
@@ -106,8 +116,26 @@ module.exports = function(ReportModel) {
               'supplierId': reportModelInstance.supplier.id
             }
           };
+          log('options', JSON.stringify(options,null,2));
           return request.post(options)
             .then(successHandler)
+            .then(function(data){
+              log('data', JSON.stringify(data,null,2));
+              cb(null, data);
+            })
+            .catch(ClientError, function(e) {
+              var message = e.response.body;
+              if(_.isObject(message)) {
+                message = JSON.stringify(message,null,2);
+              }
+              console.error('A ClientError happened: \n'
+                  + e.statusCode + ' ' + message + '\n'
+                  /*+ JSON.stringify(e.response.headers,null,2)
+                  + JSON.stringify(e,null,2)*/
+              );
+              // TODO: add retry logic?
+              return Promise.reject(e.statusCode + ' ' + message); // TODO: throw unknown errors but reject well known errors?
+            })
             .catch(function(e) {
               console.error('report-model.js - generateStockOrderReportForManager - An unexpected error occurred: ', e);
               throw e; // TODO: throw unknown errors but reject well known errors?
