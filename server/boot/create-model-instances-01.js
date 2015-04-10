@@ -1,5 +1,10 @@
+'use strict';
+
 // DEBUG=boot:create-model-instances slc run
 var debug = require('debug')('boot:create-model-instances');
+
+var Promise = require('bluebird');
+var _ = require('underscore');
 
 var createApplication = function(Application, model, callback){
   Application.findOrCreate( // do NOT create a new Application everytime, if persistence is available
@@ -17,11 +22,20 @@ module.exports = function(app) {
   var RoleMapping = app.models.RoleMapping;
 
   var GlobalConfigModel = app.models.GlobalConfigModel;
-  var StoreConfig = app.models.StoreConfigModel;
-  var Store = app.models.StoreModel;
-  var ReportModel = app.models.ReportModel;
 
   var Application = app.models.Application;
+
+  var seed = null;
+  try {
+    seed = require('./seed.json');
+    debug('seed', JSON.stringify(seed));
+  } catch (err) {
+    debug(
+      'Please configure your data in `seed.json`.');
+    debug(
+      'Copy `seed.json.template` to `seed.json` and replace the values with your own.'
+    );
+  }
 
   // DEBUG=boot:create-model-instances node server/server.js
   var newAppModel = {
@@ -34,7 +48,7 @@ module.exports = function(app) {
     if (err) {
       throw err;
     }
-    debug(appModel);
+    debug('appModel', appModel);
 
     // sanity test - previous and next applications should both be the same
     createApplication(Application, newAppModel, function(err, appModel) {
@@ -105,7 +119,7 @@ module.exports = function(app) {
                       objectId: 1,
                       vendClientId: app.get('vend:client_id'),
                       vendClientSecret: app.get('vend:client_secret'),
-                      vendTokenService: 'https://{DOMAIN_PREFIX}.vendhq.com/api/1.0/token'
+                      vendTokenService: 'https://{DOMAIN_PREFIX}.vendhq.com/api/1.0/token' //TODO: also populate from config.*.json
                     },
                     function(err, globalConfigModel) {
                       if (err) {
@@ -129,8 +143,10 @@ module.exports = function(app) {
           // create the retailer role
           Role.create({name: 'retailer'},
             function(err, role) {
-              if (err) return debug(err);
-              debug(role);
+              if (err) {
+                return debug(err);
+              }
+              debug('role', role);
               // set merchant1 and merchant2 as retailers
               role.principals.create([
                   {
@@ -143,23 +159,21 @@ module.exports = function(app) {
                   }
                 ],
                 function(err, principals) {
-                  if (err) return debug(err);
-                  debug(principals);
+                  if (err) {
+                    return debug(err);
+                  }
+                  debug('principals', principals);
                   debug(retailUser.username + ' now has role: ' + role.name);
                   debug(anotherRetailUser.username + ' now has role: ' + role.name);
 
                   // login w/ merchant1
-                  UserModel.login(
-                    {realm: 'portal', username: retailUser.username, password: 'merchant1'},
-                    function(err, accessToken) {
-                      if (err) {
-                        return debug('%j', err);
-                      }
-                      debug(accessToken);
+                  UserModel.loginAsync({realm: 'portal', username: retailUser.username, password: 'merchant1'})
+                    .tap(function(accessToken) { // create a default/empty report for merchant1
+                      debug('created', JSON.stringify(accessToken,null,2));
                       debug('logged in w/ ' + retailUser.username + ' and token ' + accessToken.id);
 
-                      // create a default/empty report for merchant1
-                      retailUser.reportModels.create(
+                      var reportModels = Promise.promisifyAll(retailUser.reportModels);
+                      return reportModels.createAsync(
                         {
                           id: 1,
                           state: 'empty',
@@ -171,21 +185,54 @@ module.exports = function(app) {
                             id: 'c364c506-f8f4-11e3-a0f5-b8ca3a64f8f4',
                             name: 'FFCC'
                           }
-                        }, // create
-                        function(err, reportModelInstance) {
-                          if (err) {
-                            return debug('%j', err);
-                          }
-                          //debug('created', JSON.stringify(reportModelInstance,null,2));
-
-                          ReportModel.findOne({}, function(err, reportModelInstance) {
+                        }
+                      )
+                        .then(function(reportModelInstance) {
+                          debug('created reportModelInstance', JSON.stringify(reportModelInstance,null,2));
+                          /*ReportModel.findOne({}, function(err, reportModelInstance) {
                             if (err) {
                               return debug('%j', err);
                             }
                             debug('found a ReportModel entry: ' + JSON.stringify(reportModelInstance,null,2));
-                          });
+                          });*/
                         });
+                    })
+                    .tap(function(accessToken) { // create store-config and store for merchant1
+                      debug('logged in w/ ' + retailUser.username + ' and token ' + accessToken.id);
+                      if(seed) {
+                        _.each(seed.storeConfigModels,function(storeConfigSeedData){
+                          var storeConfigModel = _.omit(storeConfigSeedData, 'storeModels');
+                          // create StoreConfigModel(s) through UserModel to auto populate the foreign keys correctly
+                          retailUser.storeConfigModels.create(
+                            // TODO: get this from a non-tracked json file
+                            [storeConfigModel],
+                            function(err, storeConfigs) {
+                              if (err) {
+                                return debug('%j', err);
+                              }
+                              debug('created '+ storeConfigs.length + ' storeConfigInstance(s) that belong to ' + retailUser.username);
 
+                              // explicitly setup the foreignKey for UserModel into stores
+                              _.each(storeConfigSeedData.storeModels, function(storeModelSeedData){
+                                storeModelSeedData.userModelToStoreModelId = retailUser.id;
+                              });
+                              // create StoreModel(s) through StoreConfigModel, will auto populate that foreignKey
+                              storeConfigs[0].storeModels.create(
+                                // TODO: get this from a non-tracked json file
+                                storeConfigSeedData.storeModels,
+                                function(err, stores) {
+                                  if (err) return debug('%j', err);
+                                  debug('created '+ stores.length + ' stores that belong to ' + retailUser.username);
+
+                                  // TODO: should a store's IDs be populated into their parent storeConfigs[0] manually and re-saved?
+
+                                });
+                            });
+                        });
+                      }
+                    },
+                    function(err){
+                      return debug('%j', err);
                     });
                 });
             });
