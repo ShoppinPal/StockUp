@@ -30,16 +30,13 @@ module.exports = function(StoreModel) {
       // TODO: the following THEN blocks can be lined up and don't have to be nested
 
       // (1)
-      StoreModel.findOneAsync(
-        {filter:{where: {id: id}}}
-        //{filter:{where: {id: id}, include: ['storeConfigModel']}},
-      )
+      StoreModel.findByIdAsync(id)
         .then(function(storeModel){
           console.log('print object for storeModel: ', storeModel);
 
           // (2)
-          StoreModel.app.models.StoreConfigModel.findOneAsync(
-            {filter:{where: {id: id}}}
+          StoreModel.app.models.StoreConfigModel.findOneAsync( //TODO: use findByIdAsync instead?
+            {filter:{where: {id: id}}} // TODO: how can the same ID be used for both store and store-config???
           )
             .then(function(storeConfigModel){
               console.log('print object for storeConfigModel: ', storeConfigModel);

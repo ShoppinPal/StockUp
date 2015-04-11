@@ -204,7 +204,6 @@ module.exports = function(app) {
                           var storeConfigModel = _.omit(storeConfigSeedData, 'storeModels');
                           // create StoreConfigModel(s) through UserModel to auto populate the foreign keys correctly
                           retailUser.storeConfigModels.create(
-                            // TODO: get this from a non-tracked json file
                             [storeConfigModel],
                             function(err, storeConfigs) {
                               if (err) {
@@ -218,10 +217,11 @@ module.exports = function(app) {
                               });
                               // create StoreModel(s) through StoreConfigModel, will auto populate that foreignKey
                               storeConfigs[0].storeModels.create(
-                                // TODO: get this from a non-tracked json file
                                 storeConfigSeedData.storeModels,
                                 function(err, stores) {
-                                  if (err) return debug('%j', err);
+                                  if (err) {
+                                    return debug('%j', err);
+                                  }
                                   debug('created '+ stores.length + ' stores that belong to ' + retailUser.username);
 
                                   // TODO: should a store's IDs be populated into their parent storeConfigs[0] manually and re-saved?
