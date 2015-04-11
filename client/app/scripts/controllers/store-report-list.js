@@ -14,12 +14,18 @@ angular.module('ShoppinPalApp')
     function ($scope, $state,
               UserModel, LoopBackAuth, StoreModel, ReportModel)
     {
-      $scope.reportList = [
+      /*$scope.reportList = [
         'GlenStone - Mon 5th Apr 2015',
         'GlenStone - Fri 9th Jun 2015',
         'GlenStone - Tue 20th Nov 2015',
         'GlenStone - Wed 21st Nov 2015'
-      ];
+      ];*/
+      $scope.reportList = [];
+      UserModel.reportModels({id: LoopBackAuth.currentUserId})// TODO: file an enhancement request where currentUserId should be the default fallback
+        .$promise.then(function(response){
+          console.log(response);
+          $scope.reportList = response;
+        });
 
       /** @method generateOrder
        * This method will move to generate store report for particular store
