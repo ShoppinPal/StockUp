@@ -22,6 +22,8 @@ module.exports = function(app) {
   var RoleMapping = app.models.RoleMapping;
 
   var GlobalConfigModel = app.models.GlobalConfigModel;
+  var StoreConfigModel = app.models.StoreConfigModel;
+  var StoreModel = app.models.StoreModel;
 
   var Application = app.models.Application;
 
@@ -200,35 +202,56 @@ module.exports = function(app) {
                     .tap(function(accessToken) { // create store-config and store for merchant1
                       debug('logged in w/ ' + retailUser.username + ' and token ' + accessToken.id);
                       if(seed) {
-                        _.each(seed.storeConfigModels,function(storeConfigSeedData){
-                          var storeConfigModel = _.omit(storeConfigSeedData, 'storeModels');
-                          // create StoreConfigModel(s) through UserModel to auto populate the foreign keys correctly
-                          retailUser.storeConfigModels.create(
-                            [storeConfigModel],
-                            function(err, storeConfigs) {
-                              if (err) {
-                                return debug('%j', err);
-                              }
-                              debug('created '+ storeConfigs.length + ' storeConfigInstance(s) that belong to ' + retailUser.username);
+                        return Promise.map(
+                          seed.storeConfigModels,
+                          function(storeConfigSeedData){
+                            var filteredStoreConfigSeedData = _.omit(storeConfigSeedData, 'storeModels');
+                            //retailUser.storeConfigModels.create( // create StoreConfigModel(s) through UserModel to auto populate the foreign keys correctly
+                            filteredStoreConfigSeedData.userModelToStoreConfigModelId = retailUser.id;
+                            return StoreConfigModel.findOrCreateAsync(
+                              {where:{name:filteredStoreConfigSeedData.name}}, // find
+                              filteredStoreConfigSeedData // create
+                            )
+                              .spread(function(storeConfigModelInstance, created) {
+                                (created) ? debug('created', storeConfigModelInstance)
+                                          : debug('found', storeConfigModelInstance);
 
-                              // explicitly setup the foreignKey for UserModel into stores
-                              _.each(storeConfigSeedData.storeModels, function(storeModelSeedData){
-                                storeModelSeedData.userModelToStoreModelId = retailUser.id;
-                              });
-                              // create StoreModel(s) through StoreConfigModel, will auto populate that foreignKey
-                              storeConfigs[0].storeModels.create(
-                                storeConfigSeedData.storeModels,
-                                function(err, stores) {
-                                  if (err) {
-                                    return debug('%j', err);
-                                  }
-                                  debug('created '+ stores.length + ' stores that belong to ' + retailUser.username);
-
-                                  // TODO: should a store's IDs be populated into their parent storeConfigs[0] manually and re-saved?
-
+                                // explicitly setup the foreignKey for UserModel into stores
+                                _.each(storeConfigSeedData.storeModels, function(storeModelSeedData){
+                                  storeModelSeedData.userModelToStoreModelId = retailUser.id;
+                                  storeModelSeedData.storeConfigModelToStoreModelId = storeConfigModelInstance.objectId;
                                 });
-                            });
-                        });
+
+                                return Promise.map(
+                                  storeConfigSeedData.storeModels,
+                                  function (storeSeedData) {
+                                    return StoreModel.findOrCreateAsync(
+                                      {where:{name:storeSeedData.name}}, // find
+                                      storeSeedData // create
+                                    )
+                                      .spread(function(storeModelInstance, created) {
+                                        (created) ? debug('created', storeModelInstance)
+                                                  : debug('found', storeModelInstance);
+
+                                        // TODO: should a store's IDs be populated into their parent storeConfigs[0] manually and re-saved?
+                                        return Promise.resolve();
+                                      });
+                                  },
+                                  {concurrency: 1}
+                                )
+                                  .then(function () {
+                                    debug('finished seeding all stores for', storeConfigModelInstance.name);
+                                    return Promise.resolve();
+                                  });
+                              });
+                              // TODO: catch block?
+                          },
+                          {concurrency: 1}
+                        )
+                          .then(function () {
+                            debug('finished seeding all store configs');
+                            return Promise.resolve();
+                          });
                       }
                     },
                     function(err){
