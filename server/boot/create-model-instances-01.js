@@ -203,6 +203,10 @@ module.exports = function(app) {
                     .tap(function(accessToken) { // create store-config and store for merchant1
                       debug('logged in w/ ' + retailUser.username + ' and token ' + accessToken.id);
                       if(seed) {
+                        if (!seed.storeConfigModels) {
+                          // filed: https://github.com/petkaantonov/bluebird/issues/580
+                          seed.storeConfigModels = [];
+                        }
                         // seed each store-config, one-by-one
                         return Promise.map(
                           seed.storeConfigModels,
@@ -216,6 +220,11 @@ module.exports = function(app) {
                               .spread(function(storeConfigModelInstance, created) {
                                 (created) ? debug('created', storeConfigModelInstance)
                                           : debug('found', storeConfigModelInstance);
+
+                                if (!storeConfigSeedData.storeModels) {
+                                  // filed: https://github.com/petkaantonov/bluebird/issues/580
+                                  storeConfigSeedData.storeModels = [];
+                                }
 
                                 // explicitly setup the foreignKey for related models
                                 _.each(storeConfigSeedData.storeModels, function(storeModelSeedData){
@@ -241,6 +250,12 @@ module.exports = function(app) {
                                 )
                                   .then(function () {
                                     debug('finished seeding all STORES for', storeConfigModelInstance.name);
+
+                                    if (!storeConfigSeedData.supplierModels) {
+                                      // filed: https://github.com/petkaantonov/bluebird/issues/580
+                                      storeConfigSeedData.supplierModels = [];
+                                    }
+
                                     // explicitly setup the foreignKey for related models
                                     _.each(storeConfigSeedData.supplierModels, function(supplierModelSeedData){
                                       supplierModelSeedData.userModelToStoreModelId = retailUser.id;
