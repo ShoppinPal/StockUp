@@ -1,27 +1,31 @@
 {
-  "name": "ReportModel",
+  "name": "StockOrderLineitemModel",
   "base": "PersistedModel",
   "idInjection": true,
   "properties": {
-    "metadata": {
-      "type": "date",
-      "required": false
-    },
-    "created": {
-      "type": "date",
-      "required": false
-    },
-    "state": {
+    "sku": {
       "type": "string",
       "required": true
     },
-    "supplier": {
-      "type": "object",
-      "required": true
+    "name": {
+      "type": "string",
+      "required": false
     },
-    "outlet": {
-      "type": "object",
-      "required": true
+    "quantityOnHand": {
+      "type": "number",
+      "required": false
+    },
+    "desiredStockLevel": {
+      "type": "number",
+      "required": false
+    },
+    "orderQuantity": {
+      "type": "number",
+      "required": false
+    },
+    "type": {
+      "type": "string",
+      "required": false
     }
   },
   "validations": [],
@@ -29,11 +33,11 @@
     "userModel": {
       "type": "belongsTo",
       "model": "UserModel",
-      "foreignKey": "userModelToReportModelId"
+      "foreignKey": "userId"
     },
-    "stockOrderLineitemModels": {
-      "type": "hasMany",
-      "model": "StockOrderLineitemModel",
+    "reportModel": {
+      "type": "belongsTo",
+      "model": "ReportModel",
       "foreignKey": "reportId"
     }
   },
