@@ -7,7 +7,7 @@
  * Controller of the ShoppinPalApp
  */
 angular.module('ShoppinPalApp')
-  .controller('StoreManagerCtrl', function ($scope, $document, $anchorScroll, $location, loginService) {
+  .controller('StoreManagerCtrl', function ($scope,$document, $anchorScroll, $location, loginService) {
 
     $anchorScroll.yOffset = 50;
     $scope.storesReport = [];
@@ -18,7 +18,7 @@ angular.module('ShoppinPalApp')
     /** This method will close the editable mode in store-report
       */
     $document.on('click', function(event) {
-      if ($(event.target).hasClass('shoppinPal-warehouse')) {
+      if (angular.element(event.target).hasClass('shoppinPal-warehouse')) {
         $scope.selectedStore  = $scope.storereportlength + 1;
         $scope.$apply();
       }
