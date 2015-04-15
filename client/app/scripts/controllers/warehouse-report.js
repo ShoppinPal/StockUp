@@ -14,11 +14,16 @@ angular.module('ShoppinPalApp')
       $scope.alphabets = [];
       $scope.movedToBox = [];
       $scope.boxItems= 0;
+      $scope.closedboxes = [];
+      $scope.index = 1;
 
 
-      $scope.closeBox = function(hidebox){
+      $scope.closeBox = function(hidebox,itemCount){
         hidebox;
-        console.log("hiii");
+        var box = 'box'+ ++$scope.index;
+        var item = {'key':box, 'value':itemCount};
+        $scope.closedboxes.push(item);
+        console.log($scope.closedboxes);
       };
       /**
        *
