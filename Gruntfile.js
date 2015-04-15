@@ -324,7 +324,7 @@ module.exports = function (grunt) {
       production: {}
     },
     replace: {
-      allEnvs: {
+      development: {
         options: {
           patterns: [
             {
@@ -400,6 +400,10 @@ module.exports = function (grunt) {
       });
   });
 
+  /**
+   * Expecting "target" to be development|staging:
+   *   grunt server:staging --subdomain mpstagingpulkit
+   */
   grunt.registerTask('server',
     'For example:' +
       '\n\tgrunt server:local' +
@@ -441,30 +445,7 @@ module.exports = function (grunt) {
       'uglify',
       'rev',
       'usemin',
-      'replace:allEnvs'
-    ]);
-  });
-
-  grunt.registerTask('deploy', function(env) {
-    if (!env) {
-      return grunt.util.error('You must specify an environment');
-    }
-    grunt.option('environment', env);
-    grunt.task.run([
-      'jshint',
-      'loadConfig:' + env, // if called from grunt:server, previous work by tasks such as localtunnel:<env> and env:<env> will get nuked
-      'loopback_sdk_angular',
-      'clean:dist',
-      'useminPrepare',
-      'concurrent:' + env,
-      'concat',
-      'copy:dist',
-      'cdnify',
-      'cssmin',
-      'uglify',
-      'rev',
-      'usemin',
-      'replace:allEnvs'
+      'replace:' + env
     ]);
   });
 

@@ -1189,6 +1189,12 @@ module.factory(
           method: "GET"
         },
 
+        // INTERNAL. Use SupplierModel.storeConfigModel() instead.
+        "::get::SupplierModel::storeConfigModel": {
+          url: urlBase + "/SupplierModels/:id/storeConfigModel",
+          method: "GET"
+        },
+
         // INTERNAL. Use UserModel.storeConfigModels.findById() instead.
         "::findById::UserModel::storeConfigModels": {
           url: urlBase + "/UserModels/:id/storeConfigModels/:fk",
@@ -3004,6 +3010,595 @@ module.factory(
 
 /**
  * @ngdoc object
+ * @name shoppinpal-loopback.SupplierModel
+ * @header shoppinpal-loopback.SupplierModel
+ * @object
+ *
+ * @description
+ *
+ * A $resource object for interacting with the `SupplierModel` model.
+ *
+ * ## Example
+ *
+ * See
+ * {@link http://docs.angularjs.org/api/ngResource.$resource#example $resource}
+ * for an example of using this object.
+ *
+ */
+module.factory(
+  "SupplierModel",
+  ['LoopBackResource', 'LoopBackAuth', '$injector', function(Resource, LoopBackAuth, $injector) {
+    var R = Resource(
+      urlBase + "/SupplierModels/:id",
+      { 'id': '@id' },
+      {
+
+        // INTERNAL. Use SupplierModel.storeConfigModel() instead.
+        "prototype$__get__storeConfigModel": {
+          url: urlBase + "/SupplierModels/:id/storeConfigModel",
+          method: "GET"
+        },
+
+        // INTERNAL. Use SupplierModel.userModel() instead.
+        "prototype$__get__userModel": {
+          url: urlBase + "/SupplierModels/:id/userModel",
+          method: "GET"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.SupplierModel#create
+         * @methodOf shoppinpal-loopback.SupplierModel
+         *
+         * @description
+         *
+         * Create a new instance of the model and persist it into the data source
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *   This method does not accept any parameters.
+         *   Supply an empty object or omit this argument altogether.
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `SupplierModel` object.)
+         * </em>
+         */
+        "create": {
+          url: urlBase + "/SupplierModels",
+          method: "POST"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.SupplierModel#upsert
+         * @methodOf shoppinpal-loopback.SupplierModel
+         *
+         * @description
+         *
+         * Update an existing model instance or insert a new one into the data source
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *   This method does not accept any parameters.
+         *   Supply an empty object or omit this argument altogether.
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `SupplierModel` object.)
+         * </em>
+         */
+        "upsert": {
+          url: urlBase + "/SupplierModels",
+          method: "PUT"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.SupplierModel#exists
+         * @methodOf shoppinpal-loopback.SupplierModel
+         *
+         * @description
+         *
+         * Check whether a model instance exists in the data source
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - Model id
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * Data properties:
+         *
+         *  - `exists` – `{boolean=}` - 
+         */
+        "exists": {
+          url: urlBase + "/SupplierModels/:id/exists",
+          method: "GET"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.SupplierModel#findById
+         * @methodOf shoppinpal-loopback.SupplierModel
+         *
+         * @description
+         *
+         * Find a model instance by id from the data source
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - Model id
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `SupplierModel` object.)
+         * </em>
+         */
+        "findById": {
+          url: urlBase + "/SupplierModels/:id",
+          method: "GET"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.SupplierModel#find
+         * @methodOf shoppinpal-loopback.SupplierModel
+         *
+         * @description
+         *
+         * Find all instances of the model matched by filter from the data source
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `filter` – `{object=}` - Filter defining fields, where, orderBy, offset, and limit
+         *
+         * @param {function(Array.<Object>,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Array.<Object>} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `SupplierModel` object.)
+         * </em>
+         */
+        "find": {
+          isArray: true,
+          url: urlBase + "/SupplierModels",
+          method: "GET"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.SupplierModel#findOne
+         * @methodOf shoppinpal-loopback.SupplierModel
+         *
+         * @description
+         *
+         * Find first instance of the model matched by filter from the data source
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `filter` – `{object=}` - Filter defining fields, where, orderBy, offset, and limit
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `SupplierModel` object.)
+         * </em>
+         */
+        "findOne": {
+          url: urlBase + "/SupplierModels/findOne",
+          method: "GET"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.SupplierModel#updateAll
+         * @methodOf shoppinpal-loopback.SupplierModel
+         *
+         * @description
+         *
+         * Update instances of the model matched by where from the data source
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `where` – `{object=}` - Criteria to match model instances
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
+        "updateAll": {
+          url: urlBase + "/SupplierModels/update",
+          method: "POST"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.SupplierModel#deleteById
+         * @methodOf shoppinpal-loopback.SupplierModel
+         *
+         * @description
+         *
+         * Delete a model instance by id from the data source
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - Model id
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
+        "deleteById": {
+          url: urlBase + "/SupplierModels/:id",
+          method: "DELETE"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.SupplierModel#count
+         * @methodOf shoppinpal-loopback.SupplierModel
+         *
+         * @description
+         *
+         * Count instances of the model matched by where from the data source
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `where` – `{object=}` - Criteria to match model instances
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * Data properties:
+         *
+         *  - `count` – `{number=}` - 
+         */
+        "count": {
+          url: urlBase + "/SupplierModels/count",
+          method: "GET"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.SupplierModel#prototype$updateAttributes
+         * @methodOf shoppinpal-loopback.SupplierModel
+         *
+         * @description
+         *
+         * Update attributes for a model instance and persist it into the data source
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - PersistedModel id
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `SupplierModel` object.)
+         * </em>
+         */
+        "prototype$updateAttributes": {
+          url: urlBase + "/SupplierModels/:id",
+          method: "PUT"
+        },
+      }
+    );
+
+
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.SupplierModel#updateOrCreate
+         * @methodOf shoppinpal-loopback.SupplierModel
+         *
+         * @description
+         *
+         * Update an existing model instance or insert a new one into the data source
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *   This method does not accept any parameters.
+         *   Supply an empty object or omit this argument altogether.
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `SupplierModel` object.)
+         * </em>
+         */
+        R["updateOrCreate"] = R["upsert"];
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.SupplierModel#update
+         * @methodOf shoppinpal-loopback.SupplierModel
+         *
+         * @description
+         *
+         * Update instances of the model matched by where from the data source
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `where` – `{object=}` - Criteria to match model instances
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
+        R["update"] = R["updateAll"];
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.SupplierModel#destroyById
+         * @methodOf shoppinpal-loopback.SupplierModel
+         *
+         * @description
+         *
+         * Delete a model instance by id from the data source
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - Model id
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
+        R["destroyById"] = R["deleteById"];
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.SupplierModel#removeById
+         * @methodOf shoppinpal-loopback.SupplierModel
+         *
+         * @description
+         *
+         * Delete a model instance by id from the data source
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - Model id
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
+        R["removeById"] = R["deleteById"];
+
+
+    /**
+    * @ngdoc property
+    * @name shoppinpal-loopback.SupplierModel#modelName
+    * @propertyOf shoppinpal-loopback.SupplierModel
+    * @description
+    * The name of the model represented by this $resource,
+    * i.e. `SupplierModel`.
+    */
+    R.modelName = "SupplierModel";
+
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.SupplierModel#storeConfigModel
+         * @methodOf shoppinpal-loopback.SupplierModel
+         *
+         * @description
+         *
+         * Fetches belongsTo relation storeConfigModel
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - PersistedModel id
+         *
+         *  - `refresh` – `{boolean=}` - 
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `StoreConfigModel` object.)
+         * </em>
+         */
+        R.storeConfigModel = function() {
+          var TargetResource = $injector.get("StoreConfigModel");
+          var action = TargetResource["::get::SupplierModel::storeConfigModel"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.SupplierModel#userModel
+         * @methodOf shoppinpal-loopback.SupplierModel
+         *
+         * @description
+         *
+         * Fetches belongsTo relation userModel
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - PersistedModel id
+         *
+         *  - `refresh` – `{boolean=}` - 
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `UserModel` object.)
+         * </em>
+         */
+        R.userModel = function() {
+          var TargetResource = $injector.get("UserModel");
+          var action = TargetResource["::get::SupplierModel::userModel"];
+          return action.apply(R, arguments);
+        };
+
+    return R;
+  }]);
+
+/**
+ * @ngdoc object
  * @name shoppinpal-loopback.UserModel
  * @header shoppinpal-loopback.UserModel
  * @object
@@ -3952,6 +4547,12 @@ module.factory(
         // INTERNAL. Use ReportModel.userModel() instead.
         "::get::ReportModel::userModel": {
           url: urlBase + "/ReportModels/:id/userModel",
+          method: "GET"
+        },
+
+        // INTERNAL. Use SupplierModel.userModel() instead.
+        "::get::SupplierModel::userModel": {
+          url: urlBase + "/SupplierModels/:id/userModel",
           method: "GET"
         },
 
