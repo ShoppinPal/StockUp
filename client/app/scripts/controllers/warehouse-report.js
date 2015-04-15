@@ -15,6 +15,11 @@ angular.module('ShoppinPalApp')
       $scope.movedToBox = [];
       $scope.boxItems= 0;
 
+
+      $scope.closeBox = function(hidebox){
+        hidebox;
+        console.log("hiii");
+      };
       /**
        *
        */
@@ -39,7 +44,6 @@ angular.module('ShoppinPalApp')
           var type = $scope.storesReport[i].type,
             typefirstChar = type.slice(0, 1).toUpperCase();
           $scope.alphabets.push(typefirstChar);
-          $.unique($scope.alphabets); // This method remove the duplicates from array
         }
       };
 

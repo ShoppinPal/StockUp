@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('ShoppinPalApp', [
-    'ui.bootstrap'
+    //'ui.bootstrap'
     ,'ngCookies'
     ,'ngResource'
     ,'ngSanitize'
@@ -20,6 +20,8 @@ angular.module('ShoppinPalApp', [
     ,'sp-formatters'
     ,'sp-alerts'
     ,'uuid4'
+    ,'ngAnimate'
+    ,'mgcrea.ngStrap'
   ])
 
   .config([
