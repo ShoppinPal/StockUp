@@ -6181,15 +6181,12 @@ module.factory(
           method: "GET"
         },
 
-<<<<<<< HEAD
-=======
         // INTERNAL. Use StockOrderLineitemModel.userModel() instead.
         "::get::StockOrderLineitemModel::userModel": {
           url: urlBase + "/StockOrderLineitemModels/:id/userModel",
           method: "GET"
         },
 
->>>>>>> 63d4d0f... buggy - get related lineitems for a report
         // INTERNAL. Use SupplierModel.userModel() instead.
         "::get::SupplierModel::userModel": {
           url: urlBase + "/SupplierModels/:id/userModel",
