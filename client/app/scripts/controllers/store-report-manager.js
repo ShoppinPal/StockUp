@@ -7,14 +7,22 @@
  * Controller of the ShoppinPalApp
  */
 angular.module('ShoppinPalApp')
-  .controller('StoreManagerCtrl', function($scope, $anchorScroll, $location, loginService) {
+  .controller('StoreManagerCtrl', function ($scope,$document, $anchorScroll, $location, loginService) {
 
     $anchorScroll.yOffset = 50;
     $scope.storesReport = [];
     $scope.completedReports = [];
     $scope.alphabets = [];
-    $scope.editVisible = false;
     $scope.submitToWarehouseButton = 'Submit To Warehouse';
+
+    /** This method will close the editable mode in store-report
+      */
+    $document.on('click', function(event) {
+      if (angular.element(event.target).hasClass('shoppinPal-warehouse')) {
+        $scope.selectedStore  = $scope.storereportlength + 1;
+        $scope.$apply();
+      }
+    });
 
     /** @method editStore()
      * @param selecte_row
@@ -22,7 +30,6 @@ angular.module('ShoppinPalApp')
      */
     $scope.editStore = function(selectedRow) {
       $scope.selectedStore = selectedRow;
-      $scope.editVisible = true;
     };
 
     /** @method deleteStore
@@ -66,9 +73,8 @@ angular.module('ShoppinPalApp')
     $scope.JumtoDepartment = function() {
       for (var i = 0; i < $scope.storesReport.length; i++) {
         var type = $scope.storesReport[i].type,
-          typefirstChar = type.slice(0, 1).toUpperCase();
+        typefirstChar = type.slice(0, 1).toUpperCase();
         $scope.alphabets.push(typefirstChar);
-        $.unique($scope.alphabets); // This method remove the duplicates from array
       }
     };
 
@@ -118,12 +124,13 @@ angular.module('ShoppinPalApp')
      * This method will load the storesReport from api on view load
      */
     $scope.$on('$viewContentLoaded', function() {
-      //loginService.getSelectStore().then(function (response) {
-      loginService.getStoreReport().then(function (response) {
-        $scope.storesReport = response;
-        //$scope.storesReport = response.data.storesReport;
+      loginService.getSelectStore().then(function (response) {
+      // loginService.getStoreReport().then(function (response) {
+      //   $scope.storesReport = response;
+          $scope.storesReport = response.data.storesReport;
+          $scope.storereportlength = response.data.storesReport.length;
         // $scope.storesReport = response;
-        $scope.JumtoDepartment();
-      });
+          $scope.JumtoDepartment();
+        });
     });
   });
