@@ -1,5 +1,10 @@
+'use strict';
+
 // DEBUG=boot:create-model-instances slc run
 var debug = require('debug')('boot:create-model-instances');
+
+var Promise = require('bluebird');
+var _ = require('underscore');
 
 var createApplication = function(Application, model, callback){
   Application.findOrCreate( // do NOT create a new Application everytime, if persistence is available
@@ -17,10 +22,23 @@ module.exports = function(app) {
   var RoleMapping = app.models.RoleMapping;
 
   var GlobalConfigModel = app.models.GlobalConfigModel;
-  var StoreConfig = app.models.StoreConfigModel;
-  var Store = app.models.StoreModel;
+  var StoreConfigModel = app.models.StoreConfigModel;
+  var StoreModel = app.models.StoreModel;
+  var SupplierModel = app.models.SupplierModel;
 
   var Application = app.models.Application;
+
+  var seed = null;
+  try {
+    seed = require('./seed.json');
+    debug('seed', JSON.stringify(seed));
+  } catch (err) {
+    debug(
+      'Please configure your data in `seed.json`.');
+    debug(
+      'Copy `seed.json.template` to `seed.json` and replace the values with your own.'
+    );
+  }
 
   // DEBUG=boot:create-model-instances node server/server.js
   var newAppModel = {
@@ -33,7 +51,7 @@ module.exports = function(app) {
     if (err) {
       throw err;
     }
-    debug(appModel);
+    debug('appModel', appModel);
 
     // sanity test - previous and next applications should both be the same
     createApplication(Application, newAppModel, function(err, appModel) {
@@ -104,7 +122,7 @@ module.exports = function(app) {
                       objectId: 1,
                       vendClientId: app.get('vend:client_id'),
                       vendClientSecret: app.get('vend:client_secret'),
-                      vendTokenService: 'https://{DOMAIN_PREFIX}.vendhq.com/api/1.0/token'
+                      vendTokenService: 'https://{DOMAIN_PREFIX}.vendhq.com/api/1.0/token' //TODO: also populate from config.*.json
                     },
                     function(err, globalConfigModel) {
                       if (err) {
@@ -128,8 +146,10 @@ module.exports = function(app) {
           // create the retailer role
           Role.create({name: 'retailer'},
             function(err, role) {
-              if (err) return debug(err);
-              debug(role);
+              if (err) {
+                return debug(err);
+              }
+              debug('role', role);
               // set merchant1 and merchant2 as retailers
               role.principals.create([
                   {
@@ -142,18 +162,140 @@ module.exports = function(app) {
                   }
                 ],
                 function(err, principals) {
-                  if (err) return debug(err);
-                  debug(principals);
+                  if (err) {
+                    return debug(err);
+                  }
+                  debug('principals', principals);
                   debug(retailUser.username + ' now has role: ' + role.name);
                   debug(anotherRetailUser.username + ' now has role: ' + role.name);
 
                   // login w/ merchant1
-                  UserModel.login(
-                    {realm: 'portal', username: retailUser.username, password: 'merchant1'},
-                    function(err, accessToken) {
-                      if (err) return debug('%j', err);
-                      debug(accessToken);
+                  UserModel.loginAsync({realm: 'portal', username: retailUser.username, password: 'merchant1'})
+                    .tap(function(accessToken) { // create a default/empty report for merchant1
+                      debug('created', JSON.stringify(accessToken,null,2));
                       debug('logged in w/ ' + retailUser.username + ' and token ' + accessToken.id);
+
+                      var reportModels = Promise.promisifyAll(retailUser.reportModels);
+                      return reportModels.createAsync(
+                        {
+                          id: 1,
+                          state: 'empty',
+                          outlet: {
+                            id: 'aea67e1a-b85c-11e2-a415-bc764e10976c',
+                            name: 'OKC'
+                          },
+                          supplier: {
+                            id: 'c364c506-f8f4-11e3-a0f5-b8ca3a64f8f4',
+                            name: 'FFCC'
+                          }
+                        }
+                      )
+                        .then(function(reportModelInstance) {
+                          debug('created reportModelInstance', JSON.stringify(reportModelInstance,null,2));
+                          /*ReportModel.findOne({}, function(err, reportModelInstance) {
+                            if (err) {
+                              return debug('%j', err);
+                            }
+                            debug('found a ReportModel entry: ' + JSON.stringify(reportModelInstance,null,2));
+                          });*/
+                        });
+                    })
+                    .tap(function(accessToken) { // create store-config and store for merchant1
+                      debug('logged in w/ ' + retailUser.username + ' and token ' + accessToken.id);
+                      if(seed) {
+                        if (!seed.storeConfigModels) {
+                          // filed: https://github.com/petkaantonov/bluebird/issues/580
+                          seed.storeConfigModels = [];
+                        }
+                        // seed each store-config, one-by-one
+                        return Promise.map(
+                          seed.storeConfigModels,
+                          function(storeConfigSeedData){
+                            var filteredStoreConfigSeedData = _.omit(storeConfigSeedData, 'storeModels');
+                            filteredStoreConfigSeedData.userModelToStoreConfigModelId = retailUser.id;
+                            return StoreConfigModel.findOrCreateAsync(
+                              {where:{name:filteredStoreConfigSeedData.name}}, // find
+                              filteredStoreConfigSeedData // create
+                            )
+                              .spread(function(storeConfigModelInstance, created) {
+                                (created) ? debug('created', storeConfigModelInstance)
+                                          : debug('found', storeConfigModelInstance);
+
+                                if (!storeConfigSeedData.storeModels) {
+                                  // filed: https://github.com/petkaantonov/bluebird/issues/580
+                                  storeConfigSeedData.storeModels = [];
+                                }
+
+                                // explicitly setup the foreignKey for related models
+                                _.each(storeConfigSeedData.storeModels, function(storeModelSeedData){
+                                  storeModelSeedData.userModelToStoreModelId = retailUser.id;
+                                  storeModelSeedData.storeConfigModelToStoreModelId = storeConfigModelInstance.objectId;
+                                });
+
+                                // seed each STORE in a given store-config, one-by-one
+                                return Promise.map(
+                                  storeConfigSeedData.storeModels,
+                                  function (storeSeedData) {
+                                    return StoreModel.findOrCreateAsync(
+                                      {where:{name:storeSeedData.name}}, // find
+                                      storeSeedData // create
+                                    )
+                                      .spread(function(storeModelInstance, created) {
+                                        (created) ? debug('created', storeModelInstance)
+                                                  : debug('found', storeModelInstance);
+                                        return Promise.resolve();
+                                      });
+                                  },
+                                  {concurrency: 1}
+                                )
+                                  .then(function () {
+                                    debug('finished seeding all STORES for', storeConfigModelInstance.name);
+
+                                    if (!storeConfigSeedData.supplierModels) {
+                                      // filed: https://github.com/petkaantonov/bluebird/issues/580
+                                      storeConfigSeedData.supplierModels = [];
+                                    }
+
+                                    // explicitly setup the foreignKey for related models
+                                    _.each(storeConfigSeedData.supplierModels, function(supplierModelSeedData){
+                                      supplierModelSeedData.userModelToStoreModelId = retailUser.id;
+                                      supplierModelSeedData.storeConfigModelToSupplierModelId = storeConfigModelInstance.objectId;
+                                    });
+
+                                    // seed each SUPPLIER in a given store-config, one-by-one
+                                    return Promise.map(
+                                      storeConfigSeedData.supplierModels, // can't handle undefined
+                                      function (supplierSeedData) {
+                                        return SupplierModel.findOrCreateAsync(
+                                          {where:{name:supplierSeedData.apiId}}, // find
+                                          supplierSeedData // create
+                                        )
+                                          .spread(function(supplierModelInstance, created) {
+                                            (created) ? debug('created', supplierModelInstance)
+                                                      : debug('found', supplierModelInstance);
+                                            return Promise.resolve();
+                                          });
+                                      },
+                                      {concurrency: 1}
+                                    );
+                                  })
+                                  .then(function () {
+                                    debug('finished seeding all SUPPLIERS for', storeConfigModelInstance.name);
+                                    return Promise.resolve();
+                                  });
+                              });
+                              // TODO: catch block?
+                          },
+                          {concurrency: 1}
+                        )
+                          .then(function () {
+                            debug('finished seeding all store configs');
+                            return Promise.resolve();
+                          });
+                      }
+                    },
+                    function(err){
+                      return debug('%j', err);
                     });
                 });
             });

@@ -1,0 +1,71 @@
+.outer {
+    display: table;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+}
+
+.middle {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.inner {
+    margin-left: auto;
+    margin-right: auto; 
+    max-width: 768px;
+}
+.panel{
+	width: 440px;
+	margin: 40px auto 0px auto;
+	border-radius: 10px;
+	border:1px solid #d7f2f9;
+	background-color: #d7f2f9;
+}
+.panel-body{
+	padding: 20px 60px;
+}
+.panel-heading {
+	padding: 0px 0px 25px 0px;
+    color: #4e4e4e;
+    font-size: 24px;
+}
+.form-control {
+	height: 38px;
+	padding: 8px 12px;
+	font-size: 16px;
+	line-height: 1.42857143;
+	color: #9f9f9f;
+	border: 1px solid #dadada;
+	border-radius: 5px;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+	-webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+	-o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+	transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+.input-group-addon {
+  	padding: 8px 15px;
+  	font-size: 16px;
+  	font-weight: normal;
+  	line-height: 1;
+  	color: #ffffff;
+  	text-align: center;
+  	background-color: #9dc2ca;
+  	border: 1px solid #9dc2ca;
+  	border-radius: 5px;
+}
+.login-btn{
+	background: #2c8d5a;
+	text-transform: uppercase;
+	padding: 10px 30px;
+	font-size: 14px;
+	border:0px;
+	margin-top: 20px;
+	font-weight: 600;
+}
+.btn-primary:hover, .btn-primary:focus, .btn-primary.focus, .btn-primary:active, .btn-primary.active, .open>.dropdown-toggle.btn-primary {
+  	color: #ffffff;
+  	background-color: #7c7c7c;
+  	border-color: #7c7c7c;
+}

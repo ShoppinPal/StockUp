@@ -1,0 +1,411 @@
+@import url(//fonts.googleapis.com/css?family=Lato);
+
+
+
+::selection{background:#02b8de;color:#fff;text-shadow:none;}
+::-moz-selection{background:#02b8de;color:#fff;text-shadow:none}
+body {
+	background: #ffffff;
+	color: #442861;
+	font-family: 'Lato', sans-serif;
+	line-height: normal;
+	font-size: 14px;
+	-webkit-font-smoothing: antialiased;
+}
+.form-control:focus {
+  border-color: #00bceb;
+  outline: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, 0.6);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, 0.6);
+}
+a{
+	color: #02b8de;
+}
+a:hover, a:focus {
+	color: #2d8d5a;
+	text-decoration: none;
+	outline: none;
+}
+.btn:focus, .btn:active:focus, .btn.active:focus, .btn.focus, .btn:active.focus, .btn.active.focus, .btn:hover {
+	outline: none;
+	outline: 0px auto -webkit-focus-ring-color;
+	outline-offset: 0px;
+	color: #ffffff;
+}
+.btn:active, .btn.active {
+	outline: 0;
+	background-image: none;
+	-webkit-box-shadow: inset 0 0px 0px rgba(0, 0, 0, 0);
+	box-shadow: inset 0 0px 0px rgba(0, 0, 0, 0);
+}
+.wrapper{
+	max-width: 1024px;
+	margin: 0px auto;
+	padding: 25px 40px;
+	border:1px solid #efefef;
+}
+
+/*Report Manager page CSS*/
+.header{
+	background-color: #354052;
+	padding: 15px 20px;
+	color: #c6c6c6;
+}
+
+h1{
+	color: #505050;
+	font-size: 14px;
+	padding-left: 15px;
+	font-weight: bold;
+}
+.logo{
+	font-size: 26px;
+	color: #ffffff;
+	font-weight: bold;
+	padding: 20px 10px;
+}
+.container{
+	max-width: 1024px;
+}
+.table .table {
+    background-color: transparent;
+}
+.main-container{
+	max-width: 1024px;
+	margin: 0px auto;
+	border-left:1px solid #d1d1d1;
+	border-right:1px solid #d1d1d1;
+	border-bottom: 1px solid #d1d1d1; 
+}
+.main-container table{
+	font-size:14px;
+}
+.table > tbody + tbody {
+    border-top: 1px solid #ffffff;
+}
+.table-heading-font{
+	color: #02b8de;
+	font-weight: bold;
+	text-transform: uppercase;
+}
+.table.main-table{
+	margin-bottom: 0px;
+}
+.table.store-table{
+	margin-bottom: 0px;
+}
+.store-table-tr > td:last-child{
+	background:#93c8ca;
+}
+.table.table-responsive.right-table th{
+	border-right:0px;
+}
+.store-table.table > thead > tr > th, 
+.store-table.table > tbody > tr > th, 
+.store-table.table > tfoot > tr > th, 
+.store-table.table > thead > tr > td, 
+.store-table.table > tbody > tr > td, 
+.store-table.table > tfoot > tr > td {
+    border-top: 0px solid #ddd;
+    padding: 0px;
+}
+.table.store-table th{
+	vertical-align: middle;
+	border-right: 1px solid #71aaac;
+}
+.table.left-table, .table.right-table{
+	margin-bottom: 0px;
+}
+.log-in-text{
+	text-align: right;
+	font-weight: bold;
+}
+.logout-text{
+	color: #ff8503 !important;
+	font-weight: bold !important;
+}
+.btn-align{
+	text-align: right;
+}
+.button-large-green{
+	background: #2d8d5a;
+	text-transform: uppercase;
+	padding: 10px 30px;
+	font-size: 14px;
+	border:0px;
+	margin-top: 20px;
+	font-weight: 600;
+	border:1px solid #2d8d5a;
+}
+.button-large-green:hover{
+	background: transparent;
+	border:1px solid #ffffff;
+}
+.button-large-blue{
+	background: #02b8de;
+	text-transform: uppercase;
+	padding: 10px 30px;
+	font-size: 14px;
+	border:0px;
+	margin-top: 20px;
+	margin-right: 20px;
+	font-weight: 600;
+	border:1px solid #02b8de;
+}
+.button-large-blue:hover{
+	background: transparent;
+	border:1px solid #ffffff;
+}
+.tr-bg td:first-child{
+	background: #93c8ca;
+}
+.tr-bg td:last-child{
+	background: #93c8ca;
+}
+.td-height{
+	height: 56px;
+	background: #93c8ca;
+	font-weight: bold;
+	text-transform: uppercase;
+	vertical-align: middle;
+	text-align: center;
+	border-right:0px solid #71aaac;
+}
+.td-height th:last-child{
+	border-right:0px solid #71aaac;
+}
+.v-align-middle{
+	vertical-align: middle !important;
+}
+
+.table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+    border-top: 1px solid #fff;
+    line-height: 1.42857;
+    padding: 8px;
+    vertical-align: top;
+}
+
+.main-table.table > thead > tr > th, 
+.main-table.table > tbody > tr > th, 
+.main-table.table > tfoot > tr > th, 
+.main-table.table > thead > tr > td, 
+.main-table.table > tbody > tr > td, 
+.main-table.table > tfoot > tr > td {
+    border-top: 0px solid #ddd;
+    padding: 0px;
+}
+.table.store-table th:first-child{
+	vertical-align: middle;
+	border-left: 1px solid #71aaac;
+	box-shadow: -1px 0 0 #baf0f2, 1px 0 0 #baf0f2;
+}
+.table.store-table th{
+	vertical-align: middle;
+	border-right: 1px solid #71aaac;
+	box-shadow: 1px 0 0 #baf0f2;
+}
+/*Left Side Tabel*/
+tr.inner-table-heading {
+	background: #ffffff !important;
+}
+.table.table-responsive.left-table > thead > tr > th {
+    border-bottom: 1px solid #93c8ca;
+}
+.table.table-responsive.left-table thead tr{
+	text-transform: uppercase;
+}
+.left-table th, .left-table td{
+	text-align: center;
+}
+.left-table thead tr{
+	background: #93c8ca;
+}
+.table.main-table th:first-child{
+	vertical-align: middle;
+	border-left: 1px solid #71aaac;
+	box-shadow: -1px 0 0 #baf0f2, 1px 0 0 #baf0f2;
+}
+.table.main-table th{
+	vertical-align: middle;
+	border-right: 1px solid #71aaac;
+	box-shadow: 1px 0 0 #baf0f2;
+}
+.table.left-table tbody td{
+	padding: 10px 0px;
+	vertical-align: middle;
+}
+
+.left-table tbody tr td:first-child{
+	text-align: left !important;
+	padding-left:10px;
+}
+.table.left-table tbody tr:nth-child(even){
+	background: #d7f2f8;
+}
+.table.left-table tbody tr:nth-child(odd){
+	background: #eaf9fc;
+}
+
+/*Sorting Table CSS*/
+.right-table th, .right-table td{
+	text-align: center;
+}
+.right-table thead tr{
+	background: #93c8ca;
+}
+.table.right-table tbody td{
+	padding: 10px 0px;
+}
+.table.right-table tbody tr{
+	background: #93c8ca;
+}
+.table.right-table tbody tr td{
+	border-top: 1px solid #93c8ca;
+}
+.table.right-table > thead > tr > th {
+    border-bottom: 2px solid #93c8ca;
+    vertical-align: bottom;
+}
+.right-table td a{
+	color: #2d8d5a;
+	font-weight: bold;
+}
+.right-table td a:hover{
+	color: #2d8d5a;
+	text-decoration: underline;
+}
+.bg > td:first-child{
+	background:#93c8ca;
+	border-right:1px solid #71aaac;
+}
+.bg > td:last-child{
+	background:#93c8ca;
+}
+/*Edit Box CSS*/
+.edit-row{
+	background: red;
+}
+.number {
+  font-size: 20px;
+  color: #ffffff;
+  /*display: table;*/
+  height: 30px;
+  margin-top: 8px;
+}
+.number span{
+	/*display: table-cell;
+	vertical-align: middle;*/
+}
+.input-small {
+  border: 1px solid #dcdcdc;
+  width: 60px;
+  padding: 0px 15px;
+  margin-top: 3px;
+  text-align: center;
+  height: 40px;
+  font-size: 20px;
+  color: #354052;
+}
+input:focus{
+	-moz-outline:none;
+	outline: none;
+	border:1px solid #2bc565;
+}
+.column-text{
+  color: #02b4d9;
+  font-size: 16px;
+  vertical-align: middle;
+}
+.comment-btn {
+  text-transform: uppercase;
+  font-size: 16px;
+  padding: 8px 15px;
+  text-align: center;
+  font-weight: bold;
+  background: transparent;
+  border: 1px solid #ffffff;
+  border-radius: 5px;
+  margin-top: 2px;
+}
+.comment-btn:hover {
+	background: #2d8d5a;
+}
+.float-left{
+	float: left;
+}
+.edit-row{
+	background-color: #354052 !important;
+}
+.margin-right{
+	margin-right: 20px;
+}
+.margin-right-10px{
+	margin-right: 10px;
+}
+.margin-top{
+	margin-top: 10px;
+}
+.fa-lg {
+    font-size: 2em;
+}
+.edit-icon{
+	color: #2d8d5a;
+	vertical-align: middle;
+}
+.comment-icon{
+	color: #788bab;
+	vertical-align: middle;
+}
+.comment-span{
+	color: #2d8d5a;
+}
+.add-btn{
+	border:none;
+	text-transform: uppercase;
+  	font-size: 14px;
+  	padding: 8px 5px;
+  	text-align: center;
+  	font-weight: bold;
+  	background: #354052;
+  	border-radius: 5px;
+  	margin-top: 20px;
+}
+.main-box{
+	padding: 20px 0px;
+	text-align: center;
+	border-bottom:1px solid #71aaac;
+	box-shadow: 0 1px 0 #baf0f2;
+}
+.main-box span{
+	display: block;
+}
+.dropbox-qty{
+	color: #000000;
+	font-weight: bold;
+}
+.dropbox-name{
+	color: #1f899f;
+	font-weight: bold;
+}
+.box-icon {
+    background-image: url("../images/img_box_sprite.png");
+    display: inline-block;
+    height: 45px;
+    width: 73px;
+   
+}
+.open-box .closed-box {
+    background-position: -273px 0;
+    position: relative;
+    width: 73px;
+}
+.comment-input{
+	margin: 10px 20px;
+	width: 94%;
+}
+.margin-bottom20px{
+	margin-bottom: 20px;
+}
+.comment-label{
+	width: 90%;
+}
