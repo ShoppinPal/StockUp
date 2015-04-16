@@ -15,11 +15,21 @@ angular.module('ShoppinPalApp')
       $scope.movedToBox = [];
       $scope.boxItems= 0;
       $scope.closedboxes = [];
-      $scope.index = 1;
+      $scope.index = 0;
+      $scope.openBox = false;
 
+      /** @method addNewBox
+        * @description 
+        * New open box added at top box status
+        */
+      $scope.addNewBox = function() {
+        $scope.openBox = true;
+      };
 
       $scope.closeBox = function(hidebox,itemCount){
         hidebox;
+        $scope.boxItems = 0;
+        $scope.openBox = false; //hide open box
         var box = 'box'+ ++$scope.index;
         var item = {'key':box, 'value':itemCount};
         $scope.closedboxes.push(item);

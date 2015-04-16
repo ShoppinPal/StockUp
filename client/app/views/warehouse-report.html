@@ -63,22 +63,17 @@
                             <tr>
                                 <td>
                                   <div> 
-                                      <div class="main-box" data-placement="left" data-template="views/popup/box.html" bs-popover>
+                                      <div ng-show="openBox" class="main-box" data-placement="left" data-template="views/popup/box.html" bs-popover>
                                         <span class="dropbox-qty">{{boxItems}}</span>
                                         <div><img src="images/img_open_folder.png"></div>
-                                        <span class="dropbox-name">Box1</span>
+                                        <span class="dropbox-name">Box</span>
                                       </div>
                                       <div class="main-box" ng-repeat="item in closedboxes">
                                         <div class="dropbox-qty">{{item.value}}</div>
                                         <div><img src="images/img_closed_folder.png"></div>
                                         <div class="dropbox-name">{{item.key}}</div>
                                       </div>
-                                      <!-- <div class="main-box">
-                                        <div class="dropbox-qty"></div>
-                                        <div><img src="images/img_closed_folder.png"></div>
-                                        <div class="dropbox-name">Box1</div>
-                                      </div> -->
-                                      <div><button type="submit" class="btn btn-primary add-btn">Add Box</button></div>
+                                      <div><button class="btn btn-primary add-btn" ng-click="addNewBox()">Add Box</button></div>
                                   </div>
                                  </td>
                             </tr>
