@@ -34,6 +34,14 @@ module.exports = function(ReportModel) {
     returns: {arg: 'reportModelInstance', type: 'object', root:true}
   });
 
+  ReportModel.remoteMethod('getRows', {
+    accepts: [
+      {arg: 'id', type: 'number', required: true}
+    ],
+    http: {path: '/:id/rows', verb: 'get'},
+    returns: {arg: 'rows', type: 'array', root:true}
+  });
+
   var getCurrentUserModel = function(cb) {
     var ctx = loopback.getCurrentContext();
     var currentUser = ctx && ctx.get('currentUser');
@@ -79,6 +87,24 @@ module.exports = function(ReportModel) {
     }
     else {
       console.log(response);
+    }
+  };
+
+  ReportModel.getRows = function(id, cb) {
+    var currentUser = getCurrentUserModel(cb); // returns  immediately if no currentUser
+    if (currentUser) {
+      ReportModel.findByIdAsync(id)
+        .then(function (reportModelInstance) {
+          log('reportModelInstance', reportModelInstance);
+          reportModelInstance.stockOrderLineitemModels({}, function(err, data) {
+            if (err) {
+              console.error(err);
+              cb(err);
+            }
+            log('data', data);
+            cb(null, data);
+          });
+        });
     }
   };
 
@@ -168,4 +194,5 @@ module.exports = function(ReportModel) {
         });
     }
   };
+
 };

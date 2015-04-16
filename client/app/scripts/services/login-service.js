@@ -39,11 +39,10 @@ angular.module('ShoppinPalApp')
          * Get stores report
          */
         getStoreReport: function () {
-          //return ReportModel.findById({id: 1})
-          return ReportModel.find({include:['stockOrderLineitemModels']})
-            .$promise.then(function(reportModelInstance){
-              console.log('reportModelInstance:\n' + JSON.stringify(reportModelInstance,null,2));
-              return reportModelInstance.stockOrderLineitemModels();
+          return ReportModel.getRows({id:1})// TODO: replace hard-coded id with input from UI
+            .$promise.then(function(rows){
+              console.log('rows:\n' + JSON.stringify(rows,null,2));
+              return rows;
             },
             function (error) {
               alert('Something went wrong.');
