@@ -25,6 +25,7 @@ module.exports = function(app) {
   var StoreConfigModel = app.models.StoreConfigModel;
   var StoreModel = app.models.StoreModel;
   var SupplierModel = app.models.SupplierModel;
+  var ReportModel = app.models.ReportModel;
 
   var Application = app.models.Application;
 
@@ -175,10 +176,11 @@ module.exports = function(app) {
                       debug('created', JSON.stringify(accessToken,null,2));
                       debug('logged in w/ ' + retailUser.username + ' and token ' + accessToken.id);
 
-                      var reportModels = Promise.promisifyAll(retailUser.reportModels);
-                      return reportModels.createAsync(
+                      return ReportModel.findOrCreateAsync(
+                        {where:{id:1}}, // find
                         {
                           id: 1,
+                          userModelToReportModelId: retailUser.id, // explicitly setup the foreignKeys for related models
                           state: 'empty',
                           outlet: {
                             id: 'aea67e1a-b85c-11e2-a415-bc764e10976c',
@@ -188,9 +190,9 @@ module.exports = function(app) {
                             id: 'c364c506-f8f4-11e3-a0f5-b8ca3a64f8f4',
                             name: 'FFCC'
                           }
-                        }
+                        } // create
                       )
-                        .then(function(reportModelInstance) {
+                        .spread(function(reportModelInstance, created) {
                           debug('created reportModelInstance', JSON.stringify(reportModelInstance,null,2));
                           /*ReportModel.findOne({}, function(err, reportModelInstance) {
                             if (err) {
