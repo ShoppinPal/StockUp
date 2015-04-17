@@ -312,7 +312,7 @@ input:focus{
     border:1px solid #2bc565;
 }
 .column-text{
-  color: #02b4d9;
+  color: #02b8de;
   font-size: 16px;
   vertical-align: middle;
 }
@@ -413,4 +413,35 @@ input:focus{
   max-width: 250px;
   padding: 20px 30px;
   background-color: rgba(0,0,0,.7);
+}
+.edit-window{
+    color: #ffffff !important;
+    max-width: 450px;
+    text-align: center;
+    margin: 20px auto 10px auto;
+}
+.margin-right-50px{
+    margin-right:50px;
+}
+.edit-column-heading-text{
+    color: #ffffff;
+    font-size: 16px;
+}
+.edit-second-column-heading-text{
+    color: #ffffff;
+    font-size: 16px;
+    padding-left: 10px;
+}
+.edit-last-column-heading-text{
+    color: #ffffff;
+    font-size: 16px;
+    padding-left: 3px;
+}
+p.note-text{
+    padding-left: 15px;
+    color: #ffffff;
+    margin-bottom: 0px;
+}
+.note-sub-text{
+    color: #93c8ca;
 }

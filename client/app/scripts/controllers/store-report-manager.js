@@ -13,7 +13,8 @@ angular.module('ShoppinPalApp')
     $scope.storesReport = [];
     $scope.completedReports = [];
     $scope.alphabets = [];
-    $scope.submitToWarehouseButton = 'Submit To Warehouse';
+    $scope.submitToWarehouseButton = 'Review & Submit';
+    $scope.comments = '';
 
     /** This method will close the editable mode in store-report
       */
@@ -83,7 +84,6 @@ angular.module('ShoppinPalApp')
      */
     $scope.showCompletedReport = function() {
       $scope.storesReport = $scope.completedReports;
-      $scope.submitToWarehouseButton = 'Review & Submit';
     };
 
     /** @method submitToWarehouse
