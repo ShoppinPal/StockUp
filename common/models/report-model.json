@@ -9,7 +9,8 @@
     },
     "created": {
       "type": "date",
-      "required": false
+      "defaultFn": "now",
+      "required": true
     },
     "state": {
       "type": "string",
