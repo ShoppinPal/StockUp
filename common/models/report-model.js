@@ -93,7 +93,7 @@ module.exports = function(ReportModel) {
   ReportModel.getRows = function(id, cb) {
     var currentUser = getCurrentUserModel(cb); // returns  immediately if no currentUser
     if (currentUser) {
-      ReportModel.findByIdAsync(id)
+      ReportModel.findById(id)
         .then(function (reportModelInstance) {
           log('reportModelInstance', reportModelInstance);
           reportModelInstance.stockOrderLineitemModels({}, function(err, data) {
@@ -115,12 +115,12 @@ module.exports = function(ReportModel) {
       currentUser.createAccessTokenAsync(1209600)// can't be empty ... time to live (in seconds) 1209600 is 2 weeks (default of loopback)
         .then(function(newAccessToken){
           // (2) fetch the report
-          return ReportModel.findByIdAsync(id) // chain the promise via a return statement so unexpected rejections/errors float up
+          return ReportModel.findById(id) // chain the promise via a return statement so unexpected rejections/errors float up
             .then(function(reportModelInstance) {
               log('print object for reportModelInstance: ', reportModelInstance);
               // (3) fetch the store
               // TODO: is findOne buggy? does it return a result even when there are no matches?
-              return ReportModel.app.models.StoreModel.findOneAsync( // chain the promise via a return statement so unexpected rejections/errors float up
+              return ReportModel.app.models.StoreModel.findOne( // chain the promise via a return statement so unexpected rejections/errors float up
                 {
                   where: {'api_id': reportModelInstance.outlet.id}, //assumption: there aren't any duplicate entries
                   include: 'storeConfigModel' // (4) also fetch the store-config

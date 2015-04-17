@@ -66,7 +66,7 @@ module.exports = function(app) {
       var anotherRetailUser = {realm: 'portal', username: 'merchant2@shoppinpal.com', email: 'merchant2@shoppinpal.com', password: 'merchant2'};
 
       // (1) create users
-      UserModel.findOrCreateAsync(
+      UserModel.findOrCreate(
         {where: {username: adminUser.username}}, // find
         adminUser // or create
       )
@@ -77,7 +77,7 @@ module.exports = function(app) {
           adminUser = resolvedData[0];
           debug(adminUser);
 
-          return UserModel.findOrCreateAsync(
+          return UserModel.findOrCreate(
             {where: {username: retailUser.username}}, // find
             retailUser // or create
           );
@@ -87,7 +87,7 @@ module.exports = function(app) {
           retailUser = resolvedData[0];
           debug(retailUser);
 
-          return UserModel.findOrCreateAsync(
+          return UserModel.findOrCreate(
             {where: {username: anotherRetailUser.username}}, // find
             anotherRetailUser // or create
           );
@@ -176,7 +176,7 @@ module.exports = function(app) {
                       debug('created', JSON.stringify(accessToken,null,2));
                       debug('logged in w/ ' + retailUser.username + ' and token ' + accessToken.id);
 
-                      return ReportModel.findOrCreateAsync(
+                      return ReportModel.findOrCreate(
                         {where:{id:1}}, // find
                         {
                           id: 1,
@@ -215,7 +215,7 @@ module.exports = function(app) {
                           function(storeConfigSeedData){
                             var filteredStoreConfigSeedData = _.omit(storeConfigSeedData, 'storeModels');
                             filteredStoreConfigSeedData.userModelToStoreConfigModelId = retailUser.id;
-                            return StoreConfigModel.findOrCreateAsync(
+                            return StoreConfigModel.findOrCreate(
                               {where:{name:filteredStoreConfigSeedData.name}}, // find
                               filteredStoreConfigSeedData // create
                             )
@@ -238,7 +238,7 @@ module.exports = function(app) {
                                 return Promise.map(
                                   storeConfigSeedData.storeModels,
                                   function (storeSeedData) {
-                                    return StoreModel.findOrCreateAsync(
+                                    return StoreModel.findOrCreate(
                                       {where:{name:storeSeedData.name}}, // find
                                       storeSeedData // create
                                     )
@@ -268,7 +268,7 @@ module.exports = function(app) {
                                     return Promise.map(
                                       storeConfigSeedData.supplierModels, // can't handle undefined
                                       function (supplierSeedData) {
-                                        return SupplierModel.findOrCreateAsync(
+                                        return SupplierModel.findOrCreate(
                                           {where:{name:supplierSeedData.apiId}}, // find
                                           supplierSeedData // create
                                         )
