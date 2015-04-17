@@ -32,7 +32,6 @@ module.exports = function(app) {
   var seed = null;
   try {
     seed = require('./seed.json');
-    debug('seed', JSON.stringify(seed));
   } catch (err) {
     debug(
       'Please configure your data in `seed.json`.');
