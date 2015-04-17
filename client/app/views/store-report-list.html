@@ -20,7 +20,7 @@
                <P>ORDER IN PROGRESS</P>
                 <ul class="list-group" ng-repeat="report in reportList | filter: {state:'manager'} track by report.id">
                   <li class="list-group-item"
-                      ui-sref="store-report-manager({reportId:1})">
+                      ui-sref="store-report-manager({reportId:report.id})">
                       <span class="badge"></span> {{report.id}}
                   </li>
                 </ul>
