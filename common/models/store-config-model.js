@@ -54,7 +54,7 @@ module.exports = function(StoreConfigModel) {
 
       // Is GlobalConfigModel already promise'fied? YES!!!
       /*var GlobalConfigModel = StoreConfigModel.app.models.GlobalConfigModel;
-      return GlobalConfigModel.findOneAsync({})
+      return GlobalConfigModel.findOne({})
         .then(function(globalConfig) {
           console.log('globalConfig', globalConfig);
           cb(null);

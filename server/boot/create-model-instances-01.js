@@ -25,13 +25,13 @@ module.exports = function(app) {
   var StoreConfigModel = app.models.StoreConfigModel;
   var StoreModel = app.models.StoreModel;
   var SupplierModel = app.models.SupplierModel;
+  var ReportModel = app.models.ReportModel;
 
   var Application = app.models.Application;
 
   var seed = null;
   try {
     seed = require('./seed.json');
-    debug('seed', JSON.stringify(seed));
   } catch (err) {
     debug(
       'Please configure your data in `seed.json`.');
@@ -65,7 +65,7 @@ module.exports = function(app) {
       var anotherRetailUser = {realm: 'portal', username: 'merchant2@shoppinpal.com', email: 'merchant2@shoppinpal.com', password: 'merchant2'};
 
       // (1) create users
-      UserModel.findOrCreateAsync(
+      UserModel.findOrCreate(
         {where: {username: adminUser.username}}, // find
         adminUser // or create
       )
@@ -76,7 +76,7 @@ module.exports = function(app) {
           adminUser = resolvedData[0];
           debug(adminUser);
 
-          return UserModel.findOrCreateAsync(
+          return UserModel.findOrCreate(
             {where: {username: retailUser.username}}, // find
             retailUser // or create
           );
@@ -86,7 +86,7 @@ module.exports = function(app) {
           retailUser = resolvedData[0];
           debug(retailUser);
 
-          return UserModel.findOrCreateAsync(
+          return UserModel.findOrCreate(
             {where: {username: anotherRetailUser.username}}, // find
             anotherRetailUser // or create
           );
@@ -175,10 +175,11 @@ module.exports = function(app) {
                       debug('created', JSON.stringify(accessToken,null,2));
                       debug('logged in w/ ' + retailUser.username + ' and token ' + accessToken.id);
 
-                      var reportModels = Promise.promisifyAll(retailUser.reportModels);
-                      return reportModels.createAsync(
+                      return ReportModel.findOrCreate(
+                        {where:{id:1}}, // find
                         {
                           id: 1,
+                          userModelToReportModelId: retailUser.id, // explicitly setup the foreignKeys for related models
                           state: 'empty',
                           outlet: {
                             id: 'aea67e1a-b85c-11e2-a415-bc764e10976c',
@@ -188,9 +189,9 @@ module.exports = function(app) {
                             id: 'c364c506-f8f4-11e3-a0f5-b8ca3a64f8f4',
                             name: 'FFCC'
                           }
-                        }
+                        } // create
                       )
-                        .then(function(reportModelInstance) {
+                        .spread(function(reportModelInstance, created) {
                           debug('created reportModelInstance', JSON.stringify(reportModelInstance,null,2));
                           /*ReportModel.findOne({}, function(err, reportModelInstance) {
                             if (err) {
@@ -213,7 +214,7 @@ module.exports = function(app) {
                           function(storeConfigSeedData){
                             var filteredStoreConfigSeedData = _.omit(storeConfigSeedData, 'storeModels');
                             filteredStoreConfigSeedData.userModelToStoreConfigModelId = retailUser.id;
-                            return StoreConfigModel.findOrCreateAsync(
+                            return StoreConfigModel.findOrCreate(
                               {where:{name:filteredStoreConfigSeedData.name}}, // find
                               filteredStoreConfigSeedData // create
                             )
@@ -236,7 +237,7 @@ module.exports = function(app) {
                                 return Promise.map(
                                   storeConfigSeedData.storeModels,
                                   function (storeSeedData) {
-                                    return StoreModel.findOrCreateAsync(
+                                    return StoreModel.findOrCreate(
                                       {where:{name:storeSeedData.name}}, // find
                                       storeSeedData // create
                                     )
@@ -266,7 +267,7 @@ module.exports = function(app) {
                                     return Promise.map(
                                       storeConfigSeedData.supplierModels, // can't handle undefined
                                       function (supplierSeedData) {
-                                        return SupplierModel.findOrCreateAsync(
+                                        return SupplierModel.findOrCreate(
                                           {where:{name:supplierSeedData.apiId}}, // find
                                           supplierSeedData // create
                                         )

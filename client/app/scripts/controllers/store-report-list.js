@@ -21,7 +21,11 @@ angular.module('ShoppinPalApp')
         'GlenStone - Wed 21st Nov 2015'
       ];*/
       $scope.reportList = [];
-      UserModel.reportModels({id: LoopBackAuth.currentUserId})// TODO: file an enhancement request where currentUserId should be the default fallback
+      /* TODO: file an enhancement request w/ loopback,
+       *        the argument below shouldn't have to be explicit,
+       *        currentUserId should be the default if unspecified
+       */
+      UserModel.reportModels({id: LoopBackAuth.currentUserId})
         .$promise.then(function(response){
           console.log(response);
           $scope.reportList = response;

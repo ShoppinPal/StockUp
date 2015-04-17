@@ -50,6 +50,10 @@
     "dataSource": "db",
     "public": true
   },
+  "StockOrderLineitemModel": {
+    "dataSource": "db",
+    "public": true
+  },
   "SupplierModel": {
     "dataSource": "db",
     "public": true

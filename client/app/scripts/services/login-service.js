@@ -21,7 +21,7 @@ angular.module('ShoppinPalApp')
          * @method getSelectStore
          * Get all selected stores
          */
-        getSelectStore : function () {
+        getSelectStore: function () {
           return $http({
             url: 'scripts/json/storesReport.json',
             method: 'GET'
@@ -38,11 +38,24 @@ angular.module('ShoppinPalApp')
          * @method getStoreReport
          * Get stores report
          */
-        getStoreReport: function () {
-          return ReportModel.findById({id: 1})
-            .$promise.then(function(reportModelInstance){
-              console.log('reportModelInstance:\n' + JSON.stringify(reportModelInstance,null,2));
-              return reportModelInstance.content;
+        getStoreReport: function (reportId) {
+          return ReportModel.findById({
+            id: reportId, // TODO: replace hard-coded id with input from UI
+            filter: {
+              include: {
+                relation: 'stockOrderLineitemModels'/*,
+                scope: {
+                  skip: 0,
+                  limit: 500
+                }*/ /*use count() to determine total # of pages*/
+              }
+            }
+          })
+            .$promise.then(function (data) {
+              console.log('data:\n' + JSON.stringify(data, null, 2));
+              //console.log('data.stockOrderLineitemModels():\n' + JSON.stringify(data.stockOrderLineitemModels(),null,2));
+              console.log('data.stockOrderLineitemModels:\n' + JSON.stringify(data.stockOrderLineitemModels, null, 2));
+              return data.stockOrderLineitemModels;
             },
             function (error) {
               alert('Something went wrong.');
@@ -50,5 +63,7 @@ angular.module('ShoppinPalApp')
             });
         }
       };
+
     }
+
   ]);
