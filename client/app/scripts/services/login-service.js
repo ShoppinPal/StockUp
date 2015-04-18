@@ -40,14 +40,14 @@ angular.module('ShoppinPalApp')
          */
         getStoreReport: function (reportId) {
           return ReportModel.findById({
-            id: reportId, // TODO: replace hard-coded id with input from UI
+            id: reportId,
             filter: {
               include: {
                 relation: 'stockOrderLineitemModels'/*,
                 scope: {
                   skip: 0,
                   limit: 500
-                }*/ /*use count() to determine total # of pages*/
+                }*/ /*TODO: use count() to determine total # of pages*/
               }
             }
           })

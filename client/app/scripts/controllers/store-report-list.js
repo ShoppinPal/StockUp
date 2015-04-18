@@ -39,13 +39,21 @@ angular.module('ShoppinPalApp')
           {id: LoopBackAuth.currentUserId},
           {
             state: 'empty',
-            outlet: {
+            /*outlet: { // fermiyontest
               id: 'aea67e1a-b85c-11e2-a415-bc764e10976c',
               name: 'OKC'
             },
-            supplier: {
+            supplier: { // fermiyontest
               id: 'c364c506-f8f4-11e3-a0f5-b8ca3a64f8f4',
               name: 'FFCC'
+            }*/
+            outlet: { // patricias
+              name: 'Reno Gift Shop',
+              id: '51c061d2-ac24-11e2-a415-bc764e10976c'
+            },
+            supplier: { // patricias
+              name: 'FFCC',
+              id: '504b39c3-a6c4-11e2-a415-bc764e10976c'
             }
           }
         )
