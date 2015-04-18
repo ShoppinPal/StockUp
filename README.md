@@ -43,6 +43,11 @@ npm install grunt-contrib-compass --save-dev
   "host": "0.0.0.0",
   "port": 3000,
   "aclErrorStatus": 403,
+  "remoting": {
+    "json": {
+      "limit": "50mb"
+    }
+  },
   "site": {
     "baseUrl": "http://localhost:3000",
     "proxyUrl": ""

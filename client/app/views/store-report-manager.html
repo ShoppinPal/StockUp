@@ -42,9 +42,9 @@
                          <tr ng-hide="$index==selectedStore" ng-swipe-right="deleteStore(storereport)" ng-swipe-left="editStore($index)">
                             <td>{{storereport.sku}}</td>
                             <td>{{storereport.name}}</td>
-                            <td>{{storereport.quantityinhand}}</td>
+                            <td>{{storereport.quantityOnHand}}</td>
                             <td>{{storereport.desiredStockLevel}}</td>
-                            <td>{{storereport.orderqty}}</td>
+                            <td>{{storereport.orderQuantity}}</td>
                           </tr>
                           <tr ng-if="comments">
                             <td colspan="5">
