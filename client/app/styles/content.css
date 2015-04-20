@@ -409,3 +409,112 @@ input:focus{
 .comment-label{
 	width: 90%;
 }
+/*Store-landig page CSS*/
+
+.table.store-landing-table{
+	margin-bottom: 0px;
+}
+.store-landing-table.table > thead > tr > th, 
+.store-landing-table.table > tbody > tr > th, 
+.store-landing-table.table > tfoot > tr > th, 
+.store-landing-table.table > thead > tr > td, 
+.store-landing-table.table > tbody > tr > td, 
+.store-landing-table.table > tfoot > tr > td {
+    border-top: 0px solid #ddd;
+    padding: 0px;
+}
+
+.table.store-landing-table th:first-child{
+	vertical-align: middle;
+	border-left: 1px solid #71aaac;
+	box-shadow: -1px 0 0 #baf0f2, 1px 0 0 #baf0f2;
+}
+.table.store-landing-table th{
+	vertical-align: middle;
+	border-right: 1px solid #71aaac;
+	box-shadow: 1px 0 0 #baf0f2;
+}
+
+
+.table.table-responsive.store-landing-left-table th{
+	border-right:0px;
+}
+
+.table.left-table, .table.store-landing-left-table{
+	margin-bottom: 0px;
+}
+.store-landing-left-table th, .store-landing-left-table td{
+	text-align: center;
+}
+.store-landing-left-table thead tr{
+	background: #93c8ca;
+}
+.table.store-landing-left-table tbody td{
+	padding: 30px 0px;
+}
+.table.store-landing-left-table tbody tr{
+	background: #93c8ca;
+}
+.table.store-landing-left-table tbody tr td{
+	border-top: 1px solid #93c8ca;
+}
+.table.store-landing-left-table > thead > tr > th {
+    border-bottom: 2px solid #93c8ca;
+    vertical-align: bottom;
+}
+.store-landing-left-table td a{
+	color: #442861;
+	font-weight: bold;
+}
+.store-landing-left-table td a:hover{
+	color: #2d8d5a;
+	text-decoration: underline;
+}
+
+.table.store-landing-right-table{
+	margin-bottom: 0px;
+}
+
+.table.table-responsive.store-landing-right-table > thead > tr > th {
+    border-bottom: 1px solid #93c8ca;
+}
+.table.table-responsive.store-landing-right-table thead tr{
+	text-transform: uppercase;
+}
+.store-landing-right-table th, .store-landing-right-table td{
+	text-align: center;
+}
+.store-landing-right-table thead tr{
+	background: #93c8ca;
+}
+.table.store-landing-right-table tbody td{
+	padding: 10px 0px;
+	vertical-align: middle;
+}
+
+.store-landing-right-table tbody tr td:first-child{
+	text-align: left !important;
+	padding-left:10px;
+}
+.table.store-landing-right-table tbody tr:nth-child(3n+1){
+    background: #ffffff;
+}
+.table.store-landing-right-table tbody tr:nth-child(3n+2) {  
+    background: #fcbaae;
+}
+.table.store-landing-right-table tbody tr:nth-child(3n+3) {
+   background: #fde7ab;
+}
+.table.store-landing-right-table tbody tr:nth-child(3n+4) {
+    background: #b2e5a2;
+}
+.hidden-td{
+	visibility: hidden;
+}
+.show-more-link{
+	color: #442861;
+	text-transform:capitalize;
+}
+.show-more-link:hover{
+	color: #2d8d5a;
+}
