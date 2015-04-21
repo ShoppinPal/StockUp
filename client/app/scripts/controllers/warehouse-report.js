@@ -16,7 +16,7 @@ angular.module('ShoppinPalApp')
       $scope.boxItems= 0;
       $scope.closedboxes = [];
       $scope.index = 0;
-      $scope.openBox = false;
+      $scope.openBox = true;
 
       /** @method addNewBox
         * @description 

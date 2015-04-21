@@ -1,3 +1,4 @@
+global.Promise = require('bluebird');
 var loopback = require('loopback');
 var boot = require('loopback-boot');
 

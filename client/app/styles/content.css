@@ -411,8 +411,9 @@ input:focus{
 }
 .tooltip-inner {
   max-width: 250px;
-  padding: 20px 30px;
-  background-color: rgba(0,0,0,.7);
+  padding: 20px;
+  background-color: rgba(0,0,0,.6);
+  border-radius: 0px;
 }
 .edit-window{
     color: #ffffff !important;
@@ -430,12 +431,12 @@ input:focus{
 .edit-second-column-heading-text{
     color: #ffffff;
     font-size: 16px;
-    padding-left: 10px;
+    padding-left: 15px;
 }
 .edit-last-column-heading-text{
     color: #ffffff;
     font-size: 16px;
-    padding-left: 3px;
+    padding-left: 11px;
 }
 p.note-text{
     padding-left: 15px;
@@ -444,4 +445,44 @@ p.note-text{
 }
 .note-sub-text{
     color: #93c8ca;
+}
+.popover-content{
+    padding: 0px;
+}
+.popover.left > .arrow::after {
+    border-left-color: rgba(0, 0, 0, 0.4);
+}
+.popover.left {
+    margin-left: 0px;
+}
+.popover-btn-lg-green{
+    border-radius: 5px;
+    width: 100%;
+    background: #2d8d5a;
+    text-transform: uppercase;
+    padding: 10px 30px;
+    font-size: 14px;
+    border:0px;
+    font-weight: 600;
+    border:1px solid #2d8d5a;
+}
+.popover-btn-lg-green:hover{
+    background: transparent;
+    border:1px solid #ffffff;
+}
+.popover-btn-lg-blue{
+    border-radius: 5px;
+    width: 100%;
+    background: #1f899f;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    padding: 10px 30px;
+    font-size: 14px;
+    border:0px;
+    font-weight: 600;
+    border:1px solid #1f899f;
+}
+.popover-btn-lg-blue:hover{
+    background: transparent;
+    border:1px solid #ffffff;
 }

@@ -34,6 +34,14 @@ module.exports = function(ReportModel) {
     returns: {arg: 'reportModelInstance', type: 'object', root:true}
   });
 
+  ReportModel.remoteMethod('getRows', {
+    accepts: [
+      {arg: 'id', type: 'number', required: true}
+    ],
+    http: {path: '/:id/rows', verb: 'get'},
+    returns: {arg: 'rows', type: 'array', root:true}
+  });
+
   var getCurrentUserModel = function(cb) {
     var ctx = loopback.getCurrentContext();
     var currentUser = ctx && ctx.get('currentUser');
@@ -82,6 +90,24 @@ module.exports = function(ReportModel) {
     }
   };
 
+  ReportModel.getRows = function(id, cb) {
+    var currentUser = getCurrentUserModel(cb); // returns  immediately if no currentUser
+    if (currentUser) {
+      ReportModel.findById(id)
+        .then(function (reportModelInstance) {
+          log('reportModelInstance', reportModelInstance);
+          reportModelInstance.stockOrderLineitemModels({}, function(err, data) {
+            if (err) {
+              console.error(err);
+              cb(err);
+            }
+            log('data', data);
+            cb(null, data);
+          });
+        });
+    }
+  };
+
   ReportModel.generateStockOrderReportForManager = function(id, cb) {
     var currentUser = getCurrentUserModel(cb); // returns  immediately if no currentUser
     if(currentUser) {
@@ -89,12 +115,12 @@ module.exports = function(ReportModel) {
       currentUser.createAccessTokenAsync(1209600)// can't be empty ... time to live (in seconds) 1209600 is 2 weeks (default of loopback)
         .then(function(newAccessToken){
           // (2) fetch the report
-          return ReportModel.findByIdAsync(id) // chain the promise via a return statement so unexpected rejections/errors float up
+          return ReportModel.findById(id) // chain the promise via a return statement so unexpected rejections/errors float up
             .then(function(reportModelInstance) {
               log('print object for reportModelInstance: ', reportModelInstance);
               // (3) fetch the store
               // TODO: is findOne buggy? does it return a result even when there are no matches?
-              return ReportModel.app.models.StoreModel.findOneAsync( // chain the promise via a return statement so unexpected rejections/errors float up
+              return ReportModel.app.models.StoreModel.findOne( // chain the promise via a return statement so unexpected rejections/errors float up
                 {
                   where: {'api_id': reportModelInstance.outlet.id}, //assumption: there aren't any duplicate entries
                   include: 'storeConfigModel' // (4) also fetch the store-config
@@ -127,7 +153,7 @@ module.exports = function(ReportModel) {
                       loopbackServerUrl: process.env['site:baseUrl'],
                       //loopbackServerHost: 'mppulkit1.localtunnel.me',
                       //loopbackServerPort: '443',
-                      loopbackAccessToken: newAccessToken.id,//'cWSlf731lpFFbkL1Qt6cnIAb9c8QdKFunnvFGf87Xrh93ottgA8aONuHA1Vt42Kw',
+                      loopbackAccessToken: newAccessToken, // let it be the full json object
                       reportId: id,
                       outletId: reportModelInstance.outlet.id,//'aea67e1a-b85c-11e2-a415-bc764e10976c',
                       supplierId: reportModelInstance.supplier.id//'c364c506-f8f4-11e3-a0f5-b8ca3a64f8f4'
@@ -168,4 +194,5 @@ module.exports = function(ReportModel) {
         });
     }
   };
+
 };
