@@ -29,12 +29,9 @@
                                     <tr>
                                         <th>SKU</th>
                                         <th>Name</th>
-                                        <th>O.H.
-                                            <br/>QTY.</th>
-                                        <th>D.S
-                                            <br/>Level</th>
-                                        <th>O.
-                                            <br/>Qty.</th>
+                                        <th>Quantity on Hand</th>
+                                        <th>Desired Stock Level</th>
+                                        <th>Ordered Quantity</th>
                                     </tr>
                                 </thead>
                                 <tbody ng-repeat="storereport in storesReport | orderBy:'type'| groupBy: 'type'">
@@ -60,8 +57,8 @@
                                     <tr ng-show="$index==selectedStore" class="edit-row">
                                         <td colspan="6">
                                             <div class="row">
-                                                <div class="col-sm-3 edit-column-heading-text">{{storereport.sku}}</div>
-                                                <div class="col-sm-3">
+                                                <div class="col-sm-1 edit-column-heading-text">{{storereport.sku}}</div>
+                                                <div class="col-sm-2">
                                                     <div class="edit-second-column-heading-text">{{storereport.name}}</div>
                                                 </div>
                                                 <div class="col-sm-3">

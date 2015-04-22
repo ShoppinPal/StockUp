@@ -129,9 +129,9 @@ angular.module('ShoppinPalApp')
        */
       $scope.$on('$viewContentLoaded', function() {
         //loginService.getSelectStore()
-        loginService.getSelectStore($stateParams.reportId)
+        loginService.getSelectStore()
           .then(function (response) {
-            $scope.storesReport = response;
+            $scope.storesReport = response.data.storesReport;
             $scope.storereportlength = $scope.storesReport.length;
             $scope.JumtoDepartment();
           });

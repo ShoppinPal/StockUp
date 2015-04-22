@@ -18,27 +18,33 @@ angular.module('ShoppinPalApp')
       $scope.userName ='';
       $scope.password ='';
 
+      $scope.keypressCallback = function($event) {
+        $event.target.blur();
+    }
+
       // validate login and transition to select store page
       $scope.login = function login(){
+       // alert($scope.userName+""+$scope.password);
+        $state.go('store-report-list');
         // Reference: http://docs.strongloop.com/display/public/LB/Logging+in+users
-        UserModel.login({
-          realm: 'portal',
-          username: $scope.userName,
-          password: $scope.password
-        })
-          .$promise.then(function(accessToken){
-            console.log('accessToken', accessToken);
-            $sessionStorage.currentUser = accessToken;
-            console.log('sessiontoken:', $sessionStorage.currentUser.id);
-            $state.go('store-report-list');
-          },
-          function(error){
-            console.log('login() failed');
-            console.log(error);
-            if (error && error.data && error.data.error) {
-              //TODO: @afzal and @chhaya - show an error to user
-            }
-          });
+        // UserModel.login({
+        //   realm: 'portal',
+        //   username: $scope.userName,
+        //   password: $scope.password
+        // })
+        //   .$promise.then(function(accessToken){
+        //     console.log('accessToken', accessToken);
+        //     $sessionStorage.currentUser = accessToken;
+        //     console.log('sessiontoken:', $sessionStorage.currentUser.id);
+        //     $state.go('store-report-list');
+        //   },
+        //   function(error){
+        //     console.log('login() failed');
+        //     console.log(error);
+        //     if (error && error.data && error.data.error) {
+        //       //TODO: @afzal and @chhaya - show an error to user
+        //     }
+        //   });
       };
 
     }

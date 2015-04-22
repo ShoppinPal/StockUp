@@ -8,8 +8,8 @@
  * Controller of the ShoppinPalApp
  */
 angular.module('ShoppinPalApp')
-  .controller('WarehouseReportCtrl',['$scope','$state','loginService','$anchorScroll','$location',
-    function ($scope,$state,loginService, $anchorScroll, $location){
+  .controller('WarehouseReportCtrl',['$scope','$document','$state','loginService','$anchorScroll','$location',
+    function ($scope,$document,$state,loginService, $anchorScroll, $location){
 
       $scope.alphabets = [];
       $scope.movedToBox = [];
@@ -17,6 +17,18 @@ angular.module('ShoppinPalApp')
       $scope.closedboxes = [];
       $scope.index = 0;
       $scope.openBox = true;
+      $scope.submit = "Review & Submit";
+      $scope.closeBoxButtonLabel = "CLOSE THIS BOX";
+      $scope.printSlipButtonLabel = "PRINT PACKING SLIP";
+
+       /** This method will close the editable mode in store-report
+       */
+      $document.on('click', function(event) {
+        if (angular.element(event.target).hasClass('shoppinPal-warehouse')) {
+          $scope.selectedStore  = $scope.storereportlength + 1;
+          $scope.$apply();
+        }
+      });
 
       /** @method addNewBox
         * @description 
@@ -26,6 +38,9 @@ angular.module('ShoppinPalApp')
         $scope.openBox = true;
       };
 
+      /** @method closeBox
+        * This will close the box 
+        */
       $scope.closeBox = function(hidebox,itemCount){
         hidebox;
         $scope.boxItems = 0;
@@ -49,6 +64,35 @@ angular.module('ShoppinPalApp')
           }
         }
       };
+
+      /** @method editWarehouse
+        * @param store
+        * enable the edit mode in UI
+        */
+      $scope.editWarehouse = function(selectedRow) {
+        $scope.selectedStore = selectedRow;
+      };
+
+      /** @method decreaseQty
+       * @param storereport
+       * This method decreases the desiredStockLevel quantity ,when user tap on '-'' sign
+       */
+      $scope.decreaseQty = function(storereport) {
+        storereport.desiredStockLevel = parseInt(storereport.desiredStockLevel); // parse it from string to integer
+        if(storereport.desiredStockLevel >0){
+          storereport.desiredStockLevel -= 1;
+        } 
+      };
+
+      /** @method increaseQty
+       * @param storereport
+       * This method increase the desiredStockLevel quantity ,when user tap on '+' sign
+       */
+      $scope.increaseQty = function(storereport) {
+        storereport.desiredStockLevel = parseInt(storereport.desiredStockLevel);
+        storereport.desiredStockLevel += 1;
+      };
+
 
     /** @method gotoDepartment
      * @param value

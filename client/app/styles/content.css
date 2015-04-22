@@ -436,7 +436,7 @@ input:focus{
 .edit-last-column-heading-text{
     color: #ffffff;
     font-size: 16px;
-    padding-left: 11px;
+    padding-left: 58px;
 }
 p.note-text{
     padding-left: 15px;
@@ -485,4 +485,14 @@ p.note-text{
 .popover-btn-lg-blue:hover{
     background: transparent;
     border:1px solid #ffffff;
+}
+.edit-second-column-heading-text-warehouse{
+    color: #ffffff;
+    font-size: 16px;
+    padding-left: 0px;
+}
+.edit-last-column-heading-text-warehouse{
+    color: #ffffff;
+    font-size: 16px;
+    padding-left: 29px;
 }
