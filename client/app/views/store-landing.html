@@ -1,172 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Shopping Pal | Store Landing</title>
+    <link href="css/style.css" type="text/css" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.js"></script>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    </head>
+
+<body>
 <div class="container">
     <div class="row">
-        <div class="col-sm-12 col-md-12">
-            <!-- Select store header -->
-            <header class="header">
-                <div class="row">
-                    <div class="col-md-5 col-sm-3 col-xs-12">
-                        <div class="logo">Glenstone</div>
-                    </div>
-                    <div class="col-md-7 col-sm-9 col-xs-12">
-                        <div class="log-in-text">You are logged in as a <span><a href="#">Store Manager/WH/SR</a>&nbsp;&nbsp; </span>|&nbsp;&nbsp;<a href="#" class="logout-text">LOGOUT</a></div>
-                        <div class="btn-align">
-                            <!-- <button type="submit" class="btn btn-primary button-large-blue">Show Completed</button> -->
-                            <button type="submit" class="btn btn-primary button-large-green">Create Manual Order</button>
-                        </div>
-                    </div>
-                    <!-- <div class="col-md-3 col-sm-3 col-xs-12 btn-align"><button type="submit" class="btn btn-primary login-btn">Logout</button></div> -->
+      <div class="col-sm-12 col-md-12">
+        <!-- Select store header -->
+          <header class="header">
+              <div class="row">
+                  <div class="col-md-5 col-sm-3 col-xs-12"><div class="logo">Glenstone</div></div>
+                  <div class="col-md-7 col-sm-9 col-xs-12"> 
+                    <div class="log-in-text">You are logged in as a <span><a href="#">Store Manager/WH/SR</a>&nbsp;&nbsp; </span>|&nbsp;&nbsp;<a href="#" class="logout-text">LOGOUT</a></div>
+                    <div class="btn-align">
+                    <!-- <button type="submit" class="btn btn-primary button-large-blue">Show Completed</button> -->  
+                    <button type="submit" class="btn btn-primary button-large-green">Create Manual Order</button></div>
+                  </div>
+                  <!-- <div class="col-md-3 col-sm-3 col-xs-12 btn-align"><button type="submit" class="btn btn-primary login-btn">Logout</button></div> -->
+              </div>
+          </header>
+      </div>
+      </div>
+          <!-- Report Manager page content -->
+      <div class="row main-container">
+          	<div class="inner-container">	
+                  <div class="ipad-search">
+                      <ul>
+                      <li>Jump <br>To</li>
+                  	  <li><a title="A" href="#A">Armour</a></li>
+                      <li><a title="B" href="#B">Cave Springs</a></li>
+                      <li><a title="C" href="#C">Kellog</a></li>
+                      <li><a title="D" href="#D">Memorial</a></li>
+                      <li><a title="E" href="#E">Page</a></li>
+                      <li><a title="F" href="#F">F</a></li>
+                      <li><a title="G" href="#G">G</a></li>
+                      <li><a title="H" href="#H">H</a></li>
+                      <li><a title="I" href="#I">I</a></li>
+                      <li><a title="J" href="#J">J</a></li>
+                      <li><a title="K" href="#K">K</a></li>
+                      <li><a title="L" href="#L">L</a></li>
+                      <li><a title="M" href="#M">M</a></li>
+                      <li><a title="N" href="#N">N</a></li>
+                      <li><a title="O" href="#O">O</a></li>
+                      <li><a title="P" href="#P">P</a></li>
+                    </ul>
+                  </div>
+                <div class="center-block">
+                  <div class="ipad-scroll">
+                    <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
+                         <thead>
+                           <tr>
+                              <th>Order ID</th>
+                              <th>Order Name</th>
+                              <th>#Status</th>
+                              <th>#Total Items</th>
+                            </tr>
+                         </thead>
+                    </table>
+                    <div class="scrollable-table">
+                    <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
+                         <tbody ng-repeat="storereport in storesReport | orderBy:'type'| groupBy: 'type'">
+                           <tr class="inner-table-heading">
+						     <td colspan="4" ng-if="storereport.group_by_CHANGED"><span class="table-heading-font">{{storereport.type}}</span>
+							 </td>
+						   </tr>
+                           <tr>
+                            <td>{{storereport.sku}}</td>
+                            <td>{{storereport.name}}</td>
+                            <td>{{storereport.quantityOnHand}}</td>
+                            <td>{{storereport.desiredStockLevel}}</td>
+                           </tr>
+                         </tbody>
+              </table>
                 </div>
-            </header>
-            <!-- Report Manager page content -->
-            <div class="main-container">
-                <table cellpadding="0" cellspacing="0" class="table table-responsive store-landing-table" width="100%" border="0">
-                    <tr class="table-header-main">
-                        <td class="td-height v-align-middle" width="10%"><span class="td-padding">Jump <br/>To</span></td>
-                        <td width="81%" rowspan="2" valign="top">
-                            <table cellpadding="0" cellspacing="0" width="100%" class="table table-responsive store-landing-right-table">
-                                <thead>
-                                    <tr>
-                                        <th>Order ID</th>
-                                        <th>Order Name</th>
-                                        <th>#Status</th>
-                                        <th>#Total Items</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr class="inner-table-heading">
-                                        <td colspan="4"><span class="table-heading-font">FMCC</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>XyzXyz</td>
-                                        <td>Test Product</td>
-                                        <td>17</td>
-                                        <td>12</td>
-                                    </tr>
-                                    <tr>
-                                        <td>XyzXyz</td>
-                                        <td>Test Product</td>
-                                        <td>17</td>
-                                        <td>12</td>
-                                    </tr>
-                                    <tr>
-                                        <td>XyzXyz</td>
-                                        <td>Test Product</td>
-                                        <td>17</td>
-                                        <td>12</td>
-                                    </tr>
-                                    <tr class="inner-table-heading">
-                                        <td><span class="table-heading-font">CSC</span></td>
-                                        <td class="hidden-td"><span class="table-heading-font">CSC</span></td>
-                                        <td class="hidden-td"><span class="table-heading-font">CSC</span></td>
-                                        <td><span class="table-heading-font"><a href="#" class="show-more-link">Show More....</a></span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>XyzXyz</td>
-                                        <td>Test Product</td>
-                                        <td>17</td>
-                                        <td>12</td>
-                                    </tr>
-                                    <tr>
-                                        <td>XyzXyz</td>
-                                        <td>Test Product</td>
-                                        <td>17</td>
-                                        <td>12</td>
-                                    </tr>
-                                    <tr>
-                                        <td>XyzXyz</td>
-                                        <td>Test Product</td>
-                                        <td>17</td>
-                                        <td>12</td>
-                                    </tr>
-                                    <tr class="inner-table-heading">
-                                        <td><span class="table-heading-font">CSC</span></td>
-                                        <td class="hidden-td"></td>
-                                        <td class="hidden-td"></td>
-                                        <td><span class="table-heading-font"><a href="#" class="show-more-link">Show More...</a></span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>XyzXyz</td>
-                                        <td>Test Product</td>
-                                        <td>17</td>
-                                        <td>12</td>
-                                    </tr>
-                                    <tr>
-                                        <td>XyzXyz</td>
-                                        <td>Test Product</td>
-                                        <td>17</td>
-                                        <td>12</td>
-                                    </tr>
-                                    <tr>
-                                        <td>XyzXyz</td>
-                                        <td>Test Product</td>
-                                        <td>17</td>
-                                        <td>12</td>
-                                    </tr>
-                                    <tr class="inner-table-heading">
-                                        <td><span class="table-heading-font">Others</span></td>
-                                        <td class="hidden-td"></td>
-                                        <td class="hidden-td"></td>
-                                        <td><span class="table-heading-font"><a href="#" class="show-more-link">Show More...</a></span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>XyzXyz</td>
-                                        <td>Test Product</td>
-                                        <td>17</td>
-                                        <td>12</td>
-                                    </tr>
-                                    <tr>
-                                        <td>XyzXyz</td>
-                                        <td>Test Product</td>
-                                        <td>17</td>
-                                        <td>12</td>
-                                    </tr>
-                                    <tr>
-                                        <td>XyzXyz</td>
-                                        <td>Test Product</td>
-                                        <td>17</td>
-                                        <td>12</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr class="tr-bg" valign="top">
-                        <td>
-                            <table cellpadding="0" cellspacing="0" class="table table-responsive store-landing-left-table">
-                                <tbody>
-                                    <tr>
-                                        <td><a href="#">Armour</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td><a href="#">Cave Springs</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td><a href="#">Kellog</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td><a href="#">Memorial</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td><a href="#">Page</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td><a href="#">E</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td><a href="#">F</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td><a href="#">K</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td><a href="#">B</a></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
+                </div>
+              </div>
+            </div>      
+          </div>
+          </div>
+       
+</body>
+</html>

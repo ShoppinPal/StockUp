@@ -473,6 +473,7 @@ input:focus{
 
 .table.store-landing-right-table{
 	margin-bottom: 0px;
+	border-left: 1px solid #baf0f2;
 }
 
 .table.table-responsive.store-landing-right-table > thead > tr > th {
@@ -518,3 +519,67 @@ input:focus{
 .show-more-link:hover{
 	color: #2d8d5a;
 }
+
+
+/*Jump To New Structure CSS*/
+
+.inner-container{
+	width: 100%;
+	position:relative;
+}
+.ipad-search {
+	width: 110px;
+    list-style: outside none none;
+    margin: 0 0;
+    padding: 0;
+    position: absolute;
+    text-align: center;
+    background: #93c8ca;
+    height: 655px;
+}
+.ipad-scroll {
+    list-style: outside none none;
+    margin: 0 0 0 110px;
+    padding: 0;
+    background: #93c8ca;
+}
+.table.store-landing-right-table th{
+    border-right: 1px solid #71aaac;
+    box-shadow: -0px 0 0 #baf0f2, 1px 0 0 #baf0f2;
+    vertical-align: middle;
+}
+.ipad-search ul{
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+.ipad-search ul li:first-child{
+	padding: 0;
+	margin: 0;
+	list-style: none;
+	padding: 10px;
+	font-size: 14px;
+	font-weight: bold;
+	text-transform: uppercase;
+}
+.ipad-search ul li{
+	padding: 0;
+	margin: 0;
+	list-style: none;
+	padding: 10px 0px;
+	color: #442861;
+}
+.ipad-search ul li a{
+	color: #442861;
+	font-weight: bold;
+}
+.ipad-search ul li a:hover{
+	color: #2d8d5a;
+	text-decoration: underline;
+	font-weight: bold;
+}
+.scrollable-table{
+	overflow-y: scroll;
+    height: 600px;
+}
+/*End of Jump To New Structure CSS*/
