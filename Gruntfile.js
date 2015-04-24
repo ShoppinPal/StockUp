@@ -266,7 +266,7 @@ module.exports = function (grunt) {
       }
     },
     concurrent: {
-      development: {
+      all: {
         tasks: [
           'compass:server',
           'copy:styles'
@@ -324,7 +324,7 @@ module.exports = function (grunt) {
       production: {}
     },
     replace: {
-      development: {
+      all: {
         options: {
           patterns: [
             {
@@ -418,7 +418,7 @@ module.exports = function (grunt) {
         'loopback_sdk_angular', // TODO: this is eventually called by `build` task too, remove from here?
         'localtunnel:' + env,
         'clean:server',
-        'concurrent:' + env,
+        'concurrent:all',
         'env:' + env, // TODO: move this to be right after `localtunnel` task? or will it exacerbate the race condition?
         'build:' + env,
         'run:' + env,
@@ -437,7 +437,7 @@ module.exports = function (grunt) {
       'loopback_sdk_angular',
       'clean:dist',
       'useminPrepare',
-      'concurrent:' + env,
+      'concurrent:all',
       'concat',
       'copy:dist',
       'cdnify',
@@ -445,7 +445,30 @@ module.exports = function (grunt) {
       'uglify',
       'rev',
       'usemin',
-      'replace:' + env
+      'replace:all'
+    ]);
+  });
+
+  grunt.registerTask('deploy', function(env) {
+    if (!env) {
+      return grunt.util.error('You must specify an environment');
+    }
+    grunt.option('environment', env);
+    grunt.task.run([
+      'jshint',
+      'loadConfig:' + env,
+      'loopback_sdk_angular',
+      'clean:dist',
+      'useminPrepare',
+      'concurrent:all',
+      'concat',
+      'copy:dist',
+      'cdnify',
+      'cssmin',
+      'uglify',
+      'rev',
+      'usemin',
+      'replace:all'
     ]);
   });
 
