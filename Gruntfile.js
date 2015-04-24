@@ -449,4 +449,7 @@ module.exports = function (grunt) {
     ]);
   });
 
+  grunt.registerTask('test', function(){
+    console.log ('skip tests for now - to be implemented...');
+  });
 };
