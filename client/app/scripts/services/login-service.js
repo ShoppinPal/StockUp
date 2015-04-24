@@ -33,6 +33,22 @@ angular.module('ShoppinPalApp')
               console.error(error);
             });
         },
+         /**
+         * @method getSelectStore
+         * Get all selected stores
+         */
+        getSelectStoreStatus: function () {
+          return $http({
+            url: 'scripts/json/storesReportLanding.json',
+            method: 'GET'
+          }).then(function (response) {
+              return response;
+            },
+            function (error) {
+              alert('Somthing went wrong.');
+              console.error(error);
+            });
+        },
 
         /**
          * @method getStoreReport

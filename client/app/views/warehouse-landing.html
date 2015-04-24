@@ -24,7 +24,7 @@
                 <ul>
                     <li>JumpTo
                         <br>Supplier</li>
-                    <li ng-repeat="store in storesReport | unique:'type'">
+                    <li ng-repeat="store in storesReport | unique:'type' | orderBy: 'type'">
                         <a href="" ng-click="gotoDepartment(store.type)">{{store.type}}</a>
                     </li>
                 </ul>
@@ -36,8 +36,9 @@
                             <tr>
                                 <th width="15%">order id</th>
                                 <th width="15%">order Name</th>
-                                <th width="30%">#boxes</th>
-                                <th width="30%">#total items</th>
+                                <th width="15%">status</th>
+                                <th width="15%">total items</th>
+                                <th width="30%">actions</th>
                             </tr>
                         </thead>
                     </table>
@@ -52,8 +53,12 @@
                                 ng-hide="$index==selectedStore" ng-swipe-right="deleteStore(storereport)" ng-swipe-left="editStore($index)">
                                     <td width="15%">{{storereport.sku}}</td>
                                     <td width="15%">{{storereport.name}}</td>
-                                    <td width="30%">{{storereport.quantityinhand}}</td>
-                                    <td width="30%">{{storereport.desiredStockLevel}}</td>
+                                    <td width="15%">{{storereport.quantityinhand}}</td>
+                                    <td width="15%">{{storereport.desiredStockLevel}}</td>
+                                    <td width="30%">
+                                        <button>IMPORT</button>
+                                        <button>EXPORT</button>
+                                    </td>
                                 </tr>
                                 <tr ng-if="comments" ng-hide="$index==selectedStore">
                                     <td colspan="5">

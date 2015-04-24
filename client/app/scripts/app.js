@@ -60,6 +60,12 @@ angular.module('ShoppinPalApp', [
           controller: 'StoreLandingCtrl',
           authenticate: false
         })
+        .state('warehouse-landing', {
+          url: '/warehouse-landing',
+          templateUrl: 'views/warehouse-landing.html',
+          controller: 'WarehouseLandingCtrl',
+          authenticate: false
+        })
         .state('store-report-manager', {
           url: '/store-report-manager/:reportId',
           templateUrl: 'views/store-report-manager.html',

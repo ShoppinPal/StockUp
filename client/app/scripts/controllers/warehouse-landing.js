@@ -2,13 +2,13 @@
 
 /**
  * @ngdoc function
- * @name ShoppinPalApp.controller:StoreLandingCtrl
+ * @name ShoppinPalApp.controller:WarehouseLandingCtrl
  * @description
- * # StoreLandingCtrl
+ * # WarehouseLandingCtrl
  * Controller of the ShoppinPalApp
  */
 angular.module('ShoppinPalApp')
-    .controller('StoreLandingCtrl', ['$scope', 'loginService',
+    .controller('WarehouseLandingCtrl', ['$scope', 'loginService',
         function($scope, loginService) {
 
             /** @method viewContentLoaded
