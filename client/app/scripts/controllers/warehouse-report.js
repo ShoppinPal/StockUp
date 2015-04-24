@@ -30,6 +30,18 @@ angular.module('ShoppinPalApp')
         }
       });
 
+      /** @method printDiv
+        * @param divName
+        * Print packging slip
+        */
+      $scope.printSlip = function(divName) {
+        var printContents = document.getElementById(divName).innerHTML;
+        var popupWin = window.open('', '_blank', 'width=300,height=300');
+        popupWin.document.open()
+        popupWin.document.write('<html><head><link rel="stylesheet" type="text/css" href="style.css" /></head><body onload="window.print()">' + printContents + '</html>');
+        popupWin.document.close();
+      };  
+
       /** @method addNewBox
         * @description 
         * New open box added at top box status
