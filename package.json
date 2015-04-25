@@ -65,7 +65,8 @@
   },
   "scripts": {
     "postinstall": "echo -n $NODE_ENV | grep -v 'production' && ./node_modules/protractor/bin/webdriver-manager update || echo 'will NOT run webdriver install or update'",
-    "test": "grunt test"
+    "test": "grunt test",
+    "start": "node server/server.js"
   },
   "main": "server/server.js"
 }

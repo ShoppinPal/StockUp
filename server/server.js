@@ -14,6 +14,23 @@ app.use(loopback.favicon());
 app.use(loopback.compress());
 
 // -- Add your pre-processing middleware here --
+
+app.get('/_ah/health', function(req, res) {
+  res.set('Content-Type', 'text/plain');
+  res.send(200, 'ok');
+});
+
+app.get('/_ah/start', function(req, res) {
+  res.set('Content-Type', 'text/plain');
+  res.send(200, 'ok');
+});
+
+app.get('/_ah/stop', function(req, res) {
+  res.set('Content-Type', 'text/plain');
+  res.send(200, 'ok');
+  process.exit();
+});
+
 app.use(loopback.context());
 app.use(loopback.token({ params: ['state'] })); //http://apidocs.strongloop.com/loopback/#loopback-token
 app.use(function setCurrentUser(req, res, next) {
