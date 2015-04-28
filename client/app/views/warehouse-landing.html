@@ -10,7 +10,7 @@
                     <div class="col-md-7 col-sm-9 col-xs-12">
                         <div class="note-sub-text pull-right">You are logged in as a <span><a href="#">Store Manager/WH/SR</a>&nbsp;&nbsp; </span>|&nbsp;&nbsp;<a href="#" class="logout-text">LOGOUT</a></div>
                         <div class="btn-align">
-                            <button type="submit" class="btn btn-primary button-large-green" ng-click="submitToWarehouse()">Create manual order</button>
+                            <button type="submit" class="btn btn-primary button-large-green" ng-click="createManualOrder()">Create manual order</button>
                         </div>
                     </div>
                 </div>
@@ -36,29 +36,33 @@
                             <tr>
                                 <th width="15%">order id</th>
                                 <th width="15%">order Name</th>
-                                <th width="15%">status</th>
+                                <th width="25%">status</th>
                                 <th width="15%">total items</th>
-                                <th width="30%">actions</th>
                             </tr>
                         </thead>
                     </table>
                     <div class="scrollable-table">
                         <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
-                            <tbody ng-repeat="storereport in storesReport | orderBy:'type'| groupBy: 'type'">
+                            <tbody ng-repeat="storereport in storesReport| orderBy:'type'| groupBy: 'type'">
                                 <tr class="inner-table-heading" id="jumpto{{storereport.type}}" ng-if="storereport.group_by_CHANGED">
-                                    <td colspan="5"><span class="table-heading-font">{{storereport.type}}</span></td>
+                                    <td>
+                                        <span class="table-heading-font">{{storereport.type}}</span>
+                                    </td>
+                                    <td colspan="5" ng-if="$index == 0">
+                                        <button class="inprocess-btn" ng-click="inProcessOrder()">In Process</button>
+                                        <button class="fulfilled-btn" ng-click="fulfilledOrder()">Fulfillment</button>
+                                        <button class="complete-btn" ng-click="recievedOrder()">To Receive</button>
+                                    </td>
                                 </tr>
-                                <tr ng-class="{'tr-status-completed': storereport.status == 'complete','tr-status-inProgress': storereport.status == 'inProgress',
-                                'tr-status-pending': storereport.status == 'pending'}" 
-                                ng-hide="$index==selectedStore" ng-swipe-right="deleteStore(storereport)" ng-swipe-left="editStore($index)">
+                                <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'" ng-hide="$index==selectedStore" ng-swipe-left="importExport($index)">
                                     <td width="15%">{{storereport.sku}}</td>
                                     <td width="15%">{{storereport.name}}</td>
-                                    <td width="15%">{{storereport.quantityinhand}}</td>
-                                    <td width="15%">{{storereport.desiredStockLevel}}</td>
-                                    <td width="30%">
-                                        <button>IMPORT</button>
-                                        <button>EXPORT</button>
+                                    <td width="25%">
+                                        <div class="status-td">
+                                            <span class="status-square-fulfilled"></span> {{storereport.status}}
+                                        </div>
                                     </td>
+                                    <td width="15%">{{storereport.desiredStockLevel}}</td>
                                 </tr>
                                 <tr ng-if="comments" ng-hide="$index==selectedStore">
                                     <td colspan="5">
@@ -68,39 +72,12 @@
                                 </tr>
                                 <!-- Edit store-report start -->
                                 <tr ng-show="$index==selectedStore" class="edit-row">
-                                    <td colspan="6">
-                                        <div class="row">
-                                            <div class="col-sm-2 edit-column-heading-text">{{storereport.sku}}</div>
-                                            <div class="col-sm-2">
-                                                <div class="edit-second-column-heading-text">{{storereport.name}}</div>
-                                            </div>
-                                            <div class="col-sm-3">
-                                                <div class="edit-last-column-heading-text">{{storereport.quantityinhand}}</div>
-                                            </div>
-                                        </div>
-                                        <div class="edit-window">
-                                            <div class="float-left column-text margin-right">Desired
-                                                <br/> Stock Level:</div>
-                                            <div class="float-left margin-right-50px">
-                                                <input type="text" class="form-control input-small" ng-model="storereport.desiredStockLevel">
-                                            </div>
-                                            <div class="float-left column-text margin-right">Order
-                                                <br/> Qty:</div>
-                                            <div class="float-left margin-right-10px margin-top">
-                                                <span class="fa fa-minus-circle fa-lg edit-icon" ng-click="decreaseQty(storereport)"></span>
-                                            </div>
-                                            <div class="float-left margin-right-10px">
-                                                <input type="text" class="form-control input-small" ng-model="storereport.orderqty">
-                                            </div>
-                                            <div class="float-left margin-right margin-top">
-                                                <span class="fa fa-plus-circle fa-lg edit-icon" ng-click="increaseQty(storereport)"></span>
-                                            </div>
-                                            <div class="clearfix"></div>
-                                        </div>
-                                        <div class="row">
-                                            <input type="text" class="form-control comment-input" placeholder="-- Add your Comments --" ng-model="comments">
-                                        </div>
-                                        <!--/div-->
+                                    <td width="15%">{{storereport.sku}}</td>
+                                    <td width="15%">{{storereport.name}}</td>
+                                    <td width="70%">
+                                        <button class="import-btn">Import</button>
+                                        <button class="export-btn">Export</button>
+                                        <button class="fulfilled-btn">Fulfilled</button>
                                     </td>
                                 </tr>
                                 <!-- Edit store-report end -->

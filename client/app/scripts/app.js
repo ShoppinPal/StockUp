@@ -1,11 +1,13 @@
 'use strict';
 
 angular.module('ShoppinPalApp', [
-    'ui.bootstrap'
-    ,'ngCookies'
+    // 'ui.bootstrap'
+     'ngCookies'
     ,'ngResource'
     ,'ngSanitize'
     ,'ngTouch'
+    ,'ngAnimate'
+    ,'mgcrea.ngStrap'
     ,'ui.router'
     ,'geocoder'
     ,'google-maps'
@@ -64,6 +66,12 @@ angular.module('ShoppinPalApp', [
           url: '/warehouse-landing',
           templateUrl: 'views/warehouse-landing.html',
           controller: 'WarehouseLandingCtrl',
+          authenticate: false
+        })
+        .state('create-manual-order', {
+          url: '/create-manual-order',
+          templateUrl: 'views/create-manual-order.html',
+          controller: 'createManualOrderCtrl',
           authenticate: false
         })
         .state('store-report-manager', {

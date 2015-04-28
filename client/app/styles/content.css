@@ -370,6 +370,7 @@ input:focus{
 }
 .edit-row{
     background-color: #354052 !important;
+    color: #ffffff;
 }
 .edit-second-column-heading-text-warehouse{
     color: #ffffff;
@@ -740,3 +741,97 @@ p.note-text{
     background: #b2e5a2;
 }
 /* Store landing css start */
+
+.tr-even{
+    background:#eaf9fc;
+}
+.tr-odd{
+    background:#d7f2f8;
+}
+/* warehouse landing  start*/
+.status-td{
+    clear: both;
+}
+.status-square-fulfilled {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    background: #b9511a;
+    border-radius: 3px;
+    float: left;
+}
+.status-square-inprocess {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    background: #4e3173;
+    border-radius: 3px;
+    float: left;
+}
+.status-square-complete {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    background: #21639d;
+    border-radius: 3px;
+    
+}
+.status-text{
+    
+}
+.inprocess-btn{
+    background: #4e3173;
+    border:none;
+    color: #ffffff;
+    padding: 5px 10px;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: bold;
+    margin-right: 10px;
+    border-radius: 5px;
+}
+.complete-btn{
+    background: #21639d;
+    border:none;
+    color: #ffffff;
+    padding: 5px 10px;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: bold;
+    margin-right: 10px;
+    border-radius: 5px;
+}
+.fulfilled-btn{
+    background: #b9511a;
+    border:none;
+    color: #ffffff;
+    padding: 5px 10px;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: bold;
+    border-radius: 5px;
+}
+.import-btn{
+    background: #238ca2;
+    border:none;
+    color: #ffffff;
+    padding: 5px 10px;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: bold;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+.export-btn{
+    background: #238b58;
+    border:none;
+    color: #ffffff;
+    padding: 5px 10px;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: bold;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+/* warehouse landing  end*/
