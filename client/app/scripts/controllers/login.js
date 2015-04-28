@@ -19,8 +19,9 @@ angular.module('ShoppinPalApp')
       $scope.password ='';
 
       $scope.keypressCallback = function($event) {
-        $event.target.blur();
-    }
+        alert('enter');
+        $event.preventDefault();
+    };
 
       // validate login and transition to select store page
       $scope.login = function login(){
