@@ -17,11 +17,11 @@ angular.module('ShoppinPalApp')
       $scope.closedboxes = [];
       $scope.index = 0;
       $scope.openBox = true;
-      $scope.submit = "Review & Submit";
-      $scope.closeBoxButtonLabel = "CLOSE THIS BOX";
-      $scope.printSlipButtonLabel = "PRINT PACKING SLIP";
+      $scope.submit = 'Review & Submit';
+      $scope.closeBoxButtonLabel = 'CLOSE THIS BOX';
+      $scope.printSlipButtonLabel = 'PRINT PACKING SLIP';
 
-       /** This method will close the editable mode in store-report
+      /** This method will close the editable mode in store-report
        */
       $document.on('click', function(event) {
         if (angular.element(event.target).hasClass('shoppinPal-warehouse')) {
@@ -31,33 +31,34 @@ angular.module('ShoppinPalApp')
       });
 
       /** @method printDiv
-        * @param divName
-        * Print packging slip
-        */
+       * @param divName
+       * Print packging slip
+       */
       $scope.printSlip = function(divName) {
         var printContents = document.getElementById(divName).innerHTML;
         var popupWin = window.open('', '_blank', 'width=300,height=300');
-        popupWin.document.open()
+        popupWin.document.open();
         popupWin.document.write('<html><head><link rel="stylesheet" type="text/css" href="style.css" /></head><body onload="window.print()">' + printContents + '</html>');
         popupWin.document.close();
-      };  
+      };
 
       /** @method addNewBox
-        * @description 
-        * New open box added at top box status
-        */
+       * @description
+       * New open box added at top box status
+       */
       $scope.addNewBox = function() {
         $scope.openBox = true;
       };
 
       /** @method closeBox
-        * This will close the box 
-        */
+       * This will close the box
+       */
       $scope.closeBox = function(hidebox,itemCount){
-        hidebox;
+        hidebox; // jshint ignore:line
         $scope.boxItems = 0;
         $scope.openBox = false; //hide open box
-        var box = 'box'+ ++$scope.index;
+        $scope.index++;
+        var box = 'box'+ $scope.index;
         var item = {'key':box, 'value':itemCount};
         $scope.closedboxes.push(item);
         console.log($scope.closedboxes);
@@ -78,9 +79,9 @@ angular.module('ShoppinPalApp')
       };
 
       /** @method editWarehouse
-        * @param store
-        * enable the edit mode in UI
-        */
+       * @param store
+       * enable the edit mode in UI
+       */
       $scope.editWarehouse = function(selectedRow) {
         $scope.selectedStore = selectedRow;
       };
@@ -93,7 +94,7 @@ angular.module('ShoppinPalApp')
         storereport.desiredStockLevel = parseInt(storereport.desiredStockLevel); // parse it from string to integer
         if(storereport.desiredStockLevel >0){
           storereport.desiredStockLevel -= 1;
-        } 
+        }
       };
 
       /** @method increaseQty
@@ -106,27 +107,27 @@ angular.module('ShoppinPalApp')
       };
 
 
-    /** @method gotoDepartment
-     * @param value
-     * This method
-     */
-    $scope.gotoDepartment = function(value) {
-      var jumpToHash = 'jumpto' + 'electronics';
-      for (var i = 0; i < $scope.storesReport.length; i++) {
-        var type = $scope.storesReport[i].type,
-          typefirstChar = type.slice(0, 1).toUpperCase();
-        $scope.alphabets.push(typefirstChar);
-        if (typefirstChar === value) {
-          jumpToHash = 'jumpto' + $scope.storesReport[i].type;
+      /** @method gotoDepartment
+       * @param value
+       * This method
+       */
+      $scope.gotoDepartment = function(value) {
+        var jumpToHash = 'jumpto' + 'electronics';
+        for (var i = 0; i < $scope.storesReport.length; i++) {
+          var type = $scope.storesReport[i].type,
+            typefirstChar = type.slice(0, 1).toUpperCase();
+          $scope.alphabets.push(typefirstChar);
+          if (typefirstChar === value) {
+            jumpToHash = 'jumpto' + $scope.storesReport[i].type;
+          }
         }
-      }
-      if ($location.hash() !== jumpToHash) {
-        $location.hash(jumpToHash);
-      }
-      else {
-        $anchorScroll();
-      }
-    };
+        if ($location.hash() !== jumpToHash) {
+          $location.hash(jumpToHash);
+        }
+        else {
+          $anchorScroll();
+        }
+      };
 
       /** @method JumtoDepartment
        * This method will return avilable departments firstChar for jumpTo department functionality
