@@ -1,6 +1,7 @@
 'use strict';
 
 angular.module('ShoppinPalApp', [
+    'shoppinpal-loopback'
     //'ui.bootstrap'
     ,'ngCookies'
     ,'ngResource'
@@ -9,7 +10,6 @@ angular.module('ShoppinPalApp', [
     ,'ui.router'
     ,'geocoder'
     ,'google-maps'
-    ,'shoppinpal-loopback'
     ,'shoppinpal-utils'
     ,'shoppinpal-vend'
     ,'shoppinpal-prestashop'
