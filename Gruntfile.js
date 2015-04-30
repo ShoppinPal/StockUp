@@ -38,10 +38,6 @@ module.exports = function (grunt) {
       }
     },
     watch: {
-      compass: {
-        files: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}'],
-        tasks: ['compass:server', 'autoprefixer']
-      },
       express: { // TODO: change this to loopback (its just naming right?)
         files: [
           '<%= yeoman.app %>/{,*//*}*.html',
@@ -127,31 +123,6 @@ module.exports = function (grunt) {
         }
       }
     },
-    compass: {
-      options: {
-        sassDir: '<%= yeoman.app %>/styles',
-        cssDir: '.tmp/styles',
-        generatedImagesDir: '.tmp/images/generated',
-        imagesDir: '<%= yeoman.app %>/images',
-        javascriptsDir: '<%= yeoman.app %>/scripts',
-        fontsDir: '<%= yeoman.app %>/styles/fonts',
-        importPath: '<%= yeoman.app %>/bower_components',
-        httpImagesPath: '/images',
-        httpGeneratedImagesPath: '/images/generated',
-        httpFontsPath: '/styles/fonts',
-        relativeAssets: false
-      },
-      dist: {
-    options: {
-          generatedImagesDir: '<%= yeoman.dist %>/images/generated'
-        }
-    },
-      server: {
-        options: {
-          debugInfo: true
-        }
-      }
-    },
     rev: {
       dist: {
         files: {
@@ -215,7 +186,7 @@ module.exports = function (grunt) {
         options: {
           collapseWhitespace: true,
           conservativeCollapse: true,
-          collapseBooleanAttributes: true,
+           collapseBooleanAttributes: true,
           removeCommentsFromCDATA: true,
           removeOptionalTags: true
         },
@@ -274,20 +245,11 @@ module.exports = function (grunt) {
             'scripts/scripts.js'
           ]
         }]
-      },
-      styles: {
-        expand: true,
-        cwd: '<%= yeoman.app %>/styles',
-        dest: '<%= yeoman.dist %>/styles',
-        src: '{,*/}*.css'
       }
     },
     concurrent: {
-      development: {
+      all: {
         tasks: [
-          'compass:server',
-          'compass:dist',
-          'copy:styles',
           'imagemin',
           'svgmin'
         ]
@@ -434,38 +396,39 @@ module.exports = function (grunt) {
       }
       return grunt.task.run([
         'jshint',
-        'loadConfig:' + env,
+          'loadConfig:' + env,
         'loopback_sdk_angular', // TODO: this is eventually called by `build` task too, remove from here?
-        'localtunnel:' + env,
+          'localtunnel:' + env,
         'clean:server',
-        'concurrent:' + env,
-        'env:' + env, // TODO: move this to be right after `localtunnel` task? or will it exacerbate the race condition?
-        'build:' + env,
-        'run:' + env,
+        'concurrent:all',
+          'env:' + env, // TODO: move this to be right after `localtunnel` task? or will it exacerbate the race condition?
+          'build:' + env,
+          'run:' + env,
         'watch'
       ]);
     });
-  
+
   grunt.registerTask('build',[
-    'loopback_sdk_angular',
-    'clean:dist',
+      'loopback_sdk_angular',
+      'clean:dist',
     //'wiredep',
-    'useminPrepare',
+      'useminPrepare',
     'concurrent:'  + 'development',
     'autoprefixer',
-    'concat',
+      'concurrent:all',
+      'concat',
     //'ngAnnotate',
-    'copy:dist',
-    'cdnify',
-    'cssmin',
+      'copy:dist',
+      'cdnify',
+      'cssmin',
     //'uglify',
     //'rev',
     //'usemin',
     'htmlmin'
     //'replace:' + 'development'
-  ]);
+    ]);
 
   grunt.registerTask('default', [
   'build'
-  ]);
+    ]);
 };
