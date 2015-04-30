@@ -307,7 +307,7 @@ module.exports = function (grunt) {
       production: {}
     },
     replace: {
-      development: {
+      all: {
         options: {
           patterns: [
             {
@@ -384,52 +384,76 @@ module.exports = function (grunt) {
   });
 
   /**
-   * Expecting "target" to be development|staging:
-   *   grunt server:staging --subdomain mpstagingpulkit
+   * "env" may be development|staging|production:
    */
   grunt.registerTask('server',
-    // 'For example:' +
-    //   '\n\tgrunt server:local' +`
-    //   '\n\tgrunt server:development --subdomain mppulkit',
+      'For example:' +
+      '\n\tgrunt server:local' +
+      '\n\tgrunt server:development --subdomain mppulkit',
     function (env) {
       if (!env) {
         return grunt.util.error('You must specify an environment');
       }
       return grunt.task.run([
         'jshint',
-          'loadConfig:' + env,
+        'loadConfig:' + env,
         'loopback_sdk_angular', // TODO: this is eventually called by `build` task too, remove from here?
-          'localtunnel:' + env,
+        'localtunnel:' + env,
         'clean:server',
         'concurrent:all',
-          'env:' + env, // TODO: move this to be right after `localtunnel` task? or will it exacerbate the race condition?
-          'build:' + env,
-          'run:' + env,
+        'env:' + env, // TODO: move this to be right after `localtunnel` task? or will it exacerbate the race condition?
+        'build:' + env,
+        'run:' + env,
         'watch'
       ]);
     });
 
-  grunt.registerTask('build',[
+  grunt.registerTask('build', function(env) {
+    if (!env) {
+      return grunt.util.error('You must specify an environment');
+    }
+    grunt.option('environment', env);
+    grunt.task.run([
+      'jshint',
+      //'loadConfig:' + env, // if called from grunt:server, previous work by tasks such as localtunnel:<env> and env:<env> will get nuked
       'loopback_sdk_angular',
       'clean:dist',
-    //'wiredep',
       'useminPrepare',
-    'concurrent:'  + 'development',
-    'autoprefixer',
       'concurrent:all',
       'concat',
-    //'ngAnnotate',
       'copy:dist',
       'cdnify',
-      'cssmin',
-    //'uglify',
-    //'rev',
-    //'usemin',
-    'htmlmin'
-    //'replace:' + 'development'
+      //'cssmin',
+      'uglify',
+      'rev',
+      'usemin',
+      'replace:all'
     ]);
+  });
 
-  grunt.registerTask('default', [
-  'build'
+  grunt.registerTask('deploy', function(env) {
+    if (!env) {
+      return grunt.util.error('You must specify an environment');
+    }
+    grunt.option('environment', env);
+    grunt.task.run([
+      'jshint',
+      'loadConfig:' + env,
+      'loopback_sdk_angular',
+      'clean:dist',
+      'useminPrepare',
+      'concat',
+      'copy:dist',
+      'cdnify',
+      //'cssmin',
+      'uglify',
+      'rev',
+      'usemin',
+      'replace:all'
     ]);
+  });
+
+  grunt.registerTask('test', function(){
+    console.log ('skip tests for now - to be implemented...');
+  });
 };
