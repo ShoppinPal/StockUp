@@ -53,7 +53,7 @@ module.factory(
          *
          * @description
          *
-         * Create a new instance of the model and persist it into the data source
+         * Create a new instance of the model and persist it into the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -91,7 +91,7 @@ module.factory(
          *
          * @description
          *
-         * Update an existing model instance or insert a new one into the data source
+         * Update an existing model instance or insert a new one into the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -129,7 +129,7 @@ module.factory(
          *
          * @description
          *
-         * Check whether a model instance exists in the data source
+         * Check whether a model instance exists in the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -161,11 +161,13 @@ module.factory(
          *
          * @description
          *
-         * Find a model instance by id from the data source
+         * Find a model instance by id from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
          *  - `id` – `{*}` - Model id
+         *
+         *  - `filter` – `{object=}` - Filter defining fields and include
          *
          * @param {function(Object,Object)=} successCb
          *   Success callback with two arguments: `value`, `responseHeaders`.
@@ -194,11 +196,11 @@ module.factory(
          *
          * @description
          *
-         * Find all instances of the model matched by filter from the data source
+         * Find all instances of the model matched by filter from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
-         *  - `filter` – `{object=}` - Filter defining fields, where, orderBy, offset, and limit
+         *  - `filter` – `{object=}` - Filter defining fields, where, include, order, offset, and limit
          *
          * @param {function(Array.<Object>,Object)=} successCb
          *   Success callback with two arguments: `value`, `responseHeaders`.
@@ -228,11 +230,11 @@ module.factory(
          *
          * @description
          *
-         * Find first instance of the model matched by filter from the data source
+         * Find first instance of the model matched by filter from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
-         *  - `filter` – `{object=}` - Filter defining fields, where, orderBy, offset, and limit
+         *  - `filter` – `{object=}` - Filter defining fields, where, include, order, offset, and limit
          *
          * @param {function(Object,Object)=} successCb
          *   Success callback with two arguments: `value`, `responseHeaders`.
@@ -261,7 +263,7 @@ module.factory(
          *
          * @description
          *
-         * Update instances of the model matched by where from the data source
+         * Update instances of the model matched by where from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -295,7 +297,7 @@ module.factory(
          *
          * @description
          *
-         * Delete a model instance by id from the data source
+         * Delete a model instance by id from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -325,7 +327,7 @@ module.factory(
          *
          * @description
          *
-         * Count instances of the model matched by where from the data source
+         * Count instances of the model matched by where from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -357,7 +359,7 @@ module.factory(
          *
          * @description
          *
-         * Update attributes for a model instance and persist it into the data source
+         * Update attributes for a model instance and persist it into the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -422,7 +424,7 @@ module.factory(
          *
          * @description
          *
-         * Update an existing model instance or insert a new one into the data source
+         * Update an existing model instance or insert a new one into the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -457,7 +459,7 @@ module.factory(
          *
          * @description
          *
-         * Update instances of the model matched by where from the data source
+         * Update instances of the model matched by where from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -488,7 +490,7 @@ module.factory(
          *
          * @description
          *
-         * Delete a model instance by id from the data source
+         * Delete a model instance by id from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -515,7 +517,7 @@ module.factory(
          *
          * @description
          *
-         * Delete a model instance by id from the data source
+         * Delete a model instance by id from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -554,7 +556,7 @@ module.factory(
          *
          * @description
          *
-         * Fetches belongsTo relation userModel
+         * Fetches belongsTo relation userModel.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -667,7 +669,7 @@ module.factory(
          *
          * @description
          *
-         * Create a new instance of the model and persist it into the data source
+         * Create a new instance of the model and persist it into the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -705,7 +707,7 @@ module.factory(
          *
          * @description
          *
-         * Update an existing model instance or insert a new one into the data source
+         * Update an existing model instance or insert a new one into the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -743,7 +745,7 @@ module.factory(
          *
          * @description
          *
-         * Check whether a model instance exists in the data source
+         * Check whether a model instance exists in the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -775,11 +777,13 @@ module.factory(
          *
          * @description
          *
-         * Find a model instance by id from the data source
+         * Find a model instance by id from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
          *  - `id` – `{*}` - Model id
+         *
+         *  - `filter` – `{object=}` - Filter defining fields and include
          *
          * @param {function(Object,Object)=} successCb
          *   Success callback with two arguments: `value`, `responseHeaders`.
@@ -808,11 +812,11 @@ module.factory(
          *
          * @description
          *
-         * Find all instances of the model matched by filter from the data source
+         * Find all instances of the model matched by filter from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
-         *  - `filter` – `{object=}` - Filter defining fields, where, orderBy, offset, and limit
+         *  - `filter` – `{object=}` - Filter defining fields, where, include, order, offset, and limit
          *
          * @param {function(Array.<Object>,Object)=} successCb
          *   Success callback with two arguments: `value`, `responseHeaders`.
@@ -842,11 +846,11 @@ module.factory(
          *
          * @description
          *
-         * Find first instance of the model matched by filter from the data source
+         * Find first instance of the model matched by filter from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
-         *  - `filter` – `{object=}` - Filter defining fields, where, orderBy, offset, and limit
+         *  - `filter` – `{object=}` - Filter defining fields, where, include, order, offset, and limit
          *
          * @param {function(Object,Object)=} successCb
          *   Success callback with two arguments: `value`, `responseHeaders`.
@@ -875,7 +879,7 @@ module.factory(
          *
          * @description
          *
-         * Update instances of the model matched by where from the data source
+         * Update instances of the model matched by where from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -909,7 +913,7 @@ module.factory(
          *
          * @description
          *
-         * Delete a model instance by id from the data source
+         * Delete a model instance by id from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -939,7 +943,7 @@ module.factory(
          *
          * @description
          *
-         * Count instances of the model matched by where from the data source
+         * Count instances of the model matched by where from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -971,7 +975,7 @@ module.factory(
          *
          * @description
          *
-         * Update attributes for a model instance and persist it into the data source
+         * Update attributes for a model instance and persist it into the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -1249,7 +1253,7 @@ module.factory(
          *
          * @description
          *
-         * Update an existing model instance or insert a new one into the data source
+         * Update an existing model instance or insert a new one into the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -1284,7 +1288,7 @@ module.factory(
          *
          * @description
          *
-         * Update instances of the model matched by where from the data source
+         * Update instances of the model matched by where from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -1315,7 +1319,7 @@ module.factory(
          *
          * @description
          *
-         * Delete a model instance by id from the data source
+         * Delete a model instance by id from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -1342,7 +1346,7 @@ module.factory(
          *
          * @description
          *
-         * Delete a model instance by id from the data source
+         * Delete a model instance by id from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -1535,7 +1539,7 @@ module.factory(
          *
          * @description
          *
-         * Delete a related item by id for storeModels
+         * Delete a related item by id for storeModels.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -1568,7 +1572,7 @@ module.factory(
          *
          * @description
          *
-         * Find a related item by id for storeModels
+         * Find a related item by id for storeModels.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -1604,7 +1608,7 @@ module.factory(
          *
          * @description
          *
-         * Update a related item by id for storeModels
+         * Update a related item by id for storeModels.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -1644,7 +1648,7 @@ module.factory(
          *
          * @description
          *
-         * Fetches belongsTo relation userModel
+         * Fetches belongsTo relation userModel.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -1720,7 +1724,7 @@ module.factory(
          *
          * @description
          *
-         * Create a new instance of the model and persist it into the data source
+         * Create a new instance of the model and persist it into the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -1758,7 +1762,7 @@ module.factory(
          *
          * @description
          *
-         * Update an existing model instance or insert a new one into the data source
+         * Update an existing model instance or insert a new one into the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -1796,7 +1800,7 @@ module.factory(
          *
          * @description
          *
-         * Check whether a model instance exists in the data source
+         * Check whether a model instance exists in the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -1828,11 +1832,13 @@ module.factory(
          *
          * @description
          *
-         * Find a model instance by id from the data source
+         * Find a model instance by id from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
          *  - `id` – `{*}` - Model id
+         *
+         *  - `filter` – `{object=}` - Filter defining fields and include
          *
          * @param {function(Object,Object)=} successCb
          *   Success callback with two arguments: `value`, `responseHeaders`.
@@ -1861,11 +1867,11 @@ module.factory(
          *
          * @description
          *
-         * Find all instances of the model matched by filter from the data source
+         * Find all instances of the model matched by filter from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
-         *  - `filter` – `{object=}` - Filter defining fields, where, orderBy, offset, and limit
+         *  - `filter` – `{object=}` - Filter defining fields, where, include, order, offset, and limit
          *
          * @param {function(Array.<Object>,Object)=} successCb
          *   Success callback with two arguments: `value`, `responseHeaders`.
@@ -1895,11 +1901,11 @@ module.factory(
          *
          * @description
          *
-         * Find first instance of the model matched by filter from the data source
+         * Find first instance of the model matched by filter from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
-         *  - `filter` – `{object=}` - Filter defining fields, where, orderBy, offset, and limit
+         *  - `filter` – `{object=}` - Filter defining fields, where, include, order, offset, and limit
          *
          * @param {function(Object,Object)=} successCb
          *   Success callback with two arguments: `value`, `responseHeaders`.
@@ -1928,7 +1934,7 @@ module.factory(
          *
          * @description
          *
-         * Update instances of the model matched by where from the data source
+         * Update instances of the model matched by where from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -1962,7 +1968,7 @@ module.factory(
          *
          * @description
          *
-         * Delete a model instance by id from the data source
+         * Delete a model instance by id from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -1992,7 +1998,7 @@ module.factory(
          *
          * @description
          *
-         * Count instances of the model matched by where from the data source
+         * Count instances of the model matched by where from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -2024,7 +2030,7 @@ module.factory(
          *
          * @description
          *
-         * Update attributes for a model instance and persist it into the data source
+         * Update attributes for a model instance and persist it into the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -2183,7 +2189,7 @@ module.factory(
          *
          * @description
          *
-         * Update an existing model instance or insert a new one into the data source
+         * Update an existing model instance or insert a new one into the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -2218,7 +2224,7 @@ module.factory(
          *
          * @description
          *
-         * Update instances of the model matched by where from the data source
+         * Update instances of the model matched by where from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -2249,7 +2255,7 @@ module.factory(
          *
          * @description
          *
-         * Delete a model instance by id from the data source
+         * Delete a model instance by id from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -2276,7 +2282,7 @@ module.factory(
          *
          * @description
          *
-         * Delete a model instance by id from the data source
+         * Delete a model instance by id from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -2315,7 +2321,7 @@ module.factory(
          *
          * @description
          *
-         * Fetches belongsTo relation storeConfigModel
+         * Fetches belongsTo relation storeConfigModel.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -2351,7 +2357,7 @@ module.factory(
          *
          * @description
          *
-         * Fetches belongsTo relation userModel
+         * Fetches belongsTo relation userModel.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -2464,7 +2470,7 @@ module.factory(
          *
          * @description
          *
-         * Create a new instance of the model and persist it into the data source
+         * Create a new instance of the model and persist it into the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -2502,7 +2508,7 @@ module.factory(
          *
          * @description
          *
-         * Update an existing model instance or insert a new one into the data source
+         * Update an existing model instance or insert a new one into the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -2540,7 +2546,7 @@ module.factory(
          *
          * @description
          *
-         * Check whether a model instance exists in the data source
+         * Check whether a model instance exists in the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -2572,11 +2578,13 @@ module.factory(
          *
          * @description
          *
-         * Find a model instance by id from the data source
+         * Find a model instance by id from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
          *  - `id` – `{*}` - Model id
+         *
+         *  - `filter` – `{object=}` - Filter defining fields and include
          *
          * @param {function(Object,Object)=} successCb
          *   Success callback with two arguments: `value`, `responseHeaders`.
@@ -2605,11 +2613,11 @@ module.factory(
          *
          * @description
          *
-         * Find all instances of the model matched by filter from the data source
+         * Find all instances of the model matched by filter from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
-         *  - `filter` – `{object=}` - Filter defining fields, where, orderBy, offset, and limit
+         *  - `filter` – `{object=}` - Filter defining fields, where, include, order, offset, and limit
          *
          * @param {function(Array.<Object>,Object)=} successCb
          *   Success callback with two arguments: `value`, `responseHeaders`.
@@ -2639,11 +2647,11 @@ module.factory(
          *
          * @description
          *
-         * Find first instance of the model matched by filter from the data source
+         * Find first instance of the model matched by filter from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
-         *  - `filter` – `{object=}` - Filter defining fields, where, orderBy, offset, and limit
+         *  - `filter` – `{object=}` - Filter defining fields, where, include, order, offset, and limit
          *
          * @param {function(Object,Object)=} successCb
          *   Success callback with two arguments: `value`, `responseHeaders`.
@@ -2672,7 +2680,7 @@ module.factory(
          *
          * @description
          *
-         * Update instances of the model matched by where from the data source
+         * Update instances of the model matched by where from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -2706,7 +2714,7 @@ module.factory(
          *
          * @description
          *
-         * Delete a model instance by id from the data source
+         * Delete a model instance by id from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -2736,7 +2744,7 @@ module.factory(
          *
          * @description
          *
-         * Count instances of the model matched by where from the data source
+         * Count instances of the model matched by where from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -2768,7 +2776,7 @@ module.factory(
          *
          * @description
          *
-         * Update attributes for a model instance and persist it into the data source
+         * Update attributes for a model instance and persist it into the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -2929,7 +2937,7 @@ module.factory(
          *
          * @description
          *
-         * Update an existing model instance or insert a new one into the data source
+         * Update an existing model instance or insert a new one into the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -2964,7 +2972,7 @@ module.factory(
          *
          * @description
          *
-         * Update instances of the model matched by where from the data source
+         * Update instances of the model matched by where from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -2995,7 +3003,7 @@ module.factory(
          *
          * @description
          *
-         * Delete a model instance by id from the data source
+         * Delete a model instance by id from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -3022,7 +3030,7 @@ module.factory(
          *
          * @description
          *
-         * Delete a model instance by id from the data source
+         * Delete a model instance by id from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -3215,7 +3223,7 @@ module.factory(
          *
          * @description
          *
-         * Delete a related item by id for stockOrderLineitemModels
+         * Delete a related item by id for stockOrderLineitemModels.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -3248,7 +3256,7 @@ module.factory(
          *
          * @description
          *
-         * Find a related item by id for stockOrderLineitemModels
+         * Find a related item by id for stockOrderLineitemModels.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -3284,7 +3292,7 @@ module.factory(
          *
          * @description
          *
-         * Update a related item by id for stockOrderLineitemModels
+         * Update a related item by id for stockOrderLineitemModels.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -3324,7 +3332,7 @@ module.factory(
          *
          * @description
          *
-         * Fetches belongsTo relation userModel
+         * Fetches belongsTo relation userModel.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -3400,7 +3408,7 @@ module.factory(
          *
          * @description
          *
-         * Create a new instance of the model and persist it into the data source
+         * Create a new instance of the model and persist it into the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -3438,7 +3446,7 @@ module.factory(
          *
          * @description
          *
-         * Update an existing model instance or insert a new one into the data source
+         * Update an existing model instance or insert a new one into the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -3476,7 +3484,7 @@ module.factory(
          *
          * @description
          *
-         * Check whether a model instance exists in the data source
+         * Check whether a model instance exists in the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -3508,11 +3516,13 @@ module.factory(
          *
          * @description
          *
-         * Find a model instance by id from the data source
+         * Find a model instance by id from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
          *  - `id` – `{*}` - Model id
+         *
+         *  - `filter` – `{object=}` - Filter defining fields and include
          *
          * @param {function(Object,Object)=} successCb
          *   Success callback with two arguments: `value`, `responseHeaders`.
@@ -3541,11 +3551,11 @@ module.factory(
          *
          * @description
          *
-         * Find all instances of the model matched by filter from the data source
+         * Find all instances of the model matched by filter from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
-         *  - `filter` – `{object=}` - Filter defining fields, where, orderBy, offset, and limit
+         *  - `filter` – `{object=}` - Filter defining fields, where, include, order, offset, and limit
          *
          * @param {function(Array.<Object>,Object)=} successCb
          *   Success callback with two arguments: `value`, `responseHeaders`.
@@ -3575,11 +3585,11 @@ module.factory(
          *
          * @description
          *
-         * Find first instance of the model matched by filter from the data source
+         * Find first instance of the model matched by filter from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
-         *  - `filter` – `{object=}` - Filter defining fields, where, orderBy, offset, and limit
+         *  - `filter` – `{object=}` - Filter defining fields, where, include, order, offset, and limit
          *
          * @param {function(Object,Object)=} successCb
          *   Success callback with two arguments: `value`, `responseHeaders`.
@@ -3608,7 +3618,7 @@ module.factory(
          *
          * @description
          *
-         * Update instances of the model matched by where from the data source
+         * Update instances of the model matched by where from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -3642,7 +3652,7 @@ module.factory(
          *
          * @description
          *
-         * Delete a model instance by id from the data source
+         * Delete a model instance by id from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -3672,7 +3682,7 @@ module.factory(
          *
          * @description
          *
-         * Count instances of the model matched by where from the data source
+         * Count instances of the model matched by where from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -3704,7 +3714,7 @@ module.factory(
          *
          * @description
          *
-         * Update attributes for a model instance and persist it into the data source
+         * Update attributes for a model instance and persist it into the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -3831,7 +3841,7 @@ module.factory(
          *
          * @description
          *
-         * Update an existing model instance or insert a new one into the data source
+         * Update an existing model instance or insert a new one into the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -3866,7 +3876,7 @@ module.factory(
          *
          * @description
          *
-         * Update instances of the model matched by where from the data source
+         * Update instances of the model matched by where from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -3897,7 +3907,7 @@ module.factory(
          *
          * @description
          *
-         * Delete a model instance by id from the data source
+         * Delete a model instance by id from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -3924,7 +3934,7 @@ module.factory(
          *
          * @description
          *
-         * Delete a model instance by id from the data source
+         * Delete a model instance by id from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -3963,7 +3973,7 @@ module.factory(
          *
          * @description
          *
-         * Fetches belongsTo relation reportModel
+         * Fetches belongsTo relation reportModel.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -3999,7 +4009,7 @@ module.factory(
          *
          * @description
          *
-         * Fetches belongsTo relation userModel
+         * Fetches belongsTo relation userModel.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -4075,7 +4085,7 @@ module.factory(
          *
          * @description
          *
-         * Create a new instance of the model and persist it into the data source
+         * Create a new instance of the model and persist it into the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -4113,7 +4123,7 @@ module.factory(
          *
          * @description
          *
-         * Update an existing model instance or insert a new one into the data source
+         * Update an existing model instance or insert a new one into the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -4151,7 +4161,7 @@ module.factory(
          *
          * @description
          *
-         * Check whether a model instance exists in the data source
+         * Check whether a model instance exists in the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -4183,11 +4193,13 @@ module.factory(
          *
          * @description
          *
-         * Find a model instance by id from the data source
+         * Find a model instance by id from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
          *  - `id` – `{*}` - Model id
+         *
+         *  - `filter` – `{object=}` - Filter defining fields and include
          *
          * @param {function(Object,Object)=} successCb
          *   Success callback with two arguments: `value`, `responseHeaders`.
@@ -4216,11 +4228,11 @@ module.factory(
          *
          * @description
          *
-         * Find all instances of the model matched by filter from the data source
+         * Find all instances of the model matched by filter from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
-         *  - `filter` – `{object=}` - Filter defining fields, where, orderBy, offset, and limit
+         *  - `filter` – `{object=}` - Filter defining fields, where, include, order, offset, and limit
          *
          * @param {function(Array.<Object>,Object)=} successCb
          *   Success callback with two arguments: `value`, `responseHeaders`.
@@ -4250,11 +4262,11 @@ module.factory(
          *
          * @description
          *
-         * Find first instance of the model matched by filter from the data source
+         * Find first instance of the model matched by filter from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
-         *  - `filter` – `{object=}` - Filter defining fields, where, orderBy, offset, and limit
+         *  - `filter` – `{object=}` - Filter defining fields, where, include, order, offset, and limit
          *
          * @param {function(Object,Object)=} successCb
          *   Success callback with two arguments: `value`, `responseHeaders`.
@@ -4283,7 +4295,7 @@ module.factory(
          *
          * @description
          *
-         * Update instances of the model matched by where from the data source
+         * Update instances of the model matched by where from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -4317,7 +4329,7 @@ module.factory(
          *
          * @description
          *
-         * Delete a model instance by id from the data source
+         * Delete a model instance by id from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -4347,7 +4359,7 @@ module.factory(
          *
          * @description
          *
-         * Count instances of the model matched by where from the data source
+         * Count instances of the model matched by where from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -4379,7 +4391,7 @@ module.factory(
          *
          * @description
          *
-         * Update attributes for a model instance and persist it into the data source
+         * Update attributes for a model instance and persist it into the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -4420,7 +4432,7 @@ module.factory(
          *
          * @description
          *
-         * Update an existing model instance or insert a new one into the data source
+         * Update an existing model instance or insert a new one into the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -4455,7 +4467,7 @@ module.factory(
          *
          * @description
          *
-         * Update instances of the model matched by where from the data source
+         * Update instances of the model matched by where from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -4486,7 +4498,7 @@ module.factory(
          *
          * @description
          *
-         * Delete a model instance by id from the data source
+         * Delete a model instance by id from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -4513,7 +4525,7 @@ module.factory(
          *
          * @description
          *
-         * Delete a model instance by id from the data source
+         * Delete a model instance by id from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -4552,7 +4564,7 @@ module.factory(
          *
          * @description
          *
-         * Fetches belongsTo relation storeConfigModel
+         * Fetches belongsTo relation storeConfigModel.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -4588,7 +4600,7 @@ module.factory(
          *
          * @description
          *
-         * Fetches belongsTo relation userModel
+         * Fetches belongsTo relation userModel.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -4652,7 +4664,7 @@ module.factory(
          *
          * @description
          *
-         * Find a related item by id for accessTokens
+         * Find a related item by id for accessTokens.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -4687,7 +4699,7 @@ module.factory(
          *
          * @description
          *
-         * Delete a related item by id for accessTokens
+         * Delete a related item by id for accessTokens.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -4719,7 +4731,7 @@ module.factory(
          *
          * @description
          *
-         * Update a related item by id for accessTokens
+         * Update a related item by id for accessTokens.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -5091,7 +5103,7 @@ module.factory(
          *
          * @description
          *
-         * Create a new instance of the model and persist it into the data source
+         * Create a new instance of the model and persist it into the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -5129,7 +5141,7 @@ module.factory(
          *
          * @description
          *
-         * Update an existing model instance or insert a new one into the data source
+         * Update an existing model instance or insert a new one into the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -5167,7 +5179,7 @@ module.factory(
          *
          * @description
          *
-         * Check whether a model instance exists in the data source
+         * Check whether a model instance exists in the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -5199,11 +5211,13 @@ module.factory(
          *
          * @description
          *
-         * Find a model instance by id from the data source
+         * Find a model instance by id from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
          *  - `id` – `{*}` - Model id
+         *
+         *  - `filter` – `{object=}` - Filter defining fields and include
          *
          * @param {function(Object,Object)=} successCb
          *   Success callback with two arguments: `value`, `responseHeaders`.
@@ -5232,11 +5246,11 @@ module.factory(
          *
          * @description
          *
-         * Find all instances of the model matched by filter from the data source
+         * Find all instances of the model matched by filter from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
-         *  - `filter` – `{object=}` - Filter defining fields, where, orderBy, offset, and limit
+         *  - `filter` – `{object=}` - Filter defining fields, where, include, order, offset, and limit
          *
          * @param {function(Array.<Object>,Object)=} successCb
          *   Success callback with two arguments: `value`, `responseHeaders`.
@@ -5266,11 +5280,11 @@ module.factory(
          *
          * @description
          *
-         * Find first instance of the model matched by filter from the data source
+         * Find first instance of the model matched by filter from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
-         *  - `filter` – `{object=}` - Filter defining fields, where, orderBy, offset, and limit
+         *  - `filter` – `{object=}` - Filter defining fields, where, include, order, offset, and limit
          *
          * @param {function(Object,Object)=} successCb
          *   Success callback with two arguments: `value`, `responseHeaders`.
@@ -5299,7 +5313,7 @@ module.factory(
          *
          * @description
          *
-         * Update instances of the model matched by where from the data source
+         * Update instances of the model matched by where from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -5333,7 +5347,7 @@ module.factory(
          *
          * @description
          *
-         * Delete a model instance by id from the data source
+         * Delete a model instance by id from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -5363,7 +5377,7 @@ module.factory(
          *
          * @description
          *
-         * Count instances of the model matched by where from the data source
+         * Count instances of the model matched by where from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -5395,7 +5409,7 @@ module.factory(
          *
          * @description
          *
-         * Update attributes for a model instance and persist it into the data source
+         * Update attributes for a model instance and persist it into the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -5432,7 +5446,7 @@ module.factory(
          *
          * @description
          *
-         * Login a user with username/email and password
+         * Login a user with username/email and password.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -5678,7 +5692,7 @@ module.factory(
          *
          * @description
          *
-         * Update an existing model instance or insert a new one into the data source
+         * Update an existing model instance or insert a new one into the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -5713,7 +5727,7 @@ module.factory(
          *
          * @description
          *
-         * Update instances of the model matched by where from the data source
+         * Update instances of the model matched by where from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -5744,7 +5758,7 @@ module.factory(
          *
          * @description
          *
-         * Delete a model instance by id from the data source
+         * Delete a model instance by id from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -5771,7 +5785,7 @@ module.factory(
          *
          * @description
          *
-         * Delete a model instance by id from the data source
+         * Delete a model instance by id from the data source.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -5865,7 +5879,7 @@ module.factory(
          *
          * @description
          *
-         * Fetches hasOne relation globalConfigModels
+         * Fetches hasOne relation globalConfigModels.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -6162,7 +6176,7 @@ module.factory(
          *
          * @description
          *
-         * Delete a related item by id for storeConfigModels
+         * Delete a related item by id for storeConfigModels.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -6195,7 +6209,7 @@ module.factory(
          *
          * @description
          *
-         * Find a related item by id for storeConfigModels
+         * Find a related item by id for storeConfigModels.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -6231,7 +6245,7 @@ module.factory(
          *
          * @description
          *
-         * Update a related item by id for storeConfigModels
+         * Update a related item by id for storeConfigModels.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -6425,7 +6439,7 @@ module.factory(
          *
          * @description
          *
-         * Delete a related item by id for storeModels
+         * Delete a related item by id for storeModels.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -6458,7 +6472,7 @@ module.factory(
          *
          * @description
          *
-         * Find a related item by id for storeModels
+         * Find a related item by id for storeModels.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -6494,7 +6508,7 @@ module.factory(
          *
          * @description
          *
-         * Update a related item by id for storeModels
+         * Update a related item by id for storeModels.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -6688,7 +6702,7 @@ module.factory(
          *
          * @description
          *
-         * Delete a related item by id for reportModels
+         * Delete a related item by id for reportModels.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -6721,7 +6735,7 @@ module.factory(
          *
          * @description
          *
-         * Find a related item by id for reportModels
+         * Find a related item by id for reportModels.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -6757,7 +6771,7 @@ module.factory(
          *
          * @description
          *
-         * Update a related item by id for reportModels
+         * Update a related item by id for reportModels.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -6951,7 +6965,7 @@ module.factory(
          *
          * @description
          *
-         * Delete a related item by id for stockOrderLineitemModels
+         * Delete a related item by id for stockOrderLineitemModels.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -6984,7 +6998,7 @@ module.factory(
          *
          * @description
          *
-         * Find a related item by id for stockOrderLineitemModels
+         * Find a related item by id for stockOrderLineitemModels.
          *
          * @param {Object=} parameters Request parameters.
          *
@@ -7020,7 +7034,7 @@ module.factory(
          *
          * @description
          *
-         * Update a related item by id for stockOrderLineitemModels
+         * Update a related item by id for stockOrderLineitemModels.
          *
          * @param {Object=} parameters Request parameters.
          *

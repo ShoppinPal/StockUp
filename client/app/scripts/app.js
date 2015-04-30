@@ -1,6 +1,7 @@
 'use strict';
 
 angular.module('ShoppinPalApp', [
+    'shoppinpal-loopback'
     //'ui.bootstrap'
     ,'ngCookies'
     ,'ngResource'
@@ -9,7 +10,6 @@ angular.module('ShoppinPalApp', [
     ,'ui.router'
     ,'geocoder'
     ,'google-maps'
-    ,'shoppinpal-loopback'
     ,'shoppinpal-utils'
     ,'shoppinpal-vend'
     ,'shoppinpal-prestashop'
@@ -59,7 +59,7 @@ angular.module('ShoppinPalApp', [
           authenticate: false
         })
         .state('store-report-manager', {
-          url: '/store-report-manager',
+          url: '/store-report-manager/:reportId',
           templateUrl: 'views/store-report-manager.html',
           controller: 'StoreManagerCtrl',
           authenticate: false

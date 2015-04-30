@@ -16,8 +16,6 @@ In order to hack on this you'll need a few things installed and setup first:
   * __Recommended:__ Use [nvm](https://github.com/creationix/nvm) so you can have multiple NodeJS versions.
 * [Ruby](https://www.ruby-lang.org/en/)
   * __Recommended:__ Use [rvm](http://rvm.io/) so you can have multiple versions of ruby and gemsets.
-* [Compass](http://compass-style.org/install/) gem.
-  * __IMPORTANT:__ As of 2/24/14 you need to install the latest alpha of compass or it won't work (It loads a bad dependency on sass). `sudo gem install compass --pre`
 * [Yeoman](http://yeoman.io)
 ```
 
@@ -28,12 +26,10 @@ git clone https://github.com/ShoppinPal/warehouse.git warehouse
 cd warehouse
 nvm install v0.10.37
 nvm use v0.10.37
-gem install compass --no-ri --no-rdoc
 npm install -g yo
 npm install
 npm install -g bower
 bower install
-npm install grunt-contrib-compass --save-dev
 ```
 
 #### Setup a `server/config.development.json` file

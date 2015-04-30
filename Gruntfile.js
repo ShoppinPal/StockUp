@@ -38,10 +38,6 @@ module.exports = function (grunt) {
       }
     },
     watch: {
-      compass: {
-        files: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}'],
-        tasks: ['compass:server', 'autoprefixer']
-      },
       express: { // TODO: change this to loopback (its just naming right?)
         files: [
           '<%= yeoman.app %>/{,*//*}*.html',
@@ -68,9 +64,9 @@ module.exports = function (grunt) {
       dist: {
         files: [{
           expand: true,
-          cwd: '<%= yeoman.app %>/styles/',
+          cwd: '.tmp/styles/',
           src: '{,*/}*.css',
-          dest: '<%= yeoman.dist %>/styles/'
+          dest: '.tmp/styles/'
         }]
       }
     },
@@ -118,37 +114,13 @@ module.exports = function (grunt) {
           jshintrc: '<%= yeoman.app %>/.jshintrc',
           ignores: [
             '<%= yeoman.app %>/scripts/shoppinpal-loopback.js',
-            '<%= yeoman.app %>/scripts/shoppinpal-utils.js'
+            '<%= yeoman.app %>/scripts/shoppinpal-utils.js',
+            '<%= yeoman.app %>/scripts/directives/dismiss-keyboard.js'
           ],
           reporter: require('jshint-stylish')
         },
         files: {
           src: '<%= yeoman.app %>/scripts/{,*/}*.js'
-        }
-      }
-    },
-    compass: {
-      options: {
-        sassDir: '<%= yeoman.app %>/styles',
-        cssDir: '.tmp/styles',
-        generatedImagesDir: '.tmp/images/generated',
-        imagesDir: '<%= yeoman.app %>/images',
-        javascriptsDir: '<%= yeoman.app %>/scripts',
-        fontsDir: '<%= yeoman.app %>/styles/fonts',
-        importPath: '<%= yeoman.app %>/bower_components',
-        httpImagesPath: '/images',
-        httpGeneratedImagesPath: '/images/generated',
-        httpFontsPath: '/styles/fonts',
-        relativeAssets: false
-      },
-      dist: {
-    options: {
-          generatedImagesDir: '<%= yeoman.dist %>/images/generated'
-        }
-    },
-      server: {
-        options: {
-          debugInfo: true
         }
       }
     },
@@ -274,20 +246,11 @@ module.exports = function (grunt) {
             'scripts/scripts.js'
           ]
         }]
-      },
-      styles: {
-        expand: true,
-        cwd: '<%= yeoman.app %>/styles',
-        dest: '<%= yeoman.dist %>/styles',
-        src: '{,*/}*.css'
       }
     },
     concurrent: {
-      development: {
+      all: {
         tasks: [
-          'compass:server',
-          'compass:dist',
-          'copy:styles',
           'imagemin',
           'svgmin'
         ]
@@ -344,7 +307,7 @@ module.exports = function (grunt) {
       production: {}
     },
     replace: {
-      development: {
+      all: {
         options: {
           patterns: [
             {
@@ -421,13 +384,12 @@ module.exports = function (grunt) {
   });
 
   /**
-   * Expecting "target" to be development|staging:
-   *   grunt server:staging --subdomain mpstagingpulkit
+   * "env" may be development|staging|production:
    */
   grunt.registerTask('server',
-    // 'For example:' +
-    //   '\n\tgrunt server:local' +`
-    //   '\n\tgrunt server:development --subdomain mppulkit',
+      'For example:' +
+      '\n\tgrunt server:local' +
+      '\n\tgrunt server:development --subdomain mppulkit',
     function (env) {
       if (!env) {
         return grunt.util.error('You must specify an environment');
@@ -438,34 +400,60 @@ module.exports = function (grunt) {
         'loopback_sdk_angular', // TODO: this is eventually called by `build` task too, remove from here?
         'localtunnel:' + env,
         'clean:server',
-        'concurrent:' + env,
+        'concurrent:all',
         'env:' + env, // TODO: move this to be right after `localtunnel` task? or will it exacerbate the race condition?
         'build:' + env,
         'run:' + env,
         'watch'
       ]);
     });
-  
-  grunt.registerTask('build',[
-    'loopback_sdk_angular',
-    'clean:dist',
-    //'wiredep',
-    'useminPrepare',
-    'concurrent:'  + 'development',
-    'autoprefixer',
-    'concat',
-    //'ngAnnotate',
-    'copy:dist',
-    'cdnify',
-    'cssmin',
-    //'uglify',
-    //'rev',
-    //'usemin',
-    'htmlmin'
-    //'replace:' + 'development'
-  ]);
 
-  grunt.registerTask('default', [
-  'build'
-  ]);
+  grunt.registerTask('build', function(env) {
+    if (!env) {
+      return grunt.util.error('You must specify an environment');
+    }
+    grunt.option('environment', env);
+    grunt.task.run([
+      'jshint',
+      //'loadConfig:' + env, // if called from grunt:server, previous work by tasks such as localtunnel:<env> and env:<env> will get nuked
+      'loopback_sdk_angular',
+      'clean:dist',
+      'useminPrepare',
+      'concurrent:all',
+      'concat',
+      'copy:dist',
+      'cdnify',
+      //'cssmin',
+      'uglify',
+      'rev',
+      'usemin',
+      'replace:all'
+    ]);
+  });
+
+  grunt.registerTask('deploy', function(env) {
+    if (!env) {
+      return grunt.util.error('You must specify an environment');
+    }
+    grunt.option('environment', env);
+    grunt.task.run([
+      'jshint',
+      'loadConfig:' + env,
+      'loopback_sdk_angular',
+      'clean:dist',
+      'useminPrepare',
+      'concat',
+      'copy:dist',
+      'cdnify',
+      //'cssmin',
+      'uglify',
+      'rev',
+      'usemin',
+      'replace:all'
+    ]);
+  });
+
+  grunt.registerTask('test', function(){
+    console.log ('skip tests for now - to be implemented...');
+  });
 };
