@@ -13,12 +13,12 @@ angular.module('ShoppinPalApp')
     function ($scope,$document, $anchorScroll, $location, loginService, $stateParams)
     {
 
-    $anchorScroll.yOffset = 50;
-    $scope.storesReport = [];
-    $scope.completedReports = [];
-    $scope.alphabets = [];
-    $scope.submitToWarehouseButton = 'Review & Submit';
-    $scope.comments = '';
+      $anchorScroll.yOffset = 50;
+      $scope.storesReport = [];
+      $scope.completedReports = [];
+      $scope.alphabets = [];
+      $scope.submitToWarehouseButton = 'Review & Submit';
+      $scope.comments = '';
 
       /** This method will close the editable mode in store-report
        */
@@ -82,12 +82,12 @@ angular.module('ShoppinPalApp')
           $scope.alphabets.push(typefirstChar);
         }
       };
-    /** @method showCompletedReport
-     * This display completed report on screen
-     */
-    $scope.showCompletedReport = function() {
-      $scope.storesReport = $scope.completedReports;
-    };
+      /** @method showCompletedReport
+       * This display completed report on screen
+       */
+      $scope.showCompletedReport = function() {
+        $scope.storesReport = $scope.completedReports;
+      };
       /** @method submitToWarehouse
        * This method will submit the store-report to warehouse
        */
@@ -103,7 +103,7 @@ angular.module('ShoppinPalApp')
         storereport.orderqty = parseInt(storereport.orderqty); // parse it from string to integer
         if(storereport.orderqty >0){
           storereport.orderqty -= 1;
-        } 
+        }
       };
 
       /** @method increaseQty
@@ -129,9 +129,9 @@ angular.module('ShoppinPalApp')
        */
       $scope.$on('$viewContentLoaded', function() {
         //loginService.getSelectStore()
-        loginService.getSelectStore()
+        loginService.getStoreReport($stateParams.reportId)
           .then(function (response) {
-            $scope.storesReport = response.data.storesReport;
+            $scope.storesReport = response;
             $scope.storereportlength = $scope.storesReport.length;
             $scope.JumtoDepartment();
           });
