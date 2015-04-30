@@ -35,7 +35,6 @@ angular.module('ShoppinPalApp')
        * This method will move to generate store report for particular store
        */
       $scope.generateOrder = function(){
-        $state.go('store-report-manager');
         return UserModel.reportModels.create(
           {id: LoopBackAuth.currentUserId},
           {
