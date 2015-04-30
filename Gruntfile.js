@@ -68,12 +68,24 @@ module.exports = function (grunt) {
       dist: {
         files: [{
           expand: true,
-          cwd: '.tmp/styles/',
+          cwd: '<%= yeoman.app %>/styles/',
           src: '{,*/}*.css',
-          dest: '.tmp/styles/'
+          dest: '<%= yeoman.dist %>/styles/'
         }]
       }
     },
+    // Automatically inject Bower components into the app
+    wiredep: {
+      app: {
+        src: ['<%= yeoman.app %>/index.html'],
+        ignorePath:  /\.\.\//
+      },
+      sass: {
+        src: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}'],
+        ignorePath: /(\.\.\/){1,2}bower_components\//
+      }
+    },
+
     clean: {
       dist: {
         files: [{
@@ -129,7 +141,11 @@ module.exports = function (grunt) {
         httpFontsPath: '/styles/fonts',
         relativeAssets: false
       },
-      dist: {},
+      dist: {
+    options: {
+          generatedImagesDir: '<%= yeoman.dist %>/images/generated'
+        }
+    },
       server: {
         options: {
           debugInfo: true
@@ -142,6 +158,7 @@ module.exports = function (grunt) {
           src: [
             '<%= yeoman.dist %>/scripts/{,*/}*.js',
             '<%= yeoman.dist %>/styles/{,*/}*.css',
+            '<%= yeoman.dist %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
             '<%= yeoman.dist %>/styles/fonts/*'
           ]
         }
@@ -157,7 +174,7 @@ module.exports = function (grunt) {
       html: ['<%= yeoman.dist %>/{,*/}*.html'],
       css: ['<%= yeoman.dist %>/styles/{,*/}*.css'],
       options: {
-        dirs: ['<%= yeoman.dist %>']
+        assetsDirs: ['<%= yeoman.dist %>','<%= yeoman.dist %>/images']
       }
     },
     imagemin: {
@@ -165,7 +182,7 @@ module.exports = function (grunt) {
         files: [{
           expand: true,
           cwd: '<%= yeoman.app %>/images',
-          src: '{,*/}*.{png,jpg,jpeg}',
+          src: '{,*/}*.{png,jpg,jpeg,gif}',
           dest: '<%= yeoman.dist %>/images'
         }]
       }
@@ -196,20 +213,16 @@ module.exports = function (grunt) {
     htmlmin: {
       dist: {
         options: {
-          /*removeCommentsFromCDATA: true,
-          // https://github.com/yeoman/grunt-usemin/issues/44
-          //collapseWhitespace: true,
+          collapseWhitespace: true,
+          conservativeCollapse: true,
           collapseBooleanAttributes: true,
-          removeAttributeQuotes: true,
-          removeRedundantAttributes: true,
-          useShortDoctype: true,
-          removeEmptyAttributes: true,
-          removeOptionalTags: true*/
+          removeCommentsFromCDATA: true,
+          removeOptionalTags: true
         },
         files: [{
           expand: true,
           cwd: '<%= yeoman.app %>',
-          src: ['*.html', 'views/*.html'],
+          src: ['*.html', 'views/{,*/}*.html'],
           dest: '<%= yeoman.dist %>'
         }]
       }
@@ -225,9 +238,12 @@ module.exports = function (grunt) {
           src: [
             '*.{ico,png,txt}',
             '.htaccess',
+            '*.html',
+            'views/{,*/}*.html',
+            'images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
             'bower_components/**/*',
-            'images/{,*/}*.{gif,webp}',
-            'styles/fonts/*'
+            'styles/fonts/*',
+            'scripts/**/*'
           ]
         }, {
           expand: true,
@@ -254,14 +270,15 @@ module.exports = function (grunt) {
             'server.js',
             'lib/**/*',
             'newrelic.js',
-            'config/*.json'
+            'config/*.json',
+            'scripts/scripts.js'
           ]
         }]
       },
       styles: {
         expand: true,
         cwd: '<%= yeoman.app %>/styles',
-        dest: '.tmp/styles/',
+        dest: '<%= yeoman.dist %>/styles',
         src: '{,*/}*.css'
       }
     },
@@ -269,7 +286,10 @@ module.exports = function (grunt) {
       development: {
         tasks: [
           'compass:server',
-          'copy:styles'
+          'compass:dist',
+          'copy:styles',
+          'imagemin',
+          'svgmin'
         ]
       }
     },
@@ -305,7 +325,7 @@ module.exports = function (grunt) {
         files: [{
           expand: true,
           cwd: '<%= yeoman.dist %>/scripts',
-          src: '*.js',
+          src: '{,*/}*.js',
           dest: '<%= yeoman.dist %>/scripts'
         }]
       }
@@ -405,9 +425,9 @@ module.exports = function (grunt) {
    *   grunt server:staging --subdomain mpstagingpulkit
    */
   grunt.registerTask('server',
-    'For example:' +
-      '\n\tgrunt server:local' +
-      '\n\tgrunt server:development --subdomain mppulkit',
+    // 'For example:' +
+    //   '\n\tgrunt server:local' +`
+    //   '\n\tgrunt server:development --subdomain mppulkit',
     function (env) {
       if (!env) {
         return grunt.util.error('You must specify an environment');
@@ -425,28 +445,27 @@ module.exports = function (grunt) {
         'watch'
       ]);
     });
+  
+  grunt.registerTask('build',[
+    'loopback_sdk_angular',
+    'clean:dist',
+    //'wiredep',
+    'useminPrepare',
+    'concurrent:'  + 'development',
+    'autoprefixer',
+    'concat',
+    //'ngAnnotate',
+    'copy:dist',
+    'cdnify',
+    'cssmin',
+    //'uglify',
+    //'rev',
+    //'usemin',
+    'htmlmin'
+    //'replace:' + 'development'
+  ]);
 
-  grunt.registerTask('build', function(env) {
-    if (!env) {
-      return grunt.util.error('You must specify an environment');
-    }
-    grunt.option('environment', env);
-    grunt.task.run([
-      'jshint',
-      //'loadConfig:' + env, // if called from grunt:server, previous work by tasks such as localtunnel:<env> and env:<env> will get nuked
-      'loopback_sdk_angular',
-      'clean:dist',
-      'useminPrepare',
-      'concurrent:' + env,
-      'concat',
-      'copy:dist',
-      'cdnify',
-      'cssmin',
-      'uglify',
-      'rev',
-      'usemin',
-      'replace:' + env
-    ]);
-  });
-
+  grunt.registerTask('default', [
+  'build'
+  ]);
 };

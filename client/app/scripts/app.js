@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('ShoppinPalApp', [
-    'ui.bootstrap'
+    //'ui.bootstrap'
     ,'ngCookies'
     ,'ngResource'
     ,'ngSanitize'
@@ -20,6 +20,10 @@ angular.module('ShoppinPalApp', [
     ,'sp-formatters'
     ,'sp-alerts'
     ,'uuid4'
+    ,'ngAnimate'
+    ,'mgcrea.ngStrap'
+    ,'angular-virtual-keyboard'
+   // ,'angular-useragent-parser'
   ])
 
   .config([
@@ -55,10 +59,10 @@ angular.module('ShoppinPalApp', [
           authenticate: false
         })
         .state('store-report-manager', {
-          url: '/store-report-manager/:reportId',
+          url: '/store-report-manager',
           templateUrl: 'views/store-report-manager.html',
           controller: 'StoreManagerCtrl',
-          authenticate: true
+          authenticate: false
         })
          .state('warehouse-report', {
           url: '/warehouse-report',
