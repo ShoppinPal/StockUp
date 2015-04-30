@@ -70,18 +70,6 @@ module.exports = function (grunt) {
         }]
       }
     },
-    // Automatically inject Bower components into the app
-    wiredep: {
-      app: {
-        src: ['<%= yeoman.app %>/index.html'],
-        ignorePath:  /\.\.\//
-      },
-      sass: {
-        src: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}'],
-        ignorePath: /(\.\.\/){1,2}bower_components\//
-      }
-    },
-
     clean: {
       dist: {
         files: [{
@@ -130,7 +118,6 @@ module.exports = function (grunt) {
           src: [
             '<%= yeoman.dist %>/scripts/{,*/}*.js',
             '<%= yeoman.dist %>/styles/{,*/}*.css',
-            '<%= yeoman.dist %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
             '<%= yeoman.dist %>/styles/fonts/*'
           ]
         }
@@ -146,7 +133,7 @@ module.exports = function (grunt) {
       html: ['<%= yeoman.dist %>/{,*/}*.html'],
       css: ['<%= yeoman.dist %>/styles/{,*/}*.css'],
       options: {
-        assetsDirs: ['<%= yeoman.dist %>','<%= yeoman.dist %>/images']
+        dirs: ['<%= yeoman.dist %>']
       }
     },
     imagemin: {
@@ -154,7 +141,7 @@ module.exports = function (grunt) {
         files: [{
           expand: true,
           cwd: '<%= yeoman.app %>/images',
-          src: '{,*/}*.{png,jpg,jpeg,gif}',
+          src: '{,*/}*.{png,jpg,jpeg}',
           dest: '<%= yeoman.dist %>/images'
         }]
       }
@@ -188,13 +175,20 @@ module.exports = function (grunt) {
           collapseWhitespace: true,
           conservativeCollapse: true,
           collapseBooleanAttributes: true,
-          removeCommentsFromCDATA: true,
-          removeOptionalTags: true
+          /*removeCommentsFromCDATA: true,
+           // https://github.com/yeoman/grunt-usemin/issues/44
+           //collapseWhitespace: true,
+           collapseBooleanAttributes: true,
+           removeAttributeQuotes: true,
+           removeRedundantAttributes: true,
+           useShortDoctype: true,
+           removeEmptyAttributes: true,
+           removeOptionalTags: true*/
         },
         files: [{
           expand: true,
           cwd: '<%= yeoman.app %>',
-          src: ['*.html', 'views/{,*/}*.html'],
+          src: ['*.html', 'views/*.html'],
           dest: '<%= yeoman.dist %>'
         }]
       }
@@ -210,12 +204,9 @@ module.exports = function (grunt) {
           src: [
             '*.{ico,png,txt}',
             '.htaccess',
-            '*.html',
-            'views/{,*/}*.html',
-            'images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
             'bower_components/**/*',
-            'styles/fonts/*',
-            'scripts/**/*'
+            'images/{,*/}*.{gif,webp}',
+            'styles/fonts/*'
           ]
         }, {
           expand: true,
@@ -242,8 +233,7 @@ module.exports = function (grunt) {
             'server.js',
             'lib/**/*',
             'newrelic.js',
-            'config/*.json',
-            'scripts/scripts.js'
+            'config/*.json'
           ]
         }]
       }
@@ -288,7 +278,7 @@ module.exports = function (grunt) {
         files: [{
           expand: true,
           cwd: '<%= yeoman.dist %>/scripts',
-          src: '{,*/}*.js',
+          src: '*.js',
           dest: '<%= yeoman.dist %>/scripts'
         }]
       }
@@ -422,11 +412,11 @@ module.exports = function (grunt) {
       'concurrent:all',
       'concat',
       'copy:dist',
-      'cdnify',
+      //'cdnify',
       //'cssmin',
-      'uglify',
-      'rev',
-      'usemin',
+      //'uglify',
+      //'rev',
+      //'usemin',
       'replace:all'
     ]);
   });
