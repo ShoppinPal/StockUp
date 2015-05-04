@@ -8,13 +8,15 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <title></title>
         <meta name="description" content="">
-        <meta name="viewport" content="width=device-width">
+        <!--meta name="viewport" content="width=device-width"-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
         <link rel="shortcut icon" href="/Symbol-favicon.ico">
         <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
         <link href="//netdna.bootstrapcdn.com/bootswatch/3.1.1/yeti/bootstrap.min.css" rel="stylesheet">
         <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css" rel="stylesheet">
         <link href="bower_components/angular-busy/dist/angular-busy.min.css" rel="stylesheet">
+        <link href="bower_components/angular-virtual-keyboard/release/angular-virtual-keyboard.css" rel="stylesheet">
         <!-- build:css(.tmp) styles/main.css -->
         <!-- <link rel="stylesheet" href="styles/main.css"> -->
 
@@ -63,11 +65,11 @@
         <script src="bower_components/angular-busy/dist/angular-busy.js"></script>
         <script src="bower_components/angular-uuid4/angular-uuid4.js"></script>
         <script src="bower_components/moment/moment.js"></script> <!-- this script is bower-friendly but NOT angular-friendly -->
-        <script src="bower_components/moment-timezone/builds/moment-timezone-with-data.js"></script> 
+        <script src="bower_components/angular-animate/angular-animate.js"></script>
         <script src="bower_components/angular-strap/dist/angular-strap.min.js"></script>
         <script src="bower_components/angular-strap/dist/angular-strap.tpl.min.js"></script>
-        <script src="bower_components/angular-animate/angular-animate.min.js"></script>
-        <!-- this script is bower-friendly but NOT angular-friendly -->
+        <script src="bower_components/angular-virtual-keyboard/release/angular-virtual-keyboard.js"></script>
+        <script src="bower_components/moment-timezone/builds/moment-timezone-with-data.js"></script> <!-- this script is bower-friendly but NOT angular-friendly -->
         <!-- endbuild -->
         <!-- build:js({.tmp,app}) scripts/scripts.js -->
         <script src="scripts/shoppinpal-constants.js"></script>
@@ -92,7 +94,12 @@
         <script src="scripts/controllers/warehouse-report.js"></script>
         <script src="scripts/controllers/create-manual-order.js"></script>
         <script src="scripts/services/login-service.js"></script>
-
+        <script src="scripts/directives/dismiss-keyboard.js"></script>
         <!-- endbuild -->
+        <script type="text/javascript">
+            angular.element(document).ready(function () {
+                event.preventDefault();
+            });
+        </script>
     </body>
 </html>

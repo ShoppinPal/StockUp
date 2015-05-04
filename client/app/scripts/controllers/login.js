@@ -18,8 +18,15 @@ angular.module('ShoppinPalApp')
       $scope.userName ='';
       $scope.password ='';
 
+      $scope.keypressCallback = function($event) {
+        alert('enter');
+        $event.preventDefault();
+      };
+
       // validate login and transition to select store page
       $scope.login = function login(){
+       // alert($scope.userName+""+$scope.password);
+        $state.go('store-report-list');
         // Reference: http://docs.strongloop.com/display/public/LB/Logging+in+users
         // UserModel.login({
         //   realm: 'portal',

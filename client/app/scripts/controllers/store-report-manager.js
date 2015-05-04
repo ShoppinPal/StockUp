@@ -17,7 +17,8 @@ angular.module('ShoppinPalApp')
       $scope.storesReport = [];
       $scope.completedReports = [];
       $scope.alphabets = [];
-      $scope.submitToWarehouseButton = 'Submit To Warehouse';
+      $scope.submitToWarehouseButton = 'Review & Submit';
+      $scope.comments = '';
 
       /** This method will close the editable mode in store-report
        */
@@ -81,15 +82,12 @@ angular.module('ShoppinPalApp')
           $scope.alphabets.push(typefirstChar);
         }
       };
-
       /** @method showCompletedReport
        * This display completed report on screen
        */
       $scope.showCompletedReport = function() {
         $scope.storesReport = $scope.completedReports;
-        $scope.submitToWarehouseButton = 'Review & Submit';
       };
-
       /** @method submitToWarehouse
        * This method will submit the store-report to warehouse
        */
@@ -103,7 +101,9 @@ angular.module('ShoppinPalApp')
        */
       $scope.decreaseQty = function(storereport) {
         storereport.orderqty = parseInt(storereport.orderqty); // parse it from string to integer
-        storereport.orderqty -= 1;
+        if(storereport.orderqty >0){
+          storereport.orderqty -= 1;
+        }
       };
 
       /** @method increaseQty

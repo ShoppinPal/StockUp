@@ -3,6 +3,7 @@
 angular.module('ShoppinPalApp', [
     // 'ui.bootstrap'
      'ngCookies'
+    ,'shoppinpal-loopback'
     ,'ngResource'
     ,'ngSanitize'
     ,'ngTouch'
@@ -11,7 +12,6 @@ angular.module('ShoppinPalApp', [
     ,'ui.router'
     ,'geocoder'
     ,'google-maps'
-    ,'shoppinpal-loopback'
     ,'shoppinpal-utils'
     ,'shoppinpal-vend'
     ,'shoppinpal-prestashop'
@@ -22,6 +22,10 @@ angular.module('ShoppinPalApp', [
     ,'sp-formatters'
     ,'sp-alerts'
     ,'uuid4'
+    ,'ngAnimate'
+    ,'mgcrea.ngStrap'
+    ,'angular-virtual-keyboard'
+   // ,'angular-useragent-parser'
   ])
 
   .config([
@@ -78,7 +82,7 @@ angular.module('ShoppinPalApp', [
           url: '/store-report-manager/:reportId',
           templateUrl: 'views/store-report-manager.html',
           controller: 'StoreManagerCtrl',
-          authenticate: true
+          authenticate: false
         })
          .state('warehouse-report', {
           url: '/warehouse-report',

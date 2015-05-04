@@ -38,10 +38,6 @@ module.exports = function (grunt) {
       }
     },
     watch: {
-      compass: {
-        files: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}'],
-        tasks: ['compass:server', 'autoprefixer']
-      },
       express: { // TODO: change this to loopback (its just naming right?)
         files: [
           '<%= yeoman.app %>/{,*//*}*.html',
@@ -74,6 +70,18 @@ module.exports = function (grunt) {
         }]
       }
     },
+    // Automatically inject Bower components into the app
+    wiredep: {
+      app: {
+        src: ['<%= yeoman.app %>/index.html'],
+        ignorePath:  /\.\.\//
+      },
+      sass: {
+        src: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}'],
+        ignorePath: /(\.\.\/){1,2}bower_components\//
+      }
+    },
+
     clean: {
       dist: {
         files: [{
@@ -106,33 +114,13 @@ module.exports = function (grunt) {
           jshintrc: '<%= yeoman.app %>/.jshintrc',
           ignores: [
             '<%= yeoman.app %>/scripts/shoppinpal-loopback.js',
-            '<%= yeoman.app %>/scripts/shoppinpal-utils.js'
+            '<%= yeoman.app %>/scripts/shoppinpal-utils.js',
+            '<%= yeoman.app %>/scripts/directives/dismiss-keyboard.js'
           ],
           reporter: require('jshint-stylish')
         },
         files: {
           src: '<%= yeoman.app %>/scripts/{,*/}*.js'
-        }
-      }
-    },
-    compass: {
-      options: {
-        sassDir: '<%= yeoman.app %>/styles',
-        cssDir: '.tmp/styles',
-        generatedImagesDir: '.tmp/images/generated',
-        imagesDir: '<%= yeoman.app %>/images',
-        javascriptsDir: '<%= yeoman.app %>/scripts',
-        fontsDir: '<%= yeoman.app %>/styles/fonts',
-        importPath: '<%= yeoman.app %>/bower_components',
-        httpImagesPath: '/images',
-        httpGeneratedImagesPath: '/images/generated',
-        httpFontsPath: '/styles/fonts',
-        relativeAssets: false
-      },
-      dist: {},
-      server: {
-        options: {
-          debugInfo: true
         }
       }
     },
@@ -142,6 +130,7 @@ module.exports = function (grunt) {
           src: [
             '<%= yeoman.dist %>/scripts/{,*/}*.js',
             '<%= yeoman.dist %>/styles/{,*/}*.css',
+            '<%= yeoman.dist %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
             '<%= yeoman.dist %>/styles/fonts/*'
           ]
         }
@@ -157,7 +146,7 @@ module.exports = function (grunt) {
       html: ['<%= yeoman.dist %>/{,*/}*.html'],
       css: ['<%= yeoman.dist %>/styles/{,*/}*.css'],
       options: {
-        dirs: ['<%= yeoman.dist %>']
+        assetsDirs: ['<%= yeoman.dist %>','<%= yeoman.dist %>/images']
       }
     },
     imagemin: {
@@ -165,7 +154,7 @@ module.exports = function (grunt) {
         files: [{
           expand: true,
           cwd: '<%= yeoman.app %>/images',
-          src: '{,*/}*.{png,jpg,jpeg}',
+          src: '{,*/}*.{png,jpg,jpeg,gif}',
           dest: '<%= yeoman.dist %>/images'
         }]
       }
@@ -196,20 +185,16 @@ module.exports = function (grunt) {
     htmlmin: {
       dist: {
         options: {
-          /*removeCommentsFromCDATA: true,
-          // https://github.com/yeoman/grunt-usemin/issues/44
-          //collapseWhitespace: true,
+          collapseWhitespace: true,
+          conservativeCollapse: true,
           collapseBooleanAttributes: true,
-          removeAttributeQuotes: true,
-          removeRedundantAttributes: true,
-          useShortDoctype: true,
-          removeEmptyAttributes: true,
-          removeOptionalTags: true*/
+          removeCommentsFromCDATA: true,
+          removeOptionalTags: true
         },
         files: [{
           expand: true,
           cwd: '<%= yeoman.app %>',
-          src: ['*.html', 'views/*.html'],
+          src: ['*.html', 'views/{,*/}*.html'],
           dest: '<%= yeoman.dist %>'
         }]
       }
@@ -225,9 +210,12 @@ module.exports = function (grunt) {
           src: [
             '*.{ico,png,txt}',
             '.htaccess',
+            '*.html',
+            'views/{,*/}*.html',
+            'images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
             'bower_components/**/*',
-            'images/{,*/}*.{gif,webp}',
-            'styles/fonts/*'
+            'styles/fonts/*',
+            'scripts/**/*'
           ]
         }, {
           expand: true,
@@ -254,22 +242,17 @@ module.exports = function (grunt) {
             'server.js',
             'lib/**/*',
             'newrelic.js',
-            'config/*.json'
+            'config/*.json',
+            'scripts/scripts.js'
           ]
         }]
-      },
-      styles: {
-        expand: true,
-        cwd: '<%= yeoman.app %>/styles',
-        dest: '.tmp/styles/',
-        src: '{,*/}*.css'
       }
     },
     concurrent: {
-      development: {
+      all: {
         tasks: [
-          'compass:server',
-          'copy:styles'
+          'imagemin',
+          'svgmin'
         ]
       }
     },
@@ -305,7 +288,7 @@ module.exports = function (grunt) {
         files: [{
           expand: true,
           cwd: '<%= yeoman.dist %>/scripts',
-          src: '*.js',
+          src: '{,*/}*.js',
           dest: '<%= yeoman.dist %>/scripts'
         }]
       }
@@ -324,7 +307,7 @@ module.exports = function (grunt) {
       production: {}
     },
     replace: {
-      development: {
+      all: {
         options: {
           patterns: [
             {
@@ -401,11 +384,10 @@ module.exports = function (grunt) {
   });
 
   /**
-   * Expecting "target" to be development|staging:
-   *   grunt server:staging --subdomain mpstagingpulkit
+   * "env" may be development|staging|production:
    */
   grunt.registerTask('server',
-    'For example:' +
+      'For example:' +
       '\n\tgrunt server:local' +
       '\n\tgrunt server:development --subdomain mppulkit',
     function (env) {
@@ -418,7 +400,7 @@ module.exports = function (grunt) {
         'loopback_sdk_angular', // TODO: this is eventually called by `build` task too, remove from here?
         'localtunnel:' + env,
         'clean:server',
-        'concurrent:' + env,
+        'concurrent:all',
         'env:' + env, // TODO: move this to be right after `localtunnel` task? or will it exacerbate the race condition?
         'build:' + env,
         'run:' + env,
@@ -437,16 +419,41 @@ module.exports = function (grunt) {
       'loopback_sdk_angular',
       'clean:dist',
       'useminPrepare',
-      'concurrent:' + env,
+      'concurrent:all',
       'concat',
       'copy:dist',
       'cdnify',
-      'cssmin',
+      //'cssmin',
       'uglify',
       'rev',
       'usemin',
-      'replace:' + env
+      'replace:all'
     ]);
   });
 
+  grunt.registerTask('deploy', function(env) {
+    if (!env) {
+      return grunt.util.error('You must specify an environment');
+    }
+    grunt.option('environment', env);
+    grunt.task.run([
+      'jshint',
+      'loadConfig:' + env,
+      'loopback_sdk_angular',
+      'clean:dist',
+      'useminPrepare',
+      'concat',
+      'copy:dist',
+      'cdnify',
+      //'cssmin',
+      'uglify',
+      'rev',
+      'usemin',
+      'replace:all'
+    ]);
+  });
+
+  grunt.registerTask('test', function(){
+    console.log ('skip tests for now - to be implemented...');
+  });
 };
