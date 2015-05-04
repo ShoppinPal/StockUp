@@ -20,6 +20,7 @@ angular.module('ShoppinPalApp')
       $scope.submit = 'Review & Submit';
       $scope.closeBoxButtonLabel = 'CLOSE THIS BOX';
       $scope.printSlipButtonLabel = 'PRINT PACKING SLIP';
+      $scope.ReviewSubmitPage = true;
 
       /** This method will close the editable mode in store-report
        */
@@ -40,6 +41,14 @@ angular.module('ShoppinPalApp')
         popupWin.document.open();
         popupWin.document.write('<html><head><link rel="stylesheet" type="text/css" href="style.css" /></head><body onload="window.print()">' + printContents + '</html>');
         popupWin.document.close();
+      };
+
+    /** @method submitToReceiver
+      * Submit the wharehouse page to receiver
+      */
+      $scope.submitToReceiver = function() {
+        $scope.submit = 'Submit';
+        $scope.ReviewSubmitPage = false;
       };
 
       /** @method addNewBox

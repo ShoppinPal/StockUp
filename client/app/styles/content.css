@@ -1,4 +1,4 @@
-@import url(//fonts.googleapis.com/css?family=Lato);
+/*@import url(//fonts.googleapis.com/css?family=Lato);
 
 
 
@@ -365,7 +365,7 @@ input:focus{
     float: left;
 }
 .fa-lg {
-    font-size: 2em;
+    font-size: 3em;
     cursor: pointer;
 }
 .edit-row{
@@ -577,8 +577,10 @@ p.note-text{
     height: 692px;
 }
 .scrollable-table{
-    height: 655px;
+    height: 100px;
     overflow-y:scroll;
+    overflow-x: hidden;
+    display: block;
 }
 .ipad-scroll {
     list-style: outside none none;

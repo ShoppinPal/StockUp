@@ -59,7 +59,7 @@ angular.module('ShoppinPalApp', [
           authenticate: false
         })
         .state('store-report-manager', {
-          url: '/store-report-manager/:reportId',
+          url: '/store-report-manager',
           templateUrl: 'views/store-report-manager.html',
           controller: 'StoreManagerCtrl',
           authenticate: false

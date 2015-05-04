@@ -10,7 +10,7 @@
                     <div class="col-md-7 col-sm-9 col-xs-12">
                         <div class="note-sub-text pull-right">You are logged in as a <span><a href="#">Store Manager/WH/SR</a>&nbsp;&nbsp; </span>|&nbsp;&nbsp;<a href="#" class="logout-text">LOGOUT</a></div>
                         <div class="btn-align">
-                            <button type="submit" class="btn btn-primary button-large-green">{{submit}}</button>
+                            <button class="btn btn-primary button-large-green" ng-click="submitToReceiver()">{{submit}}</button>
                         </div>
                     </div>
             </header>
@@ -84,7 +84,7 @@
                                                 </div>
                                                 <div class="clearfix"></div>
                                             </div>
-                                            <div class="row">
+                                            <div class="row" ng-show="ReviewSubmitPage">
                                                 <input type="text" class="form-control comment-input" placeholder="-- Add your Comments --" ng-model="comments">
                                             </div>
                                             <!--/div-->

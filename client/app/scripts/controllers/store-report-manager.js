@@ -19,6 +19,7 @@ angular.module('ShoppinPalApp')
       $scope.alphabets = [];
       $scope.submitToWarehouseButton = 'Review & Submit';
       $scope.comments = '';
+      $scope.ReviewSubmitPage = true;
 
       /** This method will close the editable mode in store-report
        */
@@ -92,7 +93,13 @@ angular.module('ShoppinPalApp')
        * This method will submit the store-report to warehouse
        */
       $scope.submitToWarehouse = function() {
-        $location.path('/warehouse-report');
+        $scope.submitToWarehouseButton = 'Submit';
+        if(!$scope.ReviewSubmitPage){
+          $location.path('/warehouse-report');
+        }
+        else{
+          $scope.ReviewSubmitPage = false;
+        }
       };
 
       /** @method decreaseQty
@@ -128,10 +135,11 @@ angular.module('ShoppinPalApp')
        * This method will load the storesReport from api on view load
        */
       $scope.$on('$viewContentLoaded', function() {
-        //loginService.getSelectStore()
-        loginService.getStoreReport($stateParams.reportId)
+        loginService.getSelectStore()
+        //loginService.getStoreReport($stateParams.reportId)
           .then(function (response) {
-            $scope.storesReport = response;
+            $scope.storesReport = response.data.storesReport;
+            //$scope.storesReport = response;
             $scope.storereportlength = $scope.storesReport.length;
             $scope.JumtoDepartment();
           });

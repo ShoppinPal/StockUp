@@ -35,7 +35,7 @@
             </div>
             <div class="center-block">
                 <div class="report-manager-ipad-scroll">
-                    <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
+                    <table cellspacing="0" style="display: block;" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
                         <thead>
                             <tr>
                                 <th width="15%">SKU</th>
@@ -97,7 +97,7 @@
                                             <div class="clearfix"></div>
                                         </div>
                                         <div class="row">
-                                            <input type="text" class="form-control comment-input" placeholder="-- Add your Comments --" ng-model="comments">
+                                            <input ng-show="ReviewSubmitPage" type="text" class="form-control comment-input" placeholder="-- Add your Comments --" ng-model="comments">
                                         </div>
                                         <!--/div-->
                                     </td>
