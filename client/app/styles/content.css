@@ -119,7 +119,7 @@ h1{
 .button-large-green{
     background: #2d8d5a;
     text-transform: uppercase;
-    padding: 10px 30px;
+    padding: 10px 54px;
     font-size: 14px;
     border:0px;
     margin-top: 20px;
@@ -365,7 +365,7 @@ input:focus{
     float: left;
 }
 .fa-lg {
-    font-size: 2em;
+    font-size: 3em;
     cursor: pointer;
 }
 .edit-row{
@@ -577,8 +577,10 @@ p.note-text{
     height: 692px;
 }
 .scrollable-table{
-    height: 655px;
+    height: 100px;
     overflow-y:scroll;
+    overflow-x: hidden;
+    display: block;
 }
 .ipad-scroll {
     list-style: outside none none;
