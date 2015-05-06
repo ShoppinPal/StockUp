@@ -14,13 +14,13 @@ angular.module('ShoppinPalApp')
     function ($scope, $state,
               UserModel, LoopBackAuth, StoreModel, ReportModel)
     {
-      /*$scope.reportList = [
+      $scope.reportList = [
         'GlenStone - Mon 5th Apr 2015',
         'GlenStone - Fri 9th Jun 2015',
         'GlenStone - Tue 20th Nov 2015',
         'GlenStone - Wed 21st Nov 2015'
-      ];*/
-      $scope.reportList = [];
+      ];
+     // $scope.reportList = [];
       /* TODO: file an enhancement request w/ loopback,
        *        the argument below shouldn't have to be explicit,
        *        currentUserId should be the default if unspecified

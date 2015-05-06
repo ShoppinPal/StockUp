@@ -11,9 +11,17 @@ angular.module('ShoppinPalApp')
     .controller('StoreLandingCtrl', ['$scope', 'loginService',
         function($scope, loginService) {
 
-            /** @method viewContentLoaded
-             * This method will load the storesReport from api on view load
-             */
+         /** @method importExport
+           * @param index
+           * on left swipe of store landing page enable export, import for warehouse
+           */
+            $scope.importExport = function(index) {
+                $scope.selectedStore = index;
+            };
+
+         /** @method viewContentLoaded
+           * This method will load the storesReport from api on view load
+           */
             $scope.$on('$viewContentLoaded', function() {
                 //loginService.getSelectStore()
                 loginService.getSelectStoreStatus()

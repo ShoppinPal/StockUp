@@ -34,7 +34,8 @@ a:hover, a:focus {
     color: #ffffff;
 }
 .btn:active, .btn.active {
-    outline: 0;
+    out
+    ne: 0;
     background-image: none;
     -webkit-box-shadow: inset 0 0px 0px rgba(0, 0, 0, 0);
     box-shadow: inset 0 0px 0px rgba(0, 0, 0, 0);
@@ -370,6 +371,7 @@ input:focus{
 }
 .edit-row{
     background-color: #354052 !important;
+    color: #ffffff;
 }
 .edit-second-column-heading-text-warehouse{
     color: #ffffff;
@@ -632,7 +634,7 @@ p.note-text{
     position: absolute;
     text-align: center;
     background: #93c8ca;
-    height: 692px;
+    height: 100%;
 }
 .scrollable-table{
     height: 655px;
@@ -729,3 +731,124 @@ p.note-text{
     border:1px solid #ffffff;
 }
 /* warehouse popover css end*/
+
+/* warehouse landing  start*/
+.status-td{
+    clear: both;
+}
+.status-square-fulfilled {
+    width: 20px;
+    height: 20px;
+    margin-left: 58px;
+    background: #b9511a;
+    border-radius: 3px;
+    float: left;
+}
+.status-square-inprocess {
+    width: 20px;
+    height: 20px;
+    margin-left: 58px;
+    background: #4e3173;
+    border-radius: 3px;
+    float: left;
+}
+.status-square-complete {
+    width: 20px;
+    height: 20px;
+    margin-left: 58px;
+    background: #21639d;
+    border-radius: 3px;
+    float: left;
+}
+.status-text{
+    
+}
+.inprocess-btn{
+    background: #4e3173;
+    border:none;
+    color: #ffffff;
+    padding: 5px 10px;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: bold;
+    margin-right: 10px;
+    border-radius: 5px;
+}
+.complete-btn{
+    background: #21639d;
+    border:none;
+    color: #ffffff;
+    padding: 5px 10px;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: bold;
+    margin-right: 10px;
+    border-radius: 5px;
+}
+.fulfilled-btn{
+    background: #b9511a;
+    border:none;
+    color: #ffffff;
+    padding: 5px 10px;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: bold;
+    border-radius: 5px;
+}
+.import-btn{
+    background: #238ca2;
+    border:none;
+    color: #ffffff;
+    padding: 5px 10px;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: bold;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+.export-btn{
+    background: #238b58;
+    border:none;
+    color: #ffffff;
+    padding: 5px 10px;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: bold;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+/* warehouse landing  end*/
+
+/* create manual order start*/
+.calendar{
+    position: relative;
+}
+.calendar .fa-calendar { 
+  position: absolute;
+  top: 12px;
+  left: 523px;
+}
+/* create manual order end*/
+/* store manager intro page start*/
+.center-block-generate-btn {
+  display: block;  
+  margin-left: 152px;
+  margin-right: auto;
+  margin-top: 10px;
+}
+.status-margin-right {
+  margin-right: 100px;
+}
+.store-landing-edit-button-row {
+  margin-left: 200px;
+}
+.store-landing-second-col-text {
+    color: #ffffff;
+    font-size: 16px;
+    padding-left: 79px;
+}
+.store-auto-height {
+   line-height: 4;
+}
+/* store manager intro page end*/

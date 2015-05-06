@@ -21,9 +21,8 @@
     <div class="row main-container">
         <div class="inner-container">
             <div class="report-manager-ipad-search">
-                <ul>
-                    <li>JumpTo
-                        <br>Supplier</li>
+                <h4>JumpTo<br>Supplier</h4>
+                <ul class="store-auto-height">
                     <li ng-repeat="store in storesReport | unique:'type' | orderBy: 'type'">
                         <a href="" ng-click="gotoDepartment(store.type)">{{store.type}}</a>
                     </li>
@@ -36,7 +35,7 @@
                             <tr>
                                 <th width="15%">order id</th>
                                 <th width="15%">order Name</th>
-                                <th width="25%">status</th>
+                                <th width="15%">status</th>
                                 <th width="15%">total items</th>
                             </tr>
                         </thead>
@@ -57,9 +56,13 @@
                                 <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'" ng-hide="$index==selectedStore" ng-swipe-left="importExport($index)">
                                     <td width="15%">{{storereport.sku}}</td>
                                     <td width="15%">{{storereport.name}}</td>
-                                    <td width="25%">
-                                        <div class="status-td">
-                                            <span class="status-square-fulfilled"></span> {{storereport.status}}
+                                    <td width="15%">
+                                        <div class="status-td status-margin-right">
+                                             <span ng-class="{
+                                'status-square-complete': storereport.status == 'complete',
+                                'status-square-inprocess': storereport.status == 'inProgress',
+                                'status-square-fulfilled': storereport.status == 'pending'}">
+                                    </span> {{storereport.status}}
                                         </div>
                                     </td>
                                     <td width="15%">{{storereport.desiredStockLevel}}</td>
@@ -70,15 +73,17 @@
                                         <strong>Comments:</strong><span class="comment-span"> {{comments}}</span>
                                     </td>
                                 </tr>
-                                <!-- Edit store-report start -->
-                                <tr ng-show="$index==selectedStore" class="edit-row">
-                                    <td width="15%">{{storereport.sku}}</td>
-                                    <td width="15%">{{storereport.name}}</td>
-                                    <td width="70%">
+                                 <!-- Edit store-report start -->
+                               <tr ng-show="$index==selectedStore" class="edit-row">
+                                    <td colspan="6">
+                                    <div class="col-sm-2">{{storereport.sku}}</div>
+                                    <div class="col-sm-2"><div class="store-landing-second-col-text">{{storereport.name}}</div></div>
+                                    <div class="col-sm-5 store-landing-edit-button-row">
                                         <button class="import-btn">Import</button>
                                         <button class="export-btn">Export</button>
                                         <button class="fulfilled-btn">Fulfilled</button>
-                                    </td>
+                                    </div>
+                                  </td>  
                                 </tr>
                                 <!-- Edit store-report end -->
                             </tbody>
