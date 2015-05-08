@@ -32,7 +32,9 @@ module.exports = function(StoreConfigModel) {
 
   var getCurrentUserModel = function(cb) {
     var ctx = loopback.getCurrentContext();
+    log('ctx', ctx);
     var currentUser = ctx && ctx.get('currentUser');
+    log('currentUser', currentUser);
     if (currentUser) {
       console.log('inside StoreConfigModel.getCurrentUserModel() - currentUser: ', currentUser.username);
       //return currentUser;
