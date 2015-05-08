@@ -9,39 +9,54 @@
                     </div>
                     <div class="col-md-7 col-sm-9 col-xs-12">
                         <div class="log-in-text">You are logged in as a <span><a href="#">Store Manager/WH/SR</a>&nbsp;&nbsp; </span>|&nbsp;&nbsp;<a href="#" class="logout-text">LOGOUT</a></div>
-                        <div class="btn-align">Select Suppliers:
-                            <button type="submit" class="btn btn-primary button-large-blue" ng-click="showCompletedReport()">CSC</button>
-                            <button type="submit" class="btn btn-primary button-large-green" ng-click="submitToWarehouse()">FFCC</button>
+                        <div class="btn-align">
+                            <button type="submit" class="btn btn-primary button-large-blue">CSC</button>
+                            <button type="submit" class="btn btn-primary button-large-green">FFCC</button>
                         </div>
                     </div>
+                    <!-- <div class="col-md-3 col-sm-3 col-xs-12 btn-align"><button type="submit" class="btn btn-primary login-btn">Logout</button></div> -->
                 </div>
             </header>
             <!-- Report Manager page content -->
             <div class="main-container">
-                <div class="row">
-                 <div class="col-md-4 center-block-generate-btn">
-                    <button class="btn btn-primary center-block-generate-btn" ng-click="generateOrder()">GENERATE ORDER</button>
-                 </div>
+                <div class="text-center">
+                    <button ng-click="generateOrder()" class="btn btn-primary button-large-blue">Generate Order</button>
                 </div>
-                <div class="row center-block">
-                    <div class="col-sm-6 col-xs-6">
-                        <button>ORDER IN PROGRESS</button>
-                        <!--<ul class="list-group" ng-repeat="report in reportList track by report.id">-->
-                        <!-- <ul class="list-group" ng-repeat="report in reportList | filter: {state:'manager'} track by report.id">
+                <div class="intro-container">
+                    <div class="col-md-6 col-sm-6">
+                        <div class="intro-content">
+                            <div class="intro-column-heading">Order In Process</div>
+                            <!--<ul class="list-group" ng-repeat="report in reportList track by report.id">-->
+                            <!-- <ul class="list-group" ng-repeat="report in reportList | filter: {state:'manager'} track by report.id">
                             <li class="list-group-item" ui-sref="store-report-manager({reportId:report.id})">
                                 <span class="badge"></span> {{report.id}} - {{report.outlet.name}} - {{report.created | date:'medium'}}
                             </li>
                         </ul> -->
-                        <ul class="list-group" ng-repeat="report in reportList">
-                            <li>{{report}}</li>
-                        </ul>
+                            <ul class="list-group" ng-repeat="report in reportList">
+                                <li>{{report}}</li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="col-sm-6 col-xs-6">
-                        <button>READY TO BE RECEIVED</button>
-                        <ul class="list-group" ng-repeat="report in reportList">
-                            <li>{{report}}</li>
-                        </ul>
+                    <div class="col-md-6 col-sm-6">
+                        <div class="intro-content">
+                            <div class="intro-column-heading">Order In Process</div>
+                            <ul>
+                                <li>GlenStone</li>
+                                <li>Skelly</li>
+                                <li>Parkway</li>
+                                <li>71st</li>
+                                <li>GlenStone</li>
+                                <li>Skelly</li>
+                                <li>Parkway</li>
+                                <li>71st</li>
+                                <li>GlenStone</li>
+                                <li>Skelly</li>
+                                <li>Parkway</li>
+                                <li>71st</li>
+                            </ul>
+                        </div>
                     </div>
+                    <div class="clearfix"></div>
                 </div>
             </div>
         </div>

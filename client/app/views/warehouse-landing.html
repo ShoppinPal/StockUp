@@ -28,7 +28,7 @@
                     </li>
                 </ul>
             </div>
-            <div class="center-block">
+            <div class="store-content">
                 <div class="report-manager-ipad-scroll">
                     <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
                         <thead>
@@ -44,20 +44,15 @@
                         <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
                             <tbody ng-repeat="storereport in storesReport| orderBy:'type'| groupBy: 'type'">
                                 <tr class="inner-table-heading" id="jumpto{{storereport.type}}" ng-if="storereport.group_by_CHANGED">
-                                    <td>
+                                    <td colspan="5">
                                         <span class="table-heading-font">{{storereport.type}}</span>
-                                    </td>
-                                    <td colspan="5" ng-if="$index == 0">
-                                        <button class="inprocess-btn" ng-click="inProcessOrder()">In Process</button>
-                                        <button class="fulfilled-btn" ng-click="fulfilledOrder()">Fulfillment</button>
-                                        <button class="complete-btn" ng-click="recievedOrder()">To Receive</button>
                                     </td>
                                 </tr>
                                 <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'" ng-hide="$index==selectedStore" ng-swipe-left="importExport($index)">
                                     <td width="15%">{{storereport.sku}}</td>
                                     <td width="15%">{{storereport.name}}</td>
                                     <td width="15%">
-                                        <div class="status-td status-margin-right">
+                                        <div class="status-td">
                                              <span ng-class="{
                                 'status-square-complete': storereport.status == 'complete',
                                 'status-square-inprocess': storereport.status == 'inProgress',
@@ -91,6 +86,15 @@
                     </div>
                 </div>
             </div>
+			 <!-- store landing button start -->
+            <div class="ipad-right-column">
+                <div class="vertical-status-btn">
+                    <button class="status-btn-inprocess" ng-click="inProcessOrder()">In Process</button>
+                    <button class="status-btn-fullfil" ng-click="fulfilledOrder()">Fullfil</button>
+                    <button class="status-btn-receive" ng-click="recievedOrder()">Recieve</button>
+                </div>    
+            </div>
+            <!-- store landing button end -->
         </div>
     </div>
 </div>

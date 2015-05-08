@@ -1,56 +1,68 @@
 <div class="container">
     <div class="row">
-        <div class="col-sm-12 col-md-12">
-            <!-- Select store header -->
-            <header class="header">
-                <div class="row">
-                    <div class="col-md-5 col-sm-3 col-xs-12">
-                        <div class="logo">Glenstone</div>
-                    </div>
-                    <div class="col-md-7 col-sm-9 col-xs-12">
-                        <div class="note-sub-text pull-right">You are logged in as a <span><a href="#">Store Manager/WH/SR</a>&nbsp;&nbsp; </span>|&nbsp;&nbsp;<a href="#" class="logout-text">LOGOUT</a></div>
-                        <div class="btn-align">
-                            <button type="submit" class="btn btn-primary button-large-green" ng-click="createManualOrder()">Create manual order</button>
-                        </div>
+      <div class="col-sm-12 col-md-12">
+        <!-- Select store header -->
+          <header class="header">
+              <div class="row">
+                  <div class="col-md-5 col-sm-3 col-xs-12"><div class="logo">Glenstone</div></div>
+                  <div class="col-md-7 col-sm-9 col-xs-12"> 
+                    <div class="log-in-text">You are logged in as a <span><a href="#">Store Manager/WH/SR</a>&nbsp;&nbsp; </span>|&nbsp;&nbsp;<a href="#" class="logout-text">LOGOUT</a></div>
+                    <div class="btn-align">
+                    <!-- <button type="submit" class="btn btn-primary button-large-blue">Show Completed</button> -->  
+                    <button type="submit" class="btn btn-primary button-large-green">Create Manual Order</button></div>
+                  </div>
+                  <!-- <div class="col-md-3 col-sm-3 col-xs-12 btn-align"><button type="submit" class="btn btn-primary login-btn">Logout</button></div> -->
+              </div>
+          </header>
+      </div>
+      </div>
+          <!-- Report Manager page content -->
+      <div class="row main-container">    
+          <div class="order-container">
+            <h2>New Stock Order</h2> 
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label for="inputEmail" class="control-label col-xs-3">Name / Reference</label>
+                    <div class="col-xs-8">
+                        <input type="text" class="form-control" id="inputEmail">
                     </div>
                 </div>
-            </header>
-        </div>
-    </div>
-    <!-- Store Manager page content -->
-    <div class="row main-container">
-        <h4>NEW STOCK ORDER</h4>
-        <form class="form-horizontal" role="form">
-            <div class="form-group">
-                <label class="control-label col-sm-2">Name/Reference:</label>
-                  <div class="col-sm-10">
-                    <input type="text" class="form-control" placeholder="order:28th april 2015">
-                  </div>
-            </div>
-            <div class="form-group">
-                <label class="control-label col-sm-2">Order From:</label>
-                  <div class="col-sm-10">
-                    <input type="text" class="form-control" placeholder="Any">
-                  </div>
-            </div>
-            <div class="form-group">
-                <label class="control-label col-sm-2">Deliver To:</label>
-                  <div class="col-sm-10">
-                    <input type="text" class="form-control" placeholder="11th goft shop">
-                  </div>
-            </div>
-            <div class="form-group">
-                <label class="control-label col-sm-2" for="date">Due At:</label>
-                  <div class="col-sm-7 calendar">
-                   <input type="text" data-date-format="dd/MM/yyyy" class="form-control" ng-model="selectedDate" name="date" bs-datepicker>
-                   <i class="fa fa-calendar"></i>
-                  </div>
-            </div>
-            <div class="form-group">
-                <label class="control-label col-sm-2">Supplier Invoice:</label>
-                  <div class="col-sm-10">
-                    <input type="text" ng-click="show()" class="form-control" placeholder="Enter email">
-                  </div>
-            </div>
-        </form>
-    </div>
+                <div class="form-group">
+                    <label for="inputPassword" class="control-label col-xs-3">Order From</label>
+                    <div class="col-xs-8">
+                        <input type="text" class="form-control" id="inputPassword" placeholder="Any">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputPassword" class="control-label col-xs-3">Deliver To</label>
+                    <div class="col-xs-8">
+                        <input type="text" class="form-control" id="inputPassword" placeholder="Deliver To">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputPassword" class="control-label col-xs-3">Due At</label>
+                    <div class="col-xs-8 calendar">
+                        <input type="text" data-date-format="dd/MM/yyyy" ng-model="selectedDate" class="form-control" placeholder="Due At" bs-datepicker>
+                         <i class="fa fa-calendar"></i>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputPassword" class="control-label col-xs-3">Supplier Invoice</label>
+                    <div class="col-xs-8">
+                        <input type="text" class="form-control" id="inputPassword" placeholder="Supplier Invoice">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputPassword" class="control-label col-xs-3">Import Order</label>
+                    <div class="col-xs-8">
+                      <!-- <div class="fileUpload btn "> -->
+                       <input type="file" file-model="myFile" click="importOrder()"/>
+                         <!--  <span>Choose File</span> -->
+                          <!-- <input type="file" class="upload" file-model="myFile" ng-click="importOrder()"/> -->
+                     <!--  </div> -->
+                      </div>
+                </div>
+             </form>
+          </div>
+      </div>
+  </div>

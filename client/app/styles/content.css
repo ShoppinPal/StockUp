@@ -820,7 +820,7 @@ p.note-text{
 
 /* warehouse landing  end*/
 
-/* create manual order start*/
+/* Create Manual Order page CSS start*/
 .calendar{
     position: relative;
 }
@@ -829,16 +829,40 @@ p.note-text{
   top: 12px;
   left: 523px;
 }
+.order-container{
+    padding: 20px;
+}
+h2{
+    color: #32394b;
+    font-size: 16px;
+    padding-bottom: 10px;
+    font-weight: bold;
+    border-bottom: 1px solid #dfdfdf;
+    text-transform: uppercase;
+    margin-bottom: 30px;
+}
+.order-container .control-label {
+    margin-bottom: 0;
+    padding-top: 7px;
+    text-align: right;
+    color: #6b6b6b;
+    font-weight: normal;
+    font-size: 16px;
+}
+.order-container .form-control {
+    background-color: #f7f7f7;
+}
 /* create manual order end*/
-/* store manager intro page start*/
+
+/* store manager landing  page start*/
+.store-content {
+   margin-right: 110px; 
+}
 .center-block-generate-btn {
   display: block;  
   margin-left: 152px;
   margin-right: auto;
   margin-top: 10px;
-}
-.status-margin-right {
-  margin-right: 100px;
 }
 .store-landing-edit-button-row {
   margin-left: 200px;
@@ -851,4 +875,68 @@ p.note-text{
 .store-auto-height {
    line-height: 4;
 }
-/* store manager intro page end*/
+.vertical-status-btn {
+    padding-top: 100px;
+}
+.status-btn-fullfil {
+  width: 55px;
+  height: 150px;
+  font-size: 11px;
+  word-wrap: break-word;
+  background: #b9511a;
+  color: #ffffff;
+}
+.status-btn-inprocess {
+  width: 55px;
+  height: 150px;
+  font-size: 11px;
+  word-wrap: break-word;
+  background: #4e3173;
+  color: #ffffff;
+}
+.status-btn-receive {
+  width: 55px;
+  height: 150px;
+  font-size: 11px;
+  word-wrap: break-word;
+  background: #21639d;
+  color: #ffffff;
+}
+/* store manager landing page end*/
+
+/*Store Manager Intro Screen CSS 6-5-2015*/
+
+.intro-container{
+    padding: 50px 20px;
+}
+.intro-column-heading{
+    background: #d7f2f9;
+    text-align: center;
+    font-size: 14px;
+    text-transform: uppercase;
+    padding: 25px 0px;
+    font-weight: 600;
+}
+.intro-content{
+    border:1px solid #d7f2f9;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+.intro-content ul{
+    padding: 0;
+    margin: 0;
+}
+.intro-content ul li{
+    padding: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1b889d;
+    list-style-type: none;
+    border-bottom: 1px solid #f0fafc;
+}
+.intro-content li:nth-child(odd) {
+    background: #ffffff;
+}
+.intro-content li:nth-child(even) {
+    background: #f5fdff;
+}

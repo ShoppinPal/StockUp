@@ -28,7 +28,7 @@
                     </li>
                 </ul>
             </div>
-            <div class="center-block">
+            <div class="store-content">
                 <div class="report-manager-ipad-scroll">
                     <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
                         <thead>
@@ -50,8 +50,8 @@
                                     <td width="15%">{{storereport.sku}}</td>
                                     <td width="15%">{{storereport.name}}</td>
                                     <td width="15%">
-                                        <div class="status-td status-margin-right">
-                                 <span ng-class="{
+                                        <div class="status-td">
+                                            <span ng-class="{
                                 'status-square-complete': storereport.status == 'complete',
                                 'status-square-inprocess': storereport.status == 'inProgress',
                                 'status-square-fulfilled': storereport.status == 'pending'}">
@@ -66,17 +66,19 @@
                                         <strong>Comments:</strong><span class="comment-span"> {{comments}}</span>
                                     </td>
                                 </tr>
-                                 <!-- Edit store-report start -->
-                              <tr ng-show="$index==selectedStore" class="edit-row">
+                                <!-- Edit store-report start -->
+                                <tr ng-show="$index==selectedStore" class="edit-row">
                                     <td colspan="6">
-                                    <div class="col-sm-2">{{storereport.sku}}</div>
-                                    <div class="col-sm-2"><div class="store-landing-second-col-text">{{storereport.name}}</div></div>
-                                    <div class="col-sm-5 store-landing-edit-button-row">
-                                        <button class="import-btn">Import</button>
-                                        <button class="export-btn">Export</button>
-                                        <button class="fulfilled-btn">Fulfilled</button>
-                                    </div>
-                                  </td>  
+                                        <div class="col-sm-2">{{storereport.sku}}</div>
+                                        <div class="col-sm-2">
+                                            <div class="store-landing-second-col-text">{{storereport.name}}</div>
+                                        </div>
+                                        <div class="col-sm-5 store-landing-edit-button-row">
+                                            <button class="import-btn">Import</button>
+                                            <button class="export-btn">Export</button>
+                                            <button class="fulfilled-btn">Fulfilled</button>
+                                        </div>
+                                    </td>
                                 </tr>
                                 <!-- Edit store-report end -->
                             </tbody>
@@ -84,9 +86,15 @@
                     </div>
                 </div>
             </div>
-			<!-- store landing button start -->
-			
-			<!-- store landing button end -->
+            <!-- store landing button start -->
+            <div class="ipad-right-column">
+                <div class="vertical-status-btn">
+                   <button class="status-btn-inprocess" ng-click="inProcessOrder()">In Process</button>
+                    <button class="status-btn-fullfil" ng-click="fulfilledOrder()">Fullfil</button>
+                    <button class="status-btn-receive" ng-click="recievedOrder()">Recieve</button>
+                </div>    
+            </div>
+            <!-- store landing button end -->
         </div>
     </div>
 </div>
