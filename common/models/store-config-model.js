@@ -1,6 +1,10 @@
 var loopback = require('loopback');
 var Promise = require('bluebird');
 
+var path = require('path');
+var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
+var log = require('debug')('common:models:'+fileName);
+
 module.exports = function(StoreConfigModel) {
 
   // https://github.com/strongloop/loopback/issues/418

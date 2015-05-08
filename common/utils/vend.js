@@ -102,7 +102,7 @@ var token = function(code, domainPrefix, state, /*baseUrl,*/ restApiRoot, vendCo
     '\n state ' + state + // user's authN session token
     //'\n baseUrl ' + baseUrl +
     '\n restApiRoot ' + restApiRoot +
-    '\n vendConfig ' + vendConfig
+    '\n vendConfig ' + JSON.stringify(vendConfig,null,2)
   );
   var userSessionToken = state;
 
