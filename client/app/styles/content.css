@@ -142,10 +142,10 @@ h1{
     font-weight: 600;
     border:1px solid #1f899f;
 }
-.button-large-blue:hover{
+/*.button-large-blue:hover{
     background: transparent;
     border:1px solid #ffffff;
-}
+}*/
 .tr-bg td:first-child{
     background: #93c8ca;
 }

@@ -2,7 +2,7 @@
 
 angular.module('ShoppinPalApp', [
     // 'ui.bootstrap'
-     'ngCookies'
+    'ngCookies'
     ,'shoppinpal-loopback'
     ,'ngResource'
     ,'ngSanitize'
