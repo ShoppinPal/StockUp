@@ -111,3 +111,4 @@ Launch your loopback server in development mode.
 grunt server:development --subdomain <subdomain>
 DEBUG=shoppinpal:*,boot:create-model-instances,boot:create-role-resolver grunt server:development --subdomain <subdomain>
 ```
+ 

@@ -150,7 +150,7 @@ module.exports = function(ReportModel) {
                       accessToken: storeModelInstance.storeConfigModel().vendAccessToken,//'XN4ceup1M9Rp6Sf1AqeqarDjN9TMa06Mwr15K7lk',
                       refreshToken: storeModelInstance.storeConfigModel().vendRefreshToken,//'qSl8JF9fD2UMGAZfpsN2yr2d8XRNZgmQEKh7v5jp',
                       domainPrefix: matches[1], //'fermiyontest', // TODO: extract from storeConfigModelInstance.posUrl
-                      loopbackServerUrl: process.env['site:baseUrl'],
+                      loopbackServerUrl: process.env['site:baseUrl'] || ReportModel.app.get('site').baseUrl,
                       //loopbackServerHost: 'mppulkit1.localtunnel.me',
                       //loopbackServerPort: '443',
                       loopbackAccessToken: newAccessToken, // let it be the full json object
