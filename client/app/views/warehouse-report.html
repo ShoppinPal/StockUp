@@ -1,0 +1,135 @@
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12 col-md-12">
+            <!-- Select store header -->
+            <header class="header">
+                <div class="row">
+                    <div class="col-md-5 col-sm-3 col-xs-12">
+                        <div class="logo">Glenstone</div>
+                    </div>
+                    <div class="col-md-7 col-sm-9 col-xs-12">
+                        <div class="note-sub-text pull-right">You are logged in as a <span><a href="#">Store Manager/WH/SR</a>&nbsp;&nbsp; </span>|&nbsp;&nbsp;<a href="#" class="logout-text">LOGOUT</a></div>
+                        <div class="btn-align">
+                            <button ng-click="submitToReceiver()" class="btn btn-primary button-large-green"> {{submit}} </button>
+                        </div>
+                    </div>
+            </header>
+            </div>
+        </div>
+        <!-- Report Manager page content -->
+        <div class="row main-container">
+            <div class="inner-container">
+                <div class="ipad-search">
+                    <ul>
+                        <li>Jump
+                            <br>To</li>
+                        <li ng-repeat="value in alphabets | unique:'value'">
+                            <a href="" ng-click="gotoDepartment(value)">{{value}}</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="center-block" id="printSlip">
+                    <div class="ipad-scroll">
+                        <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
+                            <thead>
+                                <tr>
+                                    <th width="15%">SKU</th>
+                                    <th width="15%">Name</th>
+                                    <th width="30%">Ordered Quantity</th>
+                                    <th width="30%">Fulfilled Quantity</th>
+                                </tr>
+                            </thead>
+                        </table>
+                        <div class="scrollable-table">
+                            <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
+                                <tbody ng-repeat="storereport in storesReport | orderBy:'type'| groupBy: 'type'">
+                                    <tr class="inner-table-heading" id="jumpto{{storereport.type}}" ng-if="storereport.group_by_CHANGED">
+                                        <td colspan="4"><span class="table-heading-font">{{storereport.type}}</span></td>
+                                    </tr>
+                                    <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'" ng-hide="$index==selectedStore" ng-swipe-left="editWarehouse($index)" ng-swipe-right="moveToBox(storereport)">
+                                        <td width="15%">{{storereport.sku}}</td>
+                                        <td width="15%">{{storereport.name}}</td>
+                                        <td width="30%">{{storereport.quantityinhand}}</td>
+                                        <td width="30%">{{storereport.desiredStockLevel}}</td>
+                                    </tr>
+                                    <tr ng-if="comments" ng-hide="$index==selectedStore">
+                                        <td colspan="5">
+                                            <span class="fa fa-comment comment-icon"></span>&nbsp;&nbsp;
+                                            <strong>Comments:</strong><span class="comment-span"> {{comments}}</span>
+                                        </td>
+                                    </tr>
+                                    <!-- Edit store-report start -->
+                                    <tr ng-show="$index==selectedStore" class="edit-row">
+                                        <td colspan="6">
+                                            <div class="row">
+                                                <div class="col-sm-2 edit-column-heading-text"> {{storereport.sku}}
+                                                </div>
+                                                <div class="col-sm-3 edit-second-column-heading-text-warehouse">
+                                                    {{storereport.name}}
+                                                </div>
+                                                <div class="col-sm-3 edit-last-column-heading-text-warehouse">
+                                                    {{storereport.quantityinhand}}
+                                                </div>
+                                            </div>
+                                            <div class="edit-window">
+                                                <div class="float-left column-text margin-right margin-top">Fullfilled Qty:</div>
+                                                <div class="float-left margin-right-10px margin-top">
+                                                    <span class="fa fa-minus-circle fa-lg edit-icon" ng-click="decreaseQty(storereport)"></span>
+                                                </div>
+                                                <div class="float-left margin-right-10px">
+                                                    <input type="text" class="form-control input-small" ng-model="storereport.desiredStockLevel">
+                                                </div>
+                                                <div class="float-left margin-right margin-top">
+                                                    <span class="fa fa-plus-circle fa-lg edit-icon" ng-click="increaseQty(storereport)"></span>
+                                                </div>
+                                                <div class="clearfix"></div>
+                                            </div>
+                                            <div class="row" ng-show="ReviewSubmitPage">
+                                                <input type="text" class="form-control comment-input" placeholder="-- Add your Comments --" ng-model="comments">
+                                            </div>
+                                            <!--/div-->
+                                        </td>
+                                    </tr>
+                                    <!-- Edit store-report end -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="ipad-right-column">
+                    <table class="table table-responsive right-table">
+                        <thead>
+                            <tr>
+                                <th>Box
+                                    <br>Items</th>
+                            </tr>
+                        </thead>
+                    </table>
+                    <table class="table table-responsive right-table">
+                        <tbody>
+                            <tr>
+                                <td valign="middle" class="v-align-middle">
+                                    <div>
+                                        <div ng-show="openBox" class="main-box" data-placement="left" data-template="views/popup/box.html" bs-popover>
+                                            <span class="dropbox-qty">{{boxItems}}</span>
+                                            <div><img src="images/img_open_folder.png"></div>
+                                            <span class="dropbox-name">Box</span>
+                                        </div>
+                                        <div class="main-box">
+                                            <button class="btn btn-primary add-btn" ng-click="addNewBox()">Add Box
+                                            </button>
+                                        </div>
+                                        <div class="main-box" ng-repeat="item in closedboxes">
+                                            <div class="dropbox-qty">{{item.value}}</div>
+                                            <div><img src="images/img_closed_folder.png"></div>
+                                            <div class="dropbox-name">{{item.key}}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>

@@ -1,0 +1,71 @@
+{
+  "name": "StockOrderLineitemModel",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "properties": {
+    "sku": {
+      "type": "string",
+      "required": true
+    },
+    "name": {
+      "type": "string",
+      "required": false
+    },
+    "quantityOnHand": {
+      "type": "number",
+      "required": false
+    },
+    "desiredStockLevel": {
+      "type": "number",
+      "required": false
+    },
+    "orderQuantity": {
+      "type": "number",
+      "required": false
+    },
+    "type": {
+      "type": "string",
+      "required": false
+    }
+  },
+  "validations": [],
+  "relations": {
+    "userModel": {
+      "type": "belongsTo",
+      "model": "UserModel",
+      "foreignKey": "userId"
+    },
+    "reportModel": {
+      "type": "belongsTo",
+      "model": "ReportModel",
+      "foreignKey": "reportId"
+    }
+  },
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "create"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "admin",
+      "permission": "ALLOW"
+    }
+  ],
+  "methods": []
+}

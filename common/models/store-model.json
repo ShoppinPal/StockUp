@@ -43,7 +43,8 @@
       ]
     },
     "api_id": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "registerId": {
       "type": "string"

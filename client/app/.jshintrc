@@ -24,6 +24,8 @@
     "_": false,
     "Parse": false,
     "formatE164": false,
-    "isValidNumber": false
+    "isValidNumber": false,
+    "alert": false,
+    "$": false
   }
 }
