@@ -2,9 +2,9 @@
 
 /**
  * @ngdoc function
- * @name ShoppinPalApp.controller:WarehouseLandingCtrl
+ * @name ShoppinPalApp.controller:createManualOrderCtrl
  * @description
- * # WarehouseLandingCtrl
+ * # createManualOrderCtrl
  * Controller of the ShoppinPalApp
  */
 angular.module('ShoppinPalApp')
