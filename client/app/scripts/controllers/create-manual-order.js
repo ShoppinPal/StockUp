@@ -9,4 +9,5 @@
  */
 angular.module('ShoppinPalApp')
     .controller('createManualOrderCtrl', ['$scope', function($scope) {
-}]);
+      console.log($scope);
+    }]);

@@ -112,7 +112,7 @@ angular.module('ShoppinPalApp')
        * This method
        */
       $scope.gotoDepartment = function(value) {
-       var jumpToHash;
+        var jumpToHash;
         if (value) {
           for (var i = 0; i < $scope.storesReport.length; i++) {
             var type = $scope.storesReport[i].type,
