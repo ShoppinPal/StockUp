@@ -56,22 +56,21 @@ angular.module('ShoppinPalApp')
        * This method
        */
       $scope.gotoDepartment = function(value) {
-        var jumpToHash = 'jumpto' + 'electronics';
-        for (var i = 0; i < $scope.storesReport.length; i++) {
-          var type = $scope.storesReport[i].type,
-            typefirstChar = type.slice(0, 1).toUpperCase();
-          $scope.alphabets.push(typefirstChar);
-          if (typefirstChar === value) {
-            jumpToHash = 'jumpto' + $scope.storesReport[i].type;
+          var jumpToHash;
+          if (value) {
+            for (var i = 0; i < $scope.storesReport.length; i++) {
+              var type = $scope.storesReport[i].type,
+                  typefirstChar = type.slice(0, 1).toUpperCase();
+              $scope.alphabets.push(typefirstChar);
+              if (typefirstChar === value) {
+                jumpToHash = 'jumpto' + $scope.storesReport[i].type;
+              }
+            }
+
           }
-        }
-        if ($location.hash() !== jumpToHash) {
           $location.hash(jumpToHash);
-        }
-        else {
           $anchorScroll();
-        }
-      };
+        };
 
       /** @method JumtoDepartment
        * This method will return avilable departments firstChar for jumpTo department functionality

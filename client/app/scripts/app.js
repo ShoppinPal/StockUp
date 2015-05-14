@@ -1,12 +1,14 @@
 'use strict';
 
 angular.module('ShoppinPalApp', [
-    'shoppinpal-loopback'
-    //'ui.bootstrap'
-    ,'ngCookies'
+    // 'ui.bootstrap'
+    'ngCookies'
+    ,'shoppinpal-loopback'
     ,'ngResource'
     ,'ngSanitize'
     ,'ngTouch'
+    ,'ngAnimate'
+    ,'mgcrea.ngStrap'
     ,'ui.router'
     ,'geocoder'
     ,'google-maps'
@@ -56,6 +58,24 @@ angular.module('ShoppinPalApp', [
           url: '/store-report-list',
           templateUrl: 'views/store-report-list.html',
           controller: 'StoreReportListCtrl',
+          authenticate: false
+        })
+        .state('store-landing', {
+          url: '/store-landing',
+          templateUrl: 'views/store-landing.html',
+          controller: 'StoreLandingCtrl',
+          authenticate: false
+        })
+        .state('warehouse-landing', {
+          url: '/warehouse-landing',
+          templateUrl: 'views/warehouse-landing.html',
+          controller: 'WarehouseLandingCtrl',
+          authenticate: false
+        })
+        .state('create-manual-order', {
+          url: '/create-manual-order',
+          templateUrl: 'views/create-manual-order.html',
+          controller: 'createManualOrderCtrl',
           authenticate: false
         })
         .state('store-report-manager', {
