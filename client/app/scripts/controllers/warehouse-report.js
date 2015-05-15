@@ -17,7 +17,7 @@ angular.module('ShoppinPalApp')
       $scope.closedboxes = [];
       $scope.index = 0;
       $scope.openBox = true;
-      $scope.submit = 'Review & Submit';
+      $scope.submit = 'Review';
       $scope.closeBoxButtonLabel = 'CLOSE THIS BOX';
       $scope.printSlipButtonLabel = 'PRINT PACKING SLIP';
       $scope.ReviewSubmitPage = true;

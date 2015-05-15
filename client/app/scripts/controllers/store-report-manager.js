@@ -17,7 +17,7 @@ angular.module('ShoppinPalApp')
       $scope.storesReport = [];
       $scope.completedReports = [];
       $scope.alphabets = [];
-      $scope.submitToWarehouseButton = 'Review & Submit';
+      $scope.submitToWarehouseButton = 'Review';
       $scope.comments = '';
       $scope.ReviewSubmitPage = true;
 
