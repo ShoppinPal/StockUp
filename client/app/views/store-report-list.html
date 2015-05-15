@@ -41,19 +41,8 @@
                     <div class="col-md-6 col-sm-6">
                         <div class="intro-content">
                             <div class="intro-column-heading">Order In Process</div>
-                            <ul>
-                                <li>GlenStone</li>
-                                <li>Skelly</li>
-                                <li>Parkway</li>
-                                <li>71st</li>
-                                <li>GlenStone</li>
-                                <li>Skelly</li>
-                                <li>Parkway</li>
-                                <li>71st</li>
-                                <li>GlenStone</li>
-                                <li>Skelly</li>
-                                <li>Parkway</li>
-                                <li>71st</li>
+                            <ul ng-repeat="report in reportList">
+                                <li>{{report}}</li>
                             </ul>
                         </div>
                     </div>
