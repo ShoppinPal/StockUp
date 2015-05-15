@@ -9,8 +9,8 @@
 angular.module('ShoppinPalApp')
   .controller('StoreManagerCtrl',
   [
-    '$scope','$document', '$anchorScroll', '$location', 'loginService', '$stateParams',
-    function ($scope,$document, $anchorScroll, $location, loginService, $stateParams)
+    '$scope', '$anchorScroll', '$location', 'loginService', '$stateParams',
+    function ($scope, $anchorScroll, $location, loginService, $stateParams)
     {
 
       $anchorScroll.yOffset = 50;
@@ -21,14 +21,12 @@ angular.module('ShoppinPalApp')
       $scope.comments = '';
       $scope.ReviewSubmitPage = true;
 
-      /** This method will close the editable mode in store-report
+      /** @method dismissEdit
+       * This method will close the editable mode in store-report
        */
-      $document.on('click', function(event) {
-        if (angular.element(event.target).hasClass('shoppinPal-warehouse')) {
-          $scope.selectedStore  = $scope.storereportlength + 1;
-          $scope.$apply();
-        }
-      });
+      $scope.dismissEdit =function(){
+        $scope.selectedStore  = $scope.storereportlength + 1;
+      };
 
       /** @method editStore()
        * @param selecte_row
