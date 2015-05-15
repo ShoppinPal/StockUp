@@ -8,8 +8,8 @@
  * Controller of the ShoppinPalApp
  */
 angular.module('ShoppinPalApp')
-  .controller('WarehouseReportCtrl',['$scope','$document','$state','loginService','$anchorScroll','$location',
-    function ($scope,$document,$state,loginService, $anchorScroll, $location){
+  .controller('WarehouseReportCtrl',['$scope','$state','loginService','$anchorScroll','$location',
+    function ($scope,$state,loginService, $anchorScroll, $location){
 
       $scope.alphabets = [];
       $scope.movedToBox = [];
@@ -22,14 +22,12 @@ angular.module('ShoppinPalApp')
       $scope.printSlipButtonLabel = 'PRINT PACKING SLIP';
       $scope.ReviewSubmitPage = true;
 
-      /** This method will close the editable mode in store-report
-        */
-      $document.on('click', function(event) {
-        if (angular.element(event.target).hasClass('shoppinPal-warehouse')) {
-          $scope.selectedStore  = $scope.storereportlength + 1;
-          $scope.$apply();
-        }
-      });
+     /** @method dismissEdit
+       * This method will close the editable mode in store-report
+       */
+      $scope.dismissEdit =function(){
+        $scope.selectedStore  = $scope.storereportlength + 1;
+      };
 
      /** @method printDiv
        * @param divName

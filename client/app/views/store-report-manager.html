@@ -39,9 +39,9 @@
                             <tr>
                                 <th width="15%">SKU</th>
                                 <th width="15%">Name</th>
-                                <th width="20%">Quantity on Hand</th>
-                                <th width="20%">Desired Stock Level</th>
-                                <th width="20%">Ordered Quantity</th>
+                                <th width="15%">Quantity on Hand</th>
+                                <th width="15%">Desired Stock Level</th>
+                                <th width="15%">Ordered Quantity</th>
                             </tr>
                         </thead>
                     </table>
@@ -54,9 +54,9 @@
                                 <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'" ng-hide="$index==selectedStore" ng-swipe-right="deleteStore(storereport)" ng-swipe-left="editStore($index)">
                                     <td width="15%">{{storereport.sku}}</td>
                                     <td width="15%">{{storereport.name}}</td>
-                                    <td width="20%">{{storereport.quantityOnHand}}</td>
-                                    <td width="20%">{{storereport.desiredStockLevel}}</td>
-                                    <td width="20%">{{storereport.orderQuantity}}</td>
+                                    <td width="15%">{{storereport.quantityOnHand}}</td>
+                                    <td width="15%">{{storereport.desiredStockLevel}}</td>
+                                    <td width="15%">{{storereport.orderQuantity}}</td>
                                 </tr>
                                 <tr ng-if="comments" ng-hide="$index==selectedStore">
                                     <td colspan="5">
@@ -65,7 +65,7 @@
                                     </td>
                                 </tr>
                                 <!-- Edit store-report start -->
-                                <tr ng-show="$index==selectedStore" class="edit-row">
+                                <tr ng-show="$index==selectedStore" class="edit-row" ng-mouseleave="dismissEdit()">
                                     <td colspan="6">
                                         <div class="row">
                                             <div class="col-sm-2 edit-column-heading-text">{{storereport.sku}}</div>

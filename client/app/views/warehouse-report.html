@@ -59,7 +59,7 @@
                                         </td>
                                     </tr>
                                     <!-- Edit store-report start -->
-                                    <tr ng-show="$index==selectedStore" class="edit-row">
+                                    <tr ng-show="$index==selectedStore" class="edit-row" ng-mouseleave="dismissEdit()">
                                         <td colspan="6">
                                             <div class="row">
                                                 <div class="col-sm-2 edit-column-heading-text"> {{storereport.sku}}
