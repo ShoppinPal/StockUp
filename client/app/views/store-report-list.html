@@ -31,18 +31,17 @@
                             <!--<ul class="list-group" ng-repeat="report in reportList | filter: {state:'manager'} track by report.id">-->
                                 <li class="list-group-item" ui-sref="store-report-manager({reportId:report.id})">
                                     <span class="badge"></span> {{report.id}} - {{report.outlet.name}} - {{report.created | date:'medium'}}
+                                    <!-- TODO: don't show a drilldown icon (">") if states is "empty", use a disabled look? -->
+                                    <!-- TODO: show a drilldown icon (">") if states is set to "manager" -->
                                 </li>
                             </ul>
-                            <!--<ul class="list-group" ng-repeat="report in reportList">
-                                <li>{{report}}</li>
-                            </ul>-->
                         </div>
                     </div>
                     <div class="col-md-6 col-sm-6">
                         <div class="intro-content">
                             <div class="intro-column-heading">Order In Process</div>
-                            <ul ng-repeat="report in reportList">
-                                <li>{{report}}</li>
+                            <ul ng-repeat="report in mockReportList">
+                                <li ui-sref="store-report-manager({})">{{report}}</li>
                             </ul>
                         </div>
                     </div>

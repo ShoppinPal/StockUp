@@ -26,10 +26,10 @@ angular.module('ShoppinPalApp')
             url: 'scripts/json/storesReport.json',
             method: 'GET'
           }).then(function (response) {
-              return response;
+              return response.data.storesReport;
             },
             function (error) {
-              alert('Somthing went wrong.');
+              alert('Something went wrong.');
               console.error(error);
             });
         },
@@ -45,7 +45,7 @@ angular.module('ShoppinPalApp')
               return response;
             },
             function (error) {
-              alert('Somthing went wrong.');
+              alert('Something went wrong.');
               console.error(error);
             });
         },

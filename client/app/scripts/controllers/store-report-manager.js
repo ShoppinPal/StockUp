@@ -132,13 +132,22 @@ angular.module('ShoppinPalApp')
        * This method will load the storesReport from api on view load
        */
       $scope.$on('$viewContentLoaded', function() {
-        //loginService.getSelectStore()
-        loginService.getStoreReport($stateParams.reportId)
-          .then(function (response) {
-            $scope.storesReport = response;
-            $scope.storereportlength = $scope.storesReport.length;
-            $scope.JumtoDepartment();
-          });
+        if($stateParams.reportId) {
+          loginService.getStoreReport($stateParams.reportId)
+            .then(function (response) {
+              $scope.storesReport = response;
+              $scope.storereportlength = $scope.storesReport.length;
+              $scope.JumtoDepartment();
+            });
+        }
+        else { // if live data can't be loaded due to some bug, use MOCK data so testing can go on
+          loginService.getSelectStore()
+            .then(function (response) {
+              $scope.storesReport = response;
+              $scope.storereportlength = $scope.storesReport.length;
+              $scope.JumtoDepartment();
+            });
+        }
       });
     }
   ]);
