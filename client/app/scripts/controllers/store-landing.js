@@ -8,8 +8,8 @@
  * Controller of the ShoppinPalApp
  */
 angular.module('ShoppinPalApp')
-    .controller('StoreLandingCtrl', ['$scope', 'loginService',
-        function($scope, loginService) {
+    .controller('StoreLandingCtrl', ['$scope', 'loginService','$anchorScroll','$location',
+        function($scope, loginService, $anchorScroll, $location) {
 
             $scope.sortedOrder = [];
 
@@ -63,6 +63,16 @@ angular.module('ShoppinPalApp')
             $scope.importExport = function(index) {
                 $scope.selectedStore = index;
               };
+
+            /** @method gotoDepartment
+             * @param value
+             * This method
+             */
+            $scope.gotoDepartment = function(value) {
+                var jumpToHash = 'jumpto' + value;
+                $location.hash(jumpToHash);
+                $anchorScroll();
+              };  
 
             /** @method viewContentLoaded
              * This method will load the storesReport from api on view load
