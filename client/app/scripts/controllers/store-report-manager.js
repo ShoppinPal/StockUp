@@ -26,6 +26,7 @@ angular.module('ShoppinPalApp')
        */
       $scope.dismissEdit =function(){
         $scope.selectedStore  = $scope.storereportlength + 1;
+        // TODO: persist/update row data to the backend in real time
       };
 
       /** @method editStore()

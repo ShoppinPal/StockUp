@@ -26,6 +26,10 @@
     "type": {
       "type": "string",
       "required": false
+    },
+    "comment": {
+      "type": "string",
+      "required": false
     }
   },
   "validations": [],
