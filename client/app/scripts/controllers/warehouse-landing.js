@@ -8,8 +8,8 @@
  * Controller of the ShoppinPalApp
  */
 angular.module('ShoppinPalApp')
-    .controller('WarehouseLandingCtrl', ['$scope', '$state', 'loginService',
-        function($scope, $state, loginService) {
+    .controller('WarehouseLandingCtrl', ['$scope', '$state', 'loginService','$anchorScroll','$location',
+        function($scope, $state, loginService, $anchorScroll, $location) {
 
             $scope.sortedOrder = [];
 
@@ -68,6 +68,16 @@ angular.module('ShoppinPalApp')
              */
             $scope.importExport = function(index) {
                 $scope.selectedStore = index;
+              };
+           
+           /** @method gotoDepartment
+             * @param value
+             * This method
+             */
+            $scope.gotoDepartment = function(value) {
+                var jumpToHash = 'jumpto' + value;
+                $location.hash(jumpToHash);
+                $anchorScroll();
               };
 
             /** @method viewContentLoaded
