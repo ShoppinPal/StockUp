@@ -49,7 +49,7 @@
                                     <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'" ng-hide="$index==selectedStore" ng-swipe-left="editWarehouse($index)" ng-swipe-right="moveToBox(storereport)">
                                         <td width="15%">{{storereport.sku}}</td>
                                         <td width="15%">{{storereport.name}}</td>
-                                        <td width="30%">{{storereport.quantityinhand}}</td>
+                                        <td width="30%">{{storereport.quantityOnHand}}</td>
                                         <td width="30%">{{storereport.desiredStockLevel}}</td>
                                     </tr>
                                     <tr ng-if="comments" ng-hide="$index==selectedStore">
@@ -68,7 +68,7 @@
                                                     {{storereport.name}}
                                                 </div>
                                                 <div class="col-sm-3 edit-last-column-heading-text-warehouse">
-                                                    {{storereport.quantityinhand}}
+                                                    {{storereport.quantityOnHand}}
                                                 </div>
                                             </div>
                                             <div class="edit-window">

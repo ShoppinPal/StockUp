@@ -73,7 +73,7 @@
                                                 <div class="edit-second-column-heading-text">{{storereport.name}}</div>
                                             </div>
                                             <div class="col-sm-3">
-                                                <div class="edit-last-column-heading-text">{{storereport.quantityinhand}}</div>
+                                                <div class="edit-last-column-heading-text">{{storereport.quantityOnHand}}</div>
                                             </div>
                                         </div>
                                         <div class="edit-window">
@@ -88,7 +88,7 @@
                                                 <span class="fa fa-minus-circle fa-lg edit-icon" ng-click="decreaseQty(storereport)"></span>
                                             </div>
                                             <div class="float-left margin-right-10px">
-                                                <input type="text" class="form-control input-small" ng-model="storereport.orderqty">
+                                                <input type="text" class="form-control input-small" ng-model="storereport.orderQuantity">
                                             </div>
                                             <div class="float-left margin-right margin-top">
                                                 <span class="fa fa-plus-circle fa-lg edit-icon" ng-click="increaseQty(storereport)"></span>
