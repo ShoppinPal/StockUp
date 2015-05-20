@@ -10,7 +10,7 @@ angular.module('ShoppinPalApp')
   .controller('StoreManagerCtrl',
   [
     '$scope', '$anchorScroll', '$location', 'loginService', '$stateParams',
-     'StockOrderLineitemModel','$filter',
+    'StockOrderLineitemModel','$filter',
     function ($scope, $anchorScroll, $location, loginService, $stateParams, StockOrderLineitemModel, $filter)
     {
 
@@ -70,7 +70,7 @@ angular.module('ShoppinPalApp')
         return StockOrderLineitemModel.prototype$updateAttributes(
           { id: storeReportRow.id },
           {
-            state: "complete",
+            state: 'complete',
           }
         )
           .$promise.then(function(response){
@@ -117,9 +117,9 @@ angular.module('ShoppinPalApp')
           loginService.getStoreReport($stateParams.reportId)
             .then(function (response) {
               $scope.storesReport = response;
-              $scope.storesReport = $filter('filter')($scope.storesReport, { state: "complete" });
-         });
-      };
+              $scope.storesReport = $filter('filter')($scope.storesReport, { state: 'complete' });
+            });
+        };
       /** @method submitToWarehouse
        * This method will submit the store-report to warehouse
        */
