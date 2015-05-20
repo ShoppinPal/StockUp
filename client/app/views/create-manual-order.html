@@ -8,10 +8,8 @@
                   <div class="col-md-7 col-sm-9 col-xs-12"> 
                     <div class="log-in-text">You are logged in as a <span><a href="#">Store Manager/WH/SR</a>&nbsp;&nbsp; </span>|&nbsp;&nbsp;<a href="#" class="logout-text">LOGOUT</a></div>
                     <div class="btn-align">
-                    <!-- <button type="submit" class="btn btn-primary button-large-blue">Show Completed</button> -->  
                     <button type="submit" class="btn btn-primary button-large-green">Create Manual Order</button></div>
                   </div>
-                  <!-- <div class="col-md-3 col-sm-3 col-xs-12 btn-align"><button type="submit" class="btn btn-primary login-btn">Logout</button></div> -->
               </div>
           </header>
       </div>
@@ -30,15 +28,28 @@
                 <div class="form-group">
                     <label for="inputPassword" class="control-label col-xs-3">Order From</label>
                     <div class="col-xs-8">
-                        <input type="text" class="form-control" id="inputPassword" placeholder="Any">
+                        <select ng-model="selectedOrderStore" class="form-control">
+                        <option ng-selected="{{selectedOrderStore}}"
+                                ng-repeat="store in stores"
+                                value="{{store.name}}">
+                          {{store.name}}
+                        </option>
+                    </select>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="inputPassword" class="control-label col-xs-3">Deliver To</label>
                     <div class="col-xs-8">
-                        <input type="text" class="form-control" id="inputPassword" placeholder="Deliver To">
-                    </div>
+                      <select ng-model="selectedDeliverStore" class="form-control">
+                        <option ng-selected="{{selectedDeliverStore}}"
+                                ng-repeat="store in stores"
+                                value="{{store.name}}">
+                          {{store.name}}
+                        </option>
+                    </select>
+               </div>
                 </div>
+
                 <div class="form-group">
                     <label for="inputPassword" class="control-label col-xs-3">Due At</label>
                     <div class="col-xs-8 calendar">

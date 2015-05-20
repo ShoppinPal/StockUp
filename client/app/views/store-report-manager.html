@@ -51,17 +51,17 @@
                                 <tr class="inner-table-heading" id="jumpto{{storeReportRow.type}}" ng-if="storeReportRow.group_by_CHANGED">
                                     <td colspan="5"><span class="table-heading-font">{{storeReportRow.type}}</span></td>
                                 </tr>
-                                <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'" ng-hide="$index==selectedRowIndex" ng-swipe-right="deleteStore(storeReportRow)" ng-swipe-left="editStore($index)">
+                                <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'" ng-hide="$index==selectedRowIndex" ng-swipe-right="markRowAsCompleted(storeReportRow)" ng-swipe-left="editStore($index)">
                                     <td width="15%">{{storeReportRow.sku}}</td>
                                     <td width="15%">{{storeReportRow.name}}</td>
                                     <td width="15%">{{storeReportRow.quantityOnHand}}</td>
                                     <td width="15%">{{storeReportRow.desiredStockLevel}}</td>
                                     <td width="15%">{{storeReportRow.orderQuantity}}</td>
                                 </tr>
-                                <tr ng-if="comments" ng-hide="$index==selectedRowIndex">
+                                <tr ng-if="storeReportRow.comment" ng-hide="$index==selectedRowIndex">
                                     <td colspan="5">
                                         <span class="fa fa-comment comment-icon"></span>&nbsp;&nbsp;
-                                        <strong>Comments:</strong><span class="comment-span"> {{comments}}</span>
+                                        <strong>Comments:</strong><span class="comment-span"> {{storeReportRow.comment}}</span>
                                     </td>
                                 </tr>
                                 <!-- Edit store-report start -->
