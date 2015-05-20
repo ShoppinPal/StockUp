@@ -9,8 +9,8 @@
 angular.module('ShoppinPalApp')
   .controller('StoreManagerCtrl',
   [
-    '$scope', '$anchorScroll', '$location', 'loginService', '$stateParams',
-    function ($scope, $anchorScroll, $location, loginService, $stateParams)
+    '$scope', '$anchorScroll', '$location', 'loginService', '$stateParams', 'StockOrderLineitemModel',
+    function ($scope, $anchorScroll, $location, loginService, $stateParams, StockOrderLineitemModel)
     {
 
       $anchorScroll.yOffset = 50;
@@ -24,17 +24,34 @@ angular.module('ShoppinPalApp')
       /** @method dismissEdit
        * This method will close the editable mode in store-report
        */
-      $scope.dismissEdit =function(){
-        $scope.selectedStore  = $scope.storereportlength + 1;
-        // TODO: persist/update row data to the backend in real time
+      $scope.dismissEdit = function(storeReportRow) {
+        $scope.selectedRowIndex = $scope.storereportlength + 1;
+        console.log({
+          desiredStockLevel: storeReportRow.desiredStockLevel,
+          orderQuantity: storeReportRow.orderQuantity,
+          comment: storeReportRow.comment
+        });
+        // TODO: why not use the SKU field as the id?
+        return StockOrderLineitemModel.prototype$updateAttributes(
+          { id: storeReportRow.id },
+          {
+            desiredStockLevel: storeReportRow.desiredStockLevel,
+            orderQuantity: storeReportRow.orderQuantity,
+            comment: storeReportRow.comment
+          }
+        )
+          .$promise.then(function(response){
+            console.log('hopefully finished updating the row');
+            console.log(response);
+          });
       };
 
       /** @method editStore()
-       * @param selecte_row
+       * @param selectedRow
        * This method display the edit functionlity on right swipe
        */
       $scope.editStore = function(selectedRow) {
-        $scope.selectedStore = selectedRow;
+        $scope.selectedRowIndex = selectedRow;
       };
 
       /** @method deleteStore
