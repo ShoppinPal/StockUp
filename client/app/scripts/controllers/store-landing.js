@@ -12,6 +12,13 @@ angular.module('ShoppinPalApp')
     function($scope, loginService, $anchorScroll, $location) {
 
       $scope.sortedOrder = [];
+     
+     /** @method dismissEdit
+       * This method will close the editable mode in store-report
+       */
+      $scope.dismissEdit = function(storeReportRow) {
+          $scope.selectedRowIndex = $scope.storereportlength + 1;
+        };
 
       /** @method inProcessOrder
        * show only the inprocess order in UI
@@ -61,7 +68,7 @@ angular.module('ShoppinPalApp')
        * on left swipe of store landing page enable export, import for warehouse
        */
       $scope.importExport = function(index) {
-        $scope.selectedStore = index;
+        $scope.selectedRowIndex = index;
       };
 
       /** @method gotoDepartment
