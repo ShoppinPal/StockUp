@@ -25,6 +25,7 @@ angular.module('ShoppinPalApp', [
     ,'ngAnimate'
     ,'mgcrea.ngStrap'
     ,'angular-virtual-keyboard'
+    ,'angularSpinner'
    // ,'angular-useragent-parser'
   ])
 

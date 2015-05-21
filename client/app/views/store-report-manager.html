@@ -1,4 +1,5 @@
 <div class="container">
+ <span us-spinner="{radius:20, width:6, length: 12}" spinner-key="spinner-1" spinner-start-active="true"></span>
     <div class="row">
         <div class="col-sm-12 col-md-12">
             <!-- Select store header -->
@@ -37,11 +38,11 @@
                     <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
                         <thead>
                             <tr>
-                                <th width="15%">SKU</th>
-                                <th width="15%">Name</th>
-                                <th width="15%">Quantity on Hand</th>
-                                <th width="15%">Desired Stock Level</th>
-                                <th width="15%">Ordered Quantity</th>
+                                <th width="10%">SKU</th>
+                                <th width="20%">Name</th>
+                                <th width="10%">Quantity on Hand</th>
+                                <th width="10%">Desired Stock Level</th>
+                                <th width="10%">Ordered Quantity</th>
                             </tr>
                         </thead>
                     </table>
@@ -52,11 +53,11 @@
                                     <td colspan="5"><span class="table-heading-font">{{storeReportRow.type}}</span></td>
                                 </tr>
                                 <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'" ng-hide="$index==selectedRowIndex" ng-swipe-right="markRowAsCompleted(storeReportRow)" ng-swipe-left="editStore($index)">
-                                    <td width="15%">{{storeReportRow.sku}}</td>
-                                    <td width="15%">{{storeReportRow.name}}</td>
-                                    <td width="15%">{{storeReportRow.quantityOnHand}}</td>
-                                    <td width="15%">{{storeReportRow.desiredStockLevel}}</td>
-                                    <td width="15%">{{storeReportRow.orderQuantity}}</td>
+                                    <td width="10%">{{storeReportRow.sku}}</td>
+                                    <td width="20%">{{storeReportRow.name}}</td>
+                                    <td width="10%">{{storeReportRow.quantityOnHand}}</td>
+                                    <td width="10%">{{storeReportRow.desiredStockLevel}}</td>
+                                    <td width="10%">{{storeReportRow.orderQuantity}}</td>
                                 </tr>
                                 <tr ng-if="storeReportRow.comment" ng-hide="$index==selectedRowIndex">
                                     <td colspan="5">
@@ -69,7 +70,7 @@
                                     <td colspan="6">
                                         <div class="row">
                                             <div class="col-sm-2 edit-column-heading-text">{{storeReportRow.sku}}</div>
-                                            <div class="col-sm-2">
+                                            <div class="col-sm-3">
                                                 <div class="edit-second-column-heading-text">{{storeReportRow.name}}</div>
                                             </div>
                                             <div class="col-sm-3">
