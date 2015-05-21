@@ -268,7 +268,7 @@ module.exports = function(app) {
                                       storeConfigSeedData.supplierModels, // can't handle undefined
                                       function (supplierSeedData) {
                                         return SupplierModel.findOrCreate(
-                                          {where:{name:supplierSeedData.apiId}}, // find
+                                          {where:{apiId:supplierSeedData.apiId}}, // find
                                           supplierSeedData // create
                                         )
                                           .spread(function(supplierModelInstance, created) {

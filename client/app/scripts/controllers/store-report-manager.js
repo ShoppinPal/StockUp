@@ -10,7 +10,8 @@ angular.module('ShoppinPalApp')
   .controller('StoreManagerCtrl',
   [
     '$scope', '$anchorScroll', '$location', 'loginService', '$stateParams',
-    function ($scope, $anchorScroll, $location, loginService, $stateParams)
+    'StockOrderLineitemModel','$filter',
+    function ($scope, $anchorScroll, $location, loginService, $stateParams, StockOrderLineitemModel, $filter)
     {
 
       $anchorScroll.yOffset = 50;
@@ -24,30 +25,58 @@ angular.module('ShoppinPalApp')
       /** @method dismissEdit
        * This method will close the editable mode in store-report
        */
-      $scope.dismissEdit =function(){
-        $scope.selectedStore  = $scope.storereportlength + 1;
-        // TODO: persist/update row data to the backend in real time
+      $scope.dismissEdit = function(storeReportRow) {
+        $scope.selectedRowIndex = $scope.storereportlength + 1;
+        console.log({
+          desiredStockLevel: storeReportRow.desiredStockLevel,
+          orderQuantity: storeReportRow.orderQuantity,
+          comment: storeReportRow.comment
+        });
+        // TODO: why not use the SKU field as the id?
+        return StockOrderLineitemModel.prototype$updateAttributes(
+          { id: storeReportRow.id },
+          {
+            desiredStockLevel: storeReportRow.desiredStockLevel,
+            orderQuantity: storeReportRow.orderQuantity,
+            comment: storeReportRow.comment
+          }
+        )
+          .$promise.then(function(response){
+            console.log('hopefully finished updating the row');
+            console.log(response);
+          });
       };
 
       /** @method editStore()
-       * @param selecte_row
+       * @param selectedRow
        * This method display the edit functionlity on right swipe
        */
       $scope.editStore = function(selectedRow) {
-        $scope.selectedStore = selectedRow;
+        $scope.selectedRowIndex = selectedRow;
       };
 
-      /** @method deleteStore
+      /** @method markRowAsCompleted
        * @param storereport
        * This method remove the row from store-report on left swipe
        */
-      $scope.deleteStore = function(storereport) {
+      $scope.markRowAsCompleted = function(storeReportRow) {
         for (var i = 0; i < $scope.storesReport.length; i++) {
-          if ($scope.storesReport[i].sku === storereport.sku) {
+          if ($scope.storesReport[i].sku === storeReportRow.sku) {
             $scope.completedReports.push($scope.storesReport[i]); //push completed row in completedReports array
             $scope.storesReport.splice(i, 1); //Remove the particular row from storeReports
           }
         }
+        // TODO: why not use the SKU field as the id?
+        return StockOrderLineitemModel.prototype$updateAttributes(
+          { id: storeReportRow.id },
+          {
+            state: 'complete',
+          }
+        )
+          .$promise.then(function(response){
+            console.log('hopefully finished updating the row');
+            console.log(response);
+          });
       };
 
       /** @method gotoDepartment
@@ -85,8 +114,12 @@ angular.module('ShoppinPalApp')
        * This display completed report on screen
        */
       $scope.showCompletedReport = function() {
-        $scope.storesReport = $scope.completedReports;
-      };
+          loginService.getStoreReport($stateParams.reportId)
+            .then(function (response) {
+              $scope.storesReport = response;
+              $scope.storesReport = $filter('filter')($scope.storesReport, { state: 'complete' });
+            });
+        };
       /** @method submitToWarehouse
        * This method will submit the store-report to warehouse
        */
@@ -129,6 +162,7 @@ angular.module('ShoppinPalApp')
           $scope.editVisible = false;
         }
       };
+
       /** @method viewContentLoaded
        * This method will load the storesReport from api on view load
        */

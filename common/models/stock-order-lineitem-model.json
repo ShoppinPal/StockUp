@@ -30,6 +30,10 @@
     "comment": {
       "type": "string",
       "required": false
+    },
+    "state": {
+      "type": "string",
+      "required": false
     }
   },
   "validations": [],
