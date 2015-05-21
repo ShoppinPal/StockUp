@@ -17,6 +17,15 @@
             </header>
         </div>
     </div>
+    <!-- warehouse landing status button start -->
+    <div class="row main-container">
+        <div class="row row-centered">
+            <button class="status-btn-inprocess" ng-click="inProcessOrder()">In Process</button>
+            <button class="status-btn-fullfil" ng-click="fulfilledOrder()">Fullfil</button>
+            <button class="status-btn-receive" ng-click="recievedOrder()">Receive</button>
+        </div>
+    </div>
+    <!-- warehouse landing status button end -->
     <!-- Store Manager page content -->
     <div class="row main-container">
         <div class="inner-container">
@@ -33,10 +42,10 @@
                     <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
                         <thead>
                             <tr>
-                                <th width="15%">order id</th>
+                                <th width="10%">order id</th>
                                 <th width="15%">order Name</th>
                                 <th width="15%">status</th>
-                                <th width="15%">total items</th>
+                                <th width="10%">total items</th>
                             </tr>
                         </thead>
                     </table>
@@ -46,8 +55,8 @@
                                 <tr class="inner-table-heading" id="jumpto{{storereport.type}}" ng-if="storereport.group_by_CHANGED">
                                     <td colspan="5"><span class="table-heading-font">{{storereport.type}}</span></td>
                                 </tr>
-                                <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'" ng-hide="$index==selectedStore" ng-swipe-left="importExport($index)">
-                                    <td width="15%">{{storereport.sku}}</td>
+                                <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'" ng-hide="$index==selectedRowIndex" ng-swipe-left="importExport($index)">
+                                    <td width="10%">{{storereport.sku}}</td>
                                     <td width="15%">{{storereport.name}}</td>
                                     <td width="15%">
                                         <div class="status-td">
@@ -58,16 +67,16 @@
                                     </span> {{storereport.status}}
                                         </div>
                                     </td>
-                                    <td width="15%">{{storereport.desiredStockLevel}}</td>
+                                    <td width="10%">{{storereport.desiredStockLevel}}</td>
                                 </tr>
-                                <tr ng-if="comments" ng-hide="$index==selectedStore">
+                                <tr ng-if="comments" ng-hide="$index==selectedRowIndex">
                                     <td colspan="5">
                                         <span class="fa fa-comment comment-icon"></span>&nbsp;&nbsp;
                                         <strong>Comments:</strong><span class="comment-span"> {{comments}}</span>
                                     </td>
                                 </tr>
                                 <!-- Edit store-report start -->
-                                <tr ng-show="$index==selectedStore" class="edit-row">
+                                <tr ng-show="$index==selectedRowIndex" class="edit-row" ng-mouseleave="dismissEdit(storeReportRow)">
                                     <td colspan="6">
                                         <div class="col-sm-2">{{storereport.sku}}</div>
                                         <div class="col-sm-2">
@@ -86,15 +95,6 @@
                     </div>
                 </div>
             </div>
-            <!-- store landing button start -->
-            <div class="ipad-right-column">
-                <div class="vertical-status-btn">
-                   <button class="status-btn-inprocess" ng-click="inProcessOrder()">In Process</button>
-                    <button class="status-btn-fullfil" ng-click="fulfilledOrder()">Fullfil</button>
-                    <button class="status-btn-receive" ng-click="recievedOrder()">Recieve</button>
-                </div>    
-            </div>
-            <!-- store landing button end -->
         </div>
     </div>
 </div>
