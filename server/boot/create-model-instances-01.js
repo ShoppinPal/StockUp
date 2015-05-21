@@ -20,6 +20,7 @@ module.exports = function(app) {
   var UserModel = app.models.UserModel;
   var Role = app.models.Role;
   var RoleMapping = app.models.RoleMapping;
+  var TeamModel = app.models.TeamModel;
 
   var GlobalConfigModel = app.models.GlobalConfigModel;
   var StoreConfigModel = app.models.StoreConfigModel;
@@ -53,11 +54,17 @@ module.exports = function(app) {
       });
   };
 
-  var findOrCreateUserAndRole = function(aUser){
-    debug('(' + (++commentsIndex) + ') ' + 'inside findOrCreateUserAndRole');
+  /**
+   * NOTE: principal refers to RoleMapping
+   *
+   * @param aUser
+   * @returns {*} a promise wrapped array ( [Role, RoleMapping] ) which can be can be spread() as needed
+   */
+  var findOrCreateRoleToAssignUser = function(aUser){
+    debug('(' + (++commentsIndex) + ') ' + 'inside findOrCreateRoleToAssignUser');
     return Role.findOrCreate(
-      {where: {name: aUser.seedWithRole}}, // find
-      {name: aUser.seedWithRole} // or create
+      {where: {name: aUser.seedWithRole||'retailer'}}, // find
+      {name: aUser.seedWithRole||'retailer'} // or create
     )
       .spread(function(role, created) {
         (created) ? debug('(' + (++commentsIndex) + ') ' + 'created', role)
@@ -74,7 +81,7 @@ module.exports = function(app) {
             (created) ? debug('(' + (++commentsIndex) + ') ' + 'created', principal)
                       : debug('(' + (++commentsIndex) + ') ' + 'found', principal);
             debug('(' + (++commentsIndex) + ') ' + aUser.username + ' now has role: ' + role.name);
-            return Promise.resolve();
+            return Promise.resolve([role, principal]); // can spread() it as needed
           });
       });
   };
@@ -159,13 +166,13 @@ module.exports = function(app) {
         // TODO: create a teamMember roleResolver
         // TODO: tie each teamMember to a specific store for patricias
         .then(function() {
-          return findOrCreateUserAndRole(adminUser);
+          return findOrCreateRoleToAssignUser(adminUser);
         })
         .then(function() {
-          return findOrCreateUserAndRole(retailUser);
+          return findOrCreateRoleToAssignUser(retailUser);
         })
         .then(function() {
-          return findOrCreateUserAndRole(anotherRetailUser);
+          return findOrCreateRoleToAssignUser(anotherRetailUser);
         })
         .then(function() {
           debug('(' + (++commentsIndex) + ') ' +
@@ -244,8 +251,8 @@ module.exports = function(app) {
                       filteredStoreConfigSeedData // create
                     )
                       .spread(function(storeConfigModelInstance, created) {
-                        (created) ? debug('created', storeConfigModelInstance)
-                                  : debug('found', storeConfigModelInstance);
+                        (created) ? debug('('+ (++commentsIndex) +') ' + 'created', 'StoreConfigModel', storeConfigModelInstance)
+                                  : debug('('+ (++commentsIndex) +') ' + 'found', 'StoreConfigModel', storeConfigModelInstance);
 
                         if (!storeConfigSeedData.storeModels) {
                           // filed: https://github.com/petkaantonov/bluebird/issues/580
@@ -267,9 +274,44 @@ module.exports = function(app) {
                               storeSeedData // create
                             )
                               .spread(function(storeModelInstance, created) {
-                                (created) ? debug('created', storeModelInstance)
-                                          : debug('found', storeModelInstance);
-                                return Promise.resolve();
+                                (created) ? debug('('+ (++commentsIndex) +') ' + 'created', 'StoreModel', storeModelInstance)
+                                          : debug('('+ (++commentsIndex) +') ' + 'found', 'StoreModel', storeModelInstance);
+
+                                if(storeSeedData.managerAccount) {
+                                  debug('('+ (++commentsIndex) +') ' + 'add each store manager (storeSeedData.managerAccount) as a team member for StoreConfigModel');
+                                  return UserModel.findOrCreate(
+                                    {where: {username: storeSeedData.managerAccount.email}}, // find
+                                    {
+                                      realm: 'portal',
+                                      username: storeSeedData.managerAccount.email,
+                                      email: storeSeedData.managerAccount.email,
+                                      password: storeSeedData.managerAccount.password
+                                    } // or create
+                                  )
+                                    .spread(function(userInstance, created) {
+                                      (created) ? debug('('+ (++commentsIndex) +') ' + 'created', 'UserModel', userInstance)
+                                                : debug('('+ (++commentsIndex) +') ' + 'found', 'UserModel', userInstance);
+
+                                      // TODO: 'set the userInstance as the StoreModel's owner'
+                                      debug('('+ (++commentsIndex) +') ' + 'set the userInstance as the StoreModel\'s owner');
+
+                                      return TeamModel.findOrCreate(
+                                        {where:{ownerId: storeConfigModelInstance.userModelToStoreConfigModelId, memberId: userInstance.id}}, // find
+                                        {ownerId: storeConfigModelInstance.userModelToStoreConfigModelId, memberId: userInstance.id} // create
+                                      )
+                                        .then(function(teamModel) {
+                                          (created) ? debug('('+ (++commentsIndex) +') ' + 'created', 'TeamModel', teamModel)
+                                                    : debug('('+ (++commentsIndex) +') ' + 'found', 'TeamModel', teamModel);
+
+                                          return Promise.resolve();
+                                        });
+                                    });
+                                }
+                                else {
+                                  debug('('+ (++commentsIndex) +') ' + 'no managerAccount is present, skipped seeding');
+                                  return Promise.resolve(); // no managerAccount
+                                }
+
                               });
                           },
                           {concurrency: 1}
@@ -297,8 +339,8 @@ module.exports = function(app) {
                                   supplierSeedData // create
                                 )
                                   .spread(function(supplierModelInstance, created) {
-                                    (created) ? debug('created', supplierModelInstance)
-                                              : debug('found', supplierModelInstance);
+                                    (created) ? debug('('+ (++commentsIndex) +') ' + 'created', 'SupplierModel', supplierModelInstance)
+                                              : debug('('+ (++commentsIndex) +') ' + 'found', 'SupplierModel', supplierModelInstance);
                                     return Promise.resolve();
                                   });
                               },

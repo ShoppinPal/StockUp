@@ -5,6 +5,11 @@
   "properties": {},
   "validations": [],
   "relations": {
+    "teamModels": {
+      "type": "hasMany",
+      "model": "TeamModel",
+      "foreignKey": "ownerId"
+    },
     "globalConfigModels": {
       "type": "hasOne",
       "model": "GlobalConfigModel",
