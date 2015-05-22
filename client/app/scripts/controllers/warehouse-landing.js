@@ -8,10 +8,18 @@
  * Controller of the ShoppinPalApp
  */
 angular.module('ShoppinPalApp')
-    .controller('WarehouseLandingCtrl', ['$scope', '$state', 'loginService','$anchorScroll','$location',
-        function($scope, $state, loginService, $anchorScroll, $location) {
+    .controller('WarehouseLandingCtrl', ['$scope', '$state', 'loginService','$anchorScroll'
+      ,'$location','UserModel','LoopBackAuth',
+        function($scope, $state, loginService, $anchorScroll, $location, UserModel,LoopBackAuth) {
 
             $scope.sortedOrder = [];
+
+           /** @method dismissEdit
+             * This method will close the editable mode in store-report
+             */
+            $scope.dismissEdit = function(storeReportRow) {
+                $scope.selectedRowIndex = $scope.storereportlength + 1;
+              };
 
             /** @method createManualOrder
              * it will allow the warehouse manager to create manual order
@@ -67,7 +75,7 @@ angular.module('ShoppinPalApp')
              * on left swipe of store landing page enable export, import for warehouse
              */
             $scope.importExport = function(index) {
-                $scope.selectedStore = index;
+                $scope.selectedRowIndex = index;
               };
            
            /** @method gotoDepartment
@@ -85,14 +93,21 @@ angular.module('ShoppinPalApp')
              */
             $scope.$on('$viewContentLoaded', function() {
                 //loginService.getSelectStore()
-                loginService.getSelectStoreStatus()
-                    .then(function(response) {
-                        $scope.storesReport = response.data.storesReport;
-                        $scope.storereportlength = $scope.storesReport.length;
-                        $scope.storesReportBackup = $scope.storesReport;
-                        $scope.storesReportBackupLength = $scope.storereportlength;
-                      });
+              //   loginService.getSelectStoreStatus()
+              //       .then(function(response) {
+              //           $scope.storesReport = response.data.storesReport;
+              //           $scope.storereportlength = $scope.storesReport.length;
+              //           $scope.storesReportBackup = $scope.storesReport;
+              //           $scope.storesReportBackupLength = $scope.storereportlength;
+              //         });
+              // });
+
+              UserModel.reportModels({id: LoopBackAuth.currentUserId})
+              .$promise.then(function(response){
+                console.log(response);
+                $scope.storesReports = response;
               });
+            });
 
           }
     ]);

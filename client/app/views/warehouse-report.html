@@ -33,54 +33,54 @@
                         <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
                             <thead>
                                 <tr>
-                                    <th width="15%">SKU</th>
-                                    <th width="15%">Name</th>
-                                    <th width="30%">Ordered Quantity</th>
-                                    <th width="30%">Fulfilled Quantity</th>
+                                    <th width="10%">SKU</th>
+                                    <th width="25%">Name</th>
+                                    <th width="5%">Ordered Quantity</th>
+                                    <th width="5%">Fulfilled Quantity</th>
                                 </tr>
                             </thead>
                         </table>
                         <div class="scrollable-table">
                             <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
-                                <tbody ng-repeat="storereport in storesReport | orderBy:'type'| groupBy: 'type'">
-                                    <tr class="inner-table-heading" id="jumpto{{storereport.type}}" ng-if="storereport.group_by_CHANGED">
-                                        <td colspan="4"><span class="table-heading-font">{{storereport.type}}</span></td>
+                                <tbody ng-repeat="storeReport in storesReport | orderBy:'type'| groupBy: 'type'">
+                                    <tr class="inner-table-heading" id="jumpto{{storeReport.type}}" ng-if="storeReport.group_by_CHANGED">
+                                        <td colspan="4"><span class="table-heading-font">{{storeReport.type}}</span></td>
                                     </tr>
-                                    <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'" ng-hide="$index==selectedStore" ng-swipe-left="editWarehouse($index)" ng-swipe-right="moveToBox(storereport)">
-                                        <td width="15%">{{storereport.sku}}</td>
-                                        <td width="15%">{{storereport.name}}</td>
-                                        <td width="30%">{{storereport.quantityOnHand}}</td>
-                                        <td width="30%">{{storereport.desiredStockLevel}}</td>
+                                    <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'" ng-hide="$index==selectedRowIndex" ng-swipe-left="editWarehouse($index)" ng-swipe-right="moveToBox(storeReport)">
+                                        <td width="10%">{{storeReport.sku}}</td>
+                                        <td width="25%">{{storeReport.name}}</td>
+                                        <td width="5%">{{storeReport.quantityOnHand}}</td>
+                                        <td width="5%">{{storeReport.desiredStockLevel}}</td>
                                     </tr>
-                                    <tr ng-if="comments" ng-hide="$index==selectedStore">
+                                    <tr ng-if="comments" ng-hide="$index==selectedRowIndex">
                                         <td colspan="5">
                                             <span class="fa fa-comment comment-icon"></span>&nbsp;&nbsp;
                                             <strong>Comments:</strong><span class="comment-span"> {{comments}}</span>
                                         </td>
                                     </tr>
                                     <!-- Edit store-report start -->
-                                    <tr ng-show="$index==selectedStore" class="edit-row" ng-mouseleave="dismissEdit()">
+                                    <tr ng-show="$index==selectedRowIndex" class="edit-row" ng-mouseleave="dismissEdit()">
                                         <td colspan="6">
                                             <div class="row">
-                                                <div class="col-sm-2 edit-column-heading-text"> {{storereport.sku}}
+                                                <div class="col-sm-2 edit-column-heading-text"> {{storeReport.sku}}
                                                 </div>
                                                 <div class="col-sm-3 edit-second-column-heading-text-warehouse">
-                                                    {{storereport.name}}
+                                                    {{storeReport.name}}
                                                 </div>
                                                 <div class="col-sm-3 edit-last-column-heading-text-warehouse">
-                                                    {{storereport.quantityOnHand}}
+                                                    {{storeReport.quantityOnHand}}
                                                 </div>
                                             </div>
                                             <div class="edit-window">
                                                 <div class="float-left column-text margin-right margin-top">Fullfilled Qty:</div>
                                                 <div class="float-left margin-right-10px margin-top">
-                                                    <span class="fa fa-minus-circle fa-lg edit-icon" ng-click="decreaseQty(storereport)"></span>
+                                                    <span class="fa fa-minus-circle fa-lg edit-icon" ng-click="decreaseQty(storeReport)"></span>
                                                 </div>
                                                 <div class="float-left margin-right-10px">
-                                                    <input type="text" class="form-control input-small" ng-model="storereport.desiredStockLevel">
+                                                    <input type="text" class="form-control input-small" ng-model="storeReport.desiredStockLevel">
                                                 </div>
                                                 <div class="float-left margin-right margin-top">
-                                                    <span class="fa fa-plus-circle fa-lg edit-icon" ng-click="increaseQty(storereport)"></span>
+                                                    <span class="fa fa-plus-circle fa-lg edit-icon" ng-click="increaseQty(storeReport)"></span>
                                                 </div>
                                                 <div class="clearfix"></div>
                                             </div>
@@ -99,7 +99,7 @@
                 <div class="ipad-right-column">
                     <table class="table table-responsive right-table">
                         <thead>
-                            <tr>
+                            <tr style="font-size: 14px;">
                                 <th>Box
                                     <br>Items</th>
                             </tr>

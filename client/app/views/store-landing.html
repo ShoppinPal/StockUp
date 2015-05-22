@@ -30,7 +30,7 @@
     <div class="row main-container">
         <div class="inner-container">
             <div class="report-manager-ipad-search">
-                <h4>JumpTo<br>Supplier</h4>
+                <h4 class="jumpto">Jump To<br>Supplier</h4>
                 <ul class="store-auto-height">
                     <li ng-repeat="store in storesReport | orderBy:'type' | unique:'type'">
                         <a href="" ng-click="gotoDepartment(store.type)">{{store.type}}</a>

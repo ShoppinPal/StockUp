@@ -26,7 +26,7 @@
     <div class="row main-container">
         <div class="inner-container">
             <div class="report-manager-ipad-search">
-                 <h4>JumpTo<br>Supplier</h4>
+                 <h4 class="jumpto">Jump to</h4>
                 <ul class="store-auto-height">
                     <li ng-repeat="value in alphabets | unique:'value'">
                         <a href="" ng-click="gotoDepartment(value)">{{value}}</a>
@@ -39,10 +39,10 @@
                         <thead>
                             <tr>
                                 <th width="10%">SKU</th>
-                                <th width="20%">Name</th>
-                                <th width="10%">Quantity on Hand</th>
-                                <th width="10%">Desired Stock Level</th>
-                                <th width="10%">Ordered Quantity</th>
+                                <th width="25%">Name</th>
+                                <th width="5%">Quantity on Hand</th>
+                                <th width="5%">Desired Stock Level</th>
+                                <th width="5%">Ordered Quantity</th>
                             </tr>
                         </thead>
                     </table>
@@ -54,10 +54,10 @@
                                 </tr>
                                 <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'" ng-hide="$index==selectedRowIndex" ng-swipe-right="markRowAsCompleted(storeReportRow)" ng-swipe-left="editStore($index)">
                                     <td width="10%">{{storeReportRow.sku}}</td>
-                                    <td width="20%">{{storeReportRow.name}}</td>
-                                    <td width="10%">{{storeReportRow.quantityOnHand}}</td>
-                                    <td width="10%">{{storeReportRow.desiredStockLevel}}</td>
-                                    <td width="10%">{{storeReportRow.orderQuantity}}</td>
+                                    <td width="25%">{{storeReportRow.name}}</td>
+                                    <td width="5%">{{storeReportRow.quantityOnHand}}</td>
+                                    <td width="5%">{{storeReportRow.desiredStockLevel}}</td>
+                                    <td width="5%">{{storeReportRow.orderQuantity}}</td>
                                 </tr>
                                 <tr ng-if="storeReportRow.comment" ng-hide="$index==selectedRowIndex">
                                     <td colspan="5">
