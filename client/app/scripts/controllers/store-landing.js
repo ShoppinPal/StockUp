@@ -12,13 +12,13 @@ angular.module('ShoppinPalApp')
     function($scope, loginService, $anchorScroll, $location) {
 
       $scope.sortedOrder = [];
-     
-     /** @method dismissEdit
+
+      /** @method dismissEdit
        * This method will close the editable mode in store-report
        */
-      $scope.dismissEdit = function(storeReportRow) {
-          $scope.selectedRowIndex = $scope.storereportlength + 1;
-        };
+      $scope.dismissEdit = function(/*storeReportRow*/) {
+        $scope.selectedRowIndex = $scope.storereportlength + 1;
+      };
 
       /** @method inProcessOrder
        * show only the inprocess order in UI
