@@ -78,8 +78,8 @@ module.exports = function(app) {
           {principalType: RoleMapping.USER, principalId: aUser.id} // or create
         )
           .spread(function(principal, created) {
-            (created) ? debug('(' + (++commentsIndex) + ') ' + 'created', principal)
-                      : debug('(' + (++commentsIndex) + ') ' + 'found', principal);
+            (created) ? debug('(' + (++commentsIndex) + ') ' + 'created', 'RoleMapping', principal)
+                      : debug('(' + (++commentsIndex) + ') ' + 'found', 'RoleMapping', principal);
             debug('(' + (++commentsIndex) + ') ' + aUser.username + ' now has role: ' + role.name);
             return Promise.resolve([role, principal]); // can spread() it as needed
           });
@@ -190,14 +190,14 @@ module.exports = function(app) {
             } // or create
           )
             .spread(function(globalConfigModel, created) {
-              (created) ? debug('(' + (++commentsIndex) + ') ' + 'created', globalConfigModel)
-                        : debug('(' + (++commentsIndex) + ') ' + 'found', globalConfigModel);
+              (created) ? debug('(' + (++commentsIndex) + ') ' + 'created', 'GlobalConfigModel', globalConfigModel)
+                        : debug('(' + (++commentsIndex) + ') ' + 'found', 'GlobalConfigModel', globalConfigModel);
               debug('(' + (++commentsIndex) + ') ' + 'created a globalConfigModel that belongs to ' + adminUser.username);
               return Promise.resolve();
             });
         }) // finished setting up a singleton for GlobalConfigModel
         .then(function() {
-          // login w/ merchant1
+          debug('(' + (++commentsIndex) + ') ' + 'login with', {realm: retailUserRaw.realm, username: retailUserRaw.username, password: retailUserRaw.password});
           return UserModel.loginAsync({realm: retailUserRaw.realm, username: retailUserRaw.username, password: retailUserRaw.password})
             .tap(function(accessToken) { // create a default/empty report for merchant1
               debug('(' + (++commentsIndex) + ') ' + 'created', JSON.stringify(accessToken,null,2));
