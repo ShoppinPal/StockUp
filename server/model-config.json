@@ -46,6 +46,18 @@
     "dataSource": "db",
     "public": true
   },
+  "ReportModel": {
+    "dataSource": "db",
+    "public": true
+  },
+  "StockOrderLineitemModel": {
+    "dataSource": "db",
+    "public": true
+  },
+  "SupplierModel": {
+    "dataSource": "db",
+    "public": true
+  },
   "UserModel": {
     "dataSource": "db"
   }

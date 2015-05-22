@@ -1,59 +1,15 @@
 {
-  "name": "StoreModel",
+  "name": "SupplierModel",
   "base": "PersistedModel",
-  "idInjection": false,
+  "idInjection": true,
   "properties": {
-    "objectId": {
-      "type": "number",
-      "id": true,
-      "generated": true
-    },
     "name": {
       "type": "string",
       "required": true
     },
-    "phone": {
-      "type": "string"
-    },
-    "addressLine1": {
-      "type": "string"
-    },
-    "addressLine2": {
-      "type": "string"
-    },
-    "city": {
-      "type": "string"
-    },
-    "state": {
-      "type": "string"
-    },
-    "postalCode": {
-      "type": "string"
-    },
-    "country": {
+    "apiId": {
       "type": "string",
       "required": true
-    },
-    "location": {
-      "type": "GeoPoint"
-    },
-    "hours": {
-      "type": [
-        "object"
-      ]
-    },
-    "api_id": {
-      "type": "string",
-      "required": true
-    },
-    "registerId": {
-      "type": "string"
-    },
-    "tax_rate": {
-      "type": "number"
-    },
-    "hideOutOfStockProducts": {
-      "type": "boolean"
     }
   },
   "validations": [],
@@ -61,12 +17,12 @@
     "userModel": {
       "type": "belongsTo",
       "model": "UserModel",
-      "foreignKey": "userModelToStoreModelId"
+      "foreignKey": "userModelToSupplierModelId"
     },
     "storeConfigModel": {
       "type": "belongsTo",
       "model": "StoreConfigModel",
-      "foreignKey": "storeConfigModelToStoreModelId"
+      "foreignKey": "storeConfigModelToSupplierModelId"
     }
   },
   "acls": [
@@ -79,7 +35,7 @@
     {
       "accessType": "READ",
       "principalType": "ROLE",
-      "principalId": "$everyone",
+      "principalId": "$authenticated",
       "permission": "ALLOW"
     },
     {

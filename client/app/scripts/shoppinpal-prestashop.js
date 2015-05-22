@@ -118,7 +118,7 @@ angular.module('shoppinpal-prestashop',['ngResource', 'shoppinpal-constants'])
                                 {id: ngStoreConfigObject.objectId},
                                 store
                               )
-                                .then(function(storeObject){
+                                .then(function(storeObject){ // TODO: use .$promise.then ???
                                   console.log('saved with storeObject.objectId: ' + storeObject.objectId);
                                   return Parse.Promise.as();
                                 });

@@ -1,0 +1,68 @@
+{
+  "name": "ReportModel",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "properties": {
+    "metadata": {
+      "type": "date",
+      "required": false
+    },
+    "created": {
+      "type": "date",
+      "defaultFn": "now",
+      "required": true
+    },
+    "state": {
+      "type": "string",
+      "required": true
+    },
+    "supplier": {
+      "type": "object",
+      "required": true
+    },
+    "outlet": {
+      "type": "object",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "userModel": {
+      "type": "belongsTo",
+      "model": "UserModel",
+      "foreignKey": "userModelToReportModelId"
+    },
+    "stockOrderLineitemModels": {
+      "type": "hasMany",
+      "model": "StockOrderLineitemModel",
+      "foreignKey": "reportId"
+    }
+  },
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "create"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "admin",
+      "permission": "ALLOW"
+    }
+  ],
+  "methods": []
+}

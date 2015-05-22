@@ -30,7 +30,7 @@ module.exports = function(StoreConfigModel) {
     var ctx = loopback.getCurrentContext();
     var currentUser = ctx && ctx.get('currentUser');
     if (currentUser) {
-      console.log('inside StoreModel.importProducts() - currentUser: ', currentUser.username);
+      console.log('inside StoreConfigModel.getCurrentUserModel() - currentUser: ', currentUser.username);
       //return currentUser;
       return Promise.promisifyAll(
         currentUser,
@@ -54,7 +54,7 @@ module.exports = function(StoreConfigModel) {
 
       // Is GlobalConfigModel already promise'fied? YES!!!
       /*var GlobalConfigModel = StoreConfigModel.app.models.GlobalConfigModel;
-      return GlobalConfigModel.findOneAsync({})
+      return GlobalConfigModel.findOne({})
         .then(function(globalConfig) {
           console.log('globalConfig', globalConfig);
           cb(null);
@@ -76,7 +76,7 @@ module.exports = function(StoreConfigModel) {
   };
 
   StoreConfigModel.getVendOutlets = function(id, cb) {
-    var currentUser = getCurrentUserModel(cb); // returns  immediately if no currentUser
+    var currentUser = getCurrentUserModel(cb); // returns immediately if no currentUser
 
     if(currentUser) {
       var oauthVendUtil = require('./../../common/utils/vend')({
@@ -96,7 +96,7 @@ module.exports = function(StoreConfigModel) {
   };
 
   StoreConfigModel.getVendTaxes = function(id, cb) {
-    var currentUser = getCurrentUserModel(cb); // returns  immediately if no currentUser
+    var currentUser = getCurrentUserModel(cb); // returns immediately if no currentUser
 
     if(currentUser) {
       var oauthVendUtil = require('./../../common/utils/vend')({
@@ -116,7 +116,7 @@ module.exports = function(StoreConfigModel) {
   };
 
   StoreConfigModel.getVendPaymentTypes = function(id, cb) {
-    var currentUser = getCurrentUserModel(cb); // returns  immediately if no currentUser
+    var currentUser = getCurrentUserModel(cb); // returns immediately if no currentUser
 
     if(currentUser) {
       var oauthVendUtil = require('./../../common/utils/vend')({
@@ -143,7 +143,7 @@ module.exports = function(StoreConfigModel) {
   });
 
   StoreConfigModel.getVendAccessToken = function(code, domainPrefix, state, cb) {
-    var currentUser = getCurrentUserModel(cb); // returns  immediately if no currentUser
+    var currentUser = getCurrentUserModel(cb); // returns immediately if no currentUser
 
     var oauthVendUtil = require('./../../common/utils/vend')({
       'StoreConfigModel': StoreConfigModel,

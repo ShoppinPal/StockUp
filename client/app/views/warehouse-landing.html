@@ -1,0 +1,103 @@
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12 col-md-12">
+            <!-- Select store header -->
+            <header class="header">
+                <div class="row">
+                    <div class="col-md-5 col-sm-3 col-xs-12">
+                        <div class="logo">Glenstone</div>
+                    </div>
+                    <div class="col-md-7 col-sm-9 col-xs-12">
+                        <div class="note-sub-text pull-right">You are logged in as a <span><a href="#">Store Manager/WH/SR</a>&nbsp;&nbsp; </span>|&nbsp;&nbsp;<a href="#" class="logout-text">LOGOUT</a></div>
+                        <div class="btn-align">
+                            <button type="submit" class="btn btn-primary button-large-green" ng-click="createManualOrder()">Create manual order</button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+        </div>
+    </div>
+    <!-- warehouse landing status button start -->
+    <div class="row main-container">
+      <div class="row row-centered">
+        <button class="status-btn-inprocess" ng-click="inProcessOrder()">In Process</button>
+        <button class="status-btn-fullfil" ng-click="fulfilledOrder()">Fullfil</button>
+        <button class="status-btn-receive" ng-click="recievedOrder()">Receive</button>
+      </div>  
+    </div>
+    <!-- warehouse landing status button end -->
+    <!-- Store Manager page content -->
+    <div class="row main-container">
+        <div class="inner-container">
+            <div class="report-manager-ipad-search">
+                <h4 class="jumpto">Jump To<br>Supplier</h4>
+                <ul class="store-auto-height">
+                    <li ng-repeat="store in storesReport | unique:'type' | orderBy: 'type'">
+                        <a href="" ng-click="gotoDepartment(store.type)">{{store.type}}</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="store-content">
+                <div class="report-manager-ipad-scroll">
+                    <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
+                        <thead>
+                            <tr>
+                                <th width="10%">order id</th>
+                                <th width="15%">order Name</th>
+                                <th width="15%">status</th>
+                                <th width="10%">total items</th>
+                            </tr>
+                        </thead>
+                    </table>
+                    <div class="scrollable-table">
+                        <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
+                            <tbody ng-repeat="storeReport in storesReports| orderBy:'type'| groupBy: 'type'">
+                                <tr class="inner-table-heading" id="jumpto{{storeReport.type}}" ng-if="storeReport.group_by_CHANGED">
+                                    <td colspan="5">
+                                        <span class="table-heading-font">{{storeReport.type}}</span>
+                                    </td>
+                                </tr>
+                                <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'" ng-hide="$index==selectedRowIndex" ng-swipe-left="importExport($index)">
+                                    <td width="10%">{{storeReport.id}}</td>
+                                    <td width="15%">{{storeReport.outlet.name}}</td>
+                                    <td width="15%">
+                                        <div class="status-td">
+                                            <span ng-class="{
+                                'status-square-complete': storeReport.status == 'recieve',
+                                'status-square-inprocess': storeReport.status == 'empty',
+                                'status-square-inprocess': storeReport.status == 'manager',
+                                'status-square-fulfilled': storeReport.status == 'warehouse'}">
+                                    </span> {{storeReport.status}}
+                                        </div>
+                                    </td>
+                                    <td width="10%">{{storeReport.desiredStockLevel}}</td>
+                                </tr>
+                                <tr ng-if="comments" ng-hide="$index==selectedRowIndex">
+                                    <td colspan="5">
+                                        <span class="fa fa-comment comment-icon"></span>&nbsp;&nbsp;
+                                        <strong>Comments:</strong><span class="comment-span"> {{comments}}</span>
+                                    </td>
+                                </tr>
+                                <!-- Edit store-report start -->
+                                <tr ng-show="$index==selectedRowIndex" class="edit-row" ng-mouseleave="dismissEdit(storeReportRow)">
+                                    <td colspan="6">
+                                        <div class="col-sm-2">{{storeReport.id}}</div>
+                                        <div class="col-sm-2">
+                                            <div class="store-landing-second-col-text">{{storeReport.outlet.name}}</div>
+                                        </div>
+                                        <div class="col-sm-5 store-landing-edit-button-row">
+                                            <button class="import-btn">Import</button>
+                                            <button class="export-btn">Export</button>
+                                            <button class="fulfilled-btn">Fulfilled</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- Edit store-report end -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

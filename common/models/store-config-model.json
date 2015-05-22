@@ -62,6 +62,11 @@
     },
     "wepayAccountState": {
       "type": "object"
+    },
+    "suppliers": {
+      "type": [
+        "object"
+      ]
     }
   },
   "validations": [],

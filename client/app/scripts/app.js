@@ -1,14 +1,17 @@
 'use strict';
 
 angular.module('ShoppinPalApp', [
-    'ui.bootstrap'
-    ,'ngCookies'
+    // 'ui.bootstrap'
+    'ngCookies'
+    ,'shoppinpal-loopback'
     ,'ngResource'
     ,'ngSanitize'
+    ,'ngTouch'
+    ,'ngAnimate'
+    ,'mgcrea.ngStrap'
     ,'ui.router'
     ,'geocoder'
     ,'google-maps'
-    ,'shoppinpal-loopback'
     ,'shoppinpal-utils'
     ,'shoppinpal-vend'
     ,'shoppinpal-prestashop'
@@ -19,18 +22,17 @@ angular.module('ShoppinPalApp', [
     ,'sp-formatters'
     ,'sp-alerts'
     ,'uuid4'
+    ,'ngAnimate'
+    ,'mgcrea.ngStrap'
+    ,'angular-virtual-keyboard'
+    ,'angularSpinner'
+   // ,'angular-useragent-parser'
   ])
 
   .config([
     '$stateProvider', '$urlRouterProvider', 'LoopBackResourceProvider', 'baseUrl', 'loopbackApiRoot',
     function ($stateProvider, $urlRouterProvider, LoopBackResourceProvider, baseUrl, loopbackApiRoot) {
       $stateProvider
-        .state('signup', {
-          url: '/signup',
-          templateUrl: 'views/signup.html',
-          controller: 'SignupCtrl',
-          authenticate: false
-        })
         .state('mystores', {
           url: '/mystores',
           templateUrl: '../views/mystores.html',
@@ -46,9 +48,57 @@ angular.module('ShoppinPalApp', [
           templateUrl: '../views/onboarding.html',
           controller: 'OnboardingCtrl',
           authenticate: true
+        })
+        .state('login', {
+          url: '/login',
+          templateUrl: 'views/login.html',
+          controller: 'LoginCtrl',
+          authenticate: false
+        })
+        .state('store-report-list', {
+          url: '/store-report-list',
+          templateUrl: 'views/store-report-list.html',
+          controller: 'StoreReportListCtrl',
+          authenticate: false
+        })
+        .state('store-landing', {
+          url: '/store-landing',
+          templateUrl: 'views/store-landing.html',
+          controller: 'StoreLandingCtrl',
+          authenticate: false
+        })
+        .state('warehouse-landing', {
+          url: '/warehouse-landing',
+          templateUrl: 'views/warehouse-landing.html',
+          controller: 'WarehouseLandingCtrl',
+          authenticate: false
+        })
+        .state('create-manual-order', {
+          url: '/create-manual-order',
+          templateUrl: 'views/create-manual-order.html',
+          controller: 'createManualOrderCtrl',
+          authenticate: false
+        })
+        .state('store-report-manager', {
+          url: '/store-report-manager/:reportId',
+          templateUrl: 'views/store-report-manager.html',
+          controller: 'StoreManagerCtrl',
+          authenticate: false
+        })
+        .state('store-receiver-report', {
+          url: '/store-receiver-report',
+          templateUrl: 'views/store-receiver-report.html',
+          controller: 'StoreReceiverCtrl',
+          authenticate: false
+        })
+         .state('warehouse-report', {
+          url: '/warehouse-report',
+          templateUrl: 'views/warehouse-report.html',
+          controller: 'WarehouseReportCtrl',
+          authenticate: false
         });
 
-      $urlRouterProvider.otherwise('/signup');
+      $urlRouterProvider.otherwise('/login');
 
       // Configure backend URL
       LoopBackResourceProvider.setUrlBase(baseUrl + loopbackApiRoot);
@@ -60,7 +110,7 @@ angular.module('ShoppinPalApp', [
 
       $rootScope.$on('$stateChangeStart', function(event, toState){
         if(toState.authenticate && !$sessionStorage.currentUser) {
-          $state.go('signup');
+          $state.go('login');
           event.preventDefault();
         }
       });

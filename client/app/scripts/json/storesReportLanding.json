@@ -1,0 +1,166 @@
+{
+    "storesReport": [
+        {
+            "sku": "store01",
+            "name": "TestProduct",
+            "quantityOnHand": "20",
+            "desiredStockLevel": "15",
+            "orderQuantity": "10",
+            "type": "books",
+            "status":"complete"
+        },
+        {
+            "sku": "store02",
+            "name": "TestProduct",
+            "quantityOnHand": "20",
+            "desiredStockLevel": "15",
+            "orderQuantity": "10",
+            "type": "clothing",
+            "status":"complete"
+        },
+        {
+            "sku": "store03",
+            "name": "TestProduct",
+            "quantityOnHand": "20",
+            "desiredStockLevel": "15",
+            "orderQuantity": "10",
+            "type": "electronics",
+            "status":"complete"
+        },
+        {
+            "sku": "store04",
+            "name": "TestProduct",
+            "quantityOnHand": "20",
+            "desiredStockLevel": "15",
+            "orderQuantity": "10",
+            "type": "clothing",
+            "status":"inProgress"
+        },
+        {
+            "sku": "store04",
+            "name": "TestProduct",
+            "quantityOnHand": "20",
+            "desiredStockLevel": "15",
+            "orderQuantity": "10",
+            "type": "electronics",
+            "status":"inProgress"
+        },
+        {
+            "sku": "store05",
+            "name": "TestProduct",
+            "quantityOnHand": "20",
+            "desiredStockLevel": "15",
+            "orderQuantity": "10",
+            "type": "electronics",
+            "status":"inProgress"
+        },
+        {
+            "sku": "store06",
+            "name": "TestProduct",
+            "quantityOnHand": "20",
+            "desiredStockLevel": "15",
+            "orderQuantity": "10",
+            "type": "clothing",
+            "status":"inProgress"
+        },
+        {
+            "sku": "store07",
+            "name": "TestProduct",
+            "quantityOnHand": "20",
+            "desiredStockLevel": "15",
+            "orderQuantity": "10",
+            "type": "electronics",
+            "status":"pending"
+        },
+        {
+            "sku": "store08",
+            "name": "TestProduct",
+            "quantityOnHand": "20",
+            "desiredStockLevel": "15",
+            "orderQuantity": "10",
+            "type": "electronics",
+            "status":"pending"
+        },
+        {
+            "sku": "store09",
+            "name": "TestProduct",
+            "quantityOnHand": "20",
+            "desiredStockLevel": "15",
+            "orderQuantity": "10",
+            "type": "books",
+            "status":"pending"
+        },
+        {
+            "sku": "store10",
+            "name": "TestProduct",
+            "quantityOnHand": "20",
+            "desiredStockLevel": "15",
+            "orderQuantity": "10",
+            "type": "books",
+            "status":"pending"
+        },
+        {
+            "sku": "store11",
+            "name": "TestProduct",
+            "quantityOnHand": "20",
+            "desiredStockLevel": "15",
+            "orderQuantity": "10",
+            "type": "Baby& kids",
+            "status":"pending"
+        },
+        {
+            "sku": "store12",
+            "name": "TestProduct",
+            "quantityOnHand": "20",
+            "desiredStockLevel": "15",
+            "orderQuantity": "10",
+            "type": "books",
+            "status":"complete"
+        },
+        {
+            "sku": "store13",
+            "name": "TestProduct",
+            "quantityOnHand": "20",
+            "desiredStockLevel": "15",
+            "orderQuantity": "10",
+            "type": "Baby& kids",
+            "status":"inProgress"
+        },
+        {
+            "sku": "store14",
+            "name": "TestProduct",
+            "quantityOnHand": "20",
+            "desiredStockLevel": "15",
+            "orderQuantity": "10",
+            "type": "books",
+            "status":"pending"
+        },
+        {
+            "sku": "store15",
+            "name": "TestProduct",
+            "quantityOnHand": "20",
+            "desiredStockLevel": "15",
+            "orderQuantity": "10",
+            "type": "electronics",
+            "status":"pending"
+        },
+        {
+            "sku": "store16",
+            "name": "TestProduct",
+            "quantityOnHand": "20",
+            "desiredStockLevel": "15",
+            "orderQuantity": "10",
+            "type": "Baby& kids",
+            "status":"complete"
+        },
+        {
+            "sku": "store17",
+            "name": "TestProduct",
+            "quantityOnHand": "20",
+            "desiredStockLevel": "15",
+            "orderQuantity": "10",
+            "type": "Baby& kids",
+            "status":"pending"
+        }
+    ]
+}

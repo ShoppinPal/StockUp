@@ -1,0 +1,113 @@
+<div class="container">
+ <span us-spinner="{radius:20, width:6, length: 12}" spinner-key="spinner-1" spinner-start-active="true"></span>
+    <div class="row">
+        <div class="col-sm-12 col-md-12">
+            <!-- Select store header -->
+            <header class="header">
+                <div class="row">
+                    <div class="col-md-5 col-sm-3 col-xs-12">
+                        <div class="logo">Glenstone</div>
+                    </div>
+                    <div class="col-md-7 col-sm-9 col-xs-12">
+                        <div class="note-sub-text pull-right">You are logged in as a <span><a href="#">Store Manager/WH/SR</a>&nbsp;&nbsp; </span>|&nbsp;&nbsp;<a href="#" class="logout-text">LOGOUT</a></div>
+                        <div class="btn-align">
+                            <button type="submit" class="btn btn-primary button-large-blue" ng-click="showCompletedReport()">Show Completed</button>
+                            <button type="submit" class="btn btn-primary button-large-green" ng-click="submitToWarehouse()">{{submitToWarehouseButton}}</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <p class="note-text"><span><strong>Note:</strong></span> <span class="note-sub-text"> Swipe left to re-edit or tap 'Submit' to send to the Warehouse</span></p>
+                </div>
+            </header>
+        </div>
+    </div>
+    <!-- Store Manager page content -->
+    <div class="row main-container">
+        <div class="inner-container">
+            <div class="report-manager-ipad-search">
+                 <h4 class="jumpto">Jump to</h4>
+                <ul class="store-auto-height">
+                    <li ng-repeat="value in alphabets | unique:'value'">
+                        <a href="" ng-click="gotoDepartment(value)">{{value}}</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="center-block">
+                <div class="report-manager-ipad-scroll">
+                    <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
+                        <thead>
+                            <tr>
+                                <th width="10%">SKU</th>
+                                <th width="25%">Name</th>
+                                <th width="5%">Quantity on Hand</th>
+                                <th width="5%">Desired Stock Level</th>
+                                <th width="5%">Ordered Quantity</th>
+                            </tr>
+                        </thead>
+                    </table>
+                    <div class="scrollable-table">
+                        <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
+                            <tbody ng-repeat="storeReportRow in storesReport | orderBy:'type'| groupBy: 'type'">
+                                <tr class="inner-table-heading" id="jumpto{{storeReportRow.type}}" ng-if="storeReportRow.group_by_CHANGED">
+                                    <td colspan="5"><span class="table-heading-font">{{storeReportRow.type}}</span></td>
+                                </tr>
+                                <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'" ng-hide="$index==selectedRowIndex" ng-swipe-right="markRowAsCompleted(storeReportRow)" ng-swipe-left="editStore($index)">
+                                    <td width="10%">{{storeReportRow.sku}}</td>
+                                    <td width="25%">{{storeReportRow.name}}</td>
+                                    <td width="5%">{{storeReportRow.quantityOnHand}}</td>
+                                    <td width="5%">{{storeReportRow.desiredStockLevel}}</td>
+                                    <td width="5%">{{storeReportRow.orderQuantity}}</td>
+                                </tr>
+                                <tr ng-if="storeReportRow.comment" ng-hide="$index==selectedRowIndex">
+                                    <td colspan="5">
+                                        <span class="fa fa-comment comment-icon"></span>&nbsp;&nbsp;
+                                        <strong>Comments:</strong><span class="comment-span"> {{storeReportRow.comment}}</span>
+                                    </td>
+                                </tr>
+                                <!-- Edit store-report start -->
+                                <tr ng-show="$index==selectedRowIndex" class="edit-row" ng-mouseleave="dismissEdit(storeReportRow)">
+                                    <td colspan="6">
+                                        <div class="row">
+                                            <div class="col-sm-2 edit-column-heading-text">{{storeReportRow.sku}}</div>
+                                            <div class="col-sm-3">
+                                                <div class="edit-second-column-heading-text">{{storeReportRow.name}}</div>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <div class="edit-last-column-heading-text">{{storeReportRow.quantityOnHand}}</div>
+                                            </div>
+                                        </div>
+                                        <div class="edit-window">
+                                            <div class="float-left column-text margin-right">Desired
+                                                <br/> Stock Level:</div>
+                                            <div class="float-left margin-right-50px">
+                                                <input type="text" class="form-control input-small" ng-model="storeReportRow.desiredStockLevel">
+                                            </div>
+                                            <div class="float-left column-text margin-right">Order
+                                                <br/> Qty:</div>
+                                            <div class="float-left margin-right-10px margin-top">
+                                                <span class="fa fa-minus-circle fa-lg edit-icon" ng-click="decreaseQty(storeReportRow)"></span>
+                                            </div>
+                                            <div class="float-left margin-right-10px">
+                                                <input type="text" class="form-control input-small" ng-model="storeReportRow.orderQuantity">
+                                            </div>
+                                            <div class="float-left margin-right margin-top">
+                                                <span class="fa fa-plus-circle fa-lg edit-icon" ng-click="increaseQty(storeReportRow)"></span>
+                                            </div>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                        <div class="row" ng-show="ReviewSubmitPage">
+                                            <input type="text" class="form-control comment-input" placeholder="-- Add your Comments --" ng-model="storeReportRow.comment">
+                                        </div>
+                                        <!--/div-->
+                                    </td>
+                                </tr>
+                                <!-- Edit store-report end -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
