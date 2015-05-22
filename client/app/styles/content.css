@@ -306,12 +306,12 @@ tr.inner-table-heading {
 .edit-second-column-heading-text{
     color: #ffffff;
     font-size: 16px;
-    padding-left: 18px;
+    padding-left: 6px;
 }
 .edit-last-column-heading-text{
     color: #ffffff;
     font-size: 16px;
-    padding-left: 63px;
+    padding-left: 117px;
 }
 .comment-input{
     margin: 10px 20px;
@@ -629,7 +629,7 @@ p.note-text{
 
 /*CSS for store report manager page*/
 .report-manager-ipad-search {
-    width: 110px;
+    width: 73px;
     list-style: outside none none;
     margin: 0 0;
     padding: 0;
@@ -644,7 +644,7 @@ p.note-text{
 }
 .report-manager-ipad-scroll {
     list-style: outside none none;
-    margin: 0 0px 0 110px;
+    margin: 0 0px 0 72px;
     padding: 0;
     background: #93c8ca;
 }
@@ -663,7 +663,7 @@ p.note-text{
     margin: 0;
     list-style: none;
     padding: 10px;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: bold;
     text-transform: uppercase;
 }
@@ -819,6 +819,9 @@ p.note-text{
     border-radius: 5px;
     margin-right: 10px;
 }
+.row-centered {
+    text-align:center;
+}
 
 /* warehouse landing  end*/
 
@@ -858,7 +861,7 @@ h2{
 
 /* store manager landing  page start*/
 .store-content {
-   margin-right: 110px; 
+   margin-right: 0px; 
 }
 .center-block-generate-btn {
   display: block;  
@@ -875,34 +878,55 @@ h2{
     padding-left: 79px;
 }
 .store-auto-height {
-   line-height: 4;
+   line-height: 3;
 }
 .vertical-status-btn {
     padding-top: 100px;
 }
 .status-btn-fullfil {
-  width: 55px;
-  height: 150px;
+  background: #b9511a; 
+  width: 120px;
+  height: 30px;
   font-size: 11px;
   word-wrap: break-word;
-  background: #b9511a;
+  border: medium none;
+  border-radius: 5px;
   color: #ffffff;
+  font-weight: bold;
+  margin:10px 10px 10px 0;
+  padding: 5px 10px;
+  text-align: center;
+  text-transform: uppercase; 
 }
 .status-btn-inprocess {
-  width: 55px;
-  height: 150px;
+  width: 120px;
+  height: 30px;
   font-size: 11px;
   word-wrap: break-word;
   background: #4e3173;
+  border: medium none;
+  border-radius: 5px;
   color: #ffffff;
+  font-weight: bold;
+  margin:10px 10px 10px 0;
+  padding: 5px 10px;
+  text-align: center;
+  text-transform: uppercase;
 }
 .status-btn-receive {
-  width: 55px;
-  height: 150px;
+  background: #21639d;
+  width: 120px;
+  height: 30px;
   font-size: 11px;
   word-wrap: break-word;
-  background: #21639d;
+  border: medium none;
+  border-radius: 5px;
   color: #ffffff;
+  font-weight: bold;
+  margin:10px 10px 10px 0;
+  padding: 5px 10px;
+  text-align: center;
+  text-transform: uppercase;
 }
 /* store manager landing page end*/
 
@@ -942,3 +966,16 @@ h2{
 .intro-content li:nth-child(even) {
     background: #f5fdff;
 }
+.jumpto {
+    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: bold;
+}
+/** Store-Receiver report*/
+.ipad-scroll-store-receiver {
+    list-style: outside none none;
+    margin-right: 110px;
+    padding: 0;
+    background: #93c8ca;
+}
+/* end*/

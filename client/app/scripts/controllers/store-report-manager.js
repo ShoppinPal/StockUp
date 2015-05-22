@@ -10,8 +10,9 @@ angular.module('ShoppinPalApp')
   .controller('StoreManagerCtrl',
   [
     '$scope', '$anchorScroll', '$location', 'loginService', '$stateParams',
-    'StockOrderLineitemModel','$filter',
-    function ($scope, $anchorScroll, $location, loginService, $stateParams, StockOrderLineitemModel, $filter)
+    'StockOrderLineitemModel','$filter', 'usSpinnerService',
+    function ($scope, $anchorScroll, $location, loginService, $stateParams, StockOrderLineitemModel,
+     $filter,usSpinnerService)
     {
 
       $anchorScroll.yOffset = 50;
@@ -167,12 +168,14 @@ angular.module('ShoppinPalApp')
        * This method will load the storesReport from api on view load
        */
       $scope.$on('$viewContentLoaded', function() {
+        usSpinnerService.spin('spinner-1');
         if($stateParams.reportId) {
           loginService.getStoreReport($stateParams.reportId)
             .then(function (response) {
               $scope.storesReport = response;
               $scope.storereportlength = $scope.storesReport.length;
               $scope.JumtoDepartment();
+              usSpinnerService.stop('spinner-1');
             });
         }
         else { // if live data can't be loaded due to some bug, use MOCK data so testing can go on

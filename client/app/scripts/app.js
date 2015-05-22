@@ -25,6 +25,7 @@ angular.module('ShoppinPalApp', [
     ,'ngAnimate'
     ,'mgcrea.ngStrap'
     ,'angular-virtual-keyboard'
+    ,'angularSpinner'
    // ,'angular-useragent-parser'
   ])
 
@@ -82,6 +83,12 @@ angular.module('ShoppinPalApp', [
           url: '/store-report-manager/:reportId',
           templateUrl: 'views/store-report-manager.html',
           controller: 'StoreManagerCtrl',
+          authenticate: false
+        })
+        .state('store-receiver-report', {
+          url: '/store-receiver-report',
+          templateUrl: 'views/store-receiver-report.html',
+          controller: 'StoreReceiverCtrl',
           authenticate: false
         })
          .state('warehouse-report', {
