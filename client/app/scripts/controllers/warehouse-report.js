@@ -26,7 +26,7 @@ angular.module('ShoppinPalApp')
        * This method will close the editable mode in store-report
        */
       $scope.dismissEdit =function(){
-        $scope.selectedStore  = $scope.storereportlength + 1;
+        $scope.selectedRowIndex  = $scope.storereportlength + 1;
       };
 
      /** @method printDiv
@@ -90,27 +90,27 @@ angular.module('ShoppinPalApp')
        * enable the edit mode in UI
        */
       $scope.editWarehouse = function(selectedRow) {
-        $scope.selectedStore = selectedRow;
+        $scope.selectedRowIndex = selectedRow;
       };
 
       /** @method decreaseQty
-       * @param storereport
+       * @param storeReport
        * This method decreases the desiredStockLevel quantity ,when user tap on '-'' sign
        */
-      $scope.decreaseQty = function(storereport) {
-        storereport.desiredStockLevel = parseInt(storereport.desiredStockLevel); // parse it from string to integer
-        if(storereport.desiredStockLevel >0){
-          storereport.desiredStockLevel -= 1;
+      $scope.decreaseQty = function(storeReport) {
+        storeReport.desiredStockLevel = parseInt(storeReport.desiredStockLevel); // parse it from string to integer
+        if(storeReport.desiredStockLevel >0){
+          storeReport.desiredStockLevel -= 1;
         }
       };
 
       /** @method increaseQty
-       * @param storereport
+       * @param storeReport
        * This method increase the desiredStockLevel quantity ,when user tap on '+' sign
        */
-      $scope.increaseQty = function(storereport) {
-        storereport.desiredStockLevel = parseInt(storereport.desiredStockLevel);
-        storereport.desiredStockLevel += 1;
+      $scope.increaseQty = function(storeReport) {
+        storeReport.desiredStockLevel = parseInt(storeReport.desiredStockLevel);
+        storeReport.desiredStockLevel += 1;
       };
 
 
@@ -151,7 +151,7 @@ angular.module('ShoppinPalApp')
        */
       $scope.$on('$viewContentLoaded', function() {
         loginService.getSelectStore().then(function (response) {
-          $scope.storesReport = response.data.storesReport;
+          $scope.storesReport = response;
           $scope.JumtoDepartment();
         });
       });
