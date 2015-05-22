@@ -629,7 +629,7 @@ p.note-text{
 
 /*CSS for store report manager page*/
 .report-manager-ipad-search {
-    width: 110px;
+    width: 73px;
     list-style: outside none none;
     margin: 0 0;
     padding: 0;
@@ -644,7 +644,7 @@ p.note-text{
 }
 .report-manager-ipad-scroll {
     list-style: outside none none;
-    margin: 0 0px 0 110px;
+    margin: 0 0px 0 72px;
     padding: 0;
     background: #93c8ca;
 }
@@ -663,7 +663,7 @@ p.note-text{
     margin: 0;
     list-style: none;
     padding: 10px;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: bold;
     text-transform: uppercase;
 }
@@ -965,4 +965,9 @@ h2{
 }
 .intro-content li:nth-child(even) {
     background: #f5fdff;
+}
+.jumpto {
+    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: bold;
 }
