@@ -971,3 +971,11 @@ h2{
     font-size: 12px;
     font-weight: bold;
 }
+/** Store-Receiver report*/
+.ipad-scroll-store-receiver {
+    list-style: outside none none;
+    margin-right: 110px;
+    padding: 0;
+    background: #93c8ca;
+}
+/* end*/
