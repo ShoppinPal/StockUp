@@ -85,6 +85,12 @@ angular.module('ShoppinPalApp', [
           controller: 'StoreManagerCtrl',
           authenticate: false
         })
+        .state('store-receiver-report', {
+          url: '/store-receiver-report',
+          templateUrl: 'views/store-receiver-report.html',
+          controller: 'StoreReceiverCtrl',
+          authenticate: false
+        })
          .state('warehouse-report', {
           url: '/warehouse-report',
           templateUrl: 'views/warehouse-report.html',
