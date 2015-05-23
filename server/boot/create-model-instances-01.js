@@ -54,33 +54,49 @@ module.exports = function(app) {
       });
   };
 
+  var setupUser = function(rawUser) {
+    return UserModel.findOrCreate(
+      {where: {username: rawUser.username}}, // find
+      rawUser // or create
+    )
+      .spread(function(userInstance, created) {
+        (created) ? debug('('+ (++commentsIndex) +') ' + 'created', 'UserModel', userInstance)
+                  : debug('('+ (++commentsIndex) +') ' + 'found', 'UserModel', userInstance);
+
+        return findOrCreateRoleToAssignUser(userInstance)
+          .spread(function(/*role, principal*/){
+            return Promise.resolve(userInstance);
+          });
+      });
+  };
+
   /**
    * NOTE: principal refers to RoleMapping
    *
-   * @param aUser
+   * @param aUserModel
    * @returns {*} a promise wrapped array ( [Role, RoleMapping] ) which can be can be spread() as needed
    */
-  var findOrCreateRoleToAssignUser = function(aUser){
-    debug('(' + (++commentsIndex) + ') ' + 'inside findOrCreateRoleToAssignUser');
+  var findOrCreateRoleToAssignUser = function(aUserModel){
+    //debug('(' + (++commentsIndex) + ') ' + 'inside findOrCreateRoleToAssignUser');
     return Role.findOrCreate(
-      {where: {name: aUser.seedWithRole||'retailer'}}, // find
-      {name: aUser.seedWithRole||'retailer'} // or create
+      {where: {name: aUserModel.seedWithRole||'retailer'}}, // find
+      {name: aUserModel.seedWithRole||'retailer'} // or create
     )
       .spread(function(role, created) {
-        (created) ? debug('(' + (++commentsIndex) + ') ' + 'created', role)
-                  : debug('(' + (++commentsIndex) + ') ' + 'found', role);
+        (created) ? debug('(' + (++commentsIndex) + ') ' + 'created', 'Role', role)
+                  : debug('(' + (++commentsIndex) + ') ' + 'found', 'Role', role);
 
         debug('(' + (++commentsIndex) + ') ' + 'will assign roles');
         //return role.principals.create({principalType: RoleMapping.USER, principalId: adminUser.id})
         return findOrCreateRelatedModel(
           role.principals,
-          {where: {principalType: RoleMapping.USER, principalId: aUser.id}}, // find
-          {principalType: RoleMapping.USER, principalId: aUser.id} // or create
+          {where: {principalType: RoleMapping.USER, principalId: aUserModel.id}}, // find
+          {principalType: RoleMapping.USER, principalId: aUserModel.id} // or create
         )
           .spread(function(principal, created) {
             (created) ? debug('(' + (++commentsIndex) + ') ' + 'created', 'RoleMapping', principal)
                       : debug('(' + (++commentsIndex) + ') ' + 'found', 'RoleMapping', principal);
-            debug('(' + (++commentsIndex) + ') ' + aUser.username + ' now has role: ' + role.name);
+            debug('(' + (++commentsIndex) + ') ' + aUserModel.username + ' now has role: ' + role.name);
             return Promise.resolve([role, principal]); // can spread() it as needed
           });
       });
@@ -151,50 +167,28 @@ module.exports = function(app) {
       }
 
       debug('('+ (++commentsIndex) +') ' + 'create users');
-      UserModel.findOrCreate(
-        {where: {username: adminUser.username}}, // find
-        adminUser // or create
-      )
-        .spread(function(userInstance, created) {
-          (created) ? debug('('+ (++commentsIndex) +') ' + 'created', userInstance)
-                    : debug('('+ (++commentsIndex) +') ' + 'found', userInstance);
+      return Promise.resolve() // this is a no-op but the code looks just a tad prettier this way
+        .then(function() {
+          return setupUser(adminUser)
+            .then(function(userInstance) {
           adminUser = userInstance;
-
-          return UserModel.findOrCreate(
-            {where: {username: retailUser.username}}, // find
-            retailUser // or create
-          );
-        })
-        .spread(function(userInstance, created) {
-          (created) ? debug('('+ (++commentsIndex) +') ' + 'created', userInstance)
-                    : debug('('+ (++commentsIndex) +') ' + 'found', userInstance);
-          retailUser = userInstance;
-
-          return UserModel.findOrCreate(
-            {where: {username: anotherRetailUser.username}}, // find
-            anotherRetailUser // or create
-          );
-        })
-        .spread(function(userInstance, created) {
-          (created) ? debug('(' + (++commentsIndex) + ') ' + 'created', userInstance)
-            : debug('(' + (++commentsIndex) + ') ' + 'found', userInstance);
-          anotherRetailUser = userInstance;
-
           return Promise.resolve();
-        })
-        // TODO: create a user with teamAdmin role for patricias
-        // TODO: add users in patricias team to the TeamModel for patricias
-        // TODO: create a teamMember roleResolver
-        // TODO: tie each teamMember to a specific store for patricias
+            });
+        }) // finished setting up adminUser
         .then(function() {
-          return findOrCreateRoleToAssignUser(adminUser);
-        })
+          return setupUser(retailUser)
+            .then(function(userInstance) {
+              retailUser = userInstance;
+              return Promise.resolve();
+            });
+        }) // finished setting up retailUser
         .then(function() {
-          return findOrCreateRoleToAssignUser(retailUser);
-        })
-        .then(function() {
-          return findOrCreateRoleToAssignUser(anotherRetailUser);
-        })
+          return setupUser(anotherRetailUser)
+            .then(function(userInstance) {
+              anotherRetailUser = userInstance;
+              return Promise.resolve();
+            });
+        }) // finished setting up anotherRetailUser
         .then(function() {
           debug('(' + (++commentsIndex) + ') ' +
             'setup a mock GlobalConfigModel(s) through UserModel ' +
@@ -257,7 +251,7 @@ module.exports = function(app) {
               // filed: https://github.com/petkaantonov/bluebird/issues/580
               seed.storeConfigModels = [];
             }
-            // seed each store-config, one-by-one
+            debug('('+ (++commentsIndex) +')', 'seed each store-config, one-by-one');
             return Promise.map(
               seed.storeConfigModels,
               function(storeConfigSeedData){
@@ -277,13 +271,13 @@ module.exports = function(app) {
                       storeConfigSeedData.storeModels = [];
                     }
 
-                    // explicitly setup the foreignKey for related models
+                    debug('('+ (++commentsIndex) +')', 'explicitly setup the foreignKey for related models');
                     _.each(storeConfigSeedData.storeModels, function(storeModelSeedData){
                       storeModelSeedData.userModelToStoreModelId = retailUser.id;
                       storeModelSeedData.storeConfigModelToStoreModelId = storeConfigModelInstance.objectId;
                     });
 
-                    // seed each STORE in a given store-config, one-by-one
+                    debug('('+ (++commentsIndex) +')', 'seed each STORE in a given store-config, one-by-one');
                     return Promise.map(
                       storeConfigSeedData.storeModels,
                       function (storeSeedData) {
