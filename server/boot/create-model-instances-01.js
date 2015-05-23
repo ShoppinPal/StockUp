@@ -262,14 +262,15 @@ module.exports = function(app) {
               seed.storeConfigModels,
               function(storeConfigSeedData){
                 var filteredStoreConfigSeedData = _.omit(storeConfigSeedData, 'storeModels');
+                debug('('+ (++commentsIndex) +')', 'TODO', 'create and assign the teamAdmin from seed.json file before falling back to the demo user');
                 filteredStoreConfigSeedData.userModelToStoreConfigModelId = retailUser.id;
                 return StoreConfigModel.findOrCreate(
                   {where:{name:filteredStoreConfigSeedData.name}}, // find
                   filteredStoreConfigSeedData // create
                 )
                   .spread(function(storeConfigModelInstance, created) {
-                    (created) ? debug('('+ (++commentsIndex) +') ' + 'created', 'StoreConfigModel', {objectId: storeConfigModelInstance.objectId, name: storeConfigModelInstance.name})
-                              : debug('('+ (++commentsIndex) +') ' + 'found', 'StoreConfigModel', {objectId: storeConfigModelInstance.objectId, name: storeConfigModelInstance.name});
+                    (created) ? debug('('+ (++commentsIndex) +')', 'created', 'StoreConfigModel', {objectId: storeConfigModelInstance.objectId, name: storeConfigModelInstance.name})
+                              : debug('('+ (++commentsIndex) +')', 'found', 'StoreConfigModel', {objectId: storeConfigModelInstance.objectId, name: storeConfigModelInstance.name});
 
                     if (!storeConfigSeedData.storeModels) {
                       // filed: https://github.com/petkaantonov/bluebird/issues/580
