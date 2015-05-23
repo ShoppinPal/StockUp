@@ -115,7 +115,7 @@ module.exports = function(app) {
       });
   };
 
-  var request = require('supertest');
+  var request = require('supertest-as-promised');
   function json(verb, url) {
     return request(app)[verb](url)
       .set('Content-Type', 'application/json')
@@ -171,8 +171,8 @@ module.exports = function(app) {
         .then(function() {
           return setupUser(adminUser)
             .then(function(userInstance) {
-          adminUser = userInstance;
-          return Promise.resolve();
+              adminUser = userInstance;
+              return Promise.resolve();
             });
         }) // finished setting up adminUser
         .then(function() {
@@ -315,8 +315,9 @@ module.exports = function(app) {
                                       (created) ? debug('('+ (++commentsIndex) +') ' + 'created', 'TeamModel', teamModel)
                                                 : debug('('+ (++commentsIndex) +') ' + 'found', 'TeamModel', teamModel);
 
-                                      debug('('+ (++commentsIndex) +')', 'Let\'s test a team member\'s access to StoreConfigModel');
-                                      debug('('+ (++commentsIndex) +')', 'GET /api/StoreConfigModels/' + storeConfigModelInstance.objectId);
+                                      debug('('+ (++commentsIndex) +')',
+                                        'Let\'s test a team member\'s access to StoreConfigModel',
+                                        'GET /api/StoreConfigModels/' + storeConfigModelInstance.objectId);
                                       return userLogin({
                                         realm: 'portal',
                                         username: storeSeedData.managerAccount.email,
@@ -324,13 +325,9 @@ module.exports = function(app) {
                                       })
                                         .then(function(teamMemberAccessToken) {
                                           return json('get', '/api/StoreConfigModels/' + storeConfigModelInstance.objectId)
+                                          //return json('get', '/api/StoreConfigModels/1')
                                             .set('Authorization', teamMemberAccessToken.id)
-                                            .expect(200, function(err, res) {
-                                              if (err) {
-                                                debug('('+ (++commentsIndex) +')', err);
-                                                throw err; //return Promise.reject(err);
-                                              }
-                                              //assert.equal(res.body.email, token.user.email);
+                                            .then(function(res) {
                                               debug('('+ (++commentsIndex) +')',
                                                 'TEST', 'found', 'StoreConfigModel',
                                                 {objectId: res.body.objectId, name: res.body.name}
