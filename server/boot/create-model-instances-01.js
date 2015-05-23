@@ -213,7 +213,7 @@ module.exports = function(app) {
         }) // finished setting up a singleton for GlobalConfigModel
         .then(function() {
           return userLogin(retailUserRaw);
-        })
+        }) // login and spit out the accessToken for retailUser so we may use it for manual testing
         .tap(function(retailUserAccessToken) {
           // TODO: populate the report too? somehow?
           return ReportModel.findOrCreate(
@@ -244,7 +244,7 @@ module.exports = function(app) {
               });*/
               return Promise.resolve();
             });
-        })
+        }) // created a demo ReportModel for retailUser
         .tap(function(retailUserAccessToken) { // create store-config and store for merchant1
           if(seed) {
             if (!seed.storeConfigModels) {
@@ -256,136 +256,147 @@ module.exports = function(app) {
               seed.storeConfigModels,
               function(storeConfigSeedData){
                 var filteredStoreConfigSeedData = _.omit(storeConfigSeedData, 'storeModels');
-                debug('('+ (++commentsIndex) +')', 'TODO', 'create and assign the teamAdmin from seed.json file before falling back to the demo user');
-                filteredStoreConfigSeedData.userModelToStoreConfigModelId = retailUser.id;
-                return StoreConfigModel.findOrCreate(
-                  {where:{name:filteredStoreConfigSeedData.name}}, // find
-                  filteredStoreConfigSeedData // create
-                )
-                  .spread(function(storeConfigModelInstance, created) {
-                    (created) ? debug('('+ (++commentsIndex) +')', 'created', 'StoreConfigModel', {objectId: storeConfigModelInstance.objectId, name: storeConfigModelInstance.name})
-                              : debug('('+ (++commentsIndex) +')', 'found', 'StoreConfigModel', {objectId: storeConfigModelInstance.objectId, name: storeConfigModelInstance.name});
 
-                    if (!storeConfigSeedData.storeModels) {
-                      // filed: https://github.com/petkaantonov/bluebird/issues/580
-                      storeConfigSeedData.storeModels = [];
-                    }
-
-                    debug('('+ (++commentsIndex) +')', 'explicitly setup the foreignKey for related models');
-                    _.each(storeConfigSeedData.storeModels, function(storeModelSeedData){
-                      storeModelSeedData.userModelToStoreModelId = retailUser.id;
-                      storeModelSeedData.storeConfigModelToStoreModelId = storeConfigModelInstance.objectId;
-                    });
-
-                    debug('('+ (++commentsIndex) +')', 'seed each STORE in a given store-config, one-by-one');
-                    return Promise.map(
-                      storeConfigSeedData.storeModels,
-                      function (storeSeedData) {
-                        return StoreModel.findOrCreate(
-                          {where:{name:storeSeedData.name}}, // find
-                          storeSeedData // create
-                        )
-                          .spread(function(storeModelInstance, created) {
-                            (created) ? debug('('+ (++commentsIndex) +')', 'created', 'StoreModel', storeModelInstance)
-                                      : debug('('+ (++commentsIndex) +')', 'found', 'StoreModel', storeModelInstance);
-
-                            if(storeSeedData.managerAccount) {
-                              debug('('+ (++commentsIndex) +')', 'add each store manager (storeSeedData.managerAccount) as a team member for StoreConfigModel');
-                              return UserModel.findOrCreate(
-                                {where: {username: storeSeedData.managerAccount.email}}, // find
-                                {
-                                  realm: 'portal',
-                                  username: storeSeedData.managerAccount.email,
-                                  email: storeSeedData.managerAccount.email,
-                                  password: storeSeedData.managerAccount.password
-                                } // or create
-                              )
-                                .spread(function(userInstance, created) {
-                                  (created) ? debug('('+ (++commentsIndex) +') ' + 'created', 'UserModel', userInstance)
-                                            : debug('('+ (++commentsIndex) +') ' + 'found', 'UserModel', userInstance);
-
-                                  // TODO: 'set the userInstance as the StoreModel's owner'
-                                  debug('('+ (++commentsIndex) +') ', 'TODO', 'set the userInstance as the StoreModel\'s owner');
-
-                                  return TeamModel.findOrCreate(
-                                    {where:{ownerId: storeConfigModelInstance.userModelToStoreConfigModelId, memberId: userInstance.id}}, // find
-                                    {ownerId: storeConfigModelInstance.userModelToStoreConfigModelId, memberId: userInstance.id} // create
-                                  )
-                                    .spread(function(teamModel, created) {
-                                      (created) ? debug('('+ (++commentsIndex) +') ' + 'created', 'TeamModel', teamModel)
-                                                : debug('('+ (++commentsIndex) +') ' + 'found', 'TeamModel', teamModel);
-
-                                      debug('('+ (++commentsIndex) +')',
-                                        'Let\'s test a team member\'s access to StoreConfigModel',
-                                        'GET /api/StoreConfigModels/' + storeConfigModelInstance.objectId);
-                                      return userLogin({
-                                        realm: 'portal',
-                                        username: storeSeedData.managerAccount.email,
-                                        password: storeSeedData.managerAccount.password
-                                      })
-                                        .then(function(teamMemberAccessToken) {
-                                          return json('get', '/api/StoreConfigModels/' + storeConfigModelInstance.objectId)
-                                          //return json('get', '/api/StoreConfigModels/1')
-                                            .set('Authorization', teamMemberAccessToken.id)
-                                            .then(function(res) {
-                                              debug('('+ (++commentsIndex) +')',
-                                                'TEST', 'found', 'StoreConfigModel',
-                                                {objectId: res.body.objectId, name: res.body.name}
-                                              );
-                                              return Promise.resolve();
-                                            });
-                                        });
-
-                                      //return Promise.resolve();
-                                    });
-                                });
-                            }
-                            else {
-                              debug('('+ (++commentsIndex) +') ' + 'no managerAccount is present, skipped seeding');
-                              return Promise.resolve(); // no managerAccount
-                            }
-
-                          });
-                      },
-                      {concurrency: 1}
+                var teamAdminRaw = storeConfigSeedData.teamAdmin || retailUserRaw;
+                return setupUser(teamAdminRaw)
+                  .then(function(userInstance) {
+                    debug('('+ (++commentsIndex) +')', 'created and assigned the teamAdmin:', userInstance.username);
+                    filteredStoreConfigSeedData.userModelToStoreConfigModelId = userInstance.id;
+                    return Promise.resolve();
+                  })
+                  .then(function() {
+                    debug('('+ (++commentsIndex) +')', 'seed a StoreConfigModel');
+                    return StoreConfigModel.findOrCreate(
+                      {where:{name:filteredStoreConfigSeedData.name}}, // find
+                      filteredStoreConfigSeedData // create
                     )
-                      .then(function () {
-                        debug('finished seeding all STORES for', storeConfigModelInstance.name);
+                      .spread(function(storeConfigModelInstance, created) {
+                        (created) ? debug('('+ (++commentsIndex) +')', 'created', 'StoreConfigModel', {objectId: storeConfigModelInstance.objectId, name: storeConfigModelInstance.name})
+                                  : debug('('+ (++commentsIndex) +')', 'found', 'StoreConfigModel', {objectId: storeConfigModelInstance.objectId, name: storeConfigModelInstance.name});
 
-                        if (!storeConfigSeedData.supplierModels) {
+                        if (!storeConfigSeedData.storeModels) {
                           // filed: https://github.com/petkaantonov/bluebird/issues/580
-                          storeConfigSeedData.supplierModels = [];
+                          storeConfigSeedData.storeModels = [];
                         }
 
-                        // explicitly setup the foreignKey for related models
-                        _.each(storeConfigSeedData.supplierModels, function(supplierModelSeedData){
-                          supplierModelSeedData.userModelToStoreModelId = retailUser.id;
-                          supplierModelSeedData.storeConfigModelToSupplierModelId = storeConfigModelInstance.objectId;
+                        debug('('+ (++commentsIndex) +')', 'explicitly attach the foreignKey for related models');
+                        _.each(storeConfigSeedData.storeModels, function(storeModelSeedData){
+                          //storeModelSeedData.userModelToStoreModelId = retailUser.id; // gets taken care of later, when manager is created
+                          storeModelSeedData.storeConfigModelToStoreModelId = storeConfigModelInstance.objectId;
                         });
 
-                        // seed each SUPPLIER in a given store-config, one-by-one
+                        debug('('+ (++commentsIndex) +')', 'seed each STORE in a given store-config, one-by-one');
                         return Promise.map(
-                          storeConfigSeedData.supplierModels, // can't handle undefined
-                          function (supplierSeedData) {
-                            return SupplierModel.findOrCreate(
-                              {where:{apiId:supplierSeedData.apiId}}, // find
-                              supplierSeedData // create
-                            )
-                              .spread(function(supplierModelInstance, created) {
-                                (created) ? debug('('+ (++commentsIndex) +') ' + 'created', 'SupplierModel', supplierModelInstance)
-                                          : debug('('+ (++commentsIndex) +') ' + 'found', 'SupplierModel', supplierModelInstance);
-                                return Promise.resolve();
-                              });
+                          storeConfigSeedData.storeModels,
+                          function (storeSeedData) {
+                            return Promise.resolve()
+                              .then(function(){
+                                if (storeSeedData.managerAccount) {
+                                  return setupUser({
+                                    seedWithRole: 'manager',
+                                    realm: 'portal',
+                                    username: storeSeedData.managerAccount.email,
+                                    email: storeSeedData.managerAccount.email,
+                                    password: storeSeedData.managerAccount.password
+                                  })
+                                    .tap(function (userInstance) {
+                                      debug('(' + (++commentsIndex) + ')', 'add store manager as a team member for', storeSeedData.name);
+                                      return TeamModel.findOrCreate(
+                                        {where: {ownerId: storeConfigModelInstance.userModelToStoreConfigModelId, memberId: userInstance.id}}, // find
+                                        {ownerId: storeConfigModelInstance.userModelToStoreConfigModelId, memberId: userInstance.id} // create
+                                      )
+                                        .spread(function (teamModel, created) {
+                                          (created) ? debug('(' + (++commentsIndex) + ') ' + 'created', 'TeamModel', teamModel)
+                                            : debug('(' + (++commentsIndex) + ') ' + 'found', 'TeamModel', teamModel);
+
+                                          debug('(' + (++commentsIndex) + ')',
+                                            'Let\'s test a team member\'s access to StoreConfigModel',
+                                              'GET /api/StoreConfigModels/' + storeConfigModelInstance.objectId);
+                                          return userLogin({
+                                            realm: 'portal',
+                                            username: storeSeedData.managerAccount.email,
+                                            password: storeSeedData.managerAccount.password
+                                          })
+                                            .then(function (teamMemberAccessToken) {
+                                              return json('get', '/api/StoreConfigModels/' + storeConfigModelInstance.objectId)
+                                                //return json('get', '/api/StoreConfigModels/1')
+                                                .set('Authorization', teamMemberAccessToken.id)
+                                                .then(function (res) {
+                                                  debug('(' + (++commentsIndex) + ')',
+                                                    'TEST', 'found', 'StoreConfigModel',
+                                                    {objectId: res.body.objectId, name: res.body.name}
+                                                  );
+                                                  return Promise.resolve();
+                                                });
+                                            });
+                                        });
+                                    })
+                                    .then(function (userInstance) {
+                                      debug('(' + (++commentsIndex) + ') ',
+                                          'set ' + storeSeedData.managerAccount.email +
+                                          ' as the owner of ' + storeSeedData.name);
+                                      storeSeedData.userModelToStoreModelId = userInstance.id;
+                                      return Promise.resolve();
+                                    });
+                                }
+                                else {
+                                  storeSeedData.userModelToStoreModelId = retailUser.id;
+                                  return Promise.resolve();
+                                }
+                              }) // set up the manager's account
+                              .then(function(){
+                                debug('('+ (++commentsIndex) +') ', 'seed the store: '+ storeSeedData.name);
+                                return StoreModel.findOrCreate(
+                                  {where:{name:storeSeedData.name}}, // find
+                                  storeSeedData // create
+                                )
+                                  .spread(function(storeModelInstance, created) {
+                                    (created) ? debug('('+ (++commentsIndex) +')', 'created', 'StoreModel', storeModelInstance)
+                                              : debug('('+ (++commentsIndex) +')', 'found', 'StoreModel', storeModelInstance);
+
+                                    return Promise.resolve();
+                                  });
+                              }); // seeded the store
                           },
                           {concurrency: 1}
-                        );
-                      })
-                      .then(function () {
-                        debug('finished seeding all SUPPLIERS for', storeConfigModelInstance.name);
-                        return Promise.resolve();
+                        )
+                          .then(function () {
+                            debug('finished seeding all STORES for', storeConfigModelInstance.name);
+
+                            if (!storeConfigSeedData.supplierModels) {
+                              // filed: https://github.com/petkaantonov/bluebird/issues/580
+                              storeConfigSeedData.supplierModels = [];
+                            }
+
+                            // explicitly setup the foreignKey for related models
+                            _.each(storeConfigSeedData.supplierModels, function(supplierModelSeedData){
+                              supplierModelSeedData.userModelToStoreModelId = retailUser.id;
+                              supplierModelSeedData.storeConfigModelToSupplierModelId = storeConfigModelInstance.objectId;
+                            });
+
+                            // seed each SUPPLIER in a given store-config, one-by-one
+                            return Promise.map(
+                              storeConfigSeedData.supplierModels, // can't handle undefined
+                              function (supplierSeedData) {
+                                return SupplierModel.findOrCreate(
+                                  {where:{apiId:supplierSeedData.apiId}}, // find
+                                  supplierSeedData // create
+                                )
+                                  .spread(function(supplierModelInstance, created) {
+                                    (created) ? debug('('+ (++commentsIndex) +') ' + 'created', 'SupplierModel', supplierModelInstance)
+                                              : debug('('+ (++commentsIndex) +') ' + 'found', 'SupplierModel', supplierModelInstance);
+                                    return Promise.resolve();
+                                  });
+                              },
+                              {concurrency: 1}
+                            );
+                          })
+                          .then(function () {
+                            debug('finished seeding all SUPPLIERS for', storeConfigModelInstance.name);
+                            return Promise.resolve();
+                          });
                       });
                   });
-                  // TODO: catch block?
               },
               {concurrency: 1}
             )
