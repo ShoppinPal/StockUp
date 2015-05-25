@@ -33,27 +33,27 @@ angular.module('ShoppinPalApp', [
     '$stateProvider', '$urlRouterProvider', 'LoopBackResourceProvider', 'baseUrl', 'loopbackApiRoot',
     function ($stateProvider, $urlRouterProvider, LoopBackResourceProvider, baseUrl, loopbackApiRoot) {
       $stateProvider
+        .state('login', {
+          url: '/login',
+          templateUrl: 'views/login.html',
+          controller: 'LoginCtrl',
+          authenticate: false
+        })
+        .state('logout', {
+          url: '/logout',
+          controller: 'LogoutCtrl'
+        })
         .state('mystores', {
           url: '/mystores',
           templateUrl: '../views/mystores.html',
           controller: 'MyStoresCtrl',
           authenticate: true
         })
-        .state('logout', {
-          url: '/logout',
-          controller: 'LogoutCtrl'
-        })
         .state('onboarding', {
           url: '/onboarding/:storeConfigId/:pos',
           templateUrl: '../views/onboarding.html',
           controller: 'OnboardingCtrl',
           authenticate: true
-        })
-        .state('login', {
-          url: '/login',
-          templateUrl: 'views/login.html',
-          controller: 'LoginCtrl',
-          authenticate: false
         })
         .state('store-report-list', {
           url: '/store-report-list',
