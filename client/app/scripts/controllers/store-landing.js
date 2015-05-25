@@ -9,9 +9,26 @@
  */
 angular.module('ShoppinPalApp')
   .controller('StoreLandingCtrl', ['$scope', 'loginService','$anchorScroll','$location',
-    function($scope, loginService, $anchorScroll, $location) {
+     '$state', 'UserModel', 'LoopBackAuth', 'StoreModel', 'ReportModel',
+    function($scope, loginService, $anchorScroll, $location, $state,
+              UserModel, LoopBackAuth, StoreModel, ReportModel) {
 
       $scope.sortedOrder = [];
+      $scope.reportLists = [];
+
+     /** @method gotoStoreManagerReport
+       * this will goto store-manager-report page
+       */
+      // $scope.gotoStoreManagerReport = function(storeId){
+      //    $state.go('store-report-manager({reportId:'+storeId+'})');
+      //  };
+
+     /** @method editOrder
+       * This will edit the order name
+       */
+      $scope.editOrder = function(index) {
+        $scope.selectedRowIndex = index;
+      }; 
      
      /** @method dismissEdit
        * This method will close the editable mode in store-report
@@ -62,16 +79,13 @@ angular.module('ShoppinPalApp')
         $scope.storesReport = $scope.sortedOrder;
       };
 
-
-      /** @method importExport
-       * @param index
-       * on left swipe of store landing page enable export, import for warehouse
+     /** transition to create manual order
        */
-      $scope.importExport = function(index) {
-        $scope.selectedRowIndex = index;
+      $scope.createManualOrder = function(){
+        $state.go('create-manual-order');
       };
 
-      /** @method gotoDepartment
+     /** @method gotoDepartment
        * @param value
        * This method
        */
@@ -80,19 +94,15 @@ angular.module('ShoppinPalApp')
         $location.hash(jumpToHash);
         $anchorScroll();
       };
-
       /** @method viewContentLoaded
        * This method will load the storesReport from api on view load
        */
       $scope.$on('$viewContentLoaded', function() {
-        //loginService.getSelectStore()
-        loginService.getSelectStoreStatus()
-          .then(function(response) {
-            $scope.storesReport = response.data.storesReport;
-            $scope.storereportlength = $scope.storesReport.length;
-            $scope.storesReportBackup = $scope.storesReport;
-            $scope.storesReportBackupLength = $scope.storereportlength;
-          });
+       UserModel.reportModels({id: LoopBackAuth.currentUserId})
+        .$promise.then(function(response){
+          console.log(response);
+          $scope.reportLists = response;
+        });
       });
 
     }

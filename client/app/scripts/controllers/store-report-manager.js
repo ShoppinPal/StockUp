@@ -10,9 +10,9 @@ angular.module('ShoppinPalApp')
   .controller('StoreManagerCtrl',
   [
     '$scope', '$anchorScroll', '$location', 'loginService', '$stateParams',
-    'StockOrderLineitemModel','$filter', 'usSpinnerService',
+    'StockOrderLineitemModel','$filter', 'usSpinnerService','$state',
     function ($scope, $anchorScroll, $location, loginService, $stateParams, StockOrderLineitemModel,
-     $filter,usSpinnerService)
+     $filter,usSpinnerService,$state)
     {
 
       $anchorScroll.yOffset = 50;
@@ -127,7 +127,7 @@ angular.module('ShoppinPalApp')
       $scope.submitToWarehouse = function() {
         $scope.submitToWarehouseButton = 'Submit';
         if(!$scope.ReviewSubmitPage){
-          $location.path('/warehouse-report');
+          $state.go('store-landing');
         }
         else{
           $scope.ReviewSubmitPage = false;

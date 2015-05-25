@@ -311,7 +311,7 @@ tr.inner-table-heading {
 .edit-last-column-heading-text{
     color: #ffffff;
     font-size: 16px;
-    padding-left: 117px;
+    padding-left: 45px;
 }
 .comment-input{
     margin: 10px 20px;
@@ -927,6 +927,16 @@ h2{
   padding: 5px 10px;
   text-align: center;
   text-transform: uppercase;
+}
+.store-landing-outlet-input{
+  width: 279px;
+  border: 1px solid #dcdcdc;
+  padding: 0px 15px;
+  margin-top: 3px;
+  text-align: center;
+  height: 34px;
+  font-size: 14px;
+  color: #354052;
 }
 /* store manager landing page end*/
 
