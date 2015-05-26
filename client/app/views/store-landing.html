@@ -8,7 +8,7 @@
                         <div class="logo">Glenstone</div>
                     </div>
                     <div class="col-md-7 col-sm-9 col-xs-12">
-                        <div class="note-sub-text pull-right">You are logged in as a <span><a href="#">Store Manager/WH/SR</a>&nbsp;&nbsp; </span>|&nbsp;&nbsp;<a href="#" class="logout-text">LOGOUT</a></div>
+                        <div class="note-sub-text pull-right">You are logged in as a <span><a href="#">Store Manager/WH/SR</a>&nbsp;&nbsp; </span>|&nbsp;&nbsp;<a ui-sref="logout" class="logout-text">LOGOUT</a></div>
                         <div class="btn-align">
                             <button type="submit" class="btn btn-primary button-large-green" ng-click="createManualOrder()">Create manual order</button>
                         </div>
@@ -20,8 +20,13 @@
     <!-- warehouse landing status button start -->
     <div class="row main-container">
         <div class="row row-centered">
+<<<<<<< HEAD
             <button class="status-btn-fullfil" ng-click="newOrders()">New Orders</button>
             <button class="status-btn-inprocess" ng-click="inProcessOrder()">In process</button>
+=======
+            <button class="status-btn-inprocess" ng-click="inProcessOrder()">In Process</button>
+            <button class="status-btn-fullfil" ng-click="fulfilledOrder()">Fullfil</button>
+>>>>>>> dac9168724ee10c64b64a8ca892f2c893893a428
             <button class="status-btn-receive" ng-click="recievedOrder()">Receive</button>
         </div>
     </div>
@@ -42,10 +47,17 @@
                     <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
                         <thead>
                             <tr>
+<<<<<<< HEAD
                                 <th width="5%">order id</th>
                                 <th width="10%">order Name</th>
                                 <th width="10%">status</th>
                                 <th width="5%">total items</th>
+=======
+                                <th width="10%">order id</th>
+                                <th width="15%">order Name</th>
+                                <th width="15%">status</th>
+                                <th width="10%">total items</th>
+>>>>>>> dac9168724ee10c64b64a8ca892f2c893893a428
                             </tr>
                         </thead>
                     </table>
@@ -55,10 +67,17 @@
                                 <tr class="inner-table-heading" id="jumpto{{storeReport.supplier.name}}" ng-if="storeReport.group_by_CHANGED">
                                     <td colspan="5"><span class="table-heading-font">{{storeReport.supplier.name}}</span></td>
                                 </tr>
+<<<<<<< HEAD
                                 <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'" ng-hide="$index==selectedRowIndex" ng-swipe-left="editOrder($index)" ui-sref="store-report-manager({reportId:storeReport.id})">
                                     <td width="5%">{{storeReport.id}}</td>
                                     <td width="10%">{{storeReport.outlet.name}}</td>
                                     <td width="10%">
+=======
+                                <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'" ng-hide="$index==selectedRowIndex" ng-swipe-left="importExport($index)">
+                                    <td width="10%">{{storereport.sku}}</td>
+                                    <td width="15%">{{storereport.name}}</td>
+                                    <td width="15%">
+>>>>>>> dac9168724ee10c64b64a8ca892f2c893893a428
                                         <div class="status-td">
                                             <span ng-class="{
                                 'status-square-complete': storeReport.state == 'complete',
@@ -67,11 +86,25 @@
                                     </span> {{storeReport.state}}
                                         </div>
                                     </td>
+<<<<<<< HEAD
                                     <td width="5%">{{storeReport.desiredStockLevel}}</td>
+=======
+                                    <td width="10%">{{storereport.desiredStockLevel}}</td>
+                                </tr>
+                                <tr ng-if="comments" ng-hide="$index==selectedRowIndex">
+                                    <td colspan="5">
+                                        <span class="fa fa-comment comment-icon"></span>&nbsp;&nbsp;
+                                        <strong>Comments:</strong><span class="comment-span"> {{comments}}</span>
+                                    </td>
+>>>>>>> dac9168724ee10c64b64a8ca892f2c893893a428
                                 </tr>
                           
                                 <!-- Edit store-report start -->
+<<<<<<< HEAD
                                 <tr ng-show="$index==selectedRowIndex" class="edit-row" ng-mouseleave="dismissEdit()">
+=======
+                                <tr ng-show="$index==selectedRowIndex" class="edit-row" ng-mouseleave="dismissEdit(storeReportRow)">
+>>>>>>> dac9168724ee10c64b64a8ca892f2c893893a428
                                     <td colspan="6">
                                         <div class="col-sm-2">{{storeReport.id}}</div>
                                         <div class="col-sm-3">

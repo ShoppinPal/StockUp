@@ -1,6 +1,12 @@
+'use strict';
+
 global.Promise = require('bluebird');
 var loopback = require('loopback');
 var boot = require('loopback-boot');
+
+var path = require('path');
+var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
+var log = require('debug')('server:'+fileName);
 
 // HINT(s):
 //   Getting the app object:
@@ -16,6 +22,7 @@ app.use(loopback.compress());
 // -- Add your pre-processing middleware here --
 app.use(loopback.context());
 app.use(loopback.token({ params: ['state'] })); //http://apidocs.strongloop.com/loopback/#loopback-token
+// enable user access for remote methods
 app.use(function setCurrentUser(req, res, next) {
   if (!req.accessToken) {
     return next();
@@ -33,6 +40,16 @@ app.use(function setCurrentUser(req, res, next) {
     }
     next();
   });
+});
+// enable audit log
+app.all('/api/*', function auditApiCalls(req, res, next) {
+  if (req.accessToken) {
+    log('url:', req.originalUrl, 'userId:', req.accessToken.id, 'token:', JSON.stringify(req.accessToken,null,0));
+  }
+  else {
+    log('url:', req.originalUrl, 'token:', req.accessToken);
+  }
+  next();
 });
 
 // boot scripts mount components like REST API

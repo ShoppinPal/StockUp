@@ -10,7 +10,7 @@
                     <div class="col-md-7 col-sm-9 col-xs-12">
                         <div class="note-sub-text pull-right">You are logged in as a <span><a href="#">Store Manager/WH/SR</a>&nbsp;&nbsp; </span>|&nbsp;&nbsp;<a ui-sref="logout" class="logout-text">LOGOUT</a></div>
                         <div class="btn-align">
-                            <button ng-click="submitToReceiver()" class="btn btn-primary button-large-green"> {{submit}} </button>
+                            <button ng-click="submitToReceiver()" class="btn btn-primary button-large-green"> shipment fully received </button>
                         </div>
                     </div>
             </header>
@@ -19,24 +19,15 @@
         <!-- Report Manager page content -->
         <div class="row main-container">
             <div class="inner-container">
-                <div class="ipad-search">
-                    <ul>
-                        <li>Jump
-                            <br>To</li>
-                        <li ng-repeat="value in alphabets | unique:'value'">
-                            <a href="" ng-click="gotoDepartment(value)">{{value}}</a>
-                        </li>
-                    </ul>
-                </div>
                 <div class="center-block" id="printSlip">
-                    <div class="ipad-scroll">
+                    <div class="ipad-scroll-store-receiver">
                         <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
                             <thead>
                                 <tr>
                                     <th width="10%">SKU</th>
-                                    <th width="25%">Name</th>
-                                    <th width="5%">Ordered Quantity</th>
+                                    <th width="20%">Name</th>
                                     <th width="5%">Fulfilled Quantity</th>
+                                    <th width="5%">Ordered Quantity</th>
                                 </tr>
                             </thead>
                         </table>
@@ -46,9 +37,9 @@
                                     <tr class="inner-table-heading" id="jumpto{{storeReport.type}}" ng-if="storeReport.group_by_CHANGED">
                                         <td colspan="4"><span class="table-heading-font">{{storeReport.type}}</span></td>
                                     </tr>
-                                    <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'" ng-hide="$index==selectedRowIndex" ng-swipe-left="editWarehouse($index)" ng-swipe-right="moveToBox(storeReport)">
+                                    <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'" ng-hide="$index==selectedRowIndex" ng-swipe-left="editRecievedQty($index)" ng-swipe-right="moveToBox(storeReport)">
                                         <td width="10%">{{storeReport.sku}}</td>
-                                        <td width="25%">{{storeReport.name}}</td>
+                                        <td width="20%">{{storeReport.name}}</td>
                                         <td width="5%">{{storeReport.quantityOnHand}}</td>
                                         <td width="5%">{{storeReport.desiredStockLevel}}</td>
                                     </tr>
@@ -72,7 +63,7 @@
                                                 </div>
                                             </div>
                                             <div class="edit-window">
-                                                <div class="float-left column-text margin-right margin-top">Fullfilled Qty:</div>
+                                                <div class="float-left column-text margin-right margin-top">Recieved Qty:</div>
                                                 <div class="float-left margin-right-10px margin-top">
                                                     <span class="fa fa-minus-circle fa-lg edit-icon" ng-click="decreaseQty(storeReport)"></span>
                                                 </div>
@@ -110,14 +101,10 @@
                             <tr>
                                 <td valign="middle" class="v-align-middle">
                                     <div>
-                                        <div ng-show="openBox" class="main-box" data-placement="left" data-template="views/popup/box.html" bs-popover>
+                                        <div class="main-box" data-placement="left" data-template="views/popup/box.html" bs-popover>
                                             <span class="dropbox-qty">{{boxItems}}</span>
                                             <div><img src="images/img_open_folder.png"></div>
                                             <span class="dropbox-name">Box</span>
-                                        </div>
-                                        <div class="main-box">
-                                            <button class="btn btn-primary add-btn" ng-click="addNewBox()">Add Box
-                                            </button>
                                         </div>
                                         <div class="main-box" ng-repeat="item in closedboxes">
                                             <div class="dropbox-qty">{{item.value}}</div>

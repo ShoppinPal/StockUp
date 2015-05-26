@@ -13,6 +13,7 @@ angular.module('ShoppinPalApp')
     'StockOrderLineitemModel','$filter', 'usSpinnerService','$state', 'ngDialog',
     function ($scope, $anchorScroll, $location, loginService, $stateParams, StockOrderLineitemModel,
      $filter,usSpinnerService,$state,ngDialog)
+
     {
 
       $anchorScroll.yOffset = 50;

@@ -31,6 +31,13 @@ angular.module('ShoppinPalApp')
           $scope.selectedRowIndex = $scope.storereportlength + 1;
         };
 
+      /** @method dismissEdit
+       * This method will close the editable mode in store-report
+       */
+      $scope.dismissEdit = function(/*storeReportRow*/) {
+        $scope.selectedRowIndex = $scope.storereportlength + 1;
+      };
+
       /** @method inProcessOrder
        * show only the inprocess order in UI
        */
@@ -53,6 +60,7 @@ angular.module('ShoppinPalApp')
 
      /** transition to create manual order
        */
+
       $scope.createManualOrder = function(){
         $state.go('create-manual-order');
       };

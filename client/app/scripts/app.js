@@ -34,15 +34,21 @@ angular.module('ShoppinPalApp', [
     '$stateProvider', '$urlRouterProvider', 'LoopBackResourceProvider', 'baseUrl', 'loopbackApiRoot',
     function ($stateProvider, $urlRouterProvider, LoopBackResourceProvider, baseUrl, loopbackApiRoot) {
       $stateProvider
+        .state('login', {
+          url: '/login',
+          templateUrl: 'views/login.html',
+          controller: 'LoginCtrl',
+          authenticate: false
+        })
+        .state('logout', {
+          url: '/logout',
+          controller: 'LogoutCtrl'
+        })
         .state('mystores', {
           url: '/mystores',
           templateUrl: '../views/mystores.html',
           controller: 'MyStoresCtrl',
           authenticate: true
-        })
-        .state('logout', {
-          url: '/logout',
-          controller: 'LogoutCtrl'
         })
         .state('onboarding', {
           url: '/onboarding/:storeConfigId/:pos',
@@ -60,31 +66,37 @@ angular.module('ShoppinPalApp', [
           url: '/store-landing',
           templateUrl: 'views/store-landing.html',
           controller: 'StoreLandingCtrl',
-          authenticate: false
+          authenticate: true
         })
         .state('warehouse-landing', {
           url: '/warehouse-landing',
           templateUrl: 'views/warehouse-landing.html',
           controller: 'WarehouseLandingCtrl',
-          authenticate: false
+          authenticate: true
         })
         .state('create-manual-order', {
           url: '/create-manual-order',
           templateUrl: 'views/create-manual-order.html',
           controller: 'createManualOrderCtrl',
-          authenticate: false
+          authenticate: true
         })
         .state('store-report-manager', {
           url: '/store-report-manager/:reportId',
           templateUrl: 'views/store-report-manager.html',
           controller: 'StoreManagerCtrl',
-          authenticate: false
+          authenticate: true
+        })
+        .state('store-receiver-report', {
+          url: '/store-receiver-report',
+          templateUrl: 'views/store-receiver-report.html',
+          controller: 'StoreReceiverCtrl',
+          authenticate: true
         })
          .state('warehouse-report', {
           url: '/warehouse-report',
           templateUrl: 'views/warehouse-report.html',
           controller: 'WarehouseReportCtrl',
-          authenticate: false
+          authenticate: true
         });
 
       $urlRouterProvider.otherwise('/login');

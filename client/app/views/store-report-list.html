@@ -1,0 +1,53 @@
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12 col-md-12">
+            <!-- Select store header -->
+            <header class="header">
+                <div class="row">
+                    <div class="col-md-5 col-sm-3 col-xs-12">
+                        <div class="logo">Glenstone</div>
+                    </div>
+                    <div class="col-md-7 col-sm-9 col-xs-12">
+                        <div class="log-in-text">You are logged in as a <span><a href="#">Store Manager/WH/SR</a>&nbsp;&nbsp; </span>|&nbsp;&nbsp;<a ui-sref="logout" class="logout-text">LOGOUT</a></div>
+                        <div class="btn-align">
+                            <button type="submit" class="btn btn-primary button-large-blue">CSC</button>
+                            <button type="submit" class="btn btn-primary button-large-green">FFCC</button>
+                        </div>
+                    </div>
+                    <!-- <div class="col-md-3 col-sm-3 col-xs-12 btn-align"><button type="submit" class="btn btn-primary login-btn">Logout</button></div> -->
+                </div>
+            </header>
+            <!-- Report Manager page content -->
+            <div class="main-container">
+                <div class="text-center">
+                    <button ng-click="generateOrder()" class="btn btn-primary button-large-blue">Generate Order</button>
+                </div>
+                <div class="intro-container">
+                    <div class="col-md-6 col-sm-6">
+                        <div class="intro-content">
+                            <div class="intro-column-heading">New Orders</div>
+                            <ul class="list-group" ng-repeat="report in reportList">
+                            <!--<ul class="list-group" ng-repeat="report in reportList track by report.id">-->
+                            <!--<ul class="list-group" ng-repeat="report in reportList | filter: {state:'manager'} track by report.id">-->
+                                <li class="list-group-item" ui-sref="store-report-manager({reportId:report.id})">
+                                    <span class="badge"></span> {{report.id}} - {{report.outlet.name}} - {{report.created | date:'medium'}}
+                                    <!-- TODO: don't show a drilldown icon (">") if states is "empty", use a disabled look? -->
+                                    <!-- TODO: show a drilldown icon (">") if states is set to "manager" -->
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                        <div class="intro-content">
+                            <div class="intro-column-heading">Order In Process</div>
+                            <ul ng-repeat="report in mockReportList">
+                                <li ui-sref="store-report-manager({})">{{report}}</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
