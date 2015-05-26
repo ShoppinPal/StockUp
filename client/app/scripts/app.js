@@ -56,12 +56,6 @@ angular.module('ShoppinPalApp', [
           controller: 'OnboardingCtrl',
           authenticate: true
         })
-        .state('login', {
-          url: '/login',
-          templateUrl: 'views/login.html',
-          controller: 'LoginCtrl',
-          authenticate: false
-        })
         .state('store-landing', {
           url: '/store-landing',
           templateUrl: 'views/store-landing.html',
