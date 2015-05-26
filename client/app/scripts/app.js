@@ -26,6 +26,7 @@ angular.module('ShoppinPalApp', [
     ,'mgcrea.ngStrap'
     ,'angular-virtual-keyboard'
     ,'angularSpinner'
+    ,'ngDialog'
    // ,'angular-useragent-parser'
   ])
 
@@ -53,12 +54,6 @@ angular.module('ShoppinPalApp', [
           url: '/onboarding/:storeConfigId/:pos',
           templateUrl: '../views/onboarding.html',
           controller: 'OnboardingCtrl',
-          authenticate: true
-        })
-        .state('store-report-list', {
-          url: '/store-report-list',
-          templateUrl: 'views/store-report-list.html',
-          controller: 'StoreReportListCtrl',
           authenticate: true
         })
         .state('store-landing', {

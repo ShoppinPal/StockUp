@@ -8,10 +8,28 @@
  * Controller of the ShoppinPalApp
  */
 angular.module('ShoppinPalApp')
-  .controller('StoreLandingCtrl', ['$scope', 'loginService','$anchorScroll','$location',
-    function($scope, loginService, $anchorScroll, $location) {
+  .controller('StoreLandingCtrl', ['$scope','$anchorScroll','$location',
+     '$state', 'UserModel', 'LoopBackAuth', 'StoreModel', 'ReportModel','$filter',
+    function($scope, $anchorScroll, $location, $state,
+              UserModel, LoopBackAuth, StoreModel, ReportModel,$filter) {
 
       $scope.sortedOrder = [];
+      $scope.reportLists = [];
+      $scope.backUpReportList = [];
+    
+     /** @method editOrder
+       * This will edit the order name
+       */
+      $scope.editOrder = function(index) {
+        $scope.selectedRowIndex = index;
+      };
+     
+     /** @method dismissEdit
+       * This method will close the editable mode in store-report
+       */
+      $scope.dismissEdit = function() {
+          $scope.selectedRowIndex = $scope.storereportlength + 1;
+        };
 
       /** @method dismissEdit
        * This method will close the editable mode in store-report
@@ -24,54 +42,30 @@ angular.module('ShoppinPalApp')
        * show only the inprocess order in UI
        */
       $scope.inProcessOrder = function() {
-        $scope.sortedOrder = [];
-        for (var i = 0; i < $scope.storesReportBackupLength - 1; i++) {
-          if ($scope.storesReportBackup[i].status === 'inProgress') {
-            $scope.sortedOrder.push($scope.storesReportBackup[i]);
-          }
-        }
-        $scope.storesReport = [];
-        $scope.storesReport = $scope.sortedOrder;
+        $scope.reportLists = $filter('filter')($scope.backUpReportList, {state: 'empty'} || {state: 'manager'});
       };
 
-      /** @method fulfilledOrder
-       * show all fullfilled order
+      /** @method newOrders
+       * show all newOrders
        */
-      $scope.fulfilledOrder = function() {
-        $scope.sortedOrder = [];
-        for (var i = 0; i < $scope.storesReportBackupLength - 1; i++) {
-          if ($scope.storesReportBackup[i].status === 'pending') {
-            $scope.sortedOrder.push($scope.storesReportBackup[i]);
-          }
-        }
-        $scope.storesReport = [];
-        $scope.storesReport = $scope.sortedOrder;
+      $scope.newOrders = function() {
       };
 
       /** @method recievedOrder
        * show all recieved order
        */
       $scope.recievedOrder = function() {
-        $scope.sortedOrder = [];
-        for (var i = 0; i < $scope.storesReportBackupLength - 1; i++) {
-          if ($scope.storesReportBackup[i].status === 'complete') {
-            $scope.sortedOrder.push($scope.storesReportBackup[i]);
-          }
-        }
-        $scope.storesReport = [];
-        $scope.storesReport = $scope.sortedOrder;
+        $scope.reportLists = $filter('filter')($scope.backUpReportList, {state: 'receive'});
       };
 
-
-      /** @method importExport
-       * @param index
-       * on left swipe of store landing page enable export, import for warehouse
+     /** transition to create manual order
        */
-      $scope.importExport = function(index) {
-        $scope.selectedRowIndex = index;
+
+      $scope.createManualOrder = function(){
+        $state.go('create-manual-order');
       };
 
-      /** @method gotoDepartment
+     /** @method gotoDepartment
        * @param value
        * This method
        */
@@ -80,19 +74,15 @@ angular.module('ShoppinPalApp')
         $location.hash(jumpToHash);
         $anchorScroll();
       };
-
       /** @method viewContentLoaded
        * This method will load the storesReport from api on view load
        */
       $scope.$on('$viewContentLoaded', function() {
-        //loginService.getSelectStore()
-        loginService.getSelectStoreStatus()
-          .then(function(response) {
-            $scope.storesReport = response.data.storesReport;
-            $scope.storereportlength = $scope.storesReport.length;
-            $scope.storesReportBackup = $scope.storesReport;
-            $scope.storesReportBackupLength = $scope.storereportlength;
-          });
+        UserModel.reportModels({id: LoopBackAuth.currentUserId})
+        .$promise.then(function(response){
+          $scope.reportLists = response;
+          $scope.backUpReportList = response;
+        });
       });
 
     }
