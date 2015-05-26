@@ -26,6 +26,7 @@ angular.module('ShoppinPalApp', [
     ,'mgcrea.ngStrap'
     ,'angular-virtual-keyboard'
     ,'angularSpinner'
+    ,'ngDialog'
    // ,'angular-useragent-parser'
   ])
 

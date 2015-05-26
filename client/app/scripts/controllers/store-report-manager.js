@@ -10,9 +10,9 @@ angular.module('ShoppinPalApp')
   .controller('StoreManagerCtrl',
   [
     '$scope', '$anchorScroll', '$location', 'loginService', '$stateParams',
-    'StockOrderLineitemModel','$filter', 'usSpinnerService','$state',
+    'StockOrderLineitemModel','$filter', 'usSpinnerService','$state', 'ngDialog',
     function ($scope, $anchorScroll, $location, loginService, $stateParams, StockOrderLineitemModel,
-     $filter,usSpinnerService,$state)
+     $filter,usSpinnerService,$state,ngDialog)
     {
 
       $anchorScroll.yOffset = 50;
@@ -127,14 +127,18 @@ angular.module('ShoppinPalApp')
       $scope.submitToWarehouse = function() {
         $scope.submitToWarehouseButton = 'Submit';
         if(!$scope.ReviewSubmitPage){
-          $state.go('store-landing');
+          ngDialog.open({ template: 'views/popup/submitToStorePopUp.html',
+            className: 'ngdialog-theme-plain',
+            scope: $scope
+           });
+          
         }
         else{
           $scope.ReviewSubmitPage = false;
         }
       };
 
-      /** @method decreaseQty
+     /** @method decreaseQty
        * @param storereport
        * This method decreases the ordered quantity ,when user tap on '-'' sign
        */
@@ -145,7 +149,7 @@ angular.module('ShoppinPalApp')
         }
       };
 
-      /** @method increaseQty
+     /** @method increaseQty
        * @param storereport
        * This method increase the ordered quantity ,when user tap on '+' sign
        */

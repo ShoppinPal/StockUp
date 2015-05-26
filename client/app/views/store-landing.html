@@ -20,8 +20,8 @@
     <!-- warehouse landing status button start -->
     <div class="row main-container">
         <div class="row row-centered">
-            <button class="status-btn-inprocess" ng-click="inProcessOrder()">New Orders</button>
-            <button class="status-btn-fullfil" ng-click="fulfilledOrder()">In process</button>
+            <button class="status-btn-fullfil" ng-click="newOrders()">New Orders</button>
+            <button class="status-btn-inprocess" ng-click="inProcessOrder()">In process</button>
             <button class="status-btn-receive" ng-click="recievedOrder()">Receive</button>
         </div>
     </div>
@@ -43,35 +43,35 @@
                         <thead>
                             <tr>
                                 <th width="5%">order id</th>
-                                <th width="15%">order Name</th>
-                                <th width="15%">status</th>
+                                <th width="10%">order Name</th>
+                                <th width="10%">status</th>
                                 <th width="5%">total items</th>
                             </tr>
                         </thead>
                     </table>
                     <div class="scrollable-table">
                         <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
-                            <tbody ng-repeat="storeReport in reportLists | orderBy:'supplier.name'| groupBy: 'supplier.name'">
+                            <tbody ng-repeat="storeReport in reportLists| orderBy:'supplier.name'| groupBy: 'supplier.name'">
                                 <tr class="inner-table-heading" id="jumpto{{storeReport.supplier.name}}" ng-if="storeReport.group_by_CHANGED">
                                     <td colspan="5"><span class="table-heading-font">{{storeReport.supplier.name}}</span></td>
                                 </tr>
                                 <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'" ng-hide="$index==selectedRowIndex" ng-swipe-left="editOrder($index)" ui-sref="store-report-manager({reportId:storeReport.id})">
                                     <td width="5%">{{storeReport.id}}</td>
-                                    <td width="15%">{{storeReport.outlet.name}}</td>
-                                    <td width="15%">
+                                    <td width="10%">{{storeReport.outlet.name}}</td>
+                                    <td width="10%">
                                         <div class="status-td">
                                             <span ng-class="{
-                                'status-square-complete': storeReport.status == 'complete',
-                                'status-square-inprocess': storeReport.status == 'inProgress',
-                                'status-square-fulfilled': storeReport.status == 'pending'}">
-                                    </span> {{storeReport.status}}
+                                'status-square-complete': storeReport.state == 'complete',
+                                'status-square-inprocess': storeReport.state == 'empty' || 'manager',
+                                'status-square-fulfilled': storeReport.state == 'pending'}">
+                                    </span> {{storeReport.state}}
                                         </div>
                                     </td>
                                     <td width="5%">{{storeReport.desiredStockLevel}}</td>
                                 </tr>
                           
                                 <!-- Edit store-report start -->
-                                <tr ng-show="$index==selectedRowIndex" class="edit-row" ng-mouseleave="dismissEdit(storeReportRow)">
+                                <tr ng-show="$index==selectedRowIndex" class="edit-row" ng-mouseleave="dismissEdit()">
                                     <td colspan="6">
                                         <div class="col-sm-2">{{storeReport.id}}</div>
                                         <div class="col-sm-3">
