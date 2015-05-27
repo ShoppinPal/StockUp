@@ -23,18 +23,11 @@ angular.module('ShoppinPalApp')
       $scope.editOrder = function(index) {
         $scope.selectedRowIndex = index;
       };
-     
-     /** @method dismissEdit
-       * This method will close the editable mode in store-report
-       */
-      $scope.dismissEdit = function() {
-          $scope.selectedRowIndex = $scope.storereportlength + 1;
-        };
 
       /** @method dismissEdit
        * This method will close the editable mode in store-report
        */
-      $scope.dismissEdit = function(/*storeReportRow*/) {
+      $scope.dismissEdit = function() {
         $scope.selectedRowIndex = $scope.storereportlength + 1;
       };
 
