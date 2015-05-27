@@ -7,32 +7,58 @@
                     <div class="panel-heading text-center">
                         Sign In
                     </div>
-
                     <form role="form" dismiss-default="">
                         <fieldset>
-                            <div class="form-group">
-                                <div class="input-group">
-                                      <span class="input-group-addon">
-                                        <i class="fa fa-user"></i>
-                                      </span>
-                                    <input id="userName" name="loginname" type="text" placeholder="Username" class="form-control"
-                                           ng-blur="true" ng-model="userName"
-                                           ui-keypress="{13:'keypressCallback($event)'}"
-                                           ng-virtual-keyboard="{relative: false, vki_attached:true}">
-                                </div>
+                        <!-- Device detector start -->
+                        <!-- login for windows start-->
+                                <div device-detector id="os-windows" ng-if='deviceOS === "windows"'>
+                                  <div class="form-group">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">
+                                            <i class="fa fa-user"></i>
+                                          </span>
+                                        <input id="userNamewin" name="loginname" type="text" placeholder="Username" class="form-control" 
+                                        ng-model="userNameWindow">
+                                    </div>
+                                  </div>
+                                  <div class="form-group">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">
+                                            <i class="fa fa-lock"></i>
+                                          </span>
+                                        <input id="pwdwin" name="password" type="password" placeholder="Password" class="form-control" 
+                                        ng-model="passwordWindow">
+                                    </div> 
+                                 </div>
+                                  <div class="text-center">
+                                <button class="btn btn-primary login-btn" ng-click="login(userNameWindow,passwordWindow)">Login</button>
                             </div>
-                            <div class="form-group">
-                                <div class="input-group">
-                                      <span class="input-group-addon">
-                                        <i class="fa fa-lock"></i>
-                                      </span>
-                                    <input id="pwd" name="password" type="password" placeholder="Password" class="form-control"
-                                           ng-blur="true" ng-model="password"
-                                           dismiss-keyboard
-                                           ng-virtual-keyboard="{relative: false, vki_attached:true}">
-                                </div>
+                             </div>   
+                        <!-- login for windows end-->
+                        <!-- login for ios start-->
+                             <div device-detector id="os-ios" ng-if='deviceOS === "ios"'>
+                                     <div class="form-group">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <i class="fa fa-user"></i>
+                                              </span>
+                                            <input id="userNameios" name="loginname" type="text" placeholder="Username" class="form-control" ng-readonly="true" ng-model="userNameIos" ng-keydown="appendText($event,'userName')" ng-virtual-keyboard="{relative: false, vki_attached:true}">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <i class="fa fa-lock"></i>
+                                              </span>
+                                            <input id="pwdios" name="password" type="password" placeholder="Password" class="form-control" ng-readonly="true" ng-model="passwordIos" ng-keydown="appendText($event,'password')" ng-virtual-keyboard="{relative: false, vki_attached:true}">
+                                        </div> 
+                                    </div>
+                                     <div class="text-center">
+                                <button class="btn btn-primary login-btn" ng-click="login(userNameIos,passwordIos)">Login</button>
                             </div>
-                            <div class="text-center"><button class="btn btn-primary login-btn" ng-click="login()">Login</button></div>
+                            </div>
+                          <!-- login for ios end-->  
+                    <!-- Device detector end -->
                         </fieldset>
                     </form>
                 </div>

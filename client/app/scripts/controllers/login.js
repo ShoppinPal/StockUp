@@ -14,21 +14,44 @@
 angular.module('ShoppinPalApp')
   .controller('LoginCtrl',[
     '$scope', '$sessionStorage', '$state', /* angular's modules/services/factories etc. */
-    'UserModel', /* loopback models */
+    'UserModel', 'deviceDetector', /* loopback models */
     function ($scope, $sessionStorage, $state,
-              UserModel)
+              UserModel, deviceDetector)
     {
 
-      $scope.userName ='';
-      $scope.password ='';
+      $scope.userNameWindow = '';
+      $scope.passwordWindow = '';
+
+      $scope.userNameIos = '';
+      $scope.passwordIos = '';
+      $scope.deviceDetector = deviceDetector;
+
+      // $scope.appendText = function(event,id){
+      //    // var target = event.target;
+      //    //  target.blur();
+      //    //  $scope.apply();
+      //    //  angular.element(id).blur();
+      //   // event.target.blur();
+      //    event.preventDefault();
+      //    // console.log(event.target);
+      //   // var value = String.fromCharCode(event.keyCode);
+      //   //  if(id == 'userName'){
+      //   //      $scope.userName += value;
+      //   //  }
+      //   //  if(id == 'password'){
+      //   //     $scope.password += value;
+      //   //  }
+      //    // console.log("keypress",value);
+      //    //  console.log("id",id);
+      // };
       
       // validate login and transition to select store page
-      $scope.login = function login(){
-        // Reference: http://docs.strongloop.com/display/public/LB/Logging+in+users
+      $scope.login = function login(username, password){
+
         UserModel.login({
           realm: 'portal',
-          username: $scope.userName,
-          password: $scope.password
+          username: username,
+          password: password
         })
           .$promise.then(function(accessToken){
             console.log('accessToken', accessToken);
@@ -45,6 +68,10 @@ angular.module('ShoppinPalApp')
             }
           });
       };
+
+      $scope.$on('$viewContentLoaded', function() {
+        $scope.deviceOS = $scope.deviceDetector.os;
+      });
 
     }
   ]);
