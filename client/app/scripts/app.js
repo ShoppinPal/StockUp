@@ -27,6 +27,7 @@ angular.module('ShoppinPalApp', [
     ,'angular-virtual-keyboard'
     ,'angularSpinner'
     ,'ngDialog'
+    ,'ng.deviceDetector'
    // ,'angular-useragent-parser'
   ])
 

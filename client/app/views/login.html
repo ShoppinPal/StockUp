@@ -5,7 +5,7 @@
             <div class="panel panel-default center">
                 <div class="panel-body">
                     <div class="panel-heading text-center">
-                        Sign In
+                        Sign In <div device-detector id="os-windows"></div>
                     </div>
 
                     <form role="form" dismiss-default="">
@@ -15,6 +15,7 @@
                                       <span class="input-group-addon">
                                         <i class="fa fa-user"></i>
                                       </span>
+
                                     <input id="userName" name="loginname" type="text" placeholder="Username" class="form-control"
                                            ng-blur="true" ng-model="userName"
                                            ui-keypress="{13:'keypressCallback($event)'}"
