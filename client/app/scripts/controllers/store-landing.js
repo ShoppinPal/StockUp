@@ -9,15 +9,15 @@
  */
 angular.module('ShoppinPalApp')
   .controller('StoreLandingCtrl', ['$scope','$anchorScroll','$location',
-     '$state', 'UserModel', 'LoopBackAuth', 'StoreModel', 'ReportModel','$filter',
+    '$state', 'UserModel', 'LoopBackAuth', 'StoreModel', 'ReportModel','$filter',
     function($scope, $anchorScroll, $location, $state,
-              UserModel, LoopBackAuth, StoreModel, ReportModel,$filter) {
+             UserModel, LoopBackAuth, StoreModel, ReportModel,$filter) {
 
       $scope.sortedOrder = [];
       $scope.reportLists = [];
       $scope.backUpReportList = [];
-    
-     /** @method editOrder
+
+      /** @method editOrder
        * This will edit the order name
        */
       $scope.editOrder = function(index) {
@@ -51,14 +51,14 @@ angular.module('ShoppinPalApp')
         $scope.reportLists = $filter('filter')($scope.backUpReportList, {state: 'receive'});
       };
 
-     /** transition to create manual order
+      /** transition to create manual order
        */
 
       $scope.createManualOrder = function(){
         $state.go('create-manual-order');
       };
 
-     /** @method gotoDepartment
+      /** @method gotoDepartment
        * @param value
        * This method
        */
@@ -72,10 +72,10 @@ angular.module('ShoppinPalApp')
        */
       $scope.$on('$viewContentLoaded', function() {
         UserModel.reportModels({id: LoopBackAuth.currentUserId})
-        .$promise.then(function(response){
-          $scope.reportLists = response;
-          $scope.backUpReportList = response;
-        });
+          .$promise.then(function(response){
+            $scope.reportLists = response;
+            $scope.backUpReportList = response;
+          });
       });
 
     }
