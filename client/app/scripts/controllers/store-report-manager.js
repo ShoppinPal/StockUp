@@ -28,7 +28,9 @@ angular.module('ShoppinPalApp')
        * This method will close the editable mode in store-report
        */
       $scope.dismissEdit = function(storeReportRow) {
-        $scope.selectedRowIndex = $scope.storereportlength + 1;
+        $scope.selectedRowIndex = $scope.storereportlength + 1; // dismiss the edit view in UI
+
+        // update the backend
         console.log({
           desiredStockLevel: storeReportRow.desiredStockLevel,
           orderQuantity: storeReportRow.orderQuantity,
@@ -72,7 +74,7 @@ angular.module('ShoppinPalApp')
         return StockOrderLineitemModel.prototype$updateAttributes(
           { id: storeReportRow.id },
           {
-            state: 'complete',
+            state: 'complete'
           }
         )
           .$promise.then(function(response){
