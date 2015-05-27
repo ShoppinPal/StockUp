@@ -3,8 +3,8 @@
   "base": "PersistedModel",
   "idInjection": true,
   "properties": {
-    "metadata": {
-      "type": "date",
+    "name": {
+      "type": "string",
       "required": false
     },
     "created": {

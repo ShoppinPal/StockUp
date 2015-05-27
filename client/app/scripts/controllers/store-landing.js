@@ -28,8 +28,21 @@ angular.module('ShoppinPalApp')
       /** @method dismissEdit
        * This method will close the editable mode in store-report
        */
-      $scope.dismissEdit = function() {
-        $scope.selectedRowIndex = $scope.storereportlength + 1;
+      $scope.dismissEdit = function(storeReport) {
+        $scope.selectedRowIndex = $scope.storereportlength + 1; // dismiss the edit view in UI
+
+        // update the backend
+        console.log(storeReport);
+        return ReportModel.prototype$updateAttributes(
+          { id: storeReport.id },
+          {
+            name: storeReport.name
+          }
+        )
+          .$promise.then(function(response){
+            console.log('hopefully finished updating the row');
+            console.log(response);
+          });
       };
 
       /** @method inProcessOrder
