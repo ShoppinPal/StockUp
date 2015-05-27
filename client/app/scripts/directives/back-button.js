@@ -2,23 +2,23 @@
 
 /**
  * @ngdoc directive
- * @name ShoppinPalApp.directive:dismissKeyboard
+ * @name ShoppinPalApp.directive:backButton
  * @description
- * # dismissKeyboard
+ * # backButton
  * Directive of the ShoppinPalApp
  */
 angular.module('ShoppinPalApp')
   .directive('backButton', function($window) {
-  	return {
+    return {
         restrict: 'E',
         template: '<button class="btn btn-primary back-button">{{back}}</button>',
         scope: {
             back: '@back'
-        },
-        link: function(scope, element, attrs) {
-        	element.on('click', function() {
-		         $window.history.back();
-		     });
-        }
-    };
+          },
+          link: function(scope, element) {
+            element.on('click', function() {
+              $window.history.back();
+            });
+          }
+        };
   });

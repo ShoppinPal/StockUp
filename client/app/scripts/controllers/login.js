@@ -69,9 +69,9 @@ angular.module('ShoppinPalApp')
           });
       };
 
-       $scope.$on('$viewContentLoaded', function() {
+      $scope.$on('$viewContentLoaded', function() {
         $scope.deviceOS = $scope.deviceDetector.os;
-       });
+      });
 
     }
   ]);
