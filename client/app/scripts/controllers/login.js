@@ -70,7 +70,7 @@ angular.module('ShoppinPalApp')
       };
 
       $scope.$on('$viewContentLoaded', function() {
-        $scope.deviceOS = $scope.deviceDetector.os;
+        $scope.device = $scope.deviceDetector.device;
       });
 
     }

@@ -11,7 +11,7 @@
                         <fieldset>
                         <!-- Device detector start -->
                         <!-- login for windows start-->
-                                <div device-detector id="os-windows" ng-if='deviceOS === "windows"'>
+                                <div device-detector id="os-windows" ng-if='device !== "ipad"'>
                                   <div class="form-group">
                                     <div class="input-group">
                                         <span class="input-group-addon">
@@ -36,7 +36,7 @@
                              </div>   
                         <!-- login for windows end-->
                         <!-- login for ios start-->
-                             <div device-detector id="os-ios" ng-if='deviceOS === "ios"'>
+                             <div device-detector id="os-ios" ng-if='device === "ipad"'>
                                      <div class="form-group">
                                         <div class="input-group">
                                             <span class="input-group-addon">
