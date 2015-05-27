@@ -9,11 +9,12 @@
 angular.module('ShoppinPalApp')
   .controller('StoreManagerCtrl',
   [
-    '$scope', '$anchorScroll', '$location', 'loginService', '$stateParams',
-    'StockOrderLineitemModel','$filter', 'usSpinnerService','$state', 'ngDialog',
-    function ($scope, $anchorScroll, $location, loginService, $stateParams, StockOrderLineitemModel,
-     $filter,usSpinnerService,$state,ngDialog)
-
+    '$scope', '$anchorScroll', '$location', '$state', '$stateParams', '$filter', /* angular's modules/services/factories etc. */
+    'loginService', 'StockOrderLineitemModel', /* shoppinpal's custom modules/services/factories etc. */
+    'usSpinnerService', 'ngDialog', /* 3rd party modules/services/factories etc. */
+    function ($scope, $anchorScroll, $location, $state, $stateParams, $filter,
+              loginService, StockOrderLineitemModel,
+              usSpinnerService, ngDialog)
     {
 
       $anchorScroll.yOffset = 50;

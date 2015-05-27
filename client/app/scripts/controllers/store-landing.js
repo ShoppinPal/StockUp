@@ -8,11 +8,12 @@
  * Controller of the ShoppinPalApp
  */
 angular.module('ShoppinPalApp')
-  .controller('StoreLandingCtrl', ['$scope','$anchorScroll','$location',
-    '$state', 'UserModel', 'LoopBackAuth', 'StoreModel', 'ReportModel','$filter',
-    function($scope, $anchorScroll, $location, $state,
-             UserModel, LoopBackAuth, StoreModel, ReportModel,$filter) {
-
+  .controller('StoreLandingCtrl', [
+    '$scope','$anchorScroll','$location', '$state', '$filter', /* angular's modules/services/factories etc. */
+    'UserModel', 'LoopBackAuth', 'StoreModel', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
+    function($scope, $anchorScroll, $location, $state, $filter,
+             UserModel, LoopBackAuth, StoreModel, ReportModel)
+    {
       $scope.sortedOrder = [];
       $scope.reportLists = [];
       $scope.backUpReportList = [];
