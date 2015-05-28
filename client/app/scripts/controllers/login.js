@@ -14,9 +14,11 @@
 angular.module('ShoppinPalApp')
   .controller('LoginCtrl',[
     '$scope', '$sessionStorage', '$state', /* angular's modules/services/factories etc. */
-    'UserModel', 'deviceDetector', 'usSpinnerService', /* loopback models */
+    'UserModel', 'deviceDetector', /* shoppinpal's custom modules/services/factories etc. */
+    'usSpinnerService', /* 3rd party custom modules/services/factories etc. */
     function ($scope, $sessionStorage, $state,
-              UserModel, deviceDetector, usSpinnerService)
+              UserModel, deviceDetector,
+              usSpinnerService)
     {
       $scope.userNameWindow = '';
       $scope.passwordWindow = '';
