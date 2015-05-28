@@ -8,6 +8,7 @@
                         Sign In
                     </div>
                     <form role="form" dismiss-default="">
+                    <span us-spinner="{radius:20, width:6, length: 12}" spinner-key="spinner-1" spinner-start-active="spinnerStatus"></span>
                         <fieldset>
                         <!-- Device detector start -->
                         <!-- login for windows start-->
@@ -17,18 +18,22 @@
                                         <span class="input-group-addon">
                                             <i class="fa fa-user"></i>
                                           </span>
-                                        <input id="userNamewin" name="loginname" type="text" placeholder="Username" class="form-control" 
-                                        ng-model="userNameWindow">
+                                        <input id="userNamewin" name="loginname" type="text" placeholder="Username" class="form-control" ng-model="userNameWindow">
                                     </div>
+                                      <span class="error-message" ng-if="errors.username != ''">
+                                          <span>{{errors.username}}</span>
+                                        </span>
                                   </div>
                                   <div class="form-group">
                                     <div class="input-group">
                                         <span class="input-group-addon">
                                             <i class="fa fa-lock"></i>
                                           </span>
-                                        <input id="pwdwin" name="password" type="password" placeholder="Password" class="form-control" 
-                                        ng-model="passwordWindow">
+                                        <input id="pwdwin" name="password" type="password" placeholder="Password" class="form-control" ng-model="passwordWindow">
                                     </div> 
+                                  <span class="error-message" ng-if="errors.pwd != ''">
+                                     <span>{{errors.pwd}}</span>
+                                  </span>
                                  </div>
                                   <div class="text-center">
                                 <button class="btn btn-primary login-btn" ng-click="login(userNameWindow,passwordWindow)">Login</button>
@@ -42,16 +47,22 @@
                                             <span class="input-group-addon">
                                                 <i class="fa fa-user"></i>
                                               </span>
-                                            <input id="userNameios" name="loginname" type="text" placeholder="Username" class="form-control" ng-readonly="true" ng-model="userNameIos" ng-keydown="appendText($event,'userName')" ng-virtual-keyboard="{relative: false, vki_attached:true}">
+                                            <input id="userNameios" name="loginname" type="text" placeholder="Username" class="form-control" ng-readonly="true" ng-model="userNameIos" ng-virtual-keyboard="{relative: false, vki_attached:true}">
                                         </div>
+                                         <span class="error-message" ng-if="errors.username != ''">
+                                          <span>{{errors.username}}</span>
+                                        </span>
                                     </div>
                                     <div class="form-group">
                                         <div class="input-group">
                                             <span class="input-group-addon">
                                                 <i class="fa fa-lock"></i>
                                               </span>
-                                            <input id="pwdios" name="password" type="password" placeholder="Password" class="form-control" ng-readonly="true" ng-model="passwordIos" ng-keydown="appendText($event,'password')" ng-virtual-keyboard="{relative: false, vki_attached:true}">
+                                            <input id="pwdios" name="password" type="password" placeholder="Password" class="form-control" ng-readonly="true" ng-model="passwordIos" ng-virtual-keyboard="{relative: false, vki_attached:true}">
                                         </div> 
+                                         <span class="error-message" ng-if="errors.pwd != ''">
+                                     <span>{{errors.pwd}}</span>
+                                  </span>
                                     </div>
                                      <div class="text-center">
                                 <button class="btn btn-primary login-btn" ng-click="login(userNameIos,passwordIos)">Login</button>

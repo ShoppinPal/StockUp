@@ -26,7 +26,8 @@
     "angular-spinner": "~0.6.1",
     "angular-virtual-keyboard": "~0.4.1",
     "ngDialog": "~0.4.0",
-    "ng-device-detector": "~1.1.7"
+    "ng-device-detector": "~1.1.7",
+    "ng-fastclick": "~1.0.1"
   },
   "devDependencies": {
     "angular-mocks": "1.2.18",

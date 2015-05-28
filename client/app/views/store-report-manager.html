@@ -1,20 +1,19 @@
 <div class="container">
- <span us-spinner="{radius:20, width:6, length: 12}" spinner-key="spinner-1" spinner-start-active="true"></span>
+    <span us-spinner="{radius:20, width:6, length: 12}" spinner-key="spinner-1" spinner-start-active="true"></span>
     <div class="row">
         <div class="col-sm-12 col-md-12">
             <!-- Select store header -->
             <header class="header">
                 <div class="row">
-                  <!-- Back button given here -->
-                   <div>
-                 <back-button back="back"></back-button>
-                </div>
-                 
+                    <!-- Back button given here -->
                     <div class="col-md-5 col-sm-3 col-xs-12">
                         <div class="logo">Glenstone</div>
+                        <div>
+                            <back-button back="Back"></back-button>
+                        </div>
                     </div>
                     <div class="col-md-7 col-sm-9 col-xs-12">
-                        <div class="note-sub-text pull-right">You are logged in as a <span><a href="#">Store Manager/WH/SR</a>&nbsp;&nbsp; </span>|&nbsp;&nbsp;<a ui-sref="logout" class="logout-text">LOGOUT</a></div>
+                        <div class="note-sub-text pull-right"><a ui-sref="logout" class="logout-text">LOGOUT</a></div>
                         <div class="btn-align">
                             <button type="submit" class="btn btn-primary button-large-blue" ng-click="showCompletedReport()">Show Completed</button>
                             <button type="submit" class="btn btn-primary button-large-green" ng-click="submitToWarehouse()">{{submitToWarehouseButton}}</button>
@@ -31,7 +30,7 @@
     <div class="row main-container">
         <div class="inner-container">
             <div class="report-manager-ipad-search">
-                 <h4 class="jumpto">Jump to</h4>
+                <h4 class="jumpto">Jump to</h4>
                 <ul class="store-auto-height">
                     <li ng-repeat="value in alphabets | unique:'value'">
                         <a href="" ng-click="gotoDepartment(value)">{{value}}</a>
