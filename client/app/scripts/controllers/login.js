@@ -22,9 +22,7 @@ angular.module('ShoppinPalApp')
 
       $scope.userNameIos = '';
       $scope.passwordIos = '';
-
-      $scope.isActiveUserName = false;
-      $scope.isActivePassword = false;
+      
       $scope.spinnerStatus = false;
       $scope.deviceDetector = deviceDetector;
 
@@ -55,7 +53,7 @@ angular.module('ShoppinPalApp')
             console.log(error);
             $scope.errors.username = error.data.error.message;
             $scope.errors.pwd = error.data.error.message;
-             console.log($scope.pwd);
+            console.log($scope.pwd);
             if (error && error.data && error.data.error && error.data.error.message) {
               //TODO: @afzal and @chhaya - show an error to user
               console.log(error.data.error.message);
