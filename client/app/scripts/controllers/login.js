@@ -14,40 +14,29 @@
 angular.module('ShoppinPalApp')
   .controller('LoginCtrl',[
     '$scope', '$sessionStorage', '$state', /* angular's modules/services/factories etc. */
-    'UserModel', 'deviceDetector', /* loopback models */
-    function ($scope, $sessionStorage, $state,
-              UserModel, deviceDetector)
-    {
+    'UserModel', 'deviceDetector', 'usSpinnerService', /* loopback models */
+    function ($scope, $sessionStorage, $state, UserModel, deviceDetector, usSpinnerService){
 
       $scope.userNameWindow = '';
       $scope.passwordWindow = '';
 
       $scope.userNameIos = '';
       $scope.passwordIos = '';
+
+      $scope.isActiveUserName = false;
+      $scope.isActivePassword = false;
+      $scope.spinnerStatus = false;
       $scope.deviceDetector = deviceDetector;
 
-      // $scope.appendText = function(event,id){
-      //    // var target = event.target;
-      //    //  target.blur();
-      //    //  $scope.apply();
-      //    //  angular.element(id).blur();
-      //   // event.target.blur();
-      //    event.preventDefault();
-      //    // console.log(event.target);
-      //   // var value = String.fromCharCode(event.keyCode);
-      //   //  if(id == 'userName'){
-      //   //      $scope.userName += value;
-      //   //  }
-      //   //  if(id == 'password'){
-      //   //     $scope.password += value;
-      //   //  }
-      //    // console.log("keypress",value);
-      //    //  console.log("id",id);
-      // };
-      
+      $scope.errors = {
+        username: '',
+        pwd : ''
+      };
+
       // validate login and transition to select store page
       $scope.login = function login(username, password){
-
+        usSpinnerService.spin('spinner-1');
+        $scope.spinnerStatus = false;
         UserModel.login({
           realm: 'portal',
           username: username,
@@ -57,11 +46,16 @@ angular.module('ShoppinPalApp')
             console.log('accessToken', accessToken);
             $sessionStorage.currentUser = accessToken;
             console.log('sessiontoken:', $sessionStorage.currentUser.id);
+            usSpinnerService.stop('spinner-1');
             $state.go('store-landing');
           },
           function(error){
+            usSpinnerService.stop('spinner-1');
             console.log('login() failed');
             console.log(error);
+            $scope.errors.username = error.data.error.message;
+            $scope.errors.pwd = error.data.error.message;
+             console.log($scope.pwd);
             if (error && error.data && error.data.error && error.data.error.message) {
               //TODO: @afzal and @chhaya - show an error to user
               console.log(error.data.error.message);

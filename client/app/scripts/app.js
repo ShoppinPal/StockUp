@@ -28,6 +28,7 @@ angular.module('ShoppinPalApp', [
     ,'angularSpinner'
     ,'ngDialog'
     ,'ng.deviceDetector'
+    ,'ng-fastclick'
    // ,'angular-useragent-parser'
   ])
 
