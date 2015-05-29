@@ -16,7 +16,6 @@ angular.module('ShoppinPalApp')
               loginService, StockOrderLineitemModel,
               usSpinnerService, ngDialog)
     {
-
       $anchorScroll.yOffset = 50;
       $scope.storesReport = [];
       $scope.completedReports = [];
@@ -65,12 +64,6 @@ angular.module('ShoppinPalApp')
        * This method remove the row from store-report on left swipe
        */
       $scope.markRowAsCompleted = function(storeReportRow) {
-        for (var i = 0; i < $scope.storesReport.length; i++) {
-          if ($scope.storesReport[i].sku === storeReportRow.sku) {
-            $scope.completedReports.push($scope.storesReport[i]); //push completed row in completedReports array
-            $scope.storesReport.splice(i, 1); //Remove the particular row from storeReports
-          }
-        }
         // TODO: why not use the SKU field as the id?
         return StockOrderLineitemModel.prototype$updateAttributes(
           { id: storeReportRow.id },
@@ -79,8 +72,12 @@ angular.module('ShoppinPalApp')
           }
         )
           .$promise.then(function(response){
-            console.log('hopefully finished updating the row');
-            console.log(response);
+            //console.log('hopefully finished updating the row');
+            //console.log(response);
+
+            // change the UI after the backend finishes for data-integrity/assurance
+            // but if this visibly messes with UI/UX, we might want to do it earlier...
+            storeReportRow.state = 'complete';
           });
       };
 
@@ -115,16 +112,22 @@ angular.module('ShoppinPalApp')
           $scope.alphabets.push(typefirstChar);
         }
       };
-      /** @method showCompletedReport
-       * This display completed report on screen
-       */
-      $scope.showCompletedReport = function() {
-          loginService.getStoreReport($stateParams.reportId)
-            .then(function (response) {
-              $scope.storesReport = response;
-              $scope.storesReport = $filter('filter')($scope.storesReport, { state: 'complete' });
-            });
-        };
+
+      $scope.displayRowsWithState = 'pending';
+      $scope.changeRowsToDisplayByState = function(state) {
+        $scope.displayRowsWithState = state;
+      };
+      $scope.getFilterForRowsToDisplay = function() {
+        switch ($scope.displayRowsWithState) {
+          case 'pending':
+            return {state:'!complete'};
+          case 'complete':
+            return {state:'complete'};
+          default:
+            return {state:'!complete'};
+        }
+      };
+
       /** @method submitToWarehouse
        * This method will submit the store-report to warehouse
        */
