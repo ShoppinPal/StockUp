@@ -71,7 +71,7 @@ angular.module('ShoppinPalApp')
             state: 'complete'
           }
         )
-          .$promise.then(function(response){
+          .$promise.then(function(/*response*/){
             //console.log('hopefully finished updating the row');
             //console.log(response);
 
