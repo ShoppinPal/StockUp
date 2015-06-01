@@ -23,6 +23,10 @@
     "outlet": {
       "type": "object",
       "required": true
+    },
+    "totalRows": {
+      "type": "number",
+      "required": false
     }
   },
   "validations": [],
