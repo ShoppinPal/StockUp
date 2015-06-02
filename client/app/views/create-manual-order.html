@@ -35,11 +35,11 @@
                 <div class="form-group">
                     <label for="inputPassword" class="control-label col-xs-3">Order From</label>
                     <div class="col-xs-8">
-                        <select ng-model="selectedOrderStore" class="form-control">
-                        <option ng-selected="{{selectedOrderStore}}"
-                                ng-repeat="store in stores"
-                                value="{{store.name}}">
-                          {{store.name}}
+                        <select ng-model="selectedSupplier" class="form-control">
+                        <option ng-selected="{{selectedSupplier}}"
+                                ng-repeat="supplier in suppliers"
+                                value="{{supplier.name}}">
+                          {{supplier.name}}
                         </option>
                     </select>
                     </div>
@@ -47,8 +47,8 @@
                 <div class="form-group">
                     <label for="inputPassword" class="control-label col-xs-3">Deliver To</label>
                     <div class="col-xs-8">
-                      <select ng-model="selectedDeliverStore" class="form-control">
-                        <option ng-selected="{{selectedDeliverStore}}"
+                      <select ng-model="selectedStore" class="form-control">
+                        <option ng-selected="{{selectedStore}}"
                                 ng-repeat="store in stores"
                                 value="{{store.name}}">
                           {{store.name}}
