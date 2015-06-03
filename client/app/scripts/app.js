@@ -22,7 +22,6 @@ angular.module('ShoppinPalApp', [
     ,'sp-formatters'
     ,'sp-alerts'
     ,'uuid4'
-    ,'ngAnimate'
     ,'mgcrea.ngStrap'
     ,'angular-virtual-keyboard'
     ,'angularSpinner'
