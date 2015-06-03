@@ -183,11 +183,13 @@ angular.module('ShoppinPalApp')
             });
         }
         else { // if live data can't be loaded due to some bug, use MOCK data so testing can go on
+          console.log('live data can\'t be loaded due to some bug, use MOCK data so testing can go on');
           loginService.getSelectStore()
             .then(function (response) {
               $scope.storesReport = response;
               $scope.storereportlength = $scope.storesReport.length;
               $scope.JumtoDepartment();
+              usSpinnerService.stop('spinner-1');
             });
         }
       });
