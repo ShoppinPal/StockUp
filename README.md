@@ -1,6 +1,6 @@
 # warehouse
 
-eCommerce is simple and feature rich, cloud based point-of-sales are getting there, with **warehouse** we hope to bridge the last remaining gap in the retail lifecycle
+Replenishing stock is one of the most important repetitive tasks performed by a retailer, yet for majority of the retail world this process is highly inefficient and time consuming. We've created a (first of its kind) open-source and free iPad application that makes the stock ordering process fast and fun, and frees up a whole lot of time for store managers and warehouse folks. 
 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ShoppinPal/warehouse?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
