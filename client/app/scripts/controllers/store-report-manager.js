@@ -113,19 +113,12 @@ angular.module('ShoppinPalApp')
         }
       };
 
-      $scope.displayRowsWithState = 'pending';
-      $scope.changeRowsToDisplayByState = function(state) {
-        $scope.displayRowsWithState = state;
+      $scope.displayPendingRows = true;
+      $scope.toggleRowsDisplayed = function() {
+        $scope.displayPendingRows = !$scope.displayPendingRows;
       };
       $scope.getFilterForRowsToDisplay = function() {
-        switch ($scope.displayRowsWithState) {
-          case 'pending':
-            return {state:'!complete'};
-          case 'complete':
-            return {state:'complete'};
-          default:
-            return {state:'!complete'};
-        }
+        return ($scope.displayPendingRows) ? {state:'!complete'} : {state:'complete'};
       };
 
       /** @method submitToWarehouse
