@@ -55,25 +55,34 @@
                     </table>
                     <div class="scrollable-table">
                         <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
-                            <tbody ng-repeat="storeReportRow in storesReport | filter:getFilterForRowsToDisplay() | orderBy:'type' | groupBy: 'type'">
-                                <tr class="inner-table-heading" id="jumpto{{storeReportRow.type}}" ng-if="storeReportRow.group_by_CHANGED">
-                                    <td colspan="5"><span class="table-heading-font">{{storeReportRow.type}}</span></td>
+                            <tbody ng-repeat="departmentGroup in storesReport | filter:getFilterForRowsToDisplay() | groupBy:'type' | toArray:true | orderBy:'$key'">
+                                <tr class="inner-table-heading" id="jumpto{{departmentGroup.$key}}">
+                                    <td colspan="5"><span class="table-heading-font">{{departmentGroup.$key}}</span></td>
                                 </tr>
-                                <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'" ng-hide="$index==selectedRowIndex" ng-swipe-right="markRowAsCompleted(storeReportRow)" ng-swipe-left="editStore($index)">
+                                <tr ng-repeat="storeReportRow in departmentGroup"
+                                    ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'"
+                                    ng-hide="$index==selectedRowIndex"
+                                    ng-swipe-right="markRowAsCompleted(storeReportRow)"
+                                    ng-swipe-left="editStore($index)">
                                     <td width="10%">{{storeReportRow.sku}}</td>
                                     <td width="25%">{{storeReportRow.name}}</td>
                                     <td width="5%">{{storeReportRow.quantityOnHand}}</td>
                                     <td width="5%">{{storeReportRow.desiredStockLevel}}</td>
                                     <td width="5%">{{storeReportRow.orderQuantity}}</td>
                                 </tr>
-                                <tr ng-if="storeReportRow.comment" ng-hide="$index==selectedRowIndex">
+                                <tr ng-repeat="storeReportRow in departmentGroup"
+                                    ng-if="storeReportRow.comment"
+                                    ng-hide="$index==selectedRowIndex">
                                     <td colspan="5">
                                         <span class="fa fa-comment comment-icon"></span>&nbsp;&nbsp;
                                         <strong>Comments:</strong><span class="comment-span"> {{storeReportRow.comment}}</span>
                                     </td>
                                 </tr>
                                 <!-- Edit store-report start -->
-                                <tr ng-show="$index==selectedRowIndex" class="edit-row" ng-mouseleave="dismissEdit(storeReportRow)">
+                                <tr ng-repeat="storeReportRow in departmentGroup"
+                                    ng-show="$index==selectedRowIndex"
+                                    ng-mouseleave="dismissEdit(storeReportRow)"
+                                    class="edit-row">
                                     <td colspan="6">
                                         <div class="row">
                                             <div class="col-sm-2 edit-column-heading-text">{{storeReportRow.sku}}</div>

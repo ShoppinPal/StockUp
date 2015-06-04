@@ -51,11 +51,12 @@
                     </table>
                     <div class="scrollable-table">
                         <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
-                            <tbody ng-repeat="storeReport in reportLists| orderBy:'supplier.name'| groupBy: 'supplier.name'">
-                                <tr class="inner-table-heading" id="jumpto{{storeReport.supplier.name}}" ng-if="storeReport.group_by_CHANGED">
-                                    <td colspan="5"><span class="table-heading-font">{{storeReport.supplier.name}}</span></td>
+                            <tbody ng-repeat="supplierGroup in reportLists | groupBy: 'supplier.name' | toArray:true | orderBy:'$key'">
+                                <tr class="inner-table-heading" id="jumpto{{supplierGroup.$key}}">
+                                    <td colspan="5"><span class="table-heading-font">{{supplierGroup.$key}}</span></td>
                                 </tr>
-                                <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'"
+                                <tr ng-repeat="storeReport in supplierGroup"
+                                    ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'"
                                     ng-hide="$index==selectedRowIndex"
                                     ng-swipe-left="editOrder($index)"
                                     ui-sref="store-report-manager({reportId:storeReport.id})">

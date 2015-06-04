@@ -24,6 +24,11 @@ angular.module('ShoppinPalApp')
       $scope.comments = '';
       $scope.ReviewSubmitPage = true;
 
+      /*$scope.sortMeWithThisValue = function(rowsForDeptGroup) {
+        var result = rowsForDeptGroup.$key;
+        return result;
+      };*/
+
       /** @method dismissEdit
        * This method will close the editable mode in store-report
        */
