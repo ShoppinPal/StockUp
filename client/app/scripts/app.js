@@ -1,8 +1,7 @@
 'use strict';
 
 angular.module('ShoppinPalApp',[
-  'angular.filter'
-  ,'angularSpinner'
+  'angularSpinner'
   ,'angular-virtual-keyboard'
   ,'cgBusy'
   ,'geocoder'
