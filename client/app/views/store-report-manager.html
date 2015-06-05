@@ -62,7 +62,7 @@
                                 <tr ng-repeat-start="storeReportRow in departmentGroup"
                                     ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'"
                                     ng-hide="$index==selectedRowIndex"
-                                    ng-swipe-right="markRowAsCompleted(storeReportRow)"
+                                    ng-swipe-right="markRowAsCompleted($index, storeReportRow)"
                                     ng-swipe-left="editStore($index)">
                                     <td width="10%">{{storeReportRow.sku}}</td>
                                     <td width="25%">{{storeReportRow.name}}</td>
@@ -81,7 +81,8 @@
                                 <tr ng-repeat-end
                                     ng-show="$index==selectedRowIndex"
                                     class="edit-row">
-                                    <td colspan="6">
+                                    <td colspan="6"
+                                        ng-swipe-right="dismissEdit(storeReportRow)">
                                         <div class="row">
                                             <div class="col-sm-2 edit-column-heading-text">{{storeReportRow.sku}}</div>
                                             <div class="col-sm-6">

@@ -33,6 +33,8 @@ angular.module('ShoppinPalApp')
        * This method will close the editable mode in store-report
        */
       $scope.dismissEdit = function(storeReportRow) {
+        usSpinnerService.spin('spinner-1');
+
         $scope.selectedRowIndex = $scope.storereportlength + 1; // dismiss the edit view in UI
 
         // update the backend
@@ -51,6 +53,7 @@ angular.module('ShoppinPalApp')
           }
         )
           .$promise.then(function(response){
+            usSpinnerService.stop('spinner-1');
             console.log('hopefully finished updating the row');
             console.log(response);
           });
@@ -68,7 +71,9 @@ angular.module('ShoppinPalApp')
        * @param storereport
        * This method remove the row from store-report on left swipe
        */
-      $scope.markRowAsCompleted = function(storeReportRow) {
+      $scope.markRowAsCompleted = function(rowindex, storeReportRow) {
+        usSpinnerService.spin('spinner-1');
+
         // TODO: why not use the SKU field as the id?
         return StockOrderLineitemModel.prototype$updateAttributes(
           { id: storeReportRow.id },
@@ -83,6 +88,17 @@ angular.module('ShoppinPalApp')
             // change the UI after the backend finishes for data-integrity/assurance
             // but if this visibly messes with UI/UX, we might want to do it earlier...
             storeReportRow.state = 'complete';
+
+            // if an editable row was already open, dismiss that row's the edit view in UI
+            if(_.isNumber($scope.selectedRowIndex)){
+              console.log('$scope.selectedRowIndex',$scope.selectedRowIndex);
+              // by throwing the index out of bounds, so nothing valid can possible end up being selected
+              $scope.selectedRowIndex = $scope.storereportlength + 1;
+              console.log('$scope.selectedRowIndex',$scope.selectedRowIndex);
+              // TODO: should save that row's changes too?
+            }
+
+            usSpinnerService.stop('spinner-1');
           });
       };
 
