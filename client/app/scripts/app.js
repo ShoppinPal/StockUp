@@ -69,7 +69,8 @@ angular.module('ShoppinPalApp',[
         .state('create-manual-order', {
           url: '/create-manual-order',
           templateUrl: 'views/create-manual-order.html',
-          controller: 'createManualOrderCtrl',
+          controller: 'CreateManualOrderCtrl',
+          controllerAs: 'orderController',
           authenticate: true
         })
         .state('store-report-manager', {
