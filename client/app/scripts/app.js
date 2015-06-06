@@ -25,7 +25,6 @@ angular.module('ShoppinPalApp',[
   ,'sp-formatters'
   ,'ui.router'
   ,'ui.utils'
-  ,'uuid4'
 ])
 
   .config([

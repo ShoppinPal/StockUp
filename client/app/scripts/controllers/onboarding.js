@@ -7,12 +7,10 @@ angular.module('ShoppinPalApp')
     '$scope', '$sessionStorage', '$state', '$stateParams', '$filter', /* angular's modules/services/factories etc. */
     '$spAlerts', '$spUtils', '$spPrestashop', '$spVend', /* shoppinpal's custom modules/services/factories etc. */
     'StoreConfigModel', 'UserModel', 'LoopBackAuth', /* loopback models */
-    'uuid4', /* 3rd party custom modules/services/factories etc. */
     'vendAuthEndpoint', 'vendClientId', 'proxyUrl', 'baseUrl', /* constants */
     function ($scope, $sessionStorage, $state, $stateParams, $filter,
               $spAlerts, $spUtils, $spPrestashop, $spVend,
               StoreConfigModel, UserModel, LoopBackAuth,
-              uuid4,
               vendAuthEndpoint, vendClientId, proxyUrl, baseUrl)
     {
       'use strict';
@@ -155,7 +153,6 @@ angular.module('ShoppinPalApp')
                   posUrl: 'https://' + $scope.newStoreConfig.prestaurl,
                   accessToken: $scope.newStoreConfig.prestawstoken,
                   currencyCode: $scope.newStoreConfig.currencyCode,
-                  webhookToken: uuid4.generate(),
                   productImportRules: {
                     'op':'AND',
                     'rules':[
@@ -211,7 +208,6 @@ angular.module('ShoppinPalApp')
             username: $scope.newStoreConfig.vendusername,
             password: $scope.newStoreConfig.vendpassword,*/
             currencyCode: $scope.newStoreConfig.currencyCode,
-            webhookToken: uuid4.generate(),
             promos: [
               {category:'Featured', discount:0, code:'promo123'}
             ],
