@@ -42,9 +42,21 @@
         <!-- Google Analytics: refer to the following link when you are ready to add it -->
         <!--http://www.arnaldocapo.com/blog/post/google-analytics-and-angularjs-with-ui-router/72-->
 
+        <!-- This is useful for our custom geocoder (angular-geocode.js) implementation-->
         <script src='//maps.googleapis.com/maps/api/js?sensor=false'></script>
+        <!--
+         The angular-geocode.js file's implementation was probably sourced from:
+           https://gist.github.com/benmj/6380466
+         but we later fixed it a bit to address a bug.
+
+         Others noticed the same bug and probably fixed that one and a few more,
+         so we might want to at some point evaluate their source too:
+           https://gist.github.com/avaliani/10214857
+        -->
+
         <script src="bower_components/angular/angular.js"></script>
         <script src="//www.parsecdn.com/js/parse-1.2.13.min.js"></script>
+
         <!-- build:js scripts/modules.js -->
         <script src="bower_components/angular-resource/angular-resource.js"></script>
         <script src="bower_components/angular-cookies/angular-cookies.js"></script>
