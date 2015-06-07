@@ -4,7 +4,6 @@ angular.module('ShoppinPalApp',[
   'angular-virtual-keyboard'
   ,'cgBusy'
   ,'geocoder'
-  ,'google-maps'
   ,'mgcrea.ngStrap'
   ,'ngAnimate'
   ,'ngCookies'
