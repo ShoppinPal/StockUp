@@ -11,7 +11,6 @@
     "angular-sanitize": "1.2.18",
     "angular-ui-bootstrap": "~0.10.0",
     "angular-bootstrap": "~0.10.0",
-    "angular-route": "1.2.18",
     "ngstorage": "~0.3.0",
     "underscore": "1.7.0",
     "angular-google-maps": "~1.0.15",
