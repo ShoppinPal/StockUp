@@ -14,19 +14,18 @@
 angular.module('ShoppinPalApp')
   .controller('LoginCtrl',[
     '$scope', '$sessionStorage', '$state', /* angular's modules/services/factories etc. */
-    'UserModel', 'deviceDetector', /* shoppinpal's custom modules/services/factories etc. */
-    'usSpinnerService', /* 3rd party custom modules/services/factories etc. */
+    'UserModel', /* shoppinpal's custom modules/services/factories etc. */
+    'deviceDetector', /* 3rd party custom modules/services/factories etc. */
     function ($scope, $sessionStorage, $state,
-              UserModel, deviceDetector,
-              usSpinnerService)
+              UserModel,
+              deviceDetector)
     {
       $scope.userNameWindow = '';
       $scope.passwordWindow = '';
 
       $scope.userNameIos = '';
       $scope.passwordIos = '';
-      
-      $scope.spinnerStatus = false;
+
       $scope.deviceDetector = deviceDetector;
 
       $scope.errors = {
@@ -36,9 +35,7 @@ angular.module('ShoppinPalApp')
 
       // validate login and transition to select store page
       $scope.login = function login(username, password){
-        usSpinnerService.spin('spinner-1');
-        $scope.spinnerStatus = false;
-        UserModel.login({
+        $scope.waitOnPromise = UserModel.login({
           realm: 'portal',
           username: username,
           password: password
@@ -47,11 +44,9 @@ angular.module('ShoppinPalApp')
             console.log('accessToken', accessToken);
             $sessionStorage.currentUser = accessToken;
             console.log('sessiontoken:', $sessionStorage.currentUser.id);
-            usSpinnerService.stop('spinner-1');
-            $state.go('store-landing');
+            return $state.go('store-landing');
           },
           function(error){
-            usSpinnerService.stop('spinner-1');
             console.log('login() failed');
             console.log(error);
             $scope.errors.username = error.data.error.message;

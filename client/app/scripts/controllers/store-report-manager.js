@@ -11,10 +11,10 @@ angular.module('ShoppinPalApp')
   [
     '$scope', '$anchorScroll', '$location', '$state', '$stateParams', '$filter', /* angular's modules/services/factories etc. */
     'loginService', 'StockOrderLineitemModel', /* shoppinpal's custom modules/services/factories etc. */
-    'usSpinnerService', 'ngDialog', /* 3rd party modules/services/factories etc. */
+    'ngDialog', /* 3rd party modules/services/factories etc. */
     function ($scope, $anchorScroll, $location, $state, $stateParams, $filter,
               loginService, StockOrderLineitemModel,
-              usSpinnerService, ngDialog)
+              ngDialog)
     {
       $anchorScroll.yOffset = 50;
       $scope.storesReport = [];
@@ -86,21 +86,21 @@ angular.module('ShoppinPalApp')
        * This method
        */
       $scope.gotoDepartment = function(value) {
-          var jumpToHash;
-          if (value) {
-            for (var i = 0; i < $scope.storesReport.length; i++) {
-              var type = $scope.storesReport[i].type,
-                  typefirstChar = type.slice(0, 1).toUpperCase();
-              $scope.alphabets.push(typefirstChar);
-              if (typefirstChar === value) {
-                jumpToHash = 'jumpto' + $scope.storesReport[i].type;
-              }
+        var jumpToHash;
+        if (value) {
+          for (var i = 0; i < $scope.storesReport.length; i++) {
+            var type = $scope.storesReport[i].type,
+              typefirstChar = type.slice(0, 1).toUpperCase();
+            $scope.alphabets.push(typefirstChar);
+            if (typefirstChar === value) {
+              jumpToHash = 'jumpto' + $scope.storesReport[i].type;
             }
-
           }
-          $location.hash(jumpToHash);
-          $anchorScroll();
-        };
+
+        }
+        $location.hash(jumpToHash);
+        $anchorScroll();
+      };
 
       /** @method JumtoDepartment
        * This method will return avilable departments firstChar for jumpTo department functionality
@@ -130,15 +130,15 @@ angular.module('ShoppinPalApp')
           ngDialog.open({ template: 'views/popup/submitToStorePopUp.html',
             className: 'ngdialog-theme-plain',
             scope: $scope
-           });
-          
+          });
+
         }
         else{
           $scope.ReviewSubmitPage = false;
         }
       };
 
-     /** @method decreaseQty
+      /** @method decreaseQty
        * @param storereport
        * This method decreases the ordered quantity ,when user tap on '-'' sign
        */
@@ -149,7 +149,7 @@ angular.module('ShoppinPalApp')
         }
       };
 
-     /** @method increaseQty
+      /** @method increaseQty
        * @param storereport
        * This method increase the ordered quantity ,when user tap on '+' sign
        */
@@ -172,24 +172,21 @@ angular.module('ShoppinPalApp')
        * This method will load the storesReport from api on view load
        */
       $scope.$on('$viewContentLoaded', function() {
-        usSpinnerService.spin('spinner-1');
         if($stateParams.reportId) {
-          loginService.getStoreReport($stateParams.reportId)
+          $scope.waitOnPromise = loginService.getStoreReport($stateParams.reportId)
             .then(function (response) {
               $scope.storesReport = response;
               $scope.storereportlength = $scope.storesReport.length;
               $scope.JumtoDepartment();
-              usSpinnerService.stop('spinner-1');
             });
         }
         else { // if live data can't be loaded due to some bug, use MOCK data so testing can go on
           console.log('live data can\'t be loaded due to some bug, use MOCK data so testing can go on');
-          loginService.getSelectStore()
+          $scope.waitOnPromise = loginService.getSelectStore()
             .then(function (response) {
               $scope.storesReport = response;
               $scope.storereportlength = $scope.storesReport.length;
               $scope.JumtoDepartment();
-              usSpinnerService.stop('spinner-1');
             });
         }
       });
