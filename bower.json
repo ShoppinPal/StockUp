@@ -23,8 +23,5 @@
     "ngstorage": "0.3.4",
     "underscore": "1.7.0"
   },
-  "devDependencies": {},
-  "resolutions": {
-    "angular-animate": "1.3.16"
-  }
+  "devDependencies": {}
 }
