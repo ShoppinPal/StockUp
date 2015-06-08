@@ -72,38 +72,39 @@
                                     </td>
                                 </tr>
                                 <!-- Edit store-report start -->
-                                <tr ng-show="$index==selectedRowIndex" class="edit-row" ng-mouseleave="dismissEdit(storeReportRow)">
-                                    <td colspan="6">
-                                        <div class="row">
-                                            <div class="col-sm-2 edit-column-heading-text">{{storeReportRow.sku}}</div>
-                                            <div class="col-sm-6">
-                                                <div class="edit-second-column-heading-text">{{storeReportRow.name}}</div>
+                                <!-- <tr ng-show="$index==selectedRowIndex" class="edit-row" ng-mouseleave="dismissEdit(storeReportRow)"> -->
+                                <tr ng-if="$index==selectedRowIndex" ng-init="onEditInit(storeReportRow)" class="edit-row editable-panel">
+                                    <td colspan="6" class="editable-panel">
+                                        <div class="row editable-panel">
+                                            <div class="col-sm-2 edit-column-heading-text editable-panel">{{storeReportRow.sku}}</div>
+                                            <div class="col-sm-6 editable-panel">
+                                                <div class="edit-second-column-heading-text editable-panel">{{storeReportRow.name}}</div>
                                             </div>
-                                            <div class="col-sm-2">
-                                                <div class="edit-last-column-heading-text">{{storeReportRow.quantityOnHand}}</div>
+                                            <div class="col-sm-2 editable-panel">
+                                                <div class="edit-last-column-heading-text editable-panel">{{storeReportRow.quantityOnHand}}</div>
                                             </div>
                                         </div>
-                                        <div class="edit-window">
-                                            <div class="float-left column-text margin-right">Desired
+                                        <div class="edit-window editable-panel">
+                                            <div class="float-left column-text margin-right editable-panel">Desired
                                                 <br/> Stock Level:</div>
-                                            <div class="float-left margin-right-50px">
-                                                <input type="text" class="form-control input-small" ng-model="storeReportRow.desiredStockLevel">
+                                            <div class="float-left margin-right-50px editable-panel">
+                                                <input type="text" class="form-control input-small editable-panel" ng-model="storeReportRow.desiredStockLevel">
                                             </div>
-                                            <div class="float-left column-text margin-right">Order
+                                            <div class="float-left column-text margin-right editable-panel">Order
                                                 <br/> Qty:</div>
-                                            <div class="float-left margin-right-10px margin-top">
-                                                <span class="fa fa-minus-circle fa-lg edit-icon" ng-click="decreaseQty(storeReportRow)"></span>
+                                            <div class="float-left margin-right-10px margin-top editable-panel">
+                                                <span class="fa fa-minus-circle fa-lg edit-icon editable-panel" ng-click="decreaseQty(storeReportRow)"></span>
                                             </div>
-                                            <div class="float-left margin-right-10px">
-                                                <input type="text" class="form-control input-small" ng-model="storeReportRow.orderQuantity">
+                                            <div class="float-left margin-right-10px editable-panel">
+                                                <input type="text" class="form-control input-small editable-panel" ng-model="storeReportRow.orderQuantity">
                                             </div>
-                                            <div class="float-left margin-right margin-top">
-                                                <span class="fa fa-plus-circle fa-lg edit-icon" ng-click="increaseQty(storeReportRow)"></span>
+                                            <div class="float-left margin-right margin-top editable-panel">
+                                                <span class="fa fa-plus-circle fa-lg edit-icon editable-panel" ng-click="increaseQty(storeReportRow)"></span>
                                             </div>
-                                            <div class="clearfix"></div>
+                                            <div class="clearfix editable-panel"></div>
                                         </div>
-                                        <div class="row" ng-show="ReviewSubmitPage">
-                                            <input type="text" class="form-control comment-input" placeholder="-- Add your Comments --" ng-model="storeReportRow.comment">
+                                        <div class="row editable-panel" ng-show="ReviewSubmitPage">
+                                            <input type="text" class="form-control comment-input editable-panel" placeholder="-- Add your Comments --" ng-model="storeReportRow.comment">
                                         </div>
                                     </td>
                                 </tr>
