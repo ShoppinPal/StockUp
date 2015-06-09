@@ -17,8 +17,8 @@ angular.module('ShoppinPalApp')
       $scope.storeName = $sessionStorage.currentStore.name;
 
       $scope.closedboxes = [{ 'key': 'Box1',
-    'value': 1},{ 'key': 'Box2',
-    'value': 2}];
+        'value': 1},{ 'key': 'Box2',
+        'value': 2}];
 
       /** @method decreaseQty
        * @param storereport
@@ -39,8 +39,8 @@ angular.module('ShoppinPalApp')
         storereport.orderQuantity = parseInt(storereport.orderQuantity);
         storereport.orderQuantity += 1;
       };
-      
-     /** @method editRecievedQty()
+
+      /** @method editRecievedQty()
        * @param selectedRow
        * This method display the edit functionlity on right swipe
        */
@@ -58,4 +58,4 @@ angular.module('ShoppinPalApp')
       });
 
     }
-   ]);
+  ]);
