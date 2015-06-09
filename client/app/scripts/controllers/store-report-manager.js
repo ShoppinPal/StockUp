@@ -23,6 +23,7 @@ angular.module('ShoppinPalApp')
       $scope.submitToWarehouseButton = 'Review';
       $scope.comments = '';
       $scope.ReviewSubmitPage = true;
+      $scope.deviceDetector = deviceDetector;
 
       /** @method dismissEdit
        * This method will close the editable mode in store-report
@@ -63,19 +64,26 @@ angular.module('ShoppinPalApp')
        * This method is called once user choose to edit a row using right swipe
        */
       $scope.onEditInit = function(storeReportRow) {
-        var body = angular.element(document).find('body');
-        if(deviceDetector.isDesktop()) {
-          body.bind('mousedown', function(event) {
+        /* moved the event from body to ui-view div as after adding the virtual keyboard,
+           clicking on anywhere on keyboard will dismiss the edit box*/
+        //var body = angular.element(document).find('body');
+        var shoppinPalMainDiv = angular.element(document.querySelector('.shoppinPal-warehouse'));
+        if($scope.deviceDetector.isDesktop()) {
+          //body.bind('mousedown', function(event) {
+          shoppinPalMainDiv.bind('mousedown', function(event) {
             if( !event.target.classList.contains('editable-panel') ) {
               $scope.dismissEdit(storeReportRow);
-              body.unbind('mousedown');
+              //body.unbind('mousedown');
+              shoppinPalMainDiv.unbind('mousedown');
             }
           });
         } else {
-          body.bind('touchstart', function(event) {
+          //body.bind('touchstart', function(event) {
+          shoppinPalMainDiv.bind('touchstart', function(event) {
             if( !event.target.classList.contains('editable-panel') ) {
               $scope.dismissEdit(storeReportRow);
-              body.unbind('touchstart');
+              //body.unbind('touchstart');
+              shoppinPalMainDiv.unbind('touchstart');
             }
           });
         }
@@ -194,6 +202,7 @@ angular.module('ShoppinPalApp')
        * This method will load the storesReport from api on view load
        */
       $scope.$on('$viewContentLoaded', function() {
+        $scope.device = $scope.deviceDetector.device;
         if($stateParams.reportId) {
           $scope.waitOnPromise = loginService.getStoreReport($stateParams.reportId)
             .then(function (response) {
