@@ -8,8 +8,13 @@
  * Controller of the ShoppinPalApp
  */
 angular.module('ShoppinPalApp')
-  .controller('StoreReceiverCtrl',['$scope','$state','loginService',
-    function ($scope,$state,loginService){
+  .controller('StoreReceiverCtrl',[
+    '$scope','$state','$sessionStorage',
+    'loginService',
+    function ($scope, $state, $sessionStorage,
+              loginService)
+    {
+      $scope.storeName = $sessionStorage.currentStore.name;
 
       $scope.closedboxes = [{ 'key': 'Box1',
     'value': 1},{ 'key': 'Box2',

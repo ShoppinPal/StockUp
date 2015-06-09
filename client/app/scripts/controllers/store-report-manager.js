@@ -9,13 +9,15 @@
 angular.module('ShoppinPalApp')
   .controller('StoreManagerCtrl',
   [
-    '$scope', '$anchorScroll', '$location', '$state', '$stateParams', '$filter', /* angular's modules/services/factories etc. */
+    '$scope', '$anchorScroll', '$location', '$state', '$stateParams', '$filter', '$sessionStorage', /* angular's modules/services/factories etc. */
     'loginService', 'StockOrderLineitemModel', /* shoppinpal's custom modules/services/factories etc. */
     'ngDialog', 'deviceDetector', /* 3rd party modules/services/factories etc. */
-    function ($scope, $anchorScroll, $location, $state, $stateParams, $filter,
+    function ($scope, $anchorScroll, $location, $state, $stateParams, $filter, $sessionStorage,
               loginService, StockOrderLineitemModel,
               ngDialog, deviceDetector)
     {
+      $scope.storeName = $sessionStorage.currentStore.name;
+
       $anchorScroll.yOffset = 50;
       $scope.storesReport = [];
       $scope.completedReports = [];

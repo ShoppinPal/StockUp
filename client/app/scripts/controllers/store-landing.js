@@ -9,11 +9,13 @@
  */
 angular.module('ShoppinPalApp')
   .controller('StoreLandingCtrl', [
-    '$scope','$anchorScroll','$location', '$state', '$filter', /* angular's modules/services/factories etc. */
+    '$scope','$anchorScroll','$location', '$state', '$filter', '$sessionStorage', /* angular's modules/services/factories etc. */
     'UserModel', 'LoopBackAuth', 'StoreModel', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
-    function($scope, $anchorScroll, $location, $state, $filter,
+    function($scope, $anchorScroll, $location, $state, $filter, $sessionStorage,
              UserModel, LoopBackAuth, StoreModel, ReportModel)
     {
+      $scope.storeName = $sessionStorage.currentStore.name;
+
       $scope.sortedOrder = [];
       $scope.reportLists = [];
       $scope.backUpReportList = [];

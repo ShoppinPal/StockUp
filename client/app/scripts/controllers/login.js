@@ -44,7 +44,14 @@ angular.module('ShoppinPalApp')
             console.log('accessToken', accessToken);
             $sessionStorage.currentUser = accessToken;
             console.log('sessiontoken:', $sessionStorage.currentUser.id);
-            return $state.go('store-landing');
+            return UserModel.storeModels({id: $sessionStorage.currentUser.userId})
+              .$promise.then(function(stores){
+                console.log(stores);
+                if(stores.length === 1) {
+                  $sessionStorage.currentStore = stores[0];
+                }
+                return $state.go('store-landing');
+              });
           },
           function(error){
             console.log('login() failed');

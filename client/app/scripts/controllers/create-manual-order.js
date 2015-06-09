@@ -8,9 +8,10 @@
  * Controller of the ShoppinPalApp
  */
 var CreateManualOrderCtrl = function (
-  //$scope,
+  $sessionStorage,
   LoopBackAuth, SupplierModel, UserModel, ReportModel)
 {
+  this.storeName = $sessionStorage.currentStore.name;
   this.suppliers = [];
   this.stores = [];
   var self = this;
@@ -84,7 +85,7 @@ var CreateManualOrderCtrl = function (
 angular.module('ShoppinPalApp').controller(
   'CreateManualOrderCtrl',
   [
-    //'$scope', /* angular's modules/services/factories etc. */
+    '$sessionStorage', /* angular's modules/services/factories etc. */
     'LoopBackAuth', 'SupplierModel', 'UserModel', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
     CreateManualOrderCtrl
   ]);
