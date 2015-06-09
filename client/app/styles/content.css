@@ -316,6 +316,7 @@ tr.inner-table-heading {
 .comment-input{
     margin: 10px 20px;
     width: 94%;
+    background-color: #ffffff !important;
 }
 .edit-icon{
     color: #2d8d5a;
