@@ -11,10 +11,10 @@ angular.module('ShoppinPalApp')
   [
     '$scope', '$anchorScroll', '$location', '$state', '$stateParams', '$filter', /* angular's modules/services/factories etc. */
     'loginService', 'StockOrderLineitemModel', /* shoppinpal's custom modules/services/factories etc. */
-    'ngDialog', /* 3rd party modules/services/factories etc. */
+    'ngDialog', 'deviceDetector', /* 3rd party modules/services/factories etc. */
     function ($scope, $anchorScroll, $location, $state, $stateParams, $filter,
               loginService, StockOrderLineitemModel,
-              ngDialog)
+              ngDialog, deviceDetector)
     {
       $anchorScroll.yOffset = 50;
       $scope.storesReport = [];
@@ -57,6 +57,29 @@ angular.module('ShoppinPalApp')
        */
       $scope.editStore = function(selectedRow) {
         $scope.selectedRowIndex = selectedRow;
+      };
+
+      /** @method onEditInit()
+       * @param storeReportRow
+       * This method is called once user choose to edit a row using right swipe
+       */
+      $scope.onEditInit = function(storeReportRow) {
+        var body = angular.element(document).find('body');
+        if(deviceDetector.isDesktop()) {
+          body.bind('mousedown', function(event) {
+            if( !event.target.classList.contains('editable-panel') ) {
+              $scope.dismissEdit(storeReportRow);
+              body.unbind('mousedown');
+            }
+          });
+        } else {
+          body.bind('touchstart', function(event) {
+            if( !event.target.classList.contains('editable-panel') ) {
+              $scope.dismissEdit(storeReportRow);
+              body.unbind('touchstart');
+            }
+          });
+        }
       };
 
       /** @method markRowAsCompleted
