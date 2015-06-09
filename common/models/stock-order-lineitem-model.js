@@ -18,4 +18,12 @@ module.exports = function(StockOrderLineitemModel) {
     );
   });
 
+  StockOrderLineitemModel.observe('before save', function updateTimestamp(ctx, next) {
+    if (ctx.instance) {
+      ctx.instance.updatedAt = new Date();
+    } else {
+      ctx.data.updatedAt = new Date();
+    }
+    next();
+  });
 };

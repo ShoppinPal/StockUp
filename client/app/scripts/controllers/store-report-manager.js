@@ -46,8 +46,7 @@ angular.module('ShoppinPalApp')
           }
         )
           .$promise.then(function(response){
-            console.log('hopefully finished updating the row');
-            console.log(response);
+            storeReportRow.updatedAt = response.updatedAt;
           });
       };
 
