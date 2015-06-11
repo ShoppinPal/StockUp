@@ -1,14 +1,14 @@
 <div class="container" ng-controller="CreateManualOrderCtrl as orderController">
-    <div class="row">
+    <!--<div class="row">
         <div class="col-sm-12 col-md-12">
-            <!-- Select store header -->
+            &lt;!&ndash; Select store header &ndash;&gt;
             <header class="header">
                 <div class="row">
-                    <!-- Back button given here -->
+                    &lt;!&ndash; Back button given here &ndash;&gt;
                     <div class="col-md-5 col-sm-3 col-xs-12">
                         <div class="logo">{{::orderController.storeName}}
                             <div>
-                                <!-- <back-button back="Back"></back-button> -->
+                                &lt;!&ndash; <back-button back="Back"></back-button> &ndash;&gt;
                                 <a class="fa fa-home shopping-pal-home" ui-sref="store-landing"></a>
                             </div>
                         </div>
@@ -22,7 +22,11 @@
                 </div>
             </header>
         </div>
-    </div>
+    </div>-->
+    <shoppin-pal-header store-name="{{::orderController.storeName}}"
+                        button1-label="Create Manual Order"
+                        button1-class="button-large-green">
+    </shoppin-pal-header>
     <!-- Report Manager page content -->
     <div class="row main-container">
         <div class="order-container">
