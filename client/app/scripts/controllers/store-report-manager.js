@@ -95,7 +95,7 @@ angular.module('ShoppinPalApp')
        * @param storereport
        * This method remove the row from store-report on left swipe
        */
-      $scope.markRowAsCompleted = function(storeReportRow) {
+      $scope.markRowAsCompleted = function(rowIndex, storeReportRow) {
         // Q: why not use the SKU field as the id?
         // A: BECAUSE many other reports may have the same product and if we do this
         //    then entries will nuke each other in the table
@@ -112,6 +112,7 @@ angular.module('ShoppinPalApp')
             // change the UI after the backend finishes for data-integrity/assurance
             // but if this visibly messes with UI/UX, we might want to do it earlier...
             storeReportRow.state = 'complete';
+            $scope.storesReport.splice(rowIndex, 1); // TODO: animate?
           });
       };
 

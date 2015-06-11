@@ -66,14 +66,15 @@
                     <div class="scrollable-table">
                         <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
                             <tbody ng-repeat="storeReportRow in storesReport">
-                                <tr ng-if="displayPendingRows && storeReportRow.group_by_CHANGED"
+                                <!--http://stackoverflow.com/questions/15412897/how-to-obtain-previous-item-in-ng-repeat-->
+                                <tr ng-if="displayPendingRows && storeReportRow.type!==storesReport[$index - 1].type"
                                     class="inner-table-heading"
                                     id="jumpto{{storeReportRow.type}}">
                                     <td colspan="5"><span class="table-heading-font">{{::storeReportRow.type}}</span></td>
                                 </tr>
                                 <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'"
                                     ng-hide="$index==selectedRowIndex"
-                                    ng-swipe-right="markRowAsCompleted(storeReportRow)"
+                                    ng-swipe-right="markRowAsCompleted($index, storeReportRow)"
                                     ng-swipe-left="editStore($index)">
                                     <td width="10%">{{storeReportRow.sku}}</td>
                                     <td width="25%">{{storeReportRow.name}}</td>
