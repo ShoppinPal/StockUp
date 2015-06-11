@@ -43,7 +43,8 @@
         <div class="inner-container">
             <div class="report-manager-ipad-search">
                 <h4 class="jumpto">Jump to</h4>
-                <ul class="store-auto-height">
+                <ul ng-if="displayPendingRows"
+                    class="store-auto-height">
                     <li ng-repeat="value in alphabets | unique:'value'">
                         <a href="" ng-click="gotoDepartment(value)">{{value}}</a>
                     </li>

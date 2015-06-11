@@ -202,7 +202,7 @@ angular.module('ShoppinPalApp')
         }
         else {
           $scope.storesReport = $filter('filter')(originalReportDataSet, $scope.getFilterForRowsToDisplay());
-          $scope.storesReport = $filter('orderBy')($scope.storesReport, 'updatedAt');
+          $scope.storesReport = $filter('orderBy')($scope.storesReport, 'updatedAt', true);
         }
       };
 
