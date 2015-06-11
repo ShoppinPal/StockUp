@@ -105,12 +105,13 @@ angular.module('ShoppinPalApp')
             state: 'complete'
           }
         )
-          .$promise.then(function(/*response*/){
+          .$promise.then(function(response){
             //console.log('hopefully finished updating the row');
             //console.log(response);
 
             // change the UI after the backend finishes for data-integrity/assurance
             // but if this visibly messes with UI/UX, we might want to do it earlier...
+            storeReportRow.updatedAt = response.updatedAt;
             storeReportRow.state = 'complete';
             $scope.storesReport.splice(rowIndex, 1); // TODO: animate?
           });
