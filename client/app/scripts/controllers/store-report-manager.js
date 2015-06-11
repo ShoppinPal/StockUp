@@ -96,7 +96,9 @@ angular.module('ShoppinPalApp')
        * This method remove the row from store-report on left swipe
        */
       $scope.markRowAsCompleted = function(storeReportRow) {
-        // TODO: why not use the SKU field as the id?
+        // Q: why not use the SKU field as the id?
+        // A: BECAUSE many other reports may have the same product and if we do this
+        //    then entries will nuke each other in the table
         return StockOrderLineitemModel.prototype$updateAttributes(
           { id: storeReportRow.id },
           {
@@ -143,14 +145,6 @@ angular.module('ShoppinPalApp')
             typefirstChar = type.slice(0, 1).toUpperCase();
           $scope.alphabets.push(typefirstChar);
         }
-      };
-
-      $scope.displayPendingRows = true;
-      $scope.toggleRowsDisplayed = function() {
-        $scope.displayPendingRows = !$scope.displayPendingRows;
-      };
-      $scope.getFilterForRowsToDisplay = function() {
-        return ($scope.displayPendingRows) ? {state:'!complete'} : {state:'complete'};
       };
 
       /** @method submitToWarehouse
@@ -200,28 +194,52 @@ angular.module('ShoppinPalApp')
         }
       };
 
-      /** @method viewContentLoaded
-       * This method will load the storesReport from api on view load
-       */
-      $scope.$on('$viewContentLoaded', function() {
-        $scope.device = $scope.deviceDetector.device;
-        if($stateParams.reportId) {
-          $scope.waitOnPromise = loginService.getStoreReport($stateParams.reportId)
-            .then(function (response) {
-              $scope.storesReport = response;
-              $scope.storereportlength = $scope.storesReport.length;
-              $scope.JumtoDepartment();
-            });
+      var setFilterBasedOnState = function(){
+        if($scope.displayPendingRows) {
+          $scope.storesReport = $filter('filter')(originalReportDataSet, $scope.getFilterForRowsToDisplay());
+          $scope.storesReport = $filter('orderBy')($scope.storesReport, 'type');
+          $scope.storesReport = $filter('groupBy')($scope.storesReport, 'type');
         }
-        else { // if live data can't be loaded due to some bug, use MOCK data so testing can go on
-          console.log('live data can\'t be loaded due to some bug, use MOCK data so testing can go on');
-          $scope.waitOnPromise = loginService.getSelectStore()
-            .then(function (response) {
-              $scope.storesReport = response;
-              $scope.storereportlength = $scope.storesReport.length;
-              $scope.JumtoDepartment();
-            });
+        else {
+          $scope.storesReport = $filter('filter')(originalReportDataSet, $scope.getFilterForRowsToDisplay());
+          $scope.storesReport = $filter('orderBy')($scope.storesReport, 'updatedAt');
         }
-      });
+      };
+
+      $scope.toggleRows = function() {
+        $scope.displayPendingRows = !$scope.displayPendingRows;
+        setFilterBasedOnState();
+      };
+
+      $scope.getFilterForRowsToDisplay = function() {
+        return ($scope.displayPendingRows) ? {state:'!complete'} : {state:'complete'};
+      };
+
+      // -------------
+      // Load the data
+      // -------------
+      $scope.displayPendingRows = true;
+      $scope.device = $scope.deviceDetector.device;
+      var originalReportDataSet;
+      if($stateParams.reportId) {
+        $scope.waitOnPromise = loginService.getStoreReport($stateParams.reportId)
+          .then(function (response) {
+            originalReportDataSet = response;
+            setFilterBasedOnState();
+
+            $scope.storereportlength = $scope.storesReport.length;
+            $scope.JumtoDepartment();
+          });
+      }
+      else { // if live data can't be loaded due to some bug, use MOCK data so testing can go on
+        console.log('live data can\'t be loaded due to some bug, use MOCK data so testing can go on');
+        $scope.waitOnPromise = loginService.getSelectStore()
+          .then(function (response) {
+            $scope.storesReport = response;
+            $scope.storereportlength = $scope.storesReport.length;
+            $scope.JumtoDepartment();
+          });
+      }
+
     }
   ]);
