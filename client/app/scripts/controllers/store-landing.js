@@ -47,11 +47,15 @@ angular.module('ShoppinPalApp')
           });
       };
 
+      var inProcessFilter = function(report) {
+        return report.state === 'empty'|| report.state === 'manager';
+      };
+
       /** @method inProcessOrder
        * show only the inprocess order in UI
        */
       $scope.inProcessOrder = function() {
-        $scope.reportLists = $filter('filter')($scope.backUpReportList, {state: 'empty'} || {state: 'manager'});
+        $scope.reportLists = $filter('filter')($scope.backUpReportList, inProcessFilter);
       };
 
       /** @method newOrders
