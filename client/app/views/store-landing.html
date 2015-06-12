@@ -73,7 +73,9 @@
                                 'status-square-complete': storeReport.state == 'complete',
                                 'status-square-inprocess': storeReport.state == 'empty' || 'manager',
                                 'status-square-fulfilled': storeReport.state == 'pending'}">
-                                    </span> {{storeReport.state}}
+                                            </span>
+                                            <div ng-if="storeReport.state === 'empty'">{{storeReport.workerStatus}}</div>
+                                            <div ng-if="storeReport.state !== 'empty'">{{storeReport.state}}</div>
                                         </div>
                                     </td>
                                     <td width="5%">{{storeReport.totalRows}}</td>
