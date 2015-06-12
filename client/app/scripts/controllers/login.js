@@ -56,13 +56,19 @@ angular.module('ShoppinPalApp')
           function(error){
             console.log('login() failed');
             console.log(error);
-            $scope.errors.username = error.data.error.message;
-            $scope.errors.pwd = error.data.error.message;
-            console.log($scope.pwd);
+            var message = 'An error occured, please contact your administrator...';
             if (error && error.data && error.data.error && error.data.error.message) {
-              //TODO: @afzal and @chhaya - show an error to user
-              console.log(error.data.error.message);
+              message = error.data.error.message;
             }
+            else if (error && error.data && angular.isString(error.data)) {
+              message = error.data;
+            }
+            else if (error && error.statusText && angular.isString(error.statusText)) {
+              message = error.statusText;
+            }
+            console.log(message);
+            $scope.errors.username = message;
+            $scope.errors.pwd = message;
           });
       };
 
