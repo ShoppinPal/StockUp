@@ -1,4 +1,5 @@
-<div class="container">
+<div class="container"
+     cg-busy="{promise:waitOnPromise,message:message}">
     <!--<div class="row">
         <div class="col-sm-12 col-md-12">
             &lt;!&ndash; Select store header &ndash;&gt;
@@ -64,7 +65,7 @@
                                     <td colspan="5"><span class="table-heading-font">{{storeReport.supplier.name}}</span></td>
                                 </tr>
                                 <tr ng-if="$index!==selectedRowIndex"
-                                    ui-sref="store-report-manager({reportId:storeReport.id})"
+                                    ng-click="drilldownToReport($index, storeReport)"
                                     ng-swipe-left="editOrder($index)"
                                     ng-class=" ($index+1)%2 == 0 ? 'tr-even' : 'tr-odd'">
                                     <td width="5%">{{storeReport.id}}</td>

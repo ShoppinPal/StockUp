@@ -26,6 +26,14 @@ module.exports = function(ReportModel) {
     );
   });
 
+  ReportModel.remoteMethod('getWorkerStatus', {
+    accepts: [
+      {arg: 'id', type: 'number', required: true}
+    ],
+    http: {path: '/:id/getWorkerStatus', verb: 'get'},
+    returns: {arg: 'reportModelInstance', type: 'object', root:true}
+  });
+
   ReportModel.remoteMethod('generateStockOrderReportForManager', {
     accepts: [
       {arg: 'id', type: 'number', required: true}
@@ -201,6 +209,46 @@ module.exports = function(ReportModel) {
         function(error){
           cb(error);
         });
+    }
+  };
+
+  ReportModel.getWorkerStatus = function(id, cb) {
+    var currentUser = getCurrentUserModel(cb); // returns  immediately if no currentUser
+    if(currentUser) {
+      // (1) fetch the report
+      ReportModel.findById(id, function (error, reportModelInstance) {
+        //log('reportModelInstance:', reportModelInstance);
+
+        // (2) setup the iron worker client
+        var IronWorker = require('iron_worker');
+        var workerClient = new IronWorker.Client({
+          token: ReportModel.app.get('ironWorkersOauthToken'),
+          'project_id': ReportModel.app.get('ironWorkersProjectId')
+        });
+
+        // (3) fetch the task status
+        if(reportModelInstance.workerTaskId) {
+          workerClient.tasksGet(reportModelInstance.workerTaskId, function(error, body) {
+            if (error) {
+              console.error(error);
+              return cb(error);
+            }
+            log(JSON.stringify(body, null, 2));
+            //return cb(null, body);
+            return reportModelInstance.updateAttributes({
+              workerStatus: body.msg || body.status
+            })
+              .then(function(updatedReportModelInstance){
+                log('return the updated ReportModel');
+                cb(null, updatedReportModelInstance);
+              });
+          });
+        }
+        else {
+          cb(null);
+        }
+
+      });
     }
   };
 

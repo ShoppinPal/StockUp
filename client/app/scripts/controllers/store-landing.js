@@ -9,12 +9,14 @@
  */
 angular.module('ShoppinPalApp')
   .controller('StoreLandingCtrl', [
-    '$scope','$anchorScroll','$location', '$state', '$filter', '$sessionStorage', /* angular's modules/services/factories etc. */
+    '$scope', '$anchorScroll', '$location', '$state', '$filter', '$sessionStorage', /* angular's modules/services/factories etc. */
     'UserModel', 'LoopBackAuth', 'StoreModel', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
     function($scope, $anchorScroll, $location, $state, $filter, $sessionStorage,
              UserModel, LoopBackAuth, StoreModel, ReportModel)
     {
       $scope.storeName = $sessionStorage.currentStore.name;
+
+      $scope.message = 'Please Wait...';
 
       $scope.sortedOrder = [];
       $scope.reportLists = [];
@@ -91,12 +93,50 @@ angular.module('ShoppinPalApp')
        * This method will load the storesReport from api on view load
        */
       $scope.$on('$viewContentLoaded', function() {
-        UserModel.reportModels({id: LoopBackAuth.currentUserId})
+        $scope.waitOnPromise = UserModel.reportModels({id: LoopBackAuth.currentUserId})
           .$promise.then(function(response){
             $scope.reportLists = response;
             $scope.backUpReportList = response;
           });
       });
+
+      $scope.drilldownToReport = function (rowIndex, storeReport) {
+        console.log(rowIndex, storeReport);
+        if (storeReport.state !== 'empty') {
+          // ui-sref="store-report-manager({reportId:storeReport.id})"
+          $state.go('store-report-manager', {reportId:storeReport.id});
+        }
+        else {
+          // show a spinner message which indicates that we are pinging the server for a status update
+          $scope.message = 'Checking report status...';
+
+          // get an updated ReportModel with the latest task status as its property
+          $scope.waitOnPromise = ReportModel.getWorkerStatus(
+            {
+              id: storeReport.id
+            },
+            function(response){
+              console.log(response);
+              // drill-down into the report automatically if the state is no longer set to empty
+              if(storeReport.state === 'empty' && response.state === 'manager') {
+                // TODO: Should we bother to update the status of the report row visually first, before drilling down?
+                //       Overkill?
+                /*return $timeout(function() {
+                  console.log('update with timeout fired');
+                  return $state.go('store-report-manager', {reportId:storeReport.id});
+                }, 3000);*/
+                return $state.go('store-report-manager', {reportId:storeReport.id});
+              }
+              else { // update storeReport
+                storeReport.state = response.state;
+                storeReport.workerStatus = response.workerStatus;
+              }
+            },
+            function(err){
+              console.error(err);
+            });
+        }
+      };
 
     }
   ]);
