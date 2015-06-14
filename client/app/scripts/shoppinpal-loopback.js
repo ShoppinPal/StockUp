@@ -5489,6 +5489,41 @@ module.factory(
 
         /**
          * @ngdoc method
+         * @name shoppinpal-loopback.ReportModel#getWorkerStatus
+         * @methodOf shoppinpal-loopback.ReportModel
+         *
+         * @description
+         *
+         * <em>
+         * (The remote method definition does not provide any description.)
+         * </em>
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{number}` - 
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `ReportModel` object.)
+         * </em>
+         */
+        "getWorkerStatus": {
+          url: urlBase + "/ReportModels/:id/getWorkerStatus",
+          method: "GET"
+        },
+
+        /**
+         * @ngdoc method
          * @name shoppinpal-loopback.ReportModel#generateStockOrderReportForManager
          * @methodOf shoppinpal-loopback.ReportModel
          *

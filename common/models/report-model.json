@@ -27,6 +27,14 @@
     "totalRows": {
       "type": "number",
       "required": false
+    },
+    "workerTaskId": {
+      "type": "string",
+      "required": false
+    },
+    "workerStatus": {
+      "type": "string",
+      "required": false
     }
   },
   "validations": [],
