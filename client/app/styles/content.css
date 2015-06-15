@@ -61,7 +61,7 @@ h1{
     font-weight: bold;
 }
 .logo{
-    font-size: 26px;
+    font-size: 22px;
     color: #ffffff;
     font-weight: bold;
     padding: 0px 0px;
@@ -106,9 +106,10 @@ h1{
 .table.left-table, .table.right-table{
     margin-bottom: 0px;
 }
-.log-in-text{
-    text-align: right;
+.log-in-text {
     font-weight: bold;
+    margin-top: 2px;
+    text-align: right;
 }
 .logout-text{
     color: #ff8503 !important;
@@ -1009,6 +1010,7 @@ background-color: #E0E0E0;
   padding-left: 66px;
 }
 
-.shopping-pal-home {
-  font-size: 40px;
+.shoppin-pal-home {
+    font-size: 47px;
+    margin-top: 1px;
 }
