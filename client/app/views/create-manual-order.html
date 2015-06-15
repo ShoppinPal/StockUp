@@ -85,24 +85,18 @@
                 <div class="form-group">
                     <label for="fileImport" class="control-label col-xs-3">Import Order</label>
                     <div class="col-xs-8">
-                        <!-- <div class="fileUpload btn "> -->
-                        <input id="fileImport" type="file" file-model="myFile" click="importOrder()"/>
-                        <!--  <span>Choose File</span> -->
-                        <!-- <input type="file" class="upload" file-model="myFile" ng-click="importOrder()"/> -->
-                        <!--  </div> -->
+                        <!--<input id="fileImport" type="file" file-model="orderController.myFile" click="orderController.importOrder()"/>-->
+                        <input id="fileImport" name="fileImport"
+                               type='file' file-model='orderController.myFile'/>
                     </div>
                 </div>
                 <div class="form-group">
                     <div class="btn-align">
-                        <!--
-                        <button id="fileImport" type="file"
+                        <button type='button'
                                 class="btn btn-primary button-large-green"
-                                file-model="myFile"
-                                click="importOrder()">
-                            Import Order (choose file)
+                                ng-click='orderController.importOrder()'>
+                            Upload
                         </button>
-                        -->
-                        <!--<input id="submit" type="submit" value="Submit" ng-disabled="orderForm.$invalid"/>-->
                         <button id="submit" type="submit"
                                 class="btn btn-primary button-large-green"
                                 ng-disabled="orderForm.$invalid">

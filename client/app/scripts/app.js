@@ -3,11 +3,13 @@
 angular.module('ShoppinPalApp',[
   'angular-virtual-keyboard'
   ,'cgBusy'
+  ,'file-model'
   ,'geocoder'
   ,'mgcrea.ngStrap'
   ,'ngAnimate'
   ,'ngCookies'
   ,'ngDialog'
+  ,'ngPapaParse'
   ,'ngResource'
   ,'ngSanitize'
   ,'ngStorage'

@@ -12,9 +12,11 @@ angular.module('ShoppinPalApp').controller(
   [
     '$sessionStorage', /* angular's modules/services/factories etc. */
     'LoopBackAuth', 'SupplierModel', 'UserModel', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
+    'Papa', /* 3rd party modules/services/factories etc. */
     function CreateManualOrderCtrl (
       $sessionStorage,
-      LoopBackAuth, SupplierModel, UserModel, ReportModel)
+      LoopBackAuth, SupplierModel, UserModel, ReportModel,
+      Papa)
     {
       this.storeName = $sessionStorage.currentStore.name;
       this.suppliers = [];
@@ -38,15 +40,7 @@ angular.module('ShoppinPalApp').controller(
             });
         });
 
-      /** @method generateOrder
-       * This method will move to generate store report for particular store
-       */
-      this.generateOrder = function(){
-        console.log('inside generateOrder()',
-          '\norderName', this.orderName,
-          '\nselectedStoreId', this.selectedStore.api_id, // jshint ignore:line
-          '\nselectedSupplierId', this.selectedSupplier.apiId
-        );
+      this.createAnEmptyReport = function() {
         return UserModel.reportModels.create(
           {id: LoopBackAuth.currentUserId},
           {
@@ -61,7 +55,19 @@ angular.module('ShoppinPalApp').controller(
               name: self.selectedSupplier.name
             }
           }
-        )
+        );
+      };
+
+      /** @method generateOrder
+       * This method will move to generate store report for particular store
+       */
+      this.generateOrder = function(){
+        console.log('inside generateOrder()',
+          '\norderName', this.orderName,
+          '\nselectedStoreId', this.selectedStore.api_id, // jshint ignore:line
+          '\nselectedSupplierId', this.selectedSupplier.apiId
+        );
+        return self.createAnEmptyReport()
           .$promise.then(function(reportModelInstance){
             //return Parse.Promise.as(reportModelInstance);
             console.log(reportModelInstance);
@@ -78,5 +84,17 @@ angular.module('ShoppinPalApp').controller(
           });
       };
 
+      this.myFile = undefined;
+      this.importOrder = function(){
+        console.log(this.myFile);
+
+        Papa.parse(this.myFile, {
+          header: true,
+          complete: function(results) {
+            console.log('All done!');
+            console.log(results);
+          }
+        });
+      };
     }
   ]);
