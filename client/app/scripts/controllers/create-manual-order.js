@@ -10,12 +10,12 @@
 angular.module('ShoppinPalApp').controller(
   'CreateManualOrderCtrl',
   [
-    '$sessionStorage', /* angular's modules/services/factories etc. */
-    'LoopBackAuth', 'SupplierModel', 'UserModel', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
+    '$sessionStorage', '$q',/* angular's modules/services/factories etc. */
+    'LoopBackAuth', 'SupplierModel', 'UserModel', 'ReportModel', 'StockOrderLineitemModel', /* shoppinpal's custom modules/services/factories etc. */
     'Papa', /* 3rd party modules/services/factories etc. */
     function CreateManualOrderCtrl (
-      $sessionStorage,
-      LoopBackAuth, SupplierModel, UserModel, ReportModel,
+      $sessionStorage, $q,
+      LoopBackAuth, SupplierModel, UserModel, ReportModel, StockOrderLineitemModel,
       Papa)
     {
       this.storeName = $sessionStorage.currentStore.name;
@@ -93,6 +93,40 @@ angular.module('ShoppinPalApp').controller(
           complete: function(results) {
             console.log('All done!');
             console.log(results);
+            // TODO: (1) create a ReportModel
+            return self.createAnEmptyReport()
+              .$promise.then(function(reportModelInstance){
+                console.log('created reportModelInstance:', reportModelInstance);
+
+                var normalizedStoreName = self.selectedStore.name.replace(/ /g,'_');
+                console.log('normalizedStoreName:', normalizedStoreName);
+
+                var uploads = [];
+                _.each(results.data, function(data) {
+                  uploads.push(StockOrderLineitemModel.create({
+                    sku: data.sku,
+                    name: data.name,
+                    quantityOnHand: data['inventory_'+normalizedStoreName],
+                    desiredStockLevel: data['reorder_point_'+normalizedStoreName],
+                    orderQuantity: data['reorder_point_'+normalizedStoreName],
+                    type: data.type,
+                    reportId: reportModelInstance.id,
+                    userId: LoopBackAuth.currentUserId
+                  }));
+                });
+
+                return $q.all(uploads)
+                  .then(function(){
+                    return ReportModel.prototype$updateAttributes(
+                      { id: reportModelInstance.id },
+                      { state: 'manager' }
+                    )
+                      .$promise.then(function(updatedReportModelInstance){
+                        console.log('updatedReportModelInstance', updatedReportModelInstance);
+                      });
+                  });
+
+              });
           }
         });
       };
