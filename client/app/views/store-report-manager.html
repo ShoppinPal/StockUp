@@ -55,8 +55,8 @@
                     <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
                         <thead>
                             <tr>
-                                <th width="10%">SKU</th>
-                                <th width="25%">Name</th>
+                                <th width="25%">SKU</th>
+                                <th width="60%">Name</th>
                                 <th width="5%">Quantity on Hand</th>
                                 <th width="5%">Desired Stock Level</th>
                                 <th width="5%">Ordered Quantity</th>
@@ -64,7 +64,7 @@
                         </thead>
                     </table>
                     <div class="scrollable-table">
-                        <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
+                        <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table" device-detector ng-class="{'ipad-table': device === 'ipad'}">
                             <tbody ng-repeat="storeReportRow in storesReport">
                                 <!--http://stackoverflow.com/questions/15412897/how-to-obtain-previous-item-in-ng-repeat-->
                                 <tr ng-if="displayPendingRows && storeReportRow.type!==storesReport[$index - 1].type"
@@ -76,11 +76,11 @@
                                     ng-hide="$index==selectedRowIndex"
                                     ng-swipe-right="markRowAsCompleted($index, storeReportRow)"
                                     ng-swipe-left="editStore($index)">
-                                    <td width="10%">{{storeReportRow.sku}}</td>
-                                    <td width="25%">{{storeReportRow.name}}</td>
-                                    <td width="5%">{{storeReportRow.quantityOnHand}}</td>
-                                    <td width="5%">{{storeReportRow.desiredStockLevel}}</td>
-                                    <td width="5%">{{storeReportRow.orderQuantity}}</td>
+                                    <td class="report-head1">{{storeReportRow.sku}}</td>
+                                    <td class="report-head2">{{storeReportRow.name}}</td>
+                                    <td class="report-head3">{{storeReportRow.quantityOnHand}}</td>
+                                    <td class="report-head4">{{storeReportRow.desiredStockLevel}}</td>
+                                    <td class="report-head5">{{storeReportRow.orderQuantity}}</td>
                                 </tr>
                                 <tr ng-if="storeReportRow.comment"
                                     ng-hide="$index==selectedRowIndex">

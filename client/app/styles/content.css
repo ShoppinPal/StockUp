@@ -1012,3 +1012,108 @@ background-color: #E0E0E0;
 .shopping-pal-home {
   font-size: 40px;
 }
+
+.store-landing-right-table tbody tr td:nth-child(2){
+    text-align: left !important;
+    padding-left:10px;
+}
+
+.store-landing-right-table thead tr th:first-child, .store-landing-right-table thead tr th:nth-child(2) {
+    text-align: left !important;
+    padding-left:10px;
+}
+
+.report-manager-ipad-search .jumpto {
+    padding-top: 17px;
+}
+
+.report-manager-ipad-search ul {
+    padding-top: 10px;
+}
+
+/* BEGINS - Store manager report table related CSS styles */
+
+/* BEGINS - Store manager report related CSS Style for WEB  */
+@media screen and (min-width:1024px){
+    .scrollable-table .report-head1 {
+        width:205px;
+    }
+
+    .scrollable-table .report-head2 {
+        width:510px;
+    }
+
+    .scrollable-table .report-head3 {
+        width:88px;
+    }
+
+    .scrollable-table .report-head4 {
+        width:80px;
+    }
+
+    .scrollable-table .report-head5 {
+        width:88px;
+    }
+}
+/* ENDS - Store manager report related  CSS Style for WEB  */
+
+/* BEGINS - Store manager report related CSS Style for Chrome Only */
+.report-head1:not(*:root) {
+    width:225px;
+}
+.report-head2:not(*:root) {
+    width:570px;
+}
+.report-head3:not(*:root) {
+    width:99px;
+}
+.report-head4:not(*:root) {
+    width:80px;
+}
+.report-head5:not(*:root) {
+    width:75px;
+}
+/* ENDS - Store manager report related CSS Style for Chrome Only */
+
+/* BEGINS - Store manager report related CSS Style for iPad Portrait Mode */
+@media only screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:portrait) {
+    .ipad-table .report-head1 {
+        width:130px;
+    }
+    .ipad-table .report-head2 {
+        width:320px;
+    }
+    .ipad-table .report-head3 {
+        width:100px;
+    }
+    .ipad-table .report-head4 {
+        width:80px;
+    }
+    .ipad-table .report-head5 {
+        width:100px;
+    }
+}
+/* ENDS - Store manager report related CSS Style for iPad Portrait Mode */
+
+/* BEGINS - Store manager report related CSS Style for iPad Landscape Mode */
+@media only screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:landscape) {
+    .ipad-table .report-head1{
+        width:210px;
+    }
+    .ipad-table .report-head2 {
+        width:540px;
+    }
+    .ipad-table .report-head3 {
+        width:120px;
+    }
+    .ipad-table .report-head4
+    {
+        width:80px;
+    }
+    .ipad-table .report-head5 {
+        width:110px;
+    }
+}
+/* ENDS - Store manager report related CSS Style for iPad Landscape Mode */
+
+/* ENDS - Store manager report table related CSS styles */
