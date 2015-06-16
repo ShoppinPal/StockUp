@@ -8,6 +8,7 @@
     "ejs": "~0.8.5",
     "errorhandler": "^1.1.1",
     "form-data": "~0.1.4",
+    "iron_worker": "0.1.4",
     "loopback": "2.16.0",
     "loopback-boot": "2.7.0",
     "loopback-datasource-juggler": "2.25.0",

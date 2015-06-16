@@ -71,7 +71,6 @@ angular.module('ShoppinPalApp').controller(
               },
               function(response){
                 console.log(response);
-                //$state.go('store-report-manager');
               },
               function(err){
                 console.error(err);
