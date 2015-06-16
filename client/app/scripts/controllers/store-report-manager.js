@@ -99,7 +99,7 @@ angular.module('ShoppinPalApp')
         // Q: why not use the SKU field as the id?
         // A: BECAUSE many other reports may have the same product and if we do this
         //    then entries will nuke each other in the table
-        return StockOrderLineitemModel.prototype$updateAttributes(
+        $scope.waitOnMarkCompletePromise = StockOrderLineitemModel.prototype$updateAttributes(
           { id: storeReportRow.id },
           {
             state: 'complete'
