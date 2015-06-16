@@ -50,7 +50,7 @@
                     </li>
                 </ul>
             </div>
-            <div class="center-block">
+            <div class="center-block" cg-busy="waitOnMarkCompletePromise">
                 <div class="report-manager-ipad-scroll">
                     <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
                         <thead>
@@ -65,7 +65,7 @@
                     </table>
                     <div class="scrollable-table">
                         <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table" device-detector ng-class="{'ipad-table': device === 'ipad'}">
-                            <tbody ng-repeat="storeReportRow in storesReport">
+                            <tbody ng-repeat="storeReportRow in storesReport" class="animate-repeat">
                                 <!--http://stackoverflow.com/questions/15412897/how-to-obtain-previous-item-in-ng-repeat-->
                                 <tr ng-if="displayPendingRows && storeReportRow.type!==storesReport[$index - 1].type"
                                     class="inner-table-heading"
@@ -93,7 +93,7 @@
                                 <!-- <tr ng-show="$index==selectedRowIndex" class="edit-row" ng-mouseleave="dismissEdit(storeReportRow)"> -->
                                 <tr ng-if="$index==selectedRowIndex"
                                     ng-init="onEditInit(storeReportRow)"
-                                    class="edit-row editable-panel">
+                                    class="edit-row editable-panel animate-if">
                                     <td colspan="6" class="editable-panel">
                                         <div class="row editable-panel">
                                             <div class="col-sm-2 edit-column-heading-text editable-panel">{{storeReportRow.sku}}</div>
