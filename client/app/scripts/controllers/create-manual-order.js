@@ -101,9 +101,9 @@ angular.module('ShoppinPalApp').controller(
                 var normalizedStoreName = self.selectedStore.name.replace(/ /g,'_');
                 console.log('normalizedStoreName:', normalizedStoreName);
 
-                var uploads = [];
+                var rows = [];
                 _.each(results.data, function(data) {
-                  uploads.push({
+                  rows.push({
                     sku: data.sku,
                     name: data.name,
                     quantityOnHand: data['inventory_'+normalizedStoreName],
@@ -115,9 +115,20 @@ angular.module('ShoppinPalApp').controller(
                   });
                 });
 
-                return uploads.reduce(function(promise, item) {
-                  return promise.then(function(/*result*/) {
-                    return StockOrderLineitemModel.create(item);
+                // split rows to be saved in chunks of 500
+                var i, rowChunks=[], chunkSize = 500;
+                for (i=0; i<Math.ceil(rows.length/chunkSize); i+=1) {
+                  console.log('slice from index', i*chunkSize, 'up to but not including', i*chunkSize+chunkSize);
+                  rowChunks.push(rows.slice(i*chunkSize,i*chunkSize+chunkSize));
+                }
+                console.log('rowChunks.length', rowChunks.length);
+
+                //var counter = 0;
+                return rowChunks.reduce(function(promise, rowChunk) {
+                  //return promise.then(function(result) {
+                  return promise.then(function() {
+                    //console.log('counter', counter++, 'result from previous step:', result);
+                    return StockOrderLineitemModel.createMany(rowChunk);
                   });
                 }, $q.when())
                   .then(function(){
