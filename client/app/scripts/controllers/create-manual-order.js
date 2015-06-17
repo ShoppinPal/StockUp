@@ -103,7 +103,7 @@ angular.module('ShoppinPalApp').controller(
 
                 var uploads = [];
                 _.each(results.data, function(data) {
-                  uploads.push(StockOrderLineitemModel.create({
+                  uploads.push({
                     sku: data.sku,
                     name: data.name,
                     quantityOnHand: data['inventory_'+normalizedStoreName],
@@ -112,10 +112,14 @@ angular.module('ShoppinPalApp').controller(
                     type: data.type,
                     reportId: reportModelInstance.id,
                     userId: LoopBackAuth.currentUserId
-                  }));
+                  });
                 });
 
-                return $q.all(uploads)
+                return uploads.reduce(function(promise, item) {
+                  return promise.then(function(/*result*/) {
+                    return StockOrderLineitemModel.create(item);
+                  });
+                }, $q.when())
                   .then(function(){
                     return ReportModel.prototype$updateAttributes(
                       { id: reportModelInstance.id },
