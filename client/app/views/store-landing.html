@@ -84,14 +84,15 @@
                                     <td width="5%">{{storeReport.totalRows}}</td>
                                 </tr>
                                 <!-- Edit store-report start -->
-                                <tr ng-if="$index==selectedRowIndex"
-                                    ng-mouseleave="dismissEdit(storeReport)"
-                                    class="edit-row">
-                                    <td colspan="6">
-                                        <div class="col-sm-2">{{storeReport.id}}</div>
-                                        <div class="col-sm-3">
+                                <!--<tr ng-if="$index==selectedRowIndex" ng-mouseleave="dismissEdit(storeReport)" class="edit-row">-->
+                                <tr ng-if="$index==selectedRowIndex" class="edit-row editable-panel"
+                                    ng-init="onEditInit(storeReport)">
+                                    <td colspan="6" class="editable-panel">
+                                        <div class="col-sm-2 editable-panel">{{storeReport.id}}</div>
+                                        <div class="col-sm-3 editable-panel">
                                             <input type="text"
-                                                   class="form-control store-landing-outlet-input"
+                                                   id="order-name-input"
+                                                   class="form-control store-landing-outlet-input editable-panel"
                                                    ng-model="storeReport.name">
                                         </div>
                                     </td>
