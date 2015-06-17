@@ -42,7 +42,7 @@
     <div class="row main-container">
         <div class="inner-container">
             <div class="report-manager-ipad-search">
-                <h4 class="jumpto">Jump to</h4>
+                <h4 class="jumpto" ng-if="displayPendingRows">Jump to</h4>
                 <ul ng-if="displayPendingRows"
                     class="store-auto-height">
                     <li ng-repeat="value in alphabets | unique:'value'">
@@ -50,7 +50,8 @@
                     </li>
                 </ul>
             </div>
-            <div class="center-block" cg-busy="waitOnMarkCompletePromise">
+            <!--<div class="center-block" cg-busy="waitOnMarkCompletePromise">-->
+            <div class="center-block">
                 <div class="report-manager-ipad-scroll">
                     <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
                         <thead>

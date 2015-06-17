@@ -10,9 +10,9 @@
 angular.module('ShoppinPalApp')
   .controller('StoreLandingCtrl', [
     '$scope', '$anchorScroll', '$location', '$state', '$filter', '$sessionStorage', /* angular's modules/services/factories etc. */
-    'UserModel', 'LoopBackAuth', 'StoreModel', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
+    'UserModel', 'LoopBackAuth', 'StoreModel', 'ReportModel', 'deviceDetector', /* shoppinpal's custom modules/services/factories etc. */
     function($scope, $anchorScroll, $location, $state, $filter, $sessionStorage,
-             UserModel, LoopBackAuth, StoreModel, ReportModel)
+             UserModel, LoopBackAuth, StoreModel, ReportModel, deviceDetector)
     {
       $scope.storeName = $sessionStorage.currentStore.name;
 
@@ -21,6 +21,31 @@ angular.module('ShoppinPalApp')
       $scope.sortedOrder = [];
       $scope.reportLists = [];
       $scope.backUpReportList = [];
+      $scope.deviceDetector = deviceDetector;
+
+      /** @method onEditInit()
+       * @param storeReport
+       * This method is called once user choose to edit order name using right swipe
+       */
+      $scope.onEditInit = function(storeReport) {
+        angular.element(document.querySelector('#order-name-input'))[0].focus();
+        var shoppinPalMainDiv = angular.element(document.querySelector('.shoppinPal-warehouse'));
+        if($scope.deviceDetector.isDesktop()) {
+          shoppinPalMainDiv.bind('mousedown', function(event) {
+            if( !event.target.classList.contains('editable-panel') ) {
+              $scope.dismissEdit(storeReport);
+              shoppinPalMainDiv.unbind('mousedown');
+            }
+          });
+        } else {
+          shoppinPalMainDiv.bind('touchstart', function(event) {
+            if( !event.target.classList.contains('editable-panel') ) {
+              $scope.dismissEdit(storeReport);
+              shoppinPalMainDiv.unbind('touchstart');
+            }
+          });
+        }
+      };
 
       /** @method editOrder
        * This will edit the order name
