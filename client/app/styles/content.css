@@ -1161,3 +1161,7 @@ background-color: #E0E0E0;
   opacity:1;
 }
 /* ENDS - angular-animate CSS */
+
+.header-store-name {
+    height: 27px;
+}
