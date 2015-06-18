@@ -94,8 +94,10 @@ angular.module('ShoppinPalApp').controller(
             console.log('All done!');
             console.log(results);
             // TODO: (1) create a ReportModel
-            return self.createAnEmptyReport()
+            self.message = 'Creating an empty report...';
+            self.waitOnPromise = self.createAnEmptyReport()
               .$promise.then(function(reportModelInstance){
+                self.message = 'Ready to populate the empty report...';
                 console.log('created reportModelInstance:', reportModelInstance);
 
                 var normalizedStoreName = self.selectedStore.name.replace(/ /g,'_');
@@ -123,21 +125,34 @@ angular.module('ShoppinPalApp').controller(
                 }
                 console.log('rowChunks.length', rowChunks.length);
 
-                //var counter = 0;
-                return rowChunks.reduce(function(promise, rowChunk) {
-                  //return promise.then(function(result) {
-                  return promise.then(function() {
-                    //console.log('counter', counter++, 'result from previous step:', result);
-                    return StockOrderLineitemModel.createMany(rowChunk);
-                  });
-                }, $q.when())
+                var counter = 1;
+                return $q.map(
+                  rowChunks,
+                  function (aChunkOfRows) {
+                    self.message = 'Adding data in batches, working on: ' + counter++ + ' / ' + rowChunks.length;
+                    console.log('Will create a chunk of lineitems with length:', aChunkOfRows.length);
+                    return StockOrderLineitemModel.createMany(aChunkOfRows)
+                      .$promise.then(function (stockOrderLineitemModelInstances) {
+                        // TODO: file a bug w/ strongloop support, the data that comes back
+                        // does not represent the newly created rows in size accurately
+                        console.log('Created a chunk of lineitems with length:', _.keys(stockOrderLineitemModelInstances).length);
+                        return $q.resolve();
+                      });
+                  },
+                  {concurrency: 1}
+                )
                   .then(function(){
+                    self.message = 'Marking report as ready...';
+                    console.log('Will update the report');
                     return ReportModel.prototype$updateAttributes(
                       { id: reportModelInstance.id },
                       { state: 'manager' }
                     )
                       .$promise.then(function(updatedReportModelInstance){
                         console.log('updatedReportModelInstance', updatedReportModelInstance);
+                        self.message = 'Please Wait...';
+                        //return $state.go('store-landing'); //TODO: why doesn't this work?
+                        return $q.resolve();
                       });
                   });
 

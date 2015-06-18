@@ -1,4 +1,6 @@
-<div class="container" ng-controller="CreateManualOrderCtrl as orderController">
+<div class="container"
+     ng-controller="CreateManualOrderCtrl as orderController"
+     cg-busy="{promise:orderController.waitOnPromise,message:orderController.message}">
     <!--<div class="row">
         <div class="col-sm-12 col-md-12">
             &lt;!&ndash; Select store header &ndash;&gt;

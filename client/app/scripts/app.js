@@ -6,6 +6,7 @@ angular.module('ShoppinPalApp',[
   ,'file-model'
   ,'geocoder'
   ,'mgcrea.ngStrap'
+  ,'mwl.bluebird'
   ,'ngAnimate'
   ,'ngCookies'
   ,'ngDialog'
