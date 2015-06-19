@@ -5,9 +5,10 @@
       <div class="row">
         <!-- Back button given here -->
         <div class="col-md-6 col-sm-6 col-xs-12">
-          <div class="logo">{{::storeName}}
+          <div class="logo">
+            <div class="header-store-name">{{::storeName}}</div>
             <div ng-show="!isHomePage">
-              <a class="fa fa-home shoppin-pal-home" ui-sref="store-landing"></a>
+              <a ng-if="homeState" class="fa fa-home shoppin-pal-home" ui-sref="{{::homeState}}"></a>
             </div>
           </div>
         </div>

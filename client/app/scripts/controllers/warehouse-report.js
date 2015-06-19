@@ -8,8 +8,8 @@
  * Controller of the ShoppinPalApp
  */
 angular.module('ShoppinPalApp')
-  .controller('WarehouseReportCtrl',['$scope','$state','loginService','$anchorScroll','$location',
-    function ($scope,$state,loginService, $anchorScroll, $location){
+  .controller('WarehouseReportCtrl',['$scope','$state','loginService','$anchorScroll','$location', 'deviceDetector',
+    function ($scope,$state,loginService, $anchorScroll, $location, deviceDetector){
 
       $scope.alphabets = [];
       $scope.movedToBox = [];
@@ -19,14 +19,42 @@ angular.module('ShoppinPalApp')
       $scope.openBox = true;
       $scope.submit = 'Review';
       $scope.closeBoxButtonLabel = 'CLOSE THIS BOX';
-      $scope.printSlipButtonLabel = 'PRINT PACKING SLIP';
+      //$scope.printSlipButtonLabel = 'PRINT PACKING SLIP';
       $scope.ReviewSubmitPage = true;
+      $scope.deviceDetector = deviceDetector;
+
+      /** @method onEditInit()
+       * @param storeReport
+       * This method is called once user choose to edit a row using right swipe
+       */
+      $scope.onEditInit = function(/*storeReport*/) {
+        var shoppinPalMainDiv = angular.element(document.querySelector('.shoppinPal-warehouse'));
+        if($scope.deviceDetector.isDesktop()) {
+          shoppinPalMainDiv.bind('mousedown', function(event) {
+            if( !event.target.classList.contains('editable-panel') ) {
+              $scope.dismissEdit();
+              shoppinPalMainDiv.unbind('mousedown');
+            }
+          });
+        } else {
+          shoppinPalMainDiv.bind('touchstart', function(event) {
+            if( !event.target.classList.contains('editable-panel') ) {
+              $scope.dismissEdit();
+              shoppinPalMainDiv.unbind('touchstart');
+            }
+          });
+        }
+      };
 
      /** @method dismissEdit
        * This method will close the editable mode in store-report
        */
       $scope.dismissEdit =function(){
-        $scope.selectedRowIndex  = $scope.storereportlength + 1;
+        //$scope.selectedRowIndex  = $scope.storereportlength + 1;
+        /* using $scope.$apply() because the view was not updating  */
+        $scope.$apply(function(){
+          $scope.selectedRowIndex  = $scope.storereportlength + 1;
+        });
       };
 
      /** @method printDiv
