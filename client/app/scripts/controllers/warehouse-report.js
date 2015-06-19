@@ -27,7 +27,7 @@ angular.module('ShoppinPalApp')
        * @param storeReport
        * This method is called once user choose to edit a row using right swipe
        */
-      $scope.onEditInit = function(storeReport) {
+      $scope.onEditInit = function(/*storeReport*/) {
         var shoppinPalMainDiv = angular.element(document.querySelector('.shoppinPal-warehouse'));
         if($scope.deviceDetector.isDesktop()) {
           shoppinPalMainDiv.bind('mousedown', function(event) {
