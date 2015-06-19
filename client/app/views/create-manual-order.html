@@ -96,13 +96,14 @@
                     <div class="btn-align">
                         <button type='button'
                                 class="btn btn-primary button-large-green"
-                                ng-click='orderController.importOrder()'>
-                            Upload
+                                ng-click='orderController.importOrder()'
+                                ng-disabled="!orderController.myFile">
+                            Use File
                         </button>
                         <button id="submit" type="submit"
                                 class="btn btn-primary button-large-green"
                                 ng-disabled="orderForm.$invalid">
-                            Generate New Order
+                            Use Live Data
                         </button>
                     </div>
                 </div>
