@@ -96,14 +96,22 @@
                     <div class="btn-align">
                         <button type='button'
                                 class="btn btn-primary button-large-green"
-                                ng-click='orderController.importOrder()'
+                                ng-click="orderController.importOrder()"
                                 ng-disabled="!orderController.myFile">
-                            Use File
+                            Import Order - To Fulfill
                         </button>
+                        <button type='button'
+                                class="btn btn-primary button-large-green"
+                                ng-click="orderController.importOrder()"
+                                ng-disabled="!orderController.myFile">
+                            Import Order - To Receive
+                        </button>
+                        <!-- TODO: for someone in a manager role, file selector should be hidden and
+                                  this should be the only button displayed-->
                         <button id="submit" type="submit"
                                 class="btn btn-primary button-large-green"
                                 ng-disabled="orderController.myFile || orderForm.$invalid">
-                            Use Live Data
+                            Generate a New Order
                         </button>
                     </div>
                 </div>
