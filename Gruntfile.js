@@ -331,7 +331,7 @@ module.exports = function (grunt) {
       }
     },
     localtunnel: {
-      development: {
+      anyEnv: {
         options: {
           subdomain: grunt.option('subdomain') || 'pleaseSetSubDomain',
           port: '<%= connect.options.port %>',
@@ -398,7 +398,7 @@ module.exports = function (grunt) {
         'jshint',
         'loadConfig:' + env,
         'loopback_sdk_angular', // TODO: this is eventually called by `build` task too, remove from here?
-        'localtunnel:' + env,
+        'localtunnel:anyEnv',
         'clean:server',
         'concurrent:all',
         'env:' + env, // TODO: move this to be right after `localtunnel` task? or will it exacerbate the race condition?
@@ -415,7 +415,7 @@ module.exports = function (grunt) {
     grunt.option('environment', env);
     grunt.task.run([
       'jshint',
-      //'loadConfig:' + env, // if called from grunt:server, previous work by tasks such as localtunnel:<env> and env:<env> will get nuked
+      //'loadConfig:' + env, // if called from grunt:server, previous work by tasks such as localtunnel:anyEnv and env:<env> will get nuked
       'loopback_sdk_angular',
       'clean:dist',
       'useminPrepare',
