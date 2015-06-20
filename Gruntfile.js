@@ -303,7 +303,9 @@ module.exports = function (grunt) {
       development: {
         'site:baseUrl': '<%= buildProperties.site.baseUrl %>'
       },
-      staging: {},
+      staging: {
+        'site:baseUrl': '<%= buildProperties.site.baseUrl %>'
+      },
       production: {}
     },
     replace: {
