@@ -78,9 +78,9 @@
                                     ng-hide="$index==selectedRowIndex"
                                     ng-swipe-right="markRowAsCompleted($index, storeReportRow)"
                                     ng-swipe-left="editStore($index)">
-                                    <td class="report-head1">{{storeReportRow.sku}}</td>
-                                    <td class="report-head2">{{storeReportRow.name}}</td>
-                                    <td class="report-head3">{{storeReportRow.quantityOnHand}}</td>
+                                    <td class="report-head1">{{::storeReportRow.sku}}</td>
+                                    <td class="report-head2">{{::storeReportRow.name}}</td>
+                                    <td class="report-head3">{{::storeReportRow.quantityOnHand}}</td>
                                     <td class="report-head4">{{storeReportRow.desiredStockLevel}}</td>
                                     <td class="report-head5">{{storeReportRow.orderQuantity}}</td>
                                 </tr>
