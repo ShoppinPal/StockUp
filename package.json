@@ -1,6 +1,6 @@
 {
   "name": "shoppinpal-warehouse",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "dependencies": {
     "bluebird": "2.9.14",
     "compression": "^1.0.3",
