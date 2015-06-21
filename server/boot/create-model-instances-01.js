@@ -371,7 +371,7 @@ module.exports = function(app) {
 
                               // explicitly setup the foreignKey for related models
                               _.each(storeConfigSeedData.supplierModels, function(supplierModelSeedData){
-                                supplierModelSeedData.userModelToStoreModelId = retailUser.id;
+                                supplierModelSeedData.userId = retailUser.id;
                                 supplierModelSeedData.storeConfigModelToSupplierModelId = storeConfigModelInstance.objectId;
                               });
 

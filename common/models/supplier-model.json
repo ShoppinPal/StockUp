@@ -17,7 +17,7 @@
     "userModel": {
       "type": "belongsTo",
       "model": "UserModel",
-      "foreignKey": "userModelToSupplierModelId"
+      "foreignKey": "userId"
     },
     "storeConfigModel": {
       "type": "belongsTo",
