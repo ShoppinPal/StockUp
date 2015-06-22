@@ -256,7 +256,7 @@ module.exports = function(app) {
               return Promise.map(
                 seed.storeConfigModels,
                 function(storeConfigSeedData){
-                  var filteredStoreConfigSeedData = _.omit(storeConfigSeedData, 'storeModels');
+                  var filteredStoreConfigSeedData = _.omit(storeConfigSeedData, 'storeModels', 'supplierModels', 'teamAdmin');
 
                   var teamAdminRaw = storeConfigSeedData.teamAdmin || retailUserRaw;
                   return setupUser(teamAdminRaw)
