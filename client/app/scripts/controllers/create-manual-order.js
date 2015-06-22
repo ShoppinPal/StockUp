@@ -22,7 +22,7 @@ angular.module('ShoppinPalApp').controller(
       var self = this;
 
       // Load the data
-      SupplierModel.find({})
+      SupplierModel.listSuppliers({})
         .$promise.then(function(response) {
           self.suppliers = response;
           if(self.suppliers && self.suppliers.length > 0) {
