@@ -43,12 +43,6 @@ module.exports = function(app) {
       });
     }
 
-    // if the target model is not StoreConfigModel
-    if (context.modelName !== 'StoreConfigModel') {
-      log('the target model is not StoreConfigModel');
-      return reject();
-    }
-
     // do not allow anonymous users
     var userId = context.accessToken.userId;
     if (!userId) {
@@ -56,26 +50,34 @@ module.exports = function(app) {
       return reject();
     }
 
-    // check if userId is in team table for the given project id
-    context.model.findById(context.modelId, function(err, storeConfigModel) {
-      if (err || !storeConfigModel) {
-        log('err || !storeConfigModel');
+    log('Role resolver for `teamMember` - evaluate ' +
+      context.model.definition.name + ' with id: ' + context.modelId +
+      ' for userId: ' + context.accessToken.userId);
+    context.model.findById(context.modelId, function(err, modelInstance) {
+      if (err) {
+        log('err', err);
         return reject();
       }
+      else if(!modelInstance) {
+        log('no model instance found');
+        return reject();
+      }
+      else {
+        var TeamModel = app.models.TeamModel;
+        // check if userId is in team table for the given model's userId
+        TeamModel.count({
+          ownerId: modelInstance.userId,
+          memberId: userId
+        }, function(err, count) {
+          if (err) {
+            console.log(err);
+            return cb(null, false);
+          }
 
-      var TeamModel = app.models.TeamModel;
-      TeamModel.count({
-        ownerId: storeConfigModel.userModelToStoreConfigModelId,
-        memberId: userId
-      }, function(err, count) {
-        if (err) {
-          console.log(err);
-          return cb(null, false);
-        }
-
-        log('is a team member');
-        cb(null, count > 0); // true = is a team member
-      });
+          log('is a team member');
+          cb(null, count > 0); // true = is a team member
+        });
+      }
     });
   });
 

@@ -262,7 +262,7 @@ module.exports = function(app) {
                   return setupUser(teamAdminRaw)
                     .then(function(userInstance) {
                       debug('('+ (++commentsIndex) +')', 'created and assigned the teamAdmin:', userInstance.username);
-                      filteredStoreConfigSeedData.userModelToStoreConfigModelId = userInstance.id;
+                      filteredStoreConfigSeedData.userId = userInstance.id;
                       return Promise.resolve();
                     })
                     .then(function() {
@@ -303,8 +303,8 @@ module.exports = function(app) {
                                       .tap(function (userInstance) {
                                         debug('(' + (++commentsIndex) + ')', 'add store manager as a team member for', storeSeedData.name);
                                         return TeamModel.findOrCreate(
-                                          {where: {ownerId: storeConfigModelInstance.userModelToStoreConfigModelId, memberId: userInstance.id}}, // find
-                                          {ownerId: storeConfigModelInstance.userModelToStoreConfigModelId, memberId: userInstance.id} // create
+                                          {where: {ownerId: storeConfigModelInstance.userId, memberId: userInstance.id}}, // find
+                                          {ownerId: storeConfigModelInstance.userId, memberId: userInstance.id} // create
                                         )
                                           .spread(function (teamModel, created) {
                                             (created) ? debug('(' + (++commentsIndex) + ') ' + 'created', 'TeamModel', teamModel)
@@ -371,7 +371,7 @@ module.exports = function(app) {
 
                               // explicitly setup the foreignKey for related models
                               _.each(storeConfigSeedData.supplierModels, function(supplierModelSeedData){
-                                supplierModelSeedData.userId = retailUser.id;
+                                supplierModelSeedData.userId = filteredStoreConfigSeedData.userId;
                                 supplierModelSeedData.storeConfigModelToSupplierModelId = storeConfigModelInstance.objectId;
                               });
 

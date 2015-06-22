@@ -18,7 +18,12 @@
     "storeConfigModels": {
       "type": "hasMany",
       "model": "StoreConfigModel",
-      "foreignKey": "userModelToStoreConfigModelId"
+      "foreignKey": "userId"
+    },
+    "supplierModels": {
+      "type": "hasMany",
+      "model": "SupplierModel",
+      "foreignKey": "userId"
     },
     "storeModels": {
       "type": "hasMany",
