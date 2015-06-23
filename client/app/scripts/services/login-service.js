@@ -76,9 +76,24 @@ angular.module('ShoppinPalApp')
               alert('Something went wrong.');
               console.log(error);
             });
+        },
+
+        /**
+         * @method getReceiverReport
+         * Get receiver report
+         */
+        getReceiverReport: function () {
+          return $http({
+            url: 'scripts/json/receiverReport.json',
+            method: 'GET'
+          }).then(function (response) {
+            return response;
+          },
+          function (error) {
+            alert('Something went wrong.');
+            console.error(error);
+          });
         }
       };
-
     }
-
   ]);

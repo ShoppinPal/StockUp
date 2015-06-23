@@ -1161,3 +1161,69 @@ background-color: #E0E0E0;
   opacity:1;
 }
 /* ENDS - angular-animate CSS */
+
+.box-closed {
+    cursor: pointer;
+}
+.box-disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* BEGINS - Store Receiver report table related CSS styles */
+
+.receiver-report-ipad-scroll {
+    list-style: outside none none;
+    margin-left: 72px;
+    padding: 0;
+    background: #93c8ca;
+    width: 756px;
+}
+
+.receiver-report-ipad-right-column {
+    height: 706px;
+}
+
+/* BEGINS - Store Receiver report related CSS Style for WEB  */
+.store-receiver-right-table .report-head1 {
+    width: 165px;
+}
+.store-receiver-right-table .report-head2 {
+    width: 410px;
+}
+
+.store-receiver-right-table .report-head3 {
+    width: 105px;
+}
+
+.store-receiver-right-table .report-head4 {
+    width: 100px;
+}
+
+.store-receiver-right-table .report-head5 {
+    width: 85px;
+}
+/* ENDS - Store Receiver report related CSS Style for WEB  */
+
+/* BEGINS - Store manager report related CSS Style for Chrome Only */
+.store-receiver-right-table .report-head1:not(*:root) {
+    width: 180px;
+}
+.store-receiver-right-table .report-head2:not(*:root) {
+    width: 450px;
+}
+
+.store-receiver-right-table .report-head3:not(*:root) {
+    width: 100px;
+}
+
+.store-receiver-right-table .report-head4:not(*:root) {
+    width: 90px;
+}
+
+.store-receiver-right-table .report-head5:not(*:root) {
+    width: 75px;
+}
+/* ENDS - Store manager report related CSS Style for Chrome Only */
+
+/* ENDS - Store Receiver report table related CSS styles */
