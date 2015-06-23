@@ -71,6 +71,9 @@ module.factory(
          * </em>
          */
         "prototype$__findById__accessTokens": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/UserModels/:id/accessTokens/:fk",
           method: "GET"
         },
@@ -103,6 +106,9 @@ module.factory(
          * This method returns no data.
          */
         "prototype$__destroyById__accessTokens": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/UserModels/:id/accessTokens/:fk",
           method: "DELETE"
         },
@@ -142,8 +148,241 @@ module.factory(
          * </em>
          */
         "prototype$__updateById__accessTokens": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/UserModels/:id/accessTokens/:fk",
           method: "PUT"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel#prototype$__findById__roles
+         * @methodOf shoppinpal-loopback.UserModel
+         *
+         * @description
+         *
+         * Find a related item by id for roles.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `fk` – `{*}` - Foreign key for roles
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `UserModel` object.)
+         * </em>
+         */
+        "prototype$__findById__roles": {
+          params: {
+          'fk': '@fk'
+          },
+          url: urlBase + "/UserModels/:id/roles/:fk",
+          method: "GET"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel#prototype$__destroyById__roles
+         * @methodOf shoppinpal-loopback.UserModel
+         *
+         * @description
+         *
+         * Delete a related item by id for roles.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `fk` – `{*}` - Foreign key for roles
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
+        "prototype$__destroyById__roles": {
+          params: {
+          'fk': '@fk'
+          },
+          url: urlBase + "/UserModels/:id/roles/:fk",
+          method: "DELETE"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel#prototype$__updateById__roles
+         * @methodOf shoppinpal-loopback.UserModel
+         *
+         * @description
+         *
+         * Update a related item by id for roles.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `fk` – `{*}` - Foreign key for roles
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `UserModel` object.)
+         * </em>
+         */
+        "prototype$__updateById__roles": {
+          params: {
+          'fk': '@fk'
+          },
+          url: urlBase + "/UserModels/:id/roles/:fk",
+          method: "PUT"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel#prototype$__link__roles
+         * @methodOf shoppinpal-loopback.UserModel
+         *
+         * @description
+         *
+         * Add a related item by id for roles.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `fk` – `{*}` - Foreign key for roles
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `UserModel` object.)
+         * </em>
+         */
+        "prototype$__link__roles": {
+          params: {
+          'fk': '@fk'
+          },
+          url: urlBase + "/UserModels/:id/roles/rel/:fk",
+          method: "PUT"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel#prototype$__unlink__roles
+         * @methodOf shoppinpal-loopback.UserModel
+         *
+         * @description
+         *
+         * Remove the roles relation to an item by id.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `fk` – `{*}` - Foreign key for roles
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
+        "prototype$__unlink__roles": {
+          params: {
+          'fk': '@fk'
+          },
+          url: urlBase + "/UserModels/:id/roles/rel/:fk",
+          method: "DELETE"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel#prototype$__exists__roles
+         * @methodOf shoppinpal-loopback.UserModel
+         *
+         * @description
+         *
+         * Check the existence of roles relation to an item by id.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `fk` – `{*}` - Foreign key for roles
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `UserModel` object.)
+         * </em>
+         */
+        "prototype$__exists__roles": {
+          params: {
+          'fk': '@fk'
+          },
+          url: urlBase + "/UserModels/:id/roles/rel/:fk",
+          method: "HEAD"
         },
 
         /**
@@ -177,6 +416,9 @@ module.factory(
          * </em>
          */
         "prototype$__findById__teamModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/UserModels/:id/teamModels/:fk",
           method: "GET"
         },
@@ -209,6 +451,9 @@ module.factory(
          * This method returns no data.
          */
         "prototype$__destroyById__teamModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/UserModels/:id/teamModels/:fk",
           method: "DELETE"
         },
@@ -248,6 +493,9 @@ module.factory(
          * </em>
          */
         "prototype$__updateById__teamModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/UserModels/:id/teamModels/:fk",
           method: "PUT"
         },
@@ -278,73 +526,136 @@ module.factory(
 
         // INTERNAL. Use UserModel.storeConfigModels.findById() instead.
         "prototype$__findById__storeConfigModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/UserModels/:id/storeConfigModels/:fk",
           method: "GET"
         },
 
         // INTERNAL. Use UserModel.storeConfigModels.destroyById() instead.
         "prototype$__destroyById__storeConfigModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/UserModels/:id/storeConfigModels/:fk",
           method: "DELETE"
         },
 
         // INTERNAL. Use UserModel.storeConfigModels.updateById() instead.
         "prototype$__updateById__storeConfigModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/UserModels/:id/storeConfigModels/:fk",
           method: "PUT"
         },
 
         // INTERNAL. Use UserModel.storeModels.findById() instead.
         "prototype$__findById__storeModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/UserModels/:id/storeModels/:fk",
           method: "GET"
         },
 
         // INTERNAL. Use UserModel.storeModels.destroyById() instead.
         "prototype$__destroyById__storeModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/UserModels/:id/storeModels/:fk",
           method: "DELETE"
         },
 
         // INTERNAL. Use UserModel.storeModels.updateById() instead.
         "prototype$__updateById__storeModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/UserModels/:id/storeModels/:fk",
           method: "PUT"
         },
 
         // INTERNAL. Use UserModel.reportModels.findById() instead.
         "prototype$__findById__reportModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/UserModels/:id/reportModels/:fk",
           method: "GET"
         },
 
         // INTERNAL. Use UserModel.reportModels.destroyById() instead.
         "prototype$__destroyById__reportModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/UserModels/:id/reportModels/:fk",
           method: "DELETE"
         },
 
         // INTERNAL. Use UserModel.reportModels.updateById() instead.
         "prototype$__updateById__reportModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/UserModels/:id/reportModels/:fk",
           method: "PUT"
         },
 
         // INTERNAL. Use UserModel.stockOrderLineitemModels.findById() instead.
         "prototype$__findById__stockOrderLineitemModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/UserModels/:id/stockOrderLineitemModels/:fk",
           method: "GET"
         },
 
         // INTERNAL. Use UserModel.stockOrderLineitemModels.destroyById() instead.
         "prototype$__destroyById__stockOrderLineitemModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/UserModels/:id/stockOrderLineitemModels/:fk",
           method: "DELETE"
         },
 
         // INTERNAL. Use UserModel.stockOrderLineitemModels.updateById() instead.
         "prototype$__updateById__stockOrderLineitemModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/UserModels/:id/stockOrderLineitemModels/:fk",
+          method: "PUT"
+        },
+
+        // INTERNAL. Use UserModel.supplierModels.findById() instead.
+        "prototype$__findById__supplierModels": {
+          params: {
+          'fk': '@fk'
+          },
+          url: urlBase + "/UserModels/:id/supplierModels/:fk",
+          method: "GET"
+        },
+
+        // INTERNAL. Use UserModel.supplierModels.destroyById() instead.
+        "prototype$__destroyById__supplierModels": {
+          params: {
+          'fk': '@fk'
+          },
+          url: urlBase + "/UserModels/:id/supplierModels/:fk",
+          method: "DELETE"
+        },
+
+        // INTERNAL. Use UserModel.supplierModels.updateById() instead.
+        "prototype$__updateById__supplierModels": {
+          params: {
+          'fk': '@fk'
+          },
+          url: urlBase + "/UserModels/:id/supplierModels/:fk",
           method: "PUT"
         },
 
@@ -482,6 +793,143 @@ module.factory(
          */
         "prototype$__count__accessTokens": {
           url: urlBase + "/UserModels/:id/accessTokens/count",
+          method: "GET"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel#prototype$__get__roles
+         * @methodOf shoppinpal-loopback.UserModel
+         *
+         * @description
+         *
+         * Queries roles of UserModel.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `filter` – `{object=}` - 
+         *
+         * @param {function(Array.<Object>,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Array.<Object>} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `UserModel` object.)
+         * </em>
+         */
+        "prototype$__get__roles": {
+          isArray: true,
+          url: urlBase + "/UserModels/:id/roles",
+          method: "GET"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel#prototype$__create__roles
+         * @methodOf shoppinpal-loopback.UserModel
+         *
+         * @description
+         *
+         * Creates a new instance in roles of this model.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `UserModel` object.)
+         * </em>
+         */
+        "prototype$__create__roles": {
+          url: urlBase + "/UserModels/:id/roles",
+          method: "POST"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel#prototype$__delete__roles
+         * @methodOf shoppinpal-loopback.UserModel
+         *
+         * @description
+         *
+         * Deletes all roles of this model.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
+        "prototype$__delete__roles": {
+          url: urlBase + "/UserModels/:id/roles",
+          method: "DELETE"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel#prototype$__count__roles
+         * @methodOf shoppinpal-loopback.UserModel
+         *
+         * @description
+         *
+         * Counts roles of UserModel.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `where` – `{object=}` - Criteria to match model instances
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * Data properties:
+         *
+         *  - `count` – `{number=}` - 
+         */
+        "prototype$__count__roles": {
+          url: urlBase + "/UserModels/:id/roles/count",
           method: "GET"
         },
 
@@ -722,6 +1170,31 @@ module.factory(
           method: "GET"
         },
 
+        // INTERNAL. Use UserModel.supplierModels() instead.
+        "prototype$__get__supplierModels": {
+          isArray: true,
+          url: urlBase + "/UserModels/:id/supplierModels",
+          method: "GET"
+        },
+
+        // INTERNAL. Use UserModel.supplierModels.create() instead.
+        "prototype$__create__supplierModels": {
+          url: urlBase + "/UserModels/:id/supplierModels",
+          method: "POST"
+        },
+
+        // INTERNAL. Use UserModel.supplierModels.destroyAll() instead.
+        "prototype$__delete__supplierModels": {
+          url: urlBase + "/UserModels/:id/supplierModels",
+          method: "DELETE"
+        },
+
+        // INTERNAL. Use UserModel.supplierModels.count() instead.
+        "prototype$__count__supplierModels": {
+          url: urlBase + "/UserModels/:id/supplierModels/count",
+          method: "GET"
+        },
+
         /**
          * @ngdoc method
          * @name shoppinpal-loopback.UserModel#create
@@ -756,6 +1229,45 @@ module.factory(
          * </em>
          */
         "create": {
+          url: urlBase + "/UserModels",
+          method: "POST"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel#createMany
+         * @methodOf shoppinpal-loopback.UserModel
+         *
+         * @description
+         *
+         * Create a new instance of the model and persist it into the data source.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *   This method does not accept any parameters.
+         *   Supply an empty object or omit this argument altogether.
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Array.<Object>,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Array.<Object>} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `UserModel` object.)
+         * </em>
+         */
+        "createMany": {
+          isArray: true,
           url: urlBase + "/UserModels",
           method: "POST"
         },
@@ -1574,6 +2086,44 @@ module.factory(
 
         /**
          * @ngdoc method
+         * @name shoppinpal-loopback.UserModel.globalConfigModels#createMany
+         * @methodOf shoppinpal-loopback.UserModel.globalConfigModels
+         *
+         * @description
+         *
+         * Creates a new instance in globalConfigModels of this model.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Array.<Object>,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Array.<Object>} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `GlobalConfigModel` object.)
+         * </em>
+         */
+        R.globalConfigModels.createMany = function() {
+          var TargetResource = $injector.get("GlobalConfigModel");
+          var action = TargetResource["::createMany::UserModel::globalConfigModels"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
          * @name shoppinpal-loopback.UserModel.globalConfigModels#destroy
          * @methodOf shoppinpal-loopback.UserModel.globalConfigModels
          *
@@ -1761,6 +2311,44 @@ module.factory(
         R.storeConfigModels.create = function() {
           var TargetResource = $injector.get("StoreConfigModel");
           var action = TargetResource["::create::UserModel::storeConfigModels"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel.storeConfigModels#createMany
+         * @methodOf shoppinpal-loopback.UserModel.storeConfigModels
+         *
+         * @description
+         *
+         * Creates a new instance in storeConfigModels of this model.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Array.<Object>,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Array.<Object>} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `StoreConfigModel` object.)
+         * </em>
+         */
+        R.storeConfigModels.createMany = function() {
+          var TargetResource = $injector.get("StoreConfigModel");
+          var action = TargetResource["::createMany::UserModel::storeConfigModels"];
           return action.apply(R, arguments);
         };
 
@@ -2029,6 +2617,44 @@ module.factory(
 
         /**
          * @ngdoc method
+         * @name shoppinpal-loopback.UserModel.storeModels#createMany
+         * @methodOf shoppinpal-loopback.UserModel.storeModels
+         *
+         * @description
+         *
+         * Creates a new instance in storeModels of this model.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Array.<Object>,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Array.<Object>} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `StoreModel` object.)
+         * </em>
+         */
+        R.storeModels.createMany = function() {
+          var TargetResource = $injector.get("StoreModel");
+          var action = TargetResource["::createMany::UserModel::storeModels"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
          * @name shoppinpal-loopback.UserModel.storeModels#destroyAll
          * @methodOf shoppinpal-loopback.UserModel.storeModels
          *
@@ -2287,6 +2913,44 @@ module.factory(
         R.reportModels.create = function() {
           var TargetResource = $injector.get("ReportModel");
           var action = TargetResource["::create::UserModel::reportModels"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel.reportModels#createMany
+         * @methodOf shoppinpal-loopback.UserModel.reportModels
+         *
+         * @description
+         *
+         * Creates a new instance in reportModels of this model.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Array.<Object>,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Array.<Object>} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `ReportModel` object.)
+         * </em>
+         */
+        R.reportModels.createMany = function() {
+          var TargetResource = $injector.get("ReportModel");
+          var action = TargetResource["::createMany::UserModel::reportModels"];
           return action.apply(R, arguments);
         };
 
@@ -2555,6 +3219,44 @@ module.factory(
 
         /**
          * @ngdoc method
+         * @name shoppinpal-loopback.UserModel.stockOrderLineitemModels#createMany
+         * @methodOf shoppinpal-loopback.UserModel.stockOrderLineitemModels
+         *
+         * @description
+         *
+         * Creates a new instance in stockOrderLineitemModels of this model.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Array.<Object>,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Array.<Object>} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `StockOrderLineitemModel` object.)
+         * </em>
+         */
+        R.stockOrderLineitemModels.createMany = function() {
+          var TargetResource = $injector.get("StockOrderLineitemModel");
+          var action = TargetResource["::createMany::UserModel::stockOrderLineitemModels"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
          * @name shoppinpal-loopback.UserModel.stockOrderLineitemModels#destroyAll
          * @methodOf shoppinpal-loopback.UserModel.stockOrderLineitemModels
          *
@@ -2692,6 +3394,307 @@ module.factory(
           var action = TargetResource["::updateById::UserModel::stockOrderLineitemModels"];
           return action.apply(R, arguments);
         };
+    /**
+     * @ngdoc object
+     * @name lbServices.UserModel.supplierModels
+     * @header lbServices.UserModel.supplierModels
+     * @object
+     * @description
+     *
+     * The object `UserModel.supplierModels` groups methods
+     * manipulating `SupplierModel` instances related to `UserModel`.
+     *
+     * Call {@link lbServices.UserModel#supplierModels UserModel.supplierModels()}
+     * to query all related instances.
+     */
+
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel#supplierModels
+         * @methodOf shoppinpal-loopback.UserModel
+         *
+         * @description
+         *
+         * Queries supplierModels of UserModel.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `filter` – `{object=}` - 
+         *
+         * @param {function(Array.<Object>,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Array.<Object>} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `SupplierModel` object.)
+         * </em>
+         */
+        R.supplierModels = function() {
+          var TargetResource = $injector.get("SupplierModel");
+          var action = TargetResource["::get::UserModel::supplierModels"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel.supplierModels#count
+         * @methodOf shoppinpal-loopback.UserModel.supplierModels
+         *
+         * @description
+         *
+         * Counts supplierModels of UserModel.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `where` – `{object=}` - Criteria to match model instances
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * Data properties:
+         *
+         *  - `count` – `{number=}` - 
+         */
+        R.supplierModels.count = function() {
+          var TargetResource = $injector.get("SupplierModel");
+          var action = TargetResource["::count::UserModel::supplierModels"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel.supplierModels#create
+         * @methodOf shoppinpal-loopback.UserModel.supplierModels
+         *
+         * @description
+         *
+         * Creates a new instance in supplierModels of this model.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `SupplierModel` object.)
+         * </em>
+         */
+        R.supplierModels.create = function() {
+          var TargetResource = $injector.get("SupplierModel");
+          var action = TargetResource["::create::UserModel::supplierModels"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel.supplierModels#createMany
+         * @methodOf shoppinpal-loopback.UserModel.supplierModels
+         *
+         * @description
+         *
+         * Creates a new instance in supplierModels of this model.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Array.<Object>,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Array.<Object>} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `SupplierModel` object.)
+         * </em>
+         */
+        R.supplierModels.createMany = function() {
+          var TargetResource = $injector.get("SupplierModel");
+          var action = TargetResource["::createMany::UserModel::supplierModels"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel.supplierModels#destroyAll
+         * @methodOf shoppinpal-loopback.UserModel.supplierModels
+         *
+         * @description
+         *
+         * Deletes all supplierModels of this model.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
+        R.supplierModels.destroyAll = function() {
+          var TargetResource = $injector.get("SupplierModel");
+          var action = TargetResource["::delete::UserModel::supplierModels"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel.supplierModels#destroyById
+         * @methodOf shoppinpal-loopback.UserModel.supplierModels
+         *
+         * @description
+         *
+         * Delete a related item by id for supplierModels.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `fk` – `{*}` - Foreign key for supplierModels
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
+        R.supplierModels.destroyById = function() {
+          var TargetResource = $injector.get("SupplierModel");
+          var action = TargetResource["::destroyById::UserModel::supplierModels"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel.supplierModels#findById
+         * @methodOf shoppinpal-loopback.UserModel.supplierModels
+         *
+         * @description
+         *
+         * Find a related item by id for supplierModels.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `fk` – `{*}` - Foreign key for supplierModels
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `SupplierModel` object.)
+         * </em>
+         */
+        R.supplierModels.findById = function() {
+          var TargetResource = $injector.get("SupplierModel");
+          var action = TargetResource["::findById::UserModel::supplierModels"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel.supplierModels#updateById
+         * @methodOf shoppinpal-loopback.UserModel.supplierModels
+         *
+         * @description
+         *
+         * Update a related item by id for supplierModels.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `fk` – `{*}` - Foreign key for supplierModels
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `SupplierModel` object.)
+         * </em>
+         */
+        R.supplierModels.updateById = function() {
+          var TargetResource = $injector.get("SupplierModel");
+          var action = TargetResource["::updateById::UserModel::supplierModels"];
+          return action.apply(R, arguments);
+        };
 
     return R;
   }]);
@@ -2761,6 +3764,45 @@ module.factory(
          * </em>
          */
         "create": {
+          url: urlBase + "/GlobalConfigModels",
+          method: "POST"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.GlobalConfigModel#createMany
+         * @methodOf shoppinpal-loopback.GlobalConfigModel
+         *
+         * @description
+         *
+         * Create a new instance of the model and persist it into the data source.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *   This method does not accept any parameters.
+         *   Supply an empty object or omit this argument altogether.
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Array.<Object>,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Array.<Object>} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `GlobalConfigModel` object.)
+         * </em>
+         */
+        "createMany": {
+          isArray: true,
           url: urlBase + "/GlobalConfigModels",
           method: "POST"
         },
@@ -3044,7 +4086,8 @@ module.factory(
          *
          * @param {Object=} parameters Request parameters.
          *
-         *  - `id` – `{*}` - PersistedModel id
+         *   This method does not accept any parameters.
+         *   Supply an empty object or omit this argument altogether.
          *
          * @param {Object} postData Request data.
          *
@@ -3078,6 +4121,13 @@ module.factory(
 
         // INTERNAL. Use UserModel.globalConfigModels.create() instead.
         "::create::UserModel::globalConfigModels": {
+          url: urlBase + "/UserModels/:id/globalConfigModels",
+          method: "POST"
+        },
+
+        // INTERNAL. Use UserModel.globalConfigModels.createMany() instead.
+        "::createMany::UserModel::globalConfigModels": {
+          isArray: true,
           url: urlBase + "/UserModels/:id/globalConfigModels",
           method: "POST"
         },
@@ -3302,18 +4352,27 @@ module.factory(
 
         // INTERNAL. Use StoreConfigModel.storeModels.findById() instead.
         "prototype$__findById__storeModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/StoreConfigModels/:id/storeModels/:fk",
           method: "GET"
         },
 
         // INTERNAL. Use StoreConfigModel.storeModels.destroyById() instead.
         "prototype$__destroyById__storeModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/StoreConfigModels/:id/storeModels/:fk",
           method: "DELETE"
         },
 
         // INTERNAL. Use StoreConfigModel.storeModels.updateById() instead.
         "prototype$__updateById__storeModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/StoreConfigModels/:id/storeModels/:fk",
           method: "PUT"
         },
@@ -3377,6 +4436,45 @@ module.factory(
          * </em>
          */
         "create": {
+          url: urlBase + "/StoreConfigModels",
+          method: "POST"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.StoreConfigModel#createMany
+         * @methodOf shoppinpal-loopback.StoreConfigModel
+         *
+         * @description
+         *
+         * Create a new instance of the model and persist it into the data source.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *   This method does not accept any parameters.
+         *   Supply an empty object or omit this argument altogether.
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Array.<Object>,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Array.<Object>} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `StoreConfigModel` object.)
+         * </em>
+         */
+        "createMany": {
+          isArray: true,
           url: urlBase + "/StoreConfigModels",
           method: "POST"
         },
@@ -3870,18 +4968,27 @@ module.factory(
 
         // INTERNAL. Use UserModel.storeConfigModels.findById() instead.
         "::findById::UserModel::storeConfigModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/UserModels/:id/storeConfigModels/:fk",
           method: "GET"
         },
 
         // INTERNAL. Use UserModel.storeConfigModels.destroyById() instead.
         "::destroyById::UserModel::storeConfigModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/UserModels/:id/storeConfigModels/:fk",
           method: "DELETE"
         },
 
         // INTERNAL. Use UserModel.storeConfigModels.updateById() instead.
         "::updateById::UserModel::storeConfigModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/UserModels/:id/storeConfigModels/:fk",
           method: "PUT"
         },
@@ -3895,6 +5002,13 @@ module.factory(
 
         // INTERNAL. Use UserModel.storeConfigModels.create() instead.
         "::create::UserModel::storeConfigModels": {
+          url: urlBase + "/UserModels/:id/storeConfigModels",
+          method: "POST"
+        },
+
+        // INTERNAL. Use UserModel.storeConfigModels.createMany() instead.
+        "::createMany::UserModel::storeConfigModels": {
+          isArray: true,
           url: urlBase + "/UserModels/:id/storeConfigModels",
           method: "POST"
         },
@@ -4220,6 +5334,44 @@ module.factory(
 
         /**
          * @ngdoc method
+         * @name shoppinpal-loopback.StoreConfigModel.storeModels#createMany
+         * @methodOf shoppinpal-loopback.StoreConfigModel.storeModels
+         *
+         * @description
+         *
+         * Creates a new instance in storeModels of this model.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - PersistedModel id
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Array.<Object>,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Array.<Object>} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `StoreModel` object.)
+         * </em>
+         */
+        R.storeModels.createMany = function() {
+          var TargetResource = $injector.get("StoreModel");
+          var action = TargetResource["::createMany::StoreConfigModel::storeModels"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
          * @name shoppinpal-loopback.StoreConfigModel.storeModels#destroyAll
          * @methodOf shoppinpal-loopback.StoreConfigModel.storeModels
          *
@@ -4432,6 +5584,45 @@ module.factory(
          * </em>
          */
         "create": {
+          url: urlBase + "/StoreModels",
+          method: "POST"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.StoreModel#createMany
+         * @methodOf shoppinpal-loopback.StoreModel
+         *
+         * @description
+         *
+         * Create a new instance of the model and persist it into the data source.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *   This method does not accept any parameters.
+         *   Supply an empty object or omit this argument altogether.
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Array.<Object>,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Array.<Object>} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `StoreModel` object.)
+         * </em>
+         */
+        "createMany": {
+          isArray: true,
           url: urlBase + "/StoreModels",
           method: "POST"
         },
@@ -4775,18 +5966,27 @@ module.factory(
 
         // INTERNAL. Use UserModel.storeModels.findById() instead.
         "::findById::UserModel::storeModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/UserModels/:id/storeModels/:fk",
           method: "GET"
         },
 
         // INTERNAL. Use UserModel.storeModels.destroyById() instead.
         "::destroyById::UserModel::storeModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/UserModels/:id/storeModels/:fk",
           method: "DELETE"
         },
 
         // INTERNAL. Use UserModel.storeModels.updateById() instead.
         "::updateById::UserModel::storeModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/UserModels/:id/storeModels/:fk",
           method: "PUT"
         },
@@ -4800,6 +6000,13 @@ module.factory(
 
         // INTERNAL. Use UserModel.storeModels.create() instead.
         "::create::UserModel::storeModels": {
+          url: urlBase + "/UserModels/:id/storeModels",
+          method: "POST"
+        },
+
+        // INTERNAL. Use UserModel.storeModels.createMany() instead.
+        "::createMany::UserModel::storeModels": {
+          isArray: true,
           url: urlBase + "/UserModels/:id/storeModels",
           method: "POST"
         },
@@ -4818,18 +6025,27 @@ module.factory(
 
         // INTERNAL. Use StoreConfigModel.storeModels.findById() instead.
         "::findById::StoreConfigModel::storeModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/StoreConfigModels/:id/storeModels/:fk",
           method: "GET"
         },
 
         // INTERNAL. Use StoreConfigModel.storeModels.destroyById() instead.
         "::destroyById::StoreConfigModel::storeModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/StoreConfigModels/:id/storeModels/:fk",
           method: "DELETE"
         },
 
         // INTERNAL. Use StoreConfigModel.storeModels.updateById() instead.
         "::updateById::StoreConfigModel::storeModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/StoreConfigModels/:id/storeModels/:fk",
           method: "PUT"
         },
@@ -4843,6 +6059,13 @@ module.factory(
 
         // INTERNAL. Use StoreConfigModel.storeModels.create() instead.
         "::create::StoreConfigModel::storeModels": {
+          url: urlBase + "/StoreConfigModels/:id/storeModels",
+          method: "POST"
+        },
+
+        // INTERNAL. Use StoreConfigModel.storeModels.createMany() instead.
+        "::createMany::StoreConfigModel::storeModels": {
+          isArray: true,
           url: urlBase + "/StoreConfigModels/:id/storeModels",
           method: "POST"
         },
@@ -5103,18 +6326,27 @@ module.factory(
 
         // INTERNAL. Use ReportModel.stockOrderLineitemModels.findById() instead.
         "prototype$__findById__stockOrderLineitemModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/ReportModels/:id/stockOrderLineitemModels/:fk",
           method: "GET"
         },
 
         // INTERNAL. Use ReportModel.stockOrderLineitemModels.destroyById() instead.
         "prototype$__destroyById__stockOrderLineitemModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/ReportModels/:id/stockOrderLineitemModels/:fk",
           method: "DELETE"
         },
 
         // INTERNAL. Use ReportModel.stockOrderLineitemModels.updateById() instead.
         "prototype$__updateById__stockOrderLineitemModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/ReportModels/:id/stockOrderLineitemModels/:fk",
           method: "PUT"
         },
@@ -5178,6 +6410,45 @@ module.factory(
          * </em>
          */
         "create": {
+          url: urlBase + "/ReportModels",
+          method: "POST"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.ReportModel#createMany
+         * @methodOf shoppinpal-loopback.ReportModel
+         *
+         * @description
+         *
+         * Create a new instance of the model and persist it into the data source.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *   This method does not accept any parameters.
+         *   Supply an empty object or omit this argument altogether.
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Array.<Object>,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Array.<Object>} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `ReportModel` object.)
+         * </em>
+         */
+        "createMany": {
+          isArray: true,
           url: urlBase + "/ReportModels",
           method: "POST"
         },
@@ -5595,18 +6866,27 @@ module.factory(
 
         // INTERNAL. Use UserModel.reportModels.findById() instead.
         "::findById::UserModel::reportModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/UserModels/:id/reportModels/:fk",
           method: "GET"
         },
 
         // INTERNAL. Use UserModel.reportModels.destroyById() instead.
         "::destroyById::UserModel::reportModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/UserModels/:id/reportModels/:fk",
           method: "DELETE"
         },
 
         // INTERNAL. Use UserModel.reportModels.updateById() instead.
         "::updateById::UserModel::reportModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/UserModels/:id/reportModels/:fk",
           method: "PUT"
         },
@@ -5620,6 +6900,13 @@ module.factory(
 
         // INTERNAL. Use UserModel.reportModels.create() instead.
         "::create::UserModel::reportModels": {
+          url: urlBase + "/UserModels/:id/reportModels",
+          method: "POST"
+        },
+
+        // INTERNAL. Use UserModel.reportModels.createMany() instead.
+        "::createMany::UserModel::reportModels": {
+          isArray: true,
           url: urlBase + "/UserModels/:id/reportModels",
           method: "POST"
         },
@@ -5939,6 +7226,44 @@ module.factory(
 
         /**
          * @ngdoc method
+         * @name shoppinpal-loopback.ReportModel.stockOrderLineitemModels#createMany
+         * @methodOf shoppinpal-loopback.ReportModel.stockOrderLineitemModels
+         *
+         * @description
+         *
+         * Creates a new instance in stockOrderLineitemModels of this model.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - PersistedModel id
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Array.<Object>,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Array.<Object>} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `StockOrderLineitemModel` object.)
+         * </em>
+         */
+        R.stockOrderLineitemModels.createMany = function() {
+          var TargetResource = $injector.get("StockOrderLineitemModel");
+          var action = TargetResource["::createMany::ReportModel::stockOrderLineitemModels"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
          * @name shoppinpal-loopback.ReportModel.stockOrderLineitemModels#destroyAll
          * @methodOf shoppinpal-loopback.ReportModel.stockOrderLineitemModels
          *
@@ -6151,6 +7476,45 @@ module.factory(
          * </em>
          */
         "create": {
+          url: urlBase + "/StockOrderLineitemModels",
+          method: "POST"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.StockOrderLineitemModel#createMany
+         * @methodOf shoppinpal-loopback.StockOrderLineitemModel
+         *
+         * @description
+         *
+         * Create a new instance of the model and persist it into the data source.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *   This method does not accept any parameters.
+         *   Supply an empty object or omit this argument altogether.
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Array.<Object>,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Array.<Object>} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `StockOrderLineitemModel` object.)
+         * </em>
+         */
+        "createMany": {
+          isArray: true,
           url: urlBase + "/StockOrderLineitemModels",
           method: "POST"
         },
@@ -6434,7 +7798,8 @@ module.factory(
          *
          * @param {Object=} parameters Request parameters.
          *
-         *  - `id` – `{*}` - PersistedModel id
+         *   This method does not accept any parameters.
+         *   Supply an empty object or omit this argument altogether.
          *
          * @param {Object} postData Request data.
          *
@@ -6462,18 +7827,27 @@ module.factory(
 
         // INTERNAL. Use UserModel.stockOrderLineitemModels.findById() instead.
         "::findById::UserModel::stockOrderLineitemModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/UserModels/:id/stockOrderLineitemModels/:fk",
           method: "GET"
         },
 
         // INTERNAL. Use UserModel.stockOrderLineitemModels.destroyById() instead.
         "::destroyById::UserModel::stockOrderLineitemModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/UserModels/:id/stockOrderLineitemModels/:fk",
           method: "DELETE"
         },
 
         // INTERNAL. Use UserModel.stockOrderLineitemModels.updateById() instead.
         "::updateById::UserModel::stockOrderLineitemModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/UserModels/:id/stockOrderLineitemModels/:fk",
           method: "PUT"
         },
@@ -6487,6 +7861,13 @@ module.factory(
 
         // INTERNAL. Use UserModel.stockOrderLineitemModels.create() instead.
         "::create::UserModel::stockOrderLineitemModels": {
+          url: urlBase + "/UserModels/:id/stockOrderLineitemModels",
+          method: "POST"
+        },
+
+        // INTERNAL. Use UserModel.stockOrderLineitemModels.createMany() instead.
+        "::createMany::UserModel::stockOrderLineitemModels": {
+          isArray: true,
           url: urlBase + "/UserModels/:id/stockOrderLineitemModels",
           method: "POST"
         },
@@ -6505,18 +7886,27 @@ module.factory(
 
         // INTERNAL. Use ReportModel.stockOrderLineitemModels.findById() instead.
         "::findById::ReportModel::stockOrderLineitemModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/ReportModels/:id/stockOrderLineitemModels/:fk",
           method: "GET"
         },
 
         // INTERNAL. Use ReportModel.stockOrderLineitemModels.destroyById() instead.
         "::destroyById::ReportModel::stockOrderLineitemModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/ReportModels/:id/stockOrderLineitemModels/:fk",
           method: "DELETE"
         },
 
         // INTERNAL. Use ReportModel.stockOrderLineitemModels.updateById() instead.
         "::updateById::ReportModel::stockOrderLineitemModels": {
+          params: {
+          'fk': '@fk'
+          },
           url: urlBase + "/ReportModels/:id/stockOrderLineitemModels/:fk",
           method: "PUT"
         },
@@ -6530,6 +7920,13 @@ module.factory(
 
         // INTERNAL. Use ReportModel.stockOrderLineitemModels.create() instead.
         "::create::ReportModel::stockOrderLineitemModels": {
+          url: urlBase + "/ReportModels/:id/stockOrderLineitemModels",
+          method: "POST"
+        },
+
+        // INTERNAL. Use ReportModel.stockOrderLineitemModels.createMany() instead.
+        "::createMany::ReportModel::stockOrderLineitemModels": {
+          isArray: true,
           url: urlBase + "/ReportModels/:id/stockOrderLineitemModels",
           method: "POST"
         },
@@ -6828,6 +8225,45 @@ module.factory(
          * </em>
          */
         "create": {
+          url: urlBase + "/SupplierModels",
+          method: "POST"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.SupplierModel#createMany
+         * @methodOf shoppinpal-loopback.SupplierModel
+         *
+         * @description
+         *
+         * Create a new instance of the model and persist it into the data source.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *   This method does not accept any parameters.
+         *   Supply an empty object or omit this argument altogether.
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Array.<Object>,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Array.<Object>} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `SupplierModel` object.)
+         * </em>
+         */
+        "createMany": {
+          isArray: true,
           url: urlBase + "/SupplierModels",
           method: "POST"
         },
@@ -7135,6 +8571,102 @@ module.factory(
         "prototype$updateAttributes": {
           url: urlBase + "/SupplierModels/:id",
           method: "PUT"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.SupplierModel#listSuppliers
+         * @methodOf shoppinpal-loopback.SupplierModel
+         *
+         * @description
+         *
+         * <em>
+         * (The remote method definition does not provide any description.)
+         * </em>
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *   This method does not accept any parameters.
+         *   Supply an empty object or omit this argument altogether.
+         *
+         * @param {function(Array.<Object>,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Array.<Object>} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `SupplierModel` object.)
+         * </em>
+         */
+        "listSuppliers": {
+          isArray: true,
+          url: urlBase + "/SupplierModels/listSuppliers",
+          method: "GET"
+        },
+
+        // INTERNAL. Use UserModel.supplierModels.findById() instead.
+        "::findById::UserModel::supplierModels": {
+          params: {
+          'fk': '@fk'
+          },
+          url: urlBase + "/UserModels/:id/supplierModels/:fk",
+          method: "GET"
+        },
+
+        // INTERNAL. Use UserModel.supplierModels.destroyById() instead.
+        "::destroyById::UserModel::supplierModels": {
+          params: {
+          'fk': '@fk'
+          },
+          url: urlBase + "/UserModels/:id/supplierModels/:fk",
+          method: "DELETE"
+        },
+
+        // INTERNAL. Use UserModel.supplierModels.updateById() instead.
+        "::updateById::UserModel::supplierModels": {
+          params: {
+          'fk': '@fk'
+          },
+          url: urlBase + "/UserModels/:id/supplierModels/:fk",
+          method: "PUT"
+        },
+
+        // INTERNAL. Use UserModel.supplierModels() instead.
+        "::get::UserModel::supplierModels": {
+          isArray: true,
+          url: urlBase + "/UserModels/:id/supplierModels",
+          method: "GET"
+        },
+
+        // INTERNAL. Use UserModel.supplierModels.create() instead.
+        "::create::UserModel::supplierModels": {
+          url: urlBase + "/UserModels/:id/supplierModels",
+          method: "POST"
+        },
+
+        // INTERNAL. Use UserModel.supplierModels.createMany() instead.
+        "::createMany::UserModel::supplierModels": {
+          isArray: true,
+          url: urlBase + "/UserModels/:id/supplierModels",
+          method: "POST"
+        },
+
+        // INTERNAL. Use UserModel.supplierModels.destroyAll() instead.
+        "::delete::UserModel::supplierModels": {
+          url: urlBase + "/UserModels/:id/supplierModels",
+          method: "DELETE"
+        },
+
+        // INTERNAL. Use UserModel.supplierModels.count() instead.
+        "::count::UserModel::supplierModels": {
+          url: urlBase + "/UserModels/:id/supplierModels/count",
+          method: "GET"
         },
       }
     );

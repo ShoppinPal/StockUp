@@ -54,6 +54,10 @@ a:hover, a:focus {
     color: #c6c6c6;
 }
 
+.header-store-name {
+    height: 27px;
+}
+
 h1{
     color: #505050;
     font-size: 14px;

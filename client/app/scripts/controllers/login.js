@@ -50,7 +50,12 @@ angular.module('ShoppinPalApp')
                 if(stores.length === 1) {
                   $sessionStorage.currentStore = stores[0];
                 }
+                return UserModel.prototype$__get__roles({id: $sessionStorage.currentUser.userId}) // jshint ignore:line
+                  .$promise.then(function(roles){
+                    console.log(roles);
+                    $sessionStorage.roles = roles;
                 return $state.go('store-landing');
+              });
               });
           },
           function(error){

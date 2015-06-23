@@ -13,6 +13,7 @@ angular.module('ShoppinPalApp')
       restrict: 'E',
       scope: {
         isHomePage: '@',
+        homeState: '@',
         storeName: '@',
         button1Label: '@',
         button1Class: '@',
