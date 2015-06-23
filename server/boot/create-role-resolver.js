@@ -44,15 +44,15 @@ module.exports = function(app) {
     }
 
     // do not allow anonymous users
-    var userId = context.accessToken.userId;
-    if (!userId) {
+    var currentUserId = context.accessToken.userId;
+    if (!currentUserId) {
       log('do not allow anonymous users');
       return reject();
     }
 
     log('Role resolver for `teamMember` - evaluate ' +
       context.model.definition.name + ' with id: ' + context.modelId +
-      ' for userId: ' + context.accessToken.userId);
+      ' for currentUserId: ' + currentUserId);
     context.model.findById(context.modelId, function(err, modelInstance) {
       if (err) {
         log('err', err);
@@ -64,10 +64,10 @@ module.exports = function(app) {
       }
       else {
         var TeamModel = app.models.TeamModel;
-        // check if userId is in team table for the given model's userId
+        // check if currentUserId is in team table for the given model's userId
         TeamModel.count({
           ownerId: modelInstance.userId,
-          memberId: userId
+          memberId: currentUserId
         }, function(err, count) {
           if (err) {
             console.log(err);
