@@ -16,10 +16,23 @@ angular.module('ShoppinPalApp').controller(
       $sessionStorage,
       LoopBackAuth, SupplierModel, UserModel, ReportModel)
     {
-      this.storeName = $sessionStorage.currentStore.name;
+      this.storeName = ($sessionStorage.currentStore) ? $sessionStorage.currentStore.name : null;
+      this.roles = $sessionStorage.roles;
       this.suppliers = [];
       this.stores = [];
       var self = this;
+
+      this.isWarehouser = function () {
+        return _.contains(self.roles, 'admin');
+      };
+
+      this.isManager = function () {
+        return _.contains(self.roles, 'manager');
+      };
+
+      this.isReceiver = function () {
+        return _.contains(self.roles, 'manager');
+      };
 
       // Load the data
       SupplierModel.listSuppliers({})

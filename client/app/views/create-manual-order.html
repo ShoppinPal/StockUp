@@ -83,7 +83,7 @@
                         <input id="supplierInvoice" type="text" class="form-control" placeholder="Supplier Invoice">
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group" ng-if="orderController.isWarehouser()">
                     <label for="fileImport" class="control-label col-xs-3">Import Order</label>
                     <div class="col-xs-8">
                         <!-- <div class="fileUpload btn "> -->
