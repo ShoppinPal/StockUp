@@ -77,7 +77,7 @@ angular.module('ShoppinPalApp',[
           authenticate: true
         })
         .state('store-receiver-report', {
-          url: '/store-receiver-report',
+          url: '/store-receiver-report/:reportId',
           templateUrl: 'views/store-receiver-report.html',
           controller: 'StoreReceiverCtrl',
           authenticate: true

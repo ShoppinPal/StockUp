@@ -17,6 +17,7 @@ angular.module('ShoppinPalApp')
         storeName: '@',
         button1Label: '@',
         button1Class: '@',
+        button1Disabled: '&',
         button2Label: '@',
         button2Class: '@',
         onButton1Click: '&',
