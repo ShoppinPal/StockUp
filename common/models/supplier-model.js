@@ -60,7 +60,11 @@ module.exports = function(SupplierModel) {
             SupplierModel.find({where: {userId: teamModels[0].ownerId}}, cb);
           }
           else {
-            cb('user should be part of exactly one team');
+            // checking TeamModel via count() of find() use extra cycles
+            // which we can shortcut if we assume that hte user might be an $owner
+            // if that is not the case, an empty result is provided, which is
+            // almost as acceptable as an error
+            SupplierModel.find({where: {userId: currentUser.id}}, cb); //cb('user should be part of exactly one team');
           }
         });
     }
