@@ -157,6 +157,236 @@ module.factory(
 
         /**
          * @ngdoc method
+         * @name shoppinpal-loopback.UserModel#prototype$__findById__roles
+         * @methodOf shoppinpal-loopback.UserModel
+         *
+         * @description
+         *
+         * Find a related item by id for roles.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `fk` – `{*}` - Foreign key for roles
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `UserModel` object.)
+         * </em>
+         */
+        "prototype$__findById__roles": {
+          params: {
+          'fk': '@fk'
+          },
+          url: urlBase + "/UserModels/:id/roles/:fk",
+          method: "GET"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel#prototype$__destroyById__roles
+         * @methodOf shoppinpal-loopback.UserModel
+         *
+         * @description
+         *
+         * Delete a related item by id for roles.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `fk` – `{*}` - Foreign key for roles
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
+        "prototype$__destroyById__roles": {
+          params: {
+          'fk': '@fk'
+          },
+          url: urlBase + "/UserModels/:id/roles/:fk",
+          method: "DELETE"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel#prototype$__updateById__roles
+         * @methodOf shoppinpal-loopback.UserModel
+         *
+         * @description
+         *
+         * Update a related item by id for roles.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `fk` – `{*}` - Foreign key for roles
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `UserModel` object.)
+         * </em>
+         */
+        "prototype$__updateById__roles": {
+          params: {
+          'fk': '@fk'
+          },
+          url: urlBase + "/UserModels/:id/roles/:fk",
+          method: "PUT"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel#prototype$__link__roles
+         * @methodOf shoppinpal-loopback.UserModel
+         *
+         * @description
+         *
+         * Add a related item by id for roles.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `fk` – `{*}` - Foreign key for roles
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `UserModel` object.)
+         * </em>
+         */
+        "prototype$__link__roles": {
+          params: {
+          'fk': '@fk'
+          },
+          url: urlBase + "/UserModels/:id/roles/rel/:fk",
+          method: "PUT"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel#prototype$__unlink__roles
+         * @methodOf shoppinpal-loopback.UserModel
+         *
+         * @description
+         *
+         * Remove the roles relation to an item by id.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `fk` – `{*}` - Foreign key for roles
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
+        "prototype$__unlink__roles": {
+          params: {
+          'fk': '@fk'
+          },
+          url: urlBase + "/UserModels/:id/roles/rel/:fk",
+          method: "DELETE"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel#prototype$__exists__roles
+         * @methodOf shoppinpal-loopback.UserModel
+         *
+         * @description
+         *
+         * Check the existence of roles relation to an item by id.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `fk` – `{*}` - Foreign key for roles
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `UserModel` object.)
+         * </em>
+         */
+        "prototype$__exists__roles": {
+          params: {
+          'fk': '@fk'
+          },
+          url: urlBase + "/UserModels/:id/roles/rel/:fk",
+          method: "HEAD"
+        },
+
+        /**
+         * @ngdoc method
          * @name shoppinpal-loopback.UserModel#prototype$__findById__teamModels
          * @methodOf shoppinpal-loopback.UserModel
          *
@@ -563,6 +793,143 @@ module.factory(
          */
         "prototype$__count__accessTokens": {
           url: urlBase + "/UserModels/:id/accessTokens/count",
+          method: "GET"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel#prototype$__get__roles
+         * @methodOf shoppinpal-loopback.UserModel
+         *
+         * @description
+         *
+         * Queries roles of UserModel.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `filter` – `{object=}` - 
+         *
+         * @param {function(Array.<Object>,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Array.<Object>} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `UserModel` object.)
+         * </em>
+         */
+        "prototype$__get__roles": {
+          isArray: true,
+          url: urlBase + "/UserModels/:id/roles",
+          method: "GET"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel#prototype$__create__roles
+         * @methodOf shoppinpal-loopback.UserModel
+         *
+         * @description
+         *
+         * Creates a new instance in roles of this model.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `UserModel` object.)
+         * </em>
+         */
+        "prototype$__create__roles": {
+          url: urlBase + "/UserModels/:id/roles",
+          method: "POST"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel#prototype$__delete__roles
+         * @methodOf shoppinpal-loopback.UserModel
+         *
+         * @description
+         *
+         * Deletes all roles of this model.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
+        "prototype$__delete__roles": {
+          url: urlBase + "/UserModels/:id/roles",
+          method: "DELETE"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel#prototype$__count__roles
+         * @methodOf shoppinpal-loopback.UserModel
+         *
+         * @description
+         *
+         * Counts roles of UserModel.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `where` – `{object=}` - Criteria to match model instances
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * Data properties:
+         *
+         *  - `count` – `{number=}` - 
+         */
+        "prototype$__count__roles": {
+          url: urlBase + "/UserModels/:id/roles/count",
           method: "GET"
         },
 
