@@ -54,8 +54,8 @@ angular.module('ShoppinPalApp')
                   .$promise.then(function(roles){
                     console.log(roles);
                     $sessionStorage.roles = roles;
-                return $state.go('store-landing');
-              });
+                    return $state.go('store-landing');
+                  });
               });
           },
           function(error){
