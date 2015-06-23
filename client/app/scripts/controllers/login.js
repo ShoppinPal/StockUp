@@ -52,9 +52,18 @@ angular.module('ShoppinPalApp')
                 }
                 return UserModel.prototype$__get__roles({id: $sessionStorage.currentUser.userId}) // jshint ignore:line
                   .$promise.then(function(roles){
-                    console.log(roles);
-                    $sessionStorage.roles = roles;
-                    return $state.go('store-landing');
+                    console.log('roles', roles);
+                    $sessionStorage.roles = _.pluck(roles,'name');
+                    console.log('$sessionStorage.roles', $sessionStorage.roles);
+                    if (_.contains($sessionStorage.roles, 'manager')) {
+                      return $state.go('store-landing');
+                    }
+                    else if (_.contains($sessionStorage.roles, 'admin')) {
+                      return $state.go('warehouse-landing');
+                    }
+                    else {
+                      return $state.go('logout');
+                    }
                   });
               });
           },
