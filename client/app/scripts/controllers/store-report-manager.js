@@ -18,6 +18,7 @@ angular.module('ShoppinPalApp')
     {
       var ROW_STATE_NOT_COMPLETE = '!complete';
       var ROW_STATE_COMPLETE = 'complete';
+      var originalReportDataSet; // no need to put everything in the $scope, only what's needed
 
       $scope.storeName = $sessionStorage.currentStore.name;
 
@@ -25,7 +26,7 @@ angular.module('ShoppinPalApp')
       $scope.storesReport = [];
       $scope.completedReports = [];
       $scope.alphabets = [];
-      $scope.submitToWarehouseButton = 'Review';
+      $scope.submitToWarehouseButton = 'Submit';
       $scope.comments = '';
       $scope.ReviewSubmitPage = true;
       $scope.deviceDetector = deviceDetector;
@@ -116,7 +117,8 @@ angular.module('ShoppinPalApp')
             // but if this visibly messes with UI/UX, we might want to do it earlier...
             storeReportRow.updatedAt = response.updatedAt;
             storeReportRow.state = ROW_STATE_COMPLETE;
-            $scope.storesReport.splice(rowIndex, 1); // TODO: animate?
+            $scope.storesReport.splice(rowIndex, 1);
+            $scope.isShipmentFullyReceived = ($scope.storesReport.length < 1) ? true : false;
           });
       };
 
@@ -156,7 +158,6 @@ angular.module('ShoppinPalApp')
        * This method will submit the store-report to warehouse
        */
       $scope.submitToWarehouse = function() {
-        $scope.submitToWarehouseButton = 'Submit';
         if(!$scope.ReviewSubmitPage){
           ngDialog.open({ template: 'views/popup/submitToStorePopUp.html',
             className: 'ngdialog-theme-plain',
@@ -225,12 +226,13 @@ angular.module('ShoppinPalApp')
       // -------------
       $scope.displayPendingRows = true;
       $scope.device = $scope.deviceDetector.device;
-      var originalReportDataSet;
+
       if($stateParams.reportId) {
         $scope.waitOnPromise = loginService.getStoreReport($stateParams.reportId)
           .then(function (response) {
             originalReportDataSet = response;
             setFilterBasedOnState();
+            $scope.isShipmentFullyReceived = ($scope.storesReport.length < 1) ? true : false;
 
             $scope.storereportlength = $scope.storesReport.length;
             $scope.JumtoDepartment();
@@ -241,6 +243,7 @@ angular.module('ShoppinPalApp')
         $scope.waitOnPromise = loginService.getSelectStore()
           .then(function (response) {
             $scope.storesReport = response;
+            $scope.isShipmentFullyReceived = ($scope.storesReport.length < 1) ? true : false;
             $scope.storereportlength = $scope.storesReport.length;
             $scope.JumtoDepartment();
           });
