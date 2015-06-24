@@ -20,6 +20,7 @@ angular.module('ShoppinPalApp')
         button1Disabled: '&',
         button2Label: '@',
         button2Class: '@',
+        button2Disabled: '&',
         onButton1Click: '&',
         onButton2Click: '&'
       }
