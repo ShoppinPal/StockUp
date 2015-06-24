@@ -83,7 +83,7 @@ angular.module('ShoppinPalApp',[
           authenticate: true
         })
          .state('warehouse-report', {
-          url: '/warehouse-report',
+          url: '/warehouse-report/:reportId',
           templateUrl: 'views/warehouse-report.html',
           controller: 'WarehouseReportCtrl',
           authenticate: true
