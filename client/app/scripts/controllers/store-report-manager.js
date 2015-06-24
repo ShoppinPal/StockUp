@@ -53,11 +53,11 @@ angular.module('ShoppinPalApp')
           });
       };
 
-      /** @method editStore()
+      /** @method editRow()
        * @param selectedRow
-       * This method display the edit functionlity on right swipe
+       * This method display the edit functionality on right swipe
        */
-      $scope.editStore = function(selectedRow) {
+      $scope.editRow = function(selectedRow) {
         $scope.selectedRowIndex = selectedRow;
       };
 

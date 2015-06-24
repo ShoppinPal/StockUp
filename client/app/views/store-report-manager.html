@@ -77,7 +77,7 @@
                                 <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'"
                                     ng-hide="$index==selectedRowIndex"
                                     ng-swipe-right="markRowAsCompleted($index, storeReportRow)"
-                                    ng-swipe-left="editStore($index)">
+                                    ng-swipe-left="editRow($index)">
                                     <td class="report-head1">{{::storeReportRow.sku}}</td>
                                     <td class="report-head2">{{::storeReportRow.name}}</td>
                                     <td class="report-head3">{{::storeReportRow.quantityOnHand}}</td>
