@@ -74,21 +74,22 @@ angular.module('ShoppinPalApp')
           });
       };
 
-      var inProcessFilter = function(report) {
-        return report.state === 'empty'|| report.state === 'manager';
-      };
-
-      /** @method inProcessOrder
-       * show only the inprocess order in UI
-       */
-      $scope.inProcessOrder = function() {
-        $scope.reportLists = $filter('filter')($scope.backUpReportList, inProcessFilter);
+      var newOrdersFilter = function(report) {
+        return report.state === 'empty' || report.state === 'manager';
       };
 
       /** @method newOrders
        * show all newOrders
        */
       $scope.newOrders = function() {
+        $scope.reportLists = $filter('filter')($scope.backUpReportList, newOrdersFilter);
+      };
+
+      /** @method inProcessOrder
+       * show only the inprocess order in UI
+       */
+      $scope.inProcessOrder = function() {
+        $scope.reportLists = $filter('filter')($scope.backUpReportList, {state: 'warehouse'});
       };
 
       /** @method recievedOrder
@@ -98,9 +99,9 @@ angular.module('ShoppinPalApp')
         $scope.reportLists = $filter('filter')($scope.backUpReportList, {state: 'receive'});
       };
 
-      /** transition to create manual order
+      /**
+       * Transition to the 'create-manual-order' state
        */
-
       $scope.createManualOrder = function(){
         $state.go('create-manual-order');
       };
