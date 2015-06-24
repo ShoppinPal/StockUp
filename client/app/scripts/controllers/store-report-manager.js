@@ -16,6 +16,9 @@ angular.module('ShoppinPalApp')
               loginService, StockOrderLineitemModel,
               ngDialog, deviceDetector)
     {
+      var ROW_STATE_NOT_COMPLETE = '!complete';
+      var ROW_STATE_COMPLETE = 'complete';
+
       $scope.storeName = $sessionStorage.currentStore.name;
 
       $anchorScroll.yOffset = 50;
@@ -102,7 +105,7 @@ angular.module('ShoppinPalApp')
         $scope.waitOnPromise = StockOrderLineitemModel.prototype$updateAttributes(
           { id: storeReportRow.id },
           {
-            state: 'complete'
+            state: ROW_STATE_COMPLETE
           }
         )
           .$promise.then(function(response){
@@ -112,7 +115,7 @@ angular.module('ShoppinPalApp')
             // change the UI after the backend finishes for data-integrity/assurance
             // but if this visibly messes with UI/UX, we might want to do it earlier...
             storeReportRow.updatedAt = response.updatedAt;
-            storeReportRow.state = 'complete';
+            storeReportRow.state = ROW_STATE_COMPLETE;
             $scope.storesReport.splice(rowIndex, 1); // TODO: animate?
           });
       };
@@ -214,7 +217,7 @@ angular.module('ShoppinPalApp')
       };
 
       $scope.getFilterForRowsToDisplay = function() {
-        return ($scope.displayPendingRows) ? {state:'!complete'} : {state:'complete'};
+        return ($scope.displayPendingRows) ? {state:ROW_STATE_NOT_COMPLETE} : {state:ROW_STATE_COMPLETE};
       };
 
       // -------------
