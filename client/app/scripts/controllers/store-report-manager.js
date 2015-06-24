@@ -10,10 +10,10 @@ angular.module('ShoppinPalApp')
   .controller('StoreManagerCtrl',
   [
     '$scope', '$anchorScroll', '$location', '$state', '$stateParams', '$filter', '$sessionStorage', /* angular's modules/services/factories etc. */
-    'loginService', 'StockOrderLineitemModel', /* shoppinpal's custom modules/services/factories etc. */
+    'loginService', 'StockOrderLineitemModel', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
     'ngDialog', 'deviceDetector', /* 3rd party modules/services/factories etc. */
     function ($scope, $anchorScroll, $location, $state, $stateParams, $filter, $sessionStorage,
-              loginService, StockOrderLineitemModel,
+              loginService, StockOrderLineitemModel, ReportModel,
               ngDialog, deviceDetector)
     {
       var ROW_STATE_NOT_COMPLETE = '!complete';
@@ -28,7 +28,6 @@ angular.module('ShoppinPalApp')
       $scope.alphabets = [];
       $scope.submitToWarehouseButton = 'Submit';
       $scope.comments = '';
-      $scope.ReviewSubmitPage = true;
       $scope.deviceDetector = deviceDetector;
 
       /** @method dismissEdit
@@ -38,12 +37,11 @@ angular.module('ShoppinPalApp')
         $scope.selectedRowIndex = $scope.storereportlength + 1; // dismiss the edit view in UI
 
         // update the backend
-        console.log({
+        /*console.log({
           desiredStockLevel: storeReportRow.desiredStockLevel,
           orderQuantity: storeReportRow.orderQuantity,
           comment: storeReportRow.comment
-        });
-        // TODO: why not use the SKU field as the id?
+        });*/
         return StockOrderLineitemModel.prototype$updateAttributes(
           { id: storeReportRow.id },
           {
@@ -158,16 +156,24 @@ angular.module('ShoppinPalApp')
        * This method will submit the store-report to warehouse
        */
       $scope.submitToWarehouse = function() {
-        if(!$scope.ReviewSubmitPage){
-          ngDialog.open({ template: 'views/popup/submitToStorePopUp.html',
-            className: 'ngdialog-theme-plain',
-            scope: $scope
-          });
-
-        }
-        else{
-          $scope.ReviewSubmitPage = false;
-        }
+        var dialog = ngDialog.open({ template: 'views/popup/submitToStorePopUp.html',
+          className: 'ngdialog-theme-plain',
+          scope: $scope
+        });
+        dialog.closePromise.then(function (data) {
+          var proceed = data.value;
+          if (proceed) {
+            ReportModel.prototype$updateAttributes(
+              { id: $stateParams.reportId },
+              {
+                state: 'warehouse'
+              }
+            )
+              .$promise.then(function(response){
+                $state.go('store-landing'); // TODO: should this point at 'warehouse-landing' instead?
+              });
+          }
+        });
       };
 
       /** @method decreaseQty
@@ -176,7 +182,7 @@ angular.module('ShoppinPalApp')
        */
       $scope.decreaseQty = function(storereport) {
         storereport.orderQuantity = parseInt(storereport.orderQuantity); // parse it from string to integer
-        if(storereport.orderQuantity >0){
+        if(storereport.orderQuantity > 0){
           storereport.orderQuantity -= 1;
         }
       };
@@ -231,8 +237,14 @@ angular.module('ShoppinPalApp')
         $scope.waitOnPromise = loginService.getStoreReport($stateParams.reportId)
           .then(function (response) {
             originalReportDataSet = response;
+            angular.forEach(originalReportDataSet, function (row) {
+              row.state = ROW_STATE_COMPLETE;
+            });
+            originalReportDataSet[originalReportDataSet.length-1].state = 'pending';
+            console.log(originalReportDataSet[originalReportDataSet.length-1]);
             setFilterBasedOnState();
             $scope.isShipmentFullyReceived = ($scope.storesReport.length < 1) ? true : false;
+            console.log('isShipmentFullyReceived', $scope.isShipmentFullyReceived);
 
             $scope.storereportlength = $scope.storesReport.length;
             $scope.JumtoDepartment();
