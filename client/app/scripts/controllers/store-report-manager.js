@@ -181,7 +181,7 @@ angular.module('ShoppinPalApp')
        * This method decreases the ordered quantity ,when user tap on '-'' sign
        */
       $scope.decreaseQty = function(storereport) {
-        storereport.orderQuantity = parseInt(storereport.orderQuantity); // parse it from string to integer
+        storereport.orderQuantity = parseInt(storereport.orderQuantity, 10); // parse it from string to integer
         if(storereport.orderQuantity > 0){
           storereport.orderQuantity -= 1;
         }
@@ -192,7 +192,7 @@ angular.module('ShoppinPalApp')
        * This method increase the ordered quantity ,when user tap on '+' sign
        */
       $scope.increaseQty = function(storereport) {
-        storereport.orderQuantity = parseInt(storereport.orderQuantity);
+        storereport.orderQuantity = parseInt(storereport.orderQuantity, 10);
         storereport.orderQuantity += 1;
       };
 
