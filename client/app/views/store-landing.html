@@ -27,8 +27,8 @@
     <!-- warehouse landing status button start -->
     <div class="row main-container">
         <div class="row row-centered">
-            <button class="status-btn-fullfil" ng-click="newOrders()">New Orders</button>
-            <button class="status-btn-inprocess" ng-click="inProcessOrder()">In process</button>
+            <button class="status-btn-inprocess" ng-click="newOrders()">New Orders</button>
+            <button class="status-btn-fullfil" ng-click="inProcessOrder()">In process</button>
             <button class="status-btn-receive" ng-click="recievedOrder()">Receive</button>
         </div>
     </div>
@@ -73,10 +73,9 @@
                                     <td width="10%">
                                         <div class="status-td">
                                             <span ng-class="{
-                                'status-square-complete': storeReport.state == 'complete',
-                                'status-square-inprocess': storeReport.state == 'empty' || 'manager',
-                                'status-square-fulfilled': storeReport.state == 'pending'}">
-                                            </span>
+                                            'status-square-inprocess': storeReport.state == 'empty' || storeReport.state == 'manager',
+                                            'status-square-fulfilled': storeReport.state == 'warehouse',
+                                            'status-square-complete': storeReport.state == 'complete'}"></span>
                                             <div ng-if="storeReport.state === 'empty'">{{storeReport.workerStatus}}</div>
                                             <div ng-if="storeReport.state !== 'empty'">{{storeReport.state}}</div>
                                         </div>

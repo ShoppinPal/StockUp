@@ -10,21 +10,24 @@ angular.module('ShoppinPalApp')
   .controller('StoreManagerCtrl',
   [
     '$scope', '$anchorScroll', '$location', '$state', '$stateParams', '$filter', '$sessionStorage', /* angular's modules/services/factories etc. */
-    'loginService', 'StockOrderLineitemModel', /* shoppinpal's custom modules/services/factories etc. */
+    'loginService', 'StockOrderLineitemModel', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
     'ngDialog', 'deviceDetector', /* 3rd party modules/services/factories etc. */
     function ($scope, $anchorScroll, $location, $state, $stateParams, $filter, $sessionStorage,
-              loginService, StockOrderLineitemModel,
+              loginService, StockOrderLineitemModel, ReportModel,
               ngDialog, deviceDetector)
     {
+      var ROW_STATE_NOT_COMPLETE = '!complete';
+      var ROW_STATE_COMPLETE = 'complete';
+      var originalReportDataSet; // no need to put everything in the $scope, only what's needed
+
       $scope.storeName = $sessionStorage.currentStore.name;
 
       $anchorScroll.yOffset = 50;
       $scope.storesReport = [];
       $scope.completedReports = [];
       $scope.alphabets = [];
-      $scope.submitToWarehouseButton = 'Review';
+      $scope.submitToWarehouseButton = 'Submit';
       $scope.comments = '';
-      $scope.ReviewSubmitPage = true;
       $scope.deviceDetector = deviceDetector;
 
       /** @method dismissEdit
@@ -34,12 +37,11 @@ angular.module('ShoppinPalApp')
         $scope.selectedRowIndex = $scope.storereportlength + 1; // dismiss the edit view in UI
 
         // update the backend
-        console.log({
+        /*console.log({
           desiredStockLevel: storeReportRow.desiredStockLevel,
           orderQuantity: storeReportRow.orderQuantity,
           comment: storeReportRow.comment
-        });
-        // TODO: why not use the SKU field as the id?
+        });*/
         return StockOrderLineitemModel.prototype$updateAttributes(
           { id: storeReportRow.id },
           {
@@ -53,11 +55,11 @@ angular.module('ShoppinPalApp')
           });
       };
 
-      /** @method editStore()
+      /** @method editRow()
        * @param selectedRow
-       * This method display the edit functionlity on right swipe
+       * This method display the edit functionality on right swipe
        */
-      $scope.editStore = function(selectedRow) {
+      $scope.editRow = function(selectedRow) {
         $scope.selectedRowIndex = selectedRow;
       };
 
@@ -102,7 +104,7 @@ angular.module('ShoppinPalApp')
         $scope.waitOnPromise = StockOrderLineitemModel.prototype$updateAttributes(
           { id: storeReportRow.id },
           {
-            state: 'complete'
+            state: ROW_STATE_COMPLETE
           }
         )
           .$promise.then(function(response){
@@ -112,8 +114,9 @@ angular.module('ShoppinPalApp')
             // change the UI after the backend finishes for data-integrity/assurance
             // but if this visibly messes with UI/UX, we might want to do it earlier...
             storeReportRow.updatedAt = response.updatedAt;
-            storeReportRow.state = 'complete';
-            $scope.storesReport.splice(rowIndex, 1); // TODO: animate?
+            storeReportRow.state = ROW_STATE_COMPLETE;
+            $scope.storesReport.splice(rowIndex, 1);
+            $scope.isShipmentFullyReceived = ($scope.storesReport.length < 1) ? true : false;
           });
       };
 
@@ -153,17 +156,24 @@ angular.module('ShoppinPalApp')
        * This method will submit the store-report to warehouse
        */
       $scope.submitToWarehouse = function() {
-        $scope.submitToWarehouseButton = 'Submit';
-        if(!$scope.ReviewSubmitPage){
-          ngDialog.open({ template: 'views/popup/submitToStorePopUp.html',
-            className: 'ngdialog-theme-plain',
-            scope: $scope
-          });
-
-        }
-        else{
-          $scope.ReviewSubmitPage = false;
-        }
+        var dialog = ngDialog.open({ template: 'views/popup/submitToStorePopUp.html',
+          className: 'ngdialog-theme-plain',
+          scope: $scope
+        });
+        dialog.closePromise.then(function (data) {
+          var proceed = data.value;
+          if (proceed) {
+            ReportModel.prototype$updateAttributes(
+              { id: $stateParams.reportId },
+              {
+                state: 'warehouse'
+              }
+            )
+              .$promise.then(function(/*response*/){
+                $state.go('store-landing'); // TODO: should this point at 'warehouse-landing' instead?
+              });
+          }
+        });
       };
 
       /** @method decreaseQty
@@ -171,8 +181,8 @@ angular.module('ShoppinPalApp')
        * This method decreases the ordered quantity ,when user tap on '-'' sign
        */
       $scope.decreaseQty = function(storereport) {
-        storereport.orderQuantity = parseInt(storereport.orderQuantity); // parse it from string to integer
-        if(storereport.orderQuantity >0){
+        storereport.orderQuantity = parseInt(storereport.orderQuantity, 10); // parse it from string to integer
+        if(storereport.orderQuantity > 0){
           storereport.orderQuantity -= 1;
         }
       };
@@ -182,7 +192,7 @@ angular.module('ShoppinPalApp')
        * This method increase the ordered quantity ,when user tap on '+' sign
        */
       $scope.increaseQty = function(storereport) {
-        storereport.orderQuantity = parseInt(storereport.orderQuantity);
+        storereport.orderQuantity = parseInt(storereport.orderQuantity, 10);
         storereport.orderQuantity += 1;
       };
 
@@ -214,7 +224,7 @@ angular.module('ShoppinPalApp')
       };
 
       $scope.getFilterForRowsToDisplay = function() {
-        return ($scope.displayPendingRows) ? {state:'!complete'} : {state:'complete'};
+        return ($scope.displayPendingRows) ? {state:ROW_STATE_NOT_COMPLETE} : {state:ROW_STATE_COMPLETE};
       };
 
       // -------------
@@ -222,12 +232,19 @@ angular.module('ShoppinPalApp')
       // -------------
       $scope.displayPendingRows = true;
       $scope.device = $scope.deviceDetector.device;
-      var originalReportDataSet;
+
       if($stateParams.reportId) {
         $scope.waitOnPromise = loginService.getStoreReport($stateParams.reportId)
           .then(function (response) {
             originalReportDataSet = response;
+            angular.forEach(originalReportDataSet, function (row) {
+              row.state = ROW_STATE_COMPLETE;
+            });
+            originalReportDataSet[originalReportDataSet.length-1].state = 'pending';
+            console.log(originalReportDataSet[originalReportDataSet.length-1]);
             setFilterBasedOnState();
+            $scope.isShipmentFullyReceived = ($scope.storesReport.length < 1) ? true : false;
+            console.log('isShipmentFullyReceived', $scope.isShipmentFullyReceived);
 
             $scope.storereportlength = $scope.storesReport.length;
             $scope.JumtoDepartment();
@@ -238,6 +255,7 @@ angular.module('ShoppinPalApp')
         $scope.waitOnPromise = loginService.getSelectStore()
           .then(function (response) {
             $scope.storesReport = response;
+            $scope.isShipmentFullyReceived = ($scope.storesReport.length < 1) ? true : false;
             $scope.storereportlength = $scope.storesReport.length;
             $scope.JumtoDepartment();
           });
