@@ -15,6 +15,7 @@ angular.module('ShoppinPalApp')
              UserModel, LoopBackAuth, StoreModel, ReportModel, deviceDetector)
     {
       $scope.storeName = $sessionStorage.currentStore.name;
+      $scope.roles = $sessionStorage.roles;
 
       $scope.message = 'Please Wait...';
 
@@ -127,12 +128,18 @@ angular.module('ShoppinPalApp')
       });
 
       $scope.drilldownToReport = function (rowIndex, storeReport) {
-        console.log(rowIndex, storeReport);
-        if (storeReport.state !== 'empty') {
+        console.log('inside drilldownToReport:', 'rowIndex:', rowIndex, 'storeReport:', storeReport);
+        if (_.contains($scope.roles, 'admin') && storeReport.state === 'warehouse') {
+          console.log('drill into warehouse report');
+          $state.go('warehouse-report', {reportId:storeReport.id});
+        }
+        else if (_.contains($scope.roles, 'manager') && storeReport.state !== 'warehouse' && storeReport.state !== 'empty' ) {
+          console.log('drill into manager report');
           // ui-sref="store-report-manager({reportId:storeReport.id})"
           $state.go('store-report-manager', {reportId:storeReport.id});
         }
-        else {
+        else if (storeReport.state === 'empty' ) {
+          console.log('update status for manager report');
           // show a spinner message which indicates that we are pinging the server for a status update
           $scope.message = 'Checking report status...';
 
@@ -161,6 +168,9 @@ angular.module('ShoppinPalApp')
             function(err){
               console.error(err);
             });
+        }
+        else {
+          console.log('do nothing?');
         }
       };
 

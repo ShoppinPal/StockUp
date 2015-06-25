@@ -169,7 +169,7 @@ angular.module('ShoppinPalApp')
                 state: 'warehouse'
               }
             )
-              .$promise.then(function(response){
+              .$promise.then(function(/*response*/){
                 $state.go('store-landing'); // TODO: should this point at 'warehouse-landing' instead?
               });
           }
