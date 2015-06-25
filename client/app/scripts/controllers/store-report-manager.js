@@ -237,14 +237,14 @@ angular.module('ShoppinPalApp')
         $scope.waitOnPromise = loginService.getStoreReport($stateParams.reportId)
           .then(function (response) {
             originalReportDataSet = response;
-            angular.forEach(originalReportDataSet, function (row) {
+            /*angular.forEach(originalReportDataSet, function (row) {
               row.state = ROW_STATE_COMPLETE;
             });
             originalReportDataSet[originalReportDataSet.length-1].state = 'pending';
-            console.log(originalReportDataSet[originalReportDataSet.length-1]);
+            console.log(originalReportDataSet[originalReportDataSet.length-1]);*/
             setFilterBasedOnState();
             $scope.isShipmentFullyReceived = ($scope.storesReport.length < 1) ? true : false;
-            console.log('isShipmentFullyReceived', $scope.isShipmentFullyReceived);
+            //console.log('isShipmentFullyReceived', $scope.isShipmentFullyReceived);
 
             $scope.storereportlength = $scope.storesReport.length;
             $scope.JumtoDepartment();
