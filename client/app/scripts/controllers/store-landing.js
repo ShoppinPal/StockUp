@@ -24,6 +24,18 @@ angular.module('ShoppinPalApp')
       $scope.backUpReportList = [];
       $scope.deviceDetector = deviceDetector;
 
+      $scope.isWarehouser = function () {
+        return _.contains($scope.roles, 'admin');
+      };
+
+      $scope.isManager = function () {
+        return _.contains($scope.roles, 'manager');
+      };
+
+      $scope.isReceiver = function () {
+        return _.contains($scope.roles, 'manager');
+      };
+
       /** @method onEditInit()
        * @param storeReport
        * This method is called once user choose to edit order name using right swipe
@@ -120,11 +132,25 @@ angular.module('ShoppinPalApp')
        * This method will load the storesReport from api on view load
        */
       $scope.$on('$viewContentLoaded', function() {
-        $scope.waitOnPromise = UserModel.reportModels({id: LoopBackAuth.currentUserId})
-          .$promise.then(function(response){
-            $scope.reportLists = response;
-            $scope.backUpReportList = response;
-          });
+        if ($scope.isManager()) {
+          console.log('isManager()');
+          $scope.waitOnPromise = UserModel.reportModels({id: LoopBackAuth.currentUserId})
+            .$promise.then(function(response){
+              $scope.reportLists = response;
+              $scope.backUpReportList = response;
+            });
+        }
+        else if ($scope.isWarehouser()) {
+          console.log('isWarehouser()');
+          $scope.waitOnPromise = ReportModel.find()
+            .$promise.then(function(response){
+              $scope.reportLists = response;
+              $scope.backUpReportList = response;
+            });
+        }
+        else {
+          // do nothing?
+        }
       });
 
       $scope.drilldownToReport = function (rowIndex, storeReport) {
