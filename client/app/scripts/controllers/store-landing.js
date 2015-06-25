@@ -14,7 +14,7 @@ angular.module('ShoppinPalApp')
     function($scope, $anchorScroll, $location, $state, $filter, $sessionStorage,
              UserModel, LoopBackAuth, StoreModel, ReportModel, deviceDetector)
     {
-      $scope.storeName = $sessionStorage.currentStore.name;
+      $scope.storeName = ($sessionStorage.currentStore) ? $sessionStorage.currentStore.name : null;
       $scope.roles = $sessionStorage.roles;
 
       $scope.message = 'Please Wait...';

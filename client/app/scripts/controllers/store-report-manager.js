@@ -20,7 +20,7 @@ angular.module('ShoppinPalApp')
       var ROW_STATE_COMPLETE = 'complete';
       var originalReportDataSet; // no need to put everything in the $scope, only what's needed
 
-      $scope.storeName = $sessionStorage.currentStore.name;
+      $scope.storeName = ($sessionStorage.currentStore) ? $sessionStorage.currentStore.name : null;
 
       $anchorScroll.yOffset = 50;
       $scope.storesReport = [];

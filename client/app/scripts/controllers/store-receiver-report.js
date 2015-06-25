@@ -13,7 +13,7 @@
     function ($scope, $sessionStorage, loginService, $stateParams,
               deviceDetector, $filter, $location, $anchorScroll) {
       $scope.deviceDetector = deviceDetector;
-      $scope.storeName = $sessionStorage.currentStore.name;
+      $scope.storeName = ($sessionStorage.currentStore) ? $sessionStorage.currentStore.name : null;
       $scope.isShipmentFullyReceived = false;
       $scope.items = [];
       $scope.alphabets = [];
