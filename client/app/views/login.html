@@ -47,7 +47,14 @@
                                                 <i class="fa fa-user"></i>
                                               </span>
                                             <!-- <input id="userNameios" name="loginname" type="text" placeholder="Username" class="form-control" ng-readonly="true" ng-model="userNameIos" ng-virtual-keyboard="{relative: false, vki_attached:true}"> -->
-                                            <input id="userNameios" name="loginname" type="text" placeholder="Username" class="form-control" ng-model="userNameIos">
+                                            <!--<input id="userNameios" name="loginname" type="text" placeholder="Username" class="form-control" ng-model="userNameIos">-->
+                                          <input id="userNameios" name="loginname" type='text'
+                                                 placeholder="Username"
+                                                 class="form-control"
+                                                 ng-disabled="true"
+                                                 ng-model="userNameIos"
+                                                 ng-virtual-keyboard="keyboardConfig"
+                                              />
                                         </div>
                                          <span class="error-message" ng-if="errors.username != ''">
                                           <span>{{errors.username}}</span>
@@ -59,7 +66,14 @@
                                                 <i class="fa fa-lock"></i>
                                               </span>
                                             <!-- <input id="pwdios" name="password" type="password" placeholder="Password" class="form-control" ng-readonly="true" ng-model="passwordIos" ng-virtual-keyboard="{relative: false, vki_attached:true}"> -->
-                                            <input id="pwdios" name="password" type="password" placeholder="Password" class="form-control" ng-model="passwordIos">
+                                            <!--<input id="pwdios" name="password" type="password" placeholder="Password" class="form-control" ng-model="passwordIos">-->
+                                          <input id="pwdios" name="password" type='password'
+                                                 placeholder="Password"
+                                                 class="form-control"
+                                                 ng-disabled="true"
+                                                 ng-model="passwordIos"
+                                                 ng-virtual-keyboard="keyboardConfig"
+                                              />
                                         </div> 
                                          <span class="error-message" ng-if="errors.pwd != ''">
                                      <span>{{errors.pwd}}</span>

@@ -127,8 +127,9 @@
                                             <div class="clearfix editable-panel"></div>
                                         </div>
                                         <div class="row editable-panel" ng-show="ReviewSubmitPage">
-                                            <input device-detector ng-if='device !== "ipad"' type="text" class="form-control comment-input editable-panel" placeholder="-- Add your Comments --" ng-model="storeReportRow.comment">
-                                            <input device-detector ng-if='device === "ipad"' type="text" class="form-control comment-input editable-panel" placeholder="-- Add your Comments --" ng-model="storeReportRow.comment" ng-readonly="true" ng-virtual-keyboard="{relative: true, vki_attached:true}">
+                                            <input type="text" class="form-control comment-input editable-panel" placeholder="-- Add your Comments --" ng-model="storeReportRow.comment">
+                                            <!--<input device-detector ng-if='device !== "ipad"' type="text" class="form-control comment-input editable-panel" placeholder="&#45;&#45; Add your Comments &#45;&#45;" ng-model="storeReportRow.comment">
+                                            <input device-detector ng-if='device === "ipad"' type="text" class="form-control comment-input editable-panel" placeholder="&#45;&#45; Add your Comments &#45;&#45;" ng-model="storeReportRow.comment" ng-readonly="true" ng-virtual-keyboard="{relative: true, vki_attached:true}">-->
                                         </div>
                                     </td>
                                 </tr>

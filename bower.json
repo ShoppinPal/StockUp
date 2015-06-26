@@ -21,7 +21,9 @@
     "ngDialog": "0.4.0",
     "ng-fastclick": "1.0.1",
     "ngstorage": "0.3.4",
-    "underscore": "1.7.0"
+    "underscore": "1.7.0",
+    "keyboard": "~1.23.1",
+    "ng-virtual-keyboard": "~0.0.2"
   },
   "devDependencies": {}
 }

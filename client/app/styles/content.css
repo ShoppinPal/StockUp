@@ -1231,3 +1231,8 @@ background-color: #E0E0E0;
 /* ENDS - Store manager report related CSS Style for Chrome Only */
 
 /* ENDS - Store Receiver report table related CSS styles */
+
+.ui-keyboard {
+    background-color: #8D9C9D;
+    border-radius: 10px;
+}

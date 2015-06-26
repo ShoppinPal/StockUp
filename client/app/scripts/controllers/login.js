@@ -33,6 +33,13 @@ angular.module('ShoppinPalApp')
         pwd : ''
       };
 
+      $scope.keyboardConfig = {
+        lockInput: true,
+        restrictInput: true,
+        autoAccept: true,
+        openOn: 'touchstart'
+      };
+
       // validate login and transition to select store page
       $scope.login = function login(username, password){
         $scope.waitOnPromise = UserModel.login({
@@ -70,6 +77,12 @@ angular.module('ShoppinPalApp')
           function(error){
             console.log('login() failed');
             console.log(error);
+            if($scope.device === 'ipad') {
+              $('#userNameios').getkeyboard().reveal();
+            } else {
+              angular.element(document.querySelector('#userNamewin'))[0].focus();
+            }
+
             var message = 'An error occured, please contact your administrator...';
             if (error && error.data && error.data.error && error.data.error.message) {
               message = error.data.error.message;
