@@ -8,9 +8,11 @@
  * Controller of the ShoppinPalApp
  */
 angular.module('ShoppinPalApp')
-  .controller('WarehouseLandingCtrl', ['$scope', '$state', 'loginService','$anchorScroll'
-    ,'$location','UserModel','LoopBackAuth',
-    function($scope, $state, loginService, $anchorScroll, $location, UserModel,LoopBackAuth) {
+  .controller('WarehouseLandingCtrl', [
+    '$scope', '$state', '$anchorScroll', '$location',
+    'loginService', 'ReportModel',
+    function($scope, $state, $anchorScroll, $location,
+             loginService, ReportModel) {
 
       $scope.sortedOrder = [];
 
@@ -92,18 +94,9 @@ angular.module('ShoppinPalApp')
        * This method will load the storesReport from api on view load
        */
       $scope.$on('$viewContentLoaded', function() {
-        //loginService.getSelectStore()
-        /*loginService.getSelectStoreStatus()
-          .then(function(response) {
-            $scope.storesReport = response.data.storesReport;
-            $scope.storereportlength = $scope.storesReport.length;
-            $scope.storesReportBackup = $scope.storesReport;
-            $scope.storesReportBackupLength = $scope.storereportlength;
-          });*/
-
-        UserModel.reportModels({id: LoopBackAuth.currentUserId})
-          .$promise.then(function(response){
-            console.log(response);
+        $scope.waitOnPromise = ReportModel.find()
+          .$promise.then(function (response) {
+            //console.log(response);
             $scope.storesReports = response;
           });
       });
