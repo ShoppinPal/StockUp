@@ -45,9 +45,10 @@
                                         <span class="table-heading-font">{{storeReport.type}}</span>
                                     </td>
                                 </tr>
-                                <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'"
-                                    ng-hide="$index==selectedRowIndex"
-                                    ng-swipe-left="importExport($index)">
+                                <tr ng-if="$index!==selectedRowIndex"
+                                    ng-click="drilldownToReport($index, storeReport)"
+                                    ng-swipe-left="importExport($index)"
+                                    ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'">
                                     <td width="10%">{{::storeReport.id}}</td>
                                     <td width="15%">{{::storeReport.outlet.name}} - {{::storeReport.name}}</td>
                                     <td width="15%">

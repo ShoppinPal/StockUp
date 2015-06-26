@@ -9,10 +9,12 @@
  */
 angular.module('ShoppinPalApp')
   .controller('WarehouseLandingCtrl', [
-    '$scope', '$state', '$anchorScroll', '$location',
+    '$scope', '$state', '$anchorScroll', '$location', '$sessionStorage',
     'loginService', 'ReportModel',
-    function($scope, $state, $anchorScroll, $location,
-             loginService, ReportModel) {
+    function($scope, $state, $anchorScroll, $location, $sessionStorage,
+             loginService, ReportModel)
+    {
+      $scope.roles = $sessionStorage.roles;
 
       $scope.sortedOrder = [];
 
@@ -101,5 +103,21 @@ angular.module('ShoppinPalApp')
           });
       });
 
+      $scope.drilldownToReport = function (rowIndex, storeReport) {
+        // NOTE: warehouser (admin role) is allowed to do anything!
+        console.log('inside drilldownToReport:', 'rowIndex:', rowIndex, 'storeReport:', storeReport);
+        if (_.contains($scope.roles, 'admin')){
+          if (storeReport.state === 'warehouse') {
+            console.log('drill into warehouse report');
+            $state.go('warehouse-report', {reportId:storeReport.id});
+          }
+          else {
+            console.log('do nothing?');
+          }
+        }
+        else {
+          $state.go('logout');
+        }
+      };
     }
   ]);
