@@ -1,25 +1,7 @@
 <div class="container"
      cg-busy="{promise:waitOnPromise,message:message}">
-    <!--<div class="row">
-        <div class="col-sm-12 col-md-12">
-            &lt;!&ndash; Select store header &ndash;&gt;
-            <header class="header">
-                <div class="row">
-                    <div class="col-md-5 col-sm-3 col-xs-12">
-                        <div class="logo">{{::storeName}}</div>
-                    </div>
-                    <div class="col-md-7 col-sm-9 col-xs-12">
-                        <div class="note-sub-text pull-right"><a ui-sref="logout" class="logout-text">LOGOUT</a></div>
-                        <div class="clearfix"></div>
-                        <div class="btn-align">
-                            <button type="submit" class="btn btn-primary button-large-green" ng-click="createManualOrder()">Create manual order</button>
-                        </div>
-                    </div>
-                </div>
-            </header>
-        </div>
-    </div>-->
-    <shoppin-pal-header is-home-page="true" store-name="{{::storeName}}"
+    <shoppin-pal-header is-home-page="true"
+                        store-name="{{::storeName}}"
                         button1-label="Create manual order"
                         button1-class="button-large-green"
                         on-button1-click="createManualOrder()">
@@ -83,8 +65,8 @@
                                     <td width="5%">{{storeReport.totalRows}}</td>
                                 </tr>
                                 <!-- Edit store-report start -->
-                                <!--<tr ng-if="$index==selectedRowIndex" ng-mouseleave="dismissEdit(storeReport)" class="edit-row">-->
-                                <tr ng-if="$index==selectedRowIndex" class="edit-row editable-panel"
+                                <tr ng-if="$index==selectedRowIndex"
+                                    class="edit-row editable-panel"
                                     ng-init="onEditInit(storeReport)">
                                     <td colspan="6" class="editable-panel">
                                         <div class="col-sm-2 editable-panel">{{storeReport.id}}</div>

@@ -1,22 +1,5 @@
-<div class="container">
-    <!--<div class="row">
-        <div class="col-sm-12 col-md-12">
-            &lt;!&ndash; Select store header &ndash;&gt;
-            <header class="header">
-                <div class="row">
-                    <div class="col-md-5 col-sm-3 col-xs-12">
-                        <div class="logo">Glenstone</div>
-                    </div>
-                    <div class="col-md-7 col-sm-9 col-xs-12">
-                        <div class="note-sub-text pull-right"><a ui-sref="logout" class="logout-text">LOGOUT</a></div>
-                        <div class="btn-align">
-                            <button type="submit" class="btn btn-primary button-large-green" ng-click="createManualOrder()">Create manual order</button>
-                        </div>
-                    </div>
-                </div>
-            </header>
-        </div>
-    </div>-->
+<div class="container"
+     cg-busy="{promise:waitOnPromise,message:message}">
     <shoppin-pal-header is-home-page="true"
                         button1-label="Create manual order"
                         button1-class="button-large-green"
@@ -62,7 +45,9 @@
                                         <span class="table-heading-font">{{storeReport.type}}</span>
                                     </td>
                                 </tr>
-                                <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'" ng-hide="$index==selectedRowIndex" ng-swipe-left="importExport($index)">
+                                <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'"
+                                    ng-hide="$index==selectedRowIndex"
+                                    ng-swipe-left="importExport($index)">
                                     <td width="10%">{{::storeReport.id}}</td>
                                     <td width="15%">{{::storeReport.outlet.name}} - {{::storeReport.name}}</td>
                                     <td width="15%">
@@ -85,7 +70,9 @@
                                     </td>
                                 </tr>
                                 <!-- Edit store-report start -->
-                                <tr ng-show="$index==selectedRowIndex" class="edit-row" ng-mouseleave="dismissEdit()">
+                                <tr ng-show="$index==selectedRowIndex"
+                                    class="edit-row"
+                                    ng-mouseleave="dismissEdit()">
                                     <td colspan="6">
                                         <div class="col-sm-2">{{storeReport.id}}</div>
                                         <div class="col-sm-2">
