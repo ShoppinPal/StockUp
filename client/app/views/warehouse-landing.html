@@ -63,16 +63,17 @@
                                     </td>
                                 </tr>
                                 <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'" ng-hide="$index==selectedRowIndex" ng-swipe-left="importExport($index)">
-                                    <td width="10%">{{storeReport.id}}</td>
-                                    <td width="15%">{{storeReport.outlet.name}}</td>
+                                    <td width="10%">{{::storeReport.id}}</td>
+                                    <td width="15%">{{::storeReport.outlet.name}} - {{::storeReport.name}}</td>
                                     <td width="15%">
                                         <div class="status-td">
                                             <span ng-class="{
-                                'status-square-complete': storeReport.status == 'recieve',
-                                'status-square-inprocess': storeReport.status == 'empty',
-                                'status-square-inprocess': storeReport.status == 'manager',
-                                'status-square-fulfilled': storeReport.status == 'warehouse'}">
-                                    </span> {{storeReport.status}}
+                                            'status-square-inprocess': storeReport.state == 'empty',
+                                            'status-square-inprocess': storeReport.state == 'manager',
+                                            'status-square-fulfilled': storeReport.state == 'warehouse',
+                                            'status-square-complete': storeReport.state == 'recieve'}">
+                                            </span>
+                                            <div ng-if="storeReport.state !== 'empty'">{{storeReport.state}}</div>
                                         </div>
                                     </td>
                                     <td width="10%">{{storeReport.desiredStockLevel}}</td>
@@ -88,7 +89,7 @@
                                     <td colspan="6">
                                         <div class="col-sm-2">{{storeReport.id}}</div>
                                         <div class="col-sm-2">
-                                            <div class="store-landing-second-col-text">{{storeReport.outlet.name}}</div>
+                                            <div class="store-landing-second-col-text">{{::storeReport.outlet.name}} - {{::storeReport.name}}</div>
                                         </div>
                                         <div class="col-sm-5 store-landing-edit-button-row">
                                             <button class="import-btn">Import</button>
