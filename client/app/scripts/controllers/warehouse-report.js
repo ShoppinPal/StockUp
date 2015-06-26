@@ -8,9 +8,13 @@
    * Controller of the ShoppinPalApp
    */
   angular.module('ShoppinPalApp').controller('WarehouseReportCtrl', [
-    '$scope', '$state', 'loginService', '$anchorScroll', '$location', 'deviceDetector',
-    function ($scope, $state, loginService, $anchorScroll, $location, deviceDetector) {
-
+    '$scope', '$state', '$stateParams', '$anchorScroll', '$location', /* angular's modules/services/factories etc. */
+    'loginService', /* shoppinpal's custom modules/services/factories etc. */
+    'deviceDetector', /* 3rd party modules/services/factories etc. */
+    function ($scope, $state, $stateParams, $anchorScroll, $location,
+              loginService,
+              deviceDetector)
+    {
       $scope.submit = 'Submit';
       $scope.closeBoxButtonLabel = 'CLOSE THIS BOX';
       //$scope.printSlipButtonLabel = 'PRINT PACKING SLIP';
@@ -189,22 +193,39 @@
         }
       };
 
+      // -------------
+      // Load the data
+      // -------------
+
       /** @method viewContentLoaded
        * This method will load the storesReport from api on view load
        */
       $scope.$on('$viewContentLoaded', function () {
-        //loginService.getSelectStore().then(function (response) {
-        loginService.getWarehouseReport().then(function (response) {
-          /*$scope.storesReport = response;*/
-          $scope.orderedItems = response.data.stockOrderLineitemModels;
-          angular.forEach($scope.orderedItems, function (item) {
-            item.fulfilledQuantity = item.orderQuantity;
+        if($stateParams.reportId) {
+          $scope.waitOnPromise = loginService.getStoreReport($stateParams.reportId)
+            .then(function (response) {
+              $scope.orderedItems = response;
+              angular.forEach($scope.orderedItems, function (item) {
+                item.fulfilledQuantity = item.orderQuantity;
+              });
+              // copy the items to a new list for display
+              $scope.items = angular.copy($scope.orderedItems);
+              $scope.addNewBox();
+              $scope.jumpToDepartment();
+            });
+        }
+        else { // if live data can't be loaded due to some bug, use MOCK data so testing can go on
+          loginService.getWarehouseReport().then(function (response) {
+            $scope.orderedItems = response.data.stockOrderLineitemModels;
+            angular.forEach($scope.orderedItems, function (item) {
+              item.fulfilledQuantity = item.orderQuantity;
+            });
+            // copy the items to a new list for display
+            $scope.items = angular.copy($scope.orderedItems);
+            $scope.addNewBox();
+            $scope.jumpToDepartment();
           });
-          // copy the items to a new list for display
-          $scope.items = angular.copy($scope.orderedItems);
-          $scope.addNewBox();
-          $scope.jumpToDepartment();
-        });
+        }
       });
     }
   ]);
