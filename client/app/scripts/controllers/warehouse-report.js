@@ -206,7 +206,9 @@
             .then(function (response) {
               $scope.orderedItems = response;
               angular.forEach($scope.orderedItems, function (item) {
-                item.fulfilledQuantity = item.orderQuantity;
+                if(item.fulfilledQuantity === undefined || item.fulfilledQuantity === null) {
+                  item.fulfilledQuantity = item.orderQuantity;
+                }
               });
               // copy the items to a new list for display
               $scope.items = angular.copy($scope.orderedItems);
