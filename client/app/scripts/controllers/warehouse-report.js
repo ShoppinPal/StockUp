@@ -9,10 +9,10 @@
    */
   angular.module('ShoppinPalApp').controller('WarehouseReportCtrl', [
     '$scope', '$state', '$stateParams', '$anchorScroll', '$location', /* angular's modules/services/factories etc. */
-    'loginService', /* shoppinpal's custom modules/services/factories etc. */
+    'loginService', 'StockOrderLineitemModel',/* shoppinpal's custom modules/services/factories etc. */
     'deviceDetector', /* 3rd party modules/services/factories etc. */
     function ($scope, $state, $stateParams, $anchorScroll, $location,
-              loginService,
+              loginService, StockOrderLineitemModel,
               deviceDetector)
     {
       $scope.submit = 'Submit';
@@ -28,19 +28,19 @@
       /** @method onEditInit()
        * This method is called once user choose to edit a row using right swipe
        */
-      $scope.onEditInit = function () {
+      $scope.onEditInit = function (item) {
         var shoppinPalMainDiv = angular.element(document.querySelector('.shoppinPal-warehouse'));
         if ($scope.deviceDetector.isDesktop()) {
           shoppinPalMainDiv.bind('mousedown', function (event) {
             if (!event.target.classList.contains('editable-panel')) {
-              $scope.dismissEdit();
+              $scope.dismissEdit(item);
               shoppinPalMainDiv.unbind('mousedown');
             }
           });
         } else {
           shoppinPalMainDiv.bind('touchstart', function (event) {
             if (!event.target.classList.contains('editable-panel')) {
-              $scope.dismissEdit();
+              $scope.dismissEdit(item);
               shoppinPalMainDiv.unbind('touchstart');
             }
           });
@@ -50,11 +50,25 @@
       /** @method dismissEdit
        * This method will close the editable mode in store-report
        */
-      $scope.dismissEdit = function () {
-        /* using $scope.$apply() because the view was not updating  */
-        $scope.$apply(function () {
-          $scope.selectedRowIndex = -1;
-        });
+      $scope.dismissEdit = function (storeReportRow) {
+        // update the backend
+        /*console.log('update', {
+          fulfilledQuantity: storeReportRow.fulfilledQuantity,
+          comment: storeReportRow.comment
+        });*/
+        $scope.waitOnPromise = StockOrderLineitemModel.prototype$updateAttributes(
+          { id: storeReportRow.id },
+          {
+            fulfilledQuantity: storeReportRow.fulfilledQuantity,
+            comment: storeReportRow.comment
+          }
+        )
+          .$promise.then(function(response){
+            console.log('updated', response);
+            storeReportRow.updatedAt = response.updatedAt;
+            $scope.selectedRowIndex = $scope.storereportlength + 1; // dismiss the edit view in UI
+            //$scope.selectedRowIndex = -1; // @ayush: is there merit to one over the other?
+          });
       };
 
       /** @method printDiv
