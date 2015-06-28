@@ -198,7 +198,15 @@
           $scope.selectedBox.totalItems ++; // update totals for current box
           $scope.items.splice(index, 1); // remove the item from the currently rendered list
 
-          $scope.waitOnPromise = updateItem(item)
+          $scope.waitOnPromise = StockOrderLineitemModel.prototype$updateAttributes(
+            { id: item.id },
+            {
+              fulfilledQuantity: item.fulfilledQuantity,
+              comment: item.comment,
+              boxNumber: $scope.selectedBox.boxNumber,
+              state: ROW_STATE_COMPLETE
+            }
+          )
             .$promise.then(function(response){
               console.log('hopefully finished updating the row');
               console.log(response);
@@ -221,18 +229,6 @@
           // TODO: remove this alert and use some good stuff
           alert('Please open a box');
         }
-      };
-
-      var updateItem = function(item){
-        return StockOrderLineitemModel.prototype$updateAttributes(
-          { id: item.id },
-          {
-            fulfilledQuantity: item.fulfilledQuantity,
-            comment: item.comment,
-            boxNumber: $scope.selectedBox.boxNumber,
-            state: ROW_STATE_COMPLETE
-          }
-        );
       };
 
       /** @method editWarehouse
