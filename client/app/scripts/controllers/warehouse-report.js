@@ -317,7 +317,7 @@
        */
       $scope.$on('$viewContentLoaded', function () {
         if($stateParams.reportId) {
-          $scope.waitOnPromise = loginService.getStoreReport($stateParams.reportId)
+          $scope.waitOnPromise = loginService.getReport($stateParams.reportId)
             .then(function (response) {
               setupBoxes(response);
               setupUnboxedItems(response);

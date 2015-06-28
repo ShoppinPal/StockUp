@@ -51,10 +51,10 @@ angular.module('ShoppinPalApp')
         },
 
         /**
-         * @method getStoreReport
+         * @method getReport
          * Get stores report
          */
-        getStoreReport: function (reportId) {
+        getReport: function (reportId) {
           return ReportModel.findById({
             id: reportId,
             filter: {

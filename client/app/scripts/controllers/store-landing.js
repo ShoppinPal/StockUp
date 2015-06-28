@@ -159,10 +159,15 @@ angular.module('ShoppinPalApp')
           console.log('drill into warehouse report');
           $state.go('warehouse-report', {reportId:storeReport.id});
         }
-        else if (_.contains($scope.roles, 'manager') && storeReport.state !== 'warehouse' && storeReport.state !== 'empty' ) {
+        else if (_.contains($scope.roles, 'manager') && storeReport.state === 'manager') {
           console.log('drill into manager report');
           // ui-sref="store-report-manager({reportId:storeReport.id})"
           $state.go('store-report-manager', {reportId:storeReport.id});
+        }
+        else if (_.contains($scope.roles, 'manager') && storeReport.state === 'receiver') {
+          console.log('drill into receiver report');
+          // ui-sref="store-report-manager({reportId:storeReport.id})"
+          $state.go('store-receiver-report', {reportId:storeReport.id});
         }
         else if (storeReport.state === 'empty' ) {
           console.log('update status for manager report');

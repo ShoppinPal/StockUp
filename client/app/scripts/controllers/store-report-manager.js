@@ -234,7 +234,7 @@ angular.module('ShoppinPalApp')
       $scope.device = $scope.deviceDetector.device;
 
       if($stateParams.reportId) {
-        $scope.waitOnPromise = loginService.getStoreReport($stateParams.reportId)
+        $scope.waitOnPromise = loginService.getReport($stateParams.reportId)
           .then(function (response) {
             originalReportDataSet = response;
             /*angular.forEach(originalReportDataSet, function (row) {

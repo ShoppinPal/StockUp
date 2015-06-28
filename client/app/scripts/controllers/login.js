@@ -62,7 +62,7 @@ angular.module('ShoppinPalApp')
                       return $state.go('warehouse-landing');
                     }
                     else {
-                      return $state.go('logout');
+                      return $state.go('logout'); // TODO: pass error code via $stateParams to notify user that no role is assigned
                     }
                   });
               });
