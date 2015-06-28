@@ -67,7 +67,7 @@
                                     <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'"
                                         ng-hide="$index==selectedRowIndex"
                                         ng-swipe-left="editReceivedQuantity($index)"
-                                        ng-swipe-right="markAsReceived($index)">
+                                        ng-swipe-right="markAsReceived($index, item)">
                                         <td class="report-head1">{{item.sku}}</td>
                                         <td class="report-head2">{{item.name}}</td>
                                         <td class="report-head3">{{item.orderQuantity}}</td>

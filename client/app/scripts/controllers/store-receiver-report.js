@@ -8,13 +8,15 @@
    * Controller of the ShoppinPalApp
    */
   angular.module('ShoppinPalApp').controller('StoreReceiverCtrl', [
-    '$scope', '$sessionStorage', '$stateParams', '$filter', '$location', '$anchorScroll', /* angular's modules/services/factories etc. */
-    'loginService', /* shoppinpal's custom modules/services/factories etc. */
-    'deviceDetector', /* 3rd party modules/services/factories etc. */
-    function ($scope, $sessionStorage, $stateParams, $filter, $location, $anchorScroll,
-              loginService,
-              deviceDetector)
+    '$scope', '$sessionStorage', '$state', '$stateParams', '$filter', '$location', '$anchorScroll', /* angular's modules/services/factories etc. */
+    'loginService', 'StockOrderLineitemModel', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
+    'deviceDetector', 'ngDialog', /* 3rd party modules/services/factories etc. */
+    function ($scope, $sessionStorage, $state, $stateParams, $filter, $location, $anchorScroll,
+              loginService, StockOrderLineitemModel, ReportModel,
+              deviceDetector, ngDialog)
     {
+      var ROW_STATE_COMPLETE = 'unboxed';
+
       $scope.deviceDetector = deviceDetector;
       $scope.storeName = ($sessionStorage.currentStore) ? $sessionStorage.currentStore.name : null;
       $scope.isShipmentFullyReceived = false;
@@ -66,6 +68,7 @@
        * This method opens a box and list the items inside it
        */
       $scope.openBox = function (box) {
+        console.log('inside openBox');
         if (!$scope.selectedBox) {
           closeAnyOpenBox();
           $scope.selectedBox = box;
@@ -103,10 +106,23 @@
       /** @method dismissEdit
        * This method will close the editable mode in store-report
        */
-      $scope.dismissEdit = function () {
-        $scope.$apply(function () {
-          $scope.selectedRowIndex = -1;
-        });
+      $scope.dismissEdit = function (storeReportRow) {
+        // update the backend
+        /*console.log({
+          receivedQuantity: storeReportRow.receivedQuantity
+        });*/
+        $scope.waitOnPromise = StockOrderLineitemModel.prototype$updateAttributes(
+          { id: storeReportRow.id },
+          {
+            receivedQuantity: storeReportRow.receivedQuantity
+          }
+        )
+          .$promise.then(function(response){
+            //console.log(response);
+            storeReportRow.updatedAt = response.updatedAt;
+            $scope.selectedRowIndex = $scope.storereportlength + 1; // dismiss the edit view in UI
+            //$scope.selectedRowIndex = -1;
+          });
       };
 
       /** @method checkIfFullyReceived
@@ -126,19 +142,35 @@
       /** @method markAsReceived
        * This method will mark the item as received when it is swiped to right
        */
-      $scope.markAsReceived = function (index) {
-        delete $scope.items[index].boxNumber;
-        delete $scope.items[index].boxName;
-        $scope.items.splice(index, 1);
-        $scope.selectedBox.totalItems -= 1;
+      $scope.markAsReceived = function (index, storeReportRow) {
+        $scope.waitOnPromise = StockOrderLineitemModel.prototype$updateAttributes(
+          { id: storeReportRow.id },
+          {
+            receivedQuantity: storeReportRow.receivedQuantity,
+            state: ROW_STATE_COMPLETE
+          }
+        )
+          .$promise.then(function(response){
+            console.log('hopefully finished updating the row');
+            console.log(response);
 
-        if ($scope.selectedBox.totalItems === 0) {
-          $scope.selectedBox = null;
-        }
+            // change the UI after the backend finishes for data-integrity/assurance
+            // but if this visibly messes with UI/UX, we might want to do it earlier...
+            storeReportRow.updatedAt = response.updatedAt;
+            storeReportRow.state = ROW_STATE_COMPLETE;
 
-        $scope.jumpToDepartment();
-        $scope.isShipmentFullyReceived = checkIfFullyReceived();
-        // TODO: call Mark as received API
+            delete $scope.items[index].boxNumber;
+            delete $scope.items[index].boxName;
+            $scope.items.splice(index, 1);
+            $scope.selectedBox.totalItems -= 1;
+
+            if ($scope.selectedBox.totalItems === 0) {
+              $scope.selectedBox = null;
+            }
+
+            $scope.jumpToDepartment();
+            $scope.isShipmentFullyReceived = checkIfFullyReceived();
+          });
       };
 
       /** @method shipmentFullyReceived
@@ -146,7 +178,28 @@
        */
       $scope.shipmentFullyReceived = function () {
         console.log('shipmentFullyReceived');
-        // TODO: call shipment fully received API
+        var dialog = ngDialog.open({ template: 'views/popup/submitToClosePopUp.html',
+          className: 'ngdialog-theme-plain',
+          scope: $scope
+        });
+        dialog.closePromise.then(function (data) {
+          //console.log('dialog has been dismissed: ', data);
+          //console.log('proceed?', data.value);
+          var proceed = data.value;
+          if (proceed) {
+            //console.log('submitting report');
+            ReportModel.prototype$updateAttributes(
+              { id: $stateParams.reportId },
+              {
+                state: 'closed' // TODO: move to a constant in a factory or service
+              }
+            )
+              .$promise.then(function(/*response*/){
+                //console.log('updated report', response);
+                return $state.go('store-landing');
+              });
+          }
+        });
       };
 
       /** @method goToDepartment
@@ -208,7 +261,7 @@
           var box = {
             'boxNumber': Number(boxNumberAsKey),
             'boxName': 'Box' + boxNumberAsKey,
-            'totalItems': existingBoxes[boxNumberAsKey],
+            'totalItems': existingBoxes[boxNumberAsKey], // TODO: should only count items that are still boxed!!!
             'isOpen': false
           };
           console.log('adding', box);
@@ -241,6 +294,7 @@
             .then(function (response) {
               setupBoxes(response);
               setupBoxedItems(response);
+              $scope.isShipmentFullyReceived = checkIfFullyReceived();
             });
         }
         else { // if live data can't be loaded due to some bug, use MOCK data so testing can go on
@@ -261,6 +315,7 @@
               box.totalItems = $filter('filter')($scope.receivedItems, filterData).length;
             });
             boxes = null;
+            $scope.isShipmentFullyReceived = checkIfFullyReceived();
           });
         }
       });
