@@ -99,7 +99,7 @@
        */
       $scope.addNewBox = function () {
         var box = {
-          'boxNumber':1,
+          'boxNumber': $scope.boxes.length + 1,
           'boxName': 'Box' + String($scope.boxes.length + 1),
           'totalItems': 0,
           'isOpen': true
