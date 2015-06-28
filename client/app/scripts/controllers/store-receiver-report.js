@@ -8,10 +8,13 @@
    * Controller of the ShoppinPalApp
    */
   angular.module('ShoppinPalApp').controller('StoreReceiverCtrl', [
-    '$scope', '$sessionStorage', 'loginService', '$stateParams',
-    'deviceDetector', '$filter', '$location', '$anchorScroll',
-    function ($scope, $sessionStorage, loginService, $stateParams,
-              deviceDetector, $filter, $location, $anchorScroll) {
+    '$scope', '$sessionStorage', '$stateParams', '$filter', '$location', '$anchorScroll', /* angular's modules/services/factories etc. */
+    'loginService', /* shoppinpal's custom modules/services/factories etc. */
+    'deviceDetector', /* 3rd party modules/services/factories etc. */
+    function ($scope, $sessionStorage, $stateParams, $filter, $location, $anchorScroll,
+              loginService,
+              deviceDetector)
+    {
       $scope.deviceDetector = deviceDetector;
       $scope.storeName = ($sessionStorage.currentStore) ? $sessionStorage.currentStore.name : null;
       $scope.isShipmentFullyReceived = false;
@@ -179,31 +182,87 @@
         }
       };
 
+
+      var setupBoxes = function(response){
+        var existingBoxes = _.chain(response).countBy('boxNumber').value();
+        console.log(existingBoxes);
+        if (existingBoxes && _.keys(existingBoxes).length > 0) {
+          populateExistingBoxes(existingBoxes);
+        }
+      };
+
+      var populateExistingBoxes = function(existingBoxes) {
+        $scope.boxes = [];
+        var boxNumbersAsKeys = _.filter(_.keys(existingBoxes),function(key){
+          var number = Number(key);
+          return _.isNumber(number) && _.isFinite(number);
+        }); // Math.max.apply(null, boxNumbersAsKeys)
+        console.log(boxNumbersAsKeys);
+
+        // NOTE: maxBoxNumber most likely equals the length of existingBoxes anyway
+        //       so there shouldn't be any need to explicitly calculate it
+        //var maxBoxNumber = Math.max.apply(null, boxNumbersAsKeys);
+        //console.log(maxBoxNumber);
+
+        _.each(boxNumbersAsKeys, function(boxNumberAsKey){
+          var box = {
+            'boxNumber': Number(boxNumberAsKey),
+            'boxName': 'Box' + boxNumberAsKey,
+            'totalItems': existingBoxes[boxNumberAsKey],
+            'isOpen': false
+          };
+          console.log('adding', box);
+          $scope.boxes.push(box);
+        });
+      };
+
+      var setupBoxedItems = function(response) {
+        $scope.receivedItems = _.filter(response, function(item){
+          return item.state !== 'unboxed';
+        });
+        // if receivedQuantity hasn't been set, then it should equal fulfilledQuantity by default
+        angular.forEach($scope.receivedItems, function (item) {
+          if(item.receivedQuantity === undefined || item.receivedQuantity === null) {
+            item.receivedQuantity = item.fulfilledQuantity;
+          }
+        });
+      };
+
+      // -------------
+      // Load the data
+      // -------------
+
       /** @method viewContentLoaded
        * This method will load the storesReport from api on view load
        */
       $scope.$on('$viewContentLoaded', function () {
-        /*loginService.getSelectStore().then(function (response) {
-         $scope.storesReport = response;
-         });*/
-        loginService.getReceiverReport($stateParams.reportId).then(function (response) {
-          $scope.receivedItems = response.data.stockOrderLineitemModels;
-          var boxes = [];
-          $scope.boxes = [];
-          angular.forEach($scope.receivedItems, function (item) {
-            item.receivedQuantity = item.fulfilledQuantity;
-            if (boxes.indexOf(item.boxNumber) < 0) {
-              boxes.push(item.boxNumber);
-              $scope.boxes.push({'boxNumber': item.boxNumber, 'boxName': item.boxName});
-            }
-          });
+        if($stateParams.reportId) {
+          $scope.waitOnPromise = loginService.getReport($stateParams.reportId)
+            .then(function (response) {
+              setupBoxes(response);
+              setupBoxedItems(response);
+            });
+        }
+        else { // if live data can't be loaded due to some bug, use MOCK data so testing can go on
+          loginService.getReceiverReport($stateParams.reportId).then(function (response) {
+            $scope.receivedItems = response.data.stockOrderLineitemModels;
+            var boxes = [];
+            $scope.boxes = [];
+            angular.forEach($scope.receivedItems, function (item) {
+              item.receivedQuantity = item.fulfilledQuantity;
+              if (boxes.indexOf(item.boxNumber) < 0) {
+                boxes.push(item.boxNumber);
+                $scope.boxes.push({'boxNumber': item.boxNumber, 'boxName': item.boxName});
+              }
+            });
 
-          angular.forEach($scope.boxes, function (box) {
-            var filterData = {'boxNumber': box.boxNumber};
-            box.totalItems = $filter('filter')($scope.receivedItems, filterData).length;
+            angular.forEach($scope.boxes, function (box) {
+              var filterData = {'boxNumber': box.boxNumber};
+              box.totalItems = $filter('filter')($scope.receivedItems, filterData).length;
+            });
+            boxes = null;
           });
-          boxes = null;
-        });
+        }
       });
     }
   ]);
