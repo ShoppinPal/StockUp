@@ -9,12 +9,14 @@
    */
   angular.module('ShoppinPalApp').controller('WarehouseReportCtrl', [
     '$scope', '$state', '$stateParams', '$anchorScroll', '$location', /* angular's modules/services/factories etc. */
-    'loginService', 'StockOrderLineitemModel',/* shoppinpal's custom modules/services/factories etc. */
-    'deviceDetector', /* 3rd party modules/services/factories etc. */
+    'loginService', 'StockOrderLineitemModel', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
+    'deviceDetector', 'ngDialog', /* 3rd party modules/services/factories etc. */
     function ($scope, $state, $stateParams, $anchorScroll, $location,
-              loginService, StockOrderLineitemModel,
-              deviceDetector)
+              loginService, StockOrderLineitemModel, ReportModel,
+              deviceDetector, ngDialog)
     {
+      var ROW_STATE_COMPLETE = 'boxed';
+
       $scope.submit = 'Submit';
       $scope.closeBoxButtonLabel = 'CLOSE THIS BOX';
       //$scope.printSlipButtonLabel = 'PRINT PACKING SLIP';
@@ -90,7 +92,53 @@
        * Submit the warehouse page to receiver
        */
       $scope.submitToReceiver = function () {
-        // TODO: call submitToReceiver API
+        var dialog = ngDialog.open({ template: 'views/popup/submitToStorePopUp.html',
+          className: 'ngdialog-theme-plain',
+          scope: $scope
+        });
+        dialog.closePromise.then(function (data) {
+          //console.log('dialog has been dismissed: ', data);
+          //console.log('proceed?', data.value);
+          var proceed = data.value;
+          if (proceed) {
+            //console.log('submitting report');
+            ReportModel.prototype$updateAttributes(
+              { id: $stateParams.reportId },
+              {
+                state: 'receiver'
+              }
+            )
+              .$promise.then(function(/*response*/){
+                //console.log('updated report', response);
+                $state.go('warehouse-landing');
+              });
+          }
+        });
+      };
+
+      var setupUnboxedItems = function(response) {
+        $scope.orderedItems = _.filter(response, function(item){
+          return item.state !== 'boxed';
+        });
+        // if fulfilledQuantity hasn't been set, then it should equal orderQuantity by default
+        angular.forEach($scope.orderedItems, function (item) {
+          if(item.fulfilledQuantity === undefined || item.fulfilledQuantity === null) {
+            item.fulfilledQuantity = item.orderQuantity;
+          }
+        });
+        // copy the items to a new list for display
+        $scope.items = angular.copy($scope.orderedItems);
+      };
+
+      var setupBoxes = function(response){
+        var existingBoxes = _.chain(response).countBy('boxNumber').value();
+        console.log(existingBoxes);
+        if (existingBoxes && _.keys(existingBoxes).length > 0) {
+          populateExistingBoxes(existingBoxes);
+        }
+        else {
+          $scope.addNewBox();
+        }
       };
 
       /** @method addNewBox
@@ -108,6 +156,32 @@
         $scope.selectedBox = $scope.boxes[$scope.boxes.length - 1];
       };
 
+      var populateExistingBoxes = function(existingBoxes) {
+        var boxNumbersAsKeys = _.filter(_.keys(existingBoxes),function(key){
+          var number = Number(key);
+          return _.isNumber(number) && _.isFinite(number);
+        }); // Math.max.apply(null, boxNumbersAsKeys)
+        console.log(boxNumbersAsKeys);
+
+        // NOTE: maxBoxNumber most likely equals the length of existingBoxes anyway
+        //       so there shouldn't be any need to explicitly calculate it
+        //var maxBoxNumber = Math.max.apply(null, boxNumbersAsKeys);
+        //console.log(maxBoxNumber);
+
+        _.each(boxNumbersAsKeys, function(boxNumberAsKey){
+          var box = {
+            'boxNumber': Number(boxNumberAsKey),
+            'boxName': 'Box' + boxNumberAsKey,
+            'totalItems': existingBoxes[boxNumberAsKey],
+            // keep the box with the biggest #, open by default
+            'isOpen': (Number(boxNumberAsKey) === boxNumbersAsKeys.length) ? true : false
+          };
+          console.log('adding', box);
+          $scope.boxes.push(box);
+          $scope.selectedBox = $scope.boxes[$scope.boxes.length - 1]; // ASSUMPTION: boxNumbersAsKeys is already naturally sorted
+        });
+      };
+
       /** @method closeBox
        * This will close the box
        */
@@ -121,28 +195,44 @@
        */
       $scope.moveToBox = function (item, index) {
         if($scope.selectedBox) {
-          // find the item and copy it to the original list
-          for (var i = 0; i < $scope.orderedItems.length; i++) {
-            if ($scope.orderedItems[i].sku === item.sku) {
-              $scope.orderedItems[i] = angular.copy(item);
-              $scope.selectedBox.totalItems ++;
-              $scope.items.splice(index, 1);
-              break;
-            }
-          }
+          $scope.selectedBox.totalItems ++; // update totals for current box
+          $scope.items.splice(index, 1); // remove the item from the currently rendered list
 
-          // check if all items have been processed, if yes close the box and enable submit button
-          if($scope.items.length === 0) {
-            $scope.allProcessed = true;
-            $scope.closeBox($scope.selectedBox);
-          }
+          $scope.waitOnPromise = updateItem(item)
+            .$promise.then(function(response){
+              console.log('hopefully finished updating the row');
+              console.log(response);
 
-          // keep the departments updated as per the remaining items
-          $scope.jumpToDepartment();
+              // change the UI after the backend finishes for data-integrity/assurance
+              // but if this visibly messes with UI/UX, we might want to do it earlier...
+              item.updatedAt = response.updatedAt;
+              item.state = ROW_STATE_COMPLETE;
+
+              // check if all items have been processed, if yes close the box and enable submit button
+              if($scope.items.length === 0) {
+                $scope.allProcessed = true;
+                $scope.closeBox($scope.selectedBox);
+              }
+
+              // keep the departments updated as per the remaining items
+              $scope.jumpToDepartment();
+            });
         } else {
           // TODO: remove this alert and use some good stuff
           alert('Please open a box');
         }
+      };
+
+      var updateItem = function(item){
+        return StockOrderLineitemModel.prototype$updateAttributes(
+          { id: item.id },
+          {
+            fulfilledQuantity: item.fulfilledQuantity,
+            comment: item.comment,
+            boxNumber: $scope.selectedBox.boxNumber,
+            state: ROW_STATE_COMPLETE
+          }
+        );
       };
 
       /** @method editWarehouse
@@ -207,6 +297,17 @@
         }
       };
 
+      var makeItEasyToTestSubmission = function(){
+        // auto place N-1 items in a box
+        $scope.selectedBox.totalItems = $scope.orderedItems.length-1;
+        $scope.items = [$scope.orderedItems[$scope.orderedItems.length-1]];
+        console.log(
+          '$scope.orderedItems.length', $scope.orderedItems.length, '\n',
+          '$scope.items.length', $scope.items.length, '\n',
+          '$scope.selectedBox.totalItems', $scope.selectedBox.totalItems
+        );
+      };
+
       // -------------
       // Load the data
       // -------------
@@ -218,15 +319,9 @@
         if($stateParams.reportId) {
           $scope.waitOnPromise = loginService.getStoreReport($stateParams.reportId)
             .then(function (response) {
-              $scope.orderedItems = response;
-              angular.forEach($scope.orderedItems, function (item) {
-                if(item.fulfilledQuantity === undefined || item.fulfilledQuantity === null) {
-                  item.fulfilledQuantity = item.orderQuantity;
-                }
-              });
-              // copy the items to a new list for display
-              $scope.items = angular.copy($scope.orderedItems);
-              $scope.addNewBox();
+              setupBoxes(response);
+              setupUnboxedItems(response);
+              //makeItEasyToTestSubmission();
               $scope.jumpToDepartment();
             });
         }
