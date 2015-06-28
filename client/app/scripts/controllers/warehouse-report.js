@@ -297,7 +297,7 @@
         }
       };
 
-      var makeItEasyToTestSubmission = function(){
+      /*var makeItEasyToTestSubmission = function(){
         // auto place N-1 items in a box
         $scope.selectedBox.totalItems = $scope.orderedItems.length-1;
         $scope.items = [$scope.orderedItems[$scope.orderedItems.length-1]];
@@ -306,7 +306,7 @@
           '$scope.items.length', $scope.items.length, '\n',
           '$scope.selectedBox.totalItems', $scope.selectedBox.totalItems
         );
-      };
+      };*/
 
       // -------------
       // Load the data
