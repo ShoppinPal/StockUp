@@ -115,7 +115,8 @@ module.exports = function (grunt) {
           ignores: [
             '<%= yeoman.app %>/scripts/shoppinpal-loopback.js',
             '<%= yeoman.app %>/scripts/shoppinpal-utils.js',
-            '<%= yeoman.app %>/scripts/directives/dismiss-keyboard.js'
+            '<%= yeoman.app %>/scripts/directives/dismiss-keyboard.js',
+            '<%= yeoman.app %>/scripts/libs/mottie-virtual-keyboard/jquery.keyboard.js'
           ],
           reporter: require('jshint-stylish')
         },
