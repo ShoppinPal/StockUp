@@ -92,7 +92,7 @@
        * Submit the warehouse page to receiver
        */
       $scope.submitToReceiver = function () {
-        var dialog = ngDialog.open({ template: 'views/popup/submitToStorePopUp.html',
+        var dialog = ngDialog.open({ template: 'views/popup/submitToReceiverPopUp.html',
           className: 'ngdialog-theme-plain',
           scope: $scope
         });
