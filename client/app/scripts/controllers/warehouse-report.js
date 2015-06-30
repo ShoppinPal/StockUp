@@ -185,8 +185,9 @@
       /** @method closeBox
        * This will close the box
        */
-      $scope.closeBox = function (box) {
-        box.isOpen = false;
+      $scope.closeBox = function () {
+        //box.isOpen = false;
+        $scope.selectedBox.isOpen = false;
         $scope.selectedBox = null;
       };
 

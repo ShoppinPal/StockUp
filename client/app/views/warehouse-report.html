@@ -150,7 +150,34 @@
                                             <div><img src="images/img_closed_folder.png"></div>
                                             <div class="dropbox-name">{{item.key}}</div>
                                         </div>-->
-                                        <div class="main-box" ng-repeat="box in boxes">
+                                        <div class="selected-box">
+                                            <div class="main-box" ng-if="selectedBox">
+                                                <div class="dropbox-qty">{{selectedBox.totalItems}}</div>
+                                                <div ng-if="!selectedBox.isOpen">
+                                                    <img src="images/img_closed_folder.png"
+                                                         ng-disabled="!selectedBox.isOpen"
+                                                         class="box-closed"
+                                                         ng-class="{'box-disabled' : !selectedBox.isOpen}">
+                                                </div>
+                                                <div ng-if="selectedBox.isOpen && selectedBox.totalItems > 0"
+                                                     data-placement="left"
+                                                     data-template="views/popup/box.html" data-trigger="click" bs-popover>
+                                                    <img src="images/img_open_folder.png">
+                                                </div>
+                                                <div ng-if="selectedBox.isOpen && selectedBox.totalItems === 0"
+                                                     class="box-disabled">
+                                                    <img src="images/img_open_folder.png">
+                                                </div>
+                                                <div class="dropbox-name">{{selectedBox.boxName}}</div>
+                                            </div>
+                                        </div>
+                                        <div class="add-box">
+                                            <button class="btn btn-primary add-btn"
+                                                    ng-click="addNewBox()" ng-disabled="selectedBox || allProcessed">
+                                                Add Box
+                                            </button>
+                                        </div>
+                                        <div class="main-box" ng-repeat="box in boxes" ng-if="box !== selectedBox">
                                             <div class="dropbox-qty">{{box.totalItems}}</div>
                                             <div ng-if="!box.isOpen">
                                                 <img src="images/img_closed_folder.png"
@@ -167,12 +194,6 @@
                                                 <img src="images/img_open_folder.png">
                                             </div>
                                             <div class="dropbox-name">{{box.boxName}}</div>
-                                        </div>
-                                        <div class="main-box">
-                                            <button class="btn btn-primary add-btn"
-                                                    ng-click="addNewBox()" ng-disabled="selectedBox || allProcessed">
-                                                Add Box
-                                            </button>
                                         </div>
                                     </div>
                                 </td>
