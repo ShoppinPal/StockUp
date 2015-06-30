@@ -10,10 +10,10 @@
   angular.module('ShoppinPalApp').controller('WarehouseReportCtrl', [
     '$scope', '$state', '$stateParams', '$anchorScroll', '$location', /* angular's modules/services/factories etc. */
     'loginService', 'StockOrderLineitemModel', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
-    'deviceDetector', 'ngDialog', /* 3rd party modules/services/factories etc. */
+    'deviceDetector', 'ngDialog', '$filter', /* 3rd party modules/services/factories etc. */
     function ($scope, $state, $stateParams, $anchorScroll, $location,
               loginService, StockOrderLineitemModel, ReportModel,
-              deviceDetector, ngDialog)
+              deviceDetector, ngDialog, $filter)
     {
       var ROW_STATE_COMPLETE = 'boxed';
 
@@ -66,7 +66,7 @@
           }
         )
           .$promise.then(function(response){
-            console.log('updated', response);
+            //console.log('updated', response);
             storeReportRow.updatedAt = response.updatedAt;
             $scope.selectedRowIndex = $scope.storereportlength + 1; // dismiss the edit view in UI
             //$scope.selectedRowIndex = -1; // @ayush: is there merit to one over the other?
@@ -126,13 +126,13 @@
             item.fulfilledQuantity = item.orderQuantity;
           }
         });
-        // copy the items to a new list for display
-        $scope.items = angular.copy($scope.orderedItems);
+        // copy the items (order by type) to a new list for display
+        $scope.items = $filter('orderBy')(angular.copy($scope.orderedItems), 'type');
       };
 
       var setupBoxes = function(response){
         var existingBoxes = _.chain(response).countBy('boxNumber').value();
-        console.log(existingBoxes);
+        //console.log(existingBoxes);
         if (existingBoxes && _.keys(existingBoxes).length > 0) {
           populateExistingBoxes(existingBoxes);
         }
@@ -161,7 +161,7 @@
           var number = Number(key);
           return _.isNumber(number) && _.isFinite(number);
         }); // Math.max.apply(null, boxNumbersAsKeys)
-        console.log(boxNumbersAsKeys);
+        //console.log(boxNumbersAsKeys);
 
         // NOTE: maxBoxNumber most likely equals the length of existingBoxes anyway
         //       so there shouldn't be any need to explicitly calculate it
@@ -176,7 +176,7 @@
             // keep the box with the biggest #, open by default
             'isOpen': (Number(boxNumberAsKey) === boxNumbersAsKeys.length) ? true : false
           };
-          console.log('adding', box);
+          //console.log('adding', box);
           $scope.boxes.push(box);
           $scope.selectedBox = $scope.boxes[$scope.boxes.length - 1]; // ASSUMPTION: boxNumbersAsKeys is already naturally sorted
         });
@@ -209,8 +209,8 @@
             }
           )
             .$promise.then(function(response){
-              console.log('hopefully finished updating the row');
-              console.log(response);
+              //console.log('hopefully finished updating the row');
+              //console.log(response);
 
               // change the UI after the backend finishes for data-integrity/assurance
               // but if this visibly messes with UI/UX, we might want to do it earlier...
@@ -274,6 +274,7 @@
             $scope.alphabets.push(typeFirstChar);
             if (typeFirstChar === value) {
               jumpToHash = 'jumpTo' + $scope.items[i].type;
+              break; // stop at the first matching department
             }
           }
 
@@ -292,6 +293,7 @@
               typeFirstChar = type.slice(0, 1).toUpperCase();
           $scope.alphabets.push(typeFirstChar);
         }
+        $scope.alphabets.sort();
       };
 
       /*var makeItEasyToTestSubmission = function(){
@@ -328,8 +330,8 @@
             angular.forEach($scope.orderedItems, function (item) {
               item.fulfilledQuantity = item.orderQuantity;
             });
-            // copy the items to a new list for display
-            $scope.items = angular.copy($scope.orderedItems);
+            // copy the items (order by type) to a new list for display
+            $scope.items = $filter('orderBy')(angular.copy($scope.orderedItems), 'type');
             $scope.addNewBox();
             $scope.jumpToDepartment();
           });
