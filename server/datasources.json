@@ -1,7 +1,7 @@
 {
   "db": {
     "name": "db",
-    "connector": "memory",
-    "file": "db.json"
+    "connector": "mongodb",
+    "debug": false
   }
 }
