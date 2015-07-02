@@ -54,15 +54,33 @@ module.exports = function(app) {
       });
   };
 
+  var logAndDelay = function(modelName, modelInstance, modelCreated) {
+    if (modelCreated) {
+      debug('('+ (++commentsIndex) +') ' + 'created', modelName, modelInstance);
+      var delayinMS = 3000;
+      debug('(' + (++commentsIndex) + ')',
+          'Adding delay of ' + delayinMS +
+          'ms because underlying datasource has "eventual consistency"');
+      // TODO: detect and do this ONLY for backends like elasticsearch
+      return Promise.delay([modelInstance, modelCreated], delayinMS);
+    }
+    else {
+      debug('('+ (++commentsIndex) +') ' + 'found', modelName, modelInstance);
+      debug('(' + (++commentsIndex) + ')',
+        'Proceeding without any delay because data was already populated in a previous cycle');
+      return Promise.resolve([modelInstance, modelCreated]);
+    }
+  };
+
   var setupUser = function(rawUser) {
     return UserModel.findOrCreate(
       {where: {username: rawUser.username}}, // find
       rawUser // or create
     )
       .spread(function(userInstance, created) {
-        (created) ? debug('('+ (++commentsIndex) +') ' + 'created', 'UserModel', userInstance)
-                  : debug('('+ (++commentsIndex) +') ' + 'found', 'UserModel', userInstance);
-
+        return logAndDelay('UserModel', userInstance, created);
+      })
+      .spread(function(userInstance) {
         return findOrCreateRoleToAssignUser(userInstance)
           .spread(function(/*role, principal*/){
             return Promise.resolve(userInstance);
@@ -112,6 +130,26 @@ module.exports = function(app) {
       .tap(function(accessToken) { // create a default/empty report for merchant1
         debug('(' + (++commentsIndex) + ') ' + 'created', 'AccessToken', JSON.stringify(accessToken, null, 2));
         debug('(' + (++commentsIndex) + ') ' + 'logged in w/ ' + rawUser.username + ' and token ' + accessToken.id);
+      });
+  };
+
+  var testAccess = function(storeSeedData, storeConfigModelInstance){
+    return userLogin({
+      realm: 'portal',
+      username: storeSeedData.managerAccount.email,
+      password: storeSeedData.managerAccount.password
+    })
+      .then(function (teamMemberAccessToken) {
+        return json('get', '/api/StoreConfigModels/' + storeConfigModelInstance.objectId)
+          //return json('get', '/api/StoreConfigModels/1')
+          .set('Authorization', teamMemberAccessToken.id)
+          .then(function (res) {
+            debug('(' + (++commentsIndex) + ')',
+              'TEST', 'found', 'StoreConfigModel',
+              {objectId: res.body.objectId, name: res.body.name}
+            );
+            return Promise.resolve();
+          });
       });
   };
 
@@ -308,28 +346,12 @@ module.exports = function(app) {
                                         )
                                           .spread(function (teamModel, created) {
                                             (created) ? debug('(' + (++commentsIndex) + ') ' + 'created', 'TeamModel', teamModel)
-                                              : debug('(' + (++commentsIndex) + ') ' + 'found', 'TeamModel', teamModel);
+                                                      : debug('(' + (++commentsIndex) + ') ' + 'found', 'TeamModel', teamModel);
 
                                             debug('(' + (++commentsIndex) + ')',
                                               'Let\'s test a team member\'s access to StoreConfigModel',
                                                 'GET /api/StoreConfigModels/' + storeConfigModelInstance.objectId);
-                                            return userLogin({
-                                              realm: 'portal',
-                                              username: storeSeedData.managerAccount.email,
-                                              password: storeSeedData.managerAccount.password
-                                            })
-                                              .then(function (teamMemberAccessToken) {
-                                                return json('get', '/api/StoreConfigModels/' + storeConfigModelInstance.objectId)
-                                                  //return json('get', '/api/StoreConfigModels/1')
-                                                  .set('Authorization', teamMemberAccessToken.id)
-                                                  .then(function (res) {
-                                                    debug('(' + (++commentsIndex) + ')',
-                                                      'TEST', 'found', 'StoreConfigModel',
-                                                      {objectId: res.body.objectId, name: res.body.name}
-                                                    );
-                                                    return Promise.resolve();
-                                                  });
-                                              });
+                                            return testAccess(storeSeedData, storeConfigModelInstance);
                                           });
                                       })
                                       .then(function (userInstance) {
