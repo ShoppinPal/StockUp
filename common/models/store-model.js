@@ -78,7 +78,7 @@ module.exports = function(StoreModel) {
     'importProducts',
     {
       accepts: [
-        {arg: 'id', type: 'number', required: true}
+        {arg: 'string', type: 'number', required: true}
       ],
       //http: {path:'/import-products', verb: 'get'}
       http: {path: '/:id/import-products', verb: 'get'}
