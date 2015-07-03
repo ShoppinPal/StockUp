@@ -12,7 +12,7 @@
     "loopback": "2.18.0",
     "loopback-boot": "2.8.1",
     "loopback-connector-mongodb": "1.11.2",
-    "loopback-datasource-juggler": "2.30.1",
+    "loopback-datasource-juggler": "2.31.0",
     "nconf": "^0.7.1",
     "newrelic": "~1.6.0",
     "q": "^1.1.2",
