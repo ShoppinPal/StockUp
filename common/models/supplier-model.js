@@ -1,6 +1,4 @@
-var loopback = require('loopback');
 var Promise = require('bluebird');
-var _ = require('underscore');
 
 var path = require('path');
 var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
@@ -23,31 +21,8 @@ module.exports = function(SupplierModel) {
     );
   });
 
-  var getCurrentUserModel = function(cb) {
-    var ctx = loopback.getCurrentContext();
-    var currentUser = ctx && ctx.get('currentUser');
-    if (currentUser) {
-      log('inside SupplierModel.getCurrentUserModel() - currentUser: ', currentUser.username);
-      //return currentUser;
-      return Promise.promisifyAll(
-        currentUser,
-        {
-          filter: function(name, func, target){
-            return !( name == 'validate');
-          }
-        }
-      );
-    }
-    else {
-      // TODO: when used with core invocations, the call stack can end up here
-      //       this error only makes sense to point out failures in RESTful calls
-      //       how can this sanity check be made any better?
-      cb('401 - unauthorized - how did we end up here? should we manage ACL access to remote methods ourselves?');
-    }
-  };
-
   SupplierModel.listSuppliers = function (cb) {
-    var currentUser = getCurrentUserModel(cb); // returns  immediately if no currentUser
+    var currentUser = SupplierModel.getCurrentUserModel(cb); // returns immediately if no currentUser
     if (currentUser) {
       //log('find out any and all teams (ownerID) that the currentUser is a member of');
       var TeamModel = SupplierModel.app.models.TeamModel;

@@ -1,6 +1,5 @@
 'use strict';
 
-var loopback = require('loopback');
 var Promise = require('bluebird');
 var request = require('request-promise');
 var _ = require('underscore');
@@ -50,26 +49,6 @@ module.exports = function(ReportModel) {
     returns: {arg: 'rows', type: 'array', root:true}
   });
 
-  var getCurrentUserModel = function(cb) {
-    var ctx = loopback.getCurrentContext();
-    var currentUser = ctx && ctx.get('currentUser');
-    if (currentUser) {
-      log('inside ReportModel.getCurrentUserModel() - currentUser: ', currentUser.username);
-      //return currentUser;
-      return Promise.promisifyAll(
-        currentUser,
-        {
-          filter: function(name, func, target){
-            return !( name == 'validate');
-          }
-        }
-      );
-    }
-    else {
-      cb('401 - unauthorized - how did we end up here? should we manage ACL access to remote methods ourselves?');
-    }
-  };
-
   var ClientError = function ClientError(e) {
     return e.statusCode >= 400 && e.statusCode < 500;
   };
@@ -99,7 +78,7 @@ module.exports = function(ReportModel) {
   };
 
   ReportModel.getRows = function(id, cb) {
-    var currentUser = getCurrentUserModel(cb); // returns  immediately if no currentUser
+    var currentUser = ReportModel.getCurrentUserModel(cb); // returns  immediately if no currentUser
     if (currentUser) {
       ReportModel.findById(id)
         .then(function (reportModelInstance) {
@@ -117,7 +96,7 @@ module.exports = function(ReportModel) {
   };
 
   ReportModel.generateStockOrderReportForManager = function(id, cb) {
-    var currentUser = getCurrentUserModel(cb); // returns  immediately if no currentUser
+    var currentUser = ReportModel.getCurrentUserModel(cb); // returns  immediately if no currentUser
     if(currentUser) {
       // (1) generate a token for the worker to use on the currentUser's behalf
       currentUser.createAccessTokenAsync(1209600)// can't be empty ... time to live (in seconds) 1209600 is 2 weeks (default of loopback)
@@ -213,7 +192,7 @@ module.exports = function(ReportModel) {
   };
 
   ReportModel.getWorkerStatus = function(id, cb) {
-    var currentUser = getCurrentUserModel(cb); // returns  immediately if no currentUser
+    var currentUser = ReportModel.getCurrentUserModel(cb); // returns  immediately if no currentUser
     if(currentUser) {
       // (1) fetch the report
       ReportModel.findById(id, function (error, reportModelInstance) {

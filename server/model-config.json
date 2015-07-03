@@ -5,6 +5,9 @@
       "loopback/server/models",
       "../common/models",
       "./models"
+    ],
+    "mixins": [
+      "../common/mixins"
     ]
   },
   "User": {
