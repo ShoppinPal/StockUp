@@ -28,7 +28,7 @@ module.exports = function(ReportModel) {
 
   ReportModel.remoteMethod('getWorkerStatus', {
     accepts: [
-      {arg: 'id', type: 'number', required: true}
+      {arg: 'id', type: 'string', required: true}
     ],
     http: {path: '/:id/getWorkerStatus', verb: 'get'},
     returns: {arg: 'reportModelInstance', type: 'object', root:true}
@@ -36,7 +36,7 @@ module.exports = function(ReportModel) {
 
   ReportModel.remoteMethod('generateStockOrderReportForManager', {
     accepts: [
-      {arg: 'id', type: 'number', required: true}
+      {arg: 'id', type: 'string', required: true}
     ],
     http: {path: '/:id/generateStockOrderReportForManager', verb: 'get'},
     returns: {arg: 'reportModelInstance', type: 'object', root:true}
@@ -44,7 +44,7 @@ module.exports = function(ReportModel) {
 
   ReportModel.remoteMethod('getRows', {
     accepts: [
-      {arg: 'id', type: 'number', required: true}
+      {arg: 'id', type: 'string', required: true}
     ],
     http: {path: '/:id/rows', verb: 'get'},
     returns: {arg: 'rows', type: 'array', root:true}
