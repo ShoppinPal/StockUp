@@ -68,7 +68,7 @@ module.exports = function(app) {
           'is in the team table for the given model\'s userId:', modelInstance.userId);
         TeamModel.count({
           ownerId: modelInstance.userId,
-          memberId:  String(currentUserId)
+          memberId: currentUserId
         }, function(err, count) {
           if (err) {
             console.log(err);
