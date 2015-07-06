@@ -121,5 +121,8 @@
       "property": "getVendAccessToken"
     }
   ],
-  "methods": []
+  "methods": [],
+  "mixins": {
+    "Utils": true
+  }
 }

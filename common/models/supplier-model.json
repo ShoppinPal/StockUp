@@ -57,5 +57,8 @@
       "permission": "ALLOW"
     }
   ],
-  "methods": []
+  "methods": [],
+  "mixins": {
+    "Utils": true
+  }
 }
