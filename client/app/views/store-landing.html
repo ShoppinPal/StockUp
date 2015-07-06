@@ -51,7 +51,8 @@
                                     ng-swipe-left="editOrder($index)"
                                     ng-class=" ($index+1)%2 == 0 ? 'tr-even' : 'tr-odd'">
                                     <td width="5%">{{storeReport.id}}</td>
-                                    <td width="10%">{{storeReport.name || "&lt;swipe right-to-left and rename this auto-generated report&gt;"}}</td>
+                                    <td width="10%" ng-if="storeReport.state.toLowerCase() === 'manager'">{{storeReport.name || "&lt;swipe right-to-left and rename this auto-generated report&gt;"}}</td>
+                                    <td width="10%" ng-if="storeReport.state.toLowerCase() !== 'manager'">{{storeReport.name}}</td>
                                     <td width="10%">
                                         <div class="status-td">
                                             <span ng-class="{
