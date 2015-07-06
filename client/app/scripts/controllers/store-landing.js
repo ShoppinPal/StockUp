@@ -23,6 +23,7 @@ angular.module('ShoppinPalApp')
       $scope.reportLists = [];
       $scope.backUpReportList = [];
       $scope.deviceDetector = deviceDetector;
+      $scope.swiping = false; // will be used as flag to prevent drill-down-to-report on ng-swipe-left
 
       $scope.isWarehouser = function () {
         return _.contains($scope.roles, 'admin');
@@ -41,6 +42,7 @@ angular.module('ShoppinPalApp')
        * This method is called once user choose to edit order name using right swipe
        */
       $scope.onEditInit = function(storeReport) {
+        $scope.swiping = false;
         angular.element(document.querySelector('#order-name-input'))[0].focus();
         var shoppinPalMainDiv = angular.element(document.querySelector('.shoppinPal-warehouse'));
         if($scope.deviceDetector.isDesktop()) {
@@ -64,7 +66,10 @@ angular.module('ShoppinPalApp')
        * This will edit the order name
        */
       $scope.editOrder = function(index) {
-        $scope.selectedRowIndex = index;
+        $scope.swiping = true;
+        if($scope.reportLists[index].state.toLowerCase() === 'manager') {
+          $scope.selectedRowIndex = index;
+        }
       };
 
       /** @method dismissEdit
@@ -154,6 +159,13 @@ angular.module('ShoppinPalApp')
       });
 
       $scope.drilldownToReport = function (rowIndex, storeReport) {
+        // return if this was called by ng-swipe-left event
+        if($scope.swiping) {
+          $scope.swiping = false;
+          return;
+        }
+
+        // drill-down-to-report if this was called by click event
         console.log('inside drilldownToReport:', 'rowIndex:', rowIndex, 'storeReport:', storeReport);
         if (_.contains($scope.roles, 'admin') && storeReport.state === 'warehouse') {
           console.log('drill into warehouse report');
