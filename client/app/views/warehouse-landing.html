@@ -53,12 +53,13 @@
                                     <td width="15%">{{::storeReport.outlet.name}} - {{::storeReport.name}}</td>
                                     <td width="15%">
                                         <div class="status-td">
-                                            <span ng-class="{
+                                            <span ng-if="storeReport.state != 'complete'" ng-class="{
                                             'status-square-inprocess': storeReport.state == 'empty',
                                             'status-square-inprocess': storeReport.state == 'manager',
                                             'status-square-fulfilled': storeReport.state == 'warehouse',
                                             'status-square-complete': storeReport.state == 'recieve'}">
                                             </span>
+                                            <span ng-if="storeReport.state == 'complete'">Completed</span>
                                             <!--<div ng-if="storeReport.state !== 'empty'">{{storeReport.state}}</div>-->
                                         </div>
                                     </td>

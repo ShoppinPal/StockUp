@@ -55,10 +55,11 @@
                                     <td width="10%" ng-if="storeReport.state.toLowerCase() !== 'manager'">{{storeReport.name}}</td>
                                     <td width="10%">
                                         <div class="status-td">
-                                            <span ng-class="{
+                                            <span ng-if="storeReport.state != 'complete'" ng-class="{
                                             'status-square-inprocess': storeReport.state == 'empty' || storeReport.state == 'manager',
                                             'status-square-fulfilled': storeReport.state == 'warehouse',
                                             'status-square-complete': storeReport.state == 'complete'}"></span>
+                                            <span ng-if="storeReport.state == 'complete'">Completed</span>
                                             <!--<div ng-if="storeReport.state === 'empty'">{{storeReport.workerStatus}}</div>
                                             <div ng-if="storeReport.state !== 'empty'">{{storeReport.state}}</div>-->
                                         </div>
