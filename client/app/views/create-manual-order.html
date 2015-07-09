@@ -24,12 +24,12 @@
         </div>
     </div>-->
     <shoppin-pal-header store-name="{{::orderController.storeName}}"
-                        home-state="store-landing"
+                        home-state="{{::orderController.homeState}}"
                         button1-label="Create Manual Order"
                         button1-class="button-large-green">
     </shoppin-pal-header>
     <!-- Report Manager page content -->
-    <div class="row main-container">
+    <div class="row main-container" cg-busy="orderController.waitOnPromise">
         <div class="order-container">
             <h2>New Stock Order</h2>
             <form name="orderForm"
@@ -105,7 +105,7 @@
                         -->
                         <!--<input id="submit" type="submit" value="Submit" ng-disabled="orderForm.$invalid"/>-->
                         <button id="submit" type="submit"
-                                class="btn btn-primary button-large-green"
+                                class="btn btn-primary button-large-green generate-order-btn"
                                 ng-disabled="orderForm.$invalid">
                             Generate New Order
                         </button>

@@ -11,10 +11,10 @@ angular.module('ShoppinPalApp').controller(
   'CreateManualOrderCtrl',
   [
     '$sessionStorage', /* angular's modules/services/factories etc. */
-    'LoopBackAuth', 'SupplierModel', 'UserModel', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
+    'LoopBackAuth', 'SupplierModel', 'UserModel', 'ReportModel', '$state', /* shoppinpal's custom modules/services/factories etc. */
     function CreateManualOrderCtrl (
       $sessionStorage,
-      LoopBackAuth, SupplierModel, UserModel, ReportModel)
+      LoopBackAuth, SupplierModel, UserModel, ReportModel, $state)
     {
       this.storeName = ($sessionStorage.currentStore) ? $sessionStorage.currentStore.name : null;
       this.roles = $sessionStorage.roles;
@@ -33,6 +33,8 @@ angular.module('ShoppinPalApp').controller(
       this.isReceiver = function () {
         return _.contains(self.roles, 'manager');
       };
+
+      this.homeState = this.isWarehouser() ? 'warehouse-landing' : 'store-landing';
 
       // Load the data
       SupplierModel.listSuppliers({})
@@ -60,8 +62,8 @@ angular.module('ShoppinPalApp').controller(
           '\nselectedStoreId', this.selectedStore.api_id, // jshint ignore:line
           '\nselectedSupplierId', this.selectedSupplier.apiId
         );
-        return UserModel.reportModels.create(
-          {id: LoopBackAuth.currentUserId},
+        this.waitOnPromise = UserModel.reportModels.create(
+        {id: LoopBackAuth.currentUserId},
           {
             name: self.orderName,
             state: 'empty',
@@ -78,6 +80,12 @@ angular.module('ShoppinPalApp').controller(
           .$promise.then(function(reportModelInstance){
             //return Parse.Promise.as(reportModelInstance);
             console.log(reportModelInstance);
+            if (_.contains($sessionStorage.roles, 'manager')) {
+              return $state.go('store-landing');
+            }
+            else if (_.contains($sessionStorage.roles, 'admin')) {
+              return $state.go('warehouse-landing');
+            }
             ReportModel.generateStockOrderReportForManager(
               {
                 id: reportModelInstance.id

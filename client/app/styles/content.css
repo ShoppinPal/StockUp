@@ -1247,3 +1247,10 @@ background-color: #E0E0E0;
 .add-box span{
     display: block;
 }
+
+.generate-order-btn:hover {
+    background: #37a965;
+}
+.generate-order-btn:disabled {
+    background: #2d8d5a;
+}
