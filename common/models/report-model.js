@@ -23,6 +23,11 @@ module.exports = function(ReportModel) {
         }
       }
     );
+
+    // if the model is attached to the remote connector
+    if(ReportModel.dataSource.connector.name === 'loopback-connector-remote') {
+      ReportModel.properties.id.type = String;
+    }
   });
 
   ReportModel.remoteMethod('getWorkerStatus', {
