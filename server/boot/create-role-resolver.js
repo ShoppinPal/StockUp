@@ -50,9 +50,9 @@ module.exports = function(app) {
       return reject();
     }
 
-    log('Role resolver for `teamMember` - evaluate ' +
-      context.model.definition.name + ' with id: ' + context.modelId +
-      ' for currentUserId: ' + currentUserId);
+    log('Role resolver for `teamMember`', '\n',
+        ' - evaluate ' + context.model.definition.name + ' with id: ' + context.modelId, '\n',
+        ' for currentUserId: ' + currentUserId);
     context.model.findById(context.modelId, function(err, modelInstance) {
       if (err) {
         log('err', err);
@@ -64,7 +64,8 @@ module.exports = function(app) {
       }
       else {
         var TeamModel = app.models.TeamModel;
-        // check if currentUserId is in team table for the given model's userId
+        log('check if currentUserId:', currentUserId, '\n',
+          'is in the team table for the given model\'s userId:', modelInstance.userId);
         TeamModel.count({
           ownerId: modelInstance.userId,
           memberId: currentUserId
@@ -74,7 +75,7 @@ module.exports = function(app) {
             return cb(null, false);
           }
 
-          log('is a team member');
+          log('is a team member? count > 0', (count > 0));
           cb(null, count > 0); // true = is a team member
         });
       }
