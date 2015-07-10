@@ -10,10 +10,10 @@ angular.module('ShoppinPalApp')
   .controller('StoreManagerCtrl',
   [
     '$scope', '$anchorScroll', '$location', '$state', '$stateParams', '$filter', '$sessionStorage', /* angular's modules/services/factories etc. */
-    'loginService', 'StockOrderLineitemModel', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
+    'loginService', 'StockOrderLineitemModel', 'ReportModel', 'StoreModel', /* shoppinpal's custom modules/services/factories etc. */
     'ngDialog', 'deviceDetector', /* 3rd party modules/services/factories etc. */
     function ($scope, $anchorScroll, $location, $state, $stateParams, $filter, $sessionStorage,
-              loginService, StockOrderLineitemModel, ReportModel,
+              loginService, StockOrderLineitemModel, ReportModel, StoreModel,
               ngDialog, deviceDetector)
     {
       var ROW_STATE_NOT_COMPLETE = '!complete';
@@ -40,17 +40,29 @@ angular.module('ShoppinPalApp')
           orderQuantity: storeReportRow.orderQuantity,
           comment: storeReportRow.comment
         });*/
-        $scope.waitOnPromise = StockOrderLineitemModel.prototype$updateAttributes(
-          { id: storeReportRow.id },
+        $scope.waitOnPromise = StoreModel.setDesiredStockLevelForVend(
           {
-            desiredStockLevel: storeReportRow.desiredStockLevel,
-            orderQuantity: storeReportRow.orderQuantity,
-            comment: storeReportRow.comment
+            id: $sessionStorage.currentStore.objectId,
+            productId: storeReportRow.productId,
+            desiredStockLevel: storeReportRow.desiredStockLevel
           }
         )
-          .$promise.then(function(response){
-            storeReportRow.updatedAt = response.updatedAt;
-            $scope.selectedRowIndex = $scope.storereportlength + 1; // dismiss the edit view in UI
+          .$promise.then(function(/*response*/){
+            // NOTE: the setDesiredStockLevelForVend() op could have been tied
+            //       to a before or after save hook on the server side
+            //console.log('setDesiredStockLevelForVend', 'response:', response);
+            return StockOrderLineitemModel.prototype$updateAttributes(
+              { id: storeReportRow.id },
+              {
+                desiredStockLevel: storeReportRow.desiredStockLevel,
+                orderQuantity: storeReportRow.orderQuantity,
+                comment: storeReportRow.comment
+              }
+            )
+              .$promise.then(function(response){
+                storeReportRow.updatedAt = response.updatedAt;
+                $scope.selectedRowIndex = $scope.storereportlength + 1; // dismiss the edit view in UI
+              });
           });
       };
 
