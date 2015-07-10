@@ -20,6 +20,7 @@
     "serve-favicon": "^2.0.1",
     "supertest-as-promised": "2.0.1",
     "underscore": "^1.7.0",
+    "vend-nodejs-sdk": "1.0.3",
     "winston": "^0.8.3"
   },
   "optionalDependencies": {

@@ -414,6 +414,35 @@ var getVendPaymentTypes = function(storeConfigId){
     });
 };
 
+var setDesiredStockLevelForVend = function(storeConfigId, outletId, productId, desiredStockLevel){
+  log.debug('setDesiredStockLevelForVend()', 'storeConfigId: ' + storeConfigId);
+  // TODO: do we want to use redis? do we want to wire up vendSdk here?
+  return getVendConnectionInfo(storeConfigId)
+    .then(function(connectionInfo){
+      var product = {
+        id: productId //'3aab7379-15a2-11e3-a415-bc764e10976c'
+      };
+      var updateData =  {
+        id: product.id,
+        inventory: [
+          {
+            'outlet_id': outletId, //'aea67e1a-b85c-11e2-a415-bc764e10976c',
+            'reorder_point': desiredStockLevel
+          }
+        ]
+      };
+      return vendSdk.products.update({apiId:{value: product.id},body:{value: updateData}},connectionInfo);
+    })
+    .then(function(response) {
+      log.debug('Vend product updated.\n', response.product);
+      return q(response.product);
+    },
+    function(error){
+      log.error('Error getting Vend product:\n' + JSON.stringify(error));
+      return q.reject('An error occurred while getting vend product.\n' + JSON.stringify(error));
+    });
+};
+
 module.exports = function(dependencies){
   if (dependencies) {
     GlobalConfigModel = dependencies.GlobalConfigModel;
@@ -427,6 +456,7 @@ module.exports = function(dependencies){
     getVendRegisters: getVendRegisters,
     getVendOutlets: getVendOutlets,
     getVendTaxes: getVendTaxes,
-    getVendPaymentTypes: getVendPaymentTypes
+    getVendPaymentTypes: getVendPaymentTypes,
+    setDesiredStockLevelForVend : setDesiredStockLevelForVend
   };
 };

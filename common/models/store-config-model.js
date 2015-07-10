@@ -114,6 +114,26 @@ module.exports = function(StoreConfigModel) {
     }
   };
 
+  StoreConfigModel.setDesiredStockLevelForVend = function(id, outletId, productId, desiredStockLevel, cb) {
+    var currentUser = StoreConfigModel.getCurrentUserModel(cb); // returns immediately if no currentUser
+
+    if(currentUser) {
+      var oauthVendUtil = require('./../../common/utils/vend')({
+        'GlobalConfigModel': StoreConfigModel.app.models.GlobalConfigModel,
+        'StoreConfigModel': StoreConfigModel,
+        'currentUser': currentUser
+      });
+      // TODO: use it for something real!
+      oauthVendUtil.setDesiredStockLevelForVend(id, outletId, productId, desiredStockLevel)
+        .then(function(/*product*/){
+          cb(null); //cb(null, product); // Question: we don't want to expose the entire product to client side?
+        },
+        function(error){
+          cb(error);
+        });
+    }
+  };
+
   StoreConfigModel.afterRemote('getVendAccessToken', function(ctx, remoteMethodResponse, next) {
     console.log('inside afterRemote:getVendAccessToken');
     //console.log('ctx.result.redirectUrl: ' + ctx.result.redirectUrl);
@@ -200,6 +220,16 @@ module.exports = function(StoreConfigModel) {
     ],
     http: {path: '/token/vend', verb: 'get'},
     returns: {arg: 'redirectUrl', type: 'string'}
+  });
+
+  StoreConfigModel.remoteMethod('setDesiredStockLevelForVend', {
+    accepts: [
+      {arg: 'id', type: 'number', required: true},
+      {arg: 'outletId', type: 'string', required: true},
+      {arg: 'productId', type: 'string', required: true},
+      {arg: 'desiredStockLevel', type: 'number', required: true}
+    ],
+    http: {path: '/:id/vend/product', verb: 'put'}
   });
 
 };
