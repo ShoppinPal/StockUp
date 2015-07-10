@@ -5964,6 +5964,47 @@ module.factory(
           method: "GET"
         },
 
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.StoreModel#setDesiredStockLevelForVend
+         * @methodOf shoppinpal-loopback.StoreModel
+         *
+         * @description
+         *
+         * <em>
+         * (The remote method definition does not provide any description.)
+         * </em>
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *   This method does not accept any parameters.
+         *   Supply an empty object or omit this argument altogether.
+         *
+         * @param {Object} postData Request data.
+         *
+         *  - `id` – `{number}` - 
+         *
+         *  - `productId` – `{string}` - 
+         *
+         *  - `desiredStockLevel` – `{number}` - 
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
+        "setDesiredStockLevelForVend": {
+          url: urlBase + "/StoreModels/:id/vend/product",
+          method: "PUT"
+        },
+
         // INTERNAL. Use UserModel.storeModels.findById() instead.
         "::findById::UserModel::storeModels": {
           params: {
