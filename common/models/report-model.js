@@ -25,8 +25,10 @@ module.exports = function(ReportModel) {
     );
 
     // if the model is attached to the remote connector
-    if(ReportModel.dataSource.connector.name === 'loopback-connector-remote') {
-      ReportModel.properties.id.type = String;
+    if(ReportModel.dataSource.connector.name === 'remote-connector') {
+      ReportModel.definition.rawProperties.id.type = String;
+      ReportModel.definition.rawProperties.userModelToReportModelId = {type: 'string'};
+      ReportModel.definition.build(true);
     }
   });
 
