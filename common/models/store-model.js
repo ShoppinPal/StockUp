@@ -152,7 +152,7 @@ module.exports = function(StoreModel) {
 
   StoreModel.remoteMethod('setDesiredStockLevelForVend', {
     accepts: [
-      {arg: 'id', type: 'number', required: true},
+      {arg: 'id', type: 'string', required: true},
       {arg: 'productId', type: 'string', required: true},
       {arg: 'desiredStockLevel', type: 'number', required: true}
     ],
