@@ -5982,7 +5982,7 @@ module.factory(
          *
          * @param {Object} postData Request data.
          *
-         *  - `id` – `{number}` - 
+         *  - `id` – `{string}` - 
          *
          *  - `productId` – `{string}` - 
          *
