@@ -23,11 +23,18 @@ module.exports = function(ReportModel) {
         }
       }
     );
+
+    // if the model is attached to the remote connector
+    if(ReportModel.dataSource.connector.name === 'remote-connector') {
+      ReportModel.definition.rawProperties.id.type = String;
+      ReportModel.definition.rawProperties.userModelToReportModelId = {type: 'string'};
+      ReportModel.definition.build(true);
+    }
   });
 
   ReportModel.remoteMethod('getWorkerStatus', {
     accepts: [
-      {arg: 'id', type: 'number', required: true}
+      {arg: 'id', type: 'string', required: true}
     ],
     http: {path: '/:id/getWorkerStatus', verb: 'get'},
     returns: {arg: 'reportModelInstance', type: 'object', root:true}
@@ -35,7 +42,7 @@ module.exports = function(ReportModel) {
 
   ReportModel.remoteMethod('generateStockOrderReportForManager', {
     accepts: [
-      {arg: 'id', type: 'number', required: true}
+      {arg: 'id', type: 'string', required: true}
     ],
     http: {path: '/:id/generateStockOrderReportForManager', verb: 'get'},
     returns: {arg: 'reportModelInstance', type: 'object', root:true}
@@ -43,7 +50,7 @@ module.exports = function(ReportModel) {
 
   ReportModel.remoteMethod('getRows', {
     accepts: [
-      {arg: 'id', type: 'number', required: true}
+      {arg: 'id', type: 'string', required: true}
     ],
     http: {path: '/:id/rows', verb: 'get'},
     returns: {arg: 'rows', type: 'array', root:true}

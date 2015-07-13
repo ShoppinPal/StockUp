@@ -161,7 +161,7 @@ module.exports = function(StoreConfigModel) {
   //       so that related models can have it as their $owner
   StoreConfigModel.remoteMethod('getVendRegisters', {
     accepts: [
-      {arg: 'id', type: 'number', required: true}
+      {arg: 'id', type: 'string', required: true}
     ],
     //http: {path: '/:id/:pos/:entity', verb: 'get'}
     http: {path: '/:id/vend/registers', verb: 'get'},
@@ -170,7 +170,7 @@ module.exports = function(StoreConfigModel) {
 
   StoreConfigModel.remoteMethod('getVendOutlets', {
     accepts: [
-      {arg: 'id', type: 'number', required: true}
+      {arg: 'id', type: 'string', required: true}
     ],
     http: {path: '/:id/vend/outlets', verb: 'get'},
     returns: {arg: 'outlets', type: 'array', root:true}
@@ -178,7 +178,7 @@ module.exports = function(StoreConfigModel) {
 
   StoreConfigModel.remoteMethod('getVendTaxes', {
     accepts: [
-      {arg: 'id', type: 'number', required: true}
+      {arg: 'id', type: 'string', required: true}
     ],
     http: {path: '/:id/vend/taxes', verb: 'get'},
     returns: {arg: 'taxes', type: 'array', root:true}
@@ -186,7 +186,7 @@ module.exports = function(StoreConfigModel) {
 
   StoreConfigModel.remoteMethod('getVendPaymentTypes', {
     accepts: [
-      {arg: 'id', type: 'number', required: true}
+      {arg: 'id', type: 'string', required: true}
     ],
     http: {path: '/:id/vend/payment_types', verb: 'get'},
     returns: {arg: 'payment_types', type: 'array', root:true}
