@@ -761,6 +761,14 @@ p.note-text{
     border-radius: 3px;
     float: left;
 }
+.status-square-receive {
+    width: 20px;
+    height: 20px;
+    margin-left: 58px;
+    background: #21639d;
+    border-radius: 3px;
+    float: left;
+}
 .status-square-complete {
     width: 20px;
     height: 20px;
@@ -1233,6 +1241,32 @@ background-color: #E0E0E0;
 
 /* ENDS - Store Receiver report table related CSS styles */
 
+/* BEGINS - Warehouse report table related CSS styles */
+/* BEGINS - Warehouse report related CSS Style for iPad Portrait Mode */
+@media only screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:portrait) {
+    .ipad-table .report-head1 {
+        width:90px;
+    }
+    .ipad-table .report-head2 {
+        width:300px;
+    }
+    .ipad-table .report-head3 {
+        width:100px;
+    }
+    .ipad-table .report-head4 {
+        width:100px;
+    }
+    .warehouse-report-ipad-scroll {
+        list-style: outside none none;
+        margin-left: 72px;
+        padding: 0;
+        background: #93c8ca;
+        width: 535px;
+    }
+}
+/* ENDS - Store manager report related CSS Style for iPad Portrait Mode */
+/* ENDS - Store Receiver report table related CSS styles */
+
 .selected-box {
     height: 122px;
 }
@@ -1251,6 +1285,25 @@ background-color: #E0E0E0;
 .generate-order-btn:hover {
     background: #37a965;
 }
+
 .generate-order-btn:disabled {
     background: #2d8d5a;
+}
+
+.new-orders-unselected {
+    color: #4e3173 !important;
+    background-color: #ffffff !important;
+    border: 3px solid !important;
+}
+
+.warehouse-orders-unselected {
+    color: #b9511a !important;
+    background-color: #ffffff !important;
+    border: 3px solid !important;
+}
+
+.receive-orders-unselected {
+    color: #21639d !important;
+    background-color: #ffffff !important;
+    border: 3px solid !important;
 }
