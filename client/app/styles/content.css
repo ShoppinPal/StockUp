@@ -761,6 +761,14 @@ p.note-text{
     border-radius: 3px;
     float: left;
 }
+.status-square-receive {
+    width: 20px;
+    height: 20px;
+    margin-left: 58px;
+    background: #21639d;
+    border-radius: 3px;
+    float: left;
+}
 .status-square-complete {
     width: 20px;
     height: 20px;
@@ -1246,4 +1254,22 @@ background-color: #E0E0E0;
 
 .add-box span{
     display: block;
+}
+
+.new-orders-unselected {
+    color: #4e3173 !important;
+    background-color: #ffffff !important;
+    border: 3px solid !important;
+}
+
+.warehouse-orders-unselected {
+    color: #b9511a !important;
+    background-color: #ffffff !important;
+    border: 3px solid !important;
+}
+
+.receive-orders-unselected {
+    color: #21639d !important;
+    background-color: #ffffff !important;
+    border: 3px solid !important;
 }

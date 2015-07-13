@@ -9,9 +9,21 @@
     <!-- warehouse landing status button start -->
     <div class="row main-container">
         <div class="row row-centered">
-            <button class="status-btn-inprocess" ng-click="newOrders()">New Orders</button>
-            <button class="status-btn-fullfil" ng-click="inProcessOrder()">In process</button>
-            <button class="status-btn-receive" ng-click="recievedOrder()">Receive</button>
+            <button class="status-btn-inprocess"
+                    ng-click="legends.new = !legends.new; filterOrders();"
+                    ng-class="{'new-orders-unselected' : !legends.new}">
+                New Orders
+            </button>
+            <button class="status-btn-fullfil"
+                    ng-click="legends.warehouse = !legends.warehouse; filterOrders();"
+                    ng-class="{'warehouse-orders-unselected' : !legends.warehouse}">
+                In process
+            </button>
+            <button class="status-btn-receive"
+                    ng-click="legends.receive = !legends.receive; filterOrders();"
+                    ng-class="{'receive-orders-unselected' : !legends.receive}">
+                Receive
+            </button>
         </div>
     </div>
     <!-- warehouse landing status button end -->
@@ -58,7 +70,7 @@
                                             <span ng-if="storeReport.state != 'complete'" ng-class="{
                                             'status-square-inprocess': storeReport.state == 'empty' || storeReport.state == 'manager',
                                             'status-square-fulfilled': storeReport.state == 'warehouse',
-                                            'status-square-complete': storeReport.state == 'complete'}"></span>
+                                            'status-square-receive': storeReport.state == 'receive'}"></span>
                                             <span ng-if="storeReport.state == 'complete'">Completed</span>
                                             <!--<div ng-if="storeReport.state === 'empty'">{{storeReport.workerStatus}}</div>
                                             <div ng-if="storeReport.state !== 'empty'">{{storeReport.state}}</div>-->
