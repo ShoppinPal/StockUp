@@ -10,13 +10,19 @@
 angular.module('ShoppinPalApp')
   .controller('WarehouseLandingCtrl', [
     '$scope', '$state', '$anchorScroll', '$location', '$sessionStorage',
-    'loginService', 'ReportModel',
+    'loginService', 'ReportModel', '$filter',
     function($scope, $state, $anchorScroll, $location, $sessionStorage,
-             loginService, ReportModel)
+             loginService, ReportModel, $filter)
     {
       $scope.roles = $sessionStorage.roles;
 
       $scope.sortedOrder = [];
+
+      $scope.legends = {
+        'warehouse': true,
+        'fulfill':   true,
+        'receive':   true
+      };
 
       /** @method dismissEdit
        * This method will close the editable mode in store-report
@@ -74,6 +80,32 @@ angular.module('ShoppinPalApp')
         $scope.storesReport = $scope.sortedOrder;
       };
 
+      var orderFilter = function(report){
+        var showWarehouseOrders = false,
+            showFulfillOrders = false,
+            showReceiveOrders = false;
+        // apply filters based on the legend flag values
+        angular.forEach($scope.legends, function(value, key){
+          if(value) {
+            if(key === 'warehouse'){
+              showWarehouseOrders = report.state === key;
+            } else if(key === 'fulfill') {
+              showFulfillOrders = report.state === key;
+            } else if(key === 'receive') {
+              showReceiveOrders = report.state === key;
+            }
+          }
+        });
+        return showWarehouseOrders || showFulfillOrders || showReceiveOrders;
+      };
+
+      /** @method filterOrders
+       * method filters the orders based on the legend status
+       */
+      $scope.filterOrders = function() {
+        $scope.reportLists = $filter('filter')($scope.backUpReportList, orderFilter);
+      };
+
       /** @method importExport
        * @param index
        * on left swipe of store landing page enable export, import for warehouse
@@ -99,7 +131,8 @@ angular.module('ShoppinPalApp')
         $scope.waitOnPromise = ReportModel.find()
           .$promise.then(function (response) {
             //console.log(response);
-            $scope.storesReports = response;
+            $scope.reportLists = response;
+            $scope.backUpReportList = response;
           });
       });
 

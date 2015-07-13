@@ -24,6 +24,11 @@ angular.module('ShoppinPalApp')
       $scope.backUpReportList = [];
       $scope.deviceDetector = deviceDetector;
       $scope.swiping = false; // will be used as flag to prevent drill-down-to-report on ng-swipe-left
+      $scope.legends = {
+        'new':      true,
+        'warehouse':  true,
+        'receive':  true
+      };
 
       $scope.isWarehouser = function () {
         return _.contains($scope.roles, 'admin');
@@ -92,29 +97,30 @@ angular.module('ShoppinPalApp')
           });
       };
 
-      var newOrdersFilter = function(report) {
-        return report.state === 'empty' || report.state === 'manager';
+      var orderFilter = function(report){
+        var showNewOrders = false,
+            showWarehouseOrders = false,
+            showReceiveOrders = false;
+        // apply filters based on the legend flag values
+        angular.forEach($scope.legends, function(value, key){
+          if(value) {
+            if(key === 'new'){
+              showNewOrders = report.state === 'empty' || report.state === 'manager';
+            } else if(key === 'warehouse') {
+              showWarehouseOrders = report.state === key;
+            } else if(key === 'receive') {
+              showReceiveOrders = report.state === key;
+            }
+          }
+        });
+        return showNewOrders || showWarehouseOrders || showReceiveOrders;
       };
 
-      /** @method newOrders
-       * show all newOrders
+      /** @method filterOrders
+       * method filters the orders based on the legend status
        */
-      $scope.newOrders = function() {
-        $scope.reportLists = $filter('filter')($scope.backUpReportList, newOrdersFilter);
-      };
-
-      /** @method inProcessOrder
-       * show only the inprocess order in UI
-       */
-      $scope.inProcessOrder = function() {
-        $scope.reportLists = $filter('filter')($scope.backUpReportList, {state: 'warehouse'});
-      };
-
-      /** @method recievedOrder
-       * show all recieved order
-       */
-      $scope.recievedOrder = function() {
-        $scope.reportLists = $filter('filter')($scope.backUpReportList, {state: 'receive'});
+      $scope.filterOrders = function() {
+        $scope.reportLists = $filter('filter')($scope.backUpReportList, orderFilter);
       };
 
       /**
