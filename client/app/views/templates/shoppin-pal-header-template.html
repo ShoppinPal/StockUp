@@ -15,7 +15,8 @@
         <div class="col-md-6 col-sm-6 col-xs-12">
           <div class="log-in-text"><a ui-sref="logout" class="logout-text">LOGOUT</a></div>
           <div class="btn-align">
-            <button type="submit" class="btn {{::button1Class}}"
+            <button ng-if="button1Label"
+                    type="submit" class="btn {{::button1Class}}"
                     ng-click="onButton1Click()" ng-disabled="button1Disabled()">
               {{button1Label}}
             </button>
