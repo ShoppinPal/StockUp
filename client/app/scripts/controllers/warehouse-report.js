@@ -315,6 +315,7 @@
        * This method will load the storesReport from api on view load
        */
       $scope.$on('$viewContentLoaded', function () {
+        $scope.device = $scope.deviceDetector.device;
         if($stateParams.reportId) {
           $scope.waitOnPromise = loginService.getReport($stateParams.reportId)
             .then(function (response) {
