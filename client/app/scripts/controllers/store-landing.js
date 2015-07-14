@@ -24,11 +24,15 @@ angular.module('ShoppinPalApp')
       $scope.backUpReportList = [];
       $scope.deviceDetector = deviceDetector;
       $scope.swiping = false; // will be used as flag to prevent drill-down-to-report on ng-swipe-left
+
       $scope.legends = {
         'new':      true,
         'warehouse':  true,
         'receive':  true
       };
+
+      $scope.supplierWiseListSize = {};
+      var showMoreValue = 5;
 
       $scope.isWarehouser = function () {
         return _.contains($scope.roles, 'admin');
@@ -97,6 +101,63 @@ angular.module('ShoppinPalApp')
           });
       };
 
+      var currentSupplier = '';
+
+      /** @method supplierFilter
+       * filter orders based on supplier
+       */
+      var supplierFilter = function(report) {
+        return report.supplier.name === currentSupplier;
+      };
+
+      /** @method limitListAsPerSupplier
+       * creates filtered list based on individual supplier limit size
+       */
+      var limitListAsPerSupplier = function(){
+        var suppliers = [];
+        // extract all the suppliers through out the reports list
+        angular.forEach($scope.reportLists, function(report) {
+          if(suppliers.indexOf(report.supplier.name) < 0) {
+            suppliers.push(report.supplier.name);
+            if(!$scope.supplierWiseListSize[report.supplier.name]) {
+              // set the list size per supplier, for show more feature
+              $scope.supplierWiseListSize[report.supplier.name] = {size: showMoreValue, enabled: true};
+            }
+          }
+        });
+
+        var filteredLists = [];
+        // find the supplier wise list limited to the list size value
+        angular.forEach($scope.supplierWiseListSize, function(supplier, key) {
+          // filter based on current supplier eg: CSC
+          currentSupplier = key;
+          var array = $filter('filter')($scope.reportLists, supplierFilter);
+          // disable show more link (for individual supplier) if there is no more item to show
+          if(array.length <= supplier.size) {
+            supplier.enabled = false;
+          } else {
+            supplier.enabled = true;
+          }
+          // filter based on the supplier list size
+          array = $filter('limitTo')(array, supplier.size);
+          angular.forEach(array, function(report) {
+            filteredLists.push(report);
+          });
+        });
+        $scope.filteredLists = angular.copy(filteredLists);
+      };
+
+      /** @method showMore
+       * increase the list display size for a specific supplier
+       */
+      $scope.showMore = function(supplier) {
+        $scope.supplierWiseListSize[supplier].size += showMoreValue;
+        limitListAsPerSupplier();
+      };
+
+      /** @method orderFilter
+       * filter orders based on the report state
+       */
       var orderFilter = function(report){
         var showNewOrders = false,
             showWarehouseOrders = false,
@@ -121,6 +182,7 @@ angular.module('ShoppinPalApp')
        */
       $scope.filterOrders = function() {
         $scope.reportLists = $filter('filter')($scope.backUpReportList, orderFilter);
+        limitListAsPerSupplier();
       };
 
       /**
@@ -139,6 +201,7 @@ angular.module('ShoppinPalApp')
         $location.hash(jumpToHash);
         $anchorScroll();
       };
+
       /** @method viewContentLoaded
        * This method will load the storesReport from api on view load
        */
@@ -149,6 +212,7 @@ angular.module('ShoppinPalApp')
             .$promise.then(function(response){
               $scope.reportLists = response;
               $scope.backUpReportList = response;
+              limitListAsPerSupplier();
             });
         }
         else if ($scope.isWarehouser()) {
@@ -157,6 +221,7 @@ angular.module('ShoppinPalApp')
             .$promise.then(function(response){
               $scope.reportLists = response;
               $scope.backUpReportList = response;
+              limitListAsPerSupplier();
             });
         }
         else {
