@@ -539,11 +539,18 @@ p.note-text{
     visibility: hidden;
 }
 .show-more-link{
+    cursor: pointer;
     color: #442861;
     text-transform:capitalize;
+    font-weight: 600;
 }
 .show-more-link:hover{
     color: #2d8d5a;
+}
+.show-more-link.disabled{
+    pointer-events: none;
+    cursor: default;
+    color: #999999
 }
 .tr-even{
     background:#eaf9fc;
@@ -1306,4 +1313,9 @@ background-color: #E0E0E0;
     color: #21639d !important;
     background-color: #ffffff !important;
     border: 3px solid !important;
+}
+
+.show-more-container {
+    text-align: right !important;
+    padding: 10px;
 }
