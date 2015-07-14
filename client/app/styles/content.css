@@ -1282,6 +1282,14 @@ background-color: #E0E0E0;
     display: block;
 }
 
+.generate-order-btn:hover {
+    background: #37a965;
+}
+
+.generate-order-btn:disabled {
+    background: #2d8d5a;
+}
+
 .new-orders-unselected {
     color: #4e3173 !important;
     background-color: #ffffff !important;
