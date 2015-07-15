@@ -30,7 +30,6 @@ angular.module('ShoppinPalApp')
       $scope.comments = '';
       $scope.deviceDetector = deviceDetector;
       var currentDesiredStockLevel = -1;
-      var currentOrderQuantity = -1;
 
       /** @method dismissEdit
        * This method will close the editable mode in store-report
@@ -43,8 +42,8 @@ angular.module('ShoppinPalApp')
           comment: storeReportRow.comment
         });*/
 
-        // if DSL or OrderQty have not been changed, don't make Vend DSL update
-        if(Number(currentDesiredStockLevel) === Number(storeReportRow.desiredStockLevel) && Number(currentOrderQuantity) === Number(storeReportRow.orderQuantity)) {
+        // if DSL has not been changed, don't make Vend DSL update
+        if(Number(currentDesiredStockLevel) === Number(storeReportRow.desiredStockLevel)) {
           // trigger the digest cycle
           $timeout(function(){
             $scope.selectedRowIndex = $scope.storereportlength + 1;
@@ -92,7 +91,6 @@ angular.module('ShoppinPalApp')
        */
       $scope.onEditInit = function(storeReportRow) {
         currentDesiredStockLevel = storeReportRow.desiredStockLevel;
-        currentOrderQuantity = storeReportRow.orderQuantity;
         /* moved the event from body to ui-view div as after adding the virtual keyboard,
            clicking on anywhere on keyboard will dismiss the edit box*/
         //var body = angular.element(document).find('body');
