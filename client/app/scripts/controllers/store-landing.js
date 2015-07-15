@@ -37,14 +37,13 @@ angular.module('ShoppinPalApp')
       $scope.supplierWiseListSize = {};
       var showMoreValue = 5;
 
+      // TODO: should be methods of an injectable service
       $scope.isWarehouser = function () {
         return _.contains($scope.roles, 'admin');
       };
-
       $scope.isManager = function () {
         return _.contains($scope.roles, 'manager');
       };
-
       $scope.isReceiver = function () {
         return _.contains($scope.roles, 'manager');
       };
