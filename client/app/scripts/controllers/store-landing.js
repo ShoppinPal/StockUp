@@ -11,9 +11,11 @@ angular.module('ShoppinPalApp')
   .controller('StoreLandingCtrl', [
     '$scope', '$anchorScroll', '$location', '$state', '$filter', '$sessionStorage', /* angular's modules/services/factories etc. */
     'UserModel', 'LoopBackAuth', 'StoreModel', 'ReportModel', 'deviceDetector', /* shoppinpal's custom modules/services/factories etc. */
+    'ngDialog',
     'ReportModelStates', /* constants */
     function($scope, $anchorScroll, $location, $state, $filter, $sessionStorage,
              UserModel, LoopBackAuth, StoreModel, ReportModel, deviceDetector,
+             ngDialog,
              ReportModelStates)
     {
       $scope.storeName = ($sessionStorage.currentStore) ? $sessionStorage.currentStore.name : null;
@@ -224,7 +226,23 @@ angular.module('ShoppinPalApp')
         }
       });
 
+      var promptManagerToNameTheReport = function() {
+        var dialog = ngDialog.open({
+          template: 'views/popup/nameTheReport.html',
+          className: 'ngdialog-theme-plain',
+          scope: $scope
+        });
+        dialog.closePromise.then(function (data) {
+          var proceed = data.value;
+          if (proceed) {
+            console.log('User knows that they should name the report now');
+          }
+        });
+      };
+
       var drillDownToManagerNewOrder = function(storeReport){
+        // make sure the name is set so that we can create a matching consignment in Vend
+        if (storeReport.name) { // TODO: duplicate this validation logic on server-side as well
         $scope.waitOnPromise = ReportModel.prototype$updateAttributes(
           { id: storeReport.id },
           {
@@ -236,6 +254,10 @@ angular.module('ShoppinPalApp')
             console.log('drill into manager report');
             $state.go('store-report-manager', {reportId:storeReport.id});
           });
+        }
+        else {
+          promptManagerToNameTheReport();
+        }
       };
 
       $scope.drilldownToReport = function (rowIndex, storeReport) {
