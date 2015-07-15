@@ -248,14 +248,13 @@ angular.module('ShoppinPalApp')
       var drillDownToManagerNewOrder = function(storeReport){
         // make sure the name is set so that we can create a matching consignment in Vend
         if (storeReport.name) { // TODO: duplicate this validation logic on server-side as well
-          $scope.waitOnPromise = ReportModel.prototype$updateAttributes(
-            { id: storeReport.id },
-            {
-              state: ReportModelStates.MANAGER_IN_PROCESS
-            }
-          )
-            .$promise.then(function(updatedReportModelInstance){
-              console.log(updatedReportModelInstance);
+          // server-side will edit the report's state and create a matching consignment in Vend
+          $scope.waitOnPromise = ReportModel.setReportStatus({
+            id: storeReport.id,
+            from: ReportModelStates.MANAGER_NEW_ORDERS,
+            to: ReportModelStates.MANAGER_IN_PROCESS
+          })
+            .$promise.then(function(){
               console.log('drill into manager report');
               $state.go('store-report-manager', {reportId:storeReport.id});
             });
