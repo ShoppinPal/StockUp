@@ -24,6 +24,9 @@ angular.module('ShoppinPalApp')
         'receive':   true
       };
 
+      $scope.supplierWiseListSize = {};
+      var showMoreValue = 5;
+
       /** @method dismissEdit
        * This method will close the editable mode in store-report
        */
@@ -31,72 +34,80 @@ angular.module('ShoppinPalApp')
         $scope.selectedRowIndex = $scope.storereportlength + 1;
       };
 
-      /** @method createManualOrder
-       * it will allow the warehouse manager to create manual order
+      var currentSupplier = '';
+
+      /** @method supplierFilter
+       * filter orders based on supplier
        */
-      $scope.createManualOrder = function() {
-        $state.go('create-manual-order');
+      var supplierFilter = function(report) {
+        return report.supplier.name === currentSupplier;
       };
 
-      /** @method inProcessOrder
-       * show only the inprocess order in UI
+      /** @method limitListAsPerSupplier
+       * creates filtered list based on individual supplier limit size
        */
-      $scope.inProcessOrder = function() {
-        $scope.sortedOrder = [];
-        for (var i = 0; i < $scope.storesReportBackupLength - 1; i++) {
-          if ($scope.storesReportBackup[i].status === 'inProgress') {
-            $scope.sortedOrder.push($scope.storesReportBackup[i]);
+      var limitListAsPerSupplier = function(){
+        var suppliers = [];
+        // extract all the suppliers through out the reports list
+        angular.forEach($scope.reportLists, function(report) {
+          if(suppliers.indexOf(report.supplier.name) < 0) {
+            suppliers.push(report.supplier.name);
+            if(!$scope.supplierWiseListSize[report.supplier.name]) {
+              // set the list size per supplier, for show more feature
+              $scope.supplierWiseListSize[report.supplier.name] = {size: showMoreValue, enabled: true};
+            }
           }
-        }
-        $scope.storesReport = [];
-        $scope.storesReport = $scope.sortedOrder;
-      };
+        });
 
-      /** @method fulfilledOrder
-       * show all fullfilled order
-       */
-      $scope.fulfilledOrder = function() {
-        $scope.sortedOrder = [];
-        for (var i = 0; i < $scope.storesReportBackupLength - 1; i++) {
-          if ($scope.storesReportBackup[i].status === 'pending') {
-            $scope.sortedOrder.push($scope.storesReportBackup[i]);
+        var filteredLists = [];
+        // find the supplier wise list limited to the list size value
+        angular.forEach($scope.supplierWiseListSize, function(supplier, key) {
+          // filter based on current supplier eg: CSC
+          currentSupplier = key;
+          var array = $filter('filter')($scope.reportLists, supplierFilter);
+          // disable show more link (for individual supplier) if there is no more item to show
+          if(array.length <= supplier.size) {
+            supplier.enabled = false;
+          } else {
+            supplier.enabled = true;
           }
-        }
-        $scope.storesReport = [];
-        $scope.storesReport = $scope.sortedOrder;
+          // filter based on the supplier list size
+          array = $filter('limitTo')(array, supplier.size);
+          angular.forEach(array, function(report) {
+            filteredLists.push(report);
+          });
+        });
+        $scope.filteredLists = angular.copy(filteredLists);
       };
 
-      /** @method recievedOrder
-       * show all recieved order
+      /** @method showMore
+       * increase the list display size for a specific supplier
        */
-      $scope.recievedOrder = function() {
-        $scope.sortedOrder = [];
-        for (var i = 0; i < $scope.storesReportBackupLength - 1; i++) {
-          if ($scope.storesReportBackup[i].status === 'complete') {
-            $scope.sortedOrder.push($scope.storesReportBackup[i]);
-          }
-        }
-        $scope.storesReport = [];
-        $scope.storesReport = $scope.sortedOrder;
+      $scope.showMore = function(supplier) {
+        $scope.supplierWiseListSize[supplier].size += showMoreValue;
+        limitListAsPerSupplier();
       };
 
+      /** @method orderFilter
+       * filter orders based on the report state
+       */
       var orderFilter = function(report){
-        var showWarehouseOrders = false,
-            showFulfillOrders = false,
+        var showNewOrders = false,
+            showWarehouseOrders = false,
             showReceiveOrders = false;
         // apply filters based on the legend flag values
         angular.forEach($scope.legends, function(value, key){
           if(value) {
-            if(key === 'warehouse'){
+            if(key === 'new'){
+              showNewOrders = report.state === 'empty' || report.state === 'manager';
+            } else if(key === 'warehouse') {
               showWarehouseOrders = report.state === key;
-            } else if(key === 'fulfill') {
-              showFulfillOrders = report.state === key;
             } else if(key === 'receive') {
               showReceiveOrders = report.state === key;
             }
           }
         });
-        return showWarehouseOrders || showFulfillOrders || showReceiveOrders;
+        return showNewOrders || showWarehouseOrders || showReceiveOrders;
       };
 
       /** @method filterOrders
@@ -104,6 +115,14 @@ angular.module('ShoppinPalApp')
        */
       $scope.filterOrders = function() {
         $scope.reportLists = $filter('filter')($scope.backUpReportList, orderFilter);
+        limitListAsPerSupplier();
+      };
+
+      /** @method createManualOrder
+       * it will allow the warehouse manager to create manual order
+       */
+      $scope.createManualOrder = function() {
+        $state.go('create-manual-order');
       };
 
       /** @method importExport
@@ -133,6 +152,7 @@ angular.module('ShoppinPalApp')
             //console.log(response);
             $scope.reportLists = response;
             $scope.backUpReportList = response;
+            limitListAsPerSupplier();
           });
       });
 
