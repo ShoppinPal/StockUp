@@ -215,16 +215,9 @@ angular.module('ShoppinPalApp')
             .$promise.then(function(response){
               $scope.reportLists = response;
               $scope.backUpReportList = response;
-              limitListAsPerSupplier();
-            });
-        }
-        else if ($scope.isWarehouser()) {
-          console.log('isWarehouser()');
-          $scope.waitOnPromise = ReportModel.find()
-            .$promise.then(function(response){
-              $scope.reportLists = response;
-              $scope.backUpReportList = response;
-              limitListAsPerSupplier();
+
+              // anything that isn't [MANAGER_NEW_ORDERS|MANAGER_IN_PROCESS|MANAGER_RECEIVE] gets filtered out
+              $scope.filterOrders();
             });
         }
         else {
