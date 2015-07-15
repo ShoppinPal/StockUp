@@ -9,23 +9,37 @@
  */
 angular.module('ShoppinPalApp')
   .controller('WarehouseLandingCtrl', [
-    '$scope', '$state', '$anchorScroll', '$location', '$sessionStorage',
-    'loginService', 'ReportModel', '$filter',
-    function($scope, $state, $anchorScroll, $location, $sessionStorage,
-             loginService, ReportModel, $filter)
+    '$scope', '$state', '$anchorScroll', '$location', '$sessionStorage', '$filter', /* angular's modules/services/factories etc. */
+    'loginService', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
+    'ReportModelStates', /* constants */
+    function($scope, $state, $anchorScroll, $location, $sessionStorage, $filter,
+             loginService, ReportModel,
+             ReportModelStates)
     {
       $scope.roles = $sessionStorage.roles;
+      $scope.ReportModelStates = ReportModelStates;
 
       $scope.sortedOrder = [];
 
       $scope.legends = {
-        'warehouse': true,
-        'fulfill':   true,
+        'inProcess': true,
+        'fulfill': true,
         'receive':   true
       };
 
       $scope.supplierWiseListSize = {};
       var showMoreValue = 5;
+
+      // TODO: should be methods of an injectable service
+      $scope.isWarehouser = function () {
+        return _.contains($scope.roles, 'admin');
+      };
+      $scope.isManager = function () {
+        return _.contains($scope.roles, 'manager');
+      };
+      $scope.isReceiver = function () {
+        return _.contains($scope.roles, 'manager');
+      };
 
       /** @method dismissEdit
        * This method will close the editable mode in store-report
@@ -92,22 +106,22 @@ angular.module('ShoppinPalApp')
        * filter orders based on the report state
        */
       var orderFilter = function(report){
-        var showNewOrders = false,
-            showWarehouseOrders = false,
+        var showInProcessOrders = false,
+            showFulfillOrders = false,
             showReceiveOrders = false;
         // apply filters based on the legend flag values
         angular.forEach($scope.legends, function(value, key){
           if(value) {
-            if(key === 'new'){
-              showNewOrders = report.state === 'empty' || report.state === 'manager';
-            } else if(key === 'warehouse') {
-              showWarehouseOrders = report.state === key;
+            if(key === 'inProcess'){
+              showInProcessOrders = report.state === ReportModelStates.MANAGER_IN_PROCESS;
+            } else if(key === 'fulfill') {
+              showFulfillOrders = report.state === ReportModelStates.WAREHOUSE_FULFILL;
             } else if(key === 'receive') {
-              showReceiveOrders = report.state === key;
+              showReceiveOrders = report.state === ReportModelStates.MANAGER_RECEIVE;
             }
           }
         });
-        return showNewOrders || showWarehouseOrders || showReceiveOrders;
+        return showInProcessOrders || showFulfillOrders || showReceiveOrders;
       };
 
       /** @method filterOrders
@@ -147,20 +161,28 @@ angular.module('ShoppinPalApp')
        * This method will load the storesReport from api on view load
        */
       $scope.$on('$viewContentLoaded', function() {
-        $scope.waitOnPromise = ReportModel.find()
-          .$promise.then(function (response) {
-            //console.log(response);
-            $scope.reportLists = response;
-            $scope.backUpReportList = response;
-            limitListAsPerSupplier();
-          });
+        if ($scope.isWarehouser()) {
+          console.log('isWarehouser()');
+          $scope.waitOnPromise = ReportModel.find()
+            .$promise.then(function (response) {
+              //console.log(response);
+              $scope.reportLists = response;
+              $scope.backUpReportList = response;
+
+              // anything that isn't [MANAGER_IN_PROCESS|WAREHOUSE_FULFILL|MANAGER_RECEIVE] gets filtered out
+              $scope.filterOrders();
+            });
+        }
+        else {
+          // do nothing?
+        }
       });
 
       $scope.drilldownToReport = function (rowIndex, storeReport) {
         // NOTE: warehouser (admin role) is allowed to do anything!
         console.log('inside drilldownToReport:', 'rowIndex:', rowIndex, 'storeReport:', storeReport);
         if (_.contains($scope.roles, 'admin')){
-          if (storeReport.state === 'warehouse') {
+          if (storeReport.state === ReportModelStates.WAREHOUSE_FULFILL) {
             console.log('drill into warehouse report');
             $state.go('warehouse-report', {reportId:storeReport.id});
           }

@@ -752,7 +752,8 @@ p.note-text{
 .status-td{
     clear: both;
 }
-.status-square-manager-newOrders {
+.status-square-manager-newOrders,
+.status-square-manager-inProcess-warehouseLanding {
     width: 20px;
     height: 20px;
     margin-left: 58px;

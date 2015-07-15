@@ -8,12 +8,14 @@
    * Controller of the ShoppinPalApp
    */
   angular.module('ShoppinPalApp').controller('WarehouseReportCtrl', [
-    '$scope', '$state', '$stateParams', '$anchorScroll', '$location', /* angular's modules/services/factories etc. */
+    '$scope', '$state', '$stateParams', '$anchorScroll', '$location', '$filter', /* angular's modules/services/factories etc. */
     'loginService', 'StockOrderLineitemModel', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
-    'deviceDetector', 'ngDialog', '$filter', /* 3rd party modules/services/factories etc. */
-    function ($scope, $state, $stateParams, $anchorScroll, $location,
+    'deviceDetector', 'ngDialog', /* 3rd party modules/services/factories etc. */
+    'ReportModelStates', /* constants */
+    function ($scope, $state, $stateParams, $anchorScroll, $location, $filter,
               loginService, StockOrderLineitemModel, ReportModel,
-              deviceDetector, ngDialog, $filter)
+              deviceDetector, ngDialog,
+              ReportModelStates)
     {
       var ROW_STATE_COMPLETE = 'boxed';
 
@@ -105,7 +107,7 @@
             ReportModel.prototype$updateAttributes(
               { id: $stateParams.reportId },
               {
-                state: 'receiver'
+                state: ReportModelStates.MANAGER_RECEIVE
               }
             )
               .$promise.then(function(/*response*/){

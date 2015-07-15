@@ -9,8 +9,9 @@
     <div class="row main-container">
       <div class="row row-centered">
           <button class="status-btn-inprocess"
-                  ng-click="legends.warehouse = !legends.warehouse; filterOrders();"
-                  ng-class="{'new-orders-unselected' : !legends.warehouse}">
+                  ng-click="legends.inProcess = !legends.inProcess; filterOrders();"
+                  ng-class="{'new-orders-unselected' : !legends.inProcess}">
+              <!-- TODO: @ayush: for this button's ng-class ... instead of new-orders-unselected it should be in-process-unselected -->
               In Process
           </button>
           <button class="status-btn-fullfil"
@@ -77,12 +78,12 @@
                                     <td width="15%">{{::storeReport.outlet.name}} - {{::storeReport.name}}</td>
                                     <td width="15%">
                                         <div class="status-td">
-                                            <span ng-if="storeReport.state != 'complete'" ng-class="{
-                                            'status-square-inprocess': storeReport.state == 'warehouse',
-                                            'status-square-fulfilled': storeReport.state == 'fulfill',
-                                            'status-square-complete': storeReport.state == 'receive'}">
+                                            <span ng-if="storeReport.state != ReportModelStates.REPORT_COMPLETE"
+                                                  ng-class="{'status-square-manager-inProcess-warehouseLanding': storeReport.state == ReportModelStates.MANAGER_IN_PROCESS,
+                                                             'status-square-fulfilled': storeReport.state == ReportModelStates.WAREHOUSE_FULFILL,
+                                                             'status-square-complete': storeReport.state == ReportModelStates.MANAGER_RECEIVE}">
                                             </span>
-                                            <span ng-if="storeReport.state == 'complete'">Completed</span>
+                                            <span ng-if="storeReport.state == ReportModelStates.REPORT_COMPLETE">Completed</span>
                                             <!--<div ng-if="storeReport.state !== 'empty'">{{storeReport.state}}</div>-->
                                         </div>
                                     </td>
