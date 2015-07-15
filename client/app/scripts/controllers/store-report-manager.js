@@ -11,10 +11,10 @@ angular.module('ShoppinPalApp')
   [
     '$scope', '$anchorScroll', '$location', '$state', '$stateParams', '$filter', '$sessionStorage', /* angular's modules/services/factories etc. */
     'loginService', 'StockOrderLineitemModel', 'ReportModel', 'StoreModel', /* shoppinpal's custom modules/services/factories etc. */
-    'ngDialog', 'deviceDetector', /* 3rd party modules/services/factories etc. */
+    'ngDialog', 'deviceDetector', '$timeout', /* 3rd party modules/services/factories etc. */
     function ($scope, $anchorScroll, $location, $state, $stateParams, $filter, $sessionStorage,
               loginService, StockOrderLineitemModel, ReportModel, StoreModel,
-              ngDialog, deviceDetector)
+              ngDialog, deviceDetector, $timeout)
     {
       var ROW_STATE_NOT_COMPLETE = '!complete';
       var ROW_STATE_COMPLETE = 'complete';
@@ -29,6 +29,8 @@ angular.module('ShoppinPalApp')
       $scope.submitToWarehouseButton = 'Submit';
       $scope.comments = '';
       $scope.deviceDetector = deviceDetector;
+      var currentDesiredStockLevel = -1;
+      var currentOrderQuantity = -1;
 
       /** @method dismissEdit
        * This method will close the editable mode in store-report
@@ -40,6 +42,16 @@ angular.module('ShoppinPalApp')
           orderQuantity: storeReportRow.orderQuantity,
           comment: storeReportRow.comment
         });*/
+
+        // if DSL or OrderQty have not been changed, don't make Vend DSL update
+        if(Number(currentDesiredStockLevel) === Number(storeReportRow.desiredStockLevel) && Number(currentOrderQuantity) === Number(storeReportRow.orderQuantity)) {
+          // trigger the digest cycle
+          $timeout(function(){
+            $scope.selectedRowIndex = $scope.storereportlength + 1;
+          }, 0);
+          return;
+        }
+
         $scope.waitOnPromise = StoreModel.setDesiredStockLevelForVend(
           {
             id: $sessionStorage.currentStore.objectId,
@@ -79,6 +91,8 @@ angular.module('ShoppinPalApp')
        * This method is called once user choose to edit a row using right swipe
        */
       $scope.onEditInit = function(storeReportRow) {
+        currentDesiredStockLevel = storeReportRow.desiredStockLevel;
+        currentOrderQuantity = storeReportRow.orderQuantity;
         /* moved the event from body to ui-view div as after adding the virtual keyboard,
            clicking on anywhere on keyboard will dismiss the edit box*/
         //var body = angular.element(document).find('body');
@@ -211,7 +225,7 @@ angular.module('ShoppinPalApp')
        *
        */
       $scope.hideEdit = function () {
-        //alert("hii");
+        //alert('hii');
         if ($scope.editVisible) {
           $scope.editVisible = false;
         }
