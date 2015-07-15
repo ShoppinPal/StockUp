@@ -35,7 +35,7 @@
             <div class="report-manager-ipad-search">
                 <h4 class="jumpto">Jump To<br>Supplier</h4>
                 <ul class="store-auto-height">
-                    <li ng-repeat="store in reportLists | orderBy:'supplier.name' | unique:'supplier.name'">
+                    <li ng-repeat="store in filteredLists | orderBy:'supplier.name' | unique:'supplier.name'">
                         <a href="" ng-click="gotoDepartment(store.supplier.name)">{{store.supplier.name}}</a>
                     </li>
                 </ul>
@@ -54,11 +54,20 @@
                     </table>
                     <div class="scrollable-table">
                         <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
-                            <tbody ng-repeat="storeReport in reportLists| orderBy:['supplier.name', '-state', 'name']| groupBy: 'supplier.name'">
+                            <tbody ng-repeat="storeReport in filteredLists | orderBy:['supplier.name', '-state', 'name']| groupBy: 'supplier.name'">
                                 <tr class="inner-table-heading"
                                     id="jumpto{{storeReport.supplier.name}}"
                                     ng-if="storeReport.group_by_CHANGED">
-                                    <td colspan="5"><span class="table-heading-font">{{storeReport.supplier.name}}</span></td>
+                                    <td colspan="3"><span class="table-heading-font">{{storeReport.supplier.name}}</span></td>
+                                    <td colspan="1">
+                                        <div class="show-more-container">
+                                            <a class="show-more-link"
+                                               ng-click="showMore(storeReport.supplier.name)"
+                                               ng-class="{'disabled': !supplierWiseListSize[storeReport.supplier.name].enabled}">
+                                                Show More...
+                                            </a>
+                                        </div>
+                                    </td>
                                 </tr>
                                 <tr ng-if="$index!==selectedRowIndex"
                                     ng-click="drilldownToReport($index, storeReport)"
