@@ -11,11 +11,14 @@ angular.module('ShoppinPalApp')
   .controller('StoreLandingCtrl', [
     '$scope', '$anchorScroll', '$location', '$state', '$filter', '$sessionStorage', /* angular's modules/services/factories etc. */
     'UserModel', 'LoopBackAuth', 'StoreModel', 'ReportModel', 'deviceDetector', /* shoppinpal's custom modules/services/factories etc. */
+    'ReportModelStates', /* constants */
     function($scope, $anchorScroll, $location, $state, $filter, $sessionStorage,
-             UserModel, LoopBackAuth, StoreModel, ReportModel, deviceDetector)
+             UserModel, LoopBackAuth, StoreModel, ReportModel, deviceDetector,
+             ReportModelStates)
     {
       $scope.storeName = ($sessionStorage.currentStore) ? $sessionStorage.currentStore.name : null;
       $scope.roles = $sessionStorage.roles;
+      $scope.ReportModelStates = ReportModelStates;
 
       $scope.message = 'Please Wait...';
 
@@ -26,9 +29,9 @@ angular.module('ShoppinPalApp')
       $scope.swiping = false; // will be used as flag to prevent drill-down-to-report on ng-swipe-left
 
       $scope.legends = {
-        'new':      true,
-        'warehouse':  true,
-        'receive':  true
+        'new': true,
+        'inProcess': true,
+        'receive': true
       };
 
       $scope.supplierWiseListSize = {};
@@ -160,21 +163,21 @@ angular.module('ShoppinPalApp')
        */
       var orderFilter = function(report){
         var showNewOrders = false,
-            showWarehouseOrders = false,
+            showInProcessOrders = false,
             showReceiveOrders = false;
         // apply filters based on the legend flag values
         angular.forEach($scope.legends, function(value, key){
           if(value) {
             if(key === 'new'){
-              showNewOrders = report.state === 'empty' || report.state === 'manager';
-            } else if(key === 'warehouse') {
-              showWarehouseOrders = report.state === key;
+              showNewOrders = report.state === ReportModelStates.MANAGER_NEW_ORDERS;
+            } else if(key === 'inProcess') {
+              showInProcessOrders = report.state === ReportModelStates.MANAGER_IN_PROCESS;
             } else if(key === 'receive') {
-              showReceiveOrders = report.state === key;
+              showReceiveOrders = report.state === ReportModelStates.MANAGER_RECEIVE;
             }
           }
         });
-        return showNewOrders || showWarehouseOrders || showReceiveOrders;
+        return showNewOrders || showInProcessOrders || showReceiveOrders;
       };
 
       /** @method filterOrders
@@ -229,6 +232,20 @@ angular.module('ShoppinPalApp')
         }
       });
 
+      var drillDownToManagerNewOrder = function(storeReport){
+        $scope.waitOnPromise = ReportModel.prototype$updateAttributes(
+          { id: storeReport.id },
+          {
+            state: ReportModelStates.MANAGER_IN_PROCESS
+          }
+        )
+          .$promise.then(function(updatedReportModelInstance){
+            console.log(updatedReportModelInstance);
+            console.log('drill into manager report');
+            $state.go('store-report-manager', {reportId:storeReport.id});
+          });
+      };
+
       $scope.drilldownToReport = function (rowIndex, storeReport) {
         // return if this was called by ng-swipe-left event
         if($scope.swiping) {
@@ -238,21 +255,33 @@ angular.module('ShoppinPalApp')
 
         // drill-down-to-report if this was called by click event
         console.log('inside drilldownToReport:', 'rowIndex:', rowIndex, 'storeReport:', storeReport);
-        if (_.contains($scope.roles, 'admin') && storeReport.state === 'warehouse') {
+        if (_.contains($scope.roles, 'admin') &&
+            storeReport.state === ReportModelStates.WAREHOUSE_FULFILL)
+        {
           console.log('drill into warehouse report');
           $state.go('warehouse-report', {reportId:storeReport.id});
         }
-        else if (_.contains($scope.roles, 'manager') && storeReport.state === 'manager') {
+        else if (_.contains($scope.roles, 'manager') &&
+                 storeReport.state === ReportModelStates.MANAGER_NEW_ORDERS)
+        {
+          console.log('update report state');
+          drillDownToManagerNewOrder(storeReport);
+        }
+        else if (_.contains($scope.roles, 'manager') &&
+                 storeReport.state === ReportModelStates.MANAGER_IN_PROCESS)
+        {
           console.log('drill into manager report');
           // ui-sref="store-report-manager({reportId:storeReport.id})"
           $state.go('store-report-manager', {reportId:storeReport.id});
         }
-        else if (_.contains($scope.roles, 'manager') && storeReport.state === 'receiver') {
+        else if (_.contains($scope.roles, 'manager') &&
+                 storeReport.state === ReportModelStates.MANAGER_RECEIVE)
+        {
           console.log('drill into receiver report');
           // ui-sref="store-report-manager({reportId:storeReport.id})"
           $state.go('store-receiver-report', {reportId:storeReport.id});
         }
-        else if (storeReport.state === 'empty' ) {
+        else if (storeReport.state === ReportModelStates.REPORT_EMPTY) {
           console.log('update status for manager report');
           // show a spinner message which indicates that we are pinging the server for a status update
           $scope.message = 'Checking report status...';
@@ -262,21 +291,23 @@ angular.module('ShoppinPalApp')
             {
               id: storeReport.id
             },
-            function(response){
-              console.log(response);
+            function(updatedStoreReport){
+              console.log(updatedStoreReport);
               // drill-down into the report automatically if the state is no longer set to empty
-              if(storeReport.state === 'empty' && response.state === 'manager') {
+              if(storeReport.state === ReportModelStates.REPORT_EMPTY &&
+                 updatedStoreReport.state === ReportModelStates.MANAGER_NEW_ORDERS)
+              {
                 // TODO: Should we bother to update the status of the report row visually first, before drilling down?
                 //       Overkill?
                 /*return $timeout(function() {
                   console.log('update with timeout fired');
                   return $state.go('store-report-manager', {reportId:storeReport.id});
                 }, 3000);*/
-                return $state.go('store-report-manager', {reportId:storeReport.id});
+                drillDownToManagerNewOrder(storeReport);
               }
               else { // update storeReport
-                storeReport.state = response.state;
-                storeReport.workerStatus = response.workerStatus;
+                storeReport.state = updatedStoreReport.state;
+                storeReport.workerStatus = updatedStoreReport.workerStatus;
               }
             },
             function(err){

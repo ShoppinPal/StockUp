@@ -752,19 +752,20 @@ p.note-text{
 .status-td{
     clear: both;
 }
+.status-square-manager-newOrders {
+    width: 20px;
+    height: 20px;
+    margin-left: 58px;
+    background: #4e3173;
+    border-radius: 3px;
+    float: left;
+}
+.status-square-manager-inProcess,
 .status-square-fulfilled {
     width: 20px;
     height: 20px;
     margin-left: 58px;
     background: #b9511a;
-    border-radius: 3px;
-    float: left;
-}
-.status-square-inprocess {
-    width: 20px;
-    height: 20px;
-    margin-left: 58px;
-    background: #4e3173;
     border-radius: 3px;
     float: left;
 }
