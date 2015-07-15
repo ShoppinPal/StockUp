@@ -80,21 +80,23 @@ angular.module('ShoppinPalApp').controller(
           .$promise.then(function(reportModelInstance){
             //return Parse.Promise.as(reportModelInstance);
             console.log(reportModelInstance);
+            return ReportModel.generateStockOrderReportForManager(
+              {
+                id: reportModelInstance.id
+              },
+              function(response){
+                console.log(response);
+                // after kicking off the work, go back to a user's respective landing page
             if (_.contains($sessionStorage.roles, 'manager')) {
               return $state.go('store-landing');
             }
             else if (_.contains($sessionStorage.roles, 'admin')) {
               return $state.go('warehouse-landing');
             }
-            ReportModel.generateStockOrderReportForManager(
-              {
-                id: reportModelInstance.id
-              },
-              function(response){
-                console.log(response);
               },
               function(err){
                 console.error(err);
+                // TODO: @ayush - show a friendly error to user somehow
               });
           });
       };
