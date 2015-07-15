@@ -760,7 +760,7 @@ p.note-text{
     border-radius: 3px;
     float: left;
 }
-.status-square-manager-inProcess,
+.status-square-manager-inProcess-storeLanding,
 .status-square-fulfilled {
     width: 20px;
     height: 20px;

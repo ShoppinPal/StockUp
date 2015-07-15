@@ -81,7 +81,7 @@
                                         <div class="status-td">
                                             <span ng-if="storeReport.state != ReportModelStates.REPORT_COMPLETE"
                                                   ng-class="{'status-square-manager-newOrders': storeReport.state == ReportModelStates.MANAGER_NEW_ORDERS,
-                                                             'status-square-manager-inProcess': storeReport.state == ReportModelStates.MANAGER_IN_PROCESS,
+                                                             'status-square-manager-inProcess-storeLanding': storeReport.state == ReportModelStates.MANAGER_IN_PROCESS,
                                                              'status-square-receive': storeReport.state == ReportModelStates.MANAGER_RECEIVE}"></span>
                                             <span ng-if="storeReport.state == ReportModelStates.REPORT_COMPLETE">Completed</span>
                                             <!--<div ng-if="storeReport.state === 'empty'">{{storeReport.workerStatus}}</div>
