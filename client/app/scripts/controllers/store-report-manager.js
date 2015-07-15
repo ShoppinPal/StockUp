@@ -12,9 +12,11 @@ angular.module('ShoppinPalApp')
     '$scope', '$anchorScroll', '$location', '$state', '$stateParams', '$filter', '$sessionStorage', /* angular's modules/services/factories etc. */
     'loginService', 'StockOrderLineitemModel', 'ReportModel', 'StoreModel', /* shoppinpal's custom modules/services/factories etc. */
     'ngDialog', 'deviceDetector', '$timeout', /* 3rd party modules/services/factories etc. */
+    'ReportModelStates', /* constants */
     function ($scope, $anchorScroll, $location, $state, $stateParams, $filter, $sessionStorage,
               loginService, StockOrderLineitemModel, ReportModel, StoreModel,
-              ngDialog, deviceDetector, $timeout)
+              ngDialog, deviceDetector, $timeout,
+              ReportModelStates)
     {
       var ROW_STATE_NOT_COMPLETE = '!complete';
       var ROW_STATE_COMPLETE = 'complete';
@@ -189,7 +191,7 @@ angular.module('ShoppinPalApp')
             ReportModel.prototype$updateAttributes(
               { id: $stateParams.reportId },
               {
-                state: 'warehouse'
+                state: ReportModelStates.WAREHOUSE_FULFILL
               }
             )
               .$promise.then(function(/*response*/){

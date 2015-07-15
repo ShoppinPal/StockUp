@@ -10,11 +10,13 @@
 angular.module('ShoppinPalApp').controller(
   'CreateManualOrderCtrl',
   [
-    '$sessionStorage', /* angular's modules/services/factories etc. */
-    'LoopBackAuth', 'SupplierModel', 'UserModel', 'ReportModel', '$state', /* shoppinpal's custom modules/services/factories etc. */
+    '$sessionStorage', '$state', /* angular's modules/services/factories etc. */
+    'LoopBackAuth', 'SupplierModel', 'UserModel', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
+    'ReportModelStates', /* constants */
     function CreateManualOrderCtrl (
-      $sessionStorage,
-      LoopBackAuth, SupplierModel, UserModel, ReportModel, $state)
+      $sessionStorage, $state,
+      LoopBackAuth, SupplierModel, UserModel, ReportModel,
+      ReportModelStates)
     {
       this.storeName = ($sessionStorage.currentStore) ? $sessionStorage.currentStore.name : null;
       this.roles = $sessionStorage.roles;
@@ -66,7 +68,7 @@ angular.module('ShoppinPalApp').controller(
         {id: LoopBackAuth.currentUserId},
           {
             name: self.orderName,
-            state: 'empty',
+            state: ReportModelStates.REPORT_EMPTY,
             outlet: {
               id: self.selectedStore.api_id, // jshint ignore:line
               name: self.selectedStore.name
@@ -87,12 +89,12 @@ angular.module('ShoppinPalApp').controller(
               function(response){
                 console.log(response);
                 // after kicking off the work, go back to a user's respective landing page
-            if (_.contains($sessionStorage.roles, 'manager')) {
-              return $state.go('store-landing');
-            }
-            else if (_.contains($sessionStorage.roles, 'admin')) {
-              return $state.go('warehouse-landing');
-            }
+                if (_.contains($sessionStorage.roles, 'manager')) {
+                  return $state.go('store-landing');
+                }
+                else if (_.contains($sessionStorage.roles, 'admin')) {
+                  return $state.go('warehouse-landing');
+                }
               },
               function(err){
                 console.error(err);

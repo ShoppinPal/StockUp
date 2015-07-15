@@ -222,7 +222,7 @@ module.exports = function(app) {
               {
                 id: 1,
                 userModelToReportModelId: retailUser.id, // explicitly setup the foreignKeys for related models
-                state: 'empty',
+                state: 'report_empty', // TODO: should use a constant
                 outlet: {
                   id: 'aea67e1a-b85c-11e2-a415-bc764e10976c',
                   name: 'OKC'
