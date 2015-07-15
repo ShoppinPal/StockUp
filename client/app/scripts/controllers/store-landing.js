@@ -78,9 +78,14 @@ angular.module('ShoppinPalApp')
       /** @method editOrder
        * This will edit the order name
        */
-      $scope.editOrder = function(index) {
+      $scope.editOrder = function(index, storeReport) {
+        // TODO: @ayush - the output of the following two log statements is inconsistent,
+        //                that means we may be making a mistake here if we use the value based on index
+        /*console.log('$scope.reportLists[index].state.toLowerCase()', $scope.reportLists[index].state.toLowerCase());
+        console.log('storeReport.state.toLowerCase()', storeReport.state.toLowerCase());*/
+
         $scope.swiping = true;
-        if($scope.reportLists[index].state.toLowerCase() === 'manager') {
+        if(storeReport.state.toLowerCase() === ReportModelStates.MANAGER_NEW_ORDERS) {
           $scope.selectedRowIndex = index;
         }
       };
@@ -243,17 +248,17 @@ angular.module('ShoppinPalApp')
       var drillDownToManagerNewOrder = function(storeReport){
         // make sure the name is set so that we can create a matching consignment in Vend
         if (storeReport.name) { // TODO: duplicate this validation logic on server-side as well
-        $scope.waitOnPromise = ReportModel.prototype$updateAttributes(
-          { id: storeReport.id },
-          {
-            state: ReportModelStates.MANAGER_IN_PROCESS
-          }
-        )
-          .$promise.then(function(updatedReportModelInstance){
-            console.log(updatedReportModelInstance);
-            console.log('drill into manager report');
-            $state.go('store-report-manager', {reportId:storeReport.id});
-          });
+          $scope.waitOnPromise = ReportModel.prototype$updateAttributes(
+            { id: storeReport.id },
+            {
+              state: ReportModelStates.MANAGER_IN_PROCESS
+            }
+          )
+            .$promise.then(function(updatedReportModelInstance){
+              console.log(updatedReportModelInstance);
+              console.log('drill into manager report');
+              $state.go('store-report-manager', {reportId:storeReport.id});
+            });
         }
         else {
           promptManagerToNameTheReport();
