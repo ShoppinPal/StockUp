@@ -72,7 +72,7 @@ module.exports = function(ReportModel) {
       {arg: 'to', type: 'string', required: true}
     ],
     http: {path: '/:id/setReportStatus', verb: 'put'},
-    returns: {arg: 'updated', type: 'object', root:true}
+    returns: {arg: 'updatedReportModelInstance', type: 'object', root:true}
   });
 
   var ClientError = function ClientError(e) {
@@ -273,10 +273,25 @@ module.exports = function(ReportModel) {
           if (from === ReportModelStates.MANAGER_NEW_ORDERS &&
               to === ReportModelStates.MANAGER_IN_PROCESS)
           {
-            reportModelInstance.state = ReportModelStates.MANAGER_IN_PROCESS;
-            reportModelInstance.save()
-              .then(function(){
-                cb(null, {updated:true});
+            log('inside setReportStatus() - will create a stock order in Vend');
+            var oauthVendUtil = require('./../../common/utils/vend')({
+              'GlobalConfigModel': ReportModel.app.models.GlobalConfigModel,
+              'StoreConfigModel': ReportModel.app.models.StoreConfigModel,
+              'currentUser': currentUser
+            });
+            oauthVendUtil.createStockOrderForVend(storeModelInstance, reportModelInstance)
+              .then(function(newStockOrder){
+                log('inside setReportStatus() - PASS - created a stock order in Vend');
+                reportModelInstance.vendConsignmentId = newStockOrder.id;
+                reportModelInstance.state = ReportModelStates.MANAGER_IN_PROCESS;
+                reportModelInstance.save()
+                  .then(function(updatedReportModelInstance){
+                    log('inside setReportStatus() - PASS - updated the report model');
+                    cb(null, updatedReportModelInstance);
+                  });
+              },
+              function(error){
+                cb(error);
               });
           }
           else {

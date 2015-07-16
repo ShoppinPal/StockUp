@@ -443,6 +443,30 @@ var setDesiredStockLevelForVend = function(storeConfigId, outletId, productId, d
     });
 };
 
+var createStockOrderForVend = function(storeModelInstance, reportModelInstance){
+  var storeConfigId = storeModelInstance.storeConfigModelToStoreModelId;
+  var reportName = reportModelInstance.name;
+  var outletId = storeModelInstance.api_id; // reportModelInstance.outlet.id - same thing
+  var supplierId = reportModelInstance.supplier.id;
+  log.debug('createStockOrderForVend()', 'storeConfigId: ' + storeConfigId);
+  return getVendConnectionInfo(storeConfigId)
+    .then(function(connectionInfo){
+      var argsForStockOrder = vendSdk.args.consignments.stockOrders.create();
+      argsForStockOrder.name.value = reportName;
+      argsForStockOrder.outletId.value = outletId;
+      argsForStockOrder.supplierId.value = supplierId;
+      return vendSdk.consignments.stockOrders.create(argsForStockOrder, connectionInfo)
+        .then(function (newStockOrder) {
+          log.debug('newStockOrder', newStockOrder);
+          return Promise.resolve(newStockOrder);
+        });
+    },
+    function(error){
+      log.error('createStockOrderForVend()', 'Error creating a stock order in Vend:\n' + JSON.stringify(error));
+      return Promise.reject('An error occurred while creating a stock order in Vend.\n' + JSON.stringify(error));
+    });
+};
+
 module.exports = function(dependencies){
   if (dependencies) {
     GlobalConfigModel = dependencies.GlobalConfigModel;
@@ -457,6 +481,7 @@ module.exports = function(dependencies){
     getVendOutlets: getVendOutlets,
     getVendTaxes: getVendTaxes,
     getVendPaymentTypes: getVendPaymentTypes,
-    setDesiredStockLevelForVend : setDesiredStockLevelForVend
+    setDesiredStockLevelForVend : setDesiredStockLevelForVend,
+    createStockOrderForVend: createStockOrderForVend
   };
 };
