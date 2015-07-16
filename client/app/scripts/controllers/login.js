@@ -33,8 +33,13 @@ angular.module('ShoppinPalApp')
         pwd : ''
       };
 
+      var clearErrorStates = function(){
+        $scope.errors = {};
+      };
+
       // validate login and transition to select store page
       $scope.login = function login(username, password){
+        clearErrorStates();
         $scope.waitOnPromise = UserModel.login({
           realm: 'portal',
           username: username,
@@ -44,19 +49,26 @@ angular.module('ShoppinPalApp')
             console.log('accessToken', accessToken);
             $sessionStorage.currentUser = accessToken;
             console.log('sessiontoken:', $sessionStorage.currentUser.id);
-            return UserModel.storeModels({id: $sessionStorage.currentUser.userId})
-              .$promise.then(function(stores){
-                console.log(stores);
-                if(stores.length === 1) {
-                  $sessionStorage.currentStore = stores[0];
-                }
-                return UserModel.prototype$__get__roles({id: $sessionStorage.currentUser.userId}) // jshint ignore:line
-                  .$promise.then(function(roles){
-                    console.log('roles', roles);
-                    $sessionStorage.roles = _.pluck(roles,'name');
-                    console.log('$sessionStorage.roles', $sessionStorage.roles);
+            return UserModel.prototype$__get__roles({id: $sessionStorage.currentUser.userId}) // jshint ignore:line
+              .$promise.then(function(roles){
+                console.log('roles', roles);
+                $sessionStorage.roles = _.pluck(roles,'name');
+                console.log('$sessionStorage.roles', $sessionStorage.roles);
+                return UserModel.storeModels({id: $sessionStorage.currentUser.userId})
+                  .$promise.then(function(stores){
+                    console.log('stores', stores);
                     if (_.contains($sessionStorage.roles, 'manager')) {
-                      return $state.go('store-landing');
+                      if(stores.length === 1) {
+                        $sessionStorage.currentStore = stores[0];
+                        return $state.go('store-landing');
+                      }
+                      else {
+                        var message = 'Manager accounts can only have one store assigned to them. ' +
+                          'But your account has more than one store so you cannot proceed.' +
+                          'Please contact your administrator to get this fixed.';
+                        console.log(message);
+                        $scope.errors.panel = message;
+                      }
                     }
                     else if (_.contains($sessionStorage.roles, 'admin')) {
                       return $state.go('warehouse-landing');
