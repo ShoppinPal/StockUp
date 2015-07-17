@@ -103,27 +103,6 @@ module.exports = function(ReportModel) {
     }
   };
 
-  var getAllRelevantModelInstances = function(id){
-    /// TODO: once the loopback framework starts supporting the INCLUDE filter with FINDBYID() ... use it!
-    return ReportModel.findById(id) // chain the promise via a return statement so unexpected rejections/errors float up
-      .then(function(reportModelInstance) {
-        log('print object for reportModelInstance: ', reportModelInstance);
-        // TODO: is findOne buggy? does it return a result even when there are no matches?
-        return ReportModel.app.models.StoreModel.findOne( // chain the promise via a return statement so unexpected rejections/errors float up
-          {
-            where: {'api_id': reportModelInstance.outlet.id}, //assumption: there aren't any duplicate entries
-            include: 'storeConfigModel' // (4) also fetch the store-config
-          }
-        )
-          .then(function(storeModelInstance) {
-            log('print object for storeModelInstance: ', storeModelInstance);
-            var storeConfigInstance = storeModelInstance.storeConfigModel();
-            log('print object for storeConfigInstance: ', storeConfigInstance);
-            return Promise.resolve([reportModelInstance, storeModelInstance, storeConfigInstance]);
-          });
-      });
-  };
-
   ReportModel.getRows = function(id, cb) {
     var currentUser = ReportModel.getCurrentUserModel(cb); // returns  immediately if no currentUser
     if (currentUser) {
@@ -149,7 +128,7 @@ module.exports = function(ReportModel) {
       currentUser.createAccessTokenAsync(1209600)// can't be empty ... time to live (in seconds) 1209600 is 2 weeks (default of loopback)
         .then(function(newAccessToken){
           // (2) fetch the report, store and store-config
-          return getAllRelevantModelInstances(id)
+          return ReportModel.getAllRelevantModelInstancesForReportModel(id)
             .spread(function(reportModelInstance, storeModelInstance, storeConfigInstance){
               // (3) extract domainPrefix from store-config's posUrl
               var posUrl = storeConfigInstance.posUrl;
@@ -268,7 +247,7 @@ module.exports = function(ReportModel) {
     log('inside setReportStatus()');
     var currentUser = ReportModel.getCurrentUserModel(cb); // returns  immediately if no currentUser
     if(currentUser) {
-      getAllRelevantModelInstances(id)
+      ReportModel.getAllRelevantModelInstancesForReportModel(id)
         .spread(function(reportModelInstance, storeModelInstance, storeConfigInstance){
           if (from === ReportModelStates.MANAGER_NEW_ORDERS &&
               to === ReportModelStates.MANAGER_IN_PROCESS)
