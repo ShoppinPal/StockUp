@@ -32,7 +32,7 @@ module.exports = function(ReportModel) {
     }
   });
 
-  var ReportModelStates = {
+  ReportModel.ReportModelStates = {
     'REPORT_EMPTY': 'report_empty',
     'MANAGER_NEW_ORDERS': 'manager_new_orders',
     'MANAGER_IN_PROCESS': 'manager_in_process',
@@ -101,6 +101,27 @@ module.exports = function(ReportModel) {
     else {
       console.log(response);
     }
+  };
+
+  ReportModel.getAllRelevantModelInstancesForReportModel = function(id){
+    /// TODO: once the loopback framework starts supporting the INCLUDE filter with FINDBYID() ... use it!
+    return ReportModel.findById(id) // chain the promise via a return statement so unexpected rejections/errors float up
+      .then(function(reportModelInstance) {
+        log('print object for reportModelInstance: ', reportModelInstance);
+        // TODO: is findOne buggy? does it return a result even when there are no matches?
+        return ReportModel.app.models.StoreModel.findOne( // chain the promise via a return statement so unexpected rejections/errors float up
+          {
+            where: {'api_id': reportModelInstance.outlet.id}, //assumption: there aren't any duplicate entries
+            include: 'storeConfigModel' // (4) also fetch the store-config
+          }
+        )
+          .then(function(storeModelInstance) {
+            log('print object for storeModelInstance: ', storeModelInstance);
+            var storeConfigInstance = storeModelInstance.storeConfigModel();
+            log('print object for storeConfigInstance: ', storeConfigInstance);
+            return Promise.resolve([reportModelInstance, storeModelInstance, storeConfigInstance]);
+          });
+      });
   };
 
   ReportModel.getRows = function(id, cb) {
@@ -249,8 +270,8 @@ module.exports = function(ReportModel) {
     if(currentUser) {
       ReportModel.getAllRelevantModelInstancesForReportModel(id)
         .spread(function(reportModelInstance, storeModelInstance, storeConfigInstance){
-          if (from === ReportModelStates.MANAGER_NEW_ORDERS &&
-              to === ReportModelStates.MANAGER_IN_PROCESS)
+          if (from === ReportModel.ReportModelStates.MANAGER_NEW_ORDERS &&
+              to === ReportModel.ReportModelStates.MANAGER_IN_PROCESS)
           {
             log('inside setReportStatus() - will create a stock order in Vend');
             var oauthVendUtil = require('./../../common/utils/vend')({
@@ -262,7 +283,7 @@ module.exports = function(ReportModel) {
               .then(function(newStockOrder){
                 log('inside setReportStatus() - PASS - created a stock order in Vend');
                 reportModelInstance.vendConsignmentId = newStockOrder.id;
-                reportModelInstance.state = ReportModelStates.MANAGER_IN_PROCESS;
+                reportModelInstance.state = ReportModel.ReportModelStates.MANAGER_IN_PROCESS;
                 reportModelInstance.save()
                   .then(function(updatedReportModelInstance){
                     log('inside setReportStatus() - PASS - updated the report model');

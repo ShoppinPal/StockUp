@@ -35,6 +35,10 @@
     "workerStatus": {
       "type": "string",
       "required": false
+    },
+    "vendConsignmentId": {
+      "type": "string",
+      "required": false
     }
   },
   "validations": [],

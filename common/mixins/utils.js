@@ -32,25 +32,4 @@ module.exports = function(Model, options) {
     }
   };
 
-  Model.getAllRelevantModelInstancesForReportModel = function(id){
-    /// TODO: once the loopback framework starts supporting the INCLUDE filter with FINDBYID() ... use it!
-    return Model.findById(id) // chain the promise via a return statement so unexpected rejections/errors float up
-      .then(function(reportModelInstance) {
-        log('print object for reportModelInstance: ', reportModelInstance);
-        // TODO: is findOne buggy? does it return a result even when there are no matches?
-        return Model.app.models.StoreModel.findOne( // chain the promise via a return statement so unexpected rejections/errors float up
-          {
-            where: {'api_id': reportModelInstance.outlet.id}, //assumption: there aren't any duplicate entries
-            include: 'storeConfigModel' // (4) also fetch the store-config
-          }
-        )
-          .then(function(storeModelInstance) {
-            log('print object for storeModelInstance: ', storeModelInstance);
-            var storeConfigInstance = storeModelInstance.storeConfigModel();
-            log('print object for storeConfigInstance: ', storeConfigInstance);
-            return Promise.resolve([reportModelInstance, storeModelInstance, storeConfigInstance]);
-          });
-      });
-  };
-
 };

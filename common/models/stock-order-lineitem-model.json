@@ -3,6 +3,10 @@
   "base": "PersistedModel",
   "idInjection": true,
   "properties": {
+    "productId": {
+      "type": "string",
+      "required": true
+    },
     "sku": {
       "type": "string",
       "required": true
@@ -46,6 +50,10 @@
     "updatedAt": {
       "type": "date",
       "required": false
+    },
+    "vendConsignmentProductId": {
+      "type": "string",
+      "required": false
     }
   },
   "validations": [],
@@ -87,5 +95,8 @@
       "permission": "ALLOW"
     }
   ],
-  "methods": []
+  "methods": [],
+  "mixins": {
+    "Utils": true
+  }
 }
