@@ -9,11 +9,11 @@
 angular.module('ShoppinPalApp')
   .controller('StoreManagerCtrl',
   [
-    '$scope', '$anchorScroll', '$location', '$state', '$stateParams', '$filter', '$sessionStorage', /* angular's modules/services/factories etc. */
+    '$scope', '$anchorScroll', '$location', '$state', '$stateParams', '$filter', '$sessionStorage', '$q', /* angular's modules/services/factories etc. */
     'loginService', 'StockOrderLineitemModel', 'ReportModel', 'StoreModel', /* shoppinpal's custom modules/services/factories etc. */
     'ngDialog', 'deviceDetector', '$timeout', /* 3rd party modules/services/factories etc. */
     'ReportModelStates', /* constants */
-    function ($scope, $anchorScroll, $location, $state, $stateParams, $filter, $sessionStorage,
+    function ($scope, $anchorScroll, $location, $state, $stateParams, $filter, $sessionStorage, $q,
               loginService, StockOrderLineitemModel, ReportModel, StoreModel,
               ngDialog, deviceDetector, $timeout,
               ReportModelStates)
@@ -31,39 +31,60 @@ angular.module('ShoppinPalApp')
       $scope.submitToWarehouseButton = 'Submit';
       $scope.comments = '';
       $scope.deviceDetector = deviceDetector;
-      var currentDesiredStockLevel = -1;
+
+      var currentMutableDataFieldsForRow = null;
+      var getMutableDataFieldsForRow = function(storeReportRow) {
+        return _.pick(storeReportRow, 'desiredStockLevel','orderQuantity','comment');
+      };
 
       /** @method dismissEdit
        * This method will close the editable mode in store-report
        */
-      $scope.dismissEdit = function(storeReportRow) {
-        // update the backend
+      $scope.dismissEdit = function(storeReportRow) { // update the backend
+
         /*console.log({
           desiredStockLevel: storeReportRow.desiredStockLevel,
           orderQuantity: storeReportRow.orderQuantity,
           comment: storeReportRow.comment
         });*/
 
-        // if DSL has not been changed, don't make Vend DSL update
-        if(Number(currentDesiredStockLevel) === Number(storeReportRow.desiredStockLevel)) {
-          // trigger the digest cycle
+        if (currentMutableDataFieldsForRow.desiredStockLevel === storeReportRow.desiredStockLevel &&
+            currentMutableDataFieldsForRow.orderQuantity === storeReportRow.orderQuantity &&
+            currentMutableDataFieldsForRow.comment === storeReportRow.comment)
+        {
+          console.log('no changes in the row');
           $timeout(function(){
             $scope.selectedRowIndex = $scope.storereportlength + 1;
           }, 0);
-          return;
         }
+        else {
+          console.log('row has been altered');
+          // TODO: In addition to the model on which a remote method is invoked,
+          //       if access checks coukd also me made on other models involved, then
+          //       it would be nice to move all these compound operations to one
+          //       server-side remote method call
 
-        $scope.waitOnPromise = StoreModel.setDesiredStockLevelForVend(
-          {
-            id: $sessionStorage.currentStore.objectId,
-            productId: storeReportRow.productId,
-            desiredStockLevel: storeReportRow.desiredStockLevel
+          // if DSL has not been changed, don't make Vend DSL update
+          $scope.waitOnPromise = $q.when();
+          if (currentMutableDataFieldsForRow.desiredStockLevel !== storeReportRow.desiredStockLevel){
+            console.log('will save to vend');
+            $scope.waitOnPromise = StoreModel.setDesiredStockLevelForVend(
+              {
+                id: $sessionStorage.currentStore.objectId,
+                productId: storeReportRow.productId,
+                desiredStockLevel: storeReportRow.desiredStockLevel
+              }
+            ) // NOTE: why do this first? because if this fails, we don't want our DB to have a DSL different from Vend's
+              .$promise.then(function(response){
+                console.log('setDesiredStockLevelForVend', 'response:', response);
+                return $q.when(); //return $q.reject('test for failure');
+              });
           }
-        )
-          .$promise.then(function(/*response*/){
-            // NOTE: the setDesiredStockLevelForVend() op could have been tied
-            //       to a before or after save hook on the server side
-            //console.log('setDesiredStockLevelForVend', 'response:', response);
+
+          $scope.waitOnPromise = $scope.waitOnPromise.then(function(){
+            console.log('will update warehouse model in the backend');
+            // TODO: the setDesiredStockLevelForVend() op could be tied
+            //       to a before or after save hook on the server side?
             return StockOrderLineitemModel.prototype$updateAttributes(
               { id: storeReportRow.id },
               {
@@ -76,7 +97,17 @@ angular.module('ShoppinPalApp')
                 storeReportRow.updatedAt = response.updatedAt;
                 $scope.selectedRowIndex = $scope.storereportlength + 1; // dismiss the edit view in UI
               });
-          });
+          })
+            .catch(function(error){
+              if(error) {
+                console.error(error);
+              }
+              else {
+                console.log('TODO: tell user something went wrong! They should try again or report to an admin.');
+              }
+              $scope.selectedRowIndex = $scope.storereportlength + 1; // dismiss the edit view in UI
+            });
+        }
       };
 
       /** @method editRow()
@@ -92,7 +123,9 @@ angular.module('ShoppinPalApp')
        * This method is called once user choose to edit a row using right swipe
        */
       $scope.onEditInit = function(storeReportRow) {
-        currentDesiredStockLevel = storeReportRow.desiredStockLevel;
+        currentMutableDataFieldsForRow = getMutableDataFieldsForRow(storeReportRow);
+        //console.log('currentMutableDataFieldsForRow', currentMutableDataFieldsForRow);
+
         /* moved the event from body to ui-view div as after adding the virtual keyboard,
            clicking on anywhere on keyboard will dismiss the edit box*/
         //var body = angular.element(document).find('body');
