@@ -39,6 +39,10 @@
     "vendConsignmentId": {
       "type": "string",
       "required": false
+    },
+    "vendConsignment": {
+      "type": "object",
+      "required": false
     }
   },
   "validations": [],

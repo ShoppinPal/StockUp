@@ -270,20 +270,46 @@ module.exports = function(ReportModel) {
     if(currentUser) {
       ReportModel.getAllRelevantModelInstancesForReportModel(id)
         .spread(function(reportModelInstance, storeModelInstance, storeConfigInstance){
-          if (from === ReportModel.ReportModelStates.MANAGER_NEW_ORDERS &&
+          var oauthVendUtil = require('./../../common/utils/vend')({
+            'GlobalConfigModel': ReportModel.app.models.GlobalConfigModel,
+            'StoreConfigModel': ReportModel.app.models.StoreConfigModel,
+            'currentUser': currentUser
+          });
+          log('from', from, '\n',
+            'reportModelInstance.state', reportModelInstance.state, '\n',
+            'to', to
+          );
+          if (from === reportModelInstance.state &&
+              reportModelInstance.state === ReportModel.ReportModelStates.MANAGER_NEW_ORDERS &&
               to === ReportModel.ReportModelStates.MANAGER_IN_PROCESS)
           {
             log('inside setReportStatus() - will create a stock order in Vend');
-            var oauthVendUtil = require('./../../common/utils/vend')({
-              'GlobalConfigModel': ReportModel.app.models.GlobalConfigModel,
-              'StoreConfigModel': ReportModel.app.models.StoreConfigModel,
-              'currentUser': currentUser
-            });
             oauthVendUtil.createStockOrderForVend(storeModelInstance, reportModelInstance)
               .then(function(newStockOrder){
-                log('inside setReportStatus() - PASS - created a stock order in Vend');
+                log('inside setReportStatus() - PASS - created a stock order in Vend', newStockOrder);
                 reportModelInstance.vendConsignmentId = newStockOrder.id;
+                reportModelInstance.vendConsignment = newStockOrder;
                 reportModelInstance.state = ReportModel.ReportModelStates.MANAGER_IN_PROCESS;
+                reportModelInstance.save()
+                  .then(function(updatedReportModelInstance){
+                    log('inside setReportStatus() - PASS - updated the report model');
+                    cb(null, updatedReportModelInstance);
+                  });
+              },
+              function(error){
+                cb(error);
+              });
+          }
+          else if (from === reportModelInstance.state &&
+                   reportModelInstance.state === ReportModel.ReportModelStates.MANAGER_IN_PROCESS &&
+                   to === ReportModel.ReportModelStates.WAREHOUSE_FULFILL)
+          {
+            log('inside setReportStatus() - will update the status of stock order in Vend to SENT');
+            oauthVendUtil.markStockOrderAsSent(storeModelInstance, reportModelInstance)
+              .then(function(updatedStockOrder){
+                log('inside setReportStatus() - PASS - updated stock order in Vend to SENT', updatedStockOrder);
+                reportModelInstance.vendConsignment = updatedStockOrder;
+                reportModelInstance.state = ReportModel.ReportModelStates.WAREHOUSE_FULFILL;
                 reportModelInstance.save()
                   .then(function(updatedReportModelInstance){
                     log('inside setReportStatus() - PASS - updated the report model');

@@ -215,14 +215,15 @@ angular.module('ShoppinPalApp')
         dialog.closePromise.then(function (data) {
           var proceed = data.value;
           if (proceed) {
-            ReportModel.prototype$updateAttributes(
-              { id: $stateParams.reportId },
-              {
-                state: ReportModelStates.WAREHOUSE_FULFILL
-              }
-            )
-              .$promise.then(function(/*response*/){
-                $state.go('store-landing'); // TODO: should this point at 'warehouse-landing' instead?
+            // server-side will update the report's state and the matching consignment's status in Vend
+            $scope.waitOnPromise = ReportModel.setReportStatus({
+              id: $stateParams.reportId,
+              from: ReportModelStates.MANAGER_IN_PROCESS,
+              to: ReportModelStates.WAREHOUSE_FULFILL
+            })
+              .$promise.then(function(updatedReportModelInstance){
+                console.log('updatedReportModelInstance', updatedReportModelInstance);
+                return $state.go('store-landing'); // TODO: should this point at 'warehouse-landing' instead?
               });
           }
         });
