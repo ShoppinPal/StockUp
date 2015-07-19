@@ -242,22 +242,32 @@
 
 
       var setupBoxes = function(response){
-        var existingBoxes = _.chain(response).countBy('boxNumber').value();
-        console.log(existingBoxes);
-        if (existingBoxes && _.keys(existingBoxes).length > 0) {
-          populateExistingBoxes(existingBoxes);
+        var groupByBoxNumber = _.chain(response).groupBy('boxNumber').value();
+        var boxNumberToRemainingItemCounts = {};
+        _.each(groupByBoxNumber, function(groupedItems, boxNumber){
+          console.log('boxNumber:', boxNumber, 'groupedItems:', groupedItems);
+          var countByState = _.countBy(groupedItems, function(item){
+            return item.state;
+          });
+          // only work with items that are still boxed, but still show an empty (zero) box
+          boxNumberToRemainingItemCounts[boxNumber] = countByState.boxed || 0;
+        });
+        console.log('boxNumberToRemainingItemCounts', boxNumberToRemainingItemCounts);
+
+        if (boxNumberToRemainingItemCounts && _.keys(boxNumberToRemainingItemCounts).length > 0) {
+          populateExistingBoxes(boxNumberToRemainingItemCounts);
         }
       };
 
-      var populateExistingBoxes = function(existingBoxes) {
+      var populateExistingBoxes = function(boxNumberToRemainingItemCounts) {
         $scope.boxes = [];
-        var boxNumbersAsKeys = _.filter(_.keys(existingBoxes),function(key){
-          var number = Number(key);
+        var boxNumbersAsKeys = _.filter(_.keys(boxNumberToRemainingItemCounts),function(boxNumber){
+          var number = Number(boxNumber);
           return _.isNumber(number) && _.isFinite(number);
         }); // Math.max.apply(null, boxNumbersAsKeys)
         console.log(boxNumbersAsKeys);
 
-        // NOTE: maxBoxNumber most likely equals the length of existingBoxes anyway
+        // NOTE: maxBoxNumber most likely equals the length of boxNumberToRemainingItemCounts anyway
         //       so there shouldn't be any need to explicitly calculate it
         //var maxBoxNumber = Math.max.apply(null, boxNumbersAsKeys);
         //console.log(maxBoxNumber);
@@ -266,7 +276,7 @@
           var box = {
             'boxNumber': Number(boxNumberAsKey),
             'boxName': 'Box' + boxNumberAsKey,
-            'totalItems': existingBoxes[boxNumberAsKey], // TODO: should only count items that are still boxed!!!
+            'totalItems': boxNumberToRemainingItemCounts[boxNumberAsKey],
             'isOpen': false
           };
           console.log('adding', box);
