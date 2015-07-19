@@ -15,7 +15,7 @@
               loginService, StockOrderLineitemModel, ReportModel,
               deviceDetector, ngDialog)
     {
-      var ROW_STATE_COMPLETE = 'unboxed';
+      var ROW_STATE_UNBOXED = 'unboxed';
 
       $scope.deviceDetector = deviceDetector;
       $scope.storeName = ($sessionStorage.currentStore) ? $sessionStorage.currentStore.name : null;
@@ -143,21 +143,24 @@
        * This method will mark the item as received when it is swiped to right
        */
       $scope.markAsReceived = function (index, storeReportRow) {
-        $scope.waitOnPromise = StockOrderLineitemModel.prototype$updateAttributes(
-          { id: storeReportRow.id },
-          {
-            receivedQuantity: storeReportRow.receivedQuantity,
-            state: ROW_STATE_COMPLETE
+        $scope.waitOnPromise = StockOrderLineitemModel.updateBasedOnState({
+            id: storeReportRow.id,
+            attributes: {
+              receivedQuantity: storeReportRow.receivedQuantity, /* NOTE: why pass receivedQuantity explicitly here?
+              this is calculated by the UI, so if someone doesn't edit the row and directly marks it as done,
+              we would miss out on persisting this value*/
+              state: ROW_STATE_UNBOXED
+            }
           }
         )
-          .$promise.then(function(response){
+          .$promise.then(function(updatedStockOrderLineitemModelInstance){
             console.log('hopefully finished updating the row');
-            console.log(response);
+            console.log('updatedStockOrderLineitemModelInstance', updatedStockOrderLineitemModelInstance);
 
             // change the UI after the backend finishes for data-integrity/assurance
             // but if this visibly messes with UI/UX, we might want to do it earlier...
-            storeReportRow.updatedAt = response.updatedAt;
-            storeReportRow.state = ROW_STATE_COMPLETE;
+            storeReportRow.updatedAt = updatedStockOrderLineitemModelInstance.updatedAt;
+            storeReportRow.state = updatedStockOrderLineitemModelInstance.state;
 
             delete $scope.items[index].boxNumber;
             delete $scope.items[index].boxName;

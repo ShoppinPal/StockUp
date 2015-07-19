@@ -23,9 +23,11 @@ module.exports = function(StockOrderLineitemModel) {
     );
   });
 
-  var StockOrderLineitemModelStates = {
+  StockOrderLineitemModel.StockOrderLineitemModelStates = {
     'PENDING': 'pending',
-    'COMPLETE': 'complete'
+    'ORDERED': 'complete',
+    'BOXED': 'boxed',
+    'UNBOXED': 'unboxed'
   };
 
   StockOrderLineitemModel.observe('before save', function updateTimestamp(ctx, next) {
@@ -61,22 +63,23 @@ module.exports = function(StockOrderLineitemModel) {
           var ReportModel = StockOrderLineitemModel.app.models.ReportModel;
           ReportModel.getAllRelevantModelInstancesForReportModel(stockOrderLineitemModelInstance.reportId)
             .spread(function(reportModelInstance, storeModelInstance/*, storeConfigInstance*/){
+              var oauthVendUtil = require('./../../common/utils/vend')({
+                'GlobalConfigModel': StockOrderLineitemModel.app.models.GlobalConfigModel,
+                'StoreConfigModel': StockOrderLineitemModel.app.models.StoreConfigModel,
+                'currentUser': currentUser
+              });
               if (reportModelInstance.state === ReportModel.ReportModelStates.MANAGER_IN_PROCESS)
               {
                 log('inside update() - work on consignment products in Vend');
-                var oauthVendUtil = require('./../../common/utils/vend')({
-                  'GlobalConfigModel': StockOrderLineitemModel.app.models.GlobalConfigModel,
-                  'StoreConfigModel': StockOrderLineitemModel.app.models.StoreConfigModel,
-                  'currentUser': currentUser
-                });
-                if(stockOrderLineitemModelInstance.state !== StockOrderLineitemModelStates.COMPLETE){
+                if(stockOrderLineitemModelInstance.state !== StockOrderLineitemModel.StockOrderLineitemModelStates.ORDERED){
+                  log('inside update() - PASS - will create a consignment product in Vend');
                   oauthVendUtil.createStockOrderLineitemForVend(storeModelInstance, reportModelInstance, stockOrderLineitemModelInstance)
                     .then(function(newConsignmentProduct){
                       log('inside update() - PASS - created a consignment product in Vend');
                       log('newConsignmentProduct', newConsignmentProduct);
                       stockOrderLineitemModelInstance.vendConsignmentProductId = newConsignmentProduct.id;
                       stockOrderLineitemModelInstance.vendConsignmentProduct = newConsignmentProduct;
-                      stockOrderLineitemModelInstance.state = StockOrderLineitemModelStates.COMPLETE;
+                      stockOrderLineitemModelInstance.state = StockOrderLineitemModel.StockOrderLineitemModelStates.ORDERED;
                       stockOrderLineitemModelInstance.save()
                         .then(function(updatedStockOrderLineitemModelInstance){
                           log('inside update() - PASS - updated the lineitem model');
@@ -87,7 +90,8 @@ module.exports = function(StockOrderLineitemModel) {
                       cb(error);
                     });
                 }
-                else { // is already in StockOrderLineitemModelStates.COMPLETE state
+                else { // is already in StockOrderLineitemModel.StockOrderLineitemModelStates.ORDERED state
+                  log('inside update() - PASS - will update the consignment product in Vend');
                   oauthVendUtil.updateStockOrderLineitemForVend(storeModelInstance, reportModelInstance, stockOrderLineitemModelInstance)
                     .then(function(updatedConsignmentProduct){
                       log('inside update() - PASS - updated the consignment product in Vend');
@@ -106,7 +110,21 @@ module.exports = function(StockOrderLineitemModel) {
               }
               else if (reportModelInstance.state === StockOrderLineitemModel.app.models.ReportModel.ReportModelStates.MANAGER_RECEIVE)
               {
-                log('TODO: inside update() - will update the existing consignment product in Vend');
+                log('inside update() - will update the existing consignment product in Vend');
+                oauthVendUtil.updateStockOrderLineitemForVend(storeModelInstance, reportModelInstance, stockOrderLineitemModelInstance)
+                  .then(function(updatedConsignmentProduct){
+                    log('inside update() - PASS - updated the consignment product in Vend');
+                    log('updatedConsignmentProduct', updatedConsignmentProduct);
+                    stockOrderLineitemModelInstance.vendConsignmentProduct = updatedConsignmentProduct;
+                    stockOrderLineitemModelInstance.save()
+                      .then(function(updatedStockOrderLineitemModelInstance){
+                        log('inside update() - PASS - updated the lineitem model');
+                        cb(null, updatedStockOrderLineitemModelInstance);
+                      });
+                  },
+                  function(error){
+                    cb(error);
+                  });
               }
               else {
                 cb(null, {updated:false});
