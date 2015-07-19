@@ -11,9 +11,11 @@
     '$scope', '$sessionStorage', '$state', '$stateParams', '$filter', '$location', '$anchorScroll', /* angular's modules/services/factories etc. */
     'loginService', 'StockOrderLineitemModel', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
     'deviceDetector', 'ngDialog', /* 3rd party modules/services/factories etc. */
+    'ReportModelStates', /* constants */
     function ($scope, $sessionStorage, $state, $stateParams, $filter, $location, $anchorScroll,
               loginService, StockOrderLineitemModel, ReportModel,
-              deviceDetector, ngDialog)
+              deviceDetector, ngDialog,
+              ReportModelStates)
     {
       var ROW_STATE_UNBOXED = 'unboxed';
 
@@ -191,15 +193,15 @@
           var proceed = data.value;
           if (proceed) {
             //console.log('submitting report');
-            ReportModel.prototype$updateAttributes(
-              { id: $stateParams.reportId },
-              {
-                state: 'closed' // TODO: move to a constant in a factory or service
-              }
-            )
-              .$promise.then(function(/*response*/){
-                //console.log('updated report', response);
-                return $state.go('store-landing');
+            // server-side will update the report's state and the matching consignment's status in Vend
+            $scope.waitOnPromise = ReportModel.setReportStatus({
+              id: $stateParams.reportId,
+              from: ReportModelStates.MANAGER_RECEIVE,
+              to: ReportModelStates.REPORT_COMPLETE
+            })
+              .$promise.then(function(updatedReportModelInstance){
+                console.log('updatedReportModelInstance', updatedReportModelInstance);
+                return $state.go('store-landing'); // TODO: based on the role this may point at 'warehouse-landing' instead!
               });
           }
         });
@@ -274,7 +276,7 @@
 
       var setupBoxedItems = function(response) {
         $scope.receivedItems = _.filter(response, function(item){
-          return item.state !== 'unboxed';
+          return item.state !== ROW_STATE_UNBOXED;
         });
         // if receivedQuantity hasn't been set, then it should equal fulfilledQuantity by default
         angular.forEach($scope.receivedItems, function (item) {

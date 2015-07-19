@@ -469,7 +469,7 @@ var createStockOrderForVend = function(storeModelInstance, reportModelInstance){
 
 var markStockOrderAsSent = function(storeModelInstance, reportModelInstance){
   var storeConfigId = storeModelInstance.storeConfigModelToStoreModelId;
-  log.debug('updateStockOrderForVend()', 'storeConfigId: ' + storeConfigId);
+  log.debug('markStockOrderAsSent()', 'storeConfigId: ' + storeConfigId);
   return getVendConnectionInfo(storeConfigId)
     .then(function(connectionInfo){
       var argsForStockOrder = vendSdk.args.consignments.stockOrders.markAsSent();
@@ -477,13 +477,33 @@ var markStockOrderAsSent = function(storeModelInstance, reportModelInstance){
       argsForStockOrder.body.value = _.omit(reportModelInstance.vendConsignment, 'id');
       return vendSdk.consignments.stockOrders.markAsSent(argsForStockOrder, connectionInfo)
         .then(function (updatedStockOrder) {
-          log.debug('updatedStockOrder', updatedStockOrder);
+          log.debug('markStockOrderAsSent()', 'updatedStockOrder', updatedStockOrder);
           return Promise.resolve(updatedStockOrder);
         });
     },
     function(error){
-      log.error('updateStockOrderForVend()', 'Error creating a stock order in Vend:\n' + JSON.stringify(error));
-      return Promise.reject('An error occurred while creating a stock order in Vend.\n' + JSON.stringify(error));
+      log.error('markStockOrderAsSent()', 'Error updating the stock order in Vend:\n' + JSON.stringify(error));
+      return Promise.reject('An error occurred while updating the stock order in Vend.\n' + JSON.stringify(error));
+    });
+};
+
+var markStockOrderAsReceived = function(storeModelInstance, reportModelInstance){
+  var storeConfigId = storeModelInstance.storeConfigModelToStoreModelId;
+  log.debug('markStockOrderAsReceived()', 'storeConfigId: ' + storeConfigId);
+  return getVendConnectionInfo(storeConfigId)
+    .then(function(connectionInfo){
+      var argsForStockOrder = vendSdk.args.consignments.stockOrders.markAsSent();
+      argsForStockOrder.apiId.value = reportModelInstance.vendConsignmentId;
+      argsForStockOrder.body.value = _.omit(reportModelInstance.vendConsignment, 'id');
+      return vendSdk.consignments.stockOrders.markAsReceived(argsForStockOrder, connectionInfo)
+        .then(function (updatedStockOrder) {
+          log.debug('markStockOrderAsReceived', 'updatedStockOrder', updatedStockOrder);
+          return Promise.resolve(updatedStockOrder);
+        });
+    },
+    function(error){
+      log.error('markStockOrderAsReceived()', 'Error updating the stock order in Vend:\n' + JSON.stringify(error));
+      return Promise.reject('An error occurred while updating the stock order in Vend.\n' + JSON.stringify(error));
     });
 };
 
@@ -554,6 +574,7 @@ module.exports = function(dependencies){
     setDesiredStockLevelForVend : setDesiredStockLevelForVend,
     createStockOrderForVend: createStockOrderForVend,
     markStockOrderAsSent: markStockOrderAsSent,
+    markStockOrderAsReceived: markStockOrderAsReceived,
     createStockOrderLineitemForVend: createStockOrderLineitemForVend,
     updateStockOrderLineitemForVend: updateStockOrderLineitemForVend
   };

@@ -320,6 +320,26 @@ module.exports = function(ReportModel) {
                 cb(error);
               });
           }
+          else if (from === reportModelInstance.state &&
+                   reportModelInstance.state === ReportModel.ReportModelStates.MANAGER_RECEIVE &&
+                   to === ReportModel.ReportModelStates.REPORT_COMPLETE)
+          {
+            log('inside setReportStatus() - will update the status of stock order in Vend to RECEIVED');
+            oauthVendUtil.markStockOrderAsReceived(storeModelInstance, reportModelInstance)
+              .then(function(updatedStockOrder){
+                log('inside setReportStatus() - PASS - updated stock order in Vend to RECEIVED', updatedStockOrder);
+                reportModelInstance.vendConsignment = updatedStockOrder;
+                reportModelInstance.state = ReportModel.ReportModelStates.REPORT_COMPLETE;
+                reportModelInstance.save()
+                  .then(function(updatedReportModelInstance){
+                    log('inside setReportStatus() - PASS - updated the report model');
+                    cb(null, updatedReportModelInstance);
+                  });
+              },
+              function(error){
+                cb(error);
+              });
+          }
           else {
             cb(null, {updated:false});
           }

@@ -228,7 +228,7 @@ angular.module('ShoppinPalApp')
             })
               .$promise.then(function(updatedReportModelInstance){
                 console.log('updatedReportModelInstance', updatedReportModelInstance);
-                return $state.go('store-landing'); // TODO: should this point at 'warehouse-landing' instead?
+                return $state.go('store-landing'); // TODO: based on the role this may point at 'warehouse-landing' instead!
               });
           }
         });
