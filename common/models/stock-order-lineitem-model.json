@@ -31,6 +31,10 @@
       "type": "number",
       "required": false
     },
+    "receivedQuantity": {
+      "type": "number",
+      "required": false
+    },
     "boxNumber": {
       "type": "number",
       "required": false
@@ -53,6 +57,10 @@
     },
     "vendConsignmentProductId": {
       "type": "string",
+      "required": false
+    },
+    "vendConsignmentProduct": {
+      "type": "object",
       "required": false
     }
   },

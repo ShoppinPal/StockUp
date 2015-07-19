@@ -81,23 +81,27 @@ angular.module('ShoppinPalApp')
               });
           }
 
-          $scope.waitOnPromise = $scope.waitOnPromise.then(function(){
-            console.log('will update warehouse model in the backend');
-            // TODO: the setDesiredStockLevelForVend() op could be tied
-            //       to a before or after save hook on the server side?
-            return StockOrderLineitemModel.prototype$updateAttributes(
-              { id: storeReportRow.id },
-              {
-                desiredStockLevel: storeReportRow.desiredStockLevel,
-                orderQuantity: storeReportRow.orderQuantity,
-                comment: storeReportRow.comment
-              }
-            )
-              .$promise.then(function(response){
-                storeReportRow.updatedAt = response.updatedAt;
-                $scope.selectedRowIndex = $scope.storereportlength + 1; // dismiss the edit view in UI
-              });
-          })
+          $scope.waitOnPromise = $scope.waitOnPromise
+            .then(function(){
+              console.log('will update warehouse model in the backend');
+              // TODO: the setDesiredStockLevelForVend() op could be tied
+              //       to a before or after save hook on the server side?
+              return StockOrderLineitemModel.updateBasedOnState({
+                  id: storeReportRow.id,
+                  attributes: {
+                    desiredStockLevel: storeReportRow.desiredStockLevel,
+                    orderQuantity: storeReportRow.orderQuantity,
+                    comment: storeReportRow.comment
+                  }
+                }
+              )
+                .$promise.then(function(updatedStockOrderLineitemModelInstance){
+                  console.log('updatedStockOrderLineitemModelInstance', updatedStockOrderLineitemModelInstance);
+                  storeReportRow.updatedAt = updatedStockOrderLineitemModelInstance.updatedAt;
+                  storeReportRow.state = updatedStockOrderLineitemModelInstance.state;
+                  $scope.selectedRowIndex = $scope.storereportlength + 1; // dismiss the edit view in UI
+                });
+            })
             .catch(function(error){
               if(error) {
                 console.error(error);
@@ -156,8 +160,9 @@ angular.module('ShoppinPalApp')
        * This method remove the row from store-report on left swipe
        */
       $scope.markRowAsCompleted = function(rowIndex, storeReportRow) {
-        $scope.waitOnPromise = StockOrderLineitemModel.updateStatus({
-          id: storeReportRow.id
+        $scope.waitOnPromise = StockOrderLineitemModel.updateBasedOnState({
+          id: storeReportRow.id,
+          attributes: {}
         })
           .$promise.then(function(updatedStockOrderLineitemModelInstance){
             //console.log('hopefully finished updating the row');

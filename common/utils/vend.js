@@ -512,6 +512,31 @@ var createStockOrderLineitemForVend = function(storeModelInstance, reportModelIn
     });
 };
 
+var updateStockOrderLineitemForVend = function(storeModelInstance, reportModelInstance, stockOrderLineitemModelInstance){
+  var storeConfigId = storeModelInstance.storeConfigModelToStoreModelId;
+  log.debug('updateStockOrderLineitemForVend()', 'storeConfigId: ' + storeConfigId);
+  return getVendConnectionInfo(storeConfigId)
+    .then(function(connectionInfo){
+      var args = vendSdk.args.consignments.products.update();
+      args.apiId.value = stockOrderLineitemModelInstance.vendConsignmentProductId;
+      //args.body.value = _.omit(stockOrderLineitemModelInstance.vendConsignmentProduct, 'id'); // omitting id is BAD in this case
+      args.body.value = stockOrderLineitemModelInstance.vendConsignmentProduct;
+      args.body.value.count = stockOrderLineitemModelInstance.orderQuantity;
+      args.body.value.cost = stockOrderLineitemModelInstance.cost;
+      args.body.value.received = stockOrderLineitemModelInstance.receivedQuantity;
+      log.debug('updateStockOrderLineitemForVend()', 'consignmentProduct: ', args.body.value);
+      return vendSdk.consignments.products.update(args, connectionInfo)
+        .then(function (updatedLineitem) {
+          log.debug('updatedLineitem', updatedLineitem);
+          return Promise.resolve(updatedLineitem);
+        });
+    },
+    function(error){
+      log.error('updateStockOrderLineitemForVend()', 'Error updating a stock order in Vend:\n' + JSON.stringify(error));
+      return Promise.reject('An error occurred while updating a stock order in Vend.\n' + JSON.stringify(error));
+    });
+};
+
 module.exports = function(dependencies){
   if (dependencies) {
     GlobalConfigModel = dependencies.GlobalConfigModel;
@@ -529,6 +554,7 @@ module.exports = function(dependencies){
     setDesiredStockLevelForVend : setDesiredStockLevelForVend,
     createStockOrderForVend: createStockOrderForVend,
     markStockOrderAsSent: markStockOrderAsSent,
-    createStockOrderLineitemForVend: createStockOrderLineitemForVend
+    createStockOrderLineitemForVend: createStockOrderLineitemForVend,
+    updateStockOrderLineitemForVend: updateStockOrderLineitemForVend
   };
 };

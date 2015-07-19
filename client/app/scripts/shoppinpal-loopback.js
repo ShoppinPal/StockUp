@@ -7911,7 +7911,7 @@ module.factory(
 
         /**
          * @ngdoc method
-         * @name shoppinpal-loopback.StockOrderLineitemModel#updateStatus
+         * @name shoppinpal-loopback.StockOrderLineitemModel#updateBasedOnState
          * @methodOf shoppinpal-loopback.StockOrderLineitemModel
          *
          * @description
@@ -7929,6 +7929,8 @@ module.factory(
          *
          *  - `id` – `{string}` - 
          *
+         *  - `attributes` – `{object}` - 
+         *
          * @param {function(Object,Object)=} successCb
          *   Success callback with two arguments: `value`, `responseHeaders`.
          *
@@ -7944,8 +7946,8 @@ module.factory(
          * This usually means the response is a `StockOrderLineitemModel` object.)
          * </em>
          */
-        "updateStatus": {
-          url: urlBase + "/StockOrderLineitemModels/:id/updateStatus",
+        "updateBasedOnState": {
+          url: urlBase + "/StockOrderLineitemModels/:id/updateBasedOnState",
           method: "PUT"
         },
 
