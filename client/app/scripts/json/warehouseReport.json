@@ -1,0 +1,118 @@
+{
+  "id" : 1,
+  "name" : "Report 1",
+  "created" : "2015-06-22T14:55:27.340Z",
+  "state" : "manager",
+  "supplier": {
+    "id": "504b39c3-a6c4-11e2-a415-bc764e10976c",
+    "name": "FFCC"
+  },
+  "outlet": {
+    "id": "51c061d2-ac24-11e2-a415-bc764e10976c",
+    "name": "Reno Gift Shop"
+  },
+  "totalRows": 10,
+  "stockOrderLineitemModels" : [
+    {
+      "sku": "2261794",
+      "name": "2261794 - 5PC HOGTIE SET",
+      "orderQuantity": 10,
+      "type": "Bondage",
+      "updatedAt": "2015-06-16T14:00:21.856Z",
+      "id": 1352,
+      "userId": 8,
+      "reportId": 5
+    },
+    {
+      "sku": "2261797",
+      "name": "2261797 - SILICONE BALL GAG",
+      "orderQuantity": 15,
+      "type": "Bondage",
+      "updatedAt": "2015-06-10T14:57:05.830Z",
+      "id": 1353,
+      "userId": 8,
+      "reportId": 5
+    },
+    {
+      "sku": "2265207",
+      "name": "2265207 - BLACK BELL CLIP",
+      "orderQuantity": 10,
+      "type": "Bondage",
+      "updatedAt": "2015-06-16T07:48:23.668Z",
+      "id": 1354,
+      "userId": 8,
+      "reportId": 5
+    },
+    {
+      "sku": "2265302",
+      "name": "2265302 - VINYL BED SHEET",
+      "orderQuantity": 20,
+      "type": "Bondage",
+      "updatedAt": "2015-06-16T14:05:00.489Z",
+      "id": 1355,
+      "userId": 8,
+      "reportId": 5,
+      "comment": "Red color, please"
+    },
+    {
+      "sku": "4190124",
+      "name": "4190124 - ASSORTED LONG DRESS",
+      "orderQuantity": 50,
+      "type": "Lingerie",
+      "updatedAt": "2015-06-10T14:57:05.832Z",
+      "id": 1358,
+      "userId": 8,
+      "reportId": 5
+    },
+    {
+      "sku": "2240035",
+      "name": "2240035 - SHEER GARTER DRESS BLACK",
+      "orderQuantity": 40,
+      "type": "Lingerie",
+      "updatedAt": "2015-06-10T14:57:05.833Z",
+      "id": 1359,
+      "userId": 8,
+      "reportId": 5
+    },
+    {
+      "sku": "22400351",
+      "name": "22400351 - SHEER GARTER DRESS RED",
+      "orderQuantity": 5,
+      "type": "Lingerie",
+      "updatedAt": "2015-06-10T14:57:05.833Z",
+      "id": 1360,
+      "userId": 8,
+      "reportId": 5
+    },
+    {
+      "sku": "1649041",
+      "name": "1649041 - PJUR WOMAN NUDE 100ML",
+      "orderQuantity": 15,
+      "type": "Lubricants",
+      "updatedAt": "2015-06-10T14:57:05.834Z",
+      "id": 1361,
+      "userId": 8,
+      "reportId": 5
+    },
+    {
+      "sku": "226600",
+      "name": "226600 - RAINBOW PRIDE FLAG",
+      "orderQuantity": 30,
+      "type": "Non-Toys",
+      "updatedAt": "2015-06-10T14:57:05.831Z",
+      "id": 1356,
+      "userId": 8,
+      "reportId": 5
+    },
+    {
+      "sku": "4250003",
+      "name": "4250003 - OMG",
+      "orderQuantity": 20,
+      "type": "Non-Toys",
+      "updatedAt": "2015-06-10T14:57:05.832Z",
+      "id": 1357,
+      "userId": 8,
+      "reportId": 5
+    }
+  ]
+}

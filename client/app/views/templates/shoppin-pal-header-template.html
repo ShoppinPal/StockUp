@@ -1,0 +1,33 @@
+<div class="row">
+  <div class="col-sm-12 col-md-12">
+    <!-- Select store header -->
+    <header class="header">
+      <div class="row">
+        <!-- Back button given here -->
+        <div class="col-md-6 col-sm-6 col-xs-12">
+          <div class="logo">
+            <div class="header-store-name">{{::storeName}}</div>
+            <div ng-show="!isHomePage">
+              <a ng-if="homeState" class="fa fa-home shoppin-pal-home" ui-sref="{{::homeState}}"></a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-sm-6 col-xs-12">
+          <div class="log-in-text"><a ui-sref="logout" class="logout-text">LOGOUT</a></div>
+          <div class="btn-align">
+            <button ng-if="button1Label"
+                    type="submit" class="btn {{::button1Class}}"
+                    ng-click="onButton1Click()" ng-disabled="button1Disabled()">
+              {{button1Label}}
+            </button>
+            <button ng-if="button2Label"
+                    type="submit" class="btn {{::button2Class}}"
+                    ng-click="onButton2Click()" ng-disabled="button2Disabled()">
+                {{button2Label}}
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+  </div>
+</div>

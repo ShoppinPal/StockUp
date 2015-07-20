@@ -1,79 +1,115 @@
-<div class="container">
-    <div class="row">
-      <div class="col-sm-12 col-md-12">
-        <!-- Select store header -->
-          <header class="header">
-              <div class="row">
-                  <div class="col-md-5 col-sm-3 col-xs-12"><div class="logo">Glenstone</div></div>
-                  <div class="col-md-7 col-sm-9 col-xs-12"> 
-                    <div class="log-in-text">You are logged in as a <span><a href="#">Store Manager/WH/SR</a>&nbsp;&nbsp; </span>|&nbsp;&nbsp;<a href="#" class="logout-text">LOGOUT</a></div>
-                    <div class="btn-align">
-                    <button type="submit" class="btn btn-primary button-large-green">Create Manual Order</button></div>
-                  </div>
-              </div>
-          </header>
-      </div>
-      </div>
-          <!-- Report Manager page content -->
-      <div class="row main-container">    
-          <div class="order-container">
-            <h2>New Stock Order</h2> 
-            <form class="form-horizontal">
+<div class="container" ng-controller="CreateManualOrderCtrl as orderController">
+    <!--<div class="row">
+        <div class="col-sm-12 col-md-12">
+            &lt;!&ndash; Select store header &ndash;&gt;
+            <header class="header">
+                <div class="row">
+                    &lt;!&ndash; Back button given here &ndash;&gt;
+                    <div class="col-md-5 col-sm-3 col-xs-12">
+                        <div class="logo">{{::orderController.storeName}}
+                            <div>
+                                &lt;!&ndash; <back-button back="Back"></back-button> &ndash;&gt;
+                                <a class="fa fa-home shopping-pal-home" ui-sref="store-landing"></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-7 col-sm-9 col-xs-12">
+                        <div class="log-in-text"><a ui-sref="logout" class="logout-text">LOGOUT</a></div>
+                        <div class="btn-align">
+                            <button type="submit" class="btn btn-primary button-large-green">Create Manual Order</button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+        </div>
+    </div>-->
+    <shoppin-pal-header store-name="{{::orderController.storeName}}"
+                        home-state="{{::orderController.homeState}}">
+    </shoppin-pal-header>
+    <!-- Report Manager page content -->
+    <div class="row main-container" cg-busy="orderController.waitOnPromise">
+        <div class="order-container">
+            <h2>New Stock Order</h2>
+            <form name="orderForm"
+                  class="form-horizontal"
+                  ng-submit="orderController.generateOrder()">
                 <div class="form-group">
-                    <label for="inputEmail" class="control-label col-xs-3">Name / Reference</label>
+                    <label for="orderName" class="control-label col-xs-3">Name / Reference</label>
                     <div class="col-xs-8">
-                        <input type="text" class="form-control" id="inputEmail">
+                        <input id="orderName"
+                               type="text" class="form-control"
+                               ng-model="orderController.orderName"
+                               required>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="inputPassword" class="control-label col-xs-3">Order From</label>
+                    <label for="selectSupplier" class="control-label col-xs-3">Order From</label>
                     <div class="col-xs-8">
-                        <select ng-model="selectedOrderStore" class="form-control">
-                        <option ng-selected="{{selectedOrderStore}}"
-                                ng-repeat="store in stores"
-                                value="{{store.name}}">
-                          {{store.name}}
-                        </option>
-                    </select>
+                        <select id="selectSupplier" name="selectSupplier"
+                                class="form-control"
+                                ng-model="orderController.selectedSupplier"
+                                ng-options="supplier.name for supplier in orderController.suppliers"
+                                required>
+                        </select>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="inputPassword" class="control-label col-xs-3">Deliver To</label>
+                    <label for="selectStore" class="control-label col-xs-3">Deliver To</label>
                     <div class="col-xs-8">
-                      <select ng-model="selectedDeliverStore" class="form-control">
-                        <option ng-selected="{{selectedDeliverStore}}"
-                                ng-repeat="store in stores"
-                                value="{{store.name}}">
-                          {{store.name}}
-                        </option>
-                    </select>
-               </div>
+                        <select id="selectStore" name="selectStore"
+                                class="form-control"
+                                ng-model="orderController.selectedStore"
+                                ng-options="store.name for store in orderController.stores"
+                                required>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="inputPassword" class="control-label col-xs-3">Due At</label>
+                    <label for="selectDate" class="control-label col-xs-3">Due At</label>
                     <div class="col-xs-8 calendar">
-                        <input type="text" data-date-format="dd/MM/yyyy" ng-model="selectedDate" class="form-control" placeholder="Due At" bs-datepicker>
-                         <i class="fa fa-calendar"></i>
+                        <input id="selectDate"
+                               type="text" class="form-control" placeholder="Due At"
+                               bs-datepicker data-date-format="yyyy-MM-dd"
+                               ng-model="selectedDate">
+                        <i class="fa fa-calendar"></i>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="inputPassword" class="control-label col-xs-3">Supplier Invoice</label>
+                    <label for="supplierInvoice" class="control-label col-xs-3">Supplier Invoice</label>
                     <div class="col-xs-8">
-                        <input type="text" class="form-control" id="inputPassword" placeholder="Supplier Invoice">
+                        <input id="supplierInvoice" type="text" class="form-control" placeholder="Supplier Invoice">
+                    </div>
+                </div>
+                <div class="form-group" ng-if="orderController.isWarehouser()">
+                    <label for="fileImport" class="control-label col-xs-3">Import Order</label>
+                    <div class="col-xs-8">
+                        <!-- <div class="fileUpload btn "> -->
+                        <input id="fileImport" type="file" file-model="myFile" click="importOrder()"/>
+                        <!--  <span>Choose File</span> -->
+                        <!-- <input type="file" class="upload" file-model="myFile" ng-click="importOrder()"/> -->
+                        <!--  </div> -->
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="inputPassword" class="control-label col-xs-3">Import Order</label>
-                    <div class="col-xs-8">
-                      <!-- <div class="fileUpload btn "> -->
-                       <input type="file" file-model="myFile" click="importOrder()"/>
-                         <!--  <span>Choose File</span> -->
-                          <!-- <input type="file" class="upload" file-model="myFile" ng-click="importOrder()"/> -->
-                     <!--  </div> -->
-                      </div>
+                    <div class="btn-align">
+                        <!--
+                        <button id="fileImport" type="file"
+                                class="btn btn-primary button-large-green"
+                                file-model="myFile"
+                                click="importOrder()">
+                            Import Order (choose file)
+                        </button>
+                        -->
+                        <!--<input id="submit" type="submit" value="Submit" ng-disabled="orderForm.$invalid"/>-->
+                        <button id="submit" type="submit"
+                                class="btn btn-primary button-large-green generate-order-btn"
+                                ng-disabled="orderForm.$invalid">
+                            Generate New Order
+                        </button>
+                    </div>
                 </div>
-             </form>
-          </div>
-      </div>
-  </div>
+            </form>
+        </div>
+    </div>
+</div>

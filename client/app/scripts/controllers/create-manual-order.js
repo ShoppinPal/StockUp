@@ -2,29 +2,106 @@
 
 /**
  * @ngdoc function
- * @name ShoppinPalApp.controller:createManualOrderCtrl
+ * @name ShoppinPalApp.controller:CreateManualOrderCtrl
  * @description
- * # createManualOrderCtrl
+ * # CreateManualOrderCtrl
  * Controller of the ShoppinPalApp
  */
-angular.module('ShoppinPalApp')
-    .controller('createManualOrderCtrl', ['$scope','SupplierModel', function($scope,SupplierModel) {
-      console.log($scope);
-      $scope.stores = [];
+angular.module('ShoppinPalApp').controller(
+  'CreateManualOrderCtrl',
+  [
+    '$sessionStorage', '$state', /* angular's modules/services/factories etc. */
+    'LoopBackAuth', 'SupplierModel', 'UserModel', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
+    'ReportModelStates', /* constants */
+    function CreateManualOrderCtrl (
+      $sessionStorage, $state,
+      LoopBackAuth, SupplierModel, UserModel, ReportModel,
+      ReportModelStates)
+    {
+      this.storeName = ($sessionStorage.currentStore) ? $sessionStorage.currentStore.name : null;
+      this.roles = $sessionStorage.roles;
+      this.suppliers = [];
+      this.stores = [];
+      var self = this;
 
+      this.isWarehouser = function () {
+        return _.contains(self.roles, 'admin');
+      };
 
-      /** @method viewContentLoaded
-       * This method will load the storesReport from api on view load
-       */
-      $scope.$on('$viewContentLoaded', function() {
-        SupplierModel.find({
-        })
+      this.isManager = function () {
+        return _.contains(self.roles, 'manager');
+      };
+
+      this.isReceiver = function () {
+        return _.contains(self.roles, 'manager');
+      };
+
+      this.homeState = this.isWarehouser() ? 'warehouse-landing' : 'store-landing';
+
+      // Load the data
+      SupplierModel.listSuppliers({})
         .$promise.then(function(response) {
-            console.log(response[0].name);
-            $scope.stores = response;
-            $scope.selectedOrderStore = response[0].name;
-            $scope.selectedDeliverStore = response[0].name;
-          });
-      });
+          self.suppliers = response;
+          if(self.suppliers && self.suppliers.length > 0) {
+            self.selectedSupplier = self.suppliers[0];
+          }
 
-    }]);
+          return UserModel.storeModels({id: LoopBackAuth.currentUserId})
+            .$promise.then(function(response){
+              self.stores = response;
+              if(self.stores && self.stores.length > 0) {
+                self.selectedStore = self.stores[0];
+              }
+            });
+        });
+
+      /** @method generateOrder
+       * This method will move to generate store report for particular store
+       */
+      this.generateOrder = function(){
+        console.log('inside generateOrder()',
+          '\norderName', this.orderName,
+          '\nselectedStoreId', this.selectedStore.api_id, // jshint ignore:line
+          '\nselectedSupplierId', this.selectedSupplier.apiId
+        );
+        this.waitOnPromise = UserModel.reportModels.create(
+        {id: LoopBackAuth.currentUserId},
+          {
+            name: self.orderName,
+            state: ReportModelStates.REPORT_EMPTY,
+            outlet: {
+              id: self.selectedStore.api_id, // jshint ignore:line
+              name: self.selectedStore.name
+            },
+            supplier: {
+              id: self.selectedSupplier.apiId,
+              name: self.selectedSupplier.name
+            }
+          }
+        )
+          .$promise.then(function(reportModelInstance){
+            //return Parse.Promise.as(reportModelInstance);
+            console.log(reportModelInstance);
+            return ReportModel.generateStockOrderReportForManager(
+              {
+                id: reportModelInstance.id
+              },
+              function(response){
+                console.log(response);
+                // after kicking off the work, go back to a user's respective landing page
+                if (_.contains($sessionStorage.roles, 'manager')) {
+                  return $state.go('store-landing');
+                }
+                else if (_.contains($sessionStorage.roles, 'admin')) {
+                  return $state.go('warehouse-landing');
+                }
+              },
+              function(err){
+                console.error(err);
+                // TODO: @ayush - show a friendly error to user somehow
+              });
+          });
+      };
+
+    }
+  ]);

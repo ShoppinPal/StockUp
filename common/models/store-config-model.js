@@ -1,4 +1,3 @@
-var loopback = require('loopback');
 var Promise = require('bluebird');
 
 module.exports = function(StoreConfigModel) {
@@ -26,28 +25,8 @@ module.exports = function(StoreConfigModel) {
     next();
   };*/
 
-  var getCurrentUserModel = function(cb) {
-    var ctx = loopback.getCurrentContext();
-    var currentUser = ctx && ctx.get('currentUser');
-    if (currentUser) {
-      console.log('inside StoreConfigModel.getCurrentUserModel() - currentUser: ', currentUser.username);
-      //return currentUser;
-      return Promise.promisifyAll(
-        currentUser,
-        {
-          filter: function(name, func, target){
-            return !( name == 'validate');
-          }
-        }
-      );
-    }
-    else {
-      cb('401 - unauthorized - how did we end up here? should we manage ACL access to remote methods ourselves?');
-    }
-  };
-
   StoreConfigModel.getVendRegisters = function(id, cb) {
-    var currentUser = getCurrentUserModel(cb); // returns  immediately if no currentUser
+    var currentUser = StoreConfigModel.getCurrentUserModel(cb); // returns  immediately if no currentUser
 
     if(currentUser) {
       //cb(null);
@@ -76,7 +55,7 @@ module.exports = function(StoreConfigModel) {
   };
 
   StoreConfigModel.getVendOutlets = function(id, cb) {
-    var currentUser = getCurrentUserModel(cb); // returns immediately if no currentUser
+    var currentUser = StoreConfigModel.getCurrentUserModel(cb); // returns immediately if no currentUser
 
     if(currentUser) {
       var oauthVendUtil = require('./../../common/utils/vend')({
@@ -96,7 +75,7 @@ module.exports = function(StoreConfigModel) {
   };
 
   StoreConfigModel.getVendTaxes = function(id, cb) {
-    var currentUser = getCurrentUserModel(cb); // returns immediately if no currentUser
+    var currentUser = StoreConfigModel.getCurrentUserModel(cb); // returns immediately if no currentUser
 
     if(currentUser) {
       var oauthVendUtil = require('./../../common/utils/vend')({
@@ -116,7 +95,7 @@ module.exports = function(StoreConfigModel) {
   };
 
   StoreConfigModel.getVendPaymentTypes = function(id, cb) {
-    var currentUser = getCurrentUserModel(cb); // returns immediately if no currentUser
+    var currentUser = StoreConfigModel.getCurrentUserModel(cb); // returns immediately if no currentUser
 
     if(currentUser) {
       var oauthVendUtil = require('./../../common/utils/vend')({
@@ -143,7 +122,7 @@ module.exports = function(StoreConfigModel) {
   });
 
   StoreConfigModel.getVendAccessToken = function(code, domainPrefix, state, cb) {
-    var currentUser = getCurrentUserModel(cb); // returns immediately if no currentUser
+    var currentUser = StoreConfigModel.getCurrentUserModel(cb); // returns immediately if no currentUser
 
     var oauthVendUtil = require('./../../common/utils/vend')({
       'StoreConfigModel': StoreConfigModel,
@@ -182,7 +161,7 @@ module.exports = function(StoreConfigModel) {
   //       so that related models can have it as their $owner
   StoreConfigModel.remoteMethod('getVendRegisters', {
     accepts: [
-      {arg: 'id', type: 'number', required: true}
+      {arg: 'id', type: 'string', required: true}
     ],
     //http: {path: '/:id/:pos/:entity', verb: 'get'}
     http: {path: '/:id/vend/registers', verb: 'get'},
@@ -191,7 +170,7 @@ module.exports = function(StoreConfigModel) {
 
   StoreConfigModel.remoteMethod('getVendOutlets', {
     accepts: [
-      {arg: 'id', type: 'number', required: true}
+      {arg: 'id', type: 'string', required: true}
     ],
     http: {path: '/:id/vend/outlets', verb: 'get'},
     returns: {arg: 'outlets', type: 'array', root:true}
@@ -199,7 +178,7 @@ module.exports = function(StoreConfigModel) {
 
   StoreConfigModel.remoteMethod('getVendTaxes', {
     accepts: [
-      {arg: 'id', type: 'number', required: true}
+      {arg: 'id', type: 'string', required: true}
     ],
     http: {path: '/:id/vend/taxes', verb: 'get'},
     returns: {arg: 'taxes', type: 'array', root:true}
@@ -207,7 +186,7 @@ module.exports = function(StoreConfigModel) {
 
   StoreConfigModel.remoteMethod('getVendPaymentTypes', {
     accepts: [
-      {arg: 'id', type: 'number', required: true}
+      {arg: 'id', type: 'string', required: true}
     ],
     http: {path: '/:id/vend/payment_types', verb: 'get'},
     returns: {arg: 'payment_types', type: 'array', root:true}

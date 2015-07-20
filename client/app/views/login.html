@@ -1,37 +1,91 @@
 <div class="outer">
-          <div class="middle">
-          <div class="inner">
+    <div class="middle">
+        <div class="inner">
             <div class="text-center"><img src="images/logo.jpg" alt="Shopping Pal"></div>
-              <div class="panel panel-default center">
-                  <div class="panel-body">
-                      <div class="panel-heading text-center">
-                          Sign In
-                      </div>
-
-                          <form role="form" dismiss-default="">
-                            <fieldset>
-                                  <div class="form-group">
-                                    <div class="input-group">
-                                      <span class="input-group-addon">
-                                        <i class="fa fa-user"></i>
-                                      </span> 
-                                      <input id="userName" ng-blur="true" class="form-control" placeholder="Username" name="loginname" type="text" ng-model="userName" ui-keypress="{13:'keypressCallback($event)'}" ng-virtual-keyboard>
-                                    </div>
-                                  </div>
-                                  <div class="form-group">
-                                    <div class="input-group">
-                                      <span class="input-group-addon">
-                                        <i class="fa fa-lock"></i>
-                                      </span>
-                                      <input id="pwd" ng-blur="true" class="form-control" placeholder="Password" name="password" type="password" ng-model="password" dismiss-keyboard ng-virtual-keyboard>
-                                    </div>
-                                  </div>
-                                   <div class="text-center"><button class="btn btn-primary login-btn" ng-click="login()">Login</button></div>
-                              </fieldset>
-                          </form>
+            <div class="panel panel-default center">
+                <div class="panel-body">
+                    <div class="panel-heading text-center">
+                        Sign In
                     </div>
+                    <form role="form" dismiss-default="" cg-busy="waitOnPromise">
+                        <fieldset>
+                            <!-- Device detector start -->
+                            <!-- login for windows start-->
+                            <div device-detector id="os-windows" ng-if='device !== "ipad"'>
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">
+                                            <i class="fa fa-user"></i>
+                                          </span>
+                                        <input id="userNamewin" name="loginname" type="text" placeholder="Username" class="form-control" ng-model="userNameWindow">
+                                    </div>
+                                      <span class="error-message" ng-if="errors.username != ''">
+                                          <span>{{errors.username}}</span>
+                                        </span>
+                                </div>
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">
+                                            <i class="fa fa-lock"></i>
+                                          </span>
+                                        <input id="pwdwin" name="password" type="password" placeholder="Password" class="form-control" ng-model="passwordWindow">
+                                    </div>
+                                  <span class="error-message" ng-if="errors.pwd != ''">
+                                     <span>{{errors.pwd}}</span>
+                                  </span>
+                                </div>
+                                <div class="form-group">
+                                  <span class="error-message" ng-if="errors.panel != ''">
+                                     <span>{{errors.panel}}</span>
+                                  </span>
+                                </div>
+                                <div class="text-center">
+                                    <button class="btn btn-primary login-btn" ng-click="login(userNameWindow,passwordWindow)">Login</button>
+                                </div>
+                            </div>
+                            <!-- login for windows end-->
+                            <!-- login for ios start-->
+                            <div device-detector id="os-ios" ng-if='device === "ipad"'>
+                                <div class="form-group">
+                                    <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <i class="fa fa-user"></i>
+                                              </span>
+                                        <!-- <input id="userNameios" name="loginname" type="text" placeholder="Username" class="form-control" ng-readonly="true" ng-model="userNameIos" ng-virtual-keyboard="{relative: false, vki_attached:true}"> -->
+                                        <input id="userNameios" name="loginname" type="text" placeholder="Username" class="form-control" ng-model="userNameIos">
+                                    </div>
+                                         <span class="error-message" ng-if="errors.username != ''">
+                                          <span>{{errors.username}}</span>
+                                        </span>
+                                </div>
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">
+                                            <i class="fa fa-lock"></i>
+                                        </span>
+                                        <!-- <input id="pwdios" name="password" type="password" placeholder="Password" class="form-control" ng-readonly="true" ng-model="passwordIos" ng-virtual-keyboard="{relative: false, vki_attached:true}"> -->
+                                        <input id="pwdios" name="password" type="password" placeholder="Password" class="form-control" ng-model="passwordIos">
+                                    </div>
+                                    <span class="error-message" ng-if="errors.pwd != ''">
+                                        <span>{{errors.pwd}}</span>
+                                    </span>
+                                </div>
+                                <div class="form-group">
+                                  <span class="error-message" ng-if="errors.panel != ''">
+                                     <span>{{errors.panel}}</span>
+                                  </span>
+                                </div>
+                                <div class="text-center">
+                                    <button class="btn btn-primary login-btn" ng-click="login(userNameIos,passwordIos)">Login</button>
+                                </div>
+                            </div>
+                            <!-- login for ios end-->
+                            <!-- Device detector end -->
+                        </fieldset>
+                    </form>
                 </div>
-                <div class="text-center footer">Copyright © 2015 ShoppinPal</div>
             </div>
-          </div>
+            <div class="text-center footer">Copyright © 2015 ShoppinPal</div>
         </div>
+    </div>
+</div>

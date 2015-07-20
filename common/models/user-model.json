@@ -5,6 +5,11 @@
   "properties": {},
   "validations": [],
   "relations": {
+    "teamModels": {
+      "type": "hasMany",
+      "model": "TeamModel",
+      "foreignKey": "ownerId"
+    },
     "globalConfigModels": {
       "type": "hasOne",
       "model": "GlobalConfigModel",
@@ -13,7 +18,12 @@
     "storeConfigModels": {
       "type": "hasMany",
       "model": "StoreConfigModel",
-      "foreignKey": "userModelToStoreConfigModelId"
+      "foreignKey": "userId"
+    },
+    "supplierModels": {
+      "type": "hasMany",
+      "model": "SupplierModel",
+      "foreignKey": "userId"
     },
     "storeModels": {
       "type": "hasMany",
@@ -29,6 +39,12 @@
       "type": "hasMany",
       "model": "StockOrderLineitemModel",
       "foreignKey": "userId"
+    },
+    "roles": {
+      "type": "hasMany",
+      "model": "Role",
+      "through": "RoleMapping",
+      "foreignKey": "principalId"
     }
   },
   "acls": [

@@ -34,8 +34,8 @@ a:hover, a:focus {
     color: #ffffff;
 }
 .btn:active, .btn.active {
-    out
-    ne: 0;
+    /*out
+    ne: 0;*/
     background-image: none;
     -webkit-box-shadow: inset 0 0px 0px rgba(0, 0, 0, 0);
     box-shadow: inset 0 0px 0px rgba(0, 0, 0, 0);
@@ -54,6 +54,10 @@ a:hover, a:focus {
     color: #c6c6c6;
 }
 
+.header-store-name {
+    height: 27px;
+}
+
 h1{
     color: #505050;
     font-size: 14px;
@@ -61,10 +65,10 @@ h1{
     font-weight: bold;
 }
 .logo{
-    font-size: 26px;
+    font-size: 22px;
     color: #ffffff;
     font-weight: bold;
-    padding: 20px 0px;
+    padding: 0px 0px;
 }
 .container{
     max-width: 1024px;
@@ -106,9 +110,10 @@ h1{
 .table.left-table, .table.right-table{
     margin-bottom: 0px;
 }
-.log-in-text{
-    text-align: right;
+.log-in-text {
     font-weight: bold;
+    margin-top: 2px;
+    text-align: right;
 }
 .logout-text{
     color: #ff8503 !important;
@@ -120,12 +125,13 @@ h1{
 .button-large-green{
     background: #2d8d5a;
     text-transform: uppercase;
-    padding: 10px 54px;
+    /*padding: 10px 54px;*/
     font-size: 14px;
     border:0px;
-    margin-top: 20px;
+    margin-top: 15px;
     font-weight: 600;
     border:1px solid #2d8d5a;
+    color: #ffffff;
 }
 .button-large-green:hover{
     background: transparent;
@@ -134,10 +140,10 @@ h1{
 .button-large-blue{
     background: #1f899f;
     text-transform: uppercase;
-    padding: 10px 30px;
+    /*padding: 10px 30px;*/
     font-size: 14px;
     border:0px;
-    margin-top: 20px;
+    margin-top: 15px;
     margin-right: 20px;
     font-weight: 600;
     border:1px solid #1f899f;
@@ -311,11 +317,12 @@ tr.inner-table-heading {
 .edit-last-column-heading-text{
     color: #ffffff;
     font-size: 16px;
-    padding-left: 117px;
+    padding-left: 45px;
 }
 .comment-input{
     margin: 10px 20px;
     width: 94%;
+    background-color: #ffffff !important;
 }
 .edit-icon{
     color: #2d8d5a;
@@ -532,11 +539,18 @@ p.note-text{
     visibility: hidden;
 }
 .show-more-link{
+    cursor: pointer;
     color: #442861;
     text-transform:capitalize;
+    font-weight: 600;
 }
 .show-more-link:hover{
     color: #2d8d5a;
+}
+.show-more-link.disabled{
+    pointer-events: none;
+    cursor: default;
+    color: #999999
 }
 .tr-even{
     background:#eaf9fc;
@@ -720,7 +734,7 @@ p.note-text{
     border-radius: 5px;
     width: 100%;
     background: #1f899f;
-    margin-bottom: 20px;
+    margin-bottom: 0; /*20px;*/
     text-transform: uppercase;
     padding: 10px 30px;
     font-size: 14px;
@@ -738,6 +752,16 @@ p.note-text{
 .status-td{
     clear: both;
 }
+.status-square-manager-newOrders,
+.status-square-manager-inProcess-warehouseLanding {
+    width: 20px;
+    height: 20px;
+    margin-left: 58px;
+    background: #4e3173;
+    border-radius: 3px;
+    float: left;
+}
+.status-square-manager-inProcess-storeLanding,
 .status-square-fulfilled {
     width: 20px;
     height: 20px;
@@ -746,11 +770,11 @@ p.note-text{
     border-radius: 3px;
     float: left;
 }
-.status-square-inprocess {
+.status-square-receive {
     width: 20px;
     height: 20px;
     margin-left: 58px;
-    background: #4e3173;
+    background: #21639d;
     border-radius: 3px;
     float: left;
 }
@@ -928,6 +952,16 @@ h2{
   text-align: center;
   text-transform: uppercase;
 }
+.store-landing-outlet-input{
+  width: 279px;
+  border: 1px solid #dcdcdc;
+  padding: 0px 15px;
+  margin-top: 3px;
+  text-align: center;
+  height: 34px;
+  font-size: 14px;
+  color: #354052;
+}
 /* store manager landing page end*/
 
 /*Store Manager Intro Screen CSS 6-5-2015*/
@@ -971,6 +1005,7 @@ h2{
     font-size: 12px;
     font-weight: bold;
 }
+
 /** Store-Receiver report*/
 .ipad-scroll-store-receiver {
     list-style: outside none none;
@@ -979,3 +1014,310 @@ h2{
     background: #93c8ca;
 }
 /* end*/
+
+.back-button {
+    width: 119px;
+}
+
+#os-windows input:focus {
+background-color: #F0F0F0;
+}
+
+#os-ios input:focus {
+background-color: #E0E0E0;
+}
+
+.error-message {
+  color: red;
+  padding-left: 66px;
+}
+
+.shoppin-pal-home {
+    font-size: 47px;
+    margin-top: 1px;
+}
+
+.store-landing-right-table tbody tr td:nth-child(2){
+    text-align: left !important;
+    padding-left:10px;
+}
+
+.store-landing-right-table thead tr th:first-child, .store-landing-right-table thead tr th:nth-child(2) {
+    text-align: left !important;
+    padding-left:10px;
+}
+
+.report-manager-ipad-search .jumpto {
+    padding-top: 17px;
+}
+
+.report-manager-ipad-search ul {
+    padding-top: 10px;
+}
+
+/* BEGINS - Store manager report table related CSS styles */
+
+/* BEGINS - Store manager report related CSS Style for WEB  */
+@media screen and (min-width:1024px){
+    .scrollable-table .report-head1 {
+        width:205px;
+    }
+
+    .scrollable-table .report-head2 {
+        width:510px;
+    }
+
+    .scrollable-table .report-head3 {
+        width:88px;
+    }
+
+    .scrollable-table .report-head4 {
+        width:80px;
+    }
+
+    .scrollable-table .report-head5 {
+        width:88px;
+    }
+}
+/* ENDS - Store manager report related  CSS Style for WEB  */
+
+/* BEGINS - Store manager report related CSS Style for Chrome Only */
+.report-head1:not(*:root) {
+    width:225px;
+}
+.report-head2:not(*:root) {
+    width:570px;
+}
+.report-head3:not(*:root) {
+    width:99px;
+}
+.report-head4:not(*:root) {
+    width:80px;
+}
+.report-head5:not(*:root) {
+    width:75px;
+}
+/* ENDS - Store manager report related CSS Style for Chrome Only */
+
+/* BEGINS - Store manager report related CSS Style for iPad Portrait Mode */
+@media only screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:portrait) {
+    .ipad-table .report-head1 {
+        width:130px;
+    }
+    .ipad-table .report-head2 {
+        width:320px;
+    }
+    .ipad-table .report-head3 {
+        width:100px;
+    }
+    .ipad-table .report-head4 {
+        width:80px;
+    }
+    .ipad-table .report-head5 {
+        width:100px;
+    }
+}
+/* ENDS - Store manager report related CSS Style for iPad Portrait Mode */
+
+/* BEGINS - Store manager report related CSS Style for iPad Landscape Mode */
+@media only screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:landscape) {
+    .ipad-table .report-head1{
+        width:210px;
+    }
+    .ipad-table .report-head2 {
+        width:540px;
+    }
+    .ipad-table .report-head3 {
+        width:120px;
+    }
+    .ipad-table .report-head4
+    {
+        width:80px;
+    }
+    .ipad-table .report-head5 {
+        width:110px;
+    }
+}
+/* ENDS - Store manager report related CSS Style for iPad Landscape Mode */
+
+/* ENDS - Store manager report table related CSS styles */
+
+/* BEGINS - angular-animate CSS */
+.animate-if.ng-enter, .animate-if.ng-leave {
+  -webkit-transition: all linear 0.5s;
+  -moz-transition: all linear 0.5s;
+  -ms-transition: all linear 0.5s;
+  -o-transition: all linear 0.5s;
+  transition: all linear 0.5s;
+}
+
+.animate-if.ng-enter,
+.animate-if.ng-leave.ng-leave-active {
+  opacity:0;
+}
+
+.animate-if.ng-leave,
+.animate-if.ng-enter.ng-enter-active {
+  opacity:1;
+}
+
+.animate-repeat.ng-move,
+.animate-repeat.ng-enter,
+.animate-repeat.ng-leave {
+  -webkit-transition: all linear 1s;
+  -moz-transition: all linear 1s;
+  -ms-transition: all linear 1s;
+  -o-transition: all linear 1s;
+  transition: all linear 1s;
+}
+
+.animate-repeat.ng-leave.ng-leave-active,
+.animate-repeat.ng-move,
+.animate-repeat.ng-enter {
+  opacity:0;
+}
+
+.animate-repeat.ng-leave,
+.animate-repeat.ng-move.ng-move-active,
+.animate-repeat.ng-enter.ng-enter-active {
+  opacity:1;
+}
+/* ENDS - angular-animate CSS */
+
+.box-closed {
+    cursor: pointer;
+}
+.box-disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* BEGINS - Store Receiver report table related CSS styles */
+
+.receiver-report-ipad-scroll, .warehouse-report-ipad-scroll {
+    list-style: outside none none;
+    margin-left: 72px;
+    padding: 0;
+    background: #93c8ca;
+    width: 756px;
+}
+
+.receiver-report-ipad-right-column, .warehouse-report-ipad-right-column {
+    height: 706px;
+}
+
+/* BEGINS - Store Receiver report related CSS Style for WEB  */
+.store-receiver-right-table .report-head1 {
+    width: 165px;
+}
+.store-receiver-right-table .report-head2 {
+    width: 410px;
+}
+
+.store-receiver-right-table .report-head3 {
+    width: 105px;
+}
+
+.store-receiver-right-table .report-head4 {
+    width: 100px;
+}
+
+.store-receiver-right-table .report-head5 {
+    width: 85px;
+}
+/* ENDS - Store Receiver report related CSS Style for WEB  */
+
+/* BEGINS - Store manager report related CSS Style for Chrome Only */
+.store-receiver-right-table .report-head1:not(*:root) {
+    width: 180px;
+}
+.store-receiver-right-table .report-head2:not(*:root) {
+    width: 450px;
+}
+
+.store-receiver-right-table .report-head3:not(*:root) {
+    width: 100px;
+}
+
+.store-receiver-right-table .report-head4:not(*:root) {
+    width: 90px;
+}
+
+.store-receiver-right-table .report-head5:not(*:root) {
+    width: 75px;
+}
+/* ENDS - Store manager report related CSS Style for Chrome Only */
+
+/* ENDS - Store Receiver report table related CSS styles */
+
+/* BEGINS - Warehouse report table related CSS styles */
+/* BEGINS - Warehouse report related CSS Style for iPad Portrait Mode */
+@media only screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:portrait) {
+    .ipad-table .report-head1 {
+        width:90px;
+    }
+    .ipad-table .report-head2 {
+        width:300px;
+    }
+    .ipad-table .report-head3 {
+        width:100px;
+    }
+    .ipad-table .report-head4 {
+        width:100px;
+    }
+    .warehouse-report-ipad-scroll {
+        list-style: outside none none;
+        margin-left: 72px;
+        padding: 0;
+        background: #93c8ca;
+        width: 535px;
+    }
+}
+/* ENDS - Store manager report related CSS Style for iPad Portrait Mode */
+/* ENDS - Store Receiver report table related CSS styles */
+
+.selected-box {
+    height: 122px;
+}
+
+.add-box {
+    text-align: center;
+    border-bottom: 1px solid #71aaac;
+    box-shadow: 0 1px 0 #baf0f2;
+    padding: 0px 0px 25px 0px;
+}
+
+.add-box span{
+    display: block;
+}
+
+.generate-order-btn:hover {
+    background: #37a965;
+}
+
+.generate-order-btn:disabled {
+    background: #2d8d5a;
+}
+
+.new-orders-unselected {
+    color: #4e3173 !important;
+    background-color: #ffffff !important;
+    border: 3px solid !important;
+}
+
+.warehouse-orders-unselected {
+    color: #b9511a !important;
+    background-color: #ffffff !important;
+    border: 3px solid !important;
+}
+
+.receive-orders-unselected {
+    color: #21639d !important;
+    background-color: #ffffff !important;
+    border: 3px solid !important;
+}
+
+.show-more-container {
+    text-align: right !important;
+    padding: 10px;
+}

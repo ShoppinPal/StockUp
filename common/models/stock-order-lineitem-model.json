@@ -3,6 +3,10 @@
   "base": "PersistedModel",
   "idInjection": true,
   "properties": {
+    "productId": {
+      "type": "string",
+      "required": true
+    },
     "sku": {
       "type": "string",
       "required": true
@@ -23,6 +27,18 @@
       "type": "number",
       "required": false
     },
+    "fulfilledQuantity": {
+      "type": "number",
+      "required": false
+    },
+    "receivedQuantity": {
+      "type": "number",
+      "required": false
+    },
+    "boxNumber": {
+      "type": "number",
+      "required": false
+    },
     "type": {
       "type": "string",
       "required": false
@@ -33,6 +49,18 @@
     },
     "state": {
       "type": "string",
+      "required": false
+    },
+    "updatedAt": {
+      "type": "date",
+      "required": false
+    },
+    "vendConsignmentProductId": {
+      "type": "string",
+      "required": false
+    },
+    "vendConsignmentProduct": {
+      "type": "object",
       "required": false
     }
   },
@@ -75,5 +103,8 @@
       "permission": "ALLOW"
     }
   ],
-  "methods": []
+  "methods": [],
+  "mixins": {
+    "Utils": true
+  }
 }

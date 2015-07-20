@@ -1,28 +1,32 @@
-<div class="container">
-    <div class="row">
-        <div class="col-sm-12 col-md-12">
-            <!-- Select store header -->
-            <header class="header">
-                <div class="row">
-                    <div class="col-md-5 col-sm-3 col-xs-12">
-                        <div class="logo">Glenstone</div>
-                    </div>
-                    <div class="col-md-7 col-sm-9 col-xs-12">
-                        <div class="note-sub-text pull-right">You are logged in as a <span><a href="#">Store Manager/WH/SR</a>&nbsp;&nbsp; </span>|&nbsp;&nbsp;<a href="#" class="logout-text">LOGOUT</a></div>
-                        <div class="btn-align">
-                            <button type="submit" class="btn btn-primary button-large-green" ng-click="submitToWarehouse()">Create manual order</button>
-                        </div>
-                    </div>
-                </div>
-            </header>
-        </div>
-    </div>
+<div class="container"
+     cg-busy="{promise:waitOnPromise,message:message}">
+    <shoppin-pal-header is-home-page="true"
+                        store-name="{{::storeName}}"
+                        button1-label="Create manual order"
+                        button1-class="button-large-green"
+                        on-button1-click="createManualOrder()">
+    </shoppin-pal-header>
     <!-- warehouse landing status button start -->
     <div class="row main-container">
         <div class="row row-centered">
-            <button class="status-btn-inprocess" ng-click="inProcessOrder()">In Process</button>
-            <button class="status-btn-fullfil" ng-click="fulfilledOrder()">Fullfil</button>
-            <button class="status-btn-receive" ng-click="recievedOrder()">Receive</button>
+            <button class="status-btn-inprocess"
+                    ng-click="legends.new = !legends.new; filterOrders();"
+                    ng-class="{'new-orders-unselected' : !legends.new}">
+                <!-- TODO: @ayush: for this refactor or replace or rename status-btn-inprocess to status-btn-new -->
+                New Orders
+            </button>
+            <button class="status-btn-fullfil"
+                    ng-click="legends.inProcess = !legends.inProcess; filterOrders();"
+                    ng-class="{'warehouse-orders-unselected' : !legends.inProcess}">
+                <!-- TODO: @ayush: for this refactor or replace or rename status-btn-fullfil to status-btn-inprocess -->
+                <!-- TODO: @ayush: for this refactor or replace or rename warehouse-orders-unselected to in-process-unselected -->
+                In process
+            </button>
+            <button class="status-btn-receive"
+                    ng-click="legends.receive = !legends.receive; filterOrders();"
+                    ng-class="{'receive-orders-unselected' : !legends.receive}">
+                Receive
+            </button>
         </div>
     </div>
     <!-- warehouse landing status button end -->
@@ -32,8 +36,8 @@
             <div class="report-manager-ipad-search">
                 <h4 class="jumpto">Jump To<br>Supplier</h4>
                 <ul class="store-auto-height">
-                    <li ng-repeat="store in storesReport | orderBy:'type' | unique:'type'">
-                        <a href="" ng-click="gotoDepartment(store.type)">{{store.type}}</a>
+                    <li ng-repeat="store in filteredLists | orderBy:'supplier.name' | unique:'supplier.name'">
+                        <a href="" ng-click="gotoDepartment(store.supplier.name)">{{store.supplier.name}}</a>
                     </li>
                 </ul>
             </div>
@@ -42,50 +46,67 @@
                     <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
                         <thead>
                             <tr>
-                                <th width="10%">order id</th>
-                                <th width="15%">order Name</th>
-                                <th width="15%">status</th>
-                                <th width="10%">total items</th>
+                                <th width="5%">order id</th>
+                                <th width="10%">order Name</th>
+                                <th width="10%">status</th>
+                                <th width="5%">total items</th>
                             </tr>
                         </thead>
                     </table>
                     <div class="scrollable-table">
                         <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
-                            <tbody ng-repeat="storereport in storesReport | orderBy:'type'| groupBy: 'type'">
-                                <tr class="inner-table-heading" id="jumpto{{storereport.type}}" ng-if="storereport.group_by_CHANGED">
-                                    <td colspan="5"><span class="table-heading-font">{{storereport.type}}</span></td>
-                                </tr>
-                                <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'" ng-hide="$index==selectedRowIndex" ng-swipe-left="importExport($index)">
-                                    <td width="10%">{{storereport.sku}}</td>
-                                    <td width="15%">{{storereport.name}}</td>
-                                    <td width="15%">
-                                        <div class="status-td">
-                                            <span ng-class="{
-                                'status-square-complete': storereport.status == 'complete',
-                                'status-square-inprocess': storereport.status == 'inProgress',
-                                'status-square-fulfilled': storereport.status == 'pending'}">
-                                    </span> {{storereport.status}}
+                            <tbody ng-repeat="storeReport in filteredLists | orderBy:['supplier.name', '-state', 'name']| groupBy: 'supplier.name'">
+                                <tr ng-if="storeReport.group_by_CHANGED"
+                                    id="jumpto{{storeReport.supplier.name}}"
+                                    class="inner-table-heading">
+                                    <td colspan="3"><span class="table-heading-font">{{storeReport.supplier.name}}</span></td>
+                                    <td colspan="1">
+                                        <div class="show-more-container">
+                                            <a class="show-more-link"
+                                                ng-click="showMore(storeReport.supplier.name)"
+                                                ng-class="{'disabled': !supplierWiseListSize[storeReport.supplier.name].enabled}">
+                                                Show More...
+                                            </a>
                                         </div>
                                     </td>
-                                    <td width="10%">{{storereport.desiredStockLevel}}</td>
                                 </tr>
-                                <tr ng-if="comments" ng-hide="$index==selectedRowIndex">
-                                    <td colspan="5">
-                                        <span class="fa fa-comment comment-icon"></span>&nbsp;&nbsp;
-                                        <strong>Comments:</strong><span class="comment-span"> {{comments}}</span>
+                                <tr ng-if="$index!==selectedRowIndex"
+                                    ng-click="drilldownToReport($index, storeReport)"
+                                    ng-swipe-left="editOrder($index, storeReport)"
+                                    ng-class=" ($index+1)%2 == 0 ? 'tr-even' : 'tr-odd'">
+                                    <td width="5%">{{storeReport.id}}</td>
+                                    <td width="10%"
+                                        ng-if="storeReport.state.toLowerCase() === ReportModelStates.MANAGER_NEW_ORDERS">
+                                        {{storeReport.name || "&lt;swipe right-to-left and rename this auto-generated report&gt;"}}
                                     </td>
+                                    <td width="10%"
+                                        ng-if="storeReport.state.toLowerCase() !== ReportModelStates.MANAGER_NEW_ORDERS">
+                                        {{storeReport.name}}
+                                    </td>
+                                    <td width="10%">
+                                        <div class="status-td">
+                                            <span ng-if="storeReport.state != ReportModelStates.REPORT_COMPLETE"
+                                                  ng-class="{'status-square-manager-newOrders': storeReport.state == ReportModelStates.MANAGER_NEW_ORDERS,
+                                                             'status-square-manager-inProcess-storeLanding': storeReport.state == ReportModelStates.MANAGER_IN_PROCESS,
+                                                             'status-square-receive': storeReport.state == ReportModelStates.MANAGER_RECEIVE}"></span>
+                                            <span ng-if="storeReport.state == ReportModelStates.REPORT_COMPLETE">Completed</span>
+                                            <!--<div ng-if="storeReport.state === 'empty'">{{storeReport.workerStatus}}</div>
+                                            <div ng-if="storeReport.state !== 'empty'">{{storeReport.state}}</div>-->
+                                        </div>
+                                    </td>
+                                    <td width="5%">{{storeReport.totalRows}}</td>
                                 </tr>
                                 <!-- Edit store-report start -->
-                                <tr ng-show="$index==selectedRowIndex" class="edit-row" ng-mouseleave="dismissEdit(storeReportRow)">
-                                    <td colspan="6">
-                                        <div class="col-sm-2">{{storereport.sku}}</div>
-                                        <div class="col-sm-2">
-                                            <div class="store-landing-second-col-text">{{storereport.name}}</div>
-                                        </div>
-                                        <div class="col-sm-5 store-landing-edit-button-row">
-                                            <button class="import-btn">Import</button>
-                                            <button class="export-btn">Export</button>
-                                            <button class="fulfilled-btn">Fulfilled</button>
+                                <tr ng-if="$index==selectedRowIndex"
+                                    class="edit-row editable-panel"
+                                    ng-init="onEditInit(storeReport)">
+                                    <td colspan="6" class="editable-panel">
+                                        <div class="col-sm-2 editable-panel">{{storeReport.id}}</div>
+                                        <div class="col-sm-3 editable-panel">
+                                            <input type="text"
+                                                   id="order-name-input"
+                                                   class="form-control store-landing-outlet-input editable-panel"
+                                                   ng-model="storeReport.name">
                                         </div>
                                     </td>
                                 </tr>

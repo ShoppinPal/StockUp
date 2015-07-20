@@ -1,28 +1,23 @@
 {
-  "name": "SupplierModel",
+  "name": "TeamModel",
   "base": "PersistedModel",
   "idInjection": true,
   "properties": {
-    "name": {
+    "ownerId": {
       "type": "string",
       "required": true
     },
-    "apiId": {
+    "memberId": {
       "type": "string",
       "required": true
     }
   },
   "validations": [],
   "relations": {
-    "userModel": {
-      "type": "belongsTo",
+    "members": {
+      "type": "hasMany",
       "model": "UserModel",
-      "foreignKey": "userId"
-    },
-    "storeConfigModel": {
-      "type": "belongsTo",
-      "model": "StoreConfigModel",
-      "foreignKey": "storeConfigModelToSupplierModelId"
+      "foreignKey": "memberId"
     }
   },
   "acls": [
@@ -31,12 +26,6 @@
       "principalType": "ROLE",
       "principalId": "$everyone",
       "permission": "DENY"
-    },
-    {
-      "accessType": "READ",
-      "principalType": "ROLE",
-      "principalId": "$authenticated",
-      "permission": "ALLOW"
     },
     {
       "principalType": "ROLE",
@@ -57,8 +46,5 @@
       "permission": "ALLOW"
     }
   ],
-  "methods": [],
-  "mixins": {
-    "Utils": true
-  }
+  "methods": []
 }

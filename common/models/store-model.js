@@ -1,5 +1,8 @@
-var loopback = require('loopback');
 var Promise = require('bluebird');
+
+var path = require('path');
+var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
+var log = require('debug')('common:models:'+fileName);
 
 // HINT(s):
 //   Getting the app object: http://docs.strongloop.com/display/public/LB/Working+with+LoopBack+objects
@@ -22,8 +25,7 @@ module.exports = function(StoreModel) {
   });
 
   StoreModel.importProducts = function(id, cb) {
-    var ctx = loopback.getCurrentContext();
-    var currentUser = ctx && ctx.get('currentUser');
+    var currentUser = StoreModel.getCurrentUserModel(cb); // returns immediately if no currentUser
     if (currentUser) {
       console.log('inside StoreModel.importProducts() - currentUser: ', currentUser.username);
 
@@ -70,16 +72,13 @@ module.exports = function(StoreModel) {
           cb(error);
         });
     }
-    else {
-      cb('401 - unauthorized - how did we end up here? should we manage ACL access to remote methods ourselves?');
-    }
   };
 
   StoreModel.remoteMethod(
     'importProducts',
     {
       accepts: [
-        {arg: 'id', type: 'number', required: true}
+        {arg: 'string', type: 'number', required: true}
       ],
       //http: {path:'/import-products', verb: 'get'}
       http: {path: '/:id/import-products', verb: 'get'}
@@ -124,4 +123,39 @@ module.exports = function(StoreModel) {
     return deferred.promise;
   };
 
+  StoreModel.setDesiredStockLevelForVend = function(id, productId, desiredStockLevel, cb) {
+    log('inside setDesiredStockLevelForVend()');
+    var currentUser = StoreModel.getCurrentUserModel(cb); // returns immediately if no currentUser
+
+    if(currentUser) {
+      var oauthVendUtil = require('./../../common/utils/vend')({
+        'GlobalConfigModel': StoreModel.app.models.GlobalConfigModel,
+        'StoreConfigModel': StoreModel.app.models.StoreConfigModel,
+        'currentUser': currentUser
+      });
+      StoreModel.findOne(
+        {where: {objectId: id}}
+      )
+        .then(function(storeModelInstance){
+          var storeConfigId = storeModelInstance.storeConfigModelToStoreModelId;
+          var outletId = storeModelInstance.api_id;
+          oauthVendUtil.setDesiredStockLevelForVend(storeConfigId, outletId, productId, desiredStockLevel)
+            .then(function(/*product*/){
+              cb(null); //cb(null, product); // Question: we don't want to expose the entire product to client side?
+            },
+            function(error){
+              cb(error);
+            });
+        });
+    }
+  };
+
+  StoreModel.remoteMethod('setDesiredStockLevelForVend', {
+    accepts: [
+      {arg: 'id', type: 'string', required: true},
+      {arg: 'productId', type: 'string', required: true},
+      {arg: 'desiredStockLevel', type: 'number', required: true}
+    ],
+    http: {path: '/:id/vend/product', verb: 'put'}
+  });
 };

@@ -3,8 +3,8 @@
   "base": "PersistedModel",
   "idInjection": true,
   "properties": {
-    "metadata": {
-      "type": "date",
+    "name": {
+      "type": "string",
       "required": false
     },
     "created": {
@@ -23,6 +23,26 @@
     "outlet": {
       "type": "object",
       "required": true
+    },
+    "totalRows": {
+      "type": "number",
+      "required": false
+    },
+    "workerTaskId": {
+      "type": "string",
+      "required": false
+    },
+    "workerStatus": {
+      "type": "string",
+      "required": false
+    },
+    "vendConsignmentId": {
+      "type": "string",
+      "required": false
+    },
+    "vendConsignment": {
+      "type": "object",
+      "required": false
     }
   },
   "validations": [],
@@ -64,5 +84,8 @@
       "permission": "ALLOW"
     }
   ],
-  "methods": []
+  "methods": [],
+  "mixins": {
+    "Utils": true
+  }
 }

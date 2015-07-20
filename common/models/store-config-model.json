@@ -74,7 +74,7 @@
     "userModel": {
       "type": "belongsTo",
       "model": "UserModel",
-      "foreignKey": "userModelToStoreConfigModelId"
+      "foreignKey": "userId"
     },
     "storeModels": {
       "type": "hasMany",
@@ -88,6 +88,18 @@
       "principalType": "ROLE",
       "principalId": "$everyone",
       "permission": "DENY"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "teamMember",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teamMember",
+      "permission": "ALLOW"
     },
     {
       "principalType": "ROLE",
@@ -115,5 +127,8 @@
       "property": "getVendAccessToken"
     }
   ],
-  "methods": []
+  "methods": [],
+  "mixins": {
+    "Utils": true
+  }
 }

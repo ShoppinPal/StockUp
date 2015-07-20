@@ -1,91 +1,117 @@
-<div class="container">
-    <div class="row">
+<div class="container"
+     cg-busy="waitOnPromise">
+    <!--<div class="row">
         <div class="col-sm-12 col-md-12">
-            <!-- Select store header -->
+            &lt;!&ndash; Select store header &ndash;&gt;
             <header class="header">
                 <div class="row">
+                  &lt;!&ndash; Back button given here &ndash;&gt;
+                 
                     <div class="col-md-5 col-sm-3 col-xs-12">
                         <div class="logo">Glenstone</div>
+                         <div>
+                 &lt;!&ndash; <back-button back="Back"></back-button> &ndash;&gt;
+                 <a class="fa fa-home shopping-pal-home" ui-sref="store-landing"></a>
+                </div>
                     </div>
                     <div class="col-md-7 col-sm-9 col-xs-12">
-                        <div class="note-sub-text pull-right">You are logged in as a <span><a href="#">Store Manager/WH/SR</a>&nbsp;&nbsp; </span>|&nbsp;&nbsp;<a href="#" class="logout-text">LOGOUT</a></div>
+                        <div class="note-sub-text pull-right"><a ui-sref="logout" class="logout-text">LOGOUT</a></div>
+                        <div class="clearfix"></div>
                         <div class="btn-align">
                             <button ng-click="submitToReceiver()" class="btn btn-primary button-large-green"> {{submit}} </button>
                         </div>
                     </div>
             </header>
             </div>
-        </div>
+        </div>-->
+    <shoppin-pal-header home-state="warehouse-landing"
+                        button1-label="{{submit}}"
+                        button1-class="button-large-green"
+                        on-button1-click="submitToReceiver()">
+    </shoppin-pal-header>
+    <!--button1-disabled="!allProcessed"-->
         <!-- Report Manager page content -->
         <div class="row main-container">
             <div class="inner-container">
-                <div class="ipad-search">
+                <div class="report-manager-ipad-search">
                     <ul>
                         <li>Jump
                             <br>To</li>
                         <li ng-repeat="value in alphabets | unique:'value'">
-                            <a href="" ng-click="gotoDepartment(value)">{{value}}</a>
+                            <a href="" ng-click="goToDepartment(value)">{{value}}</a>
                         </li>
                     </ul>
                 </div>
                 <div class="center-block" id="printSlip">
-                    <div class="ipad-scroll">
+                    <div class="warehouse-report-ipad-scroll" device-detector ng-class="{'ipad-table': device === 'ipad'}">
                         <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
                             <thead>
                                 <tr>
-                                    <th width="10%">SKU</th>
-                                    <th width="25%">Name</th>
+                                    <th width="20%">SKU</th>
+                                    <th width="70%">Name</th>
                                     <th width="5%">Ordered Quantity</th>
                                     <th width="5%">Fulfilled Quantity</th>
                                 </tr>
                             </thead>
                         </table>
                         <div class="scrollable-table">
-                            <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
-                                <tbody ng-repeat="storeReport in storesReport | orderBy:'type'| groupBy: 'type'">
-                                    <tr class="inner-table-heading" id="jumpto{{storeReport.type}}" ng-if="storeReport.group_by_CHANGED">
-                                        <td colspan="4"><span class="table-heading-font">{{storeReport.type}}</span></td>
+                            <table cellspacing="0" cellpadding="0" width="100%"
+                                   class="table table-responsive store-landing-right-table">
+                                <!--ng-if="!item.boxNumber"-->
+                                <tbody ng-repeat="item in items"
+                                    class="animate-repeat animate-if">
+                                    <tr class="inner-table-heading" id="jumpTo{{item.type}}"
+                                        ng-if="item.type !== items[$index - 1].type">
+                                        <!--ng-if="item.group_by_CHANGED">-->
+                                        <td colspan="4"><span class="table-heading-font">{{item.type}}</span></td>
                                     </tr>
-                                    <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'" ng-hide="$index==selectedRowIndex" ng-swipe-left="editWarehouse($index)" ng-swipe-right="moveToBox(storeReport)">
-                                        <td width="10%">{{storeReport.sku}}</td>
-                                        <td width="25%">{{storeReport.name}}</td>
-                                        <td width="5%">{{storeReport.quantityOnHand}}</td>
-                                        <td width="5%">{{storeReport.desiredStockLevel}}</td>
+                                    <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'"
+                                        ng-hide="$index==selectedRowIndex"
+                                        ng-swipe-left="editWarehouse($index)"
+                                        ng-swipe-right="moveToBox(item, $index)">
+                                        <td class="report-head1">{{item.sku}}</td>
+                                        <td class="report-head2">{{item.name}}</td>
+                                        <td class="report-head3">{{item.orderQuantity}}</td>
+                                        <td class="report-head4">{{item.fulfilledQuantity}}</td>
                                     </tr>
-                                    <tr ng-if="comments" ng-hide="$index==selectedRowIndex">
+                                    <tr ng-if="item.comment" ng-hide="$index==selectedRowIndex">
                                         <td colspan="5">
                                             <span class="fa fa-comment comment-icon"></span>&nbsp;&nbsp;
-                                            <strong>Comments:</strong><span class="comment-span"> {{comments}}</span>
+                                            <strong>Comments:</strong><span class="comment-span"> {{item.comment}}</span>
                                         </td>
                                     </tr>
                                     <!-- Edit store-report start -->
-                                    <tr ng-show="$index==selectedRowIndex" class="edit-row" ng-mouseleave="dismissEdit()">
-                                        <td colspan="6">
-                                            <div class="row">
-                                                <div class="col-sm-2 edit-column-heading-text"> {{storeReport.sku}}
+                                    <!--<tr ng-show="$index==selectedRowIndex" class="edit-row" ng-mouseleave="dismissEdit()">-->
+                                    <tr ng-if="$index==selectedRowIndex"
+                                        ng-init="onEditInit(item)"
+                                        class="edit-row editable-panel animate-if">
+                                        <td colspan="6" class="editable-panel">
+                                            <div class="row editable-panel">
+                                                <div class="col-sm-2 edit-column-heading-text editable-panel">
+                                                    {{item.sku}}
                                                 </div>
-                                                <div class="col-sm-3 edit-second-column-heading-text-warehouse">
-                                                    {{storeReport.name}}
+                                                <div class="col-sm-6 edit-second-column-heading-text-warehouse editable-panel">
+                                                    {{item.name}}
                                                 </div>
-                                                <div class="col-sm-3 edit-last-column-heading-text-warehouse">
-                                                    {{storeReport.quantityOnHand}}
+                                                <div class="col-sm-3 edit-last-column-heading-text-warehouse editable-panel">
+                                                    {{item.quantityOnHand}}
                                                 </div>
                                             </div>
-                                            <div class="edit-window">
-                                                <div class="float-left column-text margin-right margin-top">Fullfilled Qty:</div>
-                                                <div class="float-left margin-right-10px margin-top">
-                                                    <span class="fa fa-minus-circle fa-lg edit-icon" ng-click="decreaseQty(storeReport)"></span>
+                                            <div class="edit-window editable-panel">
+                                                <div class="float-left column-text margin-right margin-top editable-panel">Fulfilled Qty:</div>
+                                                <div class="float-left margin-right-10px margin-top editable-panel">
+                                                    <span class="fa fa-minus-circle fa-lg edit-icon editable-panel" ng-click="decreaseQty(item)"></span>
                                                 </div>
-                                                <div class="float-left margin-right-10px">
-                                                    <input type="text" class="form-control input-small" ng-model="storeReport.desiredStockLevel">
+                                                <div class="float-left margin-right-10px editable-panel">
+                                                    <input type="text" class="form-control input-small editable-panel" ng-model="item.fulfilledQuantity">
                                                 </div>
-                                                <div class="float-left margin-right margin-top">
-                                                    <span class="fa fa-plus-circle fa-lg edit-icon" ng-click="increaseQty(storeReport)"></span>
+                                                <div class="float-left margin-right margin-top editable-panel">
+                                                    <span class="fa fa-plus-circle fa-lg edit-icon editable-panel" ng-click="increaseQty(item)"></span>
                                                 </div>
-                                                <div class="clearfix"></div>
+                                                <div class="clearfix editable-panel"></div>
                                             </div>
                                             <div class="row" ng-show="ReviewSubmitPage">
-                                                <input type="text" class="form-control comment-input" placeholder="-- Add your Comments --" ng-model="comments">
+                                                <input type="text" class="form-control comment-input editable-panel" placeholder="-- Add your Comments --" ng-model="item.comment">
                                             </div>
                                             <!--/div-->
                                         </td>
@@ -96,7 +122,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="ipad-right-column">
+                <div class="ipad-right-column warehouse-report-ipad-right-column">
                     <table class="table table-responsive right-table">
                         <thead>
                             <tr style="font-size: 14px;">
@@ -110,7 +136,7 @@
                             <tr>
                                 <td valign="middle" class="v-align-middle">
                                     <div>
-                                        <div ng-show="openBox" class="main-box" data-placement="left" data-template="views/popup/box.html" bs-popover>
+                                        <!--<div ng-show="openBox" class="main-box" data-placement="left" data-template="views/popup/box.html" bs-popover>
                                             <span class="dropbox-qty">{{boxItems}}</span>
                                             <div><img src="images/img_open_folder.png"></div>
                                             <span class="dropbox-name">Box</span>
@@ -123,6 +149,51 @@
                                             <div class="dropbox-qty">{{item.value}}</div>
                                             <div><img src="images/img_closed_folder.png"></div>
                                             <div class="dropbox-name">{{item.key}}</div>
+                                        </div>-->
+                                        <div class="selected-box">
+                                            <div class="main-box" ng-if="selectedBox">
+                                                <div class="dropbox-qty">{{selectedBox.totalItems}}</div>
+                                                <div ng-if="!selectedBox.isOpen">
+                                                    <img src="images/img_closed_folder.png"
+                                                         ng-disabled="!selectedBox.isOpen"
+                                                         class="box-closed"
+                                                         ng-class="{'box-disabled' : !selectedBox.isOpen}">
+                                                </div>
+                                                <div ng-if="selectedBox.isOpen && selectedBox.totalItems > 0"
+                                                     data-placement="left"
+                                                     data-template="views/popup/box.html" data-trigger="click" bs-popover>
+                                                    <img src="images/img_open_folder.png">
+                                                </div>
+                                                <div ng-if="selectedBox.isOpen && selectedBox.totalItems === 0"
+                                                     class="box-disabled">
+                                                    <img src="images/img_open_folder.png">
+                                                </div>
+                                                <div class="dropbox-name">{{selectedBox.boxName}}</div>
+                                            </div>
+                                        </div>
+                                        <div class="add-box">
+                                            <button class="btn btn-primary add-btn"
+                                                    ng-click="addNewBox()" ng-disabled="selectedBox || allProcessed">
+                                                Add Box
+                                            </button>
+                                        </div>
+                                        <div class="main-box" ng-repeat="box in boxes" ng-if="box !== selectedBox">
+                                            <div class="dropbox-qty">{{box.totalItems}}</div>
+                                            <div ng-if="!box.isOpen">
+                                                <img src="images/img_closed_folder.png"
+                                                     ng-disabled="!box.isOpen"
+                                                     class="box-closed"
+                                                     ng-class="{'box-disabled' : !box.isOpen}">
+                                            </div>
+                                            <div ng-if="box.isOpen && box.totalItems > 0" data-placement="left"
+                                                 data-template="views/popup/box.html" data-trigger="click" bs-popover>
+                                                <img src="images/img_open_folder.png">
+                                            </div>
+                                            <div ng-if="box.isOpen && box.totalItems === 0"
+                                                 class="box-disabled">
+                                                <img src="images/img_open_folder.png">
+                                            </div>
+                                            <div class="dropbox-name">{{box.boxName}}</div>
                                         </div>
                                     </div>
                                 </td>

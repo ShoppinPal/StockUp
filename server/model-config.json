@@ -5,6 +5,9 @@
       "loopback/server/models",
       "../common/models",
       "./models"
+    ],
+    "mixins": [
+      "../common/mixins"
     ]
   },
   "User": {
@@ -34,6 +37,13 @@
     "dataSource": "db",
     "public": false
   },
+  "UserModel": {
+    "dataSource": "db"
+  },
+  "TeamModel": {
+    "dataSource": "db",
+    "public": false
+  },
   "GlobalConfigModel": {
     "dataSource": "db",
     "public": true
@@ -57,8 +67,5 @@
   "SupplierModel": {
     "dataSource": "db",
     "public": true
-  },
-  "UserModel": {
-    "dataSource": "db"
   }
 }
