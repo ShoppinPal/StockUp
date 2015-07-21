@@ -90,8 +90,7 @@
                                                              'status-square-manager-inProcess-storeLanding': storeReport.state == ReportModelStates.MANAGER_IN_PROCESS,
                                                              'status-square-receive': storeReport.state == ReportModelStates.MANAGER_RECEIVE}"></span>
                                             <span ng-if="storeReport.state == ReportModelStates.REPORT_COMPLETE">Completed</span>
-                                            <!--<div ng-if="storeReport.state === 'empty'">{{storeReport.workerStatus}}</div>
-                                            <div ng-if="storeReport.state !== 'empty'">{{storeReport.state}}</div>-->
+                                            <span ng-if="storeReport.state == ReportModelStates.REPORT_EMPTY">Generating ... you may tap to check status every few minutes</span>
                                         </div>
                                     </td>
                                     <td width="5%">{{storeReport.totalRows}}</td>
