@@ -63,7 +63,7 @@ angular.module('ShoppinPalApp')
                 scope: {
                   //skip: 0,
                   //limit: 500, // TODO: use count() to determine total # of pages
-                  relation: 'comments'
+                  include: ['comments']
                 }
               }
             }
