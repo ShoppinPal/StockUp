@@ -321,10 +321,12 @@
         if($stateParams.reportId) {
           $scope.waitOnPromise = loginService.getReport($stateParams.reportId)
             .then(function (response) {
+              console.log('response', response);
               response = _.filter(response, function(item){
                 console.log('item.orderQuantity', item.orderQuantity);
                 return item.orderQuantity && item.orderQuantity > 0;
               });
+              console.log('response', response);
               setupBoxes(response);
               setupUnboxedItems(response);
               //makeItEasyToTestSubmission();

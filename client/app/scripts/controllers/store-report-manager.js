@@ -10,11 +10,11 @@ angular.module('ShoppinPalApp')
   .controller('StoreManagerCtrl',
   [
     '$scope', '$anchorScroll', '$location', '$state', '$stateParams', '$filter', '$sessionStorage', '$q', /* angular's modules/services/factories etc. */
-    'loginService', 'StockOrderLineitemModel', 'ReportModel', 'StoreModel', /* shoppinpal's custom modules/services/factories etc. */
+    'loginService', 'StockOrderLineitemModel', 'ReportModel', 'StoreModel', 'CommentModel', /* shoppinpal's custom modules/services/factories etc. */
     'ngDialog', 'deviceDetector', '$timeout', /* 3rd party modules/services/factories etc. */
     'ReportModelStates', /* constants */
     function ($scope, $anchorScroll, $location, $state, $stateParams, $filter, $sessionStorage, $q,
-              loginService, StockOrderLineitemModel, ReportModel, StoreModel,
+              loginService, StockOrderLineitemModel, ReportModel, StoreModel, CommentModel,
               ngDialog, deviceDetector, $timeout,
               ReportModelStates)
     {
@@ -85,16 +85,24 @@ angular.module('ShoppinPalApp')
               console.log('will update warehouse model in the backend');
               // TODO: the setDesiredStockLevelForVend() op could be tied
               //       to a before or after save hook on the server side?
-              return StockOrderLineitemModel.updateBasedOnState({
-                  id: storeReportRow.id,
-                  attributes: {
-                    desiredStockLevel: storeReportRow.desiredStockLevel,
-                    orderQuantity: storeReportRow.orderQuantity,
-                    comment: storeReportRow.comment
-                  }
-                }
-              )
-                .$promise.then(function(updatedStockOrderLineitemModelInstance){
+              /*return StockOrderLineitemModel.comments.create(
+                {id: storeReportRow.id},
+                {content: storeReportRow.comment}
+              )*/
+              return CommentModel.findById(
+                {id: '55ad80f6bb74822311295edb'}
+              ).$promise.then(function(commentModelInstance){
+                  console.log('commentModelInstance', commentModelInstance);
+                  return StockOrderLineitemModel.updateBasedOnState({
+                    id: storeReportRow.id,
+                    attributes: {
+                      //comment: storeReportRow.comment,
+                      desiredStockLevel: storeReportRow.desiredStockLevel,
+                      orderQuantity: storeReportRow.orderQuantity
+                    }
+                  }).$promise;
+                })
+                .then(function(updatedStockOrderLineitemModelInstance){
                   console.log('updatedStockOrderLineitemModelInstance', updatedStockOrderLineitemModelInstance);
                   storeReportRow.updatedAt = updatedStockOrderLineitemModelInstance.updatedAt;
                   storeReportRow.state = updatedStockOrderLineitemModelInstance.state;
@@ -293,6 +301,7 @@ angular.module('ShoppinPalApp')
       if($stateParams.reportId) {
         $scope.waitOnPromise = loginService.getReport($stateParams.reportId)
           .then(function (response) {
+            console.log('response', response);
             originalReportDataSet = response;
             /*angular.forEach(originalReportDataSet, function (row) {
               row.state = ROW_STATE_COMPLETE;
