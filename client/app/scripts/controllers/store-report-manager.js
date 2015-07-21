@@ -29,7 +29,6 @@ angular.module('ShoppinPalApp')
       $scope.completedReports = [];
       $scope.alphabets = [];
       $scope.submitToWarehouseButton = 'Submit';
-      $scope.comments = '';
       $scope.deviceDetector = deviceDetector;
 
       var currentMutableDataFieldsForRow = null;
@@ -60,7 +59,7 @@ angular.module('ShoppinPalApp')
         else {
           console.log('row has been altered');
           // TODO: In addition to the model on which a remote method is invoked,
-          //       if access checks coukd also me made on other models involved, then
+          //       if access checks could also me made on other models involved, then
           //       it would be nice to move all these compound operations to one
           //       server-side remote method call
 
