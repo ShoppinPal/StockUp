@@ -25,9 +25,13 @@
             </div>
         </div>-->
     <shoppin-pal-header home-state="warehouse-landing"
-                        button1-label="{{submit}}"
-                        button1-class="button-large-green"
-                        on-button1-click="submitToReceiver()">
+                        button2-label="{{submit}}"
+                        button2-class="button-large-green"
+                        on-button2-click="submitToReceiver()"
+                        button1-label="Show {{displayBoxedContents && 'Remaining Items' || 'Boxed Contents'}}"
+                        button1-class="button-large-blue"
+                        button1-disabled="!selectedBox"
+                        on-button1-click="toggleActiveBoxContents()">
     </shoppin-pal-header>
     <!--button1-disabled="!allProcessed"-->
         <!-- Report Manager page content -->

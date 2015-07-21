@@ -130,7 +130,7 @@
           }
         });
         // copy the items (order by type) to a new list for display
-        $scope.items = $filter('orderBy')(angular.copy($scope.orderedItems), 'type');
+        $scope.items = $filter('orderBy')($scope.orderedItems, 'type');
       };
 
       var setupBoxes = function(response){
@@ -192,6 +192,28 @@
         //box.isOpen = false;
         $scope.selectedBox.isOpen = false;
         $scope.selectedBox = null;
+        $scope.toggleActiveBoxContents(false); // make sure that we go back to viewing unboxed products
+      };
+
+      $scope.displayBoxedContents = false;
+      $scope.toggleActiveBoxContents = function (beSpecific) {
+        if(beSpecific === true || beSpecific === false) {
+          $scope.displayBoxedContents = beSpecific;
+        }
+        else {
+          $scope.displayBoxedContents = !$scope.displayBoxedContents;
+        }
+
+        // TODO: update the JUMP-TO sidebar or completely delete it?
+        if ($scope.displayBoxedContents) {
+          var filterData1 = {'boxNumber': $scope.selectedBox.boxNumber};
+          $scope.items = $filter('filter')($scope.allOrderedItems, filterData1);
+        }
+        else {
+          var filterData2 = {'state': '!boxed'};
+          $scope.items = $filter('filter')($scope.orderedItems, filterData2);
+          $scope.items = $filter('orderBy')($scope.items, 'type');
+        }
       };
 
       /** @method moveToBox
@@ -219,6 +241,7 @@
               // but if this visibly messes with UI/UX, we might want to do it earlier...
               item.updatedAt = response.updatedAt;
               item.state = ROW_STATE_COMPLETE;
+              item.boxNumber = response.boxNumber;
 
               // check if all items have been processed, if yes close the box and enable submit button
               if($scope.items.length === 0) {
@@ -322,8 +345,8 @@
         if($stateParams.reportId) {
           $scope.waitOnPromise = loginService.getReport($stateParams.reportId)
             .then(function (response) {
+              $scope.allOrderedItems = response;
               response = _.filter(response, function(item){
-                console.log('item.orderQuantity', item.orderQuantity);
                 return item.orderQuantity && item.orderQuantity > 0;
               });
               setupBoxes(response);
@@ -334,12 +357,13 @@
         }
         else { // if live data can't be loaded due to some bug, use MOCK data so testing can go on
           loginService.getWarehouseReport().then(function (response) {
+            $scope.allOrderedItems = response.data.stockOrderLineitemModels;
             $scope.orderedItems = response.data.stockOrderLineitemModels;
             angular.forEach($scope.orderedItems, function (item) {
               item.fulfilledQuantity = item.orderQuantity;
             });
             // copy the items (order by type) to a new list for display
-            $scope.items = $filter('orderBy')(angular.copy($scope.orderedItems), 'type');
+            $scope.items = $filter('orderBy')($scope.orderedItems, 'type');
             $scope.addNewBox();
             $scope.jumpToDepartment();
           });
