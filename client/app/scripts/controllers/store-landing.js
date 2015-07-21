@@ -183,7 +183,8 @@ angular.module('ShoppinPalApp')
             }
           }
         });
-        return showNewOrders || showInProcessOrders || showReceiveOrders;
+        var showEmptyOrders = report.state === ReportModelStates.REPORT_EMPTY;
+        return showEmptyOrders || showNewOrders || showInProcessOrders || showReceiveOrders;
       };
 
       /** @method filterOrders
@@ -222,7 +223,7 @@ angular.module('ShoppinPalApp')
               $scope.reportLists = response;
               $scope.backUpReportList = response;
 
-              // anything that isn't [MANAGER_NEW_ORDERS|MANAGER_IN_PROCESS|MANAGER_RECEIVE] gets filtered out
+              // anything that isn't [REPORT_EMPTY|MANAGER_NEW_ORDERS|MANAGER_IN_PROCESS|MANAGER_RECEIVE] gets filtered out
               $scope.filterOrders();
             });
         }
