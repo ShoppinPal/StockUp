@@ -79,7 +79,10 @@ module.exports = function(StockOrderLineitemModel) {
                       log('newConsignmentProduct', newConsignmentProduct);
                       stockOrderLineitemModelInstance.vendConsignmentProductId = newConsignmentProduct.id;
                       stockOrderLineitemModelInstance.vendConsignmentProduct = newConsignmentProduct;
-                      stockOrderLineitemModelInstance.state = StockOrderLineitemModel.StockOrderLineitemModelStates.ORDERED;
+                      if(!attributes.state || attributes.state !== StockOrderLineitemModel.StockOrderLineitemModelStates.PENDING) {
+                        // if client didn't specifically ask for the row to be left in PENDING state then change its status to the next one
+                        stockOrderLineitemModelInstance.state = StockOrderLineitemModel.StockOrderLineitemModelStates.ORDERED;
+                      }
                       stockOrderLineitemModelInstance.save()
                         .then(function(updatedStockOrderLineitemModelInstance){
                           log('inside update() - PASS - updated the lineitem model');
