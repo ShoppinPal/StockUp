@@ -59,11 +59,12 @@ angular.module('ShoppinPalApp')
             id: reportId,
             filter: {
               include: {
-                relation: 'stockOrderLineitemModels'/*,
+                relation: 'stockOrderLineitemModels',
                 scope: {
-                  skip: 0,
-                  limit: 500
-                }*/ /*TODO: use count() to determine total # of pages*/
+                  //skip: 0,
+                  //limit: 500, // TODO: use count() to determine total # of pages
+                  relation: 'comments'
+                }
               }
             }
           })

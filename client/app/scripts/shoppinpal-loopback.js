@@ -632,6 +632,33 @@ module.factory(
           method: "PUT"
         },
 
+        // INTERNAL. Use UserModel.comments.findById() instead.
+        "prototype$__findById__comments": {
+          params: {
+          'fk': '@fk'
+          },
+          url: urlBase + "/UserModels/:id/comments/:fk",
+          method: "GET"
+        },
+
+        // INTERNAL. Use UserModel.comments.destroyById() instead.
+        "prototype$__destroyById__comments": {
+          params: {
+          'fk': '@fk'
+          },
+          url: urlBase + "/UserModels/:id/comments/:fk",
+          method: "DELETE"
+        },
+
+        // INTERNAL. Use UserModel.comments.updateById() instead.
+        "prototype$__updateById__comments": {
+          params: {
+          'fk': '@fk'
+          },
+          url: urlBase + "/UserModels/:id/comments/:fk",
+          method: "PUT"
+        },
+
         // INTERNAL. Use UserModel.supplierModels.findById() instead.
         "prototype$__findById__supplierModels": {
           params: {
@@ -1167,6 +1194,31 @@ module.factory(
         // INTERNAL. Use UserModel.stockOrderLineitemModels.count() instead.
         "prototype$__count__stockOrderLineitemModels": {
           url: urlBase + "/UserModels/:id/stockOrderLineitemModels/count",
+          method: "GET"
+        },
+
+        // INTERNAL. Use UserModel.comments() instead.
+        "prototype$__get__comments": {
+          isArray: true,
+          url: urlBase + "/UserModels/:id/comments",
+          method: "GET"
+        },
+
+        // INTERNAL. Use UserModel.comments.create() instead.
+        "prototype$__create__comments": {
+          url: urlBase + "/UserModels/:id/comments",
+          method: "POST"
+        },
+
+        // INTERNAL. Use UserModel.comments.destroyAll() instead.
+        "prototype$__delete__comments": {
+          url: urlBase + "/UserModels/:id/comments",
+          method: "DELETE"
+        },
+
+        // INTERNAL. Use UserModel.comments.count() instead.
+        "prototype$__count__comments": {
+          url: urlBase + "/UserModels/:id/comments/count",
           method: "GET"
         },
 
@@ -1771,6 +1823,12 @@ module.factory(
         // INTERNAL. Use StockOrderLineitemModel.userModel() instead.
         "::get::StockOrderLineitemModel::userModel": {
           url: urlBase + "/StockOrderLineitemModels/:id/userModel",
+          method: "GET"
+        },
+
+        // INTERNAL. Use CommentModel.userModel() instead.
+        "::get::CommentModel::userModel": {
+          url: urlBase + "/CommentModels/:id/userModel",
           method: "GET"
         },
 
@@ -3392,6 +3450,307 @@ module.factory(
         R.stockOrderLineitemModels.updateById = function() {
           var TargetResource = $injector.get("StockOrderLineitemModel");
           var action = TargetResource["::updateById::UserModel::stockOrderLineitemModels"];
+          return action.apply(R, arguments);
+        };
+    /**
+     * @ngdoc object
+     * @name lbServices.UserModel.comments
+     * @header lbServices.UserModel.comments
+     * @object
+     * @description
+     *
+     * The object `UserModel.comments` groups methods
+     * manipulating `CommentModel` instances related to `UserModel`.
+     *
+     * Call {@link lbServices.UserModel#comments UserModel.comments()}
+     * to query all related instances.
+     */
+
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel#comments
+         * @methodOf shoppinpal-loopback.UserModel
+         *
+         * @description
+         *
+         * Queries comments of UserModel.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `filter` – `{object=}` - 
+         *
+         * @param {function(Array.<Object>,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Array.<Object>} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `CommentModel` object.)
+         * </em>
+         */
+        R.comments = function() {
+          var TargetResource = $injector.get("CommentModel");
+          var action = TargetResource["::get::UserModel::comments"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel.comments#count
+         * @methodOf shoppinpal-loopback.UserModel.comments
+         *
+         * @description
+         *
+         * Counts comments of UserModel.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `where` – `{object=}` - Criteria to match model instances
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * Data properties:
+         *
+         *  - `count` – `{number=}` - 
+         */
+        R.comments.count = function() {
+          var TargetResource = $injector.get("CommentModel");
+          var action = TargetResource["::count::UserModel::comments"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel.comments#create
+         * @methodOf shoppinpal-loopback.UserModel.comments
+         *
+         * @description
+         *
+         * Creates a new instance in comments of this model.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `CommentModel` object.)
+         * </em>
+         */
+        R.comments.create = function() {
+          var TargetResource = $injector.get("CommentModel");
+          var action = TargetResource["::create::UserModel::comments"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel.comments#createMany
+         * @methodOf shoppinpal-loopback.UserModel.comments
+         *
+         * @description
+         *
+         * Creates a new instance in comments of this model.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Array.<Object>,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Array.<Object>} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `CommentModel` object.)
+         * </em>
+         */
+        R.comments.createMany = function() {
+          var TargetResource = $injector.get("CommentModel");
+          var action = TargetResource["::createMany::UserModel::comments"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel.comments#destroyAll
+         * @methodOf shoppinpal-loopback.UserModel.comments
+         *
+         * @description
+         *
+         * Deletes all comments of this model.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
+        R.comments.destroyAll = function() {
+          var TargetResource = $injector.get("CommentModel");
+          var action = TargetResource["::delete::UserModel::comments"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel.comments#destroyById
+         * @methodOf shoppinpal-loopback.UserModel.comments
+         *
+         * @description
+         *
+         * Delete a related item by id for comments.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `fk` – `{*}` - Foreign key for comments
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
+        R.comments.destroyById = function() {
+          var TargetResource = $injector.get("CommentModel");
+          var action = TargetResource["::destroyById::UserModel::comments"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel.comments#findById
+         * @methodOf shoppinpal-loopback.UserModel.comments
+         *
+         * @description
+         *
+         * Find a related item by id for comments.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `fk` – `{*}` - Foreign key for comments
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `CommentModel` object.)
+         * </em>
+         */
+        R.comments.findById = function() {
+          var TargetResource = $injector.get("CommentModel");
+          var action = TargetResource["::findById::UserModel::comments"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel.comments#updateById
+         * @methodOf shoppinpal-loopback.UserModel.comments
+         *
+         * @description
+         *
+         * Update a related item by id for comments.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `fk` – `{*}` - Foreign key for comments
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `CommentModel` object.)
+         * </em>
+         */
+        R.comments.updateById = function() {
+          var TargetResource = $injector.get("CommentModel");
+          var action = TargetResource["::updateById::UserModel::comments"];
           return action.apply(R, arguments);
         };
     /**
@@ -7527,6 +7886,58 @@ module.factory(
           method: "GET"
         },
 
+        // INTERNAL. Use StockOrderLineitemModel.comments.findById() instead.
+        "prototype$__findById__comments": {
+          params: {
+          'fk': '@fk'
+          },
+          url: urlBase + "/StockOrderLineitemModels/:id/comments/:fk",
+          method: "GET"
+        },
+
+        // INTERNAL. Use StockOrderLineitemModel.comments.destroyById() instead.
+        "prototype$__destroyById__comments": {
+          params: {
+          'fk': '@fk'
+          },
+          url: urlBase + "/StockOrderLineitemModels/:id/comments/:fk",
+          method: "DELETE"
+        },
+
+        // INTERNAL. Use StockOrderLineitemModel.comments.updateById() instead.
+        "prototype$__updateById__comments": {
+          params: {
+          'fk': '@fk'
+          },
+          url: urlBase + "/StockOrderLineitemModels/:id/comments/:fk",
+          method: "PUT"
+        },
+
+        // INTERNAL. Use StockOrderLineitemModel.comments() instead.
+        "prototype$__get__comments": {
+          isArray: true,
+          url: urlBase + "/StockOrderLineitemModels/:id/comments",
+          method: "GET"
+        },
+
+        // INTERNAL. Use StockOrderLineitemModel.comments.create() instead.
+        "prototype$__create__comments": {
+          url: urlBase + "/StockOrderLineitemModels/:id/comments",
+          method: "POST"
+        },
+
+        // INTERNAL. Use StockOrderLineitemModel.comments.destroyAll() instead.
+        "prototype$__delete__comments": {
+          url: urlBase + "/StockOrderLineitemModels/:id/comments",
+          method: "DELETE"
+        },
+
+        // INTERNAL. Use StockOrderLineitemModel.comments.count() instead.
+        "prototype$__count__comments": {
+          url: urlBase + "/StockOrderLineitemModels/:id/comments/count",
+          method: "GET"
+        },
+
         /**
          * @ngdoc method
          * @name shoppinpal-loopback.StockOrderLineitemModel#create
@@ -8068,6 +8479,12 @@ module.factory(
           url: urlBase + "/ReportModels/:id/stockOrderLineitemModels/count",
           method: "GET"
         },
+
+        // INTERNAL. Use CommentModel.stockOrderLineitemModel() instead.
+        "::get::CommentModel::stockOrderLineitemModel": {
+          url: urlBase + "/CommentModels/:id/stockOrderLineitemModel",
+          method: "GET"
+        },
       }
     );
 
@@ -8274,6 +8691,1056 @@ module.factory(
         R.reportModel = function() {
           var TargetResource = $injector.get("ReportModel");
           var action = TargetResource["::get::StockOrderLineitemModel::reportModel"];
+          return action.apply(R, arguments);
+        };
+    /**
+     * @ngdoc object
+     * @name lbServices.StockOrderLineitemModel.comments
+     * @header lbServices.StockOrderLineitemModel.comments
+     * @object
+     * @description
+     *
+     * The object `StockOrderLineitemModel.comments` groups methods
+     * manipulating `CommentModel` instances related to `StockOrderLineitemModel`.
+     *
+     * Call {@link lbServices.StockOrderLineitemModel#comments StockOrderLineitemModel.comments()}
+     * to query all related instances.
+     */
+
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.StockOrderLineitemModel#comments
+         * @methodOf shoppinpal-loopback.StockOrderLineitemModel
+         *
+         * @description
+         *
+         * Queries comments of StockOrderLineitemModel.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - PersistedModel id
+         *
+         *  - `filter` – `{object=}` - 
+         *
+         * @param {function(Array.<Object>,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Array.<Object>} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `CommentModel` object.)
+         * </em>
+         */
+        R.comments = function() {
+          var TargetResource = $injector.get("CommentModel");
+          var action = TargetResource["::get::StockOrderLineitemModel::comments"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.StockOrderLineitemModel.comments#count
+         * @methodOf shoppinpal-loopback.StockOrderLineitemModel.comments
+         *
+         * @description
+         *
+         * Counts comments of StockOrderLineitemModel.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - PersistedModel id
+         *
+         *  - `where` – `{object=}` - Criteria to match model instances
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * Data properties:
+         *
+         *  - `count` – `{number=}` - 
+         */
+        R.comments.count = function() {
+          var TargetResource = $injector.get("CommentModel");
+          var action = TargetResource["::count::StockOrderLineitemModel::comments"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.StockOrderLineitemModel.comments#create
+         * @methodOf shoppinpal-loopback.StockOrderLineitemModel.comments
+         *
+         * @description
+         *
+         * Creates a new instance in comments of this model.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - PersistedModel id
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `CommentModel` object.)
+         * </em>
+         */
+        R.comments.create = function() {
+          var TargetResource = $injector.get("CommentModel");
+          var action = TargetResource["::create::StockOrderLineitemModel::comments"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.StockOrderLineitemModel.comments#createMany
+         * @methodOf shoppinpal-loopback.StockOrderLineitemModel.comments
+         *
+         * @description
+         *
+         * Creates a new instance in comments of this model.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - PersistedModel id
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Array.<Object>,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Array.<Object>} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `CommentModel` object.)
+         * </em>
+         */
+        R.comments.createMany = function() {
+          var TargetResource = $injector.get("CommentModel");
+          var action = TargetResource["::createMany::StockOrderLineitemModel::comments"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.StockOrderLineitemModel.comments#destroyAll
+         * @methodOf shoppinpal-loopback.StockOrderLineitemModel.comments
+         *
+         * @description
+         *
+         * Deletes all comments of this model.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - PersistedModel id
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
+        R.comments.destroyAll = function() {
+          var TargetResource = $injector.get("CommentModel");
+          var action = TargetResource["::delete::StockOrderLineitemModel::comments"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.StockOrderLineitemModel.comments#destroyById
+         * @methodOf shoppinpal-loopback.StockOrderLineitemModel.comments
+         *
+         * @description
+         *
+         * Delete a related item by id for comments.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - PersistedModel id
+         *
+         *  - `fk` – `{*}` - Foreign key for comments
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
+        R.comments.destroyById = function() {
+          var TargetResource = $injector.get("CommentModel");
+          var action = TargetResource["::destroyById::StockOrderLineitemModel::comments"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.StockOrderLineitemModel.comments#findById
+         * @methodOf shoppinpal-loopback.StockOrderLineitemModel.comments
+         *
+         * @description
+         *
+         * Find a related item by id for comments.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - PersistedModel id
+         *
+         *  - `fk` – `{*}` - Foreign key for comments
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `CommentModel` object.)
+         * </em>
+         */
+        R.comments.findById = function() {
+          var TargetResource = $injector.get("CommentModel");
+          var action = TargetResource["::findById::StockOrderLineitemModel::comments"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.StockOrderLineitemModel.comments#updateById
+         * @methodOf shoppinpal-loopback.StockOrderLineitemModel.comments
+         *
+         * @description
+         *
+         * Update a related item by id for comments.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - PersistedModel id
+         *
+         *  - `fk` – `{*}` - Foreign key for comments
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `CommentModel` object.)
+         * </em>
+         */
+        R.comments.updateById = function() {
+          var TargetResource = $injector.get("CommentModel");
+          var action = TargetResource["::updateById::StockOrderLineitemModel::comments"];
+          return action.apply(R, arguments);
+        };
+
+    return R;
+  }]);
+
+/**
+ * @ngdoc object
+ * @name shoppinpal-loopback.CommentModel
+ * @header shoppinpal-loopback.CommentModel
+ * @object
+ *
+ * @description
+ *
+ * A $resource object for interacting with the `CommentModel` model.
+ *
+ * ## Example
+ *
+ * See
+ * {@link http://docs.angularjs.org/api/ngResource.$resource#example $resource}
+ * for an example of using this object.
+ *
+ */
+module.factory(
+  "CommentModel",
+  ['LoopBackResource', 'LoopBackAuth', '$injector', function(Resource, LoopBackAuth, $injector) {
+    var R = Resource(
+      urlBase + "/CommentModels/:id",
+      { 'id': '@id' },
+      {
+
+        // INTERNAL. Use CommentModel.userModel() instead.
+        "prototype$__get__userModel": {
+          url: urlBase + "/CommentModels/:id/userModel",
+          method: "GET"
+        },
+
+        // INTERNAL. Use CommentModel.stockOrderLineitemModel() instead.
+        "prototype$__get__stockOrderLineitemModel": {
+          url: urlBase + "/CommentModels/:id/stockOrderLineitemModel",
+          method: "GET"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.CommentModel#create
+         * @methodOf shoppinpal-loopback.CommentModel
+         *
+         * @description
+         *
+         * Create a new instance of the model and persist it into the data source.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *   This method does not accept any parameters.
+         *   Supply an empty object or omit this argument altogether.
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `CommentModel` object.)
+         * </em>
+         */
+        "create": {
+          url: urlBase + "/CommentModels",
+          method: "POST"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.CommentModel#createMany
+         * @methodOf shoppinpal-loopback.CommentModel
+         *
+         * @description
+         *
+         * Create a new instance of the model and persist it into the data source.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *   This method does not accept any parameters.
+         *   Supply an empty object or omit this argument altogether.
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Array.<Object>,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Array.<Object>} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `CommentModel` object.)
+         * </em>
+         */
+        "createMany": {
+          isArray: true,
+          url: urlBase + "/CommentModels",
+          method: "POST"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.CommentModel#upsert
+         * @methodOf shoppinpal-loopback.CommentModel
+         *
+         * @description
+         *
+         * Update an existing model instance or insert a new one into the data source.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *   This method does not accept any parameters.
+         *   Supply an empty object or omit this argument altogether.
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `CommentModel` object.)
+         * </em>
+         */
+        "upsert": {
+          url: urlBase + "/CommentModels",
+          method: "PUT"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.CommentModel#exists
+         * @methodOf shoppinpal-loopback.CommentModel
+         *
+         * @description
+         *
+         * Check whether a model instance exists in the data source.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - Model id
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * Data properties:
+         *
+         *  - `exists` – `{boolean=}` - 
+         */
+        "exists": {
+          url: urlBase + "/CommentModels/:id/exists",
+          method: "GET"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.CommentModel#findById
+         * @methodOf shoppinpal-loopback.CommentModel
+         *
+         * @description
+         *
+         * Find a model instance by id from the data source.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - Model id
+         *
+         *  - `filter` – `{object=}` - Filter defining fields and include
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `CommentModel` object.)
+         * </em>
+         */
+        "findById": {
+          url: urlBase + "/CommentModels/:id",
+          method: "GET"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.CommentModel#find
+         * @methodOf shoppinpal-loopback.CommentModel
+         *
+         * @description
+         *
+         * Find all instances of the model matched by filter from the data source.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `filter` – `{object=}` - Filter defining fields, where, include, order, offset, and limit
+         *
+         * @param {function(Array.<Object>,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Array.<Object>} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `CommentModel` object.)
+         * </em>
+         */
+        "find": {
+          isArray: true,
+          url: urlBase + "/CommentModels",
+          method: "GET"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.CommentModel#findOne
+         * @methodOf shoppinpal-loopback.CommentModel
+         *
+         * @description
+         *
+         * Find first instance of the model matched by filter from the data source.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `filter` – `{object=}` - Filter defining fields, where, include, order, offset, and limit
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `CommentModel` object.)
+         * </em>
+         */
+        "findOne": {
+          url: urlBase + "/CommentModels/findOne",
+          method: "GET"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.CommentModel#updateAll
+         * @methodOf shoppinpal-loopback.CommentModel
+         *
+         * @description
+         *
+         * Update instances of the model matched by where from the data source.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `where` – `{object=}` - Criteria to match model instances
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
+        "updateAll": {
+          url: urlBase + "/CommentModels/update",
+          method: "POST"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.CommentModel#deleteById
+         * @methodOf shoppinpal-loopback.CommentModel
+         *
+         * @description
+         *
+         * Delete a model instance by id from the data source.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - Model id
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
+        "deleteById": {
+          url: urlBase + "/CommentModels/:id",
+          method: "DELETE"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.CommentModel#count
+         * @methodOf shoppinpal-loopback.CommentModel
+         *
+         * @description
+         *
+         * Count instances of the model matched by where from the data source.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `where` – `{object=}` - Criteria to match model instances
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * Data properties:
+         *
+         *  - `count` – `{number=}` - 
+         */
+        "count": {
+          url: urlBase + "/CommentModels/count",
+          method: "GET"
+        },
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.CommentModel#prototype$updateAttributes
+         * @methodOf shoppinpal-loopback.CommentModel
+         *
+         * @description
+         *
+         * Update attributes for a model instance and persist it into the data source.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *   This method does not accept any parameters.
+         *   Supply an empty object or omit this argument altogether.
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `CommentModel` object.)
+         * </em>
+         */
+        "prototype$updateAttributes": {
+          url: urlBase + "/CommentModels/:id",
+          method: "PUT"
+        },
+
+        // INTERNAL. Use UserModel.comments.findById() instead.
+        "::findById::UserModel::comments": {
+          params: {
+          'fk': '@fk'
+          },
+          url: urlBase + "/UserModels/:id/comments/:fk",
+          method: "GET"
+        },
+
+        // INTERNAL. Use UserModel.comments.destroyById() instead.
+        "::destroyById::UserModel::comments": {
+          params: {
+          'fk': '@fk'
+          },
+          url: urlBase + "/UserModels/:id/comments/:fk",
+          method: "DELETE"
+        },
+
+        // INTERNAL. Use UserModel.comments.updateById() instead.
+        "::updateById::UserModel::comments": {
+          params: {
+          'fk': '@fk'
+          },
+          url: urlBase + "/UserModels/:id/comments/:fk",
+          method: "PUT"
+        },
+
+        // INTERNAL. Use UserModel.comments() instead.
+        "::get::UserModel::comments": {
+          isArray: true,
+          url: urlBase + "/UserModels/:id/comments",
+          method: "GET"
+        },
+
+        // INTERNAL. Use UserModel.comments.create() instead.
+        "::create::UserModel::comments": {
+          url: urlBase + "/UserModels/:id/comments",
+          method: "POST"
+        },
+
+        // INTERNAL. Use UserModel.comments.createMany() instead.
+        "::createMany::UserModel::comments": {
+          isArray: true,
+          url: urlBase + "/UserModels/:id/comments",
+          method: "POST"
+        },
+
+        // INTERNAL. Use UserModel.comments.destroyAll() instead.
+        "::delete::UserModel::comments": {
+          url: urlBase + "/UserModels/:id/comments",
+          method: "DELETE"
+        },
+
+        // INTERNAL. Use UserModel.comments.count() instead.
+        "::count::UserModel::comments": {
+          url: urlBase + "/UserModels/:id/comments/count",
+          method: "GET"
+        },
+
+        // INTERNAL. Use StockOrderLineitemModel.comments.findById() instead.
+        "::findById::StockOrderLineitemModel::comments": {
+          params: {
+          'fk': '@fk'
+          },
+          url: urlBase + "/StockOrderLineitemModels/:id/comments/:fk",
+          method: "GET"
+        },
+
+        // INTERNAL. Use StockOrderLineitemModel.comments.destroyById() instead.
+        "::destroyById::StockOrderLineitemModel::comments": {
+          params: {
+          'fk': '@fk'
+          },
+          url: urlBase + "/StockOrderLineitemModels/:id/comments/:fk",
+          method: "DELETE"
+        },
+
+        // INTERNAL. Use StockOrderLineitemModel.comments.updateById() instead.
+        "::updateById::StockOrderLineitemModel::comments": {
+          params: {
+          'fk': '@fk'
+          },
+          url: urlBase + "/StockOrderLineitemModels/:id/comments/:fk",
+          method: "PUT"
+        },
+
+        // INTERNAL. Use StockOrderLineitemModel.comments() instead.
+        "::get::StockOrderLineitemModel::comments": {
+          isArray: true,
+          url: urlBase + "/StockOrderLineitemModels/:id/comments",
+          method: "GET"
+        },
+
+        // INTERNAL. Use StockOrderLineitemModel.comments.create() instead.
+        "::create::StockOrderLineitemModel::comments": {
+          url: urlBase + "/StockOrderLineitemModels/:id/comments",
+          method: "POST"
+        },
+
+        // INTERNAL. Use StockOrderLineitemModel.comments.createMany() instead.
+        "::createMany::StockOrderLineitemModel::comments": {
+          isArray: true,
+          url: urlBase + "/StockOrderLineitemModels/:id/comments",
+          method: "POST"
+        },
+
+        // INTERNAL. Use StockOrderLineitemModel.comments.destroyAll() instead.
+        "::delete::StockOrderLineitemModel::comments": {
+          url: urlBase + "/StockOrderLineitemModels/:id/comments",
+          method: "DELETE"
+        },
+
+        // INTERNAL. Use StockOrderLineitemModel.comments.count() instead.
+        "::count::StockOrderLineitemModel::comments": {
+          url: urlBase + "/StockOrderLineitemModels/:id/comments/count",
+          method: "GET"
+        },
+      }
+    );
+
+
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.CommentModel#updateOrCreate
+         * @methodOf shoppinpal-loopback.CommentModel
+         *
+         * @description
+         *
+         * Update an existing model instance or insert a new one into the data source.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *   This method does not accept any parameters.
+         *   Supply an empty object or omit this argument altogether.
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `CommentModel` object.)
+         * </em>
+         */
+        R["updateOrCreate"] = R["upsert"];
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.CommentModel#update
+         * @methodOf shoppinpal-loopback.CommentModel
+         *
+         * @description
+         *
+         * Update instances of the model matched by where from the data source.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `where` – `{object=}` - Criteria to match model instances
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
+        R["update"] = R["updateAll"];
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.CommentModel#destroyById
+         * @methodOf shoppinpal-loopback.CommentModel
+         *
+         * @description
+         *
+         * Delete a model instance by id from the data source.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - Model id
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
+        R["destroyById"] = R["deleteById"];
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.CommentModel#removeById
+         * @methodOf shoppinpal-loopback.CommentModel
+         *
+         * @description
+         *
+         * Delete a model instance by id from the data source.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - Model id
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
+        R["removeById"] = R["deleteById"];
+
+
+    /**
+    * @ngdoc property
+    * @name shoppinpal-loopback.CommentModel#modelName
+    * @propertyOf shoppinpal-loopback.CommentModel
+    * @description
+    * The name of the model represented by this $resource,
+    * i.e. `CommentModel`.
+    */
+    R.modelName = "CommentModel";
+
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.CommentModel#userModel
+         * @methodOf shoppinpal-loopback.CommentModel
+         *
+         * @description
+         *
+         * Fetches belongsTo relation userModel.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - PersistedModel id
+         *
+         *  - `refresh` – `{boolean=}` - 
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `UserModel` object.)
+         * </em>
+         */
+        R.userModel = function() {
+          var TargetResource = $injector.get("UserModel");
+          var action = TargetResource["::get::CommentModel::userModel"];
+          return action.apply(R, arguments);
+        };
+
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.CommentModel#stockOrderLineitemModel
+         * @methodOf shoppinpal-loopback.CommentModel
+         *
+         * @description
+         *
+         * Fetches belongsTo relation stockOrderLineitemModel.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - PersistedModel id
+         *
+         *  - `refresh` – `{boolean=}` - 
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `StockOrderLineitemModel` object.)
+         * </em>
+         */
+        R.stockOrderLineitemModel = function() {
+          var TargetResource = $injector.get("StockOrderLineitemModel");
+          var action = TargetResource["::get::CommentModel::stockOrderLineitemModel"];
           return action.apply(R, arguments);
         };
 

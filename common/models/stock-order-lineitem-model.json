@@ -75,6 +75,11 @@
       "type": "belongsTo",
       "model": "ReportModel",
       "foreignKey": "reportId"
+    },
+    "comments": {
+      "type": "hasMany",
+      "model": "CommentModel",
+      "foreignKey": "stockOrderLineitemModelId"
     }
   },
   "acls": [

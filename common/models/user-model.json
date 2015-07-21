@@ -40,6 +40,11 @@
       "model": "StockOrderLineitemModel",
       "foreignKey": "userId"
     },
+    "comments": {
+      "type": "hasMany",
+      "model": "CommentModel",
+      "foreignKey": "userModelId"
+    },
     "roles": {
       "type": "hasMany",
       "model": "Role",
