@@ -18,8 +18,10 @@ angular.module('ShoppinPalApp')
               ngDialog, deviceDetector, $timeout,
               ReportModelStates)
     {
+      $scope.ReportModelStates = ReportModelStates;
       var ROW_STATE_NOT_COMPLETE = '!complete';
       var ROW_STATE_COMPLETE = 'complete';
+      var ROW_STATE_PENDING = 'pending';
       var originalReportDataSet; // no need to put everything in the $scope, only what's needed
 
       $scope.storeName = ($sessionStorage.currentStore) ? $sessionStorage.currentStore.name : null;
@@ -33,7 +35,7 @@ angular.module('ShoppinPalApp')
 
       var currentMutableDataFieldsForRow = null;
       var getMutableDataFieldsForRow = function(storeReportRow) {
-        return _.pick(storeReportRow, 'desiredStockLevel','orderQuantity','comment');
+        return _.pick(storeReportRow, 'desiredStockLevel','orderQuantity','comments');
       };
 
       /** @method dismissEdit
@@ -44,12 +46,12 @@ angular.module('ShoppinPalApp')
         /*console.log({
           desiredStockLevel: storeReportRow.desiredStockLevel,
           orderQuantity: storeReportRow.orderQuantity,
-          comment: storeReportRow.comment
+          comments: storeReportRow.comments
         });*/
 
         if (currentMutableDataFieldsForRow.desiredStockLevel === storeReportRow.desiredStockLevel &&
             currentMutableDataFieldsForRow.orderQuantity === storeReportRow.orderQuantity &&
-            currentMutableDataFieldsForRow.comment === storeReportRow.comment)
+            _.isEqual(currentMutableDataFieldsForRow.comments, storeReportRow.comments) )
         {
           console.log('no changes in the row');
           $timeout(function(){
@@ -90,7 +92,8 @@ angular.module('ShoppinPalApp')
                   attributes: {
                     desiredStockLevel: storeReportRow.desiredStockLevel,
                     orderQuantity: storeReportRow.orderQuantity,
-                    comment: storeReportRow.comment
+                    comments: storeReportRow.comments,
+                    state: ROW_STATE_PENDING
                   }
                 }
               )

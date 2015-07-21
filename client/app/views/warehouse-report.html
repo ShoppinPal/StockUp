@@ -74,10 +74,18 @@
                                         <td class="report-head3">{{item.orderQuantity}}</td>
                                         <td class="report-head4">{{item.fulfilledQuantity}}</td>
                                     </tr>
-                                    <tr ng-if="item.comment" ng-hide="$index==selectedRowIndex">
+                                    <tr ng-if="item.comments[ReportModelStates.MANAGER_IN_PROCESS]"
+                                        ng-hide="$index==selectedRowIndex">
                                         <td colspan="5">
                                             <span class="fa fa-comment comment-icon"></span>&nbsp;&nbsp;
-                                            <strong>Comments:</strong><span class="comment-span"> {{item.comment}}</span>
+                                            <strong>Manager Comments:</strong><span class="comment-span"> {{item.comments[ReportModelStates.MANAGER_IN_PROCESS]}}</span>
+                                        </td>
+                                    </tr>
+                                    <tr ng-if="item.comments[ReportModelStates.WAREHOUSE_FULFILL]"
+                                        ng-hide="$index==selectedRowIndex">
+                                        <td colspan="5">
+                                            <span class="fa fa-comment comment-icon"></span>&nbsp;&nbsp;
+                                            <strong>Warehouse Comments:</strong><span class="comment-span"> {{item.comments[ReportModelStates.WAREHOUSE_FULFILL]}}</span>
                                         </td>
                                     </tr>
                                     <!-- Edit store-report start -->
@@ -110,8 +118,19 @@
                                                 </div>
                                                 <div class="clearfix editable-panel"></div>
                                             </div>
-                                            <div class="row">
-                                                <input type="text" class="form-control comment-input editable-panel" placeholder="-- Add your Comments --" ng-model="item.comment">
+                                            <div class="row editable-panel">
+                                                <input device-detector ng-if='device !== "ipad"'
+                                                       type="text"
+                                                       class="form-control comment-input editable-panel"
+                                                       placeholder="-- Add your Comments --"
+                                                       ng-model="item.comments[ReportModelStates.WAREHOUSE_FULFILL]">
+                                                <input device-detector ng-if='device === "ipad"'
+                                                       type="text"
+                                                       class="form-control comment-input editable-panel"
+                                                       placeholder="-- Add your Comments --"
+                                                       ng-model="item.comments[ReportModelStates.WAREHOUSE_FULFILL]"
+                                                       ng-readonly="true"
+                                                       ng-virtual-keyboard="{relative: true, vki_attached:true}">
                                             </div>
                                             <!--/div-->
                                         </td>

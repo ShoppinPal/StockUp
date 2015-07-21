@@ -17,6 +17,7 @@
               deviceDetector, ngDialog,
               ReportModelStates)
     {
+      $scope.ReportModelStates = ReportModelStates;
       var ROW_STATE_UNBOXED = 'unboxed';
 
       $scope.deviceDetector = deviceDetector;
@@ -116,6 +117,7 @@
         $scope.waitOnPromise = StockOrderLineitemModel.prototype$updateAttributes(
           { id: storeReportRow.id },
           {
+            comments: storeReportRow.comments,
             receivedQuantity: storeReportRow.receivedQuantity
           }
         )
@@ -148,9 +150,10 @@
         $scope.waitOnPromise = StockOrderLineitemModel.updateBasedOnState({
             id: storeReportRow.id,
             attributes: {
+              comments: storeReportRow.comments,
               receivedQuantity: storeReportRow.receivedQuantity, /* NOTE: why pass receivedQuantity explicitly here?
               this is calculated by the UI, so if someone doesn't edit the row and directly marks it as done,
-              we would miss out on persisting this value*/
+              we would miss out on persisting this value */
               state: ROW_STATE_UNBOXED
             }
           }
@@ -304,6 +307,7 @@
        * This method will load the storesReport from api on view load
        */
       $scope.$on('$viewContentLoaded', function () {
+        $scope.device = $scope.deviceDetector.device;
         if($stateParams.reportId) {
           $scope.waitOnPromise = loginService.getReport($stateParams.reportId)
             .then(function (response) {

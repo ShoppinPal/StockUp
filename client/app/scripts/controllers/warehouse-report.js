@@ -17,6 +17,7 @@
               deviceDetector, ngDialog,
               ReportModelStates)
     {
+      $scope.ReportModelStates = ReportModelStates;
       var ROW_STATE_COMPLETE = 'boxed';
 
       $scope.submit = 'Submit';
@@ -58,13 +59,13 @@
         // update the backend
         /*console.log('update', {
           fulfilledQuantity: storeReportRow.fulfilledQuantity,
-          comment: storeReportRow.comment
+          comments: storeReportRow.comments
         });*/
         $scope.waitOnPromise = StockOrderLineitemModel.prototype$updateAttributes(
           { id: storeReportRow.id },
           {
             fulfilledQuantity: storeReportRow.fulfilledQuantity,
-            comment: storeReportRow.comment
+            comments: storeReportRow.comments
           }
         )
           .$promise.then(function(response){
@@ -205,7 +206,7 @@
             { id: item.id },
             {
               fulfilledQuantity: item.fulfilledQuantity,
-              comment: item.comment,
+              comments: item.comments,
               boxNumber: $scope.selectedBox.boxNumber,
               state: ROW_STATE_COMPLETE
             }

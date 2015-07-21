@@ -60,9 +60,9 @@
                                    device-detector ng-class="{'ipad-table': device === 'ipad'}">
                                 <tbody ng-if="selectedBox" ng-repeat="item in items" class="animate-repeat">
                                 <!--ng-if="item.group_by_CHANGED">-->
-                                <tr class="inner-table-heading" id="jumpTo{{item.type}}"
-                                        ng-if="item.type !== items[$index - 1].type">
-                                        <td colspan="5"><span class="table-heading-font">{{item.type}}</span></td>
+                                    <tr class="inner-table-heading" id="jumpTo{{item.type}}"
+                                            ng-if="item.type !== items[$index - 1].type">
+                                            <td colspan="5"><span class="table-heading-font">{{item.type}}</span></td>
                                     </tr>
                                     <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'"
                                         ng-hide="$index==selectedRowIndex"
@@ -74,12 +74,27 @@
                                         <td class="report-head4">{{item.fulfilledQuantity}}</td>
                                         <td class="report-head5">{{item.receivedQuantity}}</td>
                                     </tr>
-                                    <!--<tr ng-if="comments" ng-hide="$index==selectedRowIndex">
+                                    <tr ng-if="item.comments[ReportModelStates.MANAGER_IN_PROCESS]"
+                                        ng-hide="$index==selectedRowIndex">
                                         <td colspan="5">
                                             <span class="fa fa-comment comment-icon"></span>&nbsp;&nbsp;
-                                            <strong>Comments:</strong><span class="comment-span"> {{comments}}</span>
+                                            <strong>Manager Comments:</strong><span class="comment-span"> {{item.comments[ReportModelStates.MANAGER_IN_PROCESS]}}</span>
                                         </td>
-                                    </tr>-->
+                                    </tr>
+                                    <tr ng-if="item.comments[ReportModelStates.WAREHOUSE_FULFILL]"
+                                        ng-hide="$index==selectedRowIndex">
+                                        <td colspan="5">
+                                            <span class="fa fa-comment comment-icon"></span>&nbsp;&nbsp;
+                                            <strong>Warehouse Comments:</strong><span class="comment-span"> {{item.comments[ReportModelStates.WAREHOUSE_FULFILL]}}</span>
+                                        </td>
+                                    </tr>
+                                    <tr ng-if="item.comments[ReportModelStates.MANAGER_RECEIVE]"
+                                        ng-hide="$index==selectedRowIndex">
+                                        <td colspan="5">
+                                            <span class="fa fa-comment comment-icon"></span>&nbsp;&nbsp;
+                                            <strong>Receiver Comments:</strong><span class="comment-span"> {{item.comments[ReportModelStates.MANAGER_RECEIVE]}}</span>
+                                        </td>
+                                    </tr>
                                     <!-- Edit store-report start -->
                                     <!--<tr ng-show="$index==selectedRowIndex" class="edit-row" ng-mouseleave="dismissEdit()">-->
                                     <tr ng-if="$index==selectedRowIndex" ng-init="onEditInit(item)"
@@ -104,20 +119,34 @@
                                             <div class="edit-window editable-panel">
                                                 <div class="float-left column-text margin-right margin-top editable-panel">Recieved Qty:</div>
                                                 <div class="float-left margin-right-10px margin-top editable-panel">
-                                                    <span class="fa fa-minus-circle fa-lg edit-icon editable-panel" ng-click="decreaseQty(item)"></span>
+                                                    <span class="fa fa-minus-circle fa-lg edit-icon editable-panel"
+                                                          ng-click="decreaseQty(item)"></span>
                                                 </div>
                                                 <div class="float-left margin-right-10px editable-panel">
-                                                    <input type="text" class="form-control input-small editable-panel" ng-model="item.receivedQuantity">
+                                                    <input type="text"
+                                                           class="form-control input-small editable-panel"
+                                                           ng-model="item.receivedQuantity">
                                                 </div>
                                                 <div class="float-left margin-right margin-top editable-panel">
-                                                    <span class="fa fa-plus-circle fa-lg edit-icon editable-panel" ng-click="increaseQty(item)"></span>
+                                                    <span class="fa fa-plus-circle fa-lg edit-icon editable-panel"
+                                                          ng-click="increaseQty(item)"></span>
                                                 </div>
                                                 <div class="clearfix editable-panel"></div>
                                             </div>
-                                            <!--<div class="row" ng-show="ReviewSubmitPage">
-                                                <input type="text" class="form-control comment-input" placeholder="&#45;&#45; Add your Comments &#45;&#45;" ng-model="comments">
-                                            </div>-->
-                                            <!--/div-->
+                                            <div class="row editable-panel">
+                                                <input device-detector ng-if='device !== "ipad"'
+                                                       type="text"
+                                                       class="form-control comment-input editable-panel"
+                                                       placeholder="-- Add your Comments --"
+                                                       ng-model="item.comments[ReportModelStates.MANAGER_RECEIVE]">
+                                                <input device-detector ng-if='device === "ipad"'
+                                                       type="text"
+                                                       class="form-control comment-input editable-panel"
+                                                       placeholder="-- Add your Comments --"
+                                                       ng-model="item.comments[ReportModelStates.MANAGER_RECEIVE]"
+                                                       ng-readonly="true"
+                                                       ng-virtual-keyboard="{relative: true, vki_attached:true}">
+                                            </div>
                                         </td>
                                     </tr>
                                     <!-- Edit store-report end -->

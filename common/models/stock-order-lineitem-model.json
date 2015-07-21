@@ -43,8 +43,8 @@
       "type": "string",
       "required": false
     },
-    "comment": {
-      "type": "string",
+    "comments": {
+      "type": "object",
       "required": false
     },
     "state": {
