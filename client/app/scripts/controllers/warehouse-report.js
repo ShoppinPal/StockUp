@@ -22,7 +22,7 @@
       $scope.submit = 'Submit';
       $scope.closeBoxButtonLabel = 'CLOSE THIS BOX';
       //$scope.printSlipButtonLabel = 'PRINT PACKING SLIP';
-      $scope.ReviewSubmitPage = true;
+
       $scope.deviceDetector = deviceDetector;
       $scope.boxes = [];
       $scope.selectedBox = null;
