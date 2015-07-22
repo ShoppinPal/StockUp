@@ -508,6 +508,10 @@ var markStockOrderAsReceived = function(storeModelInstance, reportModelInstance)
 };
 
 var createStockOrderLineitemForVend = function(storeModelInstance, reportModelInstance, stockOrderLineitemModelInstance){
+  if(stockOrderLineitemModelInstance.vendConsignmentProductId) {
+    log.error('WARN: You are about to create a new vendConsignmentProduct even though one already exists!');
+    return Promise.reject('WARN: You are about to create a new vendConsignmentProduct even though one already exists!');
+  }
   var storeConfigId = storeModelInstance.storeConfigModelToStoreModelId;
   log.debug('createStockOrderLineitemForVend()', 'storeConfigId: ' + storeConfigId);
   return getVendConnectionInfo(storeConfigId)

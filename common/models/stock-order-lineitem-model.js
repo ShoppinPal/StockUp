@@ -71,7 +71,8 @@ module.exports = function(StockOrderLineitemModel) {
               if (reportModelInstance.state === ReportModel.ReportModelStates.MANAGER_IN_PROCESS)
               {
                 log('inside update() - work on consignment products in Vend');
-                if(stockOrderLineitemModelInstance.state !== StockOrderLineitemModel.StockOrderLineitemModelStates.ORDERED){
+                if(!stockOrderLineitemModelInstance.vendConsignmentProductId &&
+                   stockOrderLineitemModelInstance.state !== StockOrderLineitemModel.StockOrderLineitemModelStates.ORDERED){
                   log('inside update() - PASS - will create a consignment product in Vend');
                   oauthVendUtil.createStockOrderLineitemForVend(storeModelInstance, reportModelInstance, stockOrderLineitemModelInstance)
                     .then(function(newConsignmentProduct){
