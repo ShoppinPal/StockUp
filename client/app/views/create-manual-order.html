@@ -1,28 +1,4 @@
 <div class="container" ng-controller="CreateManualOrderCtrl as orderController">
-    <!--<div class="row">
-        <div class="col-sm-12 col-md-12">
-            &lt;!&ndash; Select store header &ndash;&gt;
-            <header class="header">
-                <div class="row">
-                    &lt;!&ndash; Back button given here &ndash;&gt;
-                    <div class="col-md-5 col-sm-3 col-xs-12">
-                        <div class="logo">{{::orderController.storeName}}
-                            <div>
-                                &lt;!&ndash; <back-button back="Back"></back-button> &ndash;&gt;
-                                <a class="fa fa-home shopping-pal-home" ui-sref="store-landing"></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-7 col-sm-9 col-xs-12">
-                        <div class="log-in-text"><a ui-sref="logout" class="logout-text">LOGOUT</a></div>
-                        <div class="btn-align">
-                            <button type="submit" class="btn btn-primary button-large-green">Create Manual Order</button>
-                        </div>
-                    </div>
-                </div>
-            </header>
-        </div>
-    </div>-->
     <shoppin-pal-header store-name="{{::orderController.storeName}}"
                         home-state="{{::orderController.homeState}}">
     </shoppin-pal-header>
@@ -73,12 +49,6 @@
                                bs-datepicker data-date-format="yyyy-MM-dd"
                                ng-model="selectedDate">
                         <i class="fa fa-calendar"></i>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="supplierInvoice" class="control-label col-xs-3">Supplier Invoice</label>
-                    <div class="col-xs-8">
-                        <input id="supplierInvoice" type="text" class="form-control" placeholder="Supplier Invoice">
                     </div>
                 </div>
                 <div class="form-group" ng-if="orderController.isWarehouser()">
