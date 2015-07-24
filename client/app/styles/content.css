@@ -298,10 +298,17 @@ tr.inner-table-heading {
 }
 .edit-window{
     color: #ffffff !important;
-    max-width: 450px;
+    max-width: 535px;
     text-align: center;
     margin: 20px auto 10px auto;
 }
+/*24-7-2015*/
+.edit-buttons-row{
+    width:190px;
+    margin:0px auto;
+}
+
+
 .margin-right-50px{
     margin-right:50px;
 }
