@@ -98,8 +98,7 @@
                                                 </div>
                                                 <div class="clearfix editable-panel"></div>
                                             </div>
-                                            <div class="row editable-panel"
-                                                 ng-if="item.comments[ReportModelStates.MANAGER_IN_PROCESS]">
+                                            <div ng-if="item.comments[ReportModelStates.MANAGER_IN_PROCESS]">
                                                 <span class="fa fa-comment comment-icon"></span>&nbsp;&nbsp;<strong>Manager Comments:</strong>
                                                 <span class="comment-span">
                                                     {{item.comments[ReportModelStates.MANAGER_IN_PROCESS]}}
