@@ -236,22 +236,23 @@ angular.module('ShoppinPalApp')
         });
       };
 
-      /** @method decreaseQty
-       * @param storereport
-       * This method decreases the ordered quantity ,when user tap on '-'' sign
-       */
-      $scope.decreaseQty = function(storereport) {
+      $scope.decreaseDSL= function(storereport) {
+        storereport.desiredStockLevel = parseInt(storereport.desiredStockLevel, 10); // parse it from string to integer
+        if(storereport.desiredStockLevel > 0){
+          storereport.desiredStockLevel -= 1;
+        }
+      };
+      $scope.increaseDSL = function(storereport) {
+        storereport.desiredStockLevel = parseInt(storereport.desiredStockLevel, 10);
+        storereport.desiredStockLevel += 1;
+      };
+      $scope.decreaseOrderQuantity= function(storereport) {
         storereport.orderQuantity = parseInt(storereport.orderQuantity, 10); // parse it from string to integer
         if(storereport.orderQuantity > 0){
           storereport.orderQuantity -= 1;
         }
       };
-
-      /** @method increaseQty
-       * @param storereport
-       * This method increase the ordered quantity ,when user tap on '+' sign
-       */
-      $scope.increaseQty = function(storereport) {
+      $scope.increaseOrderQuantity = function(storereport) {
         storereport.orderQuantity = parseInt(storereport.orderQuantity, 10);
         storereport.orderQuantity += 1;
       };

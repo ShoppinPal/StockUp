@@ -112,34 +112,46 @@
                                             <div class="float-left column-text margin-right editable-panel">Desired
                                                 <br/> Stock Level:</div>
                                             <div class="float-left margin-right-10px margin-top editable-panel">
-                                                <span class="fa fa-minus-circle fa-lg edit-icon editable-panel"></span>
+                                                <span class="fa fa-minus-circle fa-lg edit-icon editable-panel"
+                                                      ng-click="decreaseDSL(storeReportRow)"/>
                                             </div>
                                             <div class="float-left margin-right-10px editable-panel">
-                                                <input type="text" class="form-control input-small editable-panel">
+                                                <input type="text" class="form-control input-small editable-panel"
+                                                       ng-model="storeReportRow.desiredStockLevel">
                                             </div>
                                             <div class="float-left margin-right margin-top editable-panel">
-                                                <span class="fa fa-plus-circle fa-lg edit-icon editable-panel"></span>
+                                                <span class="fa fa-plus-circle fa-lg edit-icon editable-panel"
+                                                      ng-click="increaseDSL(storeReportRow)"/>
                                             </div>
                                             <div class="float-left column-text margin-right editable-panel">Order
                                                 <br/> Qty:</div>
                                             <div class="float-left margin-right-10px margin-top editable-panel">
-                                                <span class="fa fa-minus-circle fa-lg edit-icon editable-panel" ng-click="decreaseQty(storeReportRow)"></span>
+                                                <span class="fa fa-minus-circle fa-lg edit-icon editable-panel"
+                                                      ng-click="decreaseOrderQuantity(storeReportRow)"/>
                                             </div>
                                             <div class="float-left margin-right-10px editable-panel">
-                                                <input type="text" class="form-control input-small editable-panel" ng-model="storeReportRow.orderQuantity">
+                                                <input type="text" class="form-control input-small editable-panel"
+                                                       ng-model="storeReportRow.orderQuantity">
                                             </div>
                                             <div class="float-left margin-right margin-top editable-panel">
-                                                <span class="fa fa-plus-circle fa-lg edit-icon editable-panel" ng-click="increaseQty(storeReportRow)"></span>
+                                                <span class="fa fa-plus-circle fa-lg edit-icon editable-panel"
+                                                      ng-click="increaseOrderQuantity(storeReportRow)"/>
                                             </div>
                                             <div class="clearfix editable-panel"></div>
                                         </div>
-                                        <div class="edit-buttons-row editable-panel">
+                                        <div class="editable-panel">
                                             <div class="float-left column-text margin-right editable-panel">
-                                    <button type="submit" class="btn button-large-green" ng-click="onButton1Click()"> Delete </button>  
-                                  </div>
-                    <div class="float-left column-text margin-right editable-panel">
-                        <button type="submit" class="btn button-large-green" ng-click="onButton1Click()">Done</button>
-                    </div>
+                                                <button type="submit" class="btn button-large-green"
+                                                        ng-click="onButton1Click()">
+                                                    Delete
+                                                </button>
+                                            </div>
+                                            <div class="pull-right column-text margin-right editable-panel">
+                                                <button type="submit" class="btn button-large-green"
+                                                        ng-click="onButton1Click()">
+                                                    Done
+                                                </button>
+                                            </div>
                                             <div class="clearfix editable-panel"></div>
                                         </div>
                                         <div class="row editable-panel">
