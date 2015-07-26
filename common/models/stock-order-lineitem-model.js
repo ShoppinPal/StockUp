@@ -48,6 +48,14 @@ module.exports = function(StockOrderLineitemModel) {
     returns: {arg: 'updatedStockOrderLineitemModelInstance', type: 'object', root:true}
   });
 
+  StockOrderLineitemModel.remoteMethod('deleteLineitem', {
+    accepts: [
+      {arg: 'id', type: 'string', required: true}
+    ],
+    http: {path: '/:id/deleteLineitem', verb: 'put'},
+    returns: {arg: 'deleted', type: 'object', root:true}
+  });
+
   StockOrderLineitemModel.updateBasedOnState = function(id, attributes, cb) {
     log('inside update()');
     var currentUser = StockOrderLineitemModel.getCurrentUserModel(cb); // returns  immediately if no currentUser
@@ -137,4 +145,68 @@ module.exports = function(StockOrderLineitemModel) {
         });
     }
   };
+
+  StockOrderLineitemModel.deleteLineitem = function(id, cb) {
+    var methodName = 'deleteLineitem';
+    log('inside '+methodName+'()');
+    var currentUser = StockOrderLineitemModel.getCurrentUserModel(cb); // returns immediately if no currentUser
+    if(currentUser) {
+      StockOrderLineitemModel.findById(id) // chain the promise via a return statement so unexpected rejections/errors float up
+        .then(function(stockOrderLineitemModelInstance) {
+          log('inside '+methodName+'() - stockOrderLineitemModelInstance', stockOrderLineitemModelInstance);
+          var waitFor1;
+          if (stockOrderLineitemModelInstance.vendConsignmentProductId) {
+            var ReportModel = StockOrderLineitemModel.app.models.ReportModel;
+            waitFor1 = ReportModel.getAllRelevantModelInstancesForReportModel(stockOrderLineitemModelInstance.reportId)
+              .spread(function(reportModelInstance, storeModelInstance/*, storeConfigInstance*/){
+                var oauthVendUtil = require('./../../common/utils/vend')({
+                  'GlobalConfigModel': StockOrderLineitemModel.app.models.GlobalConfigModel,
+                  'StoreConfigModel': StockOrderLineitemModel.app.models.StoreConfigModel,
+                  'currentUser': currentUser
+                });
+                if (reportModelInstance.state === ReportModel.ReportModelStates.MANAGER_IN_PROCESS)
+                {
+                  log('inside '+methodName+'() - will delete consignment product from Vend');
+                  return oauthVendUtil.deleteStockOrderLineitemForVend(storeModelInstance, reportModelInstance, stockOrderLineitemModelInstance)
+                    .then(function(response){
+                      log('response from vend:', response);
+                      return Promise.resolve(); // NOTE: empty/undefined value indicates success to the next block in promise chain
+                    },
+                    function(error){
+                      log('ERROR', error);
+                      console.error(error);
+                      return Promise.resolve({deleted:false});
+                    });
+                }
+                else {
+                  log('inside '+methodName+'() - will not delete consignment product from Vend for current ReportModel state:', reportModelInstance.state);
+                  return Promise.resolve({deleted:false});
+                }
+              });
+          }
+          else {
+            log('inside '+methodName+'() - no consignment product available in Vend for deletion');
+            waitFor1 = Promise.resolve({deleted:false});
+          }
+          waitFor1.then(function(result){
+              if(result) {
+                log('inside '+methodName+'() - did not delete a consignment product from Vend');
+              }
+              else { // NOTE: empty/undefined value indicates success in this block of promise chain
+                log('inside ' + methodName + '() - deleted a consignment product from Vend');
+              }
+              log('inside '+methodName+'() - will delete the StockOrderLineitemModel');
+              return stockOrderLineitemModelInstance.destroy()
+                .then(function(){
+                  log('inside '+methodName+'() - deleted the StockOrderLineitemModel');
+                  cb(null, {deleted:true});
+                });
+            },
+            function(error){
+              cb(error);
+            });
+        });
+    }
+  };
+
 };

@@ -19,9 +19,11 @@ angular.module('ShoppinPalApp')
               ReportModelStates)
     {
       $scope.ReportModelStates = ReportModelStates;
+
+      $scope.ROW_STATE_COMPLETE = 'complete';
       var ROW_STATE_NOT_COMPLETE = '!complete';
-      var ROW_STATE_COMPLETE = 'complete';
       var ROW_STATE_PENDING = 'pending';
+
       var originalReportDataSet; // no need to put everything in the $scope, only what's needed
 
       $scope.storeName = ($sessionStorage.currentStore) ? $sessionStorage.currentStore.name : null;
@@ -31,11 +33,31 @@ angular.module('ShoppinPalApp')
       $scope.completedReports = [];
       $scope.alphabets = [];
       $scope.submitToWarehouseButton = 'Submit';
-      $scope.deviceDetector = deviceDetector;
+      $scope.device = deviceDetector.device;
 
       var currentMutableDataFieldsForRow = null;
       var getMutableDataFieldsForRow = function(storeReportRow) {
         return _.pick(storeReportRow, 'desiredStockLevel','orderQuantity','comments');
+      };
+
+      var updateDSL = function(storeReportRow) {
+        $scope.waitOnPromise = $q.when();
+        console.log('if DSL has not been changed, then we will NOT make a Vend DSL update');
+        if (currentMutableDataFieldsForRow.desiredStockLevel !== storeReportRow.desiredStockLevel){
+          console.log('will save to vend', storeReportRow);
+          $scope.waitOnPromise = StoreModel.setDesiredStockLevelForVend(
+            {
+              id: $sessionStorage.currentStore.objectId,
+              productId: storeReportRow.productId,
+              desiredStockLevel: storeReportRow.desiredStockLevel
+            }
+          ) // NOTE: why do this first? because if this fails, we don't want our DB to have a DSL different from Vend's
+            .$promise.then(function(response){
+              console.log('setDesiredStockLevelForVend', 'response:', response);
+              return $q.when(); //return $q.reject('test for failure');
+            });
+        }
+        return $scope.waitOnPromise;
       };
 
       /** @method dismissEdit
@@ -65,24 +87,7 @@ angular.module('ShoppinPalApp')
           //       it would be nice to move all these compound operations to one
           //       server-side remote method call
 
-          // if DSL has not been changed, don't make Vend DSL update
-          $scope.waitOnPromise = $q.when();
-          if (currentMutableDataFieldsForRow.desiredStockLevel !== storeReportRow.desiredStockLevel){
-            console.log('will save to vend');
-            $scope.waitOnPromise = StoreModel.setDesiredStockLevelForVend(
-              {
-                id: $sessionStorage.currentStore.objectId,
-                productId: storeReportRow.productId,
-                desiredStockLevel: storeReportRow.desiredStockLevel
-              }
-            ) // NOTE: why do this first? because if this fails, we don't want our DB to have a DSL different from Vend's
-              .$promise.then(function(response){
-                console.log('setDesiredStockLevelForVend', 'response:', response);
-                return $q.when(); //return $q.reject('test for failure');
-              });
-          }
-
-          $scope.waitOnPromise = $scope.waitOnPromise
+          $scope.waitOnPromise = updateDSL(storeReportRow)
             .then(function(){
               console.log('will update warehouse model in the backend');
               // TODO: the setDesiredStockLevelForVend() op could be tied
@@ -116,6 +121,42 @@ angular.module('ShoppinPalApp')
         }
       };
 
+      var dismissEditableRow = function(rowIndex) {
+        // (1) remove the bindings that were meant to kick off backend-persistance for the editable row
+        var shoppinPalMainDiv = angular.element(document.querySelector('.shoppinPal-warehouse'));
+        if($scope.device !== 'ipad') {
+          console.log('UN-binding `mousedown` event for anything non-iPad');
+          shoppinPalMainDiv.unbind('mousedown');
+        } else {
+          console.log('UN-binding `touchstart` event for iPad');
+          shoppinPalMainDiv.unbind('touchstart');
+        }
+
+        // (2) dismiss the edit view in UI
+        $scope.selectedRowIndex = $scope.storereportlength + 1;
+
+        // (3) remove the row from the array of visible pending rows,
+        //     this is not a true delete from the backend,
+        //     so a page refresh will bring it right back!
+        $scope.storesReport.splice(rowIndex, 1);
+      };
+
+      $scope.deleteRow = function(rowIndex, storeReportRow) {
+        console.log('> > > > > ', 'deleteRow',
+          '\n\t', 'rowIndex', rowIndex,
+          '\n\t', '$scope.storesReport[rowIndex]', $scope.storesReport[rowIndex],
+          '\n\t', 'storeReportRow', storeReportRow,
+          '\n\t', 'equal?', ($scope.storesReport[rowIndex]===storeReportRow));
+
+        StockOrderLineitemModel.deleteLineitem({
+          id: storeReportRow.id
+        })
+          .$promise.then(function(){
+            console.log('deleted StockOrderLineitemModel from backend, for id: ' + storeReportRow.id);
+            dismissEditableRow(rowIndex);
+          });
+      };
+
       /** @method editRow()
        * @param selectedRow
        * This method display the edit functionality on right swipe
@@ -136,7 +177,8 @@ angular.module('ShoppinPalApp')
            clicking on anywhere on keyboard will dismiss the edit box*/
         //var body = angular.element(document).find('body');
         var shoppinPalMainDiv = angular.element(document.querySelector('.shoppinPal-warehouse'));
-        if($scope.deviceDetector.isDesktop()) {
+        if($scope.device !== 'ipad') {
+          console.log('binding to `mousedown` event for anything non-iPad');
           //body.bind('mousedown', function(event) {
           shoppinPalMainDiv.bind('mousedown', function(event) {
             if( !event.target.classList.contains('editable-panel') ) {
@@ -146,6 +188,7 @@ angular.module('ShoppinPalApp')
             }
           });
         } else {
+          console.log('binding to `touchstart` event for iPad');
           //body.bind('touchstart', function(event) {
           shoppinPalMainDiv.bind('touchstart', function(event) {
             if( !event.target.classList.contains('editable-panel') ) {
@@ -161,21 +204,49 @@ angular.module('ShoppinPalApp')
        * @param storereport
        * This method remove the row from store-report on left swipe
        */
-      $scope.markRowAsCompleted = function(rowIndex, storeReportRow) {
-        $scope.waitOnPromise = StockOrderLineitemModel.updateBasedOnState({
-          id: storeReportRow.id,
-          attributes: {}
-        })
-          .$promise.then(function(updatedStockOrderLineitemModelInstance){
-            //console.log('hopefully finished updating the row');
-            console.log('updatedStockOrderLineitemModelInstance', updatedStockOrderLineitemModelInstance);
+      $scope.markRowAsCompleted = function(rowIndex, storeReportRow, dismissEditableRowFlag) {
+        console.log('> > > > > ', 'markRowAsCompleted',
+          '\n\t', 'rowIndex', rowIndex,/*
+          '\n\t', '$scope.storesReport[rowIndex]', $scope.storesReport[rowIndex],
+          '\n\t', 'storeReportRow', storeReportRow,*/
+          '\n\t', 'equal?', ($scope.storesReport[rowIndex]===storeReportRow));
 
-            // change the UI after the backend finishes for data-integrity/assurance
-            // but if this visibly messes with UI/UX, we might want to do it earlier...
-            storeReportRow.updatedAt = updatedStockOrderLineitemModelInstance.updatedAt;
-            storeReportRow.state = updatedStockOrderLineitemModelInstance.state;
-            $scope.storesReport.splice(rowIndex, 1);
-            $scope.isShipmentFullyReceived = ($scope.storesReport.length < 1) ? true : false;
+        $scope.waitOnPromise = $q.when();
+        if(dismissEditableRowFlag) {
+          console.log('only use updateDSL() in markRowAsCompleted() when dismissing the editable row using a button' +
+            '\n' + 'otherwise it would have already been handled by dismissEdit()');
+          $scope.waitOnPromise = updateDSL(storeReportRow);
+        }
+        $scope.waitOnPromise.then(
+          function(){
+            console.log('markRowAsCompleted',
+              '\n\t', 'StockOrderLineitemModel.updateBasedOnState()');
+            return StockOrderLineitemModel.updateBasedOnState({
+              id: storeReportRow.id,
+              attributes: {
+                desiredStockLevel: storeReportRow.desiredStockLevel,
+                orderQuantity: storeReportRow.orderQuantity,
+                comments: storeReportRow.comments
+              }
+            })
+              .$promise.then(function(updatedStockOrderLineitemModelInstance){
+                //console.log('hopefully finished updating the row');
+                console.log('updatedStockOrderLineitemModelInstance', updatedStockOrderLineitemModelInstance);
+
+                // change the UI after the backend finishes for data-integrity/assurance
+                // but if this visibly messes with UI/UX, we might want to do it earlier...
+                storeReportRow.updatedAt = updatedStockOrderLineitemModelInstance.updatedAt;
+                storeReportRow.state = updatedStockOrderLineitemModelInstance.state;
+
+                if(dismissEditableRowFlag) {
+                  dismissEditableRow(rowIndex);
+                }
+                else {
+                  $scope.storesReport.splice(rowIndex, 1);
+                }
+
+                $scope.isShipmentFullyReceived = ($scope.storesReport.length < 1) ? true : false;
+              });
           });
       };
 
@@ -236,22 +307,23 @@ angular.module('ShoppinPalApp')
         });
       };
 
-      /** @method decreaseQty
-       * @param storereport
-       * This method decreases the ordered quantity ,when user tap on '-'' sign
-       */
-      $scope.decreaseQty = function(storereport) {
+      $scope.decreaseDSL= function(storereport) {
+        storereport.desiredStockLevel = parseInt(storereport.desiredStockLevel, 10); // parse it from string to integer
+        if(storereport.desiredStockLevel > 0){
+          storereport.desiredStockLevel -= 1;
+        }
+      };
+      $scope.increaseDSL = function(storereport) {
+        storereport.desiredStockLevel = parseInt(storereport.desiredStockLevel, 10);
+        storereport.desiredStockLevel += 1;
+      };
+      $scope.decreaseOrderQuantity= function(storereport) {
         storereport.orderQuantity = parseInt(storereport.orderQuantity, 10); // parse it from string to integer
         if(storereport.orderQuantity > 0){
           storereport.orderQuantity -= 1;
         }
       };
-
-      /** @method increaseQty
-       * @param storereport
-       * This method increase the ordered quantity ,when user tap on '+' sign
-       */
-      $scope.increaseQty = function(storereport) {
+      $scope.increaseOrderQuantity = function(storereport) {
         storereport.orderQuantity = parseInt(storereport.orderQuantity, 10);
         storereport.orderQuantity += 1;
       };
@@ -284,21 +356,20 @@ angular.module('ShoppinPalApp')
       };
 
       $scope.getFilterForRowsToDisplay = function() {
-        return ($scope.displayPendingRows) ? {state:ROW_STATE_NOT_COMPLETE} : {state:ROW_STATE_COMPLETE};
+        return ($scope.displayPendingRows) ? {state:ROW_STATE_NOT_COMPLETE} : {state:$scope.ROW_STATE_COMPLETE};
       };
 
       // -------------
       // Load the data
       // -------------
       $scope.displayPendingRows = true;
-      $scope.device = $scope.deviceDetector.device;
 
       if($stateParams.reportId) {
         $scope.waitOnPromise = loginService.getReport($stateParams.reportId)
           .then(function (response) {
             originalReportDataSet = response;
             /*angular.forEach(originalReportDataSet, function (row) {
-              row.state = ROW_STATE_COMPLETE;
+              row.state = $scope.ROW_STATE_COMPLETE;
             });
             originalReportDataSet[originalReportDataSet.length-1].state = 'pending';
             console.log(originalReportDataSet[originalReportDataSet.length-1]);*/

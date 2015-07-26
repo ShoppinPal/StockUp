@@ -561,6 +561,21 @@ var updateStockOrderLineitemForVend = function(storeModelInstance, reportModelIn
     });
 };
 
+var deleteStockOrderLineitemForVend = function(storeModelInstance, reportModelInstance, stockOrderLineitemModelInstance){
+  var storeConfigId = storeModelInstance.storeConfigModelToStoreModelId;
+  log.debug('deleteStockOrderLineitemForVend()', 'storeConfigId: ' + storeConfigId);
+  return getVendConnectionInfo(storeConfigId)
+    .then(function(connectionInfo){
+      var args = vendSdk.args.consignments.products.remove();
+      args.apiId.value = stockOrderLineitemModelInstance.vendConsignmentProductId;
+      return vendSdk.consignments.products.remove(args, connectionInfo);
+    },
+    function(error){
+      log.error('deleteStockOrderLineitemForVend()', 'Error deleting a stock order lineitem in Vend:\n' + JSON.stringify(error));
+      return Promise.reject('An error occurred while deleting a stock order lineitem in Vend.\n' + JSON.stringify(error));
+    });
+};
+
 module.exports = function(dependencies){
   if (dependencies) {
     GlobalConfigModel = dependencies.GlobalConfigModel;
@@ -580,6 +595,7 @@ module.exports = function(dependencies){
     markStockOrderAsSent: markStockOrderAsSent,
     markStockOrderAsReceived: markStockOrderAsReceived,
     createStockOrderLineitemForVend: createStockOrderLineitemForVend,
-    updateStockOrderLineitemForVend: updateStockOrderLineitemForVend
+    updateStockOrderLineitemForVend: updateStockOrderLineitemForVend,
+    deleteStockOrderLineitemForVend: deleteStockOrderLineitemForVend
   };
 };
