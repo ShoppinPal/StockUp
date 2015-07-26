@@ -31,7 +31,7 @@ angular.module('ShoppinPalApp')
       $scope.completedReports = [];
       $scope.alphabets = [];
       $scope.submitToWarehouseButton = 'Submit';
-      $scope.deviceDetector = deviceDetector;
+      $scope.device = deviceDetector.device;
 
       var currentMutableDataFieldsForRow = null;
       var getMutableDataFieldsForRow = function(storeReportRow) {
@@ -136,7 +136,7 @@ angular.module('ShoppinPalApp')
            clicking on anywhere on keyboard will dismiss the edit box*/
         //var body = angular.element(document).find('body');
         var shoppinPalMainDiv = angular.element(document.querySelector('.shoppinPal-warehouse'));
-        if($scope.deviceDetector.isDesktop()) {
+        if($scope.device !== 'ipad') {
           //body.bind('mousedown', function(event) {
           shoppinPalMainDiv.bind('mousedown', function(event) {
             if( !event.target.classList.contains('editable-panel') ) {
@@ -292,7 +292,6 @@ angular.module('ShoppinPalApp')
       // Load the data
       // -------------
       $scope.displayPendingRows = true;
-      $scope.device = $scope.deviceDetector.device;
 
       if($stateParams.reportId) {
         $scope.waitOnPromise = loginService.getReport($stateParams.reportId)

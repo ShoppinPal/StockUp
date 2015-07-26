@@ -68,7 +68,9 @@
                         </thead>
                     </table>
                     <div class="scrollable-table">
-                        <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table" device-detector ng-class="{'ipad-table': device === 'ipad'}">
+                        <table cellspacing="0" cellpadding="0" width="100%"
+                               class="table table-responsive store-landing-right-table"
+                               ng-class="{'ipad-table': device === 'ipad'}">
                             <tbody ng-repeat="storeReportRow in storesReport" class="animate-repeat">
                                 <!--http://stackoverflow.com/questions/15412897/how-to-obtain-previous-item-in-ng-repeat-->
                                 <tr ng-if="displayPendingRows && storeReportRow.type!==storesReport[$index - 1].type"
@@ -155,12 +157,12 @@
                                             <div class="clearfix editable-panel"></div>
                                         </div>
                                         <div class="row editable-panel">
-                                            <input device-detector ng-if='device !== "ipad"'
+                                            <input ng-if='device !== "ipad"'
                                                    type="text"
                                                    class="form-control comment-input editable-panel"
                                                    placeholder="-- Add your Comments --"
                                                    ng-model="storeReportRow.comments[ReportModelStates.MANAGER_IN_PROCESS]">
-                                            <input device-detector ng-if='device === "ipad"'
+                                            <input ng-if='device === "ipad"'
                                                    type="text"
                                                    class="form-control comment-input editable-panel"
                                                    placeholder="-- Add your Comments --"
