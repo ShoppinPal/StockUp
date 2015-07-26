@@ -147,7 +147,8 @@
                                             </div>
                                             <div class="clearfix editable-panel"></div>
                                         </div>
-                                        <div class="editable-panel">
+                                        <div class="editable-panel"
+                                             ng-if="storeReportRow.state!==ROW_STATE_COMPLETE">
                                             <div class="float-left column-text margin-right editable-panel">
                                                 <button class="btn button-large-green editable-panel"
                                                         ng-click="deleteRow($index, storeReportRow)">

@@ -19,9 +19,11 @@ angular.module('ShoppinPalApp')
               ReportModelStates)
     {
       $scope.ReportModelStates = ReportModelStates;
+
+      $scope.ROW_STATE_COMPLETE = 'complete';
       var ROW_STATE_NOT_COMPLETE = '!complete';
-      var ROW_STATE_COMPLETE = 'complete';
       var ROW_STATE_PENDING = 'pending';
+
       var originalReportDataSet; // no need to put everything in the $scope, only what's needed
 
       $scope.storeName = ($sessionStorage.currentStore) ? $sessionStorage.currentStore.name : null;
@@ -313,7 +315,7 @@ angular.module('ShoppinPalApp')
       };
 
       $scope.getFilterForRowsToDisplay = function() {
-        return ($scope.displayPendingRows) ? {state:ROW_STATE_NOT_COMPLETE} : {state:ROW_STATE_COMPLETE};
+        return ($scope.displayPendingRows) ? {state:ROW_STATE_NOT_COMPLETE} : {state:$scope.ROW_STATE_COMPLETE};
       };
 
       // -------------
@@ -326,7 +328,7 @@ angular.module('ShoppinPalApp')
           .then(function (response) {
             originalReportDataSet = response;
             /*angular.forEach(originalReportDataSet, function (row) {
-              row.state = ROW_STATE_COMPLETE;
+              row.state = $scope.ROW_STATE_COMPLETE;
             });
             originalReportDataSet[originalReportDataSet.length-1].state = 'pending';
             console.log(originalReportDataSet[originalReportDataSet.length-1]);*/
