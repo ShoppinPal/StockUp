@@ -125,6 +125,11 @@ angular.module('ShoppinPalApp')
           '\n\t', 'storeReportRow', storeReportRow,
           '\n\t', 'equal?', ($scope.storesReport[rowIndex]===storeReportRow));
 
+        StockOrderLineitemModel.deleteLineitem({
+          id:storeReportRow.id
+        })
+          .$promise.then(function(){
+            console.log('deleted from backend');
         // (1) remove the bindings that were meant to kick off backend-persistance for the editable row
         var shoppinPalMainDiv = angular.element(document.querySelector('.shoppinPal-warehouse'));
         if($scope.device !== 'ipad') {
@@ -142,6 +147,7 @@ angular.module('ShoppinPalApp')
         //     this is not a true delete from the backend,
         //     so a page refresh will bring it right back!
         $scope.storesReport.splice(rowIndex, 1);
+          });
       };
 
       /** @method editRow()
