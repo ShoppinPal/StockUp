@@ -57,16 +57,17 @@ module.exports = function(StockOrderLineitemModel) {
   });
 
   StockOrderLineitemModel.updateBasedOnState = function(id, attributes, cb) {
-    log('inside update()');
+    var methodName = 'updateBasedOnState';
+    log('inside '+methodName+'()');
     var currentUser = StockOrderLineitemModel.getCurrentUserModel(cb); // returns  immediately if no currentUser
     if(currentUser) {
       StockOrderLineitemModel.findById(id) // chain the promise via a return statement so unexpected rejections/errors float up
         .then(function(stockOrderLineitemModelInstance) {
-          log('inside update() - stockOrderLineitemModelInstance', stockOrderLineitemModelInstance);
+          log('inside '+methodName+'() - stockOrderLineitemModelInstance', stockOrderLineitemModelInstance);
 
-          log('inside update() - extending StockOrderLineitemModel with attributes:', attributes);
+          log('inside '+methodName+'() - extending StockOrderLineitemModel with attributes:', attributes);
           _.extend(stockOrderLineitemModelInstance, attributes); // TODO: validate user-input?
-          //log('inside update() - extended StockOrderLineitemModel:', stockOrderLineitemModelInstance);
+          //log('inside '+methodName+'() - extended StockOrderLineitemModel:', stockOrderLineitemModelInstance);
 
           var ReportModel = StockOrderLineitemModel.app.models.ReportModel;
           ReportModel.getAllRelevantModelInstancesForReportModel(stockOrderLineitemModelInstance.reportId)
@@ -78,13 +79,13 @@ module.exports = function(StockOrderLineitemModel) {
               });
               if (reportModelInstance.state === ReportModel.ReportModelStates.MANAGER_IN_PROCESS)
               {
-                log('inside update() - work on consignment products in Vend');
+                log('inside '+methodName+'() - work on consignment products in Vend');
                 if(!stockOrderLineitemModelInstance.vendConsignmentProductId &&
                    stockOrderLineitemModelInstance.state !== StockOrderLineitemModel.StockOrderLineitemModelStates.ORDERED){
-                  log('inside update() - PASS - will create a consignment product in Vend');
+                  log('inside '+methodName+'() - PASS - will create a consignment product in Vend');
                   oauthVendUtil.createStockOrderLineitemForVend(storeModelInstance, reportModelInstance, stockOrderLineitemModelInstance)
                     .then(function(newConsignmentProduct){
-                      log('inside update() - PASS - created a consignment product in Vend');
+                      log('inside '+methodName+'() - PASS - created a consignment product in Vend');
                       log('newConsignmentProduct', newConsignmentProduct);
                       stockOrderLineitemModelInstance.vendConsignmentProductId = newConsignmentProduct.id;
                       stockOrderLineitemModelInstance.vendConsignmentProduct = newConsignmentProduct;
@@ -94,7 +95,7 @@ module.exports = function(StockOrderLineitemModel) {
                       }
                       stockOrderLineitemModelInstance.save()
                         .then(function(updatedStockOrderLineitemModelInstance){
-                          log('inside update() - PASS - updated the lineitem model');
+                          log('inside '+methodName+'() - PASS - updated the lineitem model');
                           cb(null, updatedStockOrderLineitemModelInstance);
                         });
                     },
@@ -103,15 +104,15 @@ module.exports = function(StockOrderLineitemModel) {
                     });
                 }
                 else { // is already in StockOrderLineitemModel.StockOrderLineitemModelStates.ORDERED state
-                  log('inside update() - PASS - will update the consignment product in Vend');
+                  log('inside '+methodName+'() - PASS - will update the consignment product in Vend');
                   oauthVendUtil.updateStockOrderLineitemForVend(storeModelInstance, reportModelInstance, stockOrderLineitemModelInstance)
                     .then(function(updatedConsignmentProduct){
-                      log('inside update() - PASS - updated the consignment product in Vend');
+                      log('inside '+methodName+'() - PASS - updated the consignment product in Vend');
                       log('updatedConsignmentProduct', updatedConsignmentProduct);
                       stockOrderLineitemModelInstance.vendConsignmentProduct = updatedConsignmentProduct;
                       stockOrderLineitemModelInstance.save()
                         .then(function(updatedStockOrderLineitemModelInstance){
-                          log('inside update() - PASS - updated the lineitem model');
+                          log('inside '+methodName+'() - PASS - updated the lineitem model');
                           cb(null, updatedStockOrderLineitemModelInstance);
                         });
                     },
@@ -122,15 +123,15 @@ module.exports = function(StockOrderLineitemModel) {
               }
               else if (reportModelInstance.state === StockOrderLineitemModel.app.models.ReportModel.ReportModelStates.MANAGER_RECEIVE)
               {
-                log('inside update() - will update the existing consignment product in Vend');
+                log('inside '+methodName+'() - will update the existing consignment product in Vend');
                 oauthVendUtil.updateStockOrderLineitemForVend(storeModelInstance, reportModelInstance, stockOrderLineitemModelInstance)
                   .then(function(updatedConsignmentProduct){
-                    log('inside update() - PASS - updated the consignment product in Vend');
+                    log('inside '+methodName+'() - PASS - updated the consignment product in Vend');
                     log('updatedConsignmentProduct', updatedConsignmentProduct);
                     stockOrderLineitemModelInstance.vendConsignmentProduct = updatedConsignmentProduct;
                     stockOrderLineitemModelInstance.save()
                       .then(function(updatedStockOrderLineitemModelInstance){
-                        log('inside update() - PASS - updated the lineitem model');
+                        log('inside '+methodName+'() - PASS - updated the lineitem model');
                         cb(null, updatedStockOrderLineitemModelInstance);
                       });
                   },

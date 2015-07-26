@@ -531,8 +531,8 @@ var createStockOrderLineitemForVend = function(storeModelInstance, reportModelIn
         });
     },
     function(error){
-      log.error('createStockOrderLineitemForVend()', 'Error creating a stock order in Vend:\n' + JSON.stringify(error));
-      return Promise.reject('An error occurred while creating a stock order in Vend.\n' + JSON.stringify(error));
+      log.error('createStockOrderLineitemForVend()', 'Error creating a stock order lineitem in Vend:\n' + JSON.stringify(error));
+      return Promise.reject('An error occurred while creating a stock order lineitem in Vend.\n' + JSON.stringify(error));
     });
 };
 
@@ -556,8 +556,8 @@ var updateStockOrderLineitemForVend = function(storeModelInstance, reportModelIn
         });
     },
     function(error){
-      log.error('updateStockOrderLineitemForVend()', 'Error updating a stock order in Vend:\n' + JSON.stringify(error));
-      return Promise.reject('An error occurred while updating a stock order in Vend.\n' + JSON.stringify(error));
+      log.error('updateStockOrderLineitemForVend()', 'Error updating a stock order lineitem in Vend:\n' + JSON.stringify(error));
+      return Promise.reject('An error occurred while updating a stock order lineitem in Vend.\n' + JSON.stringify(error));
     });
 };
 
