@@ -116,6 +116,32 @@ angular.module('ShoppinPalApp')
         }
       };
 
+      $scope.deleteRow = function(rowIndex, storeReportRow) {
+        console.log('> > > > > ', 'deleteRow',
+          '\n\t', 'rowIndex', rowIndex,
+          '\n\t', '$scope.storesReport[rowIndex]', $scope.storesReport[rowIndex],
+          '\n\t', 'storeReportRow', storeReportRow,
+          '\n\t', 'equal?', ($scope.storesReport[rowIndex]===storeReportRow));
+
+        // (1) remove the bindings that were meant to kick off backend-persistance for the editable row
+        var shoppinPalMainDiv = angular.element(document.querySelector('.shoppinPal-warehouse'));
+        if($scope.device !== 'ipad') {
+          console.log('UN-binding `mousedown` event for anything non-iPad');
+          shoppinPalMainDiv.unbind('mousedown');
+        } else {
+          console.log('UN-binding `touchstart` event for iPad');
+          shoppinPalMainDiv.unbind('touchstart');
+        }
+
+        // (2) dismiss the edit view in UI
+        $scope.selectedRowIndex = $scope.storereportlength + 1;
+
+        // (3) remove the row from the array of visible pending rows,
+        //     this is not a true delete from the backend,
+        //     so a page refresh will bring it right back!
+        $scope.storesReport.splice(rowIndex, 1);
+      };
+
       /** @method editRow()
        * @param selectedRow
        * This method display the edit functionality on right swipe
@@ -137,6 +163,7 @@ angular.module('ShoppinPalApp')
         //var body = angular.element(document).find('body');
         var shoppinPalMainDiv = angular.element(document.querySelector('.shoppinPal-warehouse'));
         if($scope.device !== 'ipad') {
+          console.log('binding to `mousedown` event for anything non-iPad');
           //body.bind('mousedown', function(event) {
           shoppinPalMainDiv.bind('mousedown', function(event) {
             if( !event.target.classList.contains('editable-panel') ) {
@@ -146,6 +173,7 @@ angular.module('ShoppinPalApp')
             }
           });
         } else {
+          console.log('binding to `touchstart` event for iPad');
           //body.bind('touchstart', function(event) {
           shoppinPalMainDiv.bind('touchstart', function(event) {
             if( !event.target.classList.contains('editable-panel') ) {
