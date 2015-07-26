@@ -97,6 +97,10 @@
                                 </tr>
                                 <!-- Edit store-report start -->
                                 <!-- <tr ng-show="$index==selectedRowIndex" class="edit-row" ng-mouseleave="dismissEdit(storeReportRow)"> -->
+                                <!-- NOTE: Clarion team implemented a solution where the `onEditInit` methods uses
+                                           the `editable-panel` class to track when a user clicks outside the editable row.
+                                           So all the elements that comprise the editable row are marked with that class.
+                                -->
                                 <tr ng-if="$index==selectedRowIndex"
                                     ng-init="onEditInit(storeReportRow)"
                                     class="edit-row editable-panel animate-if">
