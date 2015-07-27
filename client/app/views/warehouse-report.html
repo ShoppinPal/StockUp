@@ -91,7 +91,9 @@
                                                     <span class="fa fa-minus-circle fa-lg edit-icon editable-panel" ng-click="decreaseQty(item)"></span>
                                                 </div>
                                                 <div class="float-left margin-right-10px editable-panel">
-                                                    <input type="text" class="form-control input-small editable-panel" ng-model="item.fulfilledQuantity">
+                                                    <input type="number" pattern="[0-9]*"
+                                                           class="form-control input-small editable-panel"
+                                                           ng-model="item.fulfilledQuantity">
                                                 </div>
                                                 <div class="float-left margin-right margin-top editable-panel">
                                                     <span class="fa fa-plus-circle fa-lg edit-icon editable-panel" ng-click="increaseQty(item)"></span>

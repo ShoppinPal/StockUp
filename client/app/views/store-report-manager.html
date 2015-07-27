@@ -92,7 +92,8 @@
                                                       ng-click="decreaseDSL(storeReportRow)"/>
                                             </div>
                                             <div class="float-left margin-right-10px editable-panel">
-                                                <input type="text" class="form-control input-small editable-panel"
+                                                <input type="number" pattern="[0-9]*"
+                                                       class="form-control input-small editable-panel"
                                                        ng-model="storeReportRow.desiredStockLevel">
                                             </div>
                                             <div class="float-left margin-right margin-top editable-panel">
@@ -107,7 +108,8 @@
                                                       ng-click="decreaseOrderQuantity(storeReportRow)"/>
                                             </div>
                                             <div class="float-left margin-right-10px editable-panel">
-                                                <input type="text" class="form-control input-small editable-panel"
+                                                <input type="number" pattern="[0-9]*"
+                                                       class="form-control input-small editable-panel"
                                                        ng-model="storeReportRow.orderQuantity">
                                             </div>
                                             <div class="float-left margin-right margin-top editable-panel">
