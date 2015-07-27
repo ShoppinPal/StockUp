@@ -1,26 +1,21 @@
 beforeEach(function() {
-  //browser.get('http://ishare.nardi.me:8000');
-  browser.get('https://mppulkit1.localtunnel.me');
+  // do something useful
 });
 
 var login = {
-  username: element(by.model('userNameWindow'))/*,
+  username: element(by.model('userNameIos'))/*,
   password: element(by.model('userNameWindow')),
   loginButton: element(by.xpath('//form[@name=\'loginForm\']//button[@type=\'submit\']'))*/
 };
 
-describe('experiment', function() {
-  it('validate that you land on the login page', function() {
-    /*
-    expect(url).toMatch(/#\/login/);
-    expect(browser.getLocationAbsUrl()).toBe('https://mppulkit1.localtunnel.me/#/store-landing');
-    */
-
-    expect(browser.getLocationAbsUrl()) .toBe('https://mppulkit1.localtunnel.me/#/login');
+describe('Warehouse', function() {
+  it('anonymous users should you land on the login page by default', function() {
+    browser.get('https://mppulkit1.localtunnel.me');
+    expect(browser.getLocationAbsUrl()) .toBe('/login');
   });
 
-  it('logs the user in', function() {
-    expect(browser.getLocationAbsUrl()) .toBe('https://mppulkit1.localtunnel.me/#/login');
+  it('users with appropriate credentials should be able to login', function() {
+    expect(browser.getLocationAbsUrl()) .toBe('/login');
 
     login.username.sendKeys('merchant2@shoppinpal.com');
     // TODO: find the username password elements fill them in
