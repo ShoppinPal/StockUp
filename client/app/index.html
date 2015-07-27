@@ -16,7 +16,6 @@
         <link href="//netdna.bootstrapcdn.com/bootswatch/3.1.1/yeti/bootstrap.min.css" rel="stylesheet">
         <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css" rel="stylesheet">
         <link href="bower_components/angular-busy/dist/angular-busy.min.css" rel="stylesheet">
-        <link href="bower_components/angular-virtual-keyboard/release/angular-virtual-keyboard.css" rel="stylesheet">
         <link href="bower_components/ngDialog/css/ngDialog.css" rel="stylesheet">
         <link href="bower_components/ngDialog/css/ngDialog-theme-default.css" rel="stylesheet">
         <link href="bower_components/ngDialog/css/ngDialog-theme-plain.css" rel="stylesheet">
@@ -71,11 +70,9 @@
         <script src="bower_components/angular-animate/angular-animate.js"></script>
         <script src="bower_components/angular-strap/dist/angular-strap.min.js"></script>
         <script src="bower_components/angular-strap/dist/angular-strap.tpl.min.js"></script>
-        <script src="bower_components/angular-virtual-keyboard/release/angular-virtual-keyboard.js"></script>
         <script src="bower_components/ngDialog/js/ngDialog.js"></script>
-        <script src="bower_components/re-tree/re-tree.js"></script>
+        <script src="bower_components/re-tree/re-tree.js"></script> <!-- re-tree is a sub-dependency of ng-device-detector -->
         <script src="bower_components/ng-device-detector/ng-device-detector.js"></script>
-        <script src="bower_components/ng-fastclick/dist/index.min.js"></script>
         <!-- endbuild -->
         <!-- build:js({.tmp,app}) scripts/scripts.js -->
         <script src="scripts/angular-geocode.js"></script>
@@ -101,7 +98,7 @@
         <script src="scripts/controllers/create-manual-order.js"></script>
         <script src="scripts/controllers/store-receiver-report.js"></script>
         <script src="scripts/services/login-service.js"></script>
-        <script src="scripts/directives/file-model.js"></script>
+        <script src="scripts/directives/file-model.js"></script> <!-- TODO: where is this being used? -->
         <script src="scripts/directives/back-button.js"></script>
         <script src="scripts/directives/shoppin-pal-header.js"></script>
     </body>

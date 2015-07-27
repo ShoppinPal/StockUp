@@ -164,18 +164,10 @@
                                             <div class="clearfix editable-panel"></div>
                                         </div>
                                         <div class="row editable-panel">
-                                            <input ng-if='device !== "ipad"'
-                                                   type="text"
+                                            <input type="text"
                                                    class="form-control comment-input editable-panel"
                                                    placeholder="-- Add your Comments --"
                                                    ng-model="storeReportRow.comments[ReportModelStates.MANAGER_IN_PROCESS]">
-                                            <input ng-if='device === "ipad"'
-                                                   type="text"
-                                                   class="form-control comment-input editable-panel"
-                                                   placeholder="-- Add your Comments --"
-                                                   ng-model="storeReportRow.comments[ReportModelStates.MANAGER_IN_PROCESS]"
-                                                   ng-readonly="true"
-                                                   ng-virtual-keyboard="{relative: true, vki_attached:true}">
                                         </div>
                                     </td>
                                 </tr>

@@ -173,9 +173,6 @@ angular.module('ShoppinPalApp')
         currentMutableDataFieldsForRow = getMutableDataFieldsForRow(storeReportRow);
         //console.log('currentMutableDataFieldsForRow', currentMutableDataFieldsForRow);
 
-        /* moved the event from body to ui-view div as after adding the virtual keyboard,
-           clicking on anywhere on keyboard will dismiss the edit box*/
-        //var body = angular.element(document).find('body');
         var shoppinPalMainDiv = angular.element(document.querySelector('.shoppinPal-warehouse'));
         if($scope.device !== 'ipad') {
           console.log('binding to `mousedown` event for anything non-iPad');

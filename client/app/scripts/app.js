@@ -1,8 +1,7 @@
 'use strict';
 
 angular.module('ShoppinPalApp',[
-  'angular-virtual-keyboard'
-  ,'cgBusy'
+  'cgBusy'
   ,'geocoder'
   ,'mgcrea.ngStrap'
   ,'ngAnimate'
@@ -13,7 +12,6 @@ angular.module('ShoppinPalApp',[
   ,'ngStorage'
   ,'ngTouch'
   ,'ng.deviceDetector'
-  ,'ng-fastclick'
   ,'shoppinpal-constants'
   ,'shoppinpal-loopback'
   ,'shoppinpal-prestashop'

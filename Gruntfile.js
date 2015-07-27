@@ -114,8 +114,7 @@ module.exports = function (grunt) {
           jshintrc: '<%= yeoman.app %>/.jshintrc',
           ignores: [
             '<%= yeoman.app %>/scripts/shoppinpal-loopback.js',
-            '<%= yeoman.app %>/scripts/shoppinpal-utils.js',
-            '<%= yeoman.app %>/scripts/directives/dismiss-keyboard.js'
+            '<%= yeoman.app %>/scripts/shoppinpal-utils.js'
           ],
           reporter: require('jshint-stylish')
         },

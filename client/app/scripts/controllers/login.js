@@ -15,19 +15,11 @@ angular.module('ShoppinPalApp')
   .controller('LoginCtrl',[
     '$scope', '$sessionStorage', '$state', /* angular's modules/services/factories etc. */
     'UserModel', /* shoppinpal's custom modules/services/factories etc. */
-    'deviceDetector', /* 3rd party custom modules/services/factories etc. */
     function ($scope, $sessionStorage, $state,
-              UserModel,
-              deviceDetector)
+              UserModel)
     {
-      $scope.userNameWindow = '';
-      $scope.passwordWindow = '';
-
-      $scope.userNameIos = '';
-      $scope.passwordIos = '';
-
-      $scope.deviceDetector = deviceDetector;
-
+      $scope.userName = '';
+      $scope.password = '';
       $scope.errors = {
         username: '',
         pwd : ''
@@ -97,10 +89,6 @@ angular.module('ShoppinPalApp')
             $scope.errors.pwd = message;
           });
       };
-
-      $scope.$on('$viewContentLoaded', function() {
-        $scope.device = $scope.deviceDetector.device;
-      });
 
     }
   ]);
