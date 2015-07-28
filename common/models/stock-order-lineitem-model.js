@@ -58,16 +58,19 @@ module.exports = function(StockOrderLineitemModel) {
 
   StockOrderLineitemModel.updateBasedOnState = function(id, attributes, cb) {
     var methodName = 'updateBasedOnState';
-    log('inside '+methodName+'()');
+    log(methodName, '> start');
     var currentUser = StockOrderLineitemModel.getCurrentUserModel(cb); // returns  immediately if no currentUser
     if(currentUser) {
       StockOrderLineitemModel.findById(id) // chain the promise via a return statement so unexpected rejections/errors float up
         .then(function(stockOrderLineitemModelInstance) {
-          log('inside '+methodName+'() - stockOrderLineitemModelInstance', stockOrderLineitemModelInstance);
+          log(methodName, '> findById > then', '\n',
+            '> stockOrderLineitemModelInstance', stockOrderLineitemModelInstance);
 
-          log('inside '+methodName+'() - extending StockOrderLineitemModel with attributes:', attributes);
+          log(methodName, '> findById > then', '\n',
+            '> extending StockOrderLineitemModel with attributes:', attributes);
           _.extend(stockOrderLineitemModelInstance, attributes); // TODO: validate user-input?
-          //log('inside '+methodName+'() - extended StockOrderLineitemModel:', stockOrderLineitemModelInstance);
+          //log(methodName, '> findById > then', '\n',
+          //  '> extended StockOrderLineitemModel:', stockOrderLineitemModelInstance);
 
           var ReportModel = StockOrderLineitemModel.app.models.ReportModel;
           ReportModel.getAllRelevantModelInstancesForReportModel(stockOrderLineitemModelInstance.reportId)
@@ -79,23 +82,33 @@ module.exports = function(StockOrderLineitemModel) {
               });
               if (reportModelInstance.state === ReportModel.ReportModelStates.MANAGER_IN_PROCESS)
               {
-                log('inside '+methodName+'() - work on consignment products in Vend');
+                log(methodName, '> findById > then > spread > MANAGER_IN_PROCESS', '\n',
+                  '> work on consignment products in Vend');
                 if(!stockOrderLineitemModelInstance.vendConsignmentProductId &&
                    stockOrderLineitemModelInstance.state !== StockOrderLineitemModel.StockOrderLineitemModelStates.ORDERED){
-                  log('inside '+methodName+'() - PASS - will create a consignment product in Vend');
+                  log(methodName, '> findById > then > spread > MANAGER_IN_PROCESS > !ORDERED', '\n',
+                    '> will create a consignment product in Vend');
                   oauthVendUtil.createStockOrderLineitemForVend(storeModelInstance, reportModelInstance, stockOrderLineitemModelInstance)
                     .then(function(newConsignmentProduct){
-                      log('inside '+methodName+'() - PASS - created a consignment product in Vend');
-                      log('newConsignmentProduct', newConsignmentProduct);
+                      log(methodName, '> findById > then > spread > MANAGER_IN_PROCESS > !ORDERED > create > then', '\n',
+                        '> created a consignment product in Vend');
+                      log(methodName, '> findById > then > spread > MANAGER_IN_PROCESS > !ORDERED > create > then', '\n',
+                        '> newConsignmentProduct', newConsignmentProduct);
                       stockOrderLineitemModelInstance.vendConsignmentProductId = newConsignmentProduct.id;
                       stockOrderLineitemModelInstance.vendConsignmentProduct = newConsignmentProduct;
                       if(!attributes.state || attributes.state !== StockOrderLineitemModel.StockOrderLineitemModelStates.PENDING) {
-                        // if client didn't specifically ask for the row to be left in PENDING state then change its status to the next one
+                        log(methodName, '> findById > then > spread > MANAGER_IN_PROCESS > !ORDERED > create > then', '\n',
+                          '> since client did not specifically ask for the row to be left in PENDING state ... change its status to the next one');
                         stockOrderLineitemModelInstance.state = StockOrderLineitemModel.StockOrderLineitemModelStates.ORDERED;
+                      }
+                      else {
+                        log(methodName, '> findById > then > spread > MANAGER_IN_PROCESS > !ORDERED > create > then', '\n',
+                          '> client specifically asked for the row to be left in PENDING state');
                       }
                       stockOrderLineitemModelInstance.save()
                         .then(function(updatedStockOrderLineitemModelInstance){
-                          log('inside '+methodName+'() - PASS - updated the lineitem model');
+                          log(methodName, '> findById > then > spread > MANAGER_IN_PROCESS > !ORDERED > create > then > save > then', '\n',
+                            '> updated the lineitem model');
                           cb(null, updatedStockOrderLineitemModelInstance);
                         });
                     },
@@ -104,18 +117,28 @@ module.exports = function(StockOrderLineitemModel) {
                     });
                 }
                 else { // is already in StockOrderLineitemModel.StockOrderLineitemModelStates.ORDERED state
-                  log('inside '+methodName+'() - PASS - will update the consignment product in Vend');
+                  log(methodName, '> findById > then > spread > MANAGER_IN_PROCESS > ORDERED', '\n',
+                    '> will update the consignment product in Vend');
                   oauthVendUtil.updateStockOrderLineitemForVend(storeModelInstance, reportModelInstance, stockOrderLineitemModelInstance)
                     .then(function(updatedConsignmentProduct){
-                      log('inside '+methodName+'() - PASS - updated the consignment product in Vend');
-                      log('updatedConsignmentProduct', updatedConsignmentProduct);
+                      log(methodName, '> findById > then > spread > MANAGER_IN_PROCESS > ORDERED > update > then', '\n',
+                        '> updated the consignment product in Vend');
+                      log(methodName, '> findById > then > spread > MANAGER_IN_PROCESS > ORDERED > update > then', '\n',
+                        '> updatedConsignmentProduct', updatedConsignmentProduct);
                       stockOrderLineitemModelInstance.vendConsignmentProduct = updatedConsignmentProduct;
                       if(!attributes.state || attributes.state !== StockOrderLineitemModel.StockOrderLineitemModelStates.PENDING) {
+                        log(methodName, '> findById > then > spread > MANAGER_IN_PROCESS > ORDERED > update > then', '\n',
+                          '> since client did not specifically ask for the row to be left in PENDING state ... change its status to the next one');
                         stockOrderLineitemModelInstance.state = StockOrderLineitemModel.StockOrderLineitemModelStates.ORDERED;
+                      }
+                      else {
+                        log(methodName, '> findById > then > spread > MANAGER_IN_PROCESS > ORDERED > update > then', '\n',
+                          '> client specifically asked for the row to be left in PENDING state');
                       }
                       stockOrderLineitemModelInstance.save()
                         .then(function(updatedStockOrderLineitemModelInstance){
-                          log('inside '+methodName+'() - PASS - updated the lineitem model');
+                          log(methodName, '> findById > then > spread > MANAGER_IN_PROCESS > ORDERED > update > then > save > then', '\n',
+                            '> updated the lineitem model');
                           cb(null, updatedStockOrderLineitemModelInstance);
                         });
                     },
@@ -126,15 +149,19 @@ module.exports = function(StockOrderLineitemModel) {
               }
               else if (reportModelInstance.state === StockOrderLineitemModel.app.models.ReportModel.ReportModelStates.MANAGER_RECEIVE)
               {
-                log('inside '+methodName+'() - will update the existing consignment product in Vend');
+                log(methodName, '> findById > then > spread > MANAGER_RECEIVE', '\n',
+                  '> will update the existing consignment product in Vend');
                 oauthVendUtil.updateStockOrderLineitemForVend(storeModelInstance, reportModelInstance, stockOrderLineitemModelInstance)
                   .then(function(updatedConsignmentProduct){
-                    log('inside '+methodName+'() - PASS - updated the consignment product in Vend');
-                    log('updatedConsignmentProduct', updatedConsignmentProduct);
+                    log(methodName, '> findById > then > spread > MANAGER_RECEIVE > update > then', '\n',
+                      '> updated the consignment product in Vend');
+                    log(methodName, '> findById > then > spread > MANAGER_RECEIVE > update > then', '\n',
+                      '> updatedConsignmentProduct', updatedConsignmentProduct);
                     stockOrderLineitemModelInstance.vendConsignmentProduct = updatedConsignmentProduct;
                     stockOrderLineitemModelInstance.save()
                       .then(function(updatedStockOrderLineitemModelInstance){
-                        log('inside '+methodName+'() - PASS - updated the lineitem model');
+                        log(methodName, '> findById > then > spread > MANAGER_RECEIVE > update > then > save > then', '\n',
+                          '> updated the lineitem model');
                         cb(null, updatedStockOrderLineitemModelInstance);
                       });
                   },
