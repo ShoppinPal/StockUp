@@ -110,6 +110,9 @@ module.exports = function(StockOrderLineitemModel) {
                       log('inside '+methodName+'() - PASS - updated the consignment product in Vend');
                       log('updatedConsignmentProduct', updatedConsignmentProduct);
                       stockOrderLineitemModelInstance.vendConsignmentProduct = updatedConsignmentProduct;
+                      if(!attributes.state || attributes.state !== StockOrderLineitemModel.StockOrderLineitemModelStates.PENDING) {
+                        stockOrderLineitemModelInstance.state = StockOrderLineitemModel.StockOrderLineitemModelStates.ORDERED;
+                      }
                       stockOrderLineitemModelInstance.save()
                         .then(function(updatedStockOrderLineitemModelInstance){
                           log('inside '+methodName+'() - PASS - updated the lineitem model');
