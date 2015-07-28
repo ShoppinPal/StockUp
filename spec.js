@@ -2,24 +2,43 @@ beforeEach(function() {
   // do something useful
 });
 
+var subdomain = 'mppulkit1';
+var baseUrl = 'https://'+subdomain+'.localtunnel.me/';
+
 var login = {
-  username: element(by.model('userNameIos'))/*,
-  password: element(by.model('userNameWindow')),
-  loginButton: element(by.xpath('//form[@name=\'loginForm\']//button[@type=\'submit\']'))*/
+  username: element(by.model('userName')),
+  password: element(by.model('password')),
+  loginButton: element(by.id('login'))
 };
 
-describe('Warehouse', function() {
+describe('In Warehouse', function() {
   it('anonymous users should you land on the login page by default', function() {
-    browser.get('https://mppulkit1.localtunnel.me');
+    browser.get(baseUrl);
     expect(browser.getLocationAbsUrl()) .toBe('/login');
   });
 
   it('users with appropriate credentials should be able to login', function() {
     expect(browser.getLocationAbsUrl()) .toBe('/login');
 
-    login.username.sendKeys('merchant2@shoppinpal.com');
-    // TODO: find the username password elements fill them in
-    // TODO: click the login button
-    // TODO: validate that you land on the store-landing page
+    // fill in a username
+    login.username.sendKeys('merchant1@shoppinpal.com');
+
+    // fill in a password
+    login.password.sendKeys('9732KilzSqEUGF');
+
+    // click the login button
+    login.loginButton.click();
+
+    // validate that you land on the `store-landing` page
+    expect(browser.getLocationAbsUrl()) .toBe('/store-landing');
+  });
+
+  it('managers should be able to kick-off a job to generate a stock order on demand', function() {
+    expect(browser.getLocationAbsUrl()) .toBe('/store-landing');
+
+    element(by.buttonText('Create manual order')).click();
+    expect(browser.getLocationAbsUrl()) .toBe('/create-manual-order');
+
   });
 });
+
