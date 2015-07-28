@@ -60,7 +60,9 @@
     "loopback-testing": "^1.0.3",
     "matchdep": "~0.3.0",
     "protractor": "~0.22.0",
-    "time-grunt": "~0.2.9"
+    "time-grunt": "~0.2.9",
+    "wd": "^0.3.12",
+    "wd-bridge": "0.0.2"
   },
   "engines": {
     "node": "0.10.x"
