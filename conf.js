@@ -31,13 +31,30 @@ exports.config = {
 
   baseUrl: 'https://mppulkit1.localtunnel.me',
 
-  // configuring wd in onPrepare
-  // wdBridge helps to bridge wd driver with other selenium clients
-  // See https://github.com/sebv/wd-bridge/blob/master/README.md
   onPrepare: function () {
+    // Override the timeout for webdriver.
+    browser.manage().timeouts().setScriptTimeout(60000);
+
+    // configuring wd in onPrepare
+    // wdBridge helps to bridge wd driver with other selenium clients
+    // See https://github.com/sebv/wd-bridge/blob/master/README.md
     var wd = require('wd'),
       protractor = require('protractor'),
       wdBridge = require('wd-bridge')(protractor, wd);
     wdBridge.initFromProtractor(exports.config);
+  },
+
+  // ----- Options to be passed to minijasminenode -----
+  jasmineNodeOpts: {
+    // onComplete will be called just before the driver quits.
+    onComplete: null,
+    // If true, display spec names.
+    isVerbose: false,
+    // If true, print colors to the terminal.
+    showColors: true,
+    // If true, include stack traces in failures.
+    includeStackTrace: true,
+    // Default time to wait in ms before a test fails.
+    defaultTimeoutInterval: 60000
   }
 };
