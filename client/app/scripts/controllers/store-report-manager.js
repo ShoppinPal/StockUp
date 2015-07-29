@@ -60,6 +60,18 @@ angular.module('ShoppinPalApp')
         return $scope.waitOnPromise;
       };
 
+      var handleNittyGrittyStuffForDismissingEditableRow = function(){
+        $scope.selectedRowIndex = $scope.storereportlength + 1; // dismiss the edit view in UI
+
+        if($scope.unbindStoreReportRow){
+          console.log('calling unbindStoreReportRow()');
+          $scope.unbindStoreReportRow(); // stop "watching" the storeReportRow
+        }
+        else {
+          console.log('no unbindStoreReportRow() available to call');
+        }
+      };
+
       /** @method dismissEdit
        * This method will close the editable mode in store-report
        */
@@ -77,7 +89,7 @@ angular.module('ShoppinPalApp')
         {
           console.log('no changes in the row');
           $timeout(function(){
-            $scope.selectedRowIndex = $scope.storereportlength + 1;
+            handleNittyGrittyStuffForDismissingEditableRow();
           }, 0);
         }
         else {
@@ -106,7 +118,7 @@ angular.module('ShoppinPalApp')
                   console.log('updatedStockOrderLineitemModelInstance', updatedStockOrderLineitemModelInstance);
                   storeReportRow.updatedAt = updatedStockOrderLineitemModelInstance.updatedAt;
                   storeReportRow.state = updatedStockOrderLineitemModelInstance.state;
-                  $scope.selectedRowIndex = $scope.storereportlength + 1; // dismiss the edit view in UI
+                  handleNittyGrittyStuffForDismissingEditableRow();
                 });
             })
             .catch(function(error){
@@ -116,7 +128,7 @@ angular.module('ShoppinPalApp')
               else {
                 console.log('TODO: tell user something went wrong! They should try again or report to an admin.');
               }
-              $scope.selectedRowIndex = $scope.storereportlength + 1; // dismiss the edit view in UI
+              handleNittyGrittyStuffForDismissingEditableRow();
             });
         }
       };
@@ -132,8 +144,8 @@ angular.module('ShoppinPalApp')
           shoppinPalMainDiv.unbind('touchstart');
         }
 
-        // (2) dismiss the edit view in UI
-        $scope.selectedRowIndex = $scope.storereportlength + 1;
+        // (2)
+        handleNittyGrittyStuffForDismissingEditableRow();
 
         // (3) remove the row from the array of visible pending rows,
         //     this is not a true delete from the backend,
@@ -158,11 +170,70 @@ angular.module('ShoppinPalApp')
       };
 
       /** @method editRow()
-       * @param selectedRow
+       * @param selectedRowIndex
        * This method display the edit functionality on right swipe
        */
-      $scope.editRow = function(selectedRow) {
-        $scope.selectedRowIndex = selectedRow;
+      $scope.editRow = function(selectedRowIndex) {
+        console.log('inside editRow()');
+
+        // TODO: a) swiping `ng-swipe-left` (Left-2-Right) outside the `editable-panel` should be considered
+        //          grounds for dismissal and unbinding + possible persistance should happen!
+        //       b) or, maybe its simpler for the editRow() method to go unbind
+        //          everything else as a rule-of-thumb before it sets a new selected row
+        //
+        // NOTE: Here we have started with approach (b) but we still aren't invoking methods
+        //       that should have persisted any changes to the server-side
+        //       TODO: needs testing to find all holes and fix them
+        handleNittyGrittyStuffForDismissingEditableRow(); // cleanup before starting
+
+        $scope.selectedRowIndex = selectedRowIndex; // causes a row in the UI to be shown in the edit mode
+
+        $scope.unbindStoreReportRow = $scope.$watch(
+          'storesReport[selectedRowIndex]',
+          function(newVal, oldVal){
+            console.log('inside $watch() oldVal:', oldVal);
+            console.log('inside $watch() newVal:', newVal);
+
+            console.log('inside $watch() oldVal.desiredStockLevel:', oldVal.desiredStockLevel);
+            console.log('inside $watch() oldVal.quantityOnHand:', oldVal.quantityOnHand);
+            console.log('inside $watch() oldVal.orderQuantity:', oldVal.orderQuantity);
+
+            if(oldVal.desiredStockLevel - oldVal.quantityOnHand === oldVal.orderQuantity) {
+              console.log('previous DSL - QOH === OQ\n'+
+                '(%d - %d = %d ) === %d\n' +
+                'changes to DSL should result in changes to OQ',
+                oldVal.desiredStockLevel,
+                oldVal.quantityOnHand,
+                (oldVal.desiredStockLevel - oldVal.quantityOnHand),
+                oldVal.orderQuantity
+              );
+              // if OQ changed then don't do anything, and unbind this function
+              if(newVal.orderQuantity !== oldVal.orderQuantity) {
+                console.log('if OQ changed then don\'t do anything, and unbind this function');
+                $scope.unbindStoreReportRow();
+              }
+              // if DSL changed then update the OQ
+              if(newVal.desiredStockLevel !== oldVal.desiredStockLevel) {
+                console.log('if DSL changed then update the OQ');
+                $scope.storesReport[selectedRowIndex].orderQuantity =
+                  $scope.storesReport[selectedRowIndex].desiredStockLevel -
+                  $scope.storesReport[selectedRowIndex].quantityOnHand;
+              }
+            }
+            else {
+              console.log('previous DSL - QOH !== OQ\n'+
+                '(%d - %d = %d ) !== %d\n' +
+                'we should not change the OQ',
+                oldVal.desiredStockLevel,
+                oldVal.quantityOnHand,
+                (oldVal.desiredStockLevel - oldVal.quantityOnHand),
+                oldVal.orderQuantity
+              );
+            }
+            //if (oldVal.desiredStockLevel !== newVal.desiredStockLevel) {}
+          }
+          ,true
+        );
       };
 
       /** @method onEditInit()
@@ -176,11 +247,10 @@ angular.module('ShoppinPalApp')
         var shoppinPalMainDiv = angular.element(document.querySelector('.shoppinPal-warehouse'));
         if($scope.device !== 'ipad') {
           console.log('binding to `mousedown` event for anything non-iPad');
-          //body.bind('mousedown', function(event) {
           shoppinPalMainDiv.bind('mousedown', function(event) {
             if( !event.target.classList.contains('editable-panel') ) {
               $scope.dismissEdit(storeReportRow);
-              //body.unbind('mousedown');
+              console.log('UN-binding `mousedown` event for anything non-iPad');
               shoppinPalMainDiv.unbind('mousedown');
             }
           });
