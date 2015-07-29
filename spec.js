@@ -19,12 +19,15 @@ describe('In Warehouse', function() {
 
   it('users with appropriate credentials should be able to login', function() {
     expect(browser.getLocationAbsUrl()) .toBe('/login');
+    waitForSometime(1000);
 
     // fill in a username
     login.username.sendKeys('merchant1@shoppinpal.com');
+    waitForSometime(1000);
 
     // fill in a password
     login.password.sendKeys('9732KilzSqEUGF');
+    waitForSometime(1000);
 
     // click the login button
     login.loginButton.click();
@@ -39,6 +42,20 @@ describe('In Warehouse', function() {
     element(by.buttonText('Create manual order')).click();
     expect(browser.getLocationAbsUrl()) .toBe('/create-manual-order');
 
+    var name = 'ordered on - ' + Date.now();
+    element(by.id('orderName')).sendKeys(name);
+    expect(element(by.id('orderName')).getAttribute('value')).toBe(name);
+    waitForSometime(3000);
   });
 });
 
+var waitForSometime = function(milliSeconds){
+  var start = new Date().getTime();
+  var script = (milliSeconds)
+    ? 'window.setTimeout(arguments[arguments.length - 1], '+ milliSeconds +');'
+    : 'window.setTimeout(arguments[arguments.length - 1], 3000);';
+  browser.executeAsyncScript(script)
+    .then(function() {
+      console.log('Elapsed time: ' + (new Date().getTime() - start) + ' ms');
+    });
+};
