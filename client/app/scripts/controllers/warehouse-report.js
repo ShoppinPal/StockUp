@@ -34,22 +34,7 @@
        * This method is called once user choose to edit a row using right swipe
        */
       $scope.onEditInit = function (item) {
-        var shoppinPalMainDiv = angular.element(document.querySelector('.shoppinPal-warehouse'));
-        if ($scope.device !== 'ipad') {
-          shoppinPalMainDiv.bind('mousedown', function (event) {
-            if (!event.target.classList.contains('editable-panel')) {
-              $scope.dismissEdit(item);
-              shoppinPalMainDiv.unbind('mousedown');
-            }
-          });
-        } else {
-          shoppinPalMainDiv.bind('touchstart', function (event) {
-            if (!event.target.classList.contains('editable-panel')) {
-              $scope.dismissEdit(item);
-              shoppinPalMainDiv.unbind('touchstart');
-            }
-          });
-        }
+        uiUtils.bindToTrackDismissal($scope, item);
       };
 
       /** @method dismissEdit

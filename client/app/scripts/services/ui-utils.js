@@ -13,6 +13,32 @@ angular.module('ShoppinPalApp')
     'ReportModel', /* loopback models */
     function ()
     {
+      var bindToTrackDismissal = function($scope, row){
+        console.log('inside bindToTrackDismissal()');
+        var shoppinPalMainDiv = angular.element(document.querySelector('.shoppinPal-warehouse'));
+        if ($scope.device !== 'ipad') {
+          console.log('binding to `mousedown` event for anything non-iPad');
+          shoppinPalMainDiv.bind('mousedown', function (event) {
+            if (!event.target.classList.contains('editable-panel')) {
+              $scope.dismissEdit(row);
+              console.log('UN-binding `mousedown` event for anything non-iPad');
+              shoppinPalMainDiv.unbind('mousedown');
+            }
+          });
+        } else {
+          bindToDismissForIPad($scope, shoppinPalMainDiv, row);
+        }
+      };
+
+      // DEPRECATED: leaving it behind in case it helps someone understand something better
+      /*var bindToDismissForIPad_DEPRECATED = function($scope, shoppinPalMainDiv, row){
+        shoppinPalMainDiv.bind('touchstart', function (event) {
+          if (!event.target.classList.contains('editable-panel')) {
+            $scope.dismissEdit(row);
+            shoppinPalMainDiv.unbind('touchstart');
+          }
+        });
+      };*/
 
       /**
        * Motivation:
@@ -37,9 +63,9 @@ angular.module('ShoppinPalApp')
        *        minimum-viable-product for now. Until a real user actually
        *        requests for an enhancement.
        * @param shoppinPalMainDiv
-       * @param storeReportRow
+       * @param row
        */
-      var bindToDismissForIPad = function($scope, shoppinPalMainDiv, storeReportRow){
+      var bindToDismissForIPad = function($scope, shoppinPalMainDiv, row){
         console.log('binding to `touchstart` event for iPad');
         shoppinPalMainDiv.bind('touchstart', function(event) {
           if (!event.target.classList.contains('editable-panel')) {
@@ -47,7 +73,7 @@ angular.module('ShoppinPalApp')
             shoppinPalMainDiv.bind('touchend', function (event) {
               if (!event.target.classList.contains('editable-panel')) {
                 console.log('UN-binding `touchend`, `touchmove` and `touchstart` events for iPad');
-                $scope.dismissEdit(storeReportRow);
+                $scope.dismissEdit(row);
                 shoppinPalMainDiv.unbind('touchend');
                 shoppinPalMainDiv.unbind('touchmove');
                 shoppinPalMainDiv.unbind('touchstart');
@@ -85,6 +111,7 @@ angular.module('ShoppinPalApp')
 
       // AngularJS will instantiate a singleton by calling 'new' on this function
       return {
+        bindToTrackDismissal: bindToTrackDismissal,
         bindToDismissForIPad: bindToDismissForIPad,
         handleNittyGrittyStuffForDismissingEditableRow: handleNittyGrittyStuffForDismissingEditableRow
       };

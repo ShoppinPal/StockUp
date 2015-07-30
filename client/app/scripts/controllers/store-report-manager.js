@@ -234,19 +234,7 @@ angular.module('ShoppinPalApp')
         currentMutableDataFieldsForRow = getMutableDataFieldsForRow(storeReportRow);
         //console.log('currentMutableDataFieldsForRow', currentMutableDataFieldsForRow);
 
-        var shoppinPalMainDiv = angular.element(document.querySelector('.shoppinPal-warehouse'));
-        if($scope.device !== 'ipad') {
-          console.log('binding to `mousedown` event for anything non-iPad');
-          shoppinPalMainDiv.bind('mousedown', function(event) {
-            if( !event.target.classList.contains('editable-panel') ) {
-              $scope.dismissEdit(storeReportRow);
-              console.log('UN-binding `mousedown` event for anything non-iPad');
-              shoppinPalMainDiv.unbind('mousedown');
-            }
-          });
-        } else {
-          uiUtils.bindToDismissForIPad($scope, shoppinPalMainDiv, storeReportRow);
-        }
+        uiUtils.bindToTrackDismissal($scope, storeReportRow);
       };
 
       /** @method markRowAsCompleted
