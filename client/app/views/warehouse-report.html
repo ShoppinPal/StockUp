@@ -100,6 +100,13 @@
                                                     <span class="fa fa-plus-circle fa-lg edit-icon editable-panel"
                                                           ng-click="increaseQty(item)"></span>
                                                 </div>
+                                                <div ng-if="item.state!==ROW_STATE_COMPLETE"
+                                                     class="pull-right column-text margin-right editable-panel">
+                                                    <button class="btn button-large-green editable-panel"
+                                                            ng-click="hideRow($index, item)">
+                                                        Delete
+                                                    </button>
+                                                </div>
                                                 <div class="clearfix editable-panel"></div>
                                             </div>
                                             <div ng-if="item.comments[ReportModelStates.MANAGER_IN_PROCESS]">

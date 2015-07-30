@@ -18,7 +18,7 @@
               ReportModelStates)
     {
       $scope.ReportModelStates = ReportModelStates;
-      var ROW_STATE_COMPLETE = 'boxed';
+      $scope.ROW_STATE_COMPLETE = 'boxed';
 
       $scope.submit = 'Submit';
       $scope.closeBoxButtonLabel = 'CLOSE THIS BOX';
@@ -71,8 +71,7 @@
           .$promise.then(function(response){
             //console.log('updated', response);
             storeReportRow.updatedAt = response.updatedAt;
-            $scope.selectedRowIndex = $scope.storereportlength + 1; // dismiss the edit view in UI
-            //$scope.selectedRowIndex = -1; // @ayush: is there merit to one over the other?
+            handleNittyGrittyStuffForDismissingEditableRow();
           });
       };
 
@@ -230,7 +229,7 @@
               fulfilledQuantity: item.fulfilledQuantity,
               comments: item.comments,
               boxNumber: $scope.selectedBox.boxNumber,
-              state: ROW_STATE_COMPLETE
+              state: $scope.ROW_STATE_COMPLETE
             }
           )
             .$promise.then(function(response){
@@ -240,7 +239,7 @@
               // change the UI after the backend finishes for data-integrity/assurance
               // but if this visibly messes with UI/UX, we might want to do it earlier...
               item.updatedAt = response.updatedAt;
-              item.state = ROW_STATE_COMPLETE;
+              item.state = $scope.ROW_STATE_COMPLETE;
               item.boxNumber = response.boxNumber;
 
               // check if all items have been processed, if yes close the box and enable submit button
@@ -257,6 +256,52 @@
           alert('Please open a box');
         }
       };
+
+      var handleNittyGrittyStuffForDismissingEditableRow = function() {
+        console.log('dismiss the edit view in UI');
+        $scope.selectedRowIndex = $scope.storereportlength + 1;
+      };
+
+      var dismissEditableRow = function(rowIndex) {
+        // (1) remove the bindings that were meant to kick off backend-persistance for the editable row
+        var shoppinPalMainDiv = angular.element(document.querySelector('.shoppinPal-warehouse'));
+        if($scope.device !== 'ipad') {
+          console.log('UN-binding `mousedown` event for anything non-iPad');
+          shoppinPalMainDiv.unbind('mousedown');
+        } else {
+          console.log('UN-binding `touchstart` event for iPad');
+          shoppinPalMainDiv.unbind('touchstart');
+        }
+
+        // (2)
+        handleNittyGrittyStuffForDismissingEditableRow();
+
+        // (3)
+        console.log('remove the row from the array of visible pending rows');
+        $scope.items.splice(rowIndex, 1);
+      };
+
+      $scope.hideRow = function(rowIndex, item) {
+        console.log('> > > > > ', 'hideRow',
+          '\n\t', 'rowIndex', rowIndex,
+          '\n\t', '$scope.items[rowIndex]', $scope.items[rowIndex],
+          '\n\t', 'item', item,
+          '\n\t', 'equal?', ($scope.items[rowIndex]===item));
+
+        $scope.waitOnPromise = StockOrderLineitemModel.prototype$updateAttributes(
+          { id: item.id },
+          {
+            hidden: true
+          }
+        )
+          .$promise.then(function(response){
+            //console.log('updated', response);
+            item.hidden = response.hidden;
+            dismissEditableRow(rowIndex);
+          });
+      };
+
+
 
       /** @method editWarehouse
        * @param selectedRow
@@ -346,9 +391,16 @@
           $scope.waitOnPromise = loginService.getReport($stateParams.reportId)
             .then(function (response) {
               $scope.allOrderedItems = response;
+
+              //filter out anything with ordered quantity of zero from a warehouse report
               response = _.filter(response, function(item){
                 return item.orderQuantity && item.orderQuantity > 0;
               });
+              //filter out any hidden (pseudo-deleted) rows
+              response = _.filter(response, function(item){
+                return !item.hidden;
+              });
+
               setupBoxes(response);
               setupUnboxedItems(response);
               //makeItEasyToTestSubmission();
