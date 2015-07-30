@@ -20,7 +20,7 @@
       $scope.ReportModelStates = ReportModelStates;
       var ROW_STATE_UNBOXED = 'unboxed';
 
-      $scope.deviceDetector = deviceDetector;
+      $scope.device = deviceDetector.device;
       $scope.storeName = ($sessionStorage.currentStore) ? $sessionStorage.currentStore.name : null;
       $scope.isShipmentFullyReceived = false;
       $scope.items = [];
@@ -307,7 +307,6 @@
        * This method will load the storesReport from api on view load
        */
       $scope.$on('$viewContentLoaded', function () {
-        $scope.device = $scope.deviceDetector.device;
         if($stateParams.reportId) {
           $scope.waitOnPromise = loginService.getReport($stateParams.reportId)
             .then(function (response) {
