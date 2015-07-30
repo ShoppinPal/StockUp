@@ -9,11 +9,11 @@
    */
   angular.module('ShoppinPalApp').controller('WarehouseReportCtrl', [
     '$scope', '$state', '$stateParams', '$anchorScroll', '$location', '$filter', /* angular's modules/services/factories etc. */
-    'loginService', 'StockOrderLineitemModel', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
+    'loginService', 'uiUtils', 'StockOrderLineitemModel', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
     'deviceDetector', 'ngDialog', /* 3rd party modules/services/factories etc. */
     'ReportModelStates', /* constants */
     function ($scope, $state, $stateParams, $anchorScroll, $location, $filter,
-              loginService, StockOrderLineitemModel, ReportModel,
+              loginService, uiUtils, StockOrderLineitemModel, ReportModel,
               deviceDetector, ngDialog,
               ReportModelStates)
     {
@@ -71,7 +71,7 @@
           .$promise.then(function(response){
             //console.log('updated', response);
             storeReportRow.updatedAt = response.updatedAt;
-            handleNittyGrittyStuffForDismissingEditableRow();
+            uiUtils.handleNittyGrittyStuffForDismissingEditableRow($scope);
           });
       };
 
@@ -257,26 +257,11 @@
         }
       };
 
-      var handleNittyGrittyStuffForDismissingEditableRow = function() {
-        console.log('dismiss the edit view in UI');
-        $scope.selectedRowIndex = $scope.storereportlength + 1;
-      };
-
       var dismissEditableRow = function(rowIndex) {
-        // (1) remove the bindings that were meant to kick off backend-persistance for the editable row
-        var shoppinPalMainDiv = angular.element(document.querySelector('.shoppinPal-warehouse'));
-        if($scope.device !== 'ipad') {
-          console.log('UN-binding `mousedown` event for anything non-iPad');
-          shoppinPalMainDiv.unbind('mousedown');
-        } else {
-          console.log('UN-binding `touchstart` event for iPad');
-          shoppinPalMainDiv.unbind('touchstart');
-        }
+        // (1)
+        uiUtils.handleNittyGrittyStuffForDismissingEditableRow($scope);
 
         // (2)
-        handleNittyGrittyStuffForDismissingEditableRow();
-
-        // (3)
         console.log('remove the row from the array of visible pending rows');
         $scope.items.splice(rowIndex, 1);
       };
@@ -306,6 +291,14 @@
        * enable the edit mode in UI
        */
       $scope.editRow = function (selectedRow) {
+        console.log('inside editRow()');
+
+        /**
+         * As a rule-of-thumb its simpler for the editRow() method to go unbind everything else
+         * related to the previous row, before it sets a new selected row
+         */
+        uiUtils.handleNittyGrittyStuffForDismissingEditableRow($scope); // cleanup before starting
+
         $scope.selectedRowIndex = selectedRow;
       };
 

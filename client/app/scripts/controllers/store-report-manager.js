@@ -61,22 +61,7 @@ angular.module('ShoppinPalApp')
       };
 
       var handleNittyGrittyStuffForDismissingEditableRow = function(){
-        console.log('handleNittyGrittyStuffForDismissingEditableRow',
-          '\n\t > remove the bindings that were meant to kick off backend-persistance for the editable row');
-        var shoppinPalMainDiv = angular.element(document.querySelector('.shoppinPal-warehouse'));
-        if($scope.device !== 'ipad') {
-          console.log('handleNittyGrittyStuffForDismissingEditableRow',
-            '\n\t > UN-binding `mousedown` event for anything non-iPad');
-          shoppinPalMainDiv.unbind('mousedown');
-        } else {
-          console.log('handleNittyGrittyStuffForDismissingEditableRow',
-            '\n\t > UN-binding `touchstart` event for iPad');
-          shoppinPalMainDiv.unbind('touchstart');
-        }
-
-        console.log('handleNittyGrittyStuffForDismissingEditableRow',
-          '\n\t > dismiss the edit view in UI');
-        $scope.selectedRowIndex = $scope.storereportlength + 1;
+        uiUtils.handleNittyGrittyStuffForDismissingEditableRow($scope);
 
         if($scope.unbindStoreReportRow){
           console.log('handleNittyGrittyStuffForDismissingEditableRow',
