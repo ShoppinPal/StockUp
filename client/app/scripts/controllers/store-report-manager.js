@@ -10,11 +10,11 @@ angular.module('ShoppinPalApp')
   .controller('StoreManagerCtrl',
   [
     '$scope', '$anchorScroll', '$location', '$state', '$stateParams', '$filter', '$sessionStorage', '$q', /* angular's modules/services/factories etc. */
-    'loginService', 'StockOrderLineitemModel', 'ReportModel', 'StoreModel', /* shoppinpal's custom modules/services/factories etc. */
+    'loginService', 'uiUtils', 'StockOrderLineitemModel', 'ReportModel', 'StoreModel', /* shoppinpal's custom modules/services/factories etc. */
     'ngDialog', 'deviceDetector', '$timeout', /* 3rd party modules/services/factories etc. */
     'ReportModelStates', /* constants */
     function ($scope, $anchorScroll, $location, $state, $stateParams, $filter, $sessionStorage, $q,
-              loginService, StockOrderLineitemModel, ReportModel, StoreModel,
+              loginService, uiUtils, StockOrderLineitemModel, ReportModel, StoreModel,
               ngDialog, deviceDetector, $timeout,
               ReportModelStates)
     {
@@ -61,14 +61,31 @@ angular.module('ShoppinPalApp')
       };
 
       var handleNittyGrittyStuffForDismissingEditableRow = function(){
-        $scope.selectedRowIndex = $scope.storereportlength + 1; // dismiss the edit view in UI
+        console.log('handleNittyGrittyStuffForDismissingEditableRow',
+          '\n\t > remove the bindings that were meant to kick off backend-persistance for the editable row');
+        var shoppinPalMainDiv = angular.element(document.querySelector('.shoppinPal-warehouse'));
+        if($scope.device !== 'ipad') {
+          console.log('handleNittyGrittyStuffForDismissingEditableRow',
+            '\n\t > UN-binding `mousedown` event for anything non-iPad');
+          shoppinPalMainDiv.unbind('mousedown');
+        } else {
+          console.log('handleNittyGrittyStuffForDismissingEditableRow',
+            '\n\t > UN-binding `touchstart` event for iPad');
+          shoppinPalMainDiv.unbind('touchstart');
+        }
+
+        console.log('handleNittyGrittyStuffForDismissingEditableRow',
+          '\n\t > dismiss the edit view in UI');
+        $scope.selectedRowIndex = $scope.storereportlength + 1;
 
         if($scope.unbindStoreReportRow){
-          console.log('calling unbindStoreReportRow()');
+          console.log('handleNittyGrittyStuffForDismissingEditableRow',
+            '\n\t > calling unbindStoreReportRow()');
           $scope.unbindStoreReportRow(); // stop "watching" the storeReportRow
         }
         else {
-          console.log('no unbindStoreReportRow() available to call');
+          console.log('handleNittyGrittyStuffForDismissingEditableRow',
+            '\n\t > no unbindStoreReportRow() available to call');
         }
       };
 
@@ -134,20 +151,10 @@ angular.module('ShoppinPalApp')
       };
 
       var dismissEditableRow = function(rowIndex) {
-        // (1) remove the bindings that were meant to kick off backend-persistance for the editable row
-        var shoppinPalMainDiv = angular.element(document.querySelector('.shoppinPal-warehouse'));
-        if($scope.device !== 'ipad') {
-          console.log('UN-binding `mousedown` event for anything non-iPad');
-          shoppinPalMainDiv.unbind('mousedown');
-        } else {
-          console.log('UN-binding `touchstart` event for iPad');
-          shoppinPalMainDiv.unbind('touchstart');
-        }
-
-        // (2)
+        // (1)
         handleNittyGrittyStuffForDismissingEditableRow();
 
-        // (3) remove the row from the array of visible pending rows
+        // (2) remove the row from the array of visible pending rows
         $scope.storesReport.splice(rowIndex, 1);
       };
 
@@ -253,58 +260,8 @@ angular.module('ShoppinPalApp')
             }
           });
         } else {
-          bindToDismissForIPad(shoppinPalMainDiv, storeReportRow);
+          uiUtils.bindToDismissForIPad($scope, shoppinPalMainDiv, storeReportRow);
         }
-      };
-
-      /**
-       * Motivation:
-       *   (1) Initially we were only binding on the `touchstart` event
-       *       so that a user may dismiss the editable row by touching outside of it.
-       *   (2) But that led to a problem where scrolling led to
-       *       an editable row being dismissed!
-       *   (3) So the solution was expanded to also bind `touchend` and `touchmove`
-       *       `Touchend` does whatever we would want a `touchstart` to do and then unbinds itself
-       *       `Touchmove` basically does nothing except unbind `Touchend`
-       *
-       *       This results in us being able to scroll without issues and a user can
-       *       still dismiss the editable row by touching outside of it.
-       *
-       *       Reference:
-       *         http://stackoverflow.com/questions/9842587/stop-the-touchstart-performing-too-quick-when-scrolling
-       *
-       *  Question:
-       *    (1) Why not do something similar for desktop?
-       *        We could but most people don't click to scroll anymore,
-       *        they use the scrollwheel so we are only focusing on the
-       *        minimum-viable-product for now. Until a real user actually
-       *        requests for an enhancement.
-       * @param shoppinPalMainDiv
-       * @param storeReportRow
-       */
-      var bindToDismissForIPad = function(shoppinPalMainDiv, storeReportRow){
-        console.log('binding to `touchstart` event for iPad');
-        shoppinPalMainDiv.bind('touchstart', function(event) {
-          if (!event.target.classList.contains('editable-panel')) {
-            console.log('binding to `touchend` and `touchmove` events for iPad');
-            shoppinPalMainDiv.bind('touchend', function (event) {
-              if (!event.target.classList.contains('editable-panel')) {
-                console.log('UN-binding `touchend`, `touchmove` and `touchstart` events for iPad');
-                $scope.dismissEdit(storeReportRow);
-                shoppinPalMainDiv.unbind('touchend');
-                shoppinPalMainDiv.unbind('touchmove');
-                shoppinPalMainDiv.unbind('touchstart');
-              }
-            });
-            shoppinPalMainDiv.bind('touchmove', function (event) {
-              if (!event.target.classList.contains('editable-panel')) {
-                console.log('UN-binding `touchend` and `touchmove` events for iPad');
-                shoppinPalMainDiv.unbind('touchend');
-                shoppinPalMainDiv.unbind('touchmove');
-              }
-            });
-          }
-        });
       };
 
       /** @method markRowAsCompleted
