@@ -9,11 +9,11 @@
    */
   angular.module('ShoppinPalApp').controller('StoreReceiverCtrl', [
     '$scope', '$sessionStorage', '$state', '$stateParams', '$filter', '$location', '$anchorScroll', /* angular's modules/services/factories etc. */
-    'loginService', 'StockOrderLineitemModel', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
+    'loginService', 'uiUtils','StockOrderLineitemModel', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
     'deviceDetector', 'ngDialog', /* 3rd party modules/services/factories etc. */
     'ReportModelStates', /* constants */
     function ($scope, $sessionStorage, $state, $stateParams, $filter, $location, $anchorScroll,
-              loginService, StockOrderLineitemModel, ReportModel,
+              loginService, uiUtils, StockOrderLineitemModel, ReportModel,
               deviceDetector, ngDialog,
               ReportModelStates)
     {
@@ -88,22 +88,7 @@
        * This method is called once user choose to edit order name using right swipe
        */
       $scope.onEditInit = function (item) {
-        var shoppinPalMainDiv = angular.element(document.querySelector('.shoppinPal-warehouse'));
-        if ($scope.deviceDetector.isDesktop()) {
-          shoppinPalMainDiv.bind('mousedown', function (event) {
-            if (!event.target.classList.contains('editable-panel')) {
-              $scope.dismissEdit(item);
-              shoppinPalMainDiv.unbind('mousedown');
-            }
-          });
-        } else {
-          shoppinPalMainDiv.bind('touchstart', function (event) {
-            if (!event.target.classList.contains('editable-panel')) {
-              $scope.dismissEdit(item);
-              shoppinPalMainDiv.unbind('touchstart');
-            }
-          });
-        }
+        uiUtils.bindToTrackDismissal($scope, item);
       };
 
       /** @method dismissEdit
