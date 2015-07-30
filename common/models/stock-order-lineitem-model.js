@@ -173,6 +173,9 @@ module.exports = function(StockOrderLineitemModel) {
                 cb(null, {updated:false});
               }
             });
+        },
+        function(error){
+          cb(error);
         });
     }
   };

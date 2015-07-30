@@ -147,9 +147,7 @@ angular.module('ShoppinPalApp')
         // (2)
         handleNittyGrittyStuffForDismissingEditableRow();
 
-        // (3) remove the row from the array of visible pending rows,
-        //     this is not a true delete from the backend,
-        //     so a page refresh will bring it right back!
+        // (3) remove the row from the array of visible pending rows
         $scope.storesReport.splice(rowIndex, 1);
       };
 

@@ -301,13 +301,11 @@
           });
       };
 
-
-
-      /** @method editWarehouse
+      /** @method editRow
        * @param selectedRow
        * enable the edit mode in UI
        */
-      $scope.editWarehouse = function (selectedRow) {
+      $scope.editRow = function (selectedRow) {
         $scope.selectedRowIndex = selectedRow;
       };
 

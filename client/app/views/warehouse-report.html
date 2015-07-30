@@ -47,7 +47,7 @@
                                     </tr>
                                     <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'"
                                         ng-hide="$index==selectedRowIndex"
-                                        ng-swipe-left="editWarehouse($index)"
+                                        ng-swipe-left="editRow($index)"
                                         ng-swipe-right="moveToBox(item, $index)">
                                         <td class="report-head1">{{item.sku}}</td>
                                         <td class="report-head2">{{item.name}}</td>
