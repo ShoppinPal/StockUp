@@ -24,7 +24,7 @@
       $scope.closeBoxButtonLabel = 'CLOSE THIS BOX';
       //$scope.printSlipButtonLabel = 'PRINT PACKING SLIP';
 
-      $scope.deviceDetector = deviceDetector;
+      $scope.device = deviceDetector.device;
       $scope.boxes = [];
       $scope.selectedBox = null;
       $scope.items = [];
@@ -35,7 +35,7 @@
        */
       $scope.onEditInit = function (item) {
         var shoppinPalMainDiv = angular.element(document.querySelector('.shoppinPal-warehouse'));
-        if ($scope.deviceDetector.isDesktop()) {
+        if ($scope.device !== 'ipad') {
           shoppinPalMainDiv.bind('mousedown', function (event) {
             if (!event.target.classList.contains('editable-panel')) {
               $scope.dismissEdit(item);
@@ -377,7 +377,6 @@
        * This method will load the storesReport from api on view load
        */
       $scope.$on('$viewContentLoaded', function () {
-        $scope.device = $scope.deviceDetector.device;
         if($stateParams.reportId) {
           $scope.waitOnPromise = loginService.getReport($stateParams.reportId)
             .then(function (response) {
