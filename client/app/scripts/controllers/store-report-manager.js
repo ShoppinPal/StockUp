@@ -112,7 +112,7 @@ angular.module('ShoppinPalApp')
                     desiredStockLevel: storeReportRow.desiredStockLevel,
                     orderQuantity: storeReportRow.orderQuantity,
                     comments: storeReportRow.comments,
-                    state: ROW_STATE_PENDING
+                    state: (storeReportRow.state && storeReportRow.state===$scope.ROW_STATE_COMPLETE) ? storeReportRow.state : ROW_STATE_PENDING
                   }
                 }
               )
