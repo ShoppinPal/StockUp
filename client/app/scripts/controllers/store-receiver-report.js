@@ -18,7 +18,8 @@
               ReportModelStates)
     {
       $scope.ReportModelStates = ReportModelStates;
-      var ROW_STATE_UNBOXED = 'unboxed';
+      $scope.ROW_STATE_BOXED = 'boxed';
+      $scope.ROW_STATE_UNBOXED = 'unboxed';
 
       $scope.device = deviceDetector.device;
       $scope.storeName = ($sessionStorage.currentStore) ? $sessionStorage.currentStore.name : null;
@@ -46,11 +47,19 @@
         item.receivedQuantity += 1;
       };
 
-      /** @method editReceivedQuantity()
+      /** @method editRow()
        * @param selectedRow
        * This method display the edit functionality on right swipe
        */
-      $scope.editReceivedQuantity = function (selectedRow) {
+      $scope.editRow = function (selectedRow) {
+        console.log('inside editRow()');
+
+        /**
+         * As a rule-of-thumb its simpler for the editRow() method to go unbind everything else
+         * related to the previous row, before it sets a new selected row
+         */
+        uiUtils.handleNittyGrittyStuffForDismissingEditableRow($scope); // cleanup before starting
+
         $scope.selectedRowIndex = selectedRow;
       };
 
@@ -131,16 +140,22 @@
       /** @method markAsReceived
        * This method will mark the item as received when it is swiped to right
        */
-      $scope.markAsReceived = function (index, storeReportRow) {
+      $scope.markAsReceived = function (rowIndex, storeReportRow, dismissEditableRowFlag) {
+        console.log('> > > > > ', 'markAsReceived',
+          '\n\t', 'rowIndex', rowIndex,/*
+           '\n\t', '$scope.items[rowIndex]', $scope.items[rowIndex],
+           '\n\t', 'storeReportRow', storeReportRow,*/
+          '\n\t', 'equal?', ($scope.items[rowIndex]===storeReportRow));
+
         $scope.waitOnPromise = StockOrderLineitemModel.updateBasedOnState({
             id: storeReportRow.id,
             attributes: {
               comments: storeReportRow.comments,
-              receivedQuantity: storeReportRow.receivedQuantity, /* NOTE: why pass receivedQuantity explicitly here?
-              this is calculated by the UI, so if someone doesn't edit the row and directly marks it as done,
-              we would miss out on persisting this value */
-              state: ROW_STATE_UNBOXED
-            }
+              receivedQuantity: storeReportRow.receivedQuantity,
+              state: $scope.ROW_STATE_UNBOXED
+            } // NOTE: why pass receivedQuantity explicitly here?
+              //       this is calculated by the UI, so if someone doesn't edit the row and directly marks it as done,
+              //       we would miss out on persisting this value
           }
         )
           .$promise.then(function(updatedStockOrderLineitemModelInstance){
@@ -152,9 +167,13 @@
             storeReportRow.updatedAt = updatedStockOrderLineitemModelInstance.updatedAt;
             storeReportRow.state = updatedStockOrderLineitemModelInstance.state;
 
-            delete $scope.items[index].boxNumber;
-            delete $scope.items[index].boxName;
-            $scope.items.splice(index, 1);
+            if(dismissEditableRowFlag) {
+              uiUtils.handleNittyGrittyStuffForDismissingEditableRow($scope);
+            }
+
+            delete $scope.items[rowIndex].boxNumber;
+            delete $scope.items[rowIndex].boxName;
+            $scope.items.splice(rowIndex, 1);
             $scope.selectedBox.totalItems -= 1;
 
             if ($scope.selectedBox.totalItems === 0) {
@@ -274,7 +293,7 @@
 
       var setupBoxedItems = function(response) {
         $scope.receivedItems = _.filter(response, function(item){
-          return item.state !== ROW_STATE_UNBOXED;
+          return item.state !== $scope.ROW_STATE_UNBOXED;
         });
         // if receivedQuantity hasn't been set, then it should equal fulfilledQuantity by default
         angular.forEach($scope.receivedItems, function (item) {

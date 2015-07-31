@@ -44,7 +44,7 @@
                                     </tr>
                                     <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'"
                                         ng-hide="$index==selectedRowIndex"
-                                        ng-swipe-left="editReceivedQuantity($index)"
+                                        ng-swipe-left="editRow($index)"
                                         ng-swipe-right="markAsReceived($index, item)">
                                         <td class="report-head1">{{item.sku}}</td>
                                         <td class="report-head2">{{item.name}}</td>
@@ -109,7 +109,20 @@
                                                     <span class="fa fa-plus-circle fa-lg edit-icon editable-panel"
                                                           ng-click="increaseQty(item)"></span>
                                                 </div>
+                                                <div ng-if="item.state===ROW_STATE_BOXED"
+                                                     class="pull-right column-text margin-right editable-panel">
+                                                    <button class="btn button-large-green editable-panel"
+                                                            ng-click="markAsReceived($index, item, true)">
+                                                        Unboxed
+                                                    </button>
+                                                </div>
                                                 <div class="clearfix editable-panel"></div>
+                                            </div>
+                                            <div ng-if="item.comments[ReportModelStates.MANAGER_IN_PROCESS]">
+                                                <span class="fa fa-comment comment-icon"></span>&nbsp;&nbsp;<strong>Manager Comments:</strong>
+                                                <span class="comment-span">
+                                                    {{item.comments[ReportModelStates.MANAGER_IN_PROCESS]}}
+                                                </span>
                                             </div>
                                             <div class="row editable-panel">
                                                 <input type="text"
