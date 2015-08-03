@@ -9,9 +9,8 @@
  */
 angular.module('ShoppinPalApp')
   .service('uiUtils', [
-    '$http', /* angular's modules/services/factories etc. */
-    'ReportModel', /* loopback models */
-    function ()
+    '$filter', /* angular's modules/services/factories etc. */
+    function ($filter)
     {
       var bindToTrackDismissal = function($scope, row){
         console.log('inside bindToTrackDismissal()');
@@ -109,11 +108,51 @@ angular.module('ShoppinPalApp')
         $scope.selectedRowIndex = $scope.storereportlength + 1;
       };
 
+      /** @method limitListAsPerSupplier
+       * creates filtered list based on individual supplier limit size
+       */
+      var limitListAsPerSupplier = function($scope){
+        var suppliers = [];
+        // extract all the suppliers through out the reports list
+        angular.forEach($scope.reportLists, function(report) {
+          if(suppliers.indexOf(report.supplier.name) < 0) {
+            suppliers.push(report.supplier.name);
+            if(!$scope.supplierWiseListSize[report.supplier.name]) {
+              // set the list size per supplier, for show more feature
+              $scope.supplierWiseListSize[report.supplier.name] = {size: $scope.showMoreValue, enabled: true};
+            }
+          }
+        });
+
+        var filteredLists = [];
+        // find the supplier wise list limited to the list size value
+        angular.forEach($scope.supplierWiseListSize, function(supplier, key) {
+          // filter based on current supplier eg: CSC
+          $scope.currentSupplier = key;
+          var array = $filter('filter')($scope.reportLists, function supplierFilter(report) {
+            return report.supplier.name === $scope.currentSupplier;
+          });
+          // disable show more link (for individual supplier) if there is no more item to show
+          if(array.length <= supplier.size) {
+            supplier.enabled = false;
+          } else {
+            supplier.enabled = true;
+          }
+          // filter based on the supplier list size
+          array = $filter('limitTo')(array, supplier.size);
+          angular.forEach(array, function(report) {
+            filteredLists.push(report);
+          });
+        });
+        $scope.filteredLists = angular.copy(filteredLists);
+      };
+
       // AngularJS will instantiate a singleton by calling 'new' on this function
       return {
         bindToTrackDismissal: bindToTrackDismissal,
         bindToDismissForIPad: bindToDismissForIPad,
-        handleNittyGrittyStuffForDismissingEditableRow: handleNittyGrittyStuffForDismissingEditableRow
+        handleNittyGrittyStuffForDismissingEditableRow: handleNittyGrittyStuffForDismissingEditableRow,
+        limitListAsPerSupplier: limitListAsPerSupplier
       };
     }
   ]);

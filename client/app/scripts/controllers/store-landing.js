@@ -10,12 +10,12 @@
 angular.module('ShoppinPalApp')
   .controller('StoreLandingCtrl', [
     '$scope', '$anchorScroll', '$location', '$state', '$filter', '$sessionStorage', /* angular's modules/services/factories etc. */
-    'UserModel', 'LoopBackAuth', 'StoreModel', 'ReportModel', 'deviceDetector', /* shoppinpal's custom modules/services/factories etc. */
-    'ngDialog',
+    'uiUtils','UserModel', 'LoopBackAuth', 'StoreModel', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
+    'deviceDetector', 'ngDialog', /* 3rd party modules/services/factories etc. */
     'ReportModelStates', /* constants */
     function($scope, $anchorScroll, $location, $state, $filter, $sessionStorage,
-             UserModel, LoopBackAuth, StoreModel, ReportModel, deviceDetector,
-             ngDialog,
+             uiUtils, UserModel, LoopBackAuth, StoreModel, ReportModel,
+             deviceDetector, ngDialog,
              ReportModelStates)
     {
       $scope.storeName = ($sessionStorage.currentStore) ? $sessionStorage.currentStore.name : null;
@@ -36,8 +36,9 @@ angular.module('ShoppinPalApp')
         'receive': true
       };
 
+      $scope.currentSupplier = '';
       $scope.supplierWiseListSize = {};
-      var showMoreValue = 5;
+      $scope.showMoreValue = 5;
 
       // TODO: should be methods of an injectable service
       $scope.isWarehouser = function () {
@@ -110,58 +111,12 @@ angular.module('ShoppinPalApp')
           });
       };
 
-      var currentSupplier = '';
-
-      /** @method supplierFilter
-       * filter orders based on supplier
-       */
-      var supplierFilter = function(report) {
-        return report.supplier.name === currentSupplier;
-      };
-
-      /** @method limitListAsPerSupplier
-       * creates filtered list based on individual supplier limit size
-       */
-      var limitListAsPerSupplier = function(){
-        var suppliers = [];
-        // extract all the suppliers through out the reports list
-        angular.forEach($scope.reportLists, function(report) {
-          if(suppliers.indexOf(report.supplier.name) < 0) {
-            suppliers.push(report.supplier.name);
-            if(!$scope.supplierWiseListSize[report.supplier.name]) {
-              // set the list size per supplier, for show more feature
-              $scope.supplierWiseListSize[report.supplier.name] = {size: showMoreValue, enabled: true};
-            }
-          }
-        });
-
-        var filteredLists = [];
-        // find the supplier wise list limited to the list size value
-        angular.forEach($scope.supplierWiseListSize, function(supplier, key) {
-          // filter based on current supplier eg: CSC
-          currentSupplier = key;
-          var array = $filter('filter')($scope.reportLists, supplierFilter);
-          // disable show more link (for individual supplier) if there is no more item to show
-          if(array.length <= supplier.size) {
-            supplier.enabled = false;
-          } else {
-            supplier.enabled = true;
-          }
-          // filter based on the supplier list size
-          array = $filter('limitTo')(array, supplier.size);
-          angular.forEach(array, function(report) {
-            filteredLists.push(report);
-          });
-        });
-        $scope.filteredLists = angular.copy(filteredLists);
-      };
-
       /** @method showMore
        * increase the list display size for a specific supplier
        */
       $scope.showMore = function(supplier) {
-        $scope.supplierWiseListSize[supplier].size += showMoreValue;
-        limitListAsPerSupplier();
+        $scope.supplierWiseListSize[supplier].size += $scope.showMoreValue;
+        uiUtils.limitListAsPerSupplier($scope);
       };
 
       /** @method orderFilter
@@ -192,7 +147,7 @@ angular.module('ShoppinPalApp')
        */
       $scope.filterOrders = function() {
         $scope.reportLists = $filter('filter')($scope.backUpReportList, orderFilter);
-        limitListAsPerSupplier();
+        uiUtils.limitListAsPerSupplier($scope);
       };
 
       /**
