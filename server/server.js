@@ -44,10 +44,14 @@ app.use(function setCurrentUser(req, res, next) {
 // enable audit log
 app.all('/api/*', function auditApiCalls(req, res, next) {
   if (req.accessToken) {
-    log('url:', req.originalUrl, 'userId:', req.accessToken.id, 'token:', JSON.stringify(req.accessToken,null,0));
+    log(req.method, req.originalUrl,
+      //'\n\t', 'userId:', req.accessToken.id/*,
+      '\n\t', 'token:', JSON.stringify(req.accessToken,null,0)
+    );
   }
   else {
-    log('url:', req.originalUrl, 'token:', req.accessToken);
+    log(req.method, req.originalUrl,
+      '\n\t', 'token:', req.accessToken);
   }
   next();
 });
