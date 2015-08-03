@@ -74,7 +74,10 @@
                                     ng-click="drilldownToReport($index, storeReport)"
                                     ng-swipe-left="importExport($index)"
                                     ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'">
-                                    <td width="10%">{{::storeReport.id}}</td>
+                                    <td width="10%">
+                                        {{::storeReport.created | date:'yyyy-MM-dd @ h:mma'}}
+                                        <!--{{::storeReport.id}}-->
+                                    </td>
                                     <td width="15%">{{::storeReport.outlet.name}} - {{::storeReport.name}}</td>
                                     <td width="15%">
                                         <div class="status-td">

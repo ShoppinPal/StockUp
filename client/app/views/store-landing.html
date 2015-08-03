@@ -74,7 +74,10 @@
                                     ng-click="drilldownToReport($index, storeReport)"
                                     ng-swipe-left="editOrder($index, storeReport)"
                                     ng-class=" ($index+1)%2 == 0 ? 'tr-even' : 'tr-odd'">
-                                    <td width="5%">{{storeReport.id}}</td>
+                                    <td width="5%">
+                                        {{::storeReport.created | date:'yyyy-MM-dd @ h:mma'}}
+                                        <!--{{::storeReport.id}}-->
+                                    </td>
                                     <td width="10%"
                                         ng-if="storeReport.state.toLowerCase() === ReportModelStates.MANAGER_NEW_ORDERS">
                                         {{storeReport.name || "&lt;swipe right-to-left and rename this auto-generated report&gt;"}}
