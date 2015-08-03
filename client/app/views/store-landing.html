@@ -55,7 +55,7 @@
                     </table>
                     <div class="scrollable-table">
                         <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
-                            <tbody ng-repeat="storeReport in filteredLists | orderBy:['supplier.name', '-state', 'name']| groupBy: 'supplier.name'">
+                            <tbody ng-repeat="storeReport in filteredLists | orderBy:['supplier.name', '-created', '-state', 'name'] | groupBy: 'supplier.name'">
                                 <tr ng-if="storeReport.group_by_CHANGED"
                                     id="jumpto{{storeReport.supplier.name}}"
                                     class="inner-table-heading">

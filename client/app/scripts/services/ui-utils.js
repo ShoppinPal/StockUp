@@ -139,7 +139,7 @@ angular.module('ShoppinPalApp')
             supplier.enabled = true;
           }
           // filter based on the supplier list size
-          array = $filter('limitTo')(array, supplier.size);
+          array = $filter('limitTo')(array, supplier.size * -1);
           angular.forEach(array, function(report) {
             filteredLists.push(report);
           });
