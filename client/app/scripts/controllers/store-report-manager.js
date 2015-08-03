@@ -254,7 +254,7 @@ angular.module('ShoppinPalApp')
             '\n' + 'otherwise it would have already been handled by dismissEdit()');
           $scope.waitOnPromise = updateDSL(storeReportRow);
         }
-        $scope.waitOnPromise.then(
+        $scope.waitOnPromise = $scope.waitOnPromise.then(
           function(){
             console.log('markRowAsCompleted',
               '\n\t', 'StockOrderLineitemModel.updateBasedOnState()');
