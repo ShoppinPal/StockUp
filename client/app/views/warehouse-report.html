@@ -39,10 +39,10 @@
                             <table cellspacing="0" cellpadding="0" width="100%"
                                    class="table table-responsive store-landing-right-table">
                                 <!--ng-if="!item.boxNumber"-->
-                                <tbody ng-repeat="item in items"
+                                <tbody ng-repeat="item in itemsBeingViewed"
                                     class="animate-repeat animate-if">
                                     <tr class="inner-table-heading" id="jumpTo{{item.type}}"
-                                        ng-if="item.type !== items[$index - 1].type">
+                                        ng-if="item.type !== itemsBeingViewed[$index - 1].type">
                                         <!--ng-if="item.group_by_CHANGED">-->
                                         <td colspan="4"><span class="table-heading-font">{{item.type}}</span></td>
                                     </tr>

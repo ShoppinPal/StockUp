@@ -27,7 +27,7 @@
       $scope.device = deviceDetector.device;
       $scope.boxes = [];
       $scope.selectedBox = null;
-      $scope.items = [];
+      $scope.itemsBeingViewed = [];
       $scope.allProcessed = false;
 
       /** @method onEditInit()
@@ -114,7 +114,7 @@
           }
         });
         // copy the items (order by type) to a new list for display
-        $scope.items = $filter('orderBy')($scope.orderedItems, 'type');
+        $scope.itemsBeingViewed = $filter('orderBy')($scope.orderedItems, 'type');
       };
 
       var setupBoxes = function(response){
@@ -191,12 +191,12 @@
         // TODO: update the JUMP-TO sidebar or completely delete it?
         if ($scope.displayBoxedContents) {
           var filterData1 = {'boxNumber': $scope.selectedBox.boxNumber};
-          $scope.items = $filter('filter')($scope.allOrderedItems, filterData1);
+          $scope.itemsBeingViewed = $filter('filter')($scope.allOrderedItems, filterData1);
         }
         else {
           var filterData2 = {'state': '!boxed'};
-          $scope.items = $filter('filter')($scope.orderedItems, filterData2);
-          $scope.items = $filter('orderBy')($scope.items, 'type');
+          $scope.itemsBeingViewed = $filter('filter')($scope.orderedItems, filterData2);
+          $scope.itemsBeingViewed = $filter('orderBy')($scope.itemsBeingViewed, 'type');
         }
       };
 
@@ -206,7 +206,7 @@
       $scope.moveToBox = function (item, index) {
         if($scope.selectedBox) {
           $scope.selectedBox.totalItems ++; // update totals for current box
-          $scope.items.splice(index, 1); // remove the item from the currently rendered list
+          removeItem(index);
 
           $scope.waitOnPromise = StockOrderLineitemModel.prototype$updateAttributes(
             { id: item.id },
@@ -228,7 +228,7 @@
               item.boxNumber = response.boxNumber;
 
               // check if all items have been processed, if yes close the box and enable submit button
-              if($scope.items.length === 0) {
+              if($scope.itemsBeingViewed.length === 0) {
                 $scope.allProcessed = true;
                 $scope.closeBox($scope.selectedBox);
               }
@@ -242,21 +242,28 @@
         }
       };
 
+      var removeItem = function(rowIndex) {
+        console.log('remove the item from the currently rendered list');
+        $scope.itemsBeingViewed.splice(rowIndex, 1);
+
+        console.log('remove the item from the order~able list');
+        $scope.orderedItems.splice(rowIndex, 1);
+      };
+
       var dismissEditableRow = function(rowIndex) {
         // (1)
         uiUtils.handleNittyGrittyStuffForDismissingEditableRow($scope);
 
         // (2)
-        console.log('remove the row from the array of visible pending rows');
-        $scope.items.splice(rowIndex, 1);
+        removeItem(rowIndex);
       };
 
       $scope.hideRow = function(rowIndex, item) {
         console.log('> > > > > ', 'hideRow',
           '\n\t', 'rowIndex', rowIndex,
-          '\n\t', '$scope.items[rowIndex]', $scope.items[rowIndex],
+          '\n\t', '$scope.itemsBeingViewed[rowIndex]', $scope.itemsBeingViewed[rowIndex],
           '\n\t', 'item', item,
-          '\n\t', 'equal?', ($scope.items[rowIndex]===item));
+          '\n\t', 'equal?', ($scope.itemsBeingViewed[rowIndex]===item));
 
         $scope.waitOnPromise = StockOrderLineitemModel.prototype$updateAttributes(
           { id: item.id },
@@ -315,12 +322,12 @@
       $scope.goToDepartment = function (value) {
         var jumpToHash;
         if (value) {
-          for (var i = 0; i < $scope.items.length; i++) {
-            var type = $scope.items[i].type,
+          for (var i = 0; i < $scope.itemsBeingViewed.length; i++) {
+            var type = $scope.itemsBeingViewed[i].type,
                 typeFirstChar = type.slice(0, 1).toUpperCase();
             $scope.alphabets.push(typeFirstChar);
             if (typeFirstChar === value) {
-              jumpToHash = 'jumpTo' + $scope.items[i].type;
+              jumpToHash = 'jumpTo' + $scope.itemsBeingViewed[i].type;
               break; // stop at the first matching department
             }
           }
@@ -335,8 +342,8 @@
        */
       $scope.jumpToDepartment = function () {
         $scope.alphabets = [];
-        for (var i = 0; i < $scope.items.length; i++) {
-          var type = $scope.items[i].type,
+        for (var i = 0; i < $scope.itemsBeingViewed.length; i++) {
+          var type = $scope.itemsBeingViewed[i].type,
               typeFirstChar = type.slice(0, 1).toUpperCase();
           $scope.alphabets.push(typeFirstChar);
         }
@@ -346,10 +353,10 @@
       /*var makeItEasyToTestSubmission = function(){
         // auto place N-1 items in a box
         $scope.selectedBox.totalItems = $scope.orderedItems.length-1;
-        $scope.items = [$scope.orderedItems[$scope.orderedItems.length-1]];
+        $scope.itemsBeingViewed = [$scope.orderedItems[$scope.orderedItems.length-1]];
         console.log(
           '$scope.orderedItems.length', $scope.orderedItems.length, '\n',
-          '$scope.items.length', $scope.items.length, '\n',
+          '$scope.itemsBeingViewed.length', $scope.itemsBeingViewed.length, '\n',
           '$scope.selectedBox.totalItems', $scope.selectedBox.totalItems
         );
       };*/
@@ -390,7 +397,7 @@
               item.fulfilledQuantity = item.orderQuantity;
             });
             // copy the items (order by type) to a new list for display
-            $scope.items = $filter('orderBy')($scope.orderedItems, 'type');
+            $scope.itemsBeingViewed = $filter('orderBy')($scope.orderedItems, 'type');
             $scope.addNewBox();
             $scope.jumpToDepartment();
           });
