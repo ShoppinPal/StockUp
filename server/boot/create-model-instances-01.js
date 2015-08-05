@@ -215,37 +215,6 @@ module.exports = function(app) {
           .then(function() {
             return userLogin(retailUserRaw);
           }) // login and spit out the accessToken for retailUser so we may use it for manual testing
-          .tap(function(retailUserAccessToken) {
-            // TODO: populate the report too? somehow?
-            return ReportModel.findOrCreate(
-              {where:{id:1}}, // find
-              {
-                id: 1,
-                userModelToReportModelId: retailUser.id, // explicitly setup the foreignKeys for related models
-                state: 'report_empty', // TODO: should use a constant
-                outlet: {
-                  id: 'aea67e1a-b85c-11e2-a415-bc764e10976c',
-                  name: 'OKC'
-                },
-                supplier: {
-                  id: 'c364c506-f8f4-11e3-a0f5-b8ca3a64f8f4',
-                  name: 'FFCC'
-                }
-              } // create
-            )
-              .spread(function(reportModelInstance, created) {
-                (created) ? debug('(' + (++commentsIndex) + ') ' + 'created', 'ReportModel', reportModelInstance)
-                          : debug('(' + (++commentsIndex) + ') ' + 'found', 'ReportModel', reportModelInstance);
-
-                /*ReportModel.findOne({}, function(err, reportModelInstance) {
-                  if (err) {
-                    return debug('%j', err);
-                  }
-                  debug('found a ReportModel entry: ' + JSON.stringify(reportModelInstance,null,2));
-                });*/
-                return Promise.resolve();
-              });
-          }) // created a demo ReportModel for retailUser
           .tap(function(retailUserAccessToken) { // create store-config and store for merchant1
             if(seed) {
               if (!seed.storeConfigModels) {
