@@ -318,7 +318,7 @@ module.exports = function(app) {
                                   debug('('+ (++commentsIndex) +') ', 'seed the store: '+ storeSeedData.name);
                                   return StoreModel.findOrCreate(
                                     {where:{name:storeSeedData.name}}, // find
-                                    storeSeedData // create
+                                    _.omit(storeSeedData, 'managerAccount')  // create
                                   )
                                     .spread(function(storeModelInstance, created) {
                                       (created) ? debug('('+ (++commentsIndex) +')', 'created', 'StoreModel', storeModelInstance)
