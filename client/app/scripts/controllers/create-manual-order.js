@@ -18,11 +18,13 @@ angular.module('ShoppinPalApp').controller(
       LoopBackAuth, SupplierModel, UserModel, ReportModel,
       ReportModelStates)
     {
+      var self = this;
+
       this.storeName = ($sessionStorage.currentStore) ? $sessionStorage.currentStore.name : null;
       this.roles = $sessionStorage.roles;
       this.suppliers = [];
       this.stores = [];
-      var self = this;
+
 
       this.isWarehouser = function () {
         return _.contains(self.roles, 'admin');
@@ -95,13 +97,8 @@ angular.module('ShoppinPalApp').controller(
               },
               function(response){
                 console.log(response);
-                // after kicking off the work, go back to a user's respective landing page
-                if (_.contains($sessionStorage.roles, 'manager')) {
-                  return $state.go('store-landing');
-                }
-                else if (_.contains($sessionStorage.roles, 'admin')) {
-                  return $state.go('warehouse-landing');
-                }
+                console.log('since we have kicked off the work, let\'s go back to the landing page based on the user\'s role');
+                return $state.go(self.homeState);
               },
               function(err){
                 console.error(err);
