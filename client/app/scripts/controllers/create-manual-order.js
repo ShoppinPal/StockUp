@@ -41,7 +41,7 @@ angular.module('ShoppinPalApp').controller(
       this.homeState = this.isWarehouser() ? 'warehouse-landing' : 'store-landing';
 
       // Load the data
-      SupplierModel.listSuppliers({})
+      this.waitOnPromise = SupplierModel.listSuppliers({})
         .$promise.then(function(response) {
           self.suppliers = response;
           if(self.suppliers && self.suppliers.length > 0) {
@@ -56,7 +56,7 @@ angular.module('ShoppinPalApp').controller(
           {
             aPromise = UserModel.storeModels({id: LoopBackAuth.currentUserId}).$promise;
           }
-          aPromise.then(function(response){
+          return aPromise.then(function(response){
               self.stores = response;
               if(self.stores && self.stores.length > 0) {
                 self.selectedStore = self.stores[0];
