@@ -11,11 +11,11 @@ angular.module('ShoppinPalApp').controller(
   'CreateManualOrderCtrl',
   [
     '$sessionStorage', '$state', /* angular's modules/services/factories etc. */
-    'LoopBackAuth', 'SupplierModel', 'UserModel', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
+    'LoopBackAuth', 'SupplierModel', 'UserModel', 'ReportModel', 'StoreModel', /* shoppinpal's custom modules/services/factories etc. */
     'ReportModelStates', /* constants */
     function CreateManualOrderCtrl (
       $sessionStorage, $state,
-      LoopBackAuth, SupplierModel, UserModel, ReportModel,
+      LoopBackAuth, SupplierModel, UserModel, ReportModel, StoreModel,
       ReportModelStates)
     {
       var self = this;
