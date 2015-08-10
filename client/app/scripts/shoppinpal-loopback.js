@@ -6005,6 +6005,42 @@ module.factory(
           method: "PUT"
         },
 
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.StoreModel#listStores
+         * @methodOf shoppinpal-loopback.StoreModel
+         *
+         * @description
+         *
+         * <em>
+         * (The remote method definition does not provide any description.)
+         * </em>
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{string}` - 
+         *
+         * @param {function(Array.<Object>,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Array.<Object>} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `StoreModel` object.)
+         * </em>
+         */
+        "listStores": {
+          isArray: true,
+          url: urlBase + "/StoreModels/:id/listStores",
+          method: "GET"
+        },
+
         // INTERNAL. Use UserModel.storeModels.findById() instead.
         "::findById::UserModel::storeModels": {
           params: {
