@@ -1,7 +1,8 @@
 'use strict';
 
 angular.module('ShoppinPalApp',[
-  'cgBusy'
+  'angularFileUpload'
+  ,'cgBusy'
   ,'geocoder'
   ,'mgcrea.ngStrap'
   ,'ngAnimate'

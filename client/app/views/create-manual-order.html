@@ -7,8 +7,7 @@
         <div class="order-container">
             <h2>New Stock Order</h2>
             <form name="orderForm"
-                  class="form-horizontal"
-                  ng-submit="orderController.generateOrder()">
+                  class="form-horizontal">
                 <div class="form-group">
                     <label for="orderName" class="control-label col-xs-3">Name / Reference</label>
                     <div class="col-xs-8">
@@ -51,30 +50,32 @@
                         <i class="fa fa-calendar"></i>
                     </div>
                 </div>
-                <div class="form-group" ng-if="orderController.isWarehouser()">
-                    <label for="fileImport" class="control-label col-xs-3">Import Order</label>
+                <div class="form-group"
+                     ng-if="orderController.isWarehouser()">
+                    <label for="file-import-input" class="control-label col-xs-3">Import Order</label>
                     <div class="col-xs-8">
-                        <!-- <div class="fileUpload btn "> -->
-                        <input id="fileImport" type="file" file-model="myFile" click="importOrder()"/>
-                        <!--  <span>Choose File</span> -->
-                        <!-- <input type="file" class="upload" file-model="myFile" ng-click="importOrder()"/> -->
-                        <!--  </div> -->
+                        <input id="file-import-input"
+                               type="file"
+                               accept=".csv"
+                               nv-file-select
+                               uploader="orderController.uploader"/>
+                        <span ng-if="orderController.uploader.queue.length===1">Ready for import: {{orderController.uploader.queue[0].file.name}}</span>
                     </div>
                 </div>
                 <div class="form-group">
                     <div class="btn-align">
-                        <!--
-                        <button id="fileImport" type="file"
-                                class="btn btn-primary button-large-green"
-                                file-model="myFile"
-                                click="importOrder()">
-                            Import Order (choose file)
-                        </button>
-                        -->
-                        <!--<input id="submit" type="submit" value="Submit" ng-disabled="orderForm.$invalid"/>-->
-                        <button id="submit" type="submit"
+                        <!-- known UX issue: https://github.com/nervgh/angular-file-upload/issues/489 -->
+                        <button id="file-import-button"
+                                ng-if="orderController.isWarehouser()"
                                 class="btn btn-primary button-large-green generate-order-btn"
-                                ng-disabled="orderForm.$invalid">
+                                ng-disabled="orderController.uploader.queue.length!==1"
+                                ng-click="!orderForm.$invalid && orderController.uploader.queue[0].upload()">
+                            Import Order from {{orderController.uploader.queue[0].file.name || 'File'}}
+                        </button>
+                        <button id="submit" type="submit"
+                                ng-if="orderController.uploader.queue.length===0"
+                                class="btn btn-primary button-large-green generate-order-btn"
+                                ng-click="!orderForm.$invalid && orderController.generateOrder()">
                             Generate New Order
                         </button>
                     </div>

@@ -12,10 +12,12 @@ angular.module('ShoppinPalApp').controller(
   [
     '$sessionStorage', '$state', /* angular's modules/services/factories etc. */
     'LoopBackAuth', 'SupplierModel', 'UserModel', 'ReportModel', 'StoreModel', /* shoppinpal's custom modules/services/factories etc. */
+    'FileUploader', /* 3rd party modules/services/factories etc. */
     'ReportModelStates', /* constants */
     function CreateManualOrderCtrl (
       $sessionStorage, $state,
       LoopBackAuth, SupplierModel, UserModel, ReportModel, StoreModel,
+      FileUploader,
       ReportModelStates)
     {
       var self = this;
@@ -40,6 +42,27 @@ angular.module('ShoppinPalApp').controller(
 
       this.homeState = this.isWarehouser() ? 'warehouse-landing' : 'store-landing';
 
+      // known UX issue: https://github.com/nervgh/angular-file-upload/issues/489
+      this.uploader = new FileUploader({
+        url: 'api/containers/'+ LoopBackAuth.currentUserId + '/upload',
+        filters: [{
+          name: 'singleFileOnly',
+          fn: function() {
+            if(this.queue.length===1){
+              console.log('applying singleFileOnly filter');
+              this.clearQueue();
+            }
+            return true;
+          }
+        }],
+        removeAfterUpload: true
+      });
+      this.uploader.onSuccessItem = function(){
+        console.log('this.uploader.onSuccessItem() > ' +
+          'since we have kicked off the work, let\'s go back to the landing page based on the user\'s role');
+        return $state.go(self.homeState);
+      };
+
       // Load the data
       this.waitOnPromise = SupplierModel.listSuppliers({})
         .$promise.then(function(response) {
@@ -57,11 +80,11 @@ angular.module('ShoppinPalApp').controller(
             aPromise = UserModel.storeModels({id: LoopBackAuth.currentUserId}).$promise;
           }
           return aPromise.then(function(response){
-              self.stores = response;
-              if(self.stores && self.stores.length > 0) {
-                self.selectedStore = self.stores[0];
-              }
-            });
+            self.stores = response;
+            if(self.stores && self.stores.length > 0) {
+              self.selectedStore = self.stores[0];
+            }
+          });
         });
 
       /** @method generateOrder
