@@ -46,8 +46,15 @@ angular.module('ShoppinPalApp').controller(
             self.selectedSupplier = self.suppliers[0];
           }
 
-          return UserModel.storeModels({id: LoopBackAuth.currentUserId})
-            .$promise.then(function(response){
+          var aPromise = null;
+          if(self.isWarehouser()){
+            aPromise = StoreModel.listStores({id: LoopBackAuth.currentUserId}).$promise;
+          }
+          else
+          {
+            aPromise = UserModel.storeModels({id: LoopBackAuth.currentUserId}).$promise;
+          }
+          aPromise.then(function(response){
               self.stores = response;
               if(self.stores && self.stores.length > 0) {
                 self.selectedStore = self.stores[0];
