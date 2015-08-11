@@ -19,3 +19,5 @@ server/config.*.json
 /db.json
 /db.*.json
 /db.json.*
+/server/storage/*
+!/server/storage/touch

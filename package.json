@@ -4,6 +4,7 @@
   "dependencies": {
     "bluebird": "2.9.14",
     "compression": "^1.0.3",
+    "csvtojson": "0.4.2",
     "debug": "^2.1.0",
     "ejs": "~0.8.5",
     "errorhandler": "^1.1.1",
