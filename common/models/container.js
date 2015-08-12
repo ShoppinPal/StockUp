@@ -1,6 +1,7 @@
 'use strict';
 
 var Promise = require('bluebird');
+var request = require('request-promise');
 var _ = require('underscore');
 
 var path = require('path');
@@ -69,12 +70,12 @@ module.exports = function(Container) {
     converter.on('end_parsed', function (arrayOfCsvRowsAsObjects) {
       log('parsed csv rows:', arrayOfCsvRowsAsObjects.length);
 
-      // #1 create a report model
+      log('#1 create a report model');
       createReportModel(item.name, Container, next)
         .then(function(reportModelInstance){
           log('reportModelInstance:', reportModelInstance);
 
-          // #2 create lineitems and associate them with the new report model
+          log('#2 create lineitems and associate them with the new report model');
           log('explicitly attach the foreignKey for related models');
           _.each(arrayOfCsvRowsAsObjects, function(csvRowAsObject){
             csvRowAsObject.reportId = reportModelInstance.id;
@@ -88,8 +89,37 @@ module.exports = function(Container) {
             }
             else {
               log('created StockOrderLineitemModels:', results.length);
+
               // TODO: #3 submit a job to the worker infrastructure
-              next();
+              var UserModel = Container.app.models.UserModel;
+              UserModel.findById(reportModelInstance.userModelToReportModelId)
+                .then(function(userModelInstance){
+                  log('userModelInstance', userModelInstance);
+
+                  // (1) generate a token for the worker to use on the currentUser's behalf
+                  userModelInstance.createAccessTokenAsync(1209600)// can't be empty ... time to live (in seconds) 1209600 is 2 weeks (default of loopback)
+                    .then(function(newAccessToken) {
+                      // (2) fetch the report, store and store-config
+                      var ReportModel = Container.app.models.ReportModel;
+                      ReportModel.getAllRelevantModelInstancesForReportModel(reportModelInstance.id)
+                        .spread(function (reportModelInstance, storeModelInstance, storeConfigInstance) {
+                          // (3) extract domainPrefix from store-config's posUrl
+                          var posUrl = storeConfigInstance.posUrl;
+                          var regexp = /^https?:\/\/(.*)\.vendhq\.com$/i;
+                          var matches = posUrl.match(regexp);
+                          var domainPrefix = matches[1];
+
+                          // (4) Prepare payload for worker
+                          var options = ReportModel.preparePayload(storeModelInstance, domainPrefix, newAccessToken, reportModelInstance);
+
+                          ReportModel.sendPayload(reportModelInstance, options, next)
+                            .then(function(updatedReportModelInstance){
+                              log('updatedReportModelInstance:', updatedReportModelInstance);
+                              next();
+                            });
+                        });
+                    });
+                });
             }
           });
         })
@@ -103,8 +133,6 @@ module.exports = function(Container) {
   });
 
   var createReportModel = function(filename, Container, next){
-    //var ReportModel = Container.app.models.ReportModel;
-
     // before: 41st_Gift_Shop-CSC-114340-WeeklyOrder.CSV
     var data = filename.split('-');
     // after: [ 41st_Gift_Shop, CSC, 114340, WeeklyOrder.CSV ]

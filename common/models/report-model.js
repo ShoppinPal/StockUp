@@ -155,67 +155,15 @@ module.exports = function(ReportModel) {
               var posUrl = storeConfigInstance.posUrl;
               var regexp = /^https?:\/\/(.*)\.vendhq\.com$/i;
               var matches = posUrl.match(regexp);
+              var domainPrefix = matches[1];
 
               // (4) Prepare payload for worker
-              var options = {
-                url: ReportModel.app.get('ironWorkersUrl'),
-                qs: {
-                  'oauth': ReportModel.app.get('ironWorkersOauthToken'),
-                  'code_name': ReportModel.app.get('stockOrderWorker'),
-                  'priority': 1
-                },
-                json: {
-                  tokenService: 'https://{DOMAIN_PREFIX}.vendhq.com/api/1.0/token', //TODO: fetch from global-config or config.*.json
-                  clientId: ReportModel.app.get('vend').client_id,
-                  clientSecret: ReportModel.app.get('vend').client_secret,
-                  tokenType: 'Bearer',
-                  accessToken: storeModelInstance.storeConfigModel().vendAccessToken,//'XN4ceup1M9Rp6Sf1AqeqarDjN9TMa06Mwr15K7lk',
-                  refreshToken: storeModelInstance.storeConfigModel().vendRefreshToken,//'qSl8JF9fD2UMGAZfpsN2yr2d8XRNZgmQEKh7v5jp',
-                  domainPrefix: matches[1], //'fermiyontest', // TODO: extract from storeConfigModelInstance.posUrl
-                  loopbackServerUrl: process.env['site:baseUrl'] || ReportModel.app.get('site').baseUrl,
-                  //loopbackServerHost: 'mppulkit1.localtunnel.me',
-                  //loopbackServerPort: '443',
-                  loopbackAccessToken: newAccessToken, // let it be the full json object
-                  reportId: id,
-                  outletName: reportModelInstance.outlet.name,
-                  supplierName: reportModelInstance.supplier.name,
-                  outletId: reportModelInstance.outlet.id,//'aea67e1a-b85c-11e2-a415-bc764e10976c',
-                  supplierId: reportModelInstance.supplier.id//'c364c506-f8f4-11e3-a0f5-b8ca3a64f8f4'
-                }
-              };
-              log('will send a request with', 'options:', JSON.stringify(options,null,2));
-              return request.post(options)
-                .then(successHandler)
-                .then(function(data){
-                  log('save the task info in ReportModel', JSON.stringify(data,null,2));
-                  return reportModelInstance.updateAttributes({
-                    workerTaskId: data.id,
-                    workerStatus: data.msg
-                  })
-                    .then(function(updatedReportModelInstance){
-                      log('return the updated ReportModel');
-                      cb(null, updatedReportModelInstance);
-                    });
-                })
-                .catch(ClientError, function(e) {
-                  var message = e.response.body;
-                  if(_.isObject(message)) {
-                    message = JSON.stringify(message,null,2);
-                  }
-                  console.error('A ClientError happened: \n'
-                      + e.statusCode + ' ' + message + '\n'
-                    /*+ JSON.stringify(e.response.headers,null,2)
-                     + JSON.stringify(e,null,2)*/
-                  );
-                  // TODO: add retry logic?
-                  //return Promise.reject(e.statusCode + ' ' + message); // TODO: throw unknown errors but reject well known errors?
-                  cb(e.statusCode + ' ' + message);
-                })
-                .catch(function(e) {
-                  console.error('report-model.js - generateStockOrderReportForManager - An unexpected error occurred: ', e);
-                  //throw e; // TODO: throw unknown errors but reject well known errors?
-                  //return Promise.reject(e);
-                  cb(e);
+              var options = ReportModel.preparePayload(storeModelInstance, domainPrefix, newAccessToken, reportModelInstance);
+
+              return ReportModel.sendPayload(reportModelInstance, options, cb)
+                .then(function(updatedReportModelInstance){
+                  log('return the updated ReportModel');
+                  cb(null, updatedReportModelInstance);
                 });
             });
         },
@@ -223,6 +171,68 @@ module.exports = function(ReportModel) {
           cb(error);
         });
     }
+  };
+
+  ReportModel.preparePayload = function(storeModelInstance, domainPrefix, newAccessToken, reportModelInstance){
+    return {
+      url: ReportModel.app.get('ironWorkersUrl'),
+      qs: {
+        'oauth': ReportModel.app.get('ironWorkersOauthToken'),
+        'code_name': ReportModel.app.get('stockOrderWorker'),
+        'priority': 1
+      },
+      json: {
+        tokenService: 'https://{DOMAIN_PREFIX}.vendhq.com/api/1.0/token', //TODO: fetch from global-config or config.*.json
+        clientId: ReportModel.app.get('vend').client_id,
+        clientSecret: ReportModel.app.get('vend').client_secret,
+        tokenType: 'Bearer',
+        accessToken: storeModelInstance.storeConfigModel().vendAccessToken,//'XN4ceup1M9Rp6Sf1AqeqarDjN9TMa06Mwr15K7lk',
+        refreshToken: storeModelInstance.storeConfigModel().vendRefreshToken,//'qSl8JF9fD2UMGAZfpsN2yr2d8XRNZgmQEKh7v5jp',
+        domainPrefix: domainPrefix, //'fermiyontest', // TODO: extract from storeConfigModelInstance.posUrl
+        loopbackServerUrl: process.env['site:baseUrl'] || ReportModel.app.get('site').baseUrl,
+        //loopbackServerHost: 'mppulkit1.localtunnel.me',
+        //loopbackServerPort: '443',
+        loopbackAccessToken: newAccessToken, // let it be the full json object
+        reportId: reportModelInstance.id,
+        outletName: reportModelInstance.outlet.name,
+        supplierName: reportModelInstance.supplier.name,
+        outletId: reportModelInstance.outlet.id,//'aea67e1a-b85c-11e2-a415-bc764e10976c',
+        supplierId: reportModelInstance.supplier.id//'c364c506-f8f4-11e3-a0f5-b8ca3a64f8f4'
+      }
+    };
+  };
+
+  ReportModel.sendPayload = function(reportModelInstance, options, cb){
+    log('will send a request with', 'options:', JSON.stringify(options,null,2));
+    return request.post(options)
+      .then(successHandler)
+      .then(function(data){
+        log('save the task info in ReportModel', JSON.stringify(data,null,2));
+        return reportModelInstance.updateAttributes({
+          workerTaskId: data.id,
+          workerStatus: data.msg
+        });
+      })
+      .catch(ClientError, function(e) {
+        var message = e.response.body;
+        if(_.isObject(message)) {
+          message = JSON.stringify(message,null,2);
+        }
+        console.error('A ClientError happened: \n'
+          + e.statusCode + ' ' + message + '\n'
+          /*+ JSON.stringify(e.response.headers,null,2)
+           + JSON.stringify(e,null,2)*/
+        );
+        // TODO: add retry logic?
+        //return Promise.reject(e.statusCode + ' ' + message); // TODO: throw unknown errors but reject well known errors?
+        cb(e.statusCode + ' ' + message);
+      })
+      .catch(function(e) {
+        console.error('report-model.js - generateStockOrderReportForManager - An unexpected error occurred: ', e);
+        //throw e; // TODO: throw unknown errors but reject well known errors?
+        //return Promise.reject(e);
+        cb(e);
+      });
   };
 
   ReportModel.getWorkerStatus = function(id, cb) {
