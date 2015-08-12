@@ -62,6 +62,11 @@ angular.module('ShoppinPalApp').controller(
           'since we have kicked off the work, let\'s go back to the landing page based on the user\'s role');
         return $state.go(self.homeState);
       };
+      this.uploader.onErrorItem = function(fileItem, response, status, headers) {
+        console.log('onErrorItem', fileItem, response, status, headers);
+        console.info('onErrorItem', fileItem, response, status, headers);
+        // TODO: show something in the UI too
+      };
 
       // Load the data
       this.waitOnPromise = SupplierModel.listSuppliers({})
