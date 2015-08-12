@@ -136,11 +136,11 @@ module.exports = function(Container) {
                   userModelToReportModelId: storeModelInstance.userModelToStoreModelId, // explicitly setup the foreignKeys for related models
                   state: ReportModel.ReportModelStates.REPORT_EMPTY,
                   outlet: {
-                    id: storeModelInstance.id,
+                    id: storeModelInstance.api_id, // jshint ignore:line
                     name: storeModelInstance.name,
                   },
                   supplier: {
-                    id: supplierModelInstance.id,
+                    id: supplierModelInstance.apiId,
                     name: supplierModelInstance.name
                   }
                 });
