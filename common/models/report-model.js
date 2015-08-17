@@ -71,7 +71,7 @@ module.exports = function(ReportModel) {
   ReportModel.remoteMethod('updateRows', {
     accepts: [
       {arg: 'id', type: 'string', required: true},
-      {arg: 'rows', type: 'srray', required: true}
+      {arg: 'rows', type: 'array', required: true}
     ],
     http: {path: '/updateRows', verb: 'put'}
   });

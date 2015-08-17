@@ -6965,7 +6965,7 @@ module.factory(
          *
          *  - `id` – `{string}` - 
          *
-         *  - `rows` – `{srray}` - 
+         *  - `rows` – `{*}` - 
          *
          * @param {function(Object,Object)=} successCb
          *   Success callback with two arguments: `value`, `responseHeaders`.
