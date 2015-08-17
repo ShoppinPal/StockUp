@@ -57,12 +57,30 @@ module.exports = function(ReportModel) {
     returns: {arg: 'reportModelInstance', type: 'object', root:true}
   });
 
-  ReportModel.remoteMethod('getRows', {
+  /*ReportModel.remoteMethod('getRows', {
     accepts: [
       {arg: 'id', type: 'string', required: true}
     ],
     http: {path: '/:id/rows', verb: 'get'},
     returns: {arg: 'rows', type: 'array', root:true}
+  });*/
+
+  ReportModel.remoteMethod('getRows', {
+    accepts: [
+      {arg: 'id', type: 'string', required: true},
+      {arg: 'pageSize', type: 'number', required: false},
+      {arg: 'pageNumber', type: 'number', required: false}
+    ],
+    http: {path: '/getRows', verb: 'get'},
+    returns: {arg: 'rows', type: 'array', root:true}
+  });
+
+  ReportModel.remoteMethod('updateRows', {
+    accepts: [
+      {arg: 'id', type: 'string', required: true},
+      {arg: 'rows', type: 'srray', required: true}
+    ],
+    http: {path: '/updateRows', verb: 'put'}
   });
 
   ReportModel.remoteMethod('setReportStatus', {
@@ -124,20 +142,77 @@ module.exports = function(ReportModel) {
       });
   };
 
-  ReportModel.getRows = function(id, cb) {
+  ReportModel.getRows = function(id, pageSize, pageNumber, cb) {
     var currentUser = ReportModel.getCurrentUserModel(cb); // returns  immediately if no currentUser
     if (currentUser) {
       ReportModel.findById(id)
         .then(function (reportModelInstance) {
           log('reportModelInstance', reportModelInstance);
-          reportModelInstance.stockOrderLineitemModels({}, function(err, data) {
+
+          // TODO: check if the currentUser is the $owner of ReportModel or not?
+          //log('Is %s equal to %s?', reportModelInstance.userModelToReportModelId, currentUser.id);
+
+          var filters = {};
+          if (_.isNumber(pageSize)) {
+            filters.limit = pageSize;
+            if (_.isNumber(pageNumber)) {
+              filters.skip = ( ( pageNumber - 1 ) * pageSize );
+            }
+          }
+          reportModelInstance.stockOrderLineitemModels(filters, function(err, data) {
             if (err) {
               console.error(err);
               cb(err);
             }
-            log('data', data);
+            //log('data', data);
             cb(null, data);
           });
+        });
+    }
+  };
+
+  ReportModel.updateRows = function(id, rows, cb) {
+    var currentUser = ReportModel.getCurrentUserModel(cb); // returns immediately if no currentUser
+    if (currentUser) {
+      ReportModel.findById(id)
+        .then(function (reportModelInstance) {
+          log('reportModelInstance', reportModelInstance);
+          log('rows.length', rows.length);
+
+          // TODO: check if the currentUser is the $owner of ReportModel or not?
+          //log('Is %s equal to %s?', reportModelInstance.userModelToReportModelId, currentUser.id);
+
+          // NOTE(s):
+          // http://mongodb.github.io/node-mongodb-native/2.0/api/Collection.html#initializeUnorderedBulkOp
+
+          // (1) Get the collection
+          var col = ReportModel.dataSource.adapter.collection('StockOrderLineitemModel');
+          //log('collection', col);
+
+          // (2) Initialize the unordered Batch
+          var batch = col.initializeUnorderedBulkOp();
+
+          // (3) Add some operations to be executed
+          _.each(rows,function(row){
+            //log('_.omit(row,\'id\')', _.omit(row,'id'));
+            var ObjectID = require('./../../node_modules/loopback-connector-mongodb/node_modules/mongodb').ObjectID;
+            // TODO: need to (a) either remove all the ObejctId(s) otherwise they'll be overwritten as Strings,
+             //      or (b) cast them properly before sending,
+             //      or (c) cast them properly and instead of sending the whole object, send the diff only
+            batch.find({'_id': new ObjectID(row.id)}).updateOne({$set: _.omit(row,'id','reportId','userId')});
+            // TODO: updatedAt doesn't get a new timestamp
+          });
+
+          // (4) Execute the operations
+          batch.execute(function(err, result) {
+            //log('(4) result', result);
+            cb(null);
+          }, function(error){
+            console.error('report-model.js - updateRows - An unexpected error occurred: ', error);
+            cb(error);
+          });
+
+          cb(null);
         });
     }
   };
