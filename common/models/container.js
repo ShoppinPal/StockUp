@@ -70,15 +70,15 @@ module.exports = function(Container) {
     converter.on('end_parsed', function (arrayOfCsvRowsAsObjects) {
       log('parsed csv rows:', arrayOfCsvRowsAsObjects.length);
 
-      log('#1 create a report model');
+      log('#1 create a new Reportmodel');
       createReportModel(item.name, Container, next)
         .then(function(reportModelInstance){
           log('reportModelInstance:', reportModelInstance);
 
-          log('#2 create lineitems and associate them with the new report model');
-          log('explicitly attach the foreignKey for related models');
+          log('#2 create lineitems from CSV row data and associate them with the new Reportmodel and its user');
           _.each(arrayOfCsvRowsAsObjects, function(csvRowAsObject){
             csvRowAsObject.reportId = reportModelInstance.id;
+            csvRowAsObject.userId = reportModelInstance.userModelToReportModelId;
           });
           var StockOrderLineitemModel = Container.app.models.StockOrderLineitemModel;
           StockOrderLineitemModel.create(arrayOfCsvRowsAsObjects, function(err, results){
