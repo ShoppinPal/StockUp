@@ -3,6 +3,7 @@
   "base": "PersistedModel",
   "idInjection": true,
   "properties": {
+    "id": {"type": "string", "generated": true, "id": true},
     "name": {
       "type": "string",
       "required": false

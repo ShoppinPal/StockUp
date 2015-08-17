@@ -23,13 +23,6 @@ module.exports = function(ReportModel) {
         }
       }
     );
-
-    // if the model is attached to the remote connector
-    if(ReportModel.dataSource.connector.name === 'remote-connector') {
-      ReportModel.definition.rawProperties.id.type = String;
-      ReportModel.definition.rawProperties.userModelToReportModelId = {type: 'string'};
-      ReportModel.definition.build(true);
-    }
   });
 
   ReportModel.ReportModelStates = {
@@ -143,7 +136,7 @@ module.exports = function(ReportModel) {
   };
 
   ReportModel.getRows = function(id, pageSize, pageNumber, cb) {
-    var currentUser = ReportModel.getCurrentUserModel(cb); // returns  immediately if no currentUser
+    var currentUser = ReportModel.getCurrentUserModel(cb); // returns immediately if no currentUser
     if (currentUser) {
       ReportModel.findById(id)
         .then(function (reportModelInstance) {
