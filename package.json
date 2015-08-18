@@ -4,6 +4,7 @@
   "dependencies": {
     "bluebird": "2.9.14",
     "compression": "^1.0.3",
+    "csvtojson": "0.4.2",
     "debug": "^2.1.0",
     "ejs": "~0.8.5",
     "errorhandler": "^1.1.1",
@@ -11,6 +12,7 @@
     "iron_worker": "0.1.4",
     "loopback": "2.18.0",
     "loopback-boot": "2.8.1",
+    "loopback-component-storage": "1.5.1",
     "loopback-connector-mongodb": "1.11.2",
     "loopback-datasource-juggler": "2.31.0",
     "nconf": "^0.7.1",

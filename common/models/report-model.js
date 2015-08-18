@@ -23,13 +23,6 @@ module.exports = function(ReportModel) {
         }
       }
     );
-
-    // if the model is attached to the remote connector
-    if(ReportModel.dataSource.connector.name === 'remote-connector') {
-      ReportModel.definition.rawProperties.id.type = String;
-      ReportModel.definition.rawProperties.userModelToReportModelId = {type: 'string'};
-      ReportModel.definition.build(true);
-    }
   });
 
   ReportModel.ReportModelStates = {
@@ -57,12 +50,30 @@ module.exports = function(ReportModel) {
     returns: {arg: 'reportModelInstance', type: 'object', root:true}
   });
 
-  ReportModel.remoteMethod('getRows', {
+  /*ReportModel.remoteMethod('getRows', {
     accepts: [
       {arg: 'id', type: 'string', required: true}
     ],
     http: {path: '/:id/rows', verb: 'get'},
     returns: {arg: 'rows', type: 'array', root:true}
+  });*/
+
+  ReportModel.remoteMethod('getRows', {
+    accepts: [
+      {arg: 'id', type: 'string', required: true},
+      {arg: 'pageSize', type: 'number', required: false},
+      {arg: 'pageNumber', type: 'number', required: false}
+    ],
+    http: {path: '/getRows', verb: 'get'},
+    returns: {arg: 'rows', type: 'array', root:true}
+  });
+
+  ReportModel.remoteMethod('updateRows', {
+    accepts: [
+      {arg: 'id', type: 'string', required: true},
+      {arg: 'rows', type: 'array', required: true}
+    ],
+    http: {path: '/updateRows', verb: 'put'}
   });
 
   ReportModel.remoteMethod('setReportStatus', {
@@ -124,20 +135,77 @@ module.exports = function(ReportModel) {
       });
   };
 
-  ReportModel.getRows = function(id, cb) {
-    var currentUser = ReportModel.getCurrentUserModel(cb); // returns  immediately if no currentUser
+  ReportModel.getRows = function(id, pageSize, pageNumber, cb) {
+    var currentUser = ReportModel.getCurrentUserModel(cb); // returns immediately if no currentUser
     if (currentUser) {
       ReportModel.findById(id)
         .then(function (reportModelInstance) {
           log('reportModelInstance', reportModelInstance);
-          reportModelInstance.stockOrderLineitemModels({}, function(err, data) {
+
+          // TODO: check if the currentUser is the $owner of ReportModel or not?
+          //log('Is %s equal to %s?', reportModelInstance.userModelToReportModelId, currentUser.id);
+
+          var filters = {};
+          if (_.isNumber(pageSize)) {
+            filters.limit = pageSize;
+            if (_.isNumber(pageNumber)) {
+              filters.skip = ( ( pageNumber - 1 ) * pageSize );
+            }
+          }
+          reportModelInstance.stockOrderLineitemModels(filters, function(err, data) {
             if (err) {
               console.error(err);
               cb(err);
             }
-            log('data', data);
+            //log('data', data);
             cb(null, data);
           });
+        });
+    }
+  };
+
+  ReportModel.updateRows = function(id, rows, cb) {
+    var currentUser = ReportModel.getCurrentUserModel(cb); // returns immediately if no currentUser
+    if (currentUser) {
+      ReportModel.findById(id)
+        .then(function (reportModelInstance) {
+          log('reportModelInstance', reportModelInstance);
+          log('rows.length', rows.length);
+
+          // TODO: check if the currentUser is the $owner of ReportModel or not?
+          //log('Is %s equal to %s?', reportModelInstance.userModelToReportModelId, currentUser.id);
+
+          // NOTE(s):
+          // http://mongodb.github.io/node-mongodb-native/2.0/api/Collection.html#initializeUnorderedBulkOp
+
+          // (1) Get the collection
+          var col = ReportModel.dataSource.adapter.collection('StockOrderLineitemModel');
+          //log('collection', col);
+
+          // (2) Initialize the unordered Batch
+          var batch = col.initializeUnorderedBulkOp();
+
+          // (3) Add some operations to be executed
+          _.each(rows,function(row){
+            //log('_.omit(row,\'id\')', _.omit(row,'id'));
+            var ObjectID = require('./../../node_modules/loopback-connector-mongodb/node_modules/mongodb').ObjectID;
+            // TODO: need to (a) either remove all the ObejctId(s) otherwise they'll be overwritten as Strings,
+             //      or (b) cast them properly before sending,
+             //      or (c) cast them properly and instead of sending the whole object, send the diff only
+            batch.find({'_id': new ObjectID(row.id)}).updateOne({$set: _.omit(row,'id','reportId','userId')});
+            // TODO: updatedAt doesn't get a new timestamp
+          });
+
+          // (4) Execute the operations
+          batch.execute(function(err, result) {
+            //log('(4) result', result);
+            cb(null);
+          }, function(error){
+            console.error('report-model.js - updateRows - An unexpected error occurred: ', error);
+            cb(error);
+          });
+
+          cb(null);
         });
     }
   };
@@ -155,67 +223,15 @@ module.exports = function(ReportModel) {
               var posUrl = storeConfigInstance.posUrl;
               var regexp = /^https?:\/\/(.*)\.vendhq\.com$/i;
               var matches = posUrl.match(regexp);
+              var domainPrefix = matches[1];
 
               // (4) Prepare payload for worker
-              var options = {
-                url: ReportModel.app.get('ironWorkersUrl'),
-                qs: {
-                  'oauth': ReportModel.app.get('ironWorkersOauthToken'),
-                  'code_name': ReportModel.app.get('stockOrderWorker'),
-                  'priority': 1
-                },
-                json: {
-                  tokenService: 'https://{DOMAIN_PREFIX}.vendhq.com/api/1.0/token', //TODO: fetch from global-config or config.*.json
-                  clientId: ReportModel.app.get('vend').client_id,
-                  clientSecret: ReportModel.app.get('vend').client_secret,
-                  tokenType: 'Bearer',
-                  accessToken: storeModelInstance.storeConfigModel().vendAccessToken,//'XN4ceup1M9Rp6Sf1AqeqarDjN9TMa06Mwr15K7lk',
-                  refreshToken: storeModelInstance.storeConfigModel().vendRefreshToken,//'qSl8JF9fD2UMGAZfpsN2yr2d8XRNZgmQEKh7v5jp',
-                  domainPrefix: matches[1], //'fermiyontest', // TODO: extract from storeConfigModelInstance.posUrl
-                  loopbackServerUrl: process.env['site:baseUrl'] || ReportModel.app.get('site').baseUrl,
-                  //loopbackServerHost: 'mppulkit1.localtunnel.me',
-                  //loopbackServerPort: '443',
-                  loopbackAccessToken: newAccessToken, // let it be the full json object
-                  reportId: id,
-                  outletName: reportModelInstance.outlet.name,
-                  supplierName: reportModelInstance.supplier.name,
-                  outletId: reportModelInstance.outlet.id,//'aea67e1a-b85c-11e2-a415-bc764e10976c',
-                  supplierId: reportModelInstance.supplier.id//'c364c506-f8f4-11e3-a0f5-b8ca3a64f8f4'
-                }
-              };
-              log('will send a request with', 'options:', JSON.stringify(options,null,2));
-              return request.post(options)
-                .then(successHandler)
-                .then(function(data){
-                  log('save the task info in ReportModel', JSON.stringify(data,null,2));
-                  return reportModelInstance.updateAttributes({
-                    workerTaskId: data.id,
-                    workerStatus: data.msg
-                  })
-                    .then(function(updatedReportModelInstance){
-                      log('return the updated ReportModel');
-                      cb(null, updatedReportModelInstance);
-                    });
-                })
-                .catch(ClientError, function(e) {
-                  var message = e.response.body;
-                  if(_.isObject(message)) {
-                    message = JSON.stringify(message,null,2);
-                  }
-                  console.error('A ClientError happened: \n'
-                      + e.statusCode + ' ' + message + '\n'
-                    /*+ JSON.stringify(e.response.headers,null,2)
-                     + JSON.stringify(e,null,2)*/
-                  );
-                  // TODO: add retry logic?
-                  //return Promise.reject(e.statusCode + ' ' + message); // TODO: throw unknown errors but reject well known errors?
-                  cb(e.statusCode + ' ' + message);
-                })
-                .catch(function(e) {
-                  console.error('report-model.js - generateStockOrderReportForManager - An unexpected error occurred: ', e);
-                  //throw e; // TODO: throw unknown errors but reject well known errors?
-                  //return Promise.reject(e);
-                  cb(e);
+              var options = ReportModel.preparePayload(storeModelInstance, domainPrefix, newAccessToken, reportModelInstance);
+
+              return ReportModel.sendPayload(reportModelInstance, options, cb)
+                .then(function(updatedReportModelInstance){
+                  log('return the updated ReportModel');
+                  cb(null, updatedReportModelInstance);
                 });
             });
         },
@@ -223,6 +239,68 @@ module.exports = function(ReportModel) {
           cb(error);
         });
     }
+  };
+
+  ReportModel.preparePayload = function(storeModelInstance, domainPrefix, newAccessToken, reportModelInstance){
+    return {
+      url: ReportModel.app.get('ironWorkersUrl'),
+      qs: {
+        'oauth': ReportModel.app.get('ironWorkersOauthToken'),
+        'code_name': ReportModel.app.get('stockOrderWorker'),
+        'priority': 1
+      },
+      json: {
+        tokenService: 'https://{DOMAIN_PREFIX}.vendhq.com/api/1.0/token', //TODO: fetch from global-config or config.*.json
+        clientId: ReportModel.app.get('vend').client_id,
+        clientSecret: ReportModel.app.get('vend').client_secret,
+        tokenType: 'Bearer',
+        accessToken: storeModelInstance.storeConfigModel().vendAccessToken,//'XN4ceup1M9Rp6Sf1AqeqarDjN9TMa06Mwr15K7lk',
+        refreshToken: storeModelInstance.storeConfigModel().vendRefreshToken,//'qSl8JF9fD2UMGAZfpsN2yr2d8XRNZgmQEKh7v5jp',
+        domainPrefix: domainPrefix, //'fermiyontest', // TODO: extract from storeConfigModelInstance.posUrl
+        loopbackServerUrl: process.env['site:baseUrl'] || ReportModel.app.get('site').baseUrl,
+        //loopbackServerHost: 'mppulkit1.localtunnel.me',
+        //loopbackServerPort: '443',
+        loopbackAccessToken: newAccessToken, // let it be the full json object
+        reportId: reportModelInstance.id,
+        outletName: reportModelInstance.outlet.name,
+        supplierName: reportModelInstance.supplier.name,
+        outletId: reportModelInstance.outlet.id,//'aea67e1a-b85c-11e2-a415-bc764e10976c',
+        supplierId: reportModelInstance.supplier.id//'c364c506-f8f4-11e3-a0f5-b8ca3a64f8f4'
+      }
+    };
+  };
+
+  ReportModel.sendPayload = function(reportModelInstance, options, cb){
+    log('will send a request with', 'options:', JSON.stringify(options,null,2));
+    return request.post(options)
+      .then(successHandler)
+      .then(function(data){
+        log('save the task info in ReportModel', JSON.stringify(data,null,2));
+        return reportModelInstance.updateAttributes({
+          workerTaskId: data.id,
+          workerStatus: data.msg
+        });
+      })
+      .catch(ClientError, function(e) {
+        var message = e.response.body;
+        if(_.isObject(message)) {
+          message = JSON.stringify(message,null,2);
+        }
+        console.error('A ClientError happened: \n'
+          + e.statusCode + ' ' + message + '\n'
+          /*+ JSON.stringify(e.response.headers,null,2)
+           + JSON.stringify(e,null,2)*/
+        );
+        // TODO: add retry logic?
+        //return Promise.reject(e.statusCode + ' ' + message); // TODO: throw unknown errors but reject well known errors?
+        cb(e.statusCode + ' ' + message);
+      })
+      .catch(function(e) {
+        console.error('report-model.js - generateStockOrderReportForManager - An unexpected error occurred: ', e);
+        //throw e; // TODO: throw unknown errors but reject well known errors?
+        //return Promise.reject(e);
+        cb(e);
+      });
   };
 
   ReportModel.getWorkerStatus = function(id, cb) {

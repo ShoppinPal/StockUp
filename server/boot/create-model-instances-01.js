@@ -126,6 +126,10 @@ module.exports = function(app) {
   var seed = null;
   try {
     seed = require('./seed.json');
+    if(process.env.SKIP_SEEDING) {
+      debug('Will skip the database seeding process');
+      return;
+    }
   } catch (err) {
     debug('Please configure your data in `seed.json`.');
     debug('Copy `seed.json.template` to `seed.json` and replace the values with your own.');
