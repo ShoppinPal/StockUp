@@ -89,14 +89,15 @@
           var proceed = data.value;
           if (proceed) {
             //console.log('submitting report');
-            ReportModel.prototype$updateAttributes(
-              { id: $stateParams.reportId },
-              {
-                state: ReportModelStates.MANAGER_RECEIVE
-              }
-            )
-              .$promise.then(function(/*response*/){
-                //console.log('updated report', response);
+            // server-side will update the report's state and create the matching consignment in Vend
+            // and then set it from OPEN to SENT
+            $scope.waitOnPromise = ReportModel.setReportStatus({
+              id: $stateParams.reportId,
+              from: ReportModelStates.WAREHOUSE_FULFILL,
+              to: ReportModelStates.MANAGER_RECEIVE
+            })
+              .$promise.then(function(updatedReportModelInstance){
+                console.log('updatedReportModelInstance', updatedReportModelInstance);
                 $state.go('warehouse-landing');
               });
           }

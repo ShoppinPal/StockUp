@@ -399,6 +399,43 @@ module.exports = function(ReportModel) {
               });
           }
           else if (from === reportModelInstance.state &&
+            reportModelInstance.state === ReportModel.ReportModelStates.WAREHOUSE_FULFILL &&
+            to === ReportModel.ReportModelStates.MANAGER_RECEIVE &&
+            !reportModelInstance.vendConsignmentId)
+          {
+            log('inside setReportStatus() - will create a stock order in Vend (for imported order)');
+            oauthVendUtil.createStockOrderForVend(storeModelInstance, reportModelInstance)
+              .then(function(newStockOrder){
+                log('inside setReportStatus() - PASS - created a stock order in Vend (for imported order)', newStockOrder);
+                reportModelInstance.vendConsignmentId = newStockOrder.id;
+                reportModelInstance.vendConsignment = newStockOrder;
+                reportModelInstance.state = ReportModel.ReportModelStates.MANAGER_RECEIVE;
+                reportModelInstance.save()
+                  .then(function(updatedReportModelInstance){
+                    log('inside setReportStatus() - PASS - updated the report model (for imported order)');
+
+                    // TODO: create consignment products in Vend
+                    log('inside setReportStatus() - will update the status of stock order in Vend to SENT (for imported order)');
+                    oauthVendUtil.markStockOrderAsSent(storeModelInstance, updatedReportModelInstance)
+                      .then(function(updatedStockOrder){
+                        log('inside setReportStatus() - PASS - updated stock order in Vend to SENT (for imported order)', updatedStockOrder);
+                        updatedReportModelInstance.vendConsignment = updatedStockOrder;
+                        updatedReportModelInstance.save()
+                          .then(function(updatedReportModelInstanceAgain){
+                            log('inside setReportStatus() - PASS - updated the report model again (for imported order)');
+                            cb(null, updatedReportModelInstanceAgain);
+                          });
+                      },
+                      function(error){
+                        cb(error);
+                      });
+                  });
+              },
+              function(error){
+                cb(error);
+              });
+          }
+          else if (from === reportModelInstance.state &&
                    reportModelInstance.state === ReportModel.ReportModelStates.MANAGER_RECEIVE &&
                    to === ReportModel.ReportModelStates.REPORT_COMPLETE)
           {
@@ -419,7 +456,7 @@ module.exports = function(ReportModel) {
               });
           }
           else {
-            cb(null, {updated:false});
+            cb(null, {updated:false}); // TODO: maybe use http status code 400 to indicate invalid input?
           }
         });
     }
