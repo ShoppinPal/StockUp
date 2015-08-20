@@ -241,12 +241,12 @@ module.exports = function(ReportModel) {
     }
   };
 
-  ReportModel.preparePayload = function(storeModelInstance, domainPrefix, newAccessToken, reportModelInstance){
+  ReportModel.preparePayload = function(storeModelInstance, domainPrefix, newAccessToken, reportModelInstance, workerName){
     return {
       url: ReportModel.app.get('ironWorkersUrl'),
       qs: {
         'oauth': ReportModel.app.get('ironWorkersOauthToken'),
-        'code_name': ReportModel.app.get('stockOrderWorker'),
+        'code_name': workerName || ReportModel.app.get('stockOrderWorker'),
         'priority': 1
       },
       json: {
@@ -404,30 +404,34 @@ module.exports = function(ReportModel) {
             !reportModelInstance.vendConsignmentId)
           {
             log('inside setReportStatus() - will create a stock order in Vend (for imported order)');
-            oauthVendUtil.createStockOrderForVend(storeModelInstance, reportModelInstance)
+            return oauthVendUtil.createStockOrderForVend(storeModelInstance, reportModelInstance)
               .then(function(newStockOrder){
                 log('inside setReportStatus() - PASS - created a stock order in Vend (for imported order)', newStockOrder);
                 reportModelInstance.vendConsignmentId = newStockOrder.id;
                 reportModelInstance.vendConsignment = newStockOrder;
-                reportModelInstance.state = ReportModel.ReportModelStates.MANAGER_RECEIVE;
-                reportModelInstance.save()
+                return reportModelInstance.save()
                   .then(function(updatedReportModelInstance){
                     log('inside setReportStatus() - PASS - updated the report model (for imported order)');
 
-                    // TODO: create consignment products in Vend
-                    log('inside setReportStatus() - will update the status of stock order in Vend to SENT (for imported order)');
-                    oauthVendUtil.markStockOrderAsSent(storeModelInstance, updatedReportModelInstance)
-                      .then(function(updatedStockOrder){
-                        log('inside setReportStatus() - PASS - updated stock order in Vend to SENT (for imported order)', updatedStockOrder);
-                        updatedReportModelInstance.vendConsignment = updatedStockOrder;
-                        updatedReportModelInstance.save()
-                          .then(function(updatedReportModelInstanceAgain){
-                            log('inside setReportStatus() - PASS - updated the report model again (for imported order)');
-                            cb(null, updatedReportModelInstanceAgain);
+                    // (a) submit long running task as a job to iron
+                    // (a.1) generate a token for the worker to use on the currentUser's behalf
+                    return currentUser.createAccessTokenAsync(1209600)// can't be empty ... time to live (in seconds) 1209600 is 2 weeks (default of loopback)
+                      .then(function(newAccessToken){
+                        // (a.2) extract domainPrefix from store-config's posUrl
+                        var posUrl = storeConfigInstance.posUrl;
+                        var regexp = /^https?:\/\/(.*)\.vendhq\.com$/i;
+                        var matches = posUrl.match(regexp);
+                        var domainPrefix = matches[1];
+                        // (a.3) Prepare payload for worker
+                        var options = ReportModel.preparePayload(storeModelInstance, domainPrefix,
+                          newAccessToken, updatedReportModelInstance,
+                          ReportModel.app.get('importOrderWorker'));
+                        // (a.4) Submit it
+                        return ReportModel.sendPayload(updatedReportModelInstance, options, cb)
+                          .then(function(updatedReportModelInstance){
+                            log('return the updated ReportModel');
+                            cb(null, updatedReportModelInstance);
                           });
-                      },
-                      function(error){
-                        cb(error);
                       });
                   });
               },
@@ -458,6 +462,9 @@ module.exports = function(ReportModel) {
           else {
             cb(null, {updated:false}); // TODO: maybe use http status code 400 to indicate invalid input?
           }
+        })
+        .catch(function(error){
+          cb(error);
         });
     }
   };
