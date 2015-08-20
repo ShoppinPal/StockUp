@@ -521,7 +521,7 @@ var createStockOrderLineitemForVend = function(storeModelInstance, reportModelIn
         'consignment_id': reportModelInstance.vendConsignmentId,
         'product_id': stockOrderLineitemModelInstance.productId,
         'count': stockOrderLineitemModelInstance.orderQuantity,
-        'cost': stockOrderLineitemModelInstance.cost
+        'cost': stockOrderLineitemModelInstance.supplyPrice
       };
       log.debug('createStockOrderLineitemForVend()', 'consignmentProduct: ', consignmentProduct);
       return vendSdk.consignments.products.create({body:consignmentProduct}, connectionInfo)
@@ -546,7 +546,7 @@ var updateStockOrderLineitemForVend = function(storeModelInstance, reportModelIn
       //args.body.value = _.omit(stockOrderLineitemModelInstance.vendConsignmentProduct, 'id'); // omitting id is BAD in this case
       args.body.value = stockOrderLineitemModelInstance.vendConsignmentProduct;
       args.body.value.count = stockOrderLineitemModelInstance.orderQuantity;
-      args.body.value.cost = stockOrderLineitemModelInstance.cost;
+      args.body.value.cost = stockOrderLineitemModelInstance.supplyPrice;
       args.body.value.received = stockOrderLineitemModelInstance.receivedQuantity;
       log.debug('updateStockOrderLineitemForVend()', 'consignmentProduct: ', args.body.value);
       return vendSdk.consignments.products.update(args, connectionInfo)
