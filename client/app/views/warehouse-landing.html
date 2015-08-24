@@ -110,7 +110,11 @@
                                         <div class="col-sm-5 store-landing-edit-button-row">
                                             <button class="import-btn">Import</button>
                                             <button class="export-btn">Export</button>
-                                            <button class="fulfilled-btn">Fulfilled</button>
+                                            <button class="fulfilled-btn"
+                                                    ng-click="delete($index, storeReport.id)">
+                                                Delete
+                                            </button>
+                                            <!--<button class="fulfilled-btn">Fulfilled</button>-->
                                         </div>
                                     </td>
                                 </tr>

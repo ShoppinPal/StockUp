@@ -76,6 +76,13 @@ module.exports = function(ReportModel) {
     http: {path: '/updateRows', verb: 'put'}
   });
 
+  ReportModel.remoteMethod('removeReport', {
+    accepts: [
+      {arg: 'id', type: 'string', required: true}
+    ],
+    http: {path: '/:id/remove', verb: 'post'}
+  });
+
   ReportModel.remoteMethod('setReportStatus', {
     accepts: [
       {arg: 'id', type: 'string', required: true},
@@ -207,6 +214,31 @@ module.exports = function(ReportModel) {
 
           cb(null);
         });
+    }
+  };
+
+  ReportModel.removeReport = function(id, cb) {
+    log('removeReport > id:', id);
+    var currentUser = ReportModel.getCurrentUserModel(cb); // returns immediately if no currentUser
+    if (currentUser) {
+      var StockOrderLineitemModel = ReportModel.app.models.StockOrderLineitemModel;
+      StockOrderLineitemModel.destroyAll({reportId: id}, function (err, info) {
+        log('removeReport > destroy related lineitems > DONE!', info);
+        if (err) {
+          cb(err);
+        }
+        else {
+          ReportModel.destroyById(id, function(){
+            log('removeReport > destroyById(): DONE!');
+            if (err) {
+              cb(err);
+            }
+            else {
+              cb(null);
+            }
+          });
+        }
+      });
     }
   };
 

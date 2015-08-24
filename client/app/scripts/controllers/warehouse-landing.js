@@ -149,5 +149,26 @@ angular.module('ShoppinPalApp')
           $state.go('logout');
         }
       };
+
+      $scope.delete = function(rowIndex, reportId) {
+        console.log('delete > reportId:', reportId);
+        if ($scope.isWarehouser()) {
+          console.log('delete > isWarehouser()');
+          //$scope.waitOnPromise = ReportModel.remove({
+          $scope.waitOnPromise = ReportModel.removeReport({
+            id: reportId
+          })
+            .$promise.then(function (response) {
+              console.log('delete > done:', response);
+              $scope.dismissEdit();
+              $scope.backUpReportList.splice(rowIndex, 1);
+              $scope.filterOrders();
+            });
+        }
+        else {
+          // do nothing?
+        }
+      };
+
     }
   ]);
