@@ -221,24 +221,49 @@ module.exports = function(ReportModel) {
     log('removeReport > id:', id);
     var currentUser = ReportModel.getCurrentUserModel(cb); // returns immediately if no currentUser
     if (currentUser) {
-      var StockOrderLineitemModel = ReportModel.app.models.StockOrderLineitemModel;
-      StockOrderLineitemModel.destroyAll({reportId: id}, function (err, info) {
-        log('removeReport > destroy related lineitems > DONE!', info);
-        if (err) {
-          cb(err);
-        }
-        else {
-          ReportModel.destroyById(id, function(){
-            log('removeReport > destroyById(): DONE!');
-            if (err) {
-              cb(err);
-            }
-            else {
-              cb(null);
-            }
+      log('removeReport > will fetch report and related models for Vend calls');
+      ReportModel.getAllRelevantModelInstancesForReportModel(id)
+        .spread(function(reportModelInstance, storeModelInstance/*, storeConfigInstance*/){
+          var conditionalPromise;
+          if(reportModelInstance.vendConsignmentId) {
+            log('removeReport > will delete Vend consignment', reportModelInstance.vendConsignmentId);
+            var oauthVendUtil = require('./../../common/utils/vend')({
+              'GlobalConfigModel': ReportModel.app.models.GlobalConfigModel,
+              'StoreConfigModel': ReportModel.app.models.StoreConfigModel,
+              'currentUser': currentUser
+            });
+            conditionalPromise = oauthVendUtil.deleteStockOrder(storeModelInstance, reportModelInstance);
+          }
+          else {
+            log('removeReport > no vendConsignmentId found for deletion');
+            conditionalPromise = Promise.resolve();
+          }
+
+          return conditionalPromise.then(function(){
+            log('removeReport > will fetch related lineitems');
+            var StockOrderLineitemModel = ReportModel.app.models.StockOrderLineitemModel;
+            return StockOrderLineitemModel.destroyAll({reportId: id}, function (err, info) {
+              log('removeReport > destroy related lineitems > DONE!', info);
+              if (err) {
+                cb(err);
+              }
+              else {
+                return ReportModel.destroyById(id, function(){
+                  log('removeReport > destroyById(): DONE!');
+                  if (err) {
+                    cb(err);
+                  }
+                  else {
+                    cb(null);
+                  }
+                });
+              }
+            });
           });
-        }
-      });
+        },
+        function(error){
+          cb(error);
+        });
     }
   };
 

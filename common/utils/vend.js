@@ -497,12 +497,31 @@ var markStockOrderAsReceived = function(storeModelInstance, reportModelInstance)
       argsForStockOrder.body.value = _.omit(reportModelInstance.vendConsignment, 'id');
       return vendSdk.consignments.stockOrders.markAsReceived(argsForStockOrder, connectionInfo)
         .then(function (updatedStockOrder) {
-          log.debug('markStockOrderAsReceived', 'updatedStockOrder', updatedStockOrder);
+          log.debug('markStockOrderAsReceived()', 'updatedStockOrder', updatedStockOrder);
           return Promise.resolve(updatedStockOrder);
         });
     },
     function(error){
       log.error('markStockOrderAsReceived()', 'Error updating the stock order in Vend:\n' + JSON.stringify(error));
+      return Promise.reject('An error occurred while updating the stock order in Vend.\n' + JSON.stringify(error));
+    });
+};
+
+var deleteStockOrder = function(storeModelInstance, reportModelInstance){
+  var storeConfigId = storeModelInstance.storeConfigModelToStoreModelId;
+  log.debug('deleteStockOrder()', 'storeConfigId: ' + storeConfigId);
+  return getVendConnectionInfo(storeConfigId)
+    .then(function(connectionInfo){
+      var argsForStockOrder = vendSdk.args.consignments.stockOrders.remove();
+      argsForStockOrder.apiId.value = reportModelInstance.vendConsignmentId;
+      return vendSdk.consignments.stockOrders.remove(argsForStockOrder, connectionInfo)
+        .then(function (updatedStockOrder) {
+          log.debug('deleteStockOrder()', 'updatedStockOrder', updatedStockOrder);
+          return Promise.resolve(updatedStockOrder);
+        });
+    },
+    function(error){
+      log.error('deleteStockOrder()', 'Error updating the stock order in Vend:\n' + JSON.stringify(error));
       return Promise.reject('An error occurred while updating the stock order in Vend.\n' + JSON.stringify(error));
     });
 };
@@ -594,6 +613,7 @@ module.exports = function(dependencies){
     createStockOrderForVend: createStockOrderForVend,
     markStockOrderAsSent: markStockOrderAsSent,
     markStockOrderAsReceived: markStockOrderAsReceived,
+    deleteStockOrder: deleteStockOrder,
     createStockOrderLineitemForVend: createStockOrderLineitemForVend,
     updateStockOrderLineitemForVend: updateStockOrderLineitemForVend,
     deleteStockOrderLineitemForVend: deleteStockOrderLineitemForVend
