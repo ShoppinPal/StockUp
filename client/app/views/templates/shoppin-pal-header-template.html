@@ -25,6 +25,11 @@
                     ng-click="onButton2Click()" ng-disabled="button2Disabled()">
                 {{button2Label}}
             </button>
+            <button ng-if="button3Label"
+                    type="submit" class="btn {{::button3Class}}"
+                    ng-click="onButton3Click()" ng-disabled="button3Disabled()">
+              {{button3Label}}
+            </button>
           </div>
         </div>
       </div>
