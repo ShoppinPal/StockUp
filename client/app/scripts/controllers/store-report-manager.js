@@ -392,6 +392,28 @@ angular.module('ShoppinPalApp')
         setFilterBasedOnState();
       };
 
+      $scope.selectSku = function() {
+        var dialog = ngDialog.open({ template: 'views/popup/addProductBySku.html',
+          className: 'ngdialog-theme-plain',
+          scope: $scope
+        });
+        dialog.closePromise.then(function (data) {
+          //console.log('arguments', arguments);
+          var proceed = data.value;
+          if (proceed === true) {
+            // TODO: lookup the SKU on server side and
+            //       if a single valid product is present, add it
+            console.log('got this far');
+          }
+        });
+      };
+
+      $scope.sku = {value:null};
+      $scope.lookupBySku = function() {
+        console.log('sku:', $scope.sku.value);
+        return false;
+      };
+
       $scope.getFilterForRowsToDisplay = function() {
         return ($scope.displayPendingRows) ? {state:ROW_STATE_NOT_COMPLETE} : {state:$scope.ROW_STATE_COMPLETE};
       };
