@@ -2,6 +2,11 @@
     <div class="form-group">
         <!-- empty space to avoid clashing with the [x] closing arrow -->
     </div>
+    <alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)"
+           style="color:red;">
+        {{alert.msg}}
+        <div style="float: right">({{countdownInMilliSeconds/1000}})</div>
+    </alert>
     <div class="form-group">
         <input type="text"
                class="form-control"

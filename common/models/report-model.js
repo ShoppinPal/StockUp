@@ -277,13 +277,13 @@ module.exports = function(ReportModel) {
   };
 
   ReportModel.lookupAndAddProductBySku = function(id, sku, cb) {
-    log('removeReport > id:', id);
+    log('lookupAndAddProductBySku > id:', id);
     var currentUser = ReportModel.getCurrentUserModel(cb); // returns immediately if no currentUser
     if (currentUser) {
-      log('removeReport > will fetch report and related models for Vend calls');
+      log('lookupAndAddProductBySku > will fetch report and related models for Vend calls');
       ReportModel.getAllRelevantModelInstancesForReportModel(id)
         .spread(function(reportModelInstance, storeModelInstance/*, storeConfigInstance*/){
-          log('removeReport > will loopkup product by SKU');
+          log('lookupAndAddProductBySku > will loopkup product by SKU');
           var oauthVendUtil = require('./../../common/utils/vend')({
             'GlobalConfigModel': ReportModel.app.models.GlobalConfigModel,
             'StoreConfigModel': ReportModel.app.models.StoreConfigModel,
@@ -291,8 +291,26 @@ module.exports = function(ReportModel) {
           });
           return oauthVendUtil.lookupBySku(sku, storeModelInstance, reportModelInstance)
             .then(function(results){
-              log('results:', results);
-              cb(null, results);
+              log('lookupAndAddProductBySku > results:', results);
+              if (results.products.length === 1) {
+                // TODO: dilute the product to match the inventory for store tied with report
+                cb(null, results); // TODO: return StockOrderLineitemModel
+              }
+              else if (results.products.length > 1) {
+                var error = new Error('More than one match found, SKU is not unique.');
+                error.statusCode = 400;
+                cb(error);
+              }
+              else if (results.products.length === 0) {
+                var error = new Error('No matches found.');
+                error.statusCode = 400;
+                cb(error);
+              }
+              else {
+                var error = new Error('An unexpected error occurred, could not find a match.');
+                error.statusCode = 500;
+                cb(error);
+              }
             });
         },
         function(error){

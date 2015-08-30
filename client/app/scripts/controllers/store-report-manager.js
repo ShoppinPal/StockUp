@@ -10,11 +10,11 @@ angular.module('ShoppinPalApp')
   .controller('StoreManagerCtrl',
   [
     '$scope', '$anchorScroll', '$location', '$state', '$stateParams', '$filter', '$sessionStorage', '$q', /* angular's modules/services/factories etc. */
-    'loginService', 'uiUtils', 'StockOrderLineitemModel', 'ReportModel', 'StoreModel', /* shoppinpal's custom modules/services/factories etc. */
+    '$spAlerts', 'loginService', 'uiUtils', 'StockOrderLineitemModel', 'ReportModel', 'StoreModel', /* shoppinpal's custom modules/services/factories etc. */
     'ngDialog', 'deviceDetector', '$timeout', /* 3rd party modules/services/factories etc. */
     'ReportModelStates', /* constants */
     function ($scope, $anchorScroll, $location, $state, $stateParams, $filter, $sessionStorage, $q,
-              loginService, uiUtils, StockOrderLineitemModel, ReportModel, StoreModel,
+              $spAlerts, loginService, uiUtils, StockOrderLineitemModel, ReportModel, StoreModel,
               ngDialog, deviceDetector, $timeout,
               ReportModelStates)
     {
@@ -407,6 +407,14 @@ angular.module('ShoppinPalApp')
             closeDialogMethod('true');
           })
           .catch(function(error){
+            if(error.data.error.message) {
+              console.error(error.data.error.message);
+              $spAlerts.addAlert(error.data.error.message, 'error');
+            }
+            else {
+              console.error(error);
+              $spAlerts.addAlert('Something went wrong! Try again or report to an admin.', 'error');
+            }
             return false;
           });
       };
@@ -460,6 +468,14 @@ angular.module('ShoppinPalApp')
             $scope.JumtoDepartment();
           });
       }
+
+      // ====================================================
+      // Alert code which cannot be directly called from HTML
+      // ====================================================
+      $scope.closeAlert = function(index) {
+        console.log('calling closeAlert() from mystores.js');
+        $spAlerts.closeAlert(index);
+      };
 
     }
   ]);
