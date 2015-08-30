@@ -392,26 +392,36 @@ angular.module('ShoppinPalApp')
         setFilterBasedOnState();
       };
 
+      $scope.sku = {value:null};
+      $scope.lookupBySku = function(closeDialogMethod) {
+        // NOTES: In vend, each 'Variant' which is grouped together,
+        //        requires the same 'handle', and a unique SKU per variant.
+        console.log('will lookup sku:', $scope.sku.value);
+        ReportModel.lookupAndAddProductBySku({
+          id: $stateParams.reportId,
+          sku: $scope.sku.value
+        })
+          .$promise.then(function(results){
+            console.log('results:', results);
+            //return true; //closeThisDialog('true');
+            closeDialogMethod('true');
+          })
+          .catch(function(error){
+            return false;
+          });
+      };
       $scope.selectSku = function() {
         var dialog = ngDialog.open({ template: 'views/popup/addProductBySku.html',
           className: 'ngdialog-theme-plain',
           scope: $scope
         });
         dialog.closePromise.then(function (data) {
-          //console.log('arguments', arguments);
-          var proceed = data.value;
-          if (proceed === true) {
-            // TODO: lookup the SKU on server side and
-            //       if a single valid product is present, add it
-            console.log('got this far');
+          console.log('arguments', arguments);
+          var proceed = data;
+          if (proceed) {
+            console.log('is there no point in coding up this block?');
           }
         });
-      };
-
-      $scope.sku = {value:null};
-      $scope.lookupBySku = function() {
-        console.log('sku:', $scope.sku.value);
-        return false;
       };
 
       $scope.getFilterForRowsToDisplay = function() {

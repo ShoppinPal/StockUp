@@ -83,6 +83,15 @@ module.exports = function(ReportModel) {
     http: {path: '/:id/remove', verb: 'post'}
   });
 
+  ReportModel.remoteMethod('lookupAndAddProductBySku', {
+    accepts: [
+      {arg: 'id', type: 'string', required: true},
+      {arg: 'sku', type: 'string', required: true}
+    ],
+    http: {path: '/:id/lookupAndAddProductBySku', verb: 'post'},
+    returns: {arg: 'products', type: 'object', root:true} // TODO: no need to return to client
+  });
+
   ReportModel.remoteMethod('setReportStatus', {
     accepts: [
       {arg: 'id', type: 'string', required: true},
@@ -260,6 +269,31 @@ module.exports = function(ReportModel) {
               }
             });
           });
+        },
+        function(error){
+          cb(error);
+        });
+    }
+  };
+
+  ReportModel.lookupAndAddProductBySku = function(id, sku, cb) {
+    log('removeReport > id:', id);
+    var currentUser = ReportModel.getCurrentUserModel(cb); // returns immediately if no currentUser
+    if (currentUser) {
+      log('removeReport > will fetch report and related models for Vend calls');
+      ReportModel.getAllRelevantModelInstancesForReportModel(id)
+        .spread(function(reportModelInstance, storeModelInstance/*, storeConfigInstance*/){
+          log('removeReport > will loopkup product by SKU');
+          var oauthVendUtil = require('./../../common/utils/vend')({
+            'GlobalConfigModel': ReportModel.app.models.GlobalConfigModel,
+            'StoreConfigModel': ReportModel.app.models.StoreConfigModel,
+            'currentUser': currentUser
+          });
+          return oauthVendUtil.lookupBySku(sku, storeModelInstance, reportModelInstance)
+            .then(function(results){
+              log('results:', results);
+              cb(null, results);
+            });
         },
         function(error){
           cb(error);

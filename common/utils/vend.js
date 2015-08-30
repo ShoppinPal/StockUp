@@ -443,6 +443,19 @@ var setDesiredStockLevelForVend = function(storeConfigId, outletId, productId, d
     });
 };
 
+var lookupBySku = function(sku, storeModelInstance, reportModelInstance){
+  var storeConfigId = storeModelInstance.storeConfigModelToStoreModelId;
+  log.debug('lookupBySku()', 'storeConfigId: ' + storeConfigId);
+  return getVendConnectionInfo(storeConfigId)
+    .then(function(connectionInfo){
+      return vendSdk.products.fetchBySku({sku:{value:sku}}, connectionInfo);
+    },
+    function(error){
+      log.error('lookupBySku()', 'Error in Vend loopkup:\n' + JSON.stringify(error));
+      return Promise.reject('An error occurred while looking up a product in Vend.\n' + JSON.stringify(error));
+    });
+};
+
 var createStockOrderForVend = function(storeModelInstance, reportModelInstance){
   var storeConfigId = storeModelInstance.storeConfigModelToStoreModelId;
   var reportName = reportModelInstance.name;
@@ -610,6 +623,7 @@ module.exports = function(dependencies){
     getVendTaxes: getVendTaxes,
     getVendPaymentTypes: getVendPaymentTypes,
     setDesiredStockLevelForVend : setDesiredStockLevelForVend,
+    lookupBySku: lookupBySku,
     createStockOrderForVend: createStockOrderForVend,
     markStockOrderAsSent: markStockOrderAsSent,
     markStockOrderAsReceived: markStockOrderAsReceived,
