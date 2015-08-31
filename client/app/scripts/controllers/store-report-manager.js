@@ -10,11 +10,11 @@ angular.module('ShoppinPalApp')
   .controller('StoreManagerCtrl',
   [
     '$scope', '$anchorScroll', '$location', '$state', '$stateParams', '$filter', '$sessionStorage', '$q', /* angular's modules/services/factories etc. */
-    'loginService', 'uiUtils', 'StockOrderLineitemModel', 'ReportModel', 'StoreModel', /* shoppinpal's custom modules/services/factories etc. */
+    '$spAlerts', 'loginService', 'uiUtils', 'StockOrderLineitemModel', 'ReportModel', 'StoreModel', /* shoppinpal's custom modules/services/factories etc. */
     'ngDialog', 'deviceDetector', '$timeout', /* 3rd party modules/services/factories etc. */
     'ReportModelStates', /* constants */
     function ($scope, $anchorScroll, $location, $state, $stateParams, $filter, $sessionStorage, $q,
-              loginService, uiUtils, StockOrderLineitemModel, ReportModel, StoreModel,
+              $spAlerts, loginService, uiUtils, StockOrderLineitemModel, ReportModel, StoreModel,
               ngDialog, deviceDetector, $timeout,
               ReportModelStates)
     {
@@ -392,6 +392,47 @@ angular.module('ShoppinPalApp')
         setFilterBasedOnState();
       };
 
+      $scope.sku = {value:null};
+      $scope.lookupBySku = function(closeDialogMethod) {
+        // NOTES: In vend, each 'Variant' which is grouped together,
+        //        requires the same 'handle', and a unique SKU per variant.
+        console.log('will lookup sku:', $scope.sku.value);
+        ReportModel.lookupAndAddProductBySku({
+          id: $stateParams.reportId,
+          sku: $scope.sku.value
+        })
+          .$promise.then(function(stockOrderLineitemModelInstance){
+            console.log('stockOrderLineitemModelInstance:', stockOrderLineitemModelInstance);
+            originalReportDataSet.push(stockOrderLineitemModelInstance);
+            setup();
+            closeDialogMethod('true');
+          })
+          .catch(function(error){
+            if(error && error.data && error.data.error && error.data.error.message) {
+              console.error(error.data.error.message);
+              $spAlerts.addAlert(error.data.error.message, 'error');
+            }
+            else {
+              console.error(error);
+              $spAlerts.addAlert('Something went wrong! Try again or report to an admin.', 'error');
+            }
+            return false;
+          });
+      };
+      $scope.selectSku = function() {
+        var dialog = ngDialog.open({ template: 'views/popup/addProductBySku.html',
+          className: 'ngdialog-theme-plain',
+          scope: $scope
+        });
+        dialog.closePromise.then(function (data) {
+          console.log('arguments', arguments);
+          var proceed = data;
+          if (proceed) {
+            console.log('is there no point in coding up this block?');
+          }
+        });
+      };
+
       $scope.getFilterForRowsToDisplay = function() {
         return ($scope.displayPendingRows) ? {state:ROW_STATE_NOT_COMPLETE} : {state:$scope.ROW_STATE_COMPLETE};
       };
@@ -405,17 +446,7 @@ angular.module('ShoppinPalApp')
         $scope.waitOnPromise = loginService.getReport($stateParams.reportId)
           .then(function (response) {
             originalReportDataSet = response;
-            /*angular.forEach(originalReportDataSet, function (row) {
-              row.state = $scope.ROW_STATE_COMPLETE;
-            });
-            originalReportDataSet[originalReportDataSet.length-1].state = 'pending';
-            console.log(originalReportDataSet[originalReportDataSet.length-1]);*/
-            setFilterBasedOnState();
-            $scope.isShipmentFullyReceived = ($scope.storesReport.length < 1) ? true : false;
-            //console.log('isShipmentFullyReceived', $scope.isShipmentFullyReceived);
-
-            $scope.storereportlength = $scope.storesReport.length;
-            $scope.JumtoDepartment();
+            setup();
           });
       }
       else { // if live data can't be loaded due to some bug, use MOCK data so testing can go on
@@ -428,6 +459,27 @@ angular.module('ShoppinPalApp')
             $scope.JumtoDepartment();
           });
       }
+
+      var setup = function(){
+        /*angular.forEach(originalReportDataSet, function (row) {
+         row.state = $scope.ROW_STATE_COMPLETE;
+         });
+         originalReportDataSet[originalReportDataSet.length-1].state = 'pending';
+         console.log(originalReportDataSet[originalReportDataSet.length-1]);*/
+        setFilterBasedOnState();
+        $scope.isShipmentFullyReceived = ($scope.storesReport.length < 1) ? true : false;
+        //console.log('isShipmentFullyReceived', $scope.isShipmentFullyReceived);
+
+        $scope.storereportlength = $scope.storesReport.length;
+        $scope.JumtoDepartment();
+      };
+      // ====================================================
+      // Alert code which cannot be directly called from HTML
+      // ====================================================
+      $scope.closeAlert = function(index) {
+        console.log('calling closeAlert() from mystores.js');
+        $spAlerts.closeAlert(index);
+      };
 
     }
   ]);

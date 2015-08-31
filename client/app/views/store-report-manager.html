@@ -2,13 +2,16 @@
      cg-busy="waitOnPromise">
     <shoppin-pal-header store-name="{{::storeName}}"
                         home-state="store-landing"
-                        button1-label="Show {{displayPendingRows && 'Completed' || 'Pending'}}"
+                        button1-label="{{ (displayPendingRows) ? 'Add a Product' : null }}"
                         button1-class="button-large-blue"
-                        button2-label="{{submitToWarehouseButton}}"
-                        button2-class="button-large-green"
-                        button2-disabled="!isShipmentFullyReceived"
-                        on-button1-click="toggleRows()"
-                        on-button2-click="submitToWarehouse()">
+                        on-button1-click="selectSku()"
+                        button2-label="Show {{displayPendingRows && 'Completed' || 'Pending'}}"
+                        button2-class="button-large-blue"
+                        on-button2-click="toggleRows()"
+                        button3-label="{{submitToWarehouseButton}}"
+                        button3-class="button-large-green"
+                        button3-disabled="!isShipmentFullyReceived"
+                        on-button3-click="submitToWarehouse()">
     </shoppin-pal-header>
     <!-- Store Manager page content -->
     <div class="row main-container">

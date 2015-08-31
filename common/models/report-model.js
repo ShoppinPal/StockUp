@@ -7,6 +7,7 @@ var _ = require('underscore');
 var path = require('path');
 var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 var log = require('debug')('common:models:'+fileName);
+var errorLog = require('debug')('common:models:'+fileName+':ERROR');
 
 module.exports = function(ReportModel) {
 
@@ -81,6 +82,15 @@ module.exports = function(ReportModel) {
       {arg: 'id', type: 'string', required: true}
     ],
     http: {path: '/:id/remove', verb: 'post'}
+  });
+
+  ReportModel.remoteMethod('lookupAndAddProductBySku', {
+    accepts: [
+      {arg: 'id', type: 'string', required: true},
+      {arg: 'sku', type: 'string', required: true}
+    ],
+    http: {path: '/:id/lookupAndAddProductBySku', verb: 'post'},
+    returns: {arg: 'stockOrderLineitemModelInstance', type: 'object', root:true}
   });
 
   ReportModel.remoteMethod('setReportStatus', {
@@ -262,6 +272,123 @@ module.exports = function(ReportModel) {
           });
         },
         function(error){
+          cb(error);
+        });
+    }
+  };
+
+  ReportModel.lookupAndAddProductBySku = function(id, sku, cb) {
+    var commandName = 'lookupAndAddProductBySku';
+    log(commandName + ' > id:', id);
+    var currentUser = ReportModel.getCurrentUserModel(cb); // returns immediately if no currentUser
+    if (currentUser) {
+      log(commandName + ' >  will fetch report and related models for Vend calls');
+      ReportModel.getAllRelevantModelInstancesForReportModel(id)
+        .spread(function(reportModelInstance, storeModelInstance/*, storeConfigInstance*/){
+          log(commandName + ' > will loopkup product by SKU');
+          var oauthVendUtil = require('./../../common/utils/vend')({
+            'GlobalConfigModel': ReportModel.app.models.GlobalConfigModel,
+            'StoreConfigModel': ReportModel.app.models.StoreConfigModel,
+            'currentUser': currentUser
+          });
+          return oauthVendUtil.lookupBySku(sku, storeModelInstance, reportModelInstance)
+            .then(function(results){
+              log(commandName + ' > filter & dilute the search results to match the inventory for store and supplier tied with this report');
+              log(commandName + ' > results products.length: ' + results.products.length);
+
+              // NOTE: there is a lot of overlap in business logic with the worker code
+
+              // keep only the products that have an inventory field
+              // and belong to the store/outlet of interest to us
+              // and belong to the supplier of interest to us
+              log(commandName + ' > filtering for supplier ' + reportModelInstance.supplier.name + ' and outlet ' + reportModelInstance.outlet.name);
+              var filteredProducts = _.filter(results.products, function(product){
+                return ( product.inventory &&
+                  _.contains(_.pluck(product.inventory,'outlet_id'), reportModelInstance.outlet.id) &&
+                  reportModelInstance.supplier.name === product.supplier_name
+                );
+              });
+              log(commandName + ' > filtered products.length: ' + filteredProducts.length);
+
+              // let's dilute the product data even further
+              var dilutedProducts = [];
+              _.each(filteredProducts, function(product) {
+                var neoProduct =  _.pick(product,'name','supply_price','id','sku','type');
+                neoProduct.inventory = _.find(product.inventory, function(inv){
+                  return inv.outlet_id === reportModelInstance.outlet.id;
+                });
+                dilutedProducts.push(neoProduct);
+              });
+              log(commandName + ' > diluted products.length: ' + _.keys(dilutedProducts).length);
+
+              return Promise.resolve(dilutedProducts);
+            })
+            .then(function(dilutedProducts){
+              //log(commandName + ' > dilutedProducts:', dilutedProducts);
+              if (dilutedProducts.length === 1) {
+                var dilutedProduct = dilutedProducts[0];
+                if(dilutedProducts[0].sku !== sku){
+                  var error = new Error('No exact matches found for given SKU.');
+                  error.statusCode = 400;
+                  errorLog(commandName + ' > ', error.statusCode, error.message);
+                  cb(error);
+                }
+                else {
+                  // add an instance of StockOrderLineitemModel to the report
+                  log(commandName + ' > will create a StockOrderLineitemModel from:', dilutedProduct);
+
+                  // NOTE: there is a lot of overlap in business logic with the worker code
+                  var quantityOnHand = Number(dilutedProduct.inventory.count);
+                  var desiredStockLevel = Number(dilutedProduct.inventory['reorder_point']);
+                  var orderQuantity = 0;
+                  if(!_.isNaN(desiredStockLevel) && _.isNumber(desiredStockLevel)) {
+                    orderQuantity = desiredStockLevel - quantityOnHand;
+                  }
+                  else {
+                    desiredStockLevel = undefined;
+                    orderQuantity = undefined;
+                  }
+
+                  var StockOrderLineitemModel = ReportModel.app.models.StockOrderLineitemModel;
+                  return StockOrderLineitemModel.create({
+                    productId: dilutedProduct.id,
+                    sku: dilutedProduct.sku,
+                    name: dilutedProduct.name,
+                    quantityOnHand: quantityOnHand,
+                    desiredStockLevel: desiredStockLevel,
+                    orderQuantity: orderQuantity,
+                    supplyPrice: dilutedProduct.supply_price,
+                    type: dilutedProduct.type,
+                    reportId: reportModelInstance.id,
+                    userId: reportModelInstance.userModelToReportModelId
+                  })
+                    .then(function(stockOrderLineitemModelInstance){
+                      log(commandName + ' > created stockOrderLineitemModelInstance:', stockOrderLineitemModelInstance);
+                      cb(null, stockOrderLineitemModelInstance);
+                    });
+                }
+              }
+              else if (dilutedProducts.length > 1) {
+                var error = new Error('More than one match found, SKU is not unique.');
+                error.statusCode = 400;
+                errorLog(commandName + ' > ', error.statusCode, error.message);
+                cb(error);
+              }
+              else if (dilutedProducts.length === 0) {
+                var error = new Error('No matches found.');
+                error.statusCode = 400;
+                errorLog(commandName + ' > ', error.statusCode, error.message);
+                cb(error);
+              }
+              else {
+                var error = new Error('An unexpected error occurred, could not find a match.');
+                error.statusCode = 500;
+                errorLog(commandName + ' > ', error.statusCode, error.message);
+                cb(error);
+              }
+            });
+        })
+        .catch(function(error){
           cb(error);
         });
     }

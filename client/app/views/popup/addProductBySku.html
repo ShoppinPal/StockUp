@@ -1,0 +1,24 @@
+<div class="dialog-contents" id="add-product-by-sku">
+    <div class="form-group">
+        <!-- empty space to avoid clashing with the [x] closing arrow -->
+    </div>
+    <alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)"
+           style="color:red;">
+        {{alert.msg}}
+        <div style="float: right">({{countdownInMilliSeconds/1000}})</div>
+    </alert>
+    <div class="form-group">
+        <input type="text"
+               class="form-control"
+               placeholder="Type the product's SKU"
+               ng-model="sku.value"/>
+    </div>
+    <div class="form-group">
+        <div class="btn-align">
+            <button class="btn btn-primary"
+                    ng-click="lookupBySku(closeThisDialog)">
+                Lookup and Add
+            </button>
+        </div>
+    </div>
+</div>
