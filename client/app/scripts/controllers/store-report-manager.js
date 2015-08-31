@@ -401,13 +401,14 @@ angular.module('ShoppinPalApp')
           id: $stateParams.reportId,
           sku: $scope.sku.value
         })
-          .$promise.then(function(results){
-            console.log('results:', results);
-            //return true; //closeThisDialog('true');
+          .$promise.then(function(stockOrderLineitemModelInstance){
+            console.log('stockOrderLineitemModelInstance:', stockOrderLineitemModelInstance);
+            originalReportDataSet.push(stockOrderLineitemModelInstance);
+            setup();
             closeDialogMethod('true');
           })
           .catch(function(error){
-            if(error.data.error.message) {
+            if(error && error.data && error.data.error && error.data.error.message) {
               console.error(error.data.error.message);
               $spAlerts.addAlert(error.data.error.message, 'error');
             }
@@ -445,17 +446,7 @@ angular.module('ShoppinPalApp')
         $scope.waitOnPromise = loginService.getReport($stateParams.reportId)
           .then(function (response) {
             originalReportDataSet = response;
-            /*angular.forEach(originalReportDataSet, function (row) {
-              row.state = $scope.ROW_STATE_COMPLETE;
-            });
-            originalReportDataSet[originalReportDataSet.length-1].state = 'pending';
-            console.log(originalReportDataSet[originalReportDataSet.length-1]);*/
-            setFilterBasedOnState();
-            $scope.isShipmentFullyReceived = ($scope.storesReport.length < 1) ? true : false;
-            //console.log('isShipmentFullyReceived', $scope.isShipmentFullyReceived);
-
-            $scope.storereportlength = $scope.storesReport.length;
-            $scope.JumtoDepartment();
+            setup();
           });
       }
       else { // if live data can't be loaded due to some bug, use MOCK data so testing can go on
@@ -469,6 +460,19 @@ angular.module('ShoppinPalApp')
           });
       }
 
+      var setup = function(){
+        /*angular.forEach(originalReportDataSet, function (row) {
+         row.state = $scope.ROW_STATE_COMPLETE;
+         });
+         originalReportDataSet[originalReportDataSet.length-1].state = 'pending';
+         console.log(originalReportDataSet[originalReportDataSet.length-1]);*/
+        setFilterBasedOnState();
+        $scope.isShipmentFullyReceived = ($scope.storesReport.length < 1) ? true : false;
+        //console.log('isShipmentFullyReceived', $scope.isShipmentFullyReceived);
+
+        $scope.storereportlength = $scope.storesReport.length;
+        $scope.JumtoDepartment();
+      };
       // ====================================================
       // Alert code which cannot be directly called from HTML
       // ====================================================
