@@ -449,9 +449,17 @@ var lookupBySku = function(sku, storeModelInstance, reportModelInstance){
   return getVendConnectionInfo(storeConfigId)
     .then(function(connectionInfo){
       return vendSdk.products.fetchBySku({sku:{value:sku}}, connectionInfo);
-    },
-    function(error){
-      log.error('lookupBySku()', 'Error in Vend loopkup:\n' + JSON.stringify(error));
+    })
+    .catch(function(error){
+      if (error instanceof Error) {
+        log.error('lookupBySku()',
+          'Error in Vend loopkup:',
+          '\n', error.name + ':', error.message,
+          '\n', error.stack);
+      }
+      else {
+        log.error('lookupBySku()', 'Error in Vend loopkup:\n' + JSON.stringify(error));
+      }
       return Promise.reject('An error occurred while looking up a product in Vend.\n' + JSON.stringify(error));
     });
 };
@@ -473,9 +481,17 @@ var createStockOrderForVend = function(storeModelInstance, reportModelInstance){
           log.debug('newStockOrder', newStockOrder);
           return Promise.resolve(newStockOrder);
         });
-    },
-    function(error){
-      log.error('createStockOrderForVend()', 'Error creating a stock order in Vend:\n' + JSON.stringify(error));
+    })
+    .catch(function(error){
+      if (error instanceof Error) {
+        log.error('createStockOrderForVend()',
+          'Error creating a stock order in Vend:',
+          '\n', error.name + ':', error.message,
+          '\n', error.stack);
+      }
+      else {
+        log.error('createStockOrderForVend()', 'Error creating a stock order in Vend:\n' + JSON.stringify(error));
+      }
       return Promise.reject('An error occurred while creating a stock order in Vend.\n' + JSON.stringify(error));
     });
 };
@@ -493,9 +509,17 @@ var markStockOrderAsSent = function(storeModelInstance, reportModelInstance){
           log.debug('markStockOrderAsSent()', 'updatedStockOrder', updatedStockOrder);
           return Promise.resolve(updatedStockOrder);
         });
-    },
-    function(error){
-      log.error('markStockOrderAsSent()', 'Error updating the stock order in Vend:\n' + JSON.stringify(error));
+    })
+    .catch(function(error){
+      if (error instanceof Error) {
+        log.error('markStockOrderAsSent()',
+          'Error updating the stock order in Vend:',
+          '\n', error.name + ':', error.message,
+          '\n', error.stack);
+      }
+      else {
+        log.error('markStockOrderAsSent()', 'Error updating the stock order in Vend:\n' + JSON.stringify(error));
+      }
       return Promise.reject('An error occurred while updating the stock order in Vend.\n' + JSON.stringify(error));
     });
 };
@@ -513,9 +537,17 @@ var markStockOrderAsReceived = function(storeModelInstance, reportModelInstance)
           log.debug('markStockOrderAsReceived()', 'updatedStockOrder', updatedStockOrder);
           return Promise.resolve(updatedStockOrder);
         });
-    },
-    function(error){
-      log.error('markStockOrderAsReceived()', 'Error updating the stock order in Vend:\n' + JSON.stringify(error));
+    })
+    .catch(function(error){
+      if (error instanceof Error) {
+        log.error('markStockOrderAsReceived()',
+          'Error updating the stock order in Vend:',
+          '\n', error.name + ':', error.message,
+          '\n', error.stack);
+      }
+      else {
+        log.error('markStockOrderAsReceived()', 'Error updating the stock order in Vend:\n' + JSON.stringify(error));
+      }
       return Promise.reject('An error occurred while updating the stock order in Vend.\n' + JSON.stringify(error));
     });
 };
@@ -532,10 +564,18 @@ var deleteStockOrder = function(storeModelInstance, reportModelInstance){
           log.debug('deleteStockOrder()', 'updatedStockOrder', updatedStockOrder);
           return Promise.resolve(updatedStockOrder);
         });
-    },
-    function(error){
-      log.error('deleteStockOrder()', 'Error updating the stock order in Vend:\n' + JSON.stringify(error));
-      return Promise.reject('An error occurred while updating the stock order in Vend.\n' + JSON.stringify(error));
+    })
+    .catch(function(error){
+      if (error instanceof Error) {
+        log.error('deleteStockOrder()',
+          'Error deleting the stock order in Vend:',
+          '\n', error.name + ':', error.message,
+          '\n', error.stack);
+      }
+      else {
+        log.error('deleteStockOrder()', 'Error deleting the stock order in Vend:\n' + JSON.stringify(error));
+      }
+      return Promise.reject('An error occurred while deleting a stock order in Vend.\n' + JSON.stringify(error));
     });
 };
 
@@ -561,9 +601,17 @@ var createStockOrderLineitemForVend = function(storeModelInstance, reportModelIn
           log.debug('newLineitem', newLineitem);
           return Promise.resolve(newLineitem);
         });
-    },
-    function(error){
-      log.error('createStockOrderLineitemForVend()', 'Error creating a stock order lineitem in Vend:\n' + JSON.stringify(error));
+    })
+    .catch(function(error){
+      if (error instanceof Error) {
+        log.error('createStockOrderLineitemForVend()',
+          'Error creating a stock order lineitem in Vend:',
+          '\n', error.name + ':', error.message,
+          '\n', error.stack);
+      }
+      else {
+        log.error('createStockOrderLineitemForVend()', 'Error creating a stock order lineitem in Vend:\n' + JSON.stringify(error));
+      }
       return Promise.reject('An error occurred while creating a stock order lineitem in Vend.\n' + JSON.stringify(error));
     });
 };
@@ -586,9 +634,17 @@ var updateStockOrderLineitemForVend = function(storeModelInstance, reportModelIn
           log.debug('updatedLineitem', updatedLineitem);
           return Promise.resolve(updatedLineitem);
         });
-    },
-    function(error){
-      log.error('updateStockOrderLineitemForVend()', 'Error updating a stock order lineitem in Vend:\n' + JSON.stringify(error));
+    })
+    .catch(function(error){
+      if (error instanceof Error) {
+        log.error('updateStockOrderLineitemForVend()',
+          'Error updating a stock order lineitem in Vend:',
+          '\n', error.name + ':', error.message,
+          '\n', error.stack);
+      }
+      else {
+        log.error('updateStockOrderLineitemForVend()', 'Error updating a stock order lineitem in Vend:\n' + JSON.stringify(error));
+      }
       return Promise.reject('An error occurred while updating a stock order lineitem in Vend.\n' + JSON.stringify(error));
     });
 };
