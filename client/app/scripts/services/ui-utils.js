@@ -10,7 +10,9 @@
 angular.module('ShoppinPalApp')
   .service('uiUtils', [
     '$filter', /* angular's modules/services/factories etc. */
-    function ($filter)
+    '$spAlerts', /* shoppinpal's custom modules/services/factories etc. */
+    function ($filter,
+              $spAlerts)
     {
       var bindToTrackDismissal = function($scope, row){
         console.log('inside bindToTrackDismissal()');
@@ -147,12 +149,54 @@ angular.module('ShoppinPalApp')
         $scope.filteredLists = angular.copy(filteredLists);
       };
 
+      var lookupAndAddProductBySku = function($scope, $stateParams, ngDialog, ReportModel, cb){
+        $scope.sku = {value:null};
+        $scope.lookupBySku = function(closeDialogMethod) {
+          // NOTES: In vend, each 'Variant' which is grouped together,
+          //        requires the same 'handle', and a unique SKU per variant.
+          console.log('will lookup sku:', $scope.sku.value);
+          ReportModel.lookupAndAddProductBySku({
+            id: $stateParams.reportId,
+            sku: $scope.sku.value
+          })
+            .$promise.then(function(stockOrderLineitemModelInstance){
+              console.log('stockOrderLineitemModelInstance:', stockOrderLineitemModelInstance);
+              cb(closeDialogMethod, stockOrderLineitemModelInstance);
+            })
+            .catch(function(error){
+              if(error && error.data && error.data.error && error.data.error.message) {
+                console.error(error.data.error.message);
+                $spAlerts.addAlert(error.data.error.message, 'error');
+              }
+              else {
+                console.error(error);
+                $spAlerts.addAlert('Something went wrong! Try again or report to an admin.', 'error');
+              }
+              return false;
+            });
+        };
+        $scope.selectSku = function() {
+          var dialog = ngDialog.open({ template: 'views/popup/addProductBySku.html',
+            className: 'ngdialog-theme-plain',
+            scope: $scope
+          });
+          dialog.closePromise.then(function (data) {
+            console.log('arguments', arguments);
+            var proceed = data;
+            if (proceed) {
+              console.log('is there no point in coding up this block?');
+            }
+          });
+        };
+      };
+
       // AngularJS will instantiate a singleton by calling 'new' on this function
       return {
         bindToTrackDismissal: bindToTrackDismissal,
         bindToDismissForIPad: bindToDismissForIPad,
         handleNittyGrittyStuffForDismissingEditableRow: handleNittyGrittyStuffForDismissingEditableRow,
-        limitListAsPerSupplier: limitListAsPerSupplier
+        limitListAsPerSupplier: limitListAsPerSupplier,
+        lookupAndAddProductBySku: lookupAndAddProductBySku
       };
     }
   ]);

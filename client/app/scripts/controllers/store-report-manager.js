@@ -392,46 +392,17 @@ angular.module('ShoppinPalApp')
         setFilterBasedOnState();
       };
 
-      $scope.sku = {value:null};
-      $scope.lookupBySku = function(closeDialogMethod) {
-        // NOTES: In vend, each 'Variant' which is grouped together,
-        //        requires the same 'handle', and a unique SKU per variant.
-        console.log('will lookup sku:', $scope.sku.value);
-        ReportModel.lookupAndAddProductBySku({
-          id: $stateParams.reportId,
-          sku: $scope.sku.value
-        })
-          .$promise.then(function(stockOrderLineitemModelInstance){
-            console.log('stockOrderLineitemModelInstance:', stockOrderLineitemModelInstance);
-            originalReportDataSet.push(stockOrderLineitemModelInstance);
-            setup();
-            closeDialogMethod('true');
-          })
-          .catch(function(error){
-            if(error && error.data && error.data.error && error.data.error.message) {
-              console.error(error.data.error.message);
-              $spAlerts.addAlert(error.data.error.message, 'error');
-            }
-            else {
-              console.error(error);
-              $spAlerts.addAlert('Something went wrong! Try again or report to an admin.', 'error');
-            }
-            return false;
-          });
-      };
-      $scope.selectSku = function() {
-        var dialog = ngDialog.open({ template: 'views/popup/addProductBySku.html',
-          className: 'ngdialog-theme-plain',
-          scope: $scope
-        });
-        dialog.closePromise.then(function (data) {
-          console.log('arguments', arguments);
-          var proceed = data;
-          if (proceed) {
-            console.log('is there no point in coding up this block?');
-          }
-        });
-      };
+      // ----
+      // setup the logic for looking up and adding a product by SKU
+      // ----
+      uiUtils.lookupAndAddProductBySku($scope, $stateParams, ngDialog, ReportModel,
+        function(closeDialogMethod, stockOrderLineitemModelInstance){
+          console.log('store-report-manager', 'stockOrderLineitemModelInstance:', stockOrderLineitemModelInstance);
+          originalReportDataSet.push(stockOrderLineitemModelInstance);
+          setup();
+          closeDialogMethod('true');
+        }
+      );
 
       $scope.getFilterForRowsToDisplay = function() {
         return ($scope.displayPendingRows) ? {state:ROW_STATE_NOT_COMPLETE} : {state:$scope.ROW_STATE_COMPLETE};
