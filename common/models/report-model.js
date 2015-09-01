@@ -331,7 +331,7 @@ module.exports = function(ReportModel) {
                   var error = new Error('No exact matches found for given SKU.');
                   error.statusCode = 400;
                   errorLog(commandName + ' > ', error.statusCode, error.message);
-                  cb(error);
+                  return cb(error);
                 }
                 else {
                   // add an instance of StockOrderLineitemModel to the report
@@ -364,7 +364,7 @@ module.exports = function(ReportModel) {
                   })
                     .then(function(stockOrderLineitemModelInstance){
                       log(commandName + ' > created stockOrderLineitemModelInstance:', stockOrderLineitemModelInstance);
-                      cb(null, stockOrderLineitemModelInstance);
+                      return cb(null, stockOrderLineitemModelInstance);
                     });
                 }
               }
@@ -372,24 +372,24 @@ module.exports = function(ReportModel) {
                 var error = new Error('More than one match found, SKU is not unique.');
                 error.statusCode = 400;
                 errorLog(commandName + ' > ', error.statusCode, error.message);
-                cb(error);
+                return cb(error);
               }
               else if (dilutedProducts.length === 0) {
                 var error = new Error('No matches found.');
                 error.statusCode = 400;
                 errorLog(commandName + ' > ', error.statusCode, error.message);
-                cb(error);
+                return cb(error);
               }
               else {
                 var error = new Error('An unexpected error occurred, could not find a match.');
                 error.statusCode = 500;
                 errorLog(commandName + ' > ', error.statusCode, error.message);
-                cb(error);
+                return cb(error);
               }
             });
         })
         .catch(function(error){
-          cb(error);
+          return cb(error);
         });
     }
   };
