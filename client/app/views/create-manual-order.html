@@ -5,6 +5,11 @@
     <!-- Report Manager page content -->
     <div class="row main-container" cg-busy="orderController.waitOnPromise">
         <div class="order-container">
+            <alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)"
+                   style="color:red;">
+                {{alert.msg}}
+                <div style="float: right">({{countdownInMilliSeconds/1000}})</div>
+            </alert>
             <h2>New Stock Order</h2>
             <form name="orderForm"
                   class="form-horizontal">

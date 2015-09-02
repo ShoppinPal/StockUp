@@ -11,12 +11,12 @@ angular.module('ShoppinPalApp').controller(
   'CreateManualOrderCtrl',
   [
     '$sessionStorage', '$state', /* angular's modules/services/factories etc. */
-    'LoopBackAuth', 'SupplierModel', 'UserModel', 'ReportModel', 'StoreModel', /* shoppinpal's custom modules/services/factories etc. */
+    '$spAlerts', 'LoopBackAuth', 'SupplierModel', 'UserModel', 'ReportModel', 'StoreModel', /* shoppinpal's custom modules/services/factories etc. */
     'FileUploader', /* 3rd party modules/services/factories etc. */
     'ReportModelStates', /* constants */
     function CreateManualOrderCtrl (
       $sessionStorage, $state,
-      LoopBackAuth, SupplierModel, UserModel, ReportModel, StoreModel,
+      $spAlerts, LoopBackAuth, SupplierModel, UserModel, ReportModel, StoreModel,
       FileUploader,
       ReportModelStates)
     {
@@ -65,7 +65,17 @@ angular.module('ShoppinPalApp').controller(
       this.uploader.onErrorItem = function(fileItem, response, status, headers) {
         console.log('onErrorItem', fileItem, response, status, headers);
         console.info('onErrorItem', fileItem, response, status, headers);
-        // TODO: show something in the UI too
+
+        // show something in the UI too
+        var error = response.error;
+        if(error && error.message) {
+          console.error(error.message);
+          $spAlerts.addAlert(error.message, 'error', 10000);
+        }
+        else {
+          console.error(error);
+          $spAlerts.addAlert('Something went wrong! Try again or report to an admin.', 'error', 10000);
+        }
       };
 
       // Load the data
@@ -133,6 +143,14 @@ angular.module('ShoppinPalApp').controller(
                 // TODO: @ayush - show a friendly error to user somehow
               });
           });
+      };
+
+      // ====================================================
+      // Alert code which cannot be directly called from HTML
+      // ====================================================
+      this.closeAlert = function(index) {
+        console.log('calling closeAlert() from create-manual-order.js');
+        $spAlerts.closeAlert(index);
       };
 
     }

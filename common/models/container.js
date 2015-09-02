@@ -7,6 +7,7 @@ var _ = require('underscore');
 var path = require('path');
 var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 var log = require('debug')('common:models:'+fileName);
+var errorLog = require('debug')('common:models:'+fileName+':ERROR');
 
 module.exports = function(Container) {
 
@@ -90,7 +91,7 @@ module.exports = function(Container) {
             else {
               log('created StockOrderLineitemModels:', results.length);
 
-              // TODO: #3 submit a job to the worker infrastructure
+              log('#3 submit a job to the worker infrastructure');
               var UserModel = Container.app.models.UserModel;
               UserModel.findById(reportModelInstance.userModelToReportModelId)
                 .then(function(userModelInstance){
@@ -124,6 +125,15 @@ module.exports = function(Container) {
           });
         })
         .catch(function(error){
+          if (error instanceof Error) {
+            errorLog('Container > afterRemote > upload > end_parsed',
+              '\n', error.name + ':', error.message,
+              '\n', error.stack);
+          }
+          else {
+            errorLog('Container > afterRemote > upload > end_parsed',
+              '\n', error);
+          }
           next(error);
         });
     });
@@ -181,9 +191,6 @@ module.exports = function(Container) {
         else {
           return Promise.reject('Could not find a matching store for: ' + filename);
         }
-      })
-      .catch(function(error){
-        next(error);
       });
   };
 };
