@@ -171,6 +171,11 @@
               uiUtils.handleNittyGrittyStuffForDismissingEditableRow($scope);
             }
 
+            // update originalReportDataSet
+            var originalRowIndex = _.findIndex(originalReportDataSet, {id: storeReportRow.id});
+            originalReportDataSet.splice(originalRowIndex, 1);
+
+            // update rows being viewed
             delete $scope.items[rowIndex].boxNumber;
             delete $scope.items[rowIndex].boxName;
             $scope.items.splice(rowIndex, 1);
@@ -182,6 +187,12 @@
 
             $scope.jumpToDepartment();
             $scope.isShipmentFullyReceived = checkIfFullyReceived();
+          })
+          .catch(function(error){
+            console.error(error);
+            // NOTE: this a stop-gap measure because the styling for $spAlerts
+            //       doesn't fit well anywhere on the current view
+            alert('Something went wrong! Try again or report to an admin.', 'error');
           });
       };
 
@@ -303,9 +314,36 @@
         });
       };
 
+      // ----
+      // setup the logic for looking up and adding a product by SKU
+      // ----
+      uiUtils.lookupAndAddProductBySku($scope, $stateParams, ngDialog, ReportModel,
+        function(closeDialogMethod, stockOrderLineitemModelInstance){
+          console.log('store-receiver-report', 'stockOrderLineitemModelInstance:', stockOrderLineitemModelInstance);
+
+          // update the client-side list and redo any setup
+          originalReportDataSet.push(stockOrderLineitemModelInstance);
+          setup();
+
+          // explicitly unset/reset to repaint UI
+          var temp = $scope.selectedBox;
+          $scope.selectedBox = null;
+          $scope.openBox(temp);
+
+          closeDialogMethod('true');
+        }
+      );
+
       // -------------
       // Load the data
       // -------------
+      var originalReportDataSet; // no need to put everything in the $scope, only what's needed
+
+      var setup = function(){
+        setupBoxes(originalReportDataSet);
+        setupBoxedItems(originalReportDataSet);
+        $scope.isShipmentFullyReceived = checkIfFullyReceived();
+      };
 
       /** @method viewContentLoaded
        * This method will load the storesReport from api on view load
@@ -314,9 +352,8 @@
         if($stateParams.reportId) {
           $scope.waitOnPromise = loginService.getReport($stateParams.reportId)
             .then(function (response) {
-              setupBoxes(response);
-              setupBoxedItems(response);
-              $scope.isShipmentFullyReceived = checkIfFullyReceived();
+              originalReportDataSet = response;
+              setup();
             });
         }
         else { // if live data can't be loaded due to some bug, use MOCK data so testing can go on

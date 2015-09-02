@@ -7043,6 +7043,8 @@ module.factory(
          *
          *  - `sku` – `{string}` - 
          *
+         *  - `boxNumber` – `{number=}` - 
+         *
          * @param {function(Object,Object)=} successCb
          *   Success callback with two arguments: `value`, `responseHeaders`.
          *

@@ -157,6 +157,7 @@ angular.module('ShoppinPalApp')
           console.log('will lookup sku:', $scope.sku.value);
           ReportModel.lookupAndAddProductBySku({
             id: $stateParams.reportId,
+            boxNumber: ($scope.selectedBox) ? $scope.selectedBox.boxNumber : null,
             sku: $scope.sku.value
           })
             .$promise.then(function(stockOrderLineitemModelInstance){

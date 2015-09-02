@@ -87,7 +87,8 @@ module.exports = function(ReportModel) {
   ReportModel.remoteMethod('lookupAndAddProductBySku', {
     accepts: [
       {arg: 'id', type: 'string', required: true},
-      {arg: 'sku', type: 'string', required: true}
+      {arg: 'sku', type: 'string', required: true},
+      {arg: 'boxNumber', type: 'number', required: false}
     ],
     http: {path: '/:id/lookupAndAddProductBySku', verb: 'post'},
     returns: {arg: 'stockOrderLineitemModelInstance', type: 'object', root:true}
@@ -277,9 +278,9 @@ module.exports = function(ReportModel) {
     }
   };
 
-  ReportModel.lookupAndAddProductBySku = function(id, sku, cb) {
+  ReportModel.lookupAndAddProductBySku = function(id, sku, boxNumber, cb) {
     var commandName = 'lookupAndAddProductBySku';
-    log(commandName + ' > id:', id);
+    log(commandName + ' > ', 'id:' + id, 'sku:' + sku, 'boxNumber:' + boxNumber);
     var currentUser = ReportModel.getCurrentUserModel(cb); // returns immediately if no currentUser
     if (currentUser) {
       log(commandName + ' >  will fetch report and related models for Vend calls');
@@ -335,7 +336,7 @@ module.exports = function(ReportModel) {
                 }
                 else {
                   // add an instance of StockOrderLineitemModel to the report
-                  log(commandName + ' > will create a StockOrderLineitemModel from:', dilutedProduct);
+                  log(commandName + ' > putting together data to create a StockOrderLineitemModel from:', dilutedProduct);
 
                   // NOTE: there is a lot of overlap in business logic with the worker code
                   var quantityOnHand = Number(dilutedProduct.inventory.count);
@@ -350,7 +351,7 @@ module.exports = function(ReportModel) {
                   }
 
                   var StockOrderLineitemModel = ReportModel.app.models.StockOrderLineitemModel;
-                  return StockOrderLineitemModel.create({
+                  var lineitem = {
                     productId: dilutedProduct.id,
                     sku: dilutedProduct.sku,
                     name: dilutedProduct.name,
@@ -361,7 +362,28 @@ module.exports = function(ReportModel) {
                     type: dilutedProduct.type,
                     reportId: reportModelInstance.id,
                     userId: reportModelInstance.userModelToReportModelId
-                  })
+                  };
+
+                  if (reportModelInstance.state === ReportModel.ReportModelStates.MANAGER_RECEIVE){
+                    if ( boxNumber === undefined || boxNumber === null ) {
+                      var error = new Error('Your request did not specify which boxNumber the product should be placed in.');
+                      error.statusCode = 400;
+                      errorLog(commandName + ' > ', error.statusCode, error.message);
+                      return cb(error);
+                    }
+                    else {
+                      lineitem.orderQuantity = 0;
+                      lineitem.fulfilledQuantity = 0;
+                      lineitem.state = StockOrderLineitemModel.StockOrderLineitemModelStates.BOXED; // boxed by default
+                      lineitem.boxNumber = boxNumber;
+                    }
+                  }
+                  // NOTE: ReportModel.ReportModelStates.MANAGER_IN_PROCESS also goes through this workflow
+                  //       but as of now, there isn't any reason for us to set `lineitem.state`
+                  //       for that state explicitly
+
+                  log(commandName + ' > will create a StockOrderLineitemModel');
+                  return StockOrderLineitemModel.create(lineitem)
                     .then(function(stockOrderLineitemModelInstance){
                       log(commandName + ' > created stockOrderLineitemModelInstance:', stockOrderLineitemModelInstance);
                       return cb(null, stockOrderLineitemModelInstance);

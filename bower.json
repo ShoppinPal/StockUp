@@ -18,7 +18,7 @@
     "ng-device-detector": "1.1.7",
     "ngDialog": "0.4.0",
     "ngstorage": "0.3.4",
-    "underscore": "1.7.0",
+    "underscore": "1.8.0",
     "angular-file-upload": "2.1.1"
   },
   "devDependencies": {},

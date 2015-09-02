@@ -2,10 +2,13 @@
      cg-busy="waitOnPromise">
     <shoppin-pal-header store-name="{{::storeName}}"
                         home-state="store-landing"
-                        button1-label="shipment fully received"
-                        button1-class="button-large-green"
-                        button1-disabled="!isShipmentFullyReceived"
-                        on-button1-click="shipmentFullyReceived()">
+                        button1-label="{{ (selectedBox) ? 'Add a Product' : null }}"
+                        button1-class="button-large-blue"
+                        on-button1-click="selectSku()"
+                        button2-label="shipment fully received"
+                        button2-class="button-large-green"
+                        button2-disabled="!isShipmentFullyReceived"
+                        on-button2-click="shipmentFullyReceived()">
     </shoppin-pal-header>
         <!-- Report Manager page content -->
         <div class="row main-container">
