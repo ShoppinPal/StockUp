@@ -69,8 +69,8 @@ module.exports = function(StockOrderLineitemModel) {
           log(methodName, '> findById > then', '\n',
             '> extending StockOrderLineitemModel with attributes:', attributes);
           _.extend(stockOrderLineitemModelInstance, attributes); // TODO: validate user-input?
-          //log(methodName, '> findById > then', '\n',
-          //  '> extended StockOrderLineitemModel:', stockOrderLineitemModelInstance);
+          log(methodName, '> findById > then', '\n',
+            '> extended StockOrderLineitemModel:', stockOrderLineitemModelInstance);
 
           var ReportModel = StockOrderLineitemModel.app.models.ReportModel;
           ReportModel.getAllRelevantModelInstancesForReportModel(stockOrderLineitemModelInstance.reportId)
@@ -149,25 +149,51 @@ module.exports = function(StockOrderLineitemModel) {
               }
               else if (reportModelInstance.state === StockOrderLineitemModel.app.models.ReportModel.ReportModelStates.MANAGER_RECEIVE)
               {
-                log(methodName, '> findById > then > spread > MANAGER_RECEIVE', '\n',
-                  '> will update the existing consignment product in Vend');
-                oauthVendUtil.updateStockOrderLineitemForVend(storeModelInstance, reportModelInstance, stockOrderLineitemModelInstance)
-                  .then(function(updatedConsignmentProduct){
-                    log(methodName, '> findById > then > spread > MANAGER_RECEIVE > update > then', '\n',
-                      '> updated the consignment product in Vend');
-                    log(methodName, '> findById > then > spread > MANAGER_RECEIVE > update > then', '\n',
-                      '> updatedConsignmentProduct', updatedConsignmentProduct);
-                    stockOrderLineitemModelInstance.vendConsignmentProduct = updatedConsignmentProduct;
-                    stockOrderLineitemModelInstance.save()
-                      .then(function(updatedStockOrderLineitemModelInstance){
-                        log(methodName, '> findById > then > spread > MANAGER_RECEIVE > update > then > save > then', '\n',
-                          '> updated the lineitem model');
-                        cb(null, updatedStockOrderLineitemModelInstance);
-                      });
-                  },
-                  function(error){
-                    cb(error);
-                  });
+                if (!stockOrderLineitemModelInstance.vendConsignmentProductId) {
+                  log(methodName, '> findById > then > spread > MANAGER_RECEIVE', '\n',
+                    '> will create a consignment product in Vend');
+                  oauthVendUtil.createStockOrderLineitemForVend(storeModelInstance, reportModelInstance, stockOrderLineitemModelInstance)
+                    .then(function(newConsignmentProduct){
+                      log(methodName, '> findById > then > spread > MANAGER_RECEIVE > create > then', '\n',
+                        '> created a consignment product in Vend');
+                      log(methodName, '> findById > then > spread > MANAGER_RECEIVE > create > then', '\n',
+                        '> newConsignmentProduct', newConsignmentProduct);
+                      stockOrderLineitemModelInstance.vendConsignmentProductId = newConsignmentProduct.id;
+                      stockOrderLineitemModelInstance.vendConsignmentProduct = newConsignmentProduct;
+                      // TODO: should it not be left up to client side to send this property via `attributes` ?
+                      //stockOrderLineitemModelInstance.state = StockOrderLineitemModel.StockOrderLineitemModelStates.UNBOXED;
+                      stockOrderLineitemModelInstance.save()
+                        .then(function(updatedStockOrderLineitemModelInstance){
+                          log(methodName, '> findById > then > spread > MANAGER_RECEIVE > create > then > save > then', '\n',
+                            '> updated the lineitem model');
+                          cb(null, updatedStockOrderLineitemModelInstance);
+                        });
+                    },
+                    function(error){
+                      cb(error);
+                    });
+                }
+                else {
+                  log(methodName, '> findById > then > spread > MANAGER_RECEIVE', '\n',
+                    '> will update the existing consignment product in Vend');
+                  oauthVendUtil.updateStockOrderLineitemForVend(storeModelInstance, reportModelInstance, stockOrderLineitemModelInstance)
+                    .then(function(updatedConsignmentProduct){
+                      log(methodName, '> findById > then > spread > MANAGER_RECEIVE > update > then', '\n',
+                        '> updated the consignment product in Vend');
+                      log(methodName, '> findById > then > spread > MANAGER_RECEIVE > update > then', '\n',
+                        '> updatedConsignmentProduct', updatedConsignmentProduct);
+                      stockOrderLineitemModelInstance.vendConsignmentProduct = updatedConsignmentProduct;
+                      stockOrderLineitemModelInstance.save()
+                        .then(function(updatedStockOrderLineitemModelInstance){
+                          log(methodName, '> findById > then > spread > MANAGER_RECEIVE > update > then > save > then', '\n',
+                            '> updated the lineitem model');
+                          cb(null, updatedStockOrderLineitemModelInstance);
+                        });
+                    },
+                    function(error){
+                      cb(error);
+                    });
+                }
               }
               else {
                 cb(null, {updated:false});

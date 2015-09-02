@@ -593,7 +593,8 @@ var createStockOrderLineitemForVend = function(storeModelInstance, reportModelIn
         'consignment_id': reportModelInstance.vendConsignmentId,
         'product_id': stockOrderLineitemModelInstance.productId,
         'count': stockOrderLineitemModelInstance.orderQuantity,
-        'cost': stockOrderLineitemModelInstance.supplyPrice
+        'cost': stockOrderLineitemModelInstance.supplyPrice,
+        'received': stockOrderLineitemModelInstance.receivedQuantity
       };
       log.debug('createStockOrderLineitemForVend()', 'consignmentProduct: ', consignmentProduct);
       return vendSdk.consignments.products.create({body:consignmentProduct}, connectionInfo)
