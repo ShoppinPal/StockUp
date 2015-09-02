@@ -444,11 +444,12 @@ angular.module('ShoppinPalApp')
         $scope.storereportlength = $scope.storesReport.length;
         $scope.JumtoDepartment();
       };
+
       // ====================================================
       // Alert code which cannot be directly called from HTML
       // ====================================================
       $scope.closeAlert = function(index) {
-        console.log('calling closeAlert() from mystores.js');
+        console.log('calling closeAlert() from store-report-manager.js');
         $spAlerts.closeAlert(index);
       };
 
