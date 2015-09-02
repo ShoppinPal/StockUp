@@ -88,7 +88,6 @@
 
           var filterData = {'boxNumber': box.boxNumber};
           $scope.items = $filter('filter')(angular.copy($scope.receivedItems), filterData);
-          $scope.jumpToDepartment();
         }
       };
 
@@ -185,7 +184,6 @@
               $scope.selectedBox = null;
             }
 
-            $scope.jumpToDepartment();
             $scope.isShipmentFullyReceived = checkIfFullyReceived();
           })
           .catch(function(error){
@@ -224,40 +222,6 @@
           }
         });
       };
-
-      /** @method goToDepartment
-       * @param value
-       * This method
-       */
-      $scope.goToDepartment = function (value) {
-        var jumpToHash;
-        if (value) {
-          for (var i = 0; i < $scope.items.length; i++) {
-            var type = $scope.items[i].type,
-                typeFirstChar = type.slice(0, 1).toUpperCase();
-            $scope.alphabets.push(typeFirstChar);
-            if (typeFirstChar === value) {
-              jumpToHash = 'jumpTo' + $scope.items[i].type;
-            }
-          }
-
-        }
-        $location.hash(jumpToHash);
-        $anchorScroll();
-      };
-
-      /** @method jumpToDepartment
-       * This method will return available departments firstChar for jumpTo department functionality
-       */
-      $scope.jumpToDepartment = function () {
-        $scope.alphabets = [];
-        for (var i = 0; i < $scope.items.length; i++) {
-          var type = $scope.items[i].type,
-              typeFirstChar = type.slice(0, 1).toUpperCase();
-          $scope.alphabets.push(typeFirstChar);
-        }
-      };
-
 
       var setupBoxes = function(response){
         var groupByBoxNumber = _.chain(response).groupBy('boxNumber').value();
