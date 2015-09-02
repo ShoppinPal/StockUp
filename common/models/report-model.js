@@ -329,7 +329,7 @@ module.exports = function(ReportModel) {
               if (dilutedProducts.length === 1) {
                 var dilutedProduct = dilutedProducts[0];
                 if(dilutedProducts[0].sku !== sku){
-                  var error = new Error('No exact matches found for given SKU.');
+                  var error = new Error('No exact matches found for given SKU. Comparison is case-sensitive.');
                   error.statusCode = 400;
                   errorLog(commandName + ' > ', error.statusCode, error.message);
                   return cb(error);

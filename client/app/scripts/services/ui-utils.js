@@ -177,17 +177,20 @@ angular.module('ShoppinPalApp')
             });
         };
         $scope.selectSku = function() {
-          var dialog = ngDialog.open({ template: 'views/popup/addProductBySku.html',
+          ngDialog.openConfirm({
+            template: 'views/popup/addProductBySku.html',
             className: 'ngdialog-theme-plain',
             scope: $scope
-          });
-          dialog.closePromise.then(function (data) {
-            console.log('arguments', arguments);
-            var proceed = data;
-            if (proceed) {
-              console.log('is there no point in coding up this block?');
-            }
-          });
+          })
+            .then(function(data){
+              console.trace('arguments', arguments);
+              var proceed = data;
+              if (proceed) {
+                console.log('is there no point in coding up this block?');
+              }
+            },function(reject){
+              console.error(reject);
+            });
         };
       };
 
