@@ -21,3 +21,4 @@ server/config.*.json
 /db.json.*
 /server/storage/*
 !/server/storage/touch
+seeds
