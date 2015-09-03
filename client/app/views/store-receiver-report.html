@@ -39,7 +39,7 @@
                             <table cellspacing="0" cellpadding="0" width="100%"
                                    class="table table-responsive store-landing-right-table store-receiver-right-table"
                                    ng-class="{'ipad-table': device === 'ipad'}">
-                                <tbody ng-if="selectedBox" ng-repeat="item in items | orderBy:['sku']" class="animate-repeat">
+                                <tbody ng-if="selectedBox" ng-repeat="item in items" class="animate-repeat">
                                     <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'"
                                         ng-hide="$index==selectedRowIndex"
                                         ng-swipe-left="editRow($index)"

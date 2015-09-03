@@ -88,6 +88,13 @@
 
           var filterData = {'boxNumber': box.boxNumber};
           $scope.items = $filter('filter')(angular.copy($scope.receivedItems), filterData);
+          $scope.items = $filter('orderBy')($scope.items, 'sku');
+          // NOTE: by handling the filtering here we reduce the time spent in the $digest cycle
+          //       AND we don't have to do a search for the correct index later on like:
+          //         $scope.items.splice($scope.items.indexOf(item),1); // correct index but slower
+          //           vs.
+          //         $scope.items.splice(rowIndex, 1); // incorrect rowIndex handed by UI if filtering happens via directive
+          //       which would take additional time on the user's device/browser
         }
       };
 
