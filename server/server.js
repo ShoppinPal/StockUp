@@ -53,6 +53,19 @@ app.all('/api/*', function auditApiCalls(req, res, next) {
     log(req.method, req.originalUrl,
       '\n\t', 'token:', req.accessToken);
   }
+
+  // http://www.senchalabs.org/connect/responseTime.html
+  var start = new Date;
+  if (res._responseTime) {
+    return next();
+  }
+  res._responseTime = true;
+  res.on('header', function(){
+    var duration = new Date - start;
+    res.setHeader('X-Response-Time', duration + 'ms');
+    log(req.method, req.originalUrl, res.statusCode, duration + 'ms');
+  });
+
   next();
 });
 
