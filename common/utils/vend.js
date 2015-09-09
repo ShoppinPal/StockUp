@@ -356,24 +356,22 @@ var getVendConnectionInfo = function(storeConfigId) {
               return vendConnectionInfo;
             })
             .tap(function(connectionInfo){
-              //TODO: should we continue to test and update accessToken right here?
-              var cachedAccessToken, currentConnectionInfo;
+              // NOTE: the vend-nodejs-sdk will be responsible for updating
+              //       the parent's token via a callback method
+              var cachedAccessToken;
               cachedAccessToken = connectionInfo.accessToken;
-              currentConnectionInfo = connectionInfo;
-              var argsForOutlets = vendSdk.args.outlets.fetch();
-              argsForOutlets.page.value = 1;
-              argsForOutlets.pageSize.value = 0;
-              return vendSdk.outlets.fetch(argsForOutlets,connectionInfo)
-                .tap(function(){
-                  if(cachedAccessToken !== currentConnectionInfo.accessToken) {
-                    log.debug('accessToken has been updated \n\t from: %s \n\t to: %s',
-                      cachedAccessToken, currentConnectionInfo.accessToken);
-                    return updateTokenDetailsAlt(storeConfigId, currentConnectionInfo.accessToken);
-                  }
-                  else {
-                    log.debug('accessToken is still up to date');
-                  }
-                });
+              connectionInfo.updateAccessToken = function(currentConnectionInfo){
+                log.debug('inside getVendConnectionInfo > anonymous callback invoked > updateAccessToken()');
+                if(cachedAccessToken !== currentConnectionInfo.accessToken) {
+                  log.debug('accessToken has been updated \n\t from: %s \n\t to: %s',
+                    cachedAccessToken, currentConnectionInfo.accessToken);
+                  return updateTokenDetailsAlt(storeConfigId, currentConnectionInfo.accessToken);
+                }
+                else {
+                  log.debug('accessToken is still up to date');
+                  return Promise.resolve();
+                }
+              };
             });
         }
         else {
