@@ -50,8 +50,7 @@ app.all('/api/*', function auditApiCalls(req, res, next) {
     );
   }
   else {
-    log(req.method, req.originalUrl,
-      '\n\t', 'token:', req.accessToken);
+    log(req.method, req.originalUrl);
   }
 
   // http://www.senchalabs.org/connect/responseTime.html
@@ -60,9 +59,8 @@ app.all('/api/*', function auditApiCalls(req, res, next) {
     return next();
   }
   res._responseTime = true;
-  res.on('header', function(){
+  res.on('finish', function(){
     var duration = new Date - start;
-    res.setHeader('X-Response-Time', duration + 'ms');
     log(req.method, req.originalUrl, res.statusCode, duration + 'ms');
   });
 
