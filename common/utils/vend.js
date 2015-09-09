@@ -20,6 +20,7 @@ var log = {
 };
 
 /**
+ * TODO: deprecate and replace
  *
  * @param storeConfigId
  * @param accessToken
@@ -32,6 +33,35 @@ var updateTokenDetails = function(storeConfigId, accessToken){
     {objectId:Number(storeConfigId)}, // where
     {vendAccessToken: accessToken}// data
   );
+};
+
+/**
+ * Previous updateTokenDetails() method doesn't seem to work anymore
+ * since the switch from memorydb to mongodb! Did it ever work?
+ *
+ * @param storeConfigId
+ * @param accessToken
+ */
+var updateTokenDetailsAlt = function(storeConfigId, accessToken){
+  //log.debug('inside updateTokenDetailsAlt()');
+  return StoreConfigModel.findOneAsync(
+    {where: {objectId: storeConfigId}}
+  )
+    .then(function(storeConfig){
+      //log.debug('inside updateTokenDetailsAlt()', 'found storeConfig', storeConfig);
+      return storeConfig.updateAttributeAsync('vendAccessToken', accessToken);
+    })
+    .catch(function(error){
+      if (error instanceof Error) {
+        log.error('updateTokenDetailsAlt()',
+          '\n', error.name + ':', error.message,
+          '\n', error.stack);
+      }
+      else {
+        log.error('updateTokenDetailsAlt()\n' + JSON.stringify(error));
+      }
+      return Promise.reject('updateTokenDetailsAlt()\n' + JSON.stringify(error));
+    });
 };
 
 // This backend is now responsible for saving a new instance of storeConfig for Vend POS.
@@ -251,7 +281,7 @@ var getAccessToken = function (storeConfigId) {
                 redisClient.setex(accessTokenKey, body.expires_in, body.access_token);
                 redisClient.disconnect();
 
-                log.debug('Access token will be updated in parse.');
+                log.debug('Access token will be updated in loopback.');
                 return updateTokenDetails(storeConfigId, body.access_token)
                   .then(function() {
                     return q(body.access_token); // return accessToken for caller to use
@@ -444,11 +474,26 @@ var setDesiredStockLevelForVend = function(storeConfigId, outletId, productId, d
 };
 
 var lookupBySku = function(sku, storeModelInstance, reportModelInstance){
+  var cachedAccessToken, currentConnectionInfo;
   var storeConfigId = storeModelInstance.storeConfigModelToStoreModelId;
   log.debug('lookupBySku()', 'storeConfigId: ' + storeConfigId);
   return getVendConnectionInfo(storeConfigId)
+    .tap(function(connectionInfo){
+      cachedAccessToken = connectionInfo.accessToken;
+      currentConnectionInfo = connectionInfo;
+    })
     .then(function(connectionInfo){
       return vendSdk.products.fetchBySku({sku:{value:sku}}, connectionInfo);
+    })
+    .tap(function(){
+      if(cachedAccessToken !== currentConnectionInfo.accessToken) {
+        log.debug('accessToken has been updated \n\t from: %s \n\t to: %s',
+          cachedAccessToken, currentConnectionInfo.accessToken);
+        return updateTokenDetailsAlt(storeConfigId, currentConnectionInfo.accessToken);
+      }
+      else {
+        log.debug('accessToken is still up to date');
+      }
     })
     .catch(function(error){
       if (error instanceof Error) {
