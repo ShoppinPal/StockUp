@@ -354,6 +354,26 @@ var getVendConnectionInfo = function(storeConfigId) {
               vendConnectionInfo = _.extend(vendConnectionInfo, valuesAsMap);
               console.log('vendConnectionInfo AFTER extending w/ globalConfig: ', vendConnectionInfo);
               return vendConnectionInfo;
+            })
+            .tap(function(connectionInfo){
+              //TODO: should we continue to test and update accessToken right here?
+              var cachedAccessToken, currentConnectionInfo;
+              cachedAccessToken = connectionInfo.accessToken;
+              currentConnectionInfo = connectionInfo;
+              var argsForOutlets = vendSdk.args.outlets.fetch();
+              argsForOutlets.page.value = 1;
+              argsForOutlets.pageSize.value = 0;
+              return vendSdk.outlets.fetch(argsForOutlets,connectionInfo)
+                .tap(function(){
+                  if(cachedAccessToken !== currentConnectionInfo.accessToken) {
+                    log.debug('accessToken has been updated \n\t from: %s \n\t to: %s',
+                      cachedAccessToken, currentConnectionInfo.accessToken);
+                    return updateTokenDetailsAlt(storeConfigId, currentConnectionInfo.accessToken);
+                  }
+                  else {
+                    log.debug('accessToken is still up to date');
+                  }
+                });
             });
         }
         else {
@@ -474,26 +494,11 @@ var setDesiredStockLevelForVend = function(storeConfigId, outletId, productId, d
 };
 
 var lookupBySku = function(sku, storeModelInstance, reportModelInstance){
-  var cachedAccessToken, currentConnectionInfo;
   var storeConfigId = storeModelInstance.storeConfigModelToStoreModelId;
   log.debug('lookupBySku()', 'storeConfigId: ' + storeConfigId);
   return getVendConnectionInfo(storeConfigId)
-    .tap(function(connectionInfo){
-      cachedAccessToken = connectionInfo.accessToken;
-      currentConnectionInfo = connectionInfo;
-    })
     .then(function(connectionInfo){
       return vendSdk.products.fetchBySku({sku:{value:sku}}, connectionInfo);
-    })
-    .tap(function(){
-      if(cachedAccessToken !== currentConnectionInfo.accessToken) {
-        log.debug('accessToken has been updated \n\t from: %s \n\t to: %s',
-          cachedAccessToken, currentConnectionInfo.accessToken);
-        return updateTokenDetailsAlt(storeConfigId, currentConnectionInfo.accessToken);
-      }
-      else {
-        log.debug('accessToken is still up to date');
-      }
     })
     .catch(function(error){
       if (error instanceof Error) {
