@@ -7,6 +7,7 @@ var boot = require('loopback-boot');
 var path = require('path');
 var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 var log = require('debug')('server:'+fileName);
+var sessionLog = require('debug')('server:'+fileName+':session');
 
 // HINT(s):
 //   Getting the app object:
@@ -41,29 +42,45 @@ app.use(function setCurrentUser(req, res, next) {
     next();
   });
 });
-// enable audit log
+
+// enable audit log for API
 app.all('/api/*', function auditApiCalls(req, res, next) {
   if (req.accessToken) {
-    log(req.method, req.originalUrl,
-      //'\n\t', 'userId:', req.accessToken.id/*,
-      '\n\t', 'token:', JSON.stringify(req.accessToken,null,0)
+    sessionLog(req.method, req.originalUrl,
+      //'\n\t', 'userId:', req.accessToken.id,
+      /*'\n\t',*/ 'token:', JSON.stringify(req.accessToken,null,0)
     );
   }
   else {
-    log(req.method, req.originalUrl);
+    sessionLog(req.method, req.originalUrl);
   }
+  next();
+});
 
+// track response time for all URLs
+app.middleware('initial', '/api/*', function logResponse(req, res, next) {
   // http://www.senchalabs.org/connect/responseTime.html
   var start = new Date;
   if (res._responseTime) {
     return next();
   }
   res._responseTime = true;
-  res.on('finish', function(){
+
+  // install a listener for when the response is finished
+  res.on('finish', function() { // the request was handled, print the log entry
     var duration = new Date - start;
-    log(req.method, req.originalUrl, res.statusCode, duration + 'ms');
+    log(req.method, req.originalUrl, res.statusCode, duration + 'ms',
+      JSON.stringify({
+        lbHttpMethod:req.method,
+        lbUrl:req.originalUrl,
+        lbStatusCode:res.statusCode,
+        lbResponseTime:duration
+      },null,0)
+    );
   });
 
+  // resume the routing pipeline,
+  // let other middleware to actually handle the request
   next();
 });
 
