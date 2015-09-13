@@ -351,7 +351,32 @@ module.exports = function (grunt) {
     if (!env) {
       return grunt.util.error('You must specify an environment');
     }
-    var config = grunt.file.readJSON('server/config.' + env + '.json');
+
+    var _ = require('lodash');
+
+    var config = {};
+    if (grunt.file.exists('./server/config.json')) {
+      config = grunt.file.readJSON('server/config.json');
+    }
+    else if (grunt.file.exists('./server/config.js')) {
+      config = require('./server/config.js');
+    }
+    else {
+      throw new Error('Incorrect workflow#1 detected in the "loadConfig" task');
+    }
+
+    if (grunt.file.exists('./server/config.' + env + '.json')) {
+      _.merge(config, grunt.file.readJSON('server/config.' + env + '.json'));
+    }
+    else if (grunt.file.exists('./server/config.' + env + '.js')) {
+      _.merge(config, require('./server/config.' + env + '.js'));
+    }
+    else {
+      throw new Error('Incorrect workflow#2 detected in the "loadConfig" task');
+    }
+
+    console.log('config:', config);
+
     config.environment = env;
     grunt.config('buildProperties', config);
   });
