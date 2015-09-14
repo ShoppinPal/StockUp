@@ -5,7 +5,7 @@ var fileName = path.basename(__filename, '.js'); // gives the filename without t
 var log = require('debug')('server:middleware:'+fileName);
 
 module.exports = function() {
-  return function sessionLogger(req, res, next) {
+  return function accessLogger(req, res, next) {
     // enable audit log for API
     if (req.accessToken) {
       log(req.method, req.originalUrl,

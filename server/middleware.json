@@ -4,7 +4,7 @@
   },
   "initial": {
     "compression": {},
-    "./middleware/responseTime": {
+    "./middleware/accessLogger": {
       "paths": "/api/*"
     }
   },
@@ -19,10 +19,7 @@
     "loopback#token": {
       "params": ["state"]
     },
-    "./middleware/userContext": {},
-    "./middleware/sessionLogger": {
-      "paths": "/api/*"
-    }
+    "./middleware/userContext": {}
   },
   "routes": {
   },
