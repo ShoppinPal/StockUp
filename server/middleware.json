@@ -1,6 +1,11 @@
 {
   "initial:before": {
-    "loopback#favicon": {}
+    "loopback#favicon": {},
+    "loopback#context": {},
+    "loopback#token": {
+      "params": ["state"]
+    },
+    "./middleware/userContext": {}
   },
   "initial": {
     "compression": {},
@@ -15,11 +20,6 @@
   "parse": {
   },
   "routes:before": {
-    "loopback#context": {},
-    "loopback#token": {
-      "params": ["state"]
-    },
-    "./middleware/userContext": {}
   },
   "routes": {
   },
