@@ -49,10 +49,22 @@ function mkLoggerLevel(level, scope) {
         var loopbackContext = loopback.getCurrentContext();
         if (loopbackContext) {
           // prep the all important identifier for wading through logs
-          var identifier = loopbackContext.get('ip') +
-            '-' + loopbackContext.get('username')/* +
-           '-' + loopbackContext.get('accessToken') +
-           '-' + loopbackContext.get('requestId')*/;
+          var identifier = loopbackContext.get('ip');
+          if (loopbackContext.get('username')){
+            identifier += '-' + loopbackContext.get('username');
+          }
+          else {
+            identifier += '-X';
+          }
+          if (loopbackContext.get('accessToken')){
+            // don't want prefixes to be too long, want logs to be human-readable
+            identifier += '-' + loopbackContext.get('accessToken').slice(-6);
+          }
+          else {
+            identifier += '-X';
+          }
+          // TODO: is there any merit yet, in adding individual requestIds too?
+          //identifier += '-' + loopbackContext.get('requestId')
 
           // prefix it to every log statement
           params.unshift(identifier);
