@@ -8,10 +8,7 @@
     "./middleware/userContext": {}
   },
   "initial": {
-    "compression": {},
-    "./middleware/accessLogger": {
-      "paths": "/api/*"
-    }
+    "compression": {}
   },
   "session": {
   },
@@ -20,6 +17,9 @@
   "parse": {
   },
   "routes:before": {
+    "./middleware/accessLogger": {
+      "paths": "/api/*"
+    }
   },
   "routes": {
   },
