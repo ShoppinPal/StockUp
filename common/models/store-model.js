@@ -2,7 +2,8 @@ var Promise = require('bluebird');
 
 var path = require('path');
 var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
-var log = require('debug')('common:models:'+fileName);
+var logger = require('./../lib/debug-extension')('common:models:'+fileName);
+var log = logger.debug.bind(logger); // TODO: over time, please use log.LOGLEVEL(msg) explicitly
 
 // HINT(s):
 //   Getting the app object: http://docs.strongloop.com/display/public/LB/Working+with+LoopBack+objects

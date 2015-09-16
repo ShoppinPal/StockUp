@@ -6,8 +6,7 @@ var _ = require('underscore');
 
 var path = require('path');
 var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
-var log = require('debug')('common:models:'+fileName);
-var errorLog = require('debug')('common:models:'+fileName+':ERROR');
+var log = require('./../lib/debug-extension')('common:models:'+fileName);
 
 module.exports = function(ReportModel) {
 
@@ -136,7 +135,7 @@ module.exports = function(ReportModel) {
     /// TODO: once the loopback framework starts supporting the INCLUDE filter with FINDBYID() ... use it!
     return ReportModel.findById(id) // chain the promise via a return statement so unexpected rejections/errors float up
       .then(function(reportModelInstance) {
-        log('print object for reportModelInstance: ', reportModelInstance);
+        log.trace('print object for reportModelInstance: ', reportModelInstance);
         // TODO: is findOne buggy? does it return a result even when there are no matches?
         return ReportModel.app.models.StoreModel.findOne( // chain the promise via a return statement so unexpected rejections/errors float up
           {
@@ -145,9 +144,9 @@ module.exports = function(ReportModel) {
           }
         )
           .then(function(storeModelInstance) {
-            log('print object for storeModelInstance: ', storeModelInstance);
+            log.trace('print object for storeModelInstance: ', storeModelInstance);
             var storeConfigInstance = storeModelInstance.storeConfigModel();
-            log('print object for storeConfigInstance: ', storeConfigInstance);
+            log.trace('print object for storeConfigInstance: ', storeConfigInstance);
             return Promise.resolve([reportModelInstance, storeModelInstance, storeConfigInstance]);
           });
       });
@@ -158,10 +157,10 @@ module.exports = function(ReportModel) {
     if (currentUser) {
       ReportModel.findById(id)
         .then(function (reportModelInstance) {
-          log('reportModelInstance', reportModelInstance);
+          log.debug('reportModelInstance', reportModelInstance);
 
           // TODO: check if the currentUser is the $owner of ReportModel or not?
-          //log('Is %s equal to %s?', reportModelInstance.userModelToReportModelId, currentUser.id);
+          //log.trace('Is %s equal to %s?', reportModelInstance.userModelToReportModelId, currentUser.id);
 
           var filters = {};
           if (_.isNumber(pageSize)) {
@@ -175,7 +174,7 @@ module.exports = function(ReportModel) {
               console.error(err);
               cb(err);
             }
-            //log('data', data);
+            //log.trace('data', data);
             cb(null, data);
           });
         });
@@ -187,25 +186,25 @@ module.exports = function(ReportModel) {
     if (currentUser) {
       ReportModel.findById(id)
         .then(function (reportModelInstance) {
-          log('reportModelInstance', reportModelInstance);
-          log('rows.length', rows.length);
+          log.debug('reportModelInstance', reportModelInstance);
+          log.debug('rows.length', rows.length);
 
           // TODO: check if the currentUser is the $owner of ReportModel or not?
-          //log('Is %s equal to %s?', reportModelInstance.userModelToReportModelId, currentUser.id);
+          //log.trace('Is %s equal to %s?', reportModelInstance.userModelToReportModelId, currentUser.id);
 
           // NOTE(s):
           // http://mongodb.github.io/node-mongodb-native/2.0/api/Collection.html#initializeUnorderedBulkOp
 
           // (1) Get the collection
           var col = ReportModel.dataSource.adapter.collection('StockOrderLineitemModel');
-          //log('collection', col);
+          //log.trace('collection', col);
 
           // (2) Initialize the unordered Batch
           var batch = col.initializeUnorderedBulkOp();
 
           // (3) Add some operations to be executed
           _.each(rows,function(row){
-            //log('_.omit(row,\'id\')', _.omit(row,'id'));
+            //log.trace('_.omit(row,\'id\')', _.omit(row,'id'));
             var ObjectID = require('./../../node_modules/loopback-connector-mongodb/node_modules/mongodb').ObjectID;
             // TODO: need to (a) either remove all the ObejctId(s) otherwise they'll be overwritten as Strings,
              //      or (b) cast them properly before sending,
@@ -216,7 +215,7 @@ module.exports = function(ReportModel) {
 
           // (4) Execute the operations
           batch.execute(function(err, result) {
-            //log('(4) result', result);
+            //log.trace('(4) result', result);
             cb(null);
           }, function(error){
             console.error('report-model.js - updateRows - An unexpected error occurred: ', error);
@@ -229,15 +228,15 @@ module.exports = function(ReportModel) {
   };
 
   ReportModel.removeReport = function(id, cb) {
-    log('removeReport > id:', id);
+    log.debug('removeReport > id:', id);
     var currentUser = ReportModel.getCurrentUserModel(cb); // returns immediately if no currentUser
     if (currentUser) {
-      log('removeReport > will fetch report and related models for Vend calls');
+      log.debug('removeReport > will fetch report and related models for Vend calls');
       ReportModel.getAllRelevantModelInstancesForReportModel(id)
         .spread(function(reportModelInstance, storeModelInstance/*, storeConfigInstance*/){
           var conditionalPromise;
           if(reportModelInstance.vendConsignmentId) {
-            log('removeReport > will delete Vend consignment', reportModelInstance.vendConsignmentId);
+            log.debug('removeReport > will delete Vend consignment', reportModelInstance.vendConsignmentId);
             var oauthVendUtil = require('./../../common/utils/vend')({
               'GlobalConfigModel': ReportModel.app.models.GlobalConfigModel,
               'StoreConfigModel': ReportModel.app.models.StoreConfigModel,
@@ -246,21 +245,21 @@ module.exports = function(ReportModel) {
             conditionalPromise = oauthVendUtil.deleteStockOrder(storeModelInstance, reportModelInstance);
           }
           else {
-            log('removeReport > no vendConsignmentId found for deletion');
+            log.debug('removeReport > no vendConsignmentId found for deletion');
             conditionalPromise = Promise.resolve();
           }
 
           return conditionalPromise.then(function(){
-            log('removeReport > will fetch related lineitems');
+            log.debug('removeReport > will fetch related lineitems');
             var StockOrderLineitemModel = ReportModel.app.models.StockOrderLineitemModel;
             return StockOrderLineitemModel.destroyAll({reportId: id}, function (err, info) {
-              log('removeReport > destroy related lineitems > DONE!', info);
+              log.debug('removeReport > destroy related lineitems > DONE!', info);
               if (err) {
                 cb(err);
               }
               else {
                 return ReportModel.destroyById(id, function(){
-                  log('removeReport > destroyById(): DONE!');
+                  log.debug('removeReport > destroyById(): DONE!');
                   if (err) {
                     cb(err);
                   }
@@ -280,13 +279,13 @@ module.exports = function(ReportModel) {
 
   ReportModel.lookupAndAddProductBySku = function(id, sku, boxNumber, cb) {
     var commandName = 'lookupAndAddProductBySku';
-    log(commandName + ' > ', 'id:' + id, 'sku:' + sku, 'boxNumber:' + boxNumber);
+    log.debug(commandName + ' > ', 'id:' + id, 'sku:' + sku, 'boxNumber:' + boxNumber);
     var currentUser = ReportModel.getCurrentUserModel(cb); // returns immediately if no currentUser
     if (currentUser) {
-      log(commandName + ' >  will fetch report and related models for Vend calls');
+      log.debug(commandName + ' >  will fetch report and related models for Vend calls');
       ReportModel.getAllRelevantModelInstancesForReportModel(id)
         .spread(function(reportModelInstance, storeModelInstance/*, storeConfigInstance*/){
-          log(commandName + ' > will loopkup product by SKU');
+          log.debug(commandName + ' > will loopkup product by SKU');
           var oauthVendUtil = require('./../../common/utils/vend')({
             'GlobalConfigModel': ReportModel.app.models.GlobalConfigModel,
             'StoreConfigModel': ReportModel.app.models.StoreConfigModel,
@@ -294,22 +293,22 @@ module.exports = function(ReportModel) {
           });
           return oauthVendUtil.lookupBySku(sku, storeModelInstance, reportModelInstance)
             .then(function(results){
-              log(commandName + ' > filter & dilute the search results to match the inventory for store and supplier tied with this report');
-              log(commandName + ' > results products.length: ' + results.products.length);
+              log.debug(commandName + ' > filter & dilute the search results to match the inventory for store and supplier tied with this report');
+              log.debug(commandName + ' > results products.length: ' + results.products.length);
 
               // NOTE: there is a lot of overlap in business logic with the worker code
 
               // keep only the products that have an inventory field
               // and belong to the store/outlet of interest to us
               // and belong to the supplier of interest to us
-              log(commandName + ' > filtering for supplier ' + reportModelInstance.supplier.name + ' and outlet ' + reportModelInstance.outlet.name);
+              log.debug(commandName + ' > filtering for supplier ' + reportModelInstance.supplier.name + ' and outlet ' + reportModelInstance.outlet.name);
               var filteredProducts = _.filter(results.products, function(product){
                 return ( product.inventory &&
                   _.contains(_.pluck(product.inventory,'outlet_id'), reportModelInstance.outlet.id) &&
                   reportModelInstance.supplier.name === product.supplier_name
                 );
               });
-              log(commandName + ' > filtered products.length: ' + filteredProducts.length);
+              log.debug(commandName + ' > filtered products.length: ' + filteredProducts.length);
 
               // let's dilute the product data even further
               var dilutedProducts = [];
@@ -320,23 +319,23 @@ module.exports = function(ReportModel) {
                 });
                 dilutedProducts.push(neoProduct);
               });
-              log(commandName + ' > diluted products.length: ' + _.keys(dilutedProducts).length);
+              log.debug(commandName + ' > diluted products.length: ' + _.keys(dilutedProducts).length);
 
               return Promise.resolve(dilutedProducts);
             })
             .then(function(dilutedProducts){
-              //log(commandName + ' > dilutedProducts:', dilutedProducts);
+              //log.trace(commandName + ' > dilutedProducts:', dilutedProducts);
               if (dilutedProducts.length === 1) {
                 var dilutedProduct = dilutedProducts[0];
                 if(dilutedProducts[0].sku !== sku){
                   var error = new Error('No exact matches found for given SKU. Comparison is case-sensitive.');
                   error.statusCode = 400;
-                  errorLog(commandName + ' > ', error.statusCode, error.message);
+                  log.error(commandName + ' > ', error.statusCode, error.message);
                   return cb(error);
                 }
                 else {
                   // add an instance of StockOrderLineitemModel to the report
-                  log(commandName + ' > putting together data to create a StockOrderLineitemModel from:', dilutedProduct);
+                  log.debug(commandName + ' > putting together data to create a StockOrderLineitemModel from:', dilutedProduct);
 
                   // NOTE: there is a lot of overlap in business logic with the worker code
                   var quantityOnHand = Number(dilutedProduct.inventory.count);
@@ -368,7 +367,7 @@ module.exports = function(ReportModel) {
                     if ( boxNumber === undefined || boxNumber === null ) {
                       var error = new Error('Your request did not specify which boxNumber the product should be placed in.');
                       error.statusCode = 400;
-                      errorLog(commandName + ' > ', error.statusCode, error.message);
+                      log.error(commandName + ' > ', error.statusCode, error.message);
                       return cb(error);
                     }
                     else {
@@ -382,10 +381,10 @@ module.exports = function(ReportModel) {
                   //       but as of now, there isn't any reason for us to set `lineitem.state`
                   //       for that state explicitly
 
-                  log(commandName + ' > will create a StockOrderLineitemModel');
+                  log.debug(commandName + ' > will create a StockOrderLineitemModel');
                   return StockOrderLineitemModel.create(lineitem)
                     .then(function(stockOrderLineitemModelInstance){
-                      log(commandName + ' > created stockOrderLineitemModelInstance:', stockOrderLineitemModelInstance);
+                      log.debug(commandName + ' > created stockOrderLineitemModelInstance:', stockOrderLineitemModelInstance);
                       return cb(null, stockOrderLineitemModelInstance);
                     });
                 }
@@ -393,19 +392,19 @@ module.exports = function(ReportModel) {
               else if (dilutedProducts.length > 1) {
                 var error = new Error('More than one match found, SKU is not unique.');
                 error.statusCode = 400;
-                errorLog(commandName + ' > ', error.statusCode, error.message);
+                log.error(commandName + ' > ', error.statusCode, error.message);
                 return cb(error);
               }
               else if (dilutedProducts.length === 0) {
                 var error = new Error('No matches found.');
                 error.statusCode = 400;
-                errorLog(commandName + ' > ', error.statusCode, error.message);
+                log.error(commandName + ' > ', error.statusCode, error.message);
                 return cb(error);
               }
               else {
                 var error = new Error('An unexpected error occurred, could not find a match.');
                 error.statusCode = 500;
-                errorLog(commandName + ' > ', error.statusCode, error.message);
+                log.error(commandName + ' > ', error.statusCode, error.message);
                 return cb(error);
               }
             });
@@ -436,7 +435,7 @@ module.exports = function(ReportModel) {
 
               return ReportModel.sendPayload(reportModelInstance, options, cb)
                 .then(function(updatedReportModelInstance){
-                  log('return the updated ReportModel');
+                  log.debug('return the updated ReportModel');
                   cb(null, updatedReportModelInstance);
                 });
             });
@@ -448,6 +447,7 @@ module.exports = function(ReportModel) {
   };
 
   ReportModel.preparePayload = function(storeModelInstance, domainPrefix, newAccessToken, reportModelInstance, workerName){
+    log.debug('prepare payload for worker');
     return {
       url: ReportModel.app.get('ironWorkersUrl'),
       qs: {
@@ -477,11 +477,11 @@ module.exports = function(ReportModel) {
   };
 
   ReportModel.sendPayload = function(reportModelInstance, options, cb){
-    log('will send a request with', 'options:', JSON.stringify(options,null,2));
+    log.debug('will send a request with', 'options:', JSON.stringify(options,null,2));
     return request.post(options)
       .then(successHandler)
       .then(function(data){
-        log('save the task info in ReportModel', JSON.stringify(data,null,2));
+        log.debug('save the task info in ReportModel', JSON.stringify(data,null,2));
         return reportModelInstance.updateAttributes({
           workerTaskId: data.id,
           workerStatus: data.msg
@@ -514,7 +514,7 @@ module.exports = function(ReportModel) {
     if(currentUser) {
       // (1) fetch the report
       ReportModel.findById(id, function (error, reportModelInstance) {
-        //log('reportModelInstance:', reportModelInstance);
+        //log.trace('reportModelInstance:', reportModelInstance);
 
         // (2) setup the iron worker client
         var IronWorker = require('iron_worker');
@@ -530,13 +530,13 @@ module.exports = function(ReportModel) {
               console.error(error);
               return cb(error);
             }
-            log(JSON.stringify(body, null, 2));
+            log.debug(JSON.stringify(body, null, 2));
             //return cb(null, body);
             return reportModelInstance.updateAttributes({
               workerStatus: body.msg || body.status
             })
               .then(function(updatedReportModelInstance){
-                log('return the updated ReportModel');
+                log.debug('return the updated ReportModel');
                 cb(null, updatedReportModelInstance);
               });
           });
@@ -549,7 +549,7 @@ module.exports = function(ReportModel) {
   };
 
   ReportModel.setReportStatus = function(id, from, to, cb) {
-    log('inside setReportStatus()');
+    log.debug('inside setReportStatus()');
     var currentUser = ReportModel.getCurrentUserModel(cb); // returns  immediately if no currentUser
     if(currentUser) {
       ReportModel.getAllRelevantModelInstancesForReportModel(id)
@@ -559,7 +559,7 @@ module.exports = function(ReportModel) {
             'StoreConfigModel': ReportModel.app.models.StoreConfigModel,
             'currentUser': currentUser
           });
-          log('from', from, '\n',
+          log.debug('from', from, '\n',
             'reportModelInstance.state', reportModelInstance.state, '\n',
             'to', to
           );
@@ -567,16 +567,16 @@ module.exports = function(ReportModel) {
               reportModelInstance.state === ReportModel.ReportModelStates.MANAGER_NEW_ORDERS &&
               to === ReportModel.ReportModelStates.MANAGER_IN_PROCESS)
           {
-            log('inside setReportStatus() - will create a stock order in Vend');
+            log.debug('inside setReportStatus() - will create a stock order in Vend');
             oauthVendUtil.createStockOrderForVend(storeModelInstance, reportModelInstance)
               .then(function(newStockOrder){
-                log('inside setReportStatus() - PASS - created a stock order in Vend', newStockOrder);
+                log.debug('inside setReportStatus() - PASS - created a stock order in Vend', newStockOrder);
                 reportModelInstance.vendConsignmentId = newStockOrder.id;
                 reportModelInstance.vendConsignment = newStockOrder;
                 reportModelInstance.state = ReportModel.ReportModelStates.MANAGER_IN_PROCESS;
                 reportModelInstance.save()
                   .then(function(updatedReportModelInstance){
-                    log('inside setReportStatus() - PASS - updated the report model');
+                    log.debug('inside setReportStatus() - PASS - updated the report model');
                     cb(null, updatedReportModelInstance);
                   });
               },
@@ -588,15 +588,15 @@ module.exports = function(ReportModel) {
                    reportModelInstance.state === ReportModel.ReportModelStates.MANAGER_IN_PROCESS &&
                    to === ReportModel.ReportModelStates.WAREHOUSE_FULFILL)
           {
-            log('inside setReportStatus() - will update the status of stock order in Vend to SENT');
+            log.debug('inside setReportStatus() - will update the status of stock order in Vend to SENT');
             oauthVendUtil.markStockOrderAsSent(storeModelInstance, reportModelInstance)
               .then(function(updatedStockOrder){
-                log('inside setReportStatus() - PASS - updated stock order in Vend to SENT', updatedStockOrder);
+                log.debug('inside setReportStatus() - PASS - updated stock order in Vend to SENT', updatedStockOrder);
                 reportModelInstance.vendConsignment = updatedStockOrder;
                 reportModelInstance.state = ReportModel.ReportModelStates.WAREHOUSE_FULFILL;
                 reportModelInstance.save()
                   .then(function(updatedReportModelInstance){
-                    log('inside setReportStatus() - PASS - updated the report model');
+                    log.debug('inside setReportStatus() - PASS - updated the report model');
                     cb(null, updatedReportModelInstance);
                   });
               },
@@ -609,15 +609,15 @@ module.exports = function(ReportModel) {
             to === ReportModel.ReportModelStates.MANAGER_RECEIVE)
           {
             if(!reportModelInstance.vendConsignmentId) {
-              log('inside setReportStatus() - will create a stock order in Vend (for imported order)');
+              log.debug('inside setReportStatus() - will create a stock order in Vend (for imported order)');
               return oauthVendUtil.createStockOrderForVend(storeModelInstance, reportModelInstance)
                 .then(function(newStockOrder){
-                  log('inside setReportStatus() - PASS - created a stock order in Vend (for imported order)', newStockOrder);
+                  log.debug('inside setReportStatus() - PASS - created a stock order in Vend (for imported order)', newStockOrder);
                   reportModelInstance.vendConsignmentId = newStockOrder.id;
                   reportModelInstance.vendConsignment = newStockOrder;
                   return reportModelInstance.save()
                     .then(function(updatedReportModelInstance){
-                      log('inside setReportStatus() - PASS - updated the report model (for imported order)');
+                      log.debug('inside setReportStatus() - PASS - updated the report model (for imported order)');
 
                       // (a) submit long running task as a job to iron
                       // (a.1) generate a token for the worker to use on the currentUser's behalf
@@ -635,7 +635,7 @@ module.exports = function(ReportModel) {
                           // (a.4) Submit it
                           return ReportModel.sendPayload(updatedReportModelInstance, options, cb)
                             .then(function(updatedReportModelInstance){
-                              log('return the updated ReportModel');
+                              log.debug('return the updated ReportModel');
                               cb(null, updatedReportModelInstance);
                             });
                         });
@@ -646,11 +646,11 @@ module.exports = function(ReportModel) {
                 });
             }
             else {
-              log('inside setReportStatus() - stock order in Vend already exists (assuming generated order)');
+              log.debug('inside setReportStatus() - stock order in Vend already exists (assuming generated order)');
               reportModelInstance.state = ReportModel.ReportModelStates.MANAGER_RECEIVE;
               return reportModelInstance.save()
                 .then(function(updatedReportModelInstance){
-                  log('inside setReportStatus() - updated the report model (assuming generated order)');
+                  log.debug('inside setReportStatus() - updated the report model (assuming generated order)');
                   cb(null, updatedReportModelInstance);
                 },
                 function(error){
@@ -662,15 +662,15 @@ module.exports = function(ReportModel) {
                    reportModelInstance.state === ReportModel.ReportModelStates.MANAGER_RECEIVE &&
                    to === ReportModel.ReportModelStates.REPORT_COMPLETE)
           {
-            log('inside setReportStatus() - will update the status of stock order in Vend to RECEIVED');
+            log.debug('inside setReportStatus() - will update the status of stock order in Vend to RECEIVED');
             oauthVendUtil.markStockOrderAsReceived(storeModelInstance, reportModelInstance)
               .then(function(updatedStockOrder){
-                log('inside setReportStatus() - PASS - updated stock order in Vend to RECEIVED', updatedStockOrder);
+                log.debug('inside setReportStatus() - PASS - updated stock order in Vend to RECEIVED', updatedStockOrder);
                 reportModelInstance.vendConsignment = updatedStockOrder;
                 reportModelInstance.state = ReportModel.ReportModelStates.REPORT_COMPLETE;
                 reportModelInstance.save()
                   .then(function(updatedReportModelInstance){
-                    log('inside setReportStatus() - PASS - updated the report model');
+                    log.debug('inside setReportStatus() - PASS - updated the report model');
                     cb(null, updatedReportModelInstance);
                   });
               },

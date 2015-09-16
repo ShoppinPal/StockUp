@@ -2,9 +2,9 @@
 
 var loopback = require('loopback');
 
-var path = require('path');
+/*var path = require('path');
 var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
-var log = require('./../../common/lib/debug-extension')('server:middleware:'+fileName);
+var log = require('./../../common/lib/debug-extension')('server:middleware:'+fileName);*/
 
 module.exports = function() {
   // set current user to enable user access for remote methods

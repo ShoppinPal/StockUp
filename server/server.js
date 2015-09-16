@@ -31,6 +31,8 @@ if (require.main === module) {
  * into a one liner for Jenkins configuration and sanity test it
  * ... anytime there are minor changes to the code :(
  *
+ * NOTE: since we are setting this via code, it is not available to the `loadconfig` gruntTask
+ *
  * References:
  *  > https://github.com/strongloop/loopback-faq-middleware#how-do-you-create-a-custom-error-message-for-all-errors
  *

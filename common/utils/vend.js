@@ -9,15 +9,7 @@ var _ = require('underscore')
   , Promise = require('bluebird')// TODO: stick to one promise library: Q or bluebird
   , vendSdk = require('vend-nodejs-sdk')({});
 
-var logger = require('debug');
-var debug = logger('shoppinpal:utils:vend:debug'); // by default console.log is used
-var error = logger('shoppinpal:utils:vend:error'); // set this namespace to log via console.error
-error.log = console.error.bind(console); // don't forget to bind to console!
-
-var log = {
-  debug: debug,
-  error: error
-};
+var log = require('./../lib/debug-extension')('shoppinpal:utils:vend');
 
 /**
  * TODO: deprecate and replace

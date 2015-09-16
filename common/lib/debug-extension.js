@@ -78,6 +78,9 @@ function mkLoggerLevel(level, scope) {
       //return logger.apply(null, params);
     }
     else {
+      //TODO: [@doublemarked commented]:
+      //        the alternative is to have mkLogger throw an error
+      //        if there is no scope provided
       console.trace('WHEN IS SCOPE EVER NOT PRESENT?');
       logger = require('debug');
     }

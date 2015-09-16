@@ -6,48 +6,47 @@ var _ = require('underscore');
 
 var path = require('path');
 var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
-var log = require('debug')('common:models:'+fileName);
-var errorLog = require('debug')('common:models:'+fileName+':ERROR');
+var log = require('./../lib/debug-extension')('common:models:'+fileName);
 
 module.exports = function(Container) {
 
   Container.beforeRemote('upload', function(ctx, unused, next) {
-    log('Container > beforeRemote > upload');
+    log.trace('Container > beforeRemote > upload');
     var userId = ctx.req.params.container; // TODO: validate userId basedon accessToken
-    log('Container > beforeRemote > upload > userId', userId);
+    log.debug('Container > beforeRemote > upload > userId', userId);
     Container.getContainer(userId, function(err1, container1){
       if (err1) {
         if (err1.code === 'ENOENT') {
-          log('Container > beforeRemote > upload > Container does not exist > let us create a new one');
+          log.debug('Container > beforeRemote > upload > Container does not exist > let us create a new one');
           Container.createContainer({name: userId}, function(err2, container2) {
             if(err2){
-              log('Container > beforeRemote > upload > Could not create a new container > unexpected error', err2);
+              log.debug('Container > beforeRemote > upload > Could not create a new container > unexpected error', err2);
               console.error(err2);
               next(err2);
             }
             else {
-              log('Container > beforeRemote > upload > Created a new container', container2.name);
+              log.debug('Container > beforeRemote > upload > Created a new container', container2.name);
               next();
             }
           });
         }
         else {
-          log('Container > beforeRemote > upload > Container does not exist > unexpected error', err1);
+          log.debug('Container > beforeRemote > upload > Container does not exist > unexpected error', err1);
           console.error(err1);
           next(err1);
         }
       }
       else {
-        log('Container > beforeRemote > upload > Container already exists', container1.name);
+        log.debug('Container > beforeRemote > upload > Container already exists', container1.name);
         next();
       }
     });
   });
 
   Container.afterRemote('upload', function(ctx, unused, next) {
-    log('Container > afterRemote > upload');
+    log.debug('Container > afterRemote > upload');
     var files = ctx.result.result.files.file;
-    log('Container > afterRemote > upload',
+    log.debug('Container > afterRemote > upload',
         ' > FILE(S) UPLOADED: %j', files);
 
     // ASSUMPTION #1 we only get one file at a time
@@ -69,14 +68,14 @@ module.exports = function(Container) {
 
     //end_parsed will be emitted once parsing finished
     converter.on('end_parsed', function (arrayOfCsvRowsAsObjects) {
-      log('parsed csv rows:', arrayOfCsvRowsAsObjects.length);
+      log.debug('parsed csv rows:', arrayOfCsvRowsAsObjects.length);
 
-      log('#1 create a new Reportmodel');
+      log.debug('#1 create a new Reportmodel');
       createReportModel(item.name, Container, next)
         .then(function(reportModelInstance){
-          log('reportModelInstance:', reportModelInstance);
+          log.trace('reportModelInstance:', reportModelInstance);
 
-          log('#2 create lineitems from CSV row data and associate them with the new Reportmodel and its user');
+          log.debug('#2 create lineitems from CSV row data and associate them with the new Reportmodel and its user');
           _.each(arrayOfCsvRowsAsObjects, function(csvRowAsObject){
             csvRowAsObject.reportId = reportModelInstance.id;
             csvRowAsObject.userId = reportModelInstance.userModelToReportModelId;
@@ -84,38 +83,37 @@ module.exports = function(Container) {
           var StockOrderLineitemModel = Container.app.models.StockOrderLineitemModel;
           StockOrderLineitemModel.create(arrayOfCsvRowsAsObjects, function(err, results){
             if (err) {
-              log('error occured', err);
-              console.error('error occured', err);
+              //log.error('error occured', err);
+              //console.error('error occured', err);
               next(err);
             }
             else {
-              log('created StockOrderLineitemModels:', results.length);
+              log.debug('created StockOrderLineitemModels:', results.length);
 
-              log('#3 submit a job to the worker infrastructure');
+              log.debug('#3 submit a job to the worker infrastructure');
               var UserModel = Container.app.models.UserModel;
               UserModel.findById(reportModelInstance.userModelToReportModelId)
                 .then(function(userModelInstance){
-                  log('userModelInstance', userModelInstance);
+                  log.trace('userModelInstance', userModelInstance);
 
-                  // (1) generate a token for the worker to use on the currentUser's behalf
+                  log.debug('(1) generate a token for the worker to use on the currentUser\'s behalf');
                   userModelInstance.createAccessTokenAsync(1209600)// can't be empty ... time to live (in seconds) 1209600 is 2 weeks (default of loopback)
                     .then(function(newAccessToken) {
-                      // (2) fetch the report, store and store-config
+                      log.debug('(2) fetch the report, store and store-config');
                       var ReportModel = Container.app.models.ReportModel;
                       ReportModel.getAllRelevantModelInstancesForReportModel(reportModelInstance.id)
                         .spread(function (reportModelInstance, storeModelInstance, storeConfigInstance) {
-                          // (3) extract domainPrefix from store-config's posUrl
+                          log.debug('(3) extract domainPrefix from store-config\'s posUrl');
                           var posUrl = storeConfigInstance.posUrl;
                           var regexp = /^https?:\/\/(.*)\.vendhq\.com$/i;
                           var matches = posUrl.match(regexp);
                           var domainPrefix = matches[1];
 
-                          // (4) Prepare payload for worker
                           var options = ReportModel.preparePayload(storeModelInstance, domainPrefix, newAccessToken, reportModelInstance);
 
                           ReportModel.sendPayload(reportModelInstance, options, next)
                             .then(function(updatedReportModelInstance){
-                              log('updatedReportModelInstance:', updatedReportModelInstance);
+                              log.trace('updatedReportModelInstance:', updatedReportModelInstance);
                               next();
                             });
                         });
@@ -126,12 +124,12 @@ module.exports = function(Container) {
         })
         .catch(function(error){
           if (error instanceof Error) {
-            errorLog('Container > afterRemote > upload > end_parsed',
+            log.error('Container > afterRemote > upload > end_parsed',
               '\n', error.name + ':', error.message,
               '\n', error.stack);
           }
           else {
-            errorLog('Container > afterRemote > upload > end_parsed',
+            log.error('Container > afterRemote > upload > end_parsed',
               '\n', error);
           }
           next(error);
@@ -149,23 +147,23 @@ module.exports = function(Container) {
 
     var storeName = data[0];
     storeName = storeName.replace(/_/g, '.'); // . is treated as regex when
-    log('storeName', storeName);
+    log.debug('storeName', storeName);
 
     var supplierName = data[1];
     supplierName = supplierName.replace(/_/g, '.'); // . is treated as regex when
-    log('supplierName', supplierName);
+    log.debug('supplierName', supplierName);
 
     // TODO: current user should only be able to search his/her own stores and suppliers, not all of them!
 
     var StoreModel = Container.app.models.StoreModel;
     return StoreModel.findOne({ where: { name: { like: storeName } } })
       .then(function(storeModelInstance){
-        log('storeModelInstance', storeModelInstance);
+        log.trace('storeModelInstance', storeModelInstance);
         if(storeModelInstance) {
           var SupplierModel = Container.app.models.SupplierModel;
           return SupplierModel.findOne({ where: { name: { like: supplierName } } })
             .then(function(supplierModelInstance){
-              log('supplierModelInstance', supplierModelInstance);
+              log.trace('supplierModelInstance', supplierModelInstance);
               if(supplierModelInstance) {
                 //return Promise.resolve([storeModelInstance,supplierModelInstance]);
                 var ReportModel = Container.app.models.ReportModel;
