@@ -153,12 +153,24 @@ angular.module('ShoppinPalApp')
           '\n\t', 'storeReportRow', storeReportRow,
           '\n\t', 'equal?', ($scope.storesReport[rowIndex]===storeReportRow));
 
-        StockOrderLineitemModel.deleteLineitem({
-          id: storeReportRow.id
-        })
-          .$promise.then(function(){
-            console.log('deleted StockOrderLineitemModel from backend, for id: ' + storeReportRow.id);
-            dismissEditableRow(rowIndex, storeReportRow);
+        console.log('use updateDSL() in deleteRow() when removing the editable row using a button' +
+          '\n' + 'otherwise it would have already been handled by dismissEdit()');
+
+        $scope.waitOnPromise = updateDSL(storeReportRow)
+          .then(function(){
+            return StockOrderLineitemModel.deleteLineitem({
+              id: storeReportRow.id
+            })
+              .$promise.then(function(){
+                console.log('deleted StockOrderLineitemModel from backend, for id: ' + storeReportRow.id);
+                dismissEditableRow(rowIndex, storeReportRow);
+              });
+          })
+          .catch(function(error){
+            console.error(error);
+            // NOTE: this a stop-gap measure because the styling for $spAlerts
+            //       doesn't fit well anywhere on the current view
+            alert('Something went wrong! Try again or report it to an admin.');
           });
       };
 
