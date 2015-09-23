@@ -1,12 +1,14 @@
 {
   "initial:before": {
-    "loopback#favicon": {}
+    "loopback#favicon": {},
+    "loopback#context": {},
+    "loopback#token": {
+      "params": ["state"]
+    },
+    "./middleware/userContext": {}
   },
   "initial": {
-    "compression": {},
-    "./middleware/accessLogger": {
-      "paths": "/api/*"
-    }
+    "compression": {}
   },
   "session": {
   },
@@ -15,11 +17,9 @@
   "parse": {
   },
   "routes:before": {
-    "loopback#context": {},
-    "loopback#token": {
-      "params": ["state"]
-    },
-    "./middleware/userContext": {}
+    "./middleware/accessLogger": {
+      "paths": "/api/*"
+    }
   },
   "routes": {
   },
