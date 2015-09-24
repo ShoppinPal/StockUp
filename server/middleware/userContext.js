@@ -13,7 +13,8 @@ module.exports = function() {
     var loopbackContext = loopback.getCurrentContext();
     if (loopbackContext) {
       // starts : info for injecting into logs
-      loopbackContext.set('ip', req.ip ||
+      loopbackContext.set('ip', req.headers['x-real-ip'] ||
+        req.ip ||
         req.connection.remoteAddress ||
         (req.socket && req.socket.remoteAddress) ||
         (req.socket.socket && req.socket.socket.remoteAddress)
