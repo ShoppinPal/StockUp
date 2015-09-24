@@ -44,7 +44,10 @@ function mkLoggerLevel(level, scope) {
         // convert to array
         params = Array.prototype.slice.call(arguments);
 
-        params.unshift(level.toUpperCase());
+        var prefix = '';
+        if (level) {
+          prefix += level.toUpperCase();
+        }
 
         var loopbackContext = loopback.getCurrentContext();
         if (loopbackContext) {
@@ -67,12 +70,19 @@ function mkLoggerLevel(level, scope) {
           //identifier += '-' + loopbackContext.get('requestId')
 
           // prefix it to every log statement
-          params.unshift(identifier);
+          prefix = prefix + ' ' + identifier;
         }
 
-        // place a stacktrace at the end, if you are feelign verbose
+        // place a stacktrace at the end, if you are feeling verbose
         //var stack = new Error().stack;
         //params.push(stack);
+
+        if (_.isString(params[0]) && prefix.length>0) {
+          params[0] = prefix + ' ' + params[0];
+        }
+        else {
+          params.unshift(prefix);
+        }
       }
 
       //return logger.apply(null, params);
