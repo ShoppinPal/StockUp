@@ -338,17 +338,6 @@ module.exports = function(ReportModel) {
                   log.debug(commandName + ' > putting together data to create a StockOrderLineitemModel from:', dilutedProduct);
 
                   // NOTE: there is a lot of overlap in business logic with the worker code
-                  var quantityOnHand = Number(dilutedProduct.inventory.count);
-                  var desiredStockLevel = Number(dilutedProduct.inventory['reorder_point']);
-                  var orderQuantity = 0;
-                  if(!_.isNaN(desiredStockLevel) && _.isNumber(desiredStockLevel)) {
-                    orderQuantity = desiredStockLevel - quantityOnHand;
-                  }
-                  else {
-                    desiredStockLevel = undefined;
-                    orderQuantity = undefined;
-                  }
-
                   var caseQuantity = undefined;
                   if (dilutedProduct.tags) {
                     var tagsAsCsv = dilutedProduct.tags.trim();
@@ -372,6 +361,25 @@ module.exports = function(ReportModel) {
                         }
                       });
                     }
+                  }
+
+                  var quantityOnHand = Number(dilutedProduct.inventory.count);
+                  var desiredStockLevel = Number(dilutedProduct.inventory['reorder_point']);
+                  var orderQuantity = 0;
+                  if(!_.isNaN(desiredStockLevel) && _.isNumber(desiredStockLevel)) {
+                    orderQuantity = desiredStockLevel - quantityOnHand;
+                    if (caseQuantity) {
+                      if ( (orderQuantity % caseQuantity) === 0 ) {
+                        //console.log('NO-OP: orderQuantity is already a multiple of caseQuantity');
+                      }
+                      else {
+                        orderQuantity = Math.ceil(orderQuantity / caseQuantity) * caseQuantity;
+                      }
+                    }
+                  }
+                  else {
+                    desiredStockLevel = undefined;
+                    orderQuantity = undefined;
                   }
 
                   var StockOrderLineitemModel = ReportModel.app.models.StockOrderLineitemModel;
