@@ -375,12 +375,22 @@ angular.module('ShoppinPalApp')
       $scope.decreaseOrderQuantity= function(storereport) {
         storereport.orderQuantity = parseInt(storereport.orderQuantity, 10); // parse it from string to integer
         if(storereport.orderQuantity > 0){
-          storereport.orderQuantity -= 1;
+          if (storereport.caseQuantity) {
+            storereport.orderQuantity -= storereport.caseQuantity;
+          }
+          else {
+            storereport.orderQuantity -= 1;
+          }
         }
       };
       $scope.increaseOrderQuantity = function(storereport) {
         storereport.orderQuantity = parseInt(storereport.orderQuantity, 10);
-        storereport.orderQuantity += 1;
+        if (storereport.caseQuantity) {
+          storereport.orderQuantity += storereport.caseQuantity;
+        }
+        else {
+          storereport.orderQuantity += 1;
+        }
       };
 
       /** @method hideEdit

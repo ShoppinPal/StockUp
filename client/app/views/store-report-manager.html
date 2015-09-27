@@ -113,7 +113,8 @@
                                             <div class="float-left margin-right-10px editable-panel">
                                                 <input type="number" pattern="[0-9]*"
                                                        class="form-control input-small editable-panel"
-                                                       ng-model="storeReportRow.orderQuantity">
+                                                       ng-model="storeReportRow.orderQuantity"
+                                                       ng-disabled="(storeReportRow.caseQuantity > 0)">
                                             </div>
                                             <div class="float-left margin-right margin-top editable-panel">
                                                 <span class="fa fa-plus-circle fa-lg edit-icon editable-panel"
