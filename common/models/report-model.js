@@ -62,7 +62,8 @@ module.exports = function(ReportModel) {
     accepts: [
       {arg: 'id', type: 'string', required: true},
       {arg: 'pageSize', type: 'number', required: false},
-      {arg: 'pageNumber', type: 'number', required: false}
+      {arg: 'pageNumber', type: 'number', required: false},
+      {arg: 'where', type: 'object', required: false}
     ],
     http: {path: '/getRows', verb: 'get'},
     returns: {arg: 'rows', type: 'array', root:true}
@@ -152,7 +153,7 @@ module.exports = function(ReportModel) {
       });
   };
 
-  ReportModel.getRows = function(id, pageSize, pageNumber, cb) {
+  ReportModel.getRows = function(id, pageSize, pageNumber, where, cb) {
     var currentUser = ReportModel.getCurrentUserModel(cb); // returns immediately if no currentUser
     if (currentUser) {
       ReportModel.findById(id)
@@ -168,6 +169,9 @@ module.exports = function(ReportModel) {
             if (_.isNumber(pageNumber)) {
               filters.skip = ( ( pageNumber - 1 ) * pageSize );
             }
+          }
+          if (where) {
+            filters.where = where;
           }
           reportModelInstance.stockOrderLineitemModels(filters, function(err, data) {
             if (err) {
@@ -685,7 +689,7 @@ module.exports = function(ReportModel) {
               return reportModelInstance.save()
                 .then(function(updatedReportModelInstance){
                   log.debug('inside setReportStatus() - updated the report model (assuming generated order)');
-                  cb(null, updatedReportModelInstance);
+                          cb(null, updatedReportModelInstance);
                 },
                 function(error){
                   cb(error);

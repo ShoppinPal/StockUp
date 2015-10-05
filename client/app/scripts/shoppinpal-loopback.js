@@ -6924,6 +6924,8 @@ module.factory(
          *
          *  - `pageNumber` – `{number=}` - 
          *
+         *  - `where` – `{object=}` - 
+         *
          * @param {function(Array.<Object>,Object)=} successCb
          *   Success callback with two arguments: `value`, `responseHeaders`.
          *
