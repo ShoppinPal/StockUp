@@ -688,7 +688,8 @@ module.exports = function(ReportModel) {
               reportModelInstance.state = ReportModel.ReportModelStates.MANAGER_RECEIVE;
               return reportModelInstance.save()
                 .then(function(updatedReportModelInstance){
-                  log.debug('inside setReportStatus() - updated the report model (assuming generated order)');
+                  log.debug('inside setReportStatus() - updated the report model (assuming generated order)' +
+                    ' - will kick off a worker to removeUnfulfilledProducts');
 
                   // (a) submit long running task as a job to iron
                   // (a.1) generate a token for the worker to use on the currentUser's behalf
@@ -699,14 +700,19 @@ module.exports = function(ReportModel) {
                       var regexp = /^https?:\/\/(.*)\.vendhq\.com$/i;
                       var matches = posUrl.match(regexp);
                       var domainPrefix = matches[1];
+
                       // (a.3) Prepare payload for worker
                       var options = ReportModel.preparePayload(storeModelInstance, domainPrefix,
                         newAccessToken, updatedReportModelInstance);
                       options.json.op = 'removeUnfulfilledProducts';
+                      log.debug('inside setReportStatus() - updated the report model (assuming generated order)' +
+                        ' removeUnfulfilledProducts > payload ready');
+
                       // (a.4) Submit it
                       return ReportModel.sendPayload(updatedReportModelInstance, options, cb)
                         .then(function(updatedReportModelInstance){
-                          log.debug('return the updated ReportModel');
+                          log.debug('inside setReportStatus() - updated the report model (assuming generated order)' +
+                            ' removeUnfulfilledProducts > payload sent > return the updated ReportModel');
                           cb(null, updatedReportModelInstance);
                         });
                     });
