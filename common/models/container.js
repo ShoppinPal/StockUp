@@ -109,7 +109,13 @@ module.exports = function(Container) {
                           var matches = posUrl.match(regexp);
                           var domainPrefix = matches[1];
 
-                          var options = ReportModel.preparePayload(storeModelInstance, domainPrefix, newAccessToken, reportModelInstance);
+                          var options = ReportModel.preparePayload(
+                            storeModelInstance,
+                            domainPrefix,
+                            newAccessToken,
+                            reportModelInstance,
+                            Container.app.get('importStockOrderToWarehouse')
+                          );
 
                           ReportModel.sendPayload(reportModelInstance, options, next)
                             .then(function(updatedReportModelInstance){

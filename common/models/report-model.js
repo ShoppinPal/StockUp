@@ -469,7 +469,12 @@ module.exports = function(ReportModel) {
               var domainPrefix = matches[1];
 
               // (4) Prepare payload for worker
-              var options = ReportModel.preparePayload(storeModelInstance, domainPrefix, newAccessToken, reportModelInstance);
+              var options = ReportModel.preparePayload(
+                storeModelInstance,
+                domainPrefix,
+                newAccessToken,
+                reportModelInstance
+              );
 
               return ReportModel.sendPayload(reportModelInstance, options, cb)
                 .then(function(updatedReportModelInstance){
@@ -667,9 +672,13 @@ module.exports = function(ReportModel) {
                           var matches = posUrl.match(regexp);
                           var domainPrefix = matches[1];
                           // (a.3) Prepare payload for worker
-                          var options = ReportModel.preparePayload(storeModelInstance, domainPrefix,
-                            newAccessToken, updatedReportModelInstance,
-                            ReportModel.app.get('importOrderWorker'));
+                          var options = ReportModel.preparePayload(
+                            storeModelInstance,
+                            domainPrefix,
+                            newAccessToken,
+                            updatedReportModelInstance,
+                            ReportModel.app.get('importStockOrderToVend')
+                          );
                           // (a.4) Submit it
                           return ReportModel.sendPayload(updatedReportModelInstance, options, cb)
                             .then(function(updatedReportModelInstance){
@@ -702,8 +711,13 @@ module.exports = function(ReportModel) {
                       var domainPrefix = matches[1];
 
                       // (a.3) Prepare payload for worker
-                      var options = ReportModel.preparePayload(storeModelInstance, domainPrefix,
-                        newAccessToken, updatedReportModelInstance);
+                      var options = ReportModel.preparePayload(
+                        storeModelInstance,
+                        domainPrefix,
+                        newAccessToken,
+                        updatedReportModelInstance
+                      );
+                      // TODO: use a dedicated worker for this op
                       options.json.op = 'removeUnfulfilledProducts';
                       log.debug('inside setReportStatus() - updated the report model (assuming generated order)' +
                         ' removeUnfulfilledProducts > payload ready');
