@@ -147,11 +147,13 @@ module.exports = function(Container) {
 
     var storeName = data[0];
     storeName = storeName.replace(/_/g, '.'); // . is treated as regex when
-    log.debug('storeName', storeName);
+    log.debug('regex with storeName', storeName);
 
     var supplierName = data[1];
     supplierName = supplierName.replace(/_/g, '.'); // . is treated as regex when
-    log.debug('supplierName', supplierName);
+    log.debug('regex with supplierName', supplierName);
+    supplierName = '^' + supplierName + '$';
+    log.debug('modified regex with supplierName', supplierName);
 
     // TODO: current user should only be able to search his/her own stores and suppliers, not all of them!
 
@@ -161,7 +163,14 @@ module.exports = function(Container) {
         log.trace('storeModelInstance', storeModelInstance);
         if(storeModelInstance) {
           var SupplierModel = Container.app.models.SupplierModel;
-          return SupplierModel.findOne({ where: { name: { like: supplierName } } })
+          return SupplierModel.findOne({
+            where: {
+              name: {
+                like: supplierName
+              },
+              storeConfigModelToSupplierModelId: storeModelInstance.storeConfigModelToStoreModelId
+            }
+          })
             .then(function(supplierModelInstance){
               log.trace('supplierModelInstance', supplierModelInstance);
               if(supplierModelInstance) {
