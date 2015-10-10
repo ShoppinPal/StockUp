@@ -39,7 +39,7 @@ describe('In Warehouse', function() {
   it('managers should be able to kick-off a job to generate a stock order on demand', function() {
     expect(browser.getLocationAbsUrl()) .toBe('/store-landing');
 
-    element(by.buttonText('Create manual order')).click();
+    element(by.buttonText('New Stock Order')).click();
     expect(browser.getLocationAbsUrl()) .toBe('/create-manual-order');
 
     var name = 'ordered on - ' + Date.now();
