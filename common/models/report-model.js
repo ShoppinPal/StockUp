@@ -473,7 +473,8 @@ module.exports = function(ReportModel) {
                 storeModelInstance,
                 domainPrefix,
                 newAccessToken,
-                reportModelInstance
+                reportModelInstance,
+                ReportModel.app.get('generateStockOrderWorker')
               );
 
               return ReportModel.sendPayload(reportModelInstance, options, cb)
@@ -715,7 +716,8 @@ module.exports = function(ReportModel) {
                         storeModelInstance,
                         domainPrefix,
                         newAccessToken,
-                        updatedReportModelInstance
+                        updatedReportModelInstance/*,
+                        ReportModel.app.get('removeUnfulfilledProducts')*/
                       );
                       // TODO: use a dedicated worker for this op
                       options.json.op = 'removeUnfulfilledProducts';
