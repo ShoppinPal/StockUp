@@ -716,11 +716,10 @@ module.exports = function(ReportModel) {
                         storeModelInstance,
                         domainPrefix,
                         newAccessToken,
-                        updatedReportModelInstance/*,
-                        ReportModel.app.get('removeUnfulfilledProducts')*/
+                        updatedReportModelInstance,
+                        ReportModel.app.get('removeUnfulfilledProducts')
                       );
-                      // TODO: use a dedicated worker for this op
-                      options.json.op = 'removeUnfulfilledProducts';
+                      options.json.op = 'removeUnfulfilledProducts'; // TODO: remove the need to specify this
                       log.debug('inside setReportStatus() - updated the report model (assuming generated order)' +
                         ' removeUnfulfilledProducts > payload ready');
 
