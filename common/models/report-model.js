@@ -741,16 +741,42 @@ module.exports = function(ReportModel) {
                    reportModelInstance.state === ReportModel.ReportModelStates.MANAGER_RECEIVE &&
                    to === ReportModel.ReportModelStates.REPORT_COMPLETE)
           {
-            log.debug('inside setReportStatus() - will update the status of stock order in Vend to RECEIVED');
-            oauthVendUtil.markStockOrderAsReceived(storeModelInstance, reportModelInstance)
-              .then(function(updatedStockOrder){
-                log.debug('inside setReportStatus() - PASS - updated stock order in Vend to RECEIVED', updatedStockOrder);
-                reportModelInstance.vendConsignment = updatedStockOrder;
-                reportModelInstance.state = ReportModel.ReportModelStates.REPORT_COMPLETE;
-                reportModelInstance.save()
-                  .then(function(updatedReportModelInstance){
-                    log.debug('inside setReportStatus() - PASS - updated the report model');
-                    cb(null, updatedReportModelInstance);
+            log.debug('inside setReportStatus() - will update the state of stock order in Warehouse as REPORT_COMPLETE');
+            reportModelInstance.state = ReportModel.ReportModelStates.REPORT_COMPLETE;
+            reportModelInstance.save()
+              .then(function(updatedReportModelInstance){
+                log.debug('inside setReportStatus() - updated the report model' +
+                  ' - will kick off a worker to removeUnreceivedProducts');
+
+                // (a) submit long running task as a job to iron
+                // (a.1) generate a token for the worker to use on the currentUser's behalf
+                return currentUser.createAccessTokenAsync(1209600)// can't be empty ... time to live (in seconds) 1209600 is 2 weeks (default of loopback)
+                  .then(function(newAccessToken){
+                    // (a.2) extract domainPrefix from store-config's posUrl
+                    var posUrl = storeConfigInstance.posUrl;
+                    var regexp = /^https?:\/\/(.*)\.vendhq\.com$/i;
+                    var matches = posUrl.match(regexp);
+                    var domainPrefix = matches[1];
+
+                    // (a.3) Prepare payload for worker
+                    var options = ReportModel.preparePayload(
+                      storeModelInstance,
+                      domainPrefix,
+                      newAccessToken,
+                      updatedReportModelInstance,
+                      ReportModel.app.get('removeUnreceivedProducts')
+                    );
+                    options.json.op = 'removeUnreceivedProducts'; // TODO: remove the need to specify this
+                    log.debug('inside setReportStatus() - updated the report model' +
+                      ' removeUnreceivedProducts > payload ready');
+
+                    // (a.4) Submit it
+                    return ReportModel.sendPayload(updatedReportModelInstance, options, cb)
+                      .then(function(updatedReportModelInstance){
+                        log.debug('inside setReportStatus() - updated the report model' +
+                          ' removeUnreceivedProducts > payload sent > return the updated ReportModel');
+                        cb(null, updatedReportModelInstance);
+                      });
                   });
               },
               function(error){
