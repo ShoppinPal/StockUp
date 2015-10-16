@@ -135,15 +135,17 @@ angular.module('ShoppinPalApp')
         }
       };
 
-      var dismissEditableRow = function(rowIndex, storeReportRow) {
+      var dismissEditableRow = function(rowIndex, storeReportRow, deleted) {
         // (1)
         handleNittyGrittyStuffForDismissingEditableRow();
 
         // (2) remove the row from the array of visible pending rows
         $scope.storesReport.splice(rowIndex, 1);
 
-        // (3) remove the row from the underlying client-side data set
-        originalReportDataSet.splice(originalReportDataSet.indexOf(storeReportRow), 1);
+        if (deleted) {
+          // (3) remove the row from the underlying client-side data set
+          originalReportDataSet.splice(originalReportDataSet.indexOf(storeReportRow), 1);
+        }
       };
 
       $scope.deleteRow = function(rowIndex, storeReportRow) {
@@ -163,7 +165,7 @@ angular.module('ShoppinPalApp')
             })
               .$promise.then(function(){
                 console.log('deleted StockOrderLineitemModel from backend, for id: ' + storeReportRow.id);
-                dismissEditableRow(rowIndex, storeReportRow);
+                dismissEditableRow(rowIndex, storeReportRow, true);
               });
           })
           .catch(function(error){
@@ -296,8 +298,6 @@ angular.module('ShoppinPalApp')
                 else {
                   // remove the row from the array of visible pending rows
                   $scope.storesReport.splice(rowIndex, 1);
-                  // remove the row from the underlying client-side data set
-                  originalReportDataSet.splice(originalReportDataSet.indexOf(storeReportRow), 1);
                 }
 
                 $scope.isShipmentFullyReceived = ($scope.storesReport.length < 1) ? true : false;
