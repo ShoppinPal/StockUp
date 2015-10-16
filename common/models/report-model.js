@@ -577,7 +577,7 @@ module.exports = function(ReportModel) {
             log.debug(JSON.stringify(body, null, 2));
             //return cb(null, body);
             return reportModelInstance.updateAttributes({
-              workerStatus: body.msg || body.status
+              workerStatus: body.status //body.msg || body.status
             })
               .then(function(updatedReportModelInstance){
                 log.debug('return the updated ReportModel');
