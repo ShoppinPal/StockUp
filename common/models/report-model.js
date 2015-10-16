@@ -678,7 +678,7 @@ module.exports = function(ReportModel) {
                             domainPrefix,
                             newAccessToken,
                             updatedReportModelInstance,
-                            ReportModel.app.get('importStockOrderToVend')
+                            ReportModel.app.get('importStockOrderToPos')
                           );
                           // (a.4) Submit it
                           return ReportModel.sendPayload(updatedReportModelInstance, options, cb)
