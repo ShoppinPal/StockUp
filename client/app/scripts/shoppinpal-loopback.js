@@ -500,25 +500,140 @@ module.factory(
           method: "PUT"
         },
 
-        // INTERNAL. Use UserModel.globalConfigModels() instead.
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel#prototype$__get__globalConfigModels
+         * @methodOf shoppinpal-loopback.UserModel
+         *
+         * @description
+         *
+         * Fetches hasOne relation globalConfigModels.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         *  - `refresh` – `{boolean=}` - 
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `UserModel` object.)
+         * </em>
+         */
         "prototype$__get__globalConfigModels": {
           url: urlBase + "/UserModels/:id/globalConfigModels",
           method: "GET"
         },
 
-        // INTERNAL. Use UserModel.globalConfigModels.create() instead.
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel#prototype$__create__globalConfigModels
+         * @methodOf shoppinpal-loopback.UserModel
+         *
+         * @description
+         *
+         * Creates a new instance in globalConfigModels of this model.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `UserModel` object.)
+         * </em>
+         */
         "prototype$__create__globalConfigModels": {
           url: urlBase + "/UserModels/:id/globalConfigModels",
           method: "POST"
         },
 
-        // INTERNAL. Use UserModel.globalConfigModels.update() instead.
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel#prototype$__update__globalConfigModels
+         * @methodOf shoppinpal-loopback.UserModel
+         *
+         * @description
+         *
+         * Update globalConfigModels of this model.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         * @param {Object} postData Request data.
+         *
+         * This method expects a subset of model properties as request parameters.
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * <em>
+         * (The remote method definition does not provide any description.
+         * This usually means the response is a `UserModel` object.)
+         * </em>
+         */
         "prototype$__update__globalConfigModels": {
           url: urlBase + "/UserModels/:id/globalConfigModels",
           method: "PUT"
         },
 
-        // INTERNAL. Use UserModel.globalConfigModels.destroy() instead.
+        /**
+         * @ngdoc method
+         * @name shoppinpal-loopback.UserModel#prototype$__destroy__globalConfigModels
+         * @methodOf shoppinpal-loopback.UserModel
+         *
+         * @description
+         *
+         * Deletes globalConfigModels of this model.
+         *
+         * @param {Object=} parameters Request parameters.
+         *
+         *  - `id` – `{*}` - User id
+         *
+         * @param {function(Object,Object)=} successCb
+         *   Success callback with two arguments: `value`, `responseHeaders`.
+         *
+         * @param {function(Object)=} errorCb Error callback with one argument:
+         *   `httpResponse`.
+         *
+         * @returns {Object} An empty reference that will be
+         *   populated with the actual data once the response is returned
+         *   from the server.
+         *
+         * This method returns no data.
+         */
         "prototype$__destroy__globalConfigModels": {
           url: urlBase + "/UserModels/:id/globalConfigModels",
           method: "DELETE"
@@ -1744,12 +1859,6 @@ module.factory(
           method: "POST"
         },
 
-        // INTERNAL. Use GlobalConfigModel.userModel() instead.
-        "::get::GlobalConfigModel::userModel": {
-          url: urlBase + "/GlobalConfigModels/:id/userModel",
-          method: "GET"
-        },
-
         // INTERNAL. Use StoreConfigModel.userModel() instead.
         "::get::StoreConfigModel::userModel": {
           url: urlBase + "/StoreConfigModels/:id/userModel",
@@ -1995,201 +2104,6 @@ module.factory(
     */
     R.modelName = "UserModel";
 
-    /**
-     * @ngdoc object
-     * @name lbServices.UserModel.globalConfigModels
-     * @header lbServices.UserModel.globalConfigModels
-     * @object
-     * @description
-     *
-     * The object `UserModel.globalConfigModels` groups methods
-     * manipulating `GlobalConfigModel` instances related to `UserModel`.
-     *
-     * Call {@link lbServices.UserModel#globalConfigModels UserModel.globalConfigModels()}
-     * to query all related instances.
-     */
-
-
-        /**
-         * @ngdoc method
-         * @name shoppinpal-loopback.UserModel#globalConfigModels
-         * @methodOf shoppinpal-loopback.UserModel
-         *
-         * @description
-         *
-         * Fetches hasOne relation globalConfigModels.
-         *
-         * @param {Object=} parameters Request parameters.
-         *
-         *  - `id` – `{*}` - User id
-         *
-         *  - `refresh` – `{boolean=}` - 
-         *
-         * @param {function(Object,Object)=} successCb
-         *   Success callback with two arguments: `value`, `responseHeaders`.
-         *
-         * @param {function(Object)=} errorCb Error callback with one argument:
-         *   `httpResponse`.
-         *
-         * @returns {Object} An empty reference that will be
-         *   populated with the actual data once the response is returned
-         *   from the server.
-         *
-         * <em>
-         * (The remote method definition does not provide any description.
-         * This usually means the response is a `GlobalConfigModel` object.)
-         * </em>
-         */
-        R.globalConfigModels = function() {
-          var TargetResource = $injector.get("GlobalConfigModel");
-          var action = TargetResource["::get::UserModel::globalConfigModels"];
-          return action.apply(R, arguments);
-        };
-
-        /**
-         * @ngdoc method
-         * @name shoppinpal-loopback.UserModel.globalConfigModels#create
-         * @methodOf shoppinpal-loopback.UserModel.globalConfigModels
-         *
-         * @description
-         *
-         * Creates a new instance in globalConfigModels of this model.
-         *
-         * @param {Object=} parameters Request parameters.
-         *
-         *  - `id` – `{*}` - User id
-         *
-         * @param {Object} postData Request data.
-         *
-         * This method expects a subset of model properties as request parameters.
-         *
-         * @param {function(Object,Object)=} successCb
-         *   Success callback with two arguments: `value`, `responseHeaders`.
-         *
-         * @param {function(Object)=} errorCb Error callback with one argument:
-         *   `httpResponse`.
-         *
-         * @returns {Object} An empty reference that will be
-         *   populated with the actual data once the response is returned
-         *   from the server.
-         *
-         * <em>
-         * (The remote method definition does not provide any description.
-         * This usually means the response is a `GlobalConfigModel` object.)
-         * </em>
-         */
-        R.globalConfigModels.create = function() {
-          var TargetResource = $injector.get("GlobalConfigModel");
-          var action = TargetResource["::create::UserModel::globalConfigModels"];
-          return action.apply(R, arguments);
-        };
-
-        /**
-         * @ngdoc method
-         * @name shoppinpal-loopback.UserModel.globalConfigModels#createMany
-         * @methodOf shoppinpal-loopback.UserModel.globalConfigModels
-         *
-         * @description
-         *
-         * Creates a new instance in globalConfigModels of this model.
-         *
-         * @param {Object=} parameters Request parameters.
-         *
-         *  - `id` – `{*}` - User id
-         *
-         * @param {Object} postData Request data.
-         *
-         * This method expects a subset of model properties as request parameters.
-         *
-         * @param {function(Array.<Object>,Object)=} successCb
-         *   Success callback with two arguments: `value`, `responseHeaders`.
-         *
-         * @param {function(Object)=} errorCb Error callback with one argument:
-         *   `httpResponse`.
-         *
-         * @returns {Array.<Object>} An empty reference that will be
-         *   populated with the actual data once the response is returned
-         *   from the server.
-         *
-         * <em>
-         * (The remote method definition does not provide any description.
-         * This usually means the response is a `GlobalConfigModel` object.)
-         * </em>
-         */
-        R.globalConfigModels.createMany = function() {
-          var TargetResource = $injector.get("GlobalConfigModel");
-          var action = TargetResource["::createMany::UserModel::globalConfigModels"];
-          return action.apply(R, arguments);
-        };
-
-        /**
-         * @ngdoc method
-         * @name shoppinpal-loopback.UserModel.globalConfigModels#destroy
-         * @methodOf shoppinpal-loopback.UserModel.globalConfigModels
-         *
-         * @description
-         *
-         * Deletes globalConfigModels of this model.
-         *
-         * @param {Object=} parameters Request parameters.
-         *
-         *  - `id` – `{*}` - User id
-         *
-         * @param {function(Object,Object)=} successCb
-         *   Success callback with two arguments: `value`, `responseHeaders`.
-         *
-         * @param {function(Object)=} errorCb Error callback with one argument:
-         *   `httpResponse`.
-         *
-         * @returns {Object} An empty reference that will be
-         *   populated with the actual data once the response is returned
-         *   from the server.
-         *
-         * This method returns no data.
-         */
-        R.globalConfigModels.destroy = function() {
-          var TargetResource = $injector.get("GlobalConfigModel");
-          var action = TargetResource["::destroy::UserModel::globalConfigModels"];
-          return action.apply(R, arguments);
-        };
-
-        /**
-         * @ngdoc method
-         * @name shoppinpal-loopback.UserModel.globalConfigModels#update
-         * @methodOf shoppinpal-loopback.UserModel.globalConfigModels
-         *
-         * @description
-         *
-         * Update globalConfigModels of this model.
-         *
-         * @param {Object=} parameters Request parameters.
-         *
-         *  - `id` – `{*}` - User id
-         *
-         * @param {Object} postData Request data.
-         *
-         * This method expects a subset of model properties as request parameters.
-         *
-         * @param {function(Object,Object)=} successCb
-         *   Success callback with two arguments: `value`, `responseHeaders`.
-         *
-         * @param {function(Object)=} errorCb Error callback with one argument:
-         *   `httpResponse`.
-         *
-         * @returns {Object} An empty reference that will be
-         *   populated with the actual data once the response is returned
-         *   from the server.
-         *
-         * <em>
-         * (The remote method definition does not provide any description.
-         * This usually means the response is a `GlobalConfigModel` object.)
-         * </em>
-         */
-        R.globalConfigModels.update = function() {
-          var TargetResource = $injector.get("GlobalConfigModel");
-          var action = TargetResource["::update::UserModel::globalConfigModels"];
-          return action.apply(R, arguments);
-        };
     /**
      * @ngdoc object
      * @name lbServices.UserModel.storeConfigModels
@@ -3693,626 +3607,6 @@ module.factory(
         R.supplierModels.updateById = function() {
           var TargetResource = $injector.get("SupplierModel");
           var action = TargetResource["::updateById::UserModel::supplierModels"];
-          return action.apply(R, arguments);
-        };
-
-    return R;
-  }]);
-
-/**
- * @ngdoc object
- * @name shoppinpal-loopback.GlobalConfigModel
- * @header shoppinpal-loopback.GlobalConfigModel
- * @object
- *
- * @description
- *
- * A $resource object for interacting with the `GlobalConfigModel` model.
- *
- * ## Example
- *
- * See
- * {@link http://docs.angularjs.org/api/ngResource.$resource#example $resource}
- * for an example of using this object.
- *
- */
-module.factory(
-  "GlobalConfigModel",
-  ['LoopBackResource', 'LoopBackAuth', '$injector', function(Resource, LoopBackAuth, $injector) {
-    var R = Resource(
-      urlBase + "/GlobalConfigModels/:id",
-      { 'id': '@id' },
-      {
-
-        // INTERNAL. Use GlobalConfigModel.userModel() instead.
-        "prototype$__get__userModel": {
-          url: urlBase + "/GlobalConfigModels/:id/userModel",
-          method: "GET"
-        },
-
-        /**
-         * @ngdoc method
-         * @name shoppinpal-loopback.GlobalConfigModel#create
-         * @methodOf shoppinpal-loopback.GlobalConfigModel
-         *
-         * @description
-         *
-         * Create a new instance of the model and persist it into the data source.
-         *
-         * @param {Object=} parameters Request parameters.
-         *
-         *   This method does not accept any parameters.
-         *   Supply an empty object or omit this argument altogether.
-         *
-         * @param {Object} postData Request data.
-         *
-         * This method expects a subset of model properties as request parameters.
-         *
-         * @param {function(Object,Object)=} successCb
-         *   Success callback with two arguments: `value`, `responseHeaders`.
-         *
-         * @param {function(Object)=} errorCb Error callback with one argument:
-         *   `httpResponse`.
-         *
-         * @returns {Object} An empty reference that will be
-         *   populated with the actual data once the response is returned
-         *   from the server.
-         *
-         * <em>
-         * (The remote method definition does not provide any description.
-         * This usually means the response is a `GlobalConfigModel` object.)
-         * </em>
-         */
-        "create": {
-          url: urlBase + "/GlobalConfigModels",
-          method: "POST"
-        },
-
-        /**
-         * @ngdoc method
-         * @name shoppinpal-loopback.GlobalConfigModel#createMany
-         * @methodOf shoppinpal-loopback.GlobalConfigModel
-         *
-         * @description
-         *
-         * Create a new instance of the model and persist it into the data source.
-         *
-         * @param {Object=} parameters Request parameters.
-         *
-         *   This method does not accept any parameters.
-         *   Supply an empty object or omit this argument altogether.
-         *
-         * @param {Object} postData Request data.
-         *
-         * This method expects a subset of model properties as request parameters.
-         *
-         * @param {function(Array.<Object>,Object)=} successCb
-         *   Success callback with two arguments: `value`, `responseHeaders`.
-         *
-         * @param {function(Object)=} errorCb Error callback with one argument:
-         *   `httpResponse`.
-         *
-         * @returns {Array.<Object>} An empty reference that will be
-         *   populated with the actual data once the response is returned
-         *   from the server.
-         *
-         * <em>
-         * (The remote method definition does not provide any description.
-         * This usually means the response is a `GlobalConfigModel` object.)
-         * </em>
-         */
-        "createMany": {
-          isArray: true,
-          url: urlBase + "/GlobalConfigModels",
-          method: "POST"
-        },
-
-        /**
-         * @ngdoc method
-         * @name shoppinpal-loopback.GlobalConfigModel#upsert
-         * @methodOf shoppinpal-loopback.GlobalConfigModel
-         *
-         * @description
-         *
-         * Update an existing model instance or insert a new one into the data source.
-         *
-         * @param {Object=} parameters Request parameters.
-         *
-         *   This method does not accept any parameters.
-         *   Supply an empty object or omit this argument altogether.
-         *
-         * @param {Object} postData Request data.
-         *
-         * This method expects a subset of model properties as request parameters.
-         *
-         * @param {function(Object,Object)=} successCb
-         *   Success callback with two arguments: `value`, `responseHeaders`.
-         *
-         * @param {function(Object)=} errorCb Error callback with one argument:
-         *   `httpResponse`.
-         *
-         * @returns {Object} An empty reference that will be
-         *   populated with the actual data once the response is returned
-         *   from the server.
-         *
-         * <em>
-         * (The remote method definition does not provide any description.
-         * This usually means the response is a `GlobalConfigModel` object.)
-         * </em>
-         */
-        "upsert": {
-          url: urlBase + "/GlobalConfigModels",
-          method: "PUT"
-        },
-
-        /**
-         * @ngdoc method
-         * @name shoppinpal-loopback.GlobalConfigModel#exists
-         * @methodOf shoppinpal-loopback.GlobalConfigModel
-         *
-         * @description
-         *
-         * Check whether a model instance exists in the data source.
-         *
-         * @param {Object=} parameters Request parameters.
-         *
-         *  - `id` – `{*}` - Model id
-         *
-         * @param {function(Object,Object)=} successCb
-         *   Success callback with two arguments: `value`, `responseHeaders`.
-         *
-         * @param {function(Object)=} errorCb Error callback with one argument:
-         *   `httpResponse`.
-         *
-         * @returns {Object} An empty reference that will be
-         *   populated with the actual data once the response is returned
-         *   from the server.
-         *
-         * Data properties:
-         *
-         *  - `exists` – `{boolean=}` - 
-         */
-        "exists": {
-          url: urlBase + "/GlobalConfigModels/:id/exists",
-          method: "GET"
-        },
-
-        /**
-         * @ngdoc method
-         * @name shoppinpal-loopback.GlobalConfigModel#findById
-         * @methodOf shoppinpal-loopback.GlobalConfigModel
-         *
-         * @description
-         *
-         * Find a model instance by id from the data source.
-         *
-         * @param {Object=} parameters Request parameters.
-         *
-         *  - `id` – `{*}` - Model id
-         *
-         *  - `filter` – `{object=}` - Filter defining fields and include
-         *
-         * @param {function(Object,Object)=} successCb
-         *   Success callback with two arguments: `value`, `responseHeaders`.
-         *
-         * @param {function(Object)=} errorCb Error callback with one argument:
-         *   `httpResponse`.
-         *
-         * @returns {Object} An empty reference that will be
-         *   populated with the actual data once the response is returned
-         *   from the server.
-         *
-         * <em>
-         * (The remote method definition does not provide any description.
-         * This usually means the response is a `GlobalConfigModel` object.)
-         * </em>
-         */
-        "findById": {
-          url: urlBase + "/GlobalConfigModels/:id",
-          method: "GET"
-        },
-
-        /**
-         * @ngdoc method
-         * @name shoppinpal-loopback.GlobalConfigModel#find
-         * @methodOf shoppinpal-loopback.GlobalConfigModel
-         *
-         * @description
-         *
-         * Find all instances of the model matched by filter from the data source.
-         *
-         * @param {Object=} parameters Request parameters.
-         *
-         *  - `filter` – `{object=}` - Filter defining fields, where, include, order, offset, and limit
-         *
-         * @param {function(Array.<Object>,Object)=} successCb
-         *   Success callback with two arguments: `value`, `responseHeaders`.
-         *
-         * @param {function(Object)=} errorCb Error callback with one argument:
-         *   `httpResponse`.
-         *
-         * @returns {Array.<Object>} An empty reference that will be
-         *   populated with the actual data once the response is returned
-         *   from the server.
-         *
-         * <em>
-         * (The remote method definition does not provide any description.
-         * This usually means the response is a `GlobalConfigModel` object.)
-         * </em>
-         */
-        "find": {
-          isArray: true,
-          url: urlBase + "/GlobalConfigModels",
-          method: "GET"
-        },
-
-        /**
-         * @ngdoc method
-         * @name shoppinpal-loopback.GlobalConfigModel#findOne
-         * @methodOf shoppinpal-loopback.GlobalConfigModel
-         *
-         * @description
-         *
-         * Find first instance of the model matched by filter from the data source.
-         *
-         * @param {Object=} parameters Request parameters.
-         *
-         *  - `filter` – `{object=}` - Filter defining fields, where, include, order, offset, and limit
-         *
-         * @param {function(Object,Object)=} successCb
-         *   Success callback with two arguments: `value`, `responseHeaders`.
-         *
-         * @param {function(Object)=} errorCb Error callback with one argument:
-         *   `httpResponse`.
-         *
-         * @returns {Object} An empty reference that will be
-         *   populated with the actual data once the response is returned
-         *   from the server.
-         *
-         * <em>
-         * (The remote method definition does not provide any description.
-         * This usually means the response is a `GlobalConfigModel` object.)
-         * </em>
-         */
-        "findOne": {
-          url: urlBase + "/GlobalConfigModels/findOne",
-          method: "GET"
-        },
-
-        /**
-         * @ngdoc method
-         * @name shoppinpal-loopback.GlobalConfigModel#updateAll
-         * @methodOf shoppinpal-loopback.GlobalConfigModel
-         *
-         * @description
-         *
-         * Update instances of the model matched by where from the data source.
-         *
-         * @param {Object=} parameters Request parameters.
-         *
-         *  - `where` – `{object=}` - Criteria to match model instances
-         *
-         * @param {Object} postData Request data.
-         *
-         * This method expects a subset of model properties as request parameters.
-         *
-         * @param {function(Object,Object)=} successCb
-         *   Success callback with two arguments: `value`, `responseHeaders`.
-         *
-         * @param {function(Object)=} errorCb Error callback with one argument:
-         *   `httpResponse`.
-         *
-         * @returns {Object} An empty reference that will be
-         *   populated with the actual data once the response is returned
-         *   from the server.
-         *
-         * This method returns no data.
-         */
-        "updateAll": {
-          url: urlBase + "/GlobalConfigModels/update",
-          method: "POST"
-        },
-
-        /**
-         * @ngdoc method
-         * @name shoppinpal-loopback.GlobalConfigModel#deleteById
-         * @methodOf shoppinpal-loopback.GlobalConfigModel
-         *
-         * @description
-         *
-         * Delete a model instance by id from the data source.
-         *
-         * @param {Object=} parameters Request parameters.
-         *
-         *  - `id` – `{*}` - Model id
-         *
-         * @param {function(Object,Object)=} successCb
-         *   Success callback with two arguments: `value`, `responseHeaders`.
-         *
-         * @param {function(Object)=} errorCb Error callback with one argument:
-         *   `httpResponse`.
-         *
-         * @returns {Object} An empty reference that will be
-         *   populated with the actual data once the response is returned
-         *   from the server.
-         *
-         * This method returns no data.
-         */
-        "deleteById": {
-          url: urlBase + "/GlobalConfigModels/:id",
-          method: "DELETE"
-        },
-
-        /**
-         * @ngdoc method
-         * @name shoppinpal-loopback.GlobalConfigModel#count
-         * @methodOf shoppinpal-loopback.GlobalConfigModel
-         *
-         * @description
-         *
-         * Count instances of the model matched by where from the data source.
-         *
-         * @param {Object=} parameters Request parameters.
-         *
-         *  - `where` – `{object=}` - Criteria to match model instances
-         *
-         * @param {function(Object,Object)=} successCb
-         *   Success callback with two arguments: `value`, `responseHeaders`.
-         *
-         * @param {function(Object)=} errorCb Error callback with one argument:
-         *   `httpResponse`.
-         *
-         * @returns {Object} An empty reference that will be
-         *   populated with the actual data once the response is returned
-         *   from the server.
-         *
-         * Data properties:
-         *
-         *  - `count` – `{number=}` - 
-         */
-        "count": {
-          url: urlBase + "/GlobalConfigModels/count",
-          method: "GET"
-        },
-
-        /**
-         * @ngdoc method
-         * @name shoppinpal-loopback.GlobalConfigModel#prototype$updateAttributes
-         * @methodOf shoppinpal-loopback.GlobalConfigModel
-         *
-         * @description
-         *
-         * Update attributes for a model instance and persist it into the data source.
-         *
-         * @param {Object=} parameters Request parameters.
-         *
-         *   This method does not accept any parameters.
-         *   Supply an empty object or omit this argument altogether.
-         *
-         * @param {Object} postData Request data.
-         *
-         * This method expects a subset of model properties as request parameters.
-         *
-         * @param {function(Object,Object)=} successCb
-         *   Success callback with two arguments: `value`, `responseHeaders`.
-         *
-         * @param {function(Object)=} errorCb Error callback with one argument:
-         *   `httpResponse`.
-         *
-         * @returns {Object} An empty reference that will be
-         *   populated with the actual data once the response is returned
-         *   from the server.
-         *
-         * <em>
-         * (The remote method definition does not provide any description.
-         * This usually means the response is a `GlobalConfigModel` object.)
-         * </em>
-         */
-        "prototype$updateAttributes": {
-          url: urlBase + "/GlobalConfigModels/:id",
-          method: "PUT"
-        },
-
-        // INTERNAL. Use UserModel.globalConfigModels() instead.
-        "::get::UserModel::globalConfigModels": {
-          url: urlBase + "/UserModels/:id/globalConfigModels",
-          method: "GET"
-        },
-
-        // INTERNAL. Use UserModel.globalConfigModels.create() instead.
-        "::create::UserModel::globalConfigModels": {
-          url: urlBase + "/UserModels/:id/globalConfigModels",
-          method: "POST"
-        },
-
-        // INTERNAL. Use UserModel.globalConfigModels.createMany() instead.
-        "::createMany::UserModel::globalConfigModels": {
-          isArray: true,
-          url: urlBase + "/UserModels/:id/globalConfigModels",
-          method: "POST"
-        },
-
-        // INTERNAL. Use UserModel.globalConfigModels.update() instead.
-        "::update::UserModel::globalConfigModels": {
-          url: urlBase + "/UserModels/:id/globalConfigModels",
-          method: "PUT"
-        },
-
-        // INTERNAL. Use UserModel.globalConfigModels.destroy() instead.
-        "::destroy::UserModel::globalConfigModels": {
-          url: urlBase + "/UserModels/:id/globalConfigModels",
-          method: "DELETE"
-        },
-      }
-    );
-
-
-
-        /**
-         * @ngdoc method
-         * @name shoppinpal-loopback.GlobalConfigModel#updateOrCreate
-         * @methodOf shoppinpal-loopback.GlobalConfigModel
-         *
-         * @description
-         *
-         * Update an existing model instance or insert a new one into the data source.
-         *
-         * @param {Object=} parameters Request parameters.
-         *
-         *   This method does not accept any parameters.
-         *   Supply an empty object or omit this argument altogether.
-         *
-         * @param {Object} postData Request data.
-         *
-         * This method expects a subset of model properties as request parameters.
-         *
-         * @param {function(Object,Object)=} successCb
-         *   Success callback with two arguments: `value`, `responseHeaders`.
-         *
-         * @param {function(Object)=} errorCb Error callback with one argument:
-         *   `httpResponse`.
-         *
-         * @returns {Object} An empty reference that will be
-         *   populated with the actual data once the response is returned
-         *   from the server.
-         *
-         * <em>
-         * (The remote method definition does not provide any description.
-         * This usually means the response is a `GlobalConfigModel` object.)
-         * </em>
-         */
-        R["updateOrCreate"] = R["upsert"];
-
-        /**
-         * @ngdoc method
-         * @name shoppinpal-loopback.GlobalConfigModel#update
-         * @methodOf shoppinpal-loopback.GlobalConfigModel
-         *
-         * @description
-         *
-         * Update instances of the model matched by where from the data source.
-         *
-         * @param {Object=} parameters Request parameters.
-         *
-         *  - `where` – `{object=}` - Criteria to match model instances
-         *
-         * @param {Object} postData Request data.
-         *
-         * This method expects a subset of model properties as request parameters.
-         *
-         * @param {function(Object,Object)=} successCb
-         *   Success callback with two arguments: `value`, `responseHeaders`.
-         *
-         * @param {function(Object)=} errorCb Error callback with one argument:
-         *   `httpResponse`.
-         *
-         * @returns {Object} An empty reference that will be
-         *   populated with the actual data once the response is returned
-         *   from the server.
-         *
-         * This method returns no data.
-         */
-        R["update"] = R["updateAll"];
-
-        /**
-         * @ngdoc method
-         * @name shoppinpal-loopback.GlobalConfigModel#destroyById
-         * @methodOf shoppinpal-loopback.GlobalConfigModel
-         *
-         * @description
-         *
-         * Delete a model instance by id from the data source.
-         *
-         * @param {Object=} parameters Request parameters.
-         *
-         *  - `id` – `{*}` - Model id
-         *
-         * @param {function(Object,Object)=} successCb
-         *   Success callback with two arguments: `value`, `responseHeaders`.
-         *
-         * @param {function(Object)=} errorCb Error callback with one argument:
-         *   `httpResponse`.
-         *
-         * @returns {Object} An empty reference that will be
-         *   populated with the actual data once the response is returned
-         *   from the server.
-         *
-         * This method returns no data.
-         */
-        R["destroyById"] = R["deleteById"];
-
-        /**
-         * @ngdoc method
-         * @name shoppinpal-loopback.GlobalConfigModel#removeById
-         * @methodOf shoppinpal-loopback.GlobalConfigModel
-         *
-         * @description
-         *
-         * Delete a model instance by id from the data source.
-         *
-         * @param {Object=} parameters Request parameters.
-         *
-         *  - `id` – `{*}` - Model id
-         *
-         * @param {function(Object,Object)=} successCb
-         *   Success callback with two arguments: `value`, `responseHeaders`.
-         *
-         * @param {function(Object)=} errorCb Error callback with one argument:
-         *   `httpResponse`.
-         *
-         * @returns {Object} An empty reference that will be
-         *   populated with the actual data once the response is returned
-         *   from the server.
-         *
-         * This method returns no data.
-         */
-        R["removeById"] = R["deleteById"];
-
-
-    /**
-    * @ngdoc property
-    * @name shoppinpal-loopback.GlobalConfigModel#modelName
-    * @propertyOf shoppinpal-loopback.GlobalConfigModel
-    * @description
-    * The name of the model represented by this $resource,
-    * i.e. `GlobalConfigModel`.
-    */
-    R.modelName = "GlobalConfigModel";
-
-
-        /**
-         * @ngdoc method
-         * @name shoppinpal-loopback.GlobalConfigModel#userModel
-         * @methodOf shoppinpal-loopback.GlobalConfigModel
-         *
-         * @description
-         *
-         * Fetches belongsTo relation userModel.
-         *
-         * @param {Object=} parameters Request parameters.
-         *
-         *  - `id` – `{*}` - PersistedModel id
-         *
-         *  - `refresh` – `{boolean=}` - 
-         *
-         * @param {function(Object,Object)=} successCb
-         *   Success callback with two arguments: `value`, `responseHeaders`.
-         *
-         * @param {function(Object)=} errorCb Error callback with one argument:
-         *   `httpResponse`.
-         *
-         * @returns {Object} An empty reference that will be
-         *   populated with the actual data once the response is returned
-         *   from the server.
-         *
-         * <em>
-         * (The remote method definition does not provide any description.
-         * This usually means the response is a `UserModel` object.)
-         * </em>
-         */
-        R.userModel = function() {
-          var TargetResource = $injector.get("UserModel");
-          var action = TargetResource["::get::GlobalConfigModel::userModel"];
           return action.apply(R, arguments);
         };
 
