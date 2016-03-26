@@ -46,7 +46,7 @@
   },
   "GlobalConfigModel": {
     "dataSource": "db",
-    "public": true
+    "public": false
   },
   "StoreConfigModel": {
     "dataSource": "db",
