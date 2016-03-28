@@ -3,6 +3,11 @@
   "base": "User",
   "idInjection": true,
   "properties": {
+    "created": {
+      "type": "date",
+      "defaultFn": "now",
+      "required": true
+    },
     "id": {"type": "string", "generated": true, "id": true}
   },
   "validations": [],
