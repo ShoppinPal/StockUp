@@ -116,7 +116,7 @@
     {
       "accessType": "*",
       "principalType": "ROLE",
-      "principalId": "admin",
+      "principalId": "teamAdmin",
       "permission": "ALLOW"
     },
     {

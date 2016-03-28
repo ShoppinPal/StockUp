@@ -368,7 +368,57 @@ module.exports = function(app) {
                             .then(function () {
                               debug('finished seeding all SUPPLIERS for', storeConfigModelInstance.name);
                               return Promise.resolve();
-                            });
+                            })
+                            .then(function (){
+                              debug('('+ (++commentsIndex) +')', 'seed other admins, one-by-one');
+                              return Promise.map(
+                                storeConfigSeedData.otherAdmins || [],
+                                function (otherAdminSeedData) {
+                                  return Promise.resolve()
+                                    .then(function(){
+                                      return setupUser(otherAdminSeedData)
+                                        .then(function (otherAdminInstance) {
+                                          // TODO: add other admins in team table also, tied to storeConfigModelInstance.userId
+                                          debug('(' + (++commentsIndex) + ')', 'add other admin as a team member for', storeConfigModelInstance.name);
+                                          return TeamModel.findOrCreate(
+                                            {where: {ownerId: storeConfigModelInstance.userId, memberId: otherAdminInstance.id}}, // find
+                                            {ownerId: storeConfigModelInstance.userId, memberId: otherAdminInstance.id} // create
+                                          )
+                                            .spread(function (teamModel, created) {
+                                              (created) ? debug('(' + (++commentsIndex) + ') ' + 'created', 'TeamModel', teamModel)
+                                                        : debug('(' + (++commentsIndex) + ') ' + 'found', 'TeamModel', teamModel);
+
+                                              debug('(' + (++commentsIndex) + ')',
+                                                'Let\'s test a team admin\'s access to StoreConfigModel',
+                                                'GET /api/StoreConfigModels/' + storeConfigModelInstance.objectId);
+                                              return userLogin({
+                                                realm: 'portal',
+                                                username: otherAdminSeedData.email,
+                                                password: otherAdminSeedData.password
+                                              })
+                                                .then(function (otherTeamAdminAccessToken) {
+                                                  return json('get', '/api/StoreConfigModels/' + storeConfigModelInstance.objectId)
+                                                    //return json('get', '/api/StoreConfigModels/1')
+                                                    .set('Authorization', otherTeamAdminAccessToken.id)
+                                                    .then(function (res) {
+                                                      debug('(' + (++commentsIndex) + ')',
+                                                        'TEST', 'found', 'StoreConfigModel',
+                                                        {objectId: res.body.objectId, name: res.body.name}
+                                                      );
+                                                      return Promise.resolve();
+                                                    });
+                                                });
+                                            });
+                                        });
+                                    }); // set up the other admin's account
+                                },
+                                {concurrency: 1}
+                              )
+                                .then(function(){
+                                  debug('('+ (++commentsIndex) +')', 'finished seeding all OTHER admins for', storeConfigModelInstance.name);
+                                  return Promise.resolve();
+                                });
+                            }); // added and tested otherAdmins
                         });
                     });
                 },
