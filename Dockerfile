@@ -102,7 +102,8 @@ RUN node_modules/grunt-cli/bin/grunt deploy:staging
 ####
 ### start: logically grouped section of steps
 ## Step 33
-ENV SKIP_SEEDING=true
+ARG SKIP_SEEDING
+ENV SKIP_SEEDING=${SKIP_SEEDING}
 ## Step 34
 ENV NODE_ENV=staging
 ## Step 35
