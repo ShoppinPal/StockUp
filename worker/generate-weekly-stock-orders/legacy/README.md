@@ -10,8 +10,9 @@
   ```
   iron_worker schedule \
     generate-weekly-stock-orders \
-    --label generate-weekly-stock-orders \
-    --start-at "2016-05-01T01:50:00-05:00" \
+    --env shoppinpal \
+    --label patricias-weekly-orders \
+    --start-at "2016-07-02T01:50:00-05:00" \
     --run-every 604800 \
     --timeout 600 \
     --priority 2 \
