@@ -31,6 +31,15 @@ module.exports = function (grunt) {
         }
       }
     },
+    mustache_render: {
+      all: {
+        files: [{
+          data: "server/config-data.json",
+          template: "server/config.mustache",
+          dest: "server/config." + process.env.NODE_ENV + ".js"
+        }]
+      }
+    },
     /* jshint ignore:end */
     open: {
       server: {
@@ -454,6 +463,15 @@ module.exports = function (grunt) {
       'rev',
       'usemin',
       'replace:all'
+    ]);
+  });
+  grunt.registerTask('configsetup', function(env){
+    if (!env) {
+      return grunt.util.error('You must specify an environment');
+    }
+    grunt.option('environment', env);
+    grunt.task.run([
+      'mustache_render:all'
     ]);
   });
 
