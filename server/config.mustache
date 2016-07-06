@@ -1,27 +1,27 @@
 module.exports = {
-  'site': {
-    'baseUrl': '{{SCHEME}}://{{VM_EXTERNAL_IP}}',
-    'proxyUrl': ''
+  site: {
+    baseUrl: {{SCHEME}}://{{VM_EXTERNAL_IP}},
+    proxyUrl:
   },
-  'logging': {
-    'console': true,
-    'file': false
+  logging: {
+    console: true,
+    file: false
   },
-  'prestashop': {
-    'apiKey': ''
+  prestashop: {
+    apiKey:
   },
-  'vend':{
-    'auth_endpoint': 'https://secure.vendhq.com/connect',
-    'token_service': '.vendhq.com/api/1.0/token',
-    'client_id': '{{VEND_CLIENT_ID}}',
-    'client_secret': '{{VEND_CLIENT_SECRET}}'
+  vend:{
+    auth_endpoint: https://secure.vendhq.com/connect,
+    token_service: .vendhq.com/api/1.0/token,
+    client_id: {{VEND_CLIENT_ID}},
+    client_secret: {{VEND_CLIENT_SECRET}}
   },
-  'ironWorkersUrl': '{{IW_URL}}',
-  'ironWorkersOauthToken': '{{IW_OAUTH_TOKEN}}',
-  'importStockOrderToWarehouse': '{{IMPORT_STOCK_ORDER_TO_WAREHOUSE}}',
-  'importStockOrderToPos': '{{IMPORT_STOCK_ORDER_TO_POS}}',
-  'generateStockOrderWorker': '{{GENERATE_STOCK_ORDER_WORKER}}',
-  'removeUnfulfilledProducts': '{{REMOVE_UNFULFILLED_PRODUCTS_WORKER}}',
-  'removeUnreceivedProducts': '{{REMOVE_UNRECEIVED_PRODUCTS_WORKER}}',
-  'stockOrderWorker': '{{STOCK_ORDER_WORKER}}'
+  ironWorkersUrl: {{IW_URL}},
+  ironWorkersOauthToken: {{IW_OAUTH_TOKEN}},
+  importStockOrderToWarehouse: {{IMPORT_STOCK_ORDER_TO_WAREHOUSE}},
+  importStockOrderToPos: {{IMPORT_STOCK_ORDER_TO_POS}},
+  generateStockOrderWorker: {{GENERATE_STOCK_ORDER_WORKER}},
+  removeUnfulfilledProducts: {{REMOVE_UNFULFILLED_PRODUCTS_WORKER}},
+  removeUnreceivedProducts: {{REMOVE_UNRECEIVED_PRODUCTS_WORKER}},
+  stockOrderWorker: {{STOCK_ORDER_WORKER}}
 };
