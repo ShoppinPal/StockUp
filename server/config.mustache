@@ -1,18 +1,18 @@
 module.exports = {
   'site': {
     'baseUrl': {{SCHEME}} + '://' + {{VM_EXTERNAL_IP}},
-    'proxyUrl':
+    'proxyUrl': ''
   },
   'logging': {
     'console': true,
     'file': false
   },
   'prestashop': {
-    'apiKey':
+    'apiKey': ''
   },
   'vend':{
-    'auth_endpoint': https://secure.vendhq.com/connect,
-    'token_service': .vendhq.com/api/1.0/token,
+    'auth_endpoint': 'https://secure.vendhq.com/connect',
+    'token_service': '.vendhq.com/api/1.0/token',
     'client_id': {{VEND_CLIENT_ID}},
     'client_secret': {{VEND_CLIENT_SECRET}}
   },
