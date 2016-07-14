@@ -2,3 +2,4 @@
 node_modules
 circle.yml
 README.md
+server/boot/explorer.js

@@ -1,5 +1,6 @@
 #!/bin/bash
 set -eo pipefail
+AWS_CLI='/usr/local/bin/aws'
 # if command starts with an option, prepend node
 if [ "${1:0:1}" = '-' ]; then
         set -- node "$@"
@@ -39,6 +40,18 @@ if [ "$1" = 'node' -a -z "$wantHelp" ]; then
         if [ -z "$NODE_ENV" ]; then
           echo >&2 'error: NODE_ENV is not set. You need to specify NODE_ENV'
           exit 1
+        fi
+        if [ ! -z "$AWS_BUCKET" -a ! -z "$AWS_KEY" ]; then
+          echo >&2 'error: SEEDFILE parameters are set.'
+          if [ ! -z "$AWS_ACCESS_KEY_ID" -a ! -z "$AWS_SECRET_ACCESS_KEY" -a ! -z "$AWS_DEFAULT_REGION" ]; then
+            echo >&2 'Info: Fetching seed file ...'
+            $AWS_CLI s3api get-object --bucket $AWS_BUCKET --key $AWS_KEY server/boot/seed.json
+            if [ $? -ne 0 ]; then
+              echo >&2 'error: Failed to fetch seed file'
+            fi
+          else
+            echo >&2 'error: anyone from AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_DEFAULT_REGION is not set.'
+          fi
         fi
         _setup_config ${NODE_ENV}
         _deploy_setup ${NODE_ENV}

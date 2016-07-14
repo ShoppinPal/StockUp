@@ -3,8 +3,6 @@
 FROM node:0.10.46
 
 ## Step 2
-RUN apt-get -y update
-
 # add gosu for easy step-down from root
 ENV GOSU_VERSION 1.7
 RUN set -x \
@@ -24,6 +22,8 @@ RUN groupadd -r node && useradd -m -r -g node node
 RUN chown -R node:node /usr/local
 
 ## Step 3
+RUN apt-get -y update && apt-get install -y python-pip
+RUN pip install awscli
 #RUN apt-get install -y tree
 
 ## Step ?
