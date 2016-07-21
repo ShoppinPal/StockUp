@@ -148,7 +148,8 @@ module.exports = function(Container) {
 
   var createReportModel = function(filename, Container, next){
     // before: 41st_Gift_Shop-CSC-114340-WeeklyOrder.CSV
-    var data = filename.split('-');
+    var data = filename.slice(0,-4);
+    var data = data.split('-');
     // after: [ 41st_Gift_Shop, CSC, 114340, WeeklyOrder.CSV ]
 
     var storeName = data[0];
