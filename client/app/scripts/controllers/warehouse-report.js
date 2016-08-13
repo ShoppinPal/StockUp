@@ -373,14 +373,16 @@
         if($stateParams.reportId) {
           $scope.waitOnPromise = loginService.getReport($stateParams.reportId)
             .then(function (response) {
-              $scope.allOrderedItems = response;
+              $scope.storeName = response.storeName;
+              var lineItems = response.stockOrderLineitemModels;
+              $scope.allOrderedItems = lineItems;
 
               //filter out anything with ordered quantity of zero from a warehouse report
-              response = _.filter(response, function(item){
+              lineItems = _.filter(lineItems, function(item){
                 return item.orderQuantity && item.orderQuantity > 0;
               });
               //filter out any hidden (pseudo-deleted) rows
-              response = _.filter(response, function(item){
+              lineItems = _.filter(lineItems, function(item){
                 return !item.hidden;
               });
 

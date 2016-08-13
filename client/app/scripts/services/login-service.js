@@ -70,7 +70,9 @@ angular.module('ShoppinPalApp')
             .$promise.then(function (data) {
               //console.log('data:\n' + JSON.stringify(data, null, 2));
               //console.log('data.stockOrderLineitemModels:\n' + JSON.stringify(data.stockOrderLineitemModels, null, 2));
-              return data.stockOrderLineitemModels;
+              var response ={"storeName":data.outlet.name,"stockOrderLineitemModels":data.stockOrderLineitemModels};
+              //console.log(response);
+              return response;
             },
             function (error) {
               alert('Something went wrong.');
