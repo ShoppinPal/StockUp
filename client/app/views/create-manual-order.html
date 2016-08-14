@@ -64,7 +64,8 @@
                                accept=".csv"
                                nv-file-select
                                uploader="orderController.uploader"/>
-                        <span ng-if="orderController.uploader.queue.length===1">Ready for import: {{orderController.uploader.queue[0].file.name}}</span>
+                        <span ng-if="orderController.uploader.queue.length===1 && orderController.validUpload">Ready for import: {{orderController.uploader.queue[0].file.name}}</span>
+                        <span ng-if="orderController.uploader.queue.length===1 && orderController.validUpload==false" style="color: red">File is not valid for import: {{orderController.uploader.queue[0].file.name}}</span>
                     </div>
                 </div>
                 <div class="form-group">
@@ -73,7 +74,7 @@
                         <button id="file-import-button"
                                 ng-if="orderController.isWarehouser()"
                                 class="btn btn-primary button-large-green generate-order-btn"
-                                ng-disabled="orderController.uploader.queue.length!==1"
+                                ng-disabled="orderController.uploader.queue.length!==1 || orderController.validUpload==false"
                                 ng-click="!orderForm.$invalid && orderController.uploader.queue[0].upload()">
                             Import Order from {{orderController.uploader.queue[0].file.name || 'File'}}
                         </button>

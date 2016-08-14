@@ -27,6 +27,7 @@ angular.module('ShoppinPalApp').controller(
       this.suppliers = [];
       this.stores = [];
 
+      this.validUpload = true;
 
       this.isWarehouser = function () {
         return _.contains(self.roles, 'admin');
@@ -77,6 +78,67 @@ angular.module('ShoppinPalApp').controller(
           $spAlerts.addAlert('Something went wrong! Try again or report to an admin.', 'error', 10000);
         }
       };
+
+      this.uploader.onAfterAddingFile = function(fileItem){
+          var filename = fileItem.file.name;
+          console.log(filename);
+          var slicedFilename = filename.slice(0,-4);
+          var data = slicedFilename.split('-');
+          // after: [ 41st_Gift_Shop, CSC, 114340, WeeklyOrder.CSV ]
+
+          var storeName = data[0];
+          storeName = storeName.replace(/_/g, ' '); // . is treated as regex when
+          console.log('regex with storeName', storeName);
+
+          var supplierName = data[1];
+          supplierName = supplierName.replace(/_/g, ' '); // . is treated as regex when
+          console.log('regex with supplierName', supplierName);
+          //supplierName = '^' + supplierName + '$';
+          //console.log('modified regex with supplierName', supplierName);
+
+          if(storeExists(storeName,self.stores))
+          {
+              if(supplierExists(supplierName,self.suppliers))
+              {
+                  self.validUpload = true;
+              }
+              else
+              {
+                  self.validUpload = false;
+                  $spAlerts.addAlert('Supplier Name is not valid','error',5000);
+              }
+          }
+          else
+          {
+              self.validUpload = false;
+              $spAlerts.addAlert('Store Name is not valid', 'error', 5000);
+          }
+
+
+      };
+
+
+      function storeExists(storeName, array) {
+            var i = null;
+            for (i = 0; array.length > i; i += 1) {
+                if (array[i].name === storeName) {
+                    return true;
+                }
+            }
+
+            return false;
+      };
+
+      function supplierExists(supplierName, array) {
+            var i = null;
+            for (i = 0; array.length > i; i += 1) {
+                if (array[i].name === supplierName) {
+                    return true;
+                }
+            }
+
+            return false;
+        };
 
       // Load the data
       this.waitOnPromise = SupplierModel.listSuppliers({})
