@@ -64,8 +64,8 @@ angular.module('ShoppinPalApp').controller(
         return $state.go(self.homeState);
       };
       this.uploader.onErrorItem = function(fileItem, response, status, headers) {
-        console.log('onErrorItem', fileItem, response, status, headers);
-        console.info('onErrorItem', fileItem, response, status, headers);
+        console.log('onErrorItem', fileItem.file.name, status);
+        console.info('onErrorItem', fileItem.file.name, status);
 
         // show something in the UI too
         var error = response.error;
@@ -81,62 +81,64 @@ angular.module('ShoppinPalApp').controller(
 
       this.uploader.onAfterAddingFile = function(fileItem){
         var filename = fileItem.file.name;
-        console.log(filename);
+        //console.log(filename);
         var slicedFilename = filename.slice(0,-4);
         var data = slicedFilename.split('-');
         // after: [ 41st_Gift_Shop, CSC, 114340, WeeklyOrder.CSV ]
 
-        var storeName = data[0];
-        storeName = storeName.replace(/_/g, ' '); // . is treated as regex when
-        console.log('regex with storeName', storeName);
+        if(data[0]===undefined || data[1]===undefined){
+          self.validUpload = false;
+          $spAlerts.addAlert('Filename is not valid','error',5000);
+        }
+        else{
+          var storeName = data[0];
+          storeName = storeName.replace(/_/g, ' '); // . is treated as regex when
+          console.log('regex with storeName', storeName);
 
-        var supplierName = data[1];
-        supplierName = supplierName.replace(/_/g, ' '); // . is treated as regex when
-        console.log('regex with supplierName', supplierName);
-        //supplierName = '^' + supplierName + '$';
-        //console.log('modified regex with supplierName', supplierName);
+          var supplierName = data[1];
+          supplierName = supplierName.replace(/_/g, ' '); // . is treated as regex when
+          console.log('regex with supplierName', supplierName);
+          //supplierName = '^' + supplierName + '$';
+          //console.log('modified regex with supplierName', supplierName);
 
-        if(storeExists(storeName,self.stores))
-        {
-          if(supplierExists(supplierName,self.suppliers))
+          if(storeExists(storeName,self.stores))
           {
-            self.validUpload = true;
+            if(supplierExists(supplierName,self.suppliers))
+            {
+              self.validUpload = true;
+            }
+            else
+            {
+              self.validUpload = false;
+              $spAlerts.addAlert('Supplier Name is not valid','error',5000);
+            }
           }
           else
           {
             self.validUpload = false;
-            $spAlerts.addAlert('Supplier Name is not valid','error',5000);
+            $spAlerts.addAlert('Store Name is not valid', 'error', 5000);
           }
         }
-        else
-        {
-          self.validUpload = false;
-          $spAlerts.addAlert('Store Name is not valid', 'error', 5000);
-        }
-
-
       };
 
 
-      function storeExists(storeName, array) {
+      var storeExists = function (storeName, array) {
         var i = null;
         for (i = 0; array.length > i; i += 1) {
             if (array[i].name === storeName) {
               return true;
             }
         }
-
         return false;
       };
 
-      function supplierExists(supplierName, array) {
+      var supplierExists = function (supplierName, array) {
         var i = null;
         for (i = 0; array.length > i; i += 1) {
             if (array[i].name === supplierName) {
               return true;
             }
         }
-
         return false;
       };
 

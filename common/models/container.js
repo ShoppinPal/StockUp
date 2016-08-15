@@ -149,63 +149,69 @@ module.exports = function(Container) {
   var createReportModel = function(filename, Container, next){
     try {
       // before: 41st_Gift_Shop-CSC-114340-WeeklyOrder.CSV
+      filename = filename.slice(0,-4);
       var data = filename.split('-');
       // after: [ 41st_Gift_Shop, CSC, 114340, WeeklyOrder.CSV ]
 
-      var storeName = data[0];
-      storeName = storeName.replace(/_/g, '.'); // . is treated as regex when
-      log.debug('regex with storeName', storeName);
+      if(data[0]==undefined || data[1]==undefined){
+        return Promise.reject('Invalid filename: ' + filename +". Please follow the structure.");
+      }
+      else{
+        var storeName = data[0];
+        storeName = storeName.replace(/_/g, '.'); // . is treated as regex when
+        log.debug('regex with storeName', storeName);
 
-      var supplierName = data[1];
-      supplierName = supplierName.replace(/_/g, '.'); // . is treated as regex when
-      log.debug('regex with supplierName', supplierName);
-      supplierName = '^' + supplierName + '$';
-      log.debug('modified regex with supplierName', supplierName);
+        var supplierName = data[1];
+        supplierName = supplierName.replace(/_/g, '.'); // . is treated as regex when
+        log.debug('regex with supplierName', supplierName);
+        supplierName = '^' + supplierName + '$';
+        log.debug('modified regex with supplierName', supplierName);
 
-      // TODO: current user should only be able to search his/her own stores and suppliers, not all of them!
+        // TODO: current user should only be able to search his/her own stores and suppliers, not all of them!
 
-      var StoreModel = Container.app.models.StoreModel;
-      return StoreModel.findOne({where: {name: {like: storeName}}})
-        .then(function (storeModelInstance) {
-          log.trace('storeModelInstance', storeModelInstance);
-          if (storeModelInstance) {
-            var SupplierModel = Container.app.models.SupplierModel;
-            return SupplierModel.findOne({
-              where: {
-                name: {
-                  like: supplierName
-                },
-                storeConfigModelToSupplierModelId: storeModelInstance.storeConfigModelToStoreModelId
-              }
-            })
-              .then(function (supplierModelInstance) {
-                log.trace('supplierModelInstance', supplierModelInstance);
-                if (supplierModelInstance) {
-                  //return Promise.resolve([storeModelInstance,supplierModelInstance]);
-                  var ReportModel = Container.app.models.ReportModel;
-                  return ReportModel.create({
-                    name: filename,
-                    userModelToReportModelId: storeModelInstance.userModelToStoreModelId, // explicitly setup the foreignKeys for related models
-                    state: ReportModel.ReportModelStates.REPORT_EMPTY,
-                    outlet: {
-                      id: storeModelInstance.api_id, // jshint ignore:line
-                      name: storeModelInstance.name,
-                    },
-                    supplier: {
-                      id: supplierModelInstance.apiId,
-                      name: supplierModelInstance.name
-                    }
-                  });
+        var StoreModel = Container.app.models.StoreModel;
+        return StoreModel.findOne({where: {name: {like: storeName}}})
+          .then(function (storeModelInstance) {
+            log.trace('storeModelInstance', storeModelInstance);
+            if (storeModelInstance) {
+              var SupplierModel = Container.app.models.SupplierModel;
+              return SupplierModel.findOne({
+                where: {
+                  name: {
+                    like: supplierName
+                  },
+                  storeConfigModelToSupplierModelId: storeModelInstance.storeConfigModelToStoreModelId
                 }
-                else {
-                  return Promise.reject('Could not find a matching supplier for: ' + filename);
-                }
-              });
-          }
-          else {
-            return Promise.reject('Could not find a matching store for: ' + filename);
-          }
-        });
+              })
+                .then(function (supplierModelInstance) {
+                  log.trace('supplierModelInstance', supplierModelInstance);
+                  if (supplierModelInstance) {
+                    //return Promise.resolve([storeModelInstance,supplierModelInstance]);
+                    var ReportModel = Container.app.models.ReportModel;
+                    return ReportModel.create({
+                      name: filename,
+                      userModelToReportModelId: storeModelInstance.userModelToStoreModelId, // explicitly setup the foreignKeys for related models
+                      state: ReportModel.ReportModelStates.REPORT_EMPTY,
+                      outlet: {
+                        id: storeModelInstance.api_id, // jshint ignore:line
+                        name: storeModelInstance.name,
+                      },
+                      supplier: {
+                        id: supplierModelInstance.apiId,
+                        name: supplierModelInstance.name
+                      }
+                    });
+                  }
+                  else {
+                    return Promise.reject('Could not find a matching supplier for: ' + filename);
+                  }
+                });
+            }
+            else {
+              return Promise.reject('Could not find a matching store for: ' + filename);
+            }
+          });
+        }
     }
     catch (error) {
       log.error('Container > createReportModel', '\n', error);
