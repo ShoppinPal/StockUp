@@ -1,7 +1,7 @@
 ## Step 1
 # you can get details about the following image from https://hub.docker.com/_/node/
 FROM node:0.10.46
-
+RUN apt-get -y update && apt-get -y dist-upgrade
 ## Step 2
 # add gosu for easy step-down from root
 ENV GOSU_VERSION 1.7
