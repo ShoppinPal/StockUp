@@ -47,7 +47,7 @@ module.exports = function(Container) {
     log.debug('Container > afterRemote > upload');
     var files = ctx.result.result.files.file;
     log.debug('Container > afterRemote > upload',
-        ' > FILE(S) UPLOADED: %j', files);
+      ' > FILE(S) UPLOADED: %j', files);
 
     // ASSUMPTION #1 we only get one file at a time
     // ASSUMPTION #2 user only uploads a valid CSV file
@@ -147,63 +147,76 @@ module.exports = function(Container) {
   });
 
   var createReportModel = function(filename, Container, next){
-    // before: 41st_Gift_Shop-CSC-114340-WeeklyOrder.CSV
-    var data = filename.split('-');
-    // after: [ 41st_Gift_Shop, CSC, 114340, WeeklyOrder.CSV ]
+    try {
+      // before: 41st_Gift_Shop-CSC-114340-WeeklyOrder.CSV
+      filename = filename.slice(0,-4);
+      var data = filename.split('-');
+      // after: [ 41st_Gift_Shop, CSC, 114340, WeeklyOrder.CSV ]
 
-    var storeName = data[0];
-    storeName = storeName.replace(/_/g, '.'); // . is treated as regex when
-    log.debug('regex with storeName', storeName);
+      if (!data || data.length < 2 || !data[0] || !data[1]) {
+        log.error('Container > createReportModel', 'Invalid filename: ' + filename);
+        next(new Error('Invalid filename: ' + filename));
+      }
+      else {
+        var storeName = data[0];
+        storeName = storeName.replace(/_/g, '.'); // . is treated as regex when
+        log.debug('regex with storeName', storeName);
 
-    var supplierName = data[1];
-    supplierName = supplierName.replace(/_/g, '.'); // . is treated as regex when
-    log.debug('regex with supplierName', supplierName);
-    supplierName = '^' + supplierName + '$';
-    log.debug('modified regex with supplierName', supplierName);
+        var supplierName = data[1];
+        supplierName = supplierName.replace(/_/g, '.'); // . is treated as regex when
+        log.debug('regex with supplierName', supplierName);
+        supplierName = '^' + supplierName + '$';
+        log.debug('modified regex with supplierName', supplierName);
 
-    // TODO: current user should only be able to search his/her own stores and suppliers, not all of them!
+        // TODO: current user should only be able to search his/her own stores and suppliers, not all of them!
 
-    var StoreModel = Container.app.models.StoreModel;
-    return StoreModel.findOne({ where: { name: { like: storeName } } })
-      .then(function(storeModelInstance){
-        log.trace('storeModelInstance', storeModelInstance);
-        if(storeModelInstance) {
-          var SupplierModel = Container.app.models.SupplierModel;
-          return SupplierModel.findOne({
-            where: {
-              name: {
-                like: supplierName
-              },
-              storeConfigModelToSupplierModelId: storeModelInstance.storeConfigModelToStoreModelId
-            }
-          })
-            .then(function(supplierModelInstance){
-              log.trace('supplierModelInstance', supplierModelInstance);
-              if(supplierModelInstance) {
-                //return Promise.resolve([storeModelInstance,supplierModelInstance]);
-                var ReportModel = Container.app.models.ReportModel;
-                return ReportModel.create({
-                  name: filename,
-                  userModelToReportModelId: storeModelInstance.userModelToStoreModelId, // explicitly setup the foreignKeys for related models
-                  state: ReportModel.ReportModelStates.REPORT_EMPTY,
-                  outlet: {
-                    id: storeModelInstance.api_id, // jshint ignore:line
-                    name: storeModelInstance.name,
+        var StoreModel = Container.app.models.StoreModel;
+        return StoreModel.findOne({where: {name: {like: storeName}}})
+          .then(function (storeModelInstance) {
+            log.trace('storeModelInstance', storeModelInstance);
+            if (storeModelInstance) {
+              var SupplierModel = Container.app.models.SupplierModel;
+              return SupplierModel.findOne({
+                where: {
+                  name: {
+                    like: supplierName
                   },
-                  supplier: {
-                    id: supplierModelInstance.apiId,
-                    name: supplierModelInstance.name
+                  storeConfigModelToSupplierModelId: storeModelInstance.storeConfigModelToStoreModelId
+                }
+              })
+                .then(function (supplierModelInstance) {
+                  log.trace('supplierModelInstance', supplierModelInstance);
+                  if (supplierModelInstance) {
+                    //return Promise.resolve([storeModelInstance,supplierModelInstance]);
+                    var ReportModel = Container.app.models.ReportModel;
+                    return ReportModel.create({
+                      name: filename,
+                      userModelToReportModelId: storeModelInstance.userModelToStoreModelId, // explicitly setup the foreignKeys for related models
+                      state: ReportModel.ReportModelStates.REPORT_EMPTY,
+                      outlet: {
+                        id: storeModelInstance.api_id, // jshint ignore:line
+                        name: storeModelInstance.name,
+                      },
+                      supplier: {
+                        id: supplierModelInstance.apiId,
+                        name: supplierModelInstance.name
+                      }
+                    });
+                  }
+                  else {
+                    return Promise.reject('Could not find a matching supplier for: ' + filename);
                   }
                 });
-              }
-              else {
-                return Promise.reject('Could not find a matching supplier for: ' + filename);
-              }
-            });
+            }
+            else {
+              return Promise.reject('Could not find a matching store for: ' + filename);
+            }
+          });
         }
-        else {
-          return Promise.reject('Could not find a matching store for: ' + filename);
-        }
-      });
+    }
+    catch (error) {
+      log.error('Container > createReportModel', '\n', error);
+      next(error);
+    }
   };
 };

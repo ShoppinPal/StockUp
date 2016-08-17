@@ -27,6 +27,7 @@ angular.module('ShoppinPalApp').controller(
       this.suppliers = [];
       this.stores = [];
 
+      this.validUpload = true;
 
       this.isWarehouser = function () {
         return _.contains(self.roles, 'admin');
@@ -63,8 +64,8 @@ angular.module('ShoppinPalApp').controller(
         return $state.go(self.homeState);
       };
       this.uploader.onErrorItem = function(fileItem, response, status, headers) {
-        console.log('onErrorItem', fileItem, response, status, headers);
-        console.info('onErrorItem', fileItem, response, status, headers);
+        console.log('onErrorItem', fileItem.file.name, status);
+        console.info('onErrorItem', fileItem.file.name, status);
 
         // show something in the UI too
         var error = response.error;
@@ -76,6 +77,60 @@ angular.module('ShoppinPalApp').controller(
           console.error(error);
           $spAlerts.addAlert('Something went wrong! Try again or report to an admin.', 'error', 10000);
         }
+      };
+
+      this.uploader.onAfterAddingFile = function (fileItem) {
+        var filename = fileItem.file.name;
+        var slicedFilename = filename.slice(0,-4);
+        var data = slicedFilename.split('-');
+
+        if (data[0]===undefined || data[1]===undefined) {
+          self.validUpload = false;
+          $spAlerts.addAlert('Filename is not valid', 'error', 5000);
+        }
+        else {
+          var storeName = data[0];
+          storeName = storeName.replace(/_/g, ' '); // . is treated as regex when
+          //console.log('regex with storeName', storeName);
+
+          var supplierName = data[1];
+          supplierName = supplierName.replace(/_/g, ' '); // . is treated as regex when
+          //console.log('regex with supplierName', supplierName);
+
+          if (storeExists(storeName,self.stores)) {
+            if (supplierExists(supplierName,self.suppliers)) {
+              self.validUpload = true;
+            }
+            else {
+              self.validUpload = false;
+              $spAlerts.addAlert('Supplier Name is not valid', 'error', 5000);
+            }
+          }
+          else {
+            self.validUpload = false;
+            $spAlerts.addAlert('Store Name is not valid', 'error', 5000);
+          }
+        }
+      };
+
+      var storeExists = function (storeName, array) {
+        var i = null;
+        for (i = 0; array.length > i; i += 1) {
+            if (array[i].name === storeName) {
+              return true;
+            }
+        }
+        return false;
+      };
+
+      var supplierExists = function (supplierName, array) {
+        var i = null;
+        for (i = 0; array.length > i; i += 1) {
+            if (array[i].name === supplierName) {
+              return true;
+            }
+        }
+        return false;
       };
 
       // Load the data
