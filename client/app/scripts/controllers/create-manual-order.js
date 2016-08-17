@@ -79,48 +79,39 @@ angular.module('ShoppinPalApp').controller(
         }
       };
 
-      this.uploader.onAfterAddingFile = function(fileItem){
+      this.uploader.onAfterAddingFile = function (fileItem) {
         var filename = fileItem.file.name;
-        //console.log(filename);
         var slicedFilename = filename.slice(0,-4);
         var data = slicedFilename.split('-');
-        // after: [ 41st_Gift_Shop, CSC, 114340, WeeklyOrder.CSV ]
 
-        if(data[0]===undefined || data[1]===undefined){
+        if (data[0]===undefined || data[1]===undefined) {
           self.validUpload = false;
-          $spAlerts.addAlert('Filename is not valid','error',5000);
+          $spAlerts.addAlert('Filename is not valid', 'error', 5000);
         }
-        else{
+        else {
           var storeName = data[0];
           storeName = storeName.replace(/_/g, ' '); // . is treated as regex when
-          console.log('regex with storeName', storeName);
+          //console.log('regex with storeName', storeName);
 
           var supplierName = data[1];
           supplierName = supplierName.replace(/_/g, ' '); // . is treated as regex when
-          console.log('regex with supplierName', supplierName);
-          //supplierName = '^' + supplierName + '$';
-          //console.log('modified regex with supplierName', supplierName);
+          //console.log('regex with supplierName', supplierName);
 
-          if(storeExists(storeName,self.stores))
-          {
-            if(supplierExists(supplierName,self.suppliers))
-            {
+          if (storeExists(storeName,self.stores)) {
+            if (supplierExists(supplierName,self.suppliers)) {
               self.validUpload = true;
             }
-            else
-            {
+            else {
               self.validUpload = false;
-              $spAlerts.addAlert('Supplier Name is not valid','error',5000);
+              $spAlerts.addAlert('Supplier Name is not valid', 'error', 5000);
             }
           }
-          else
-          {
+          else {
             self.validUpload = false;
             $spAlerts.addAlert('Store Name is not valid', 'error', 5000);
           }
         }
       };
-
 
       var storeExists = function (storeName, array) {
         var i = null;

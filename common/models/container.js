@@ -153,10 +153,11 @@ module.exports = function(Container) {
       var data = filename.split('-');
       // after: [ 41st_Gift_Shop, CSC, 114340, WeeklyOrder.CSV ]
 
-      if(data[0]==undefined || data[1]==undefined){
-        return Promise.reject('Invalid filename: ' + filename +". Please follow the structure.");
+      if (!data || data.length < 2 || !data[0] || !data[1]) {
+        log.error('Container > createReportModel', 'Invalid filename: ' + filename);
+        next(new Error('Invalid filename: ' + filename));
       }
-      else{
+      else {
         var storeName = data[0];
         storeName = storeName.replace(/_/g, '.'); // . is treated as regex when
         log.debug('regex with storeName', storeName);
