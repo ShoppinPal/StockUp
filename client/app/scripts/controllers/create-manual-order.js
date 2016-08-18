@@ -63,7 +63,7 @@ angular.module('ShoppinPalApp').controller(
           'since we have kicked off the work, let\'s go back to the landing page based on the user\'s role');
         return $state.go(self.homeState);
       };
-      this.uploader.onErrorItem = function(fileItem, response, status, headers) {
+      this.uploader.onErrorItem = function(fileItem, response, status/*, headers*/) {
         console.log('onErrorItem', fileItem.file.name, status);
         console.info('onErrorItem', fileItem.file.name, status);
 
@@ -116,9 +116,9 @@ angular.module('ShoppinPalApp').controller(
       var storeExists = function (storeName, array) {
         var i = null;
         for (i = 0; array.length > i; i += 1) {
-            if (array[i].name === storeName) {
-              return true;
-            }
+          if (array[i].name === storeName) {
+            return true;
+          }
         }
         return false;
       };
@@ -126,9 +126,9 @@ angular.module('ShoppinPalApp').controller(
       var supplierExists = function (supplierName, array) {
         var i = null;
         for (i = 0; array.length > i; i += 1) {
-            if (array[i].name === supplierName) {
-              return true;
-            }
+          if (array[i].name === supplierName) {
+            return true;
+          }
         }
         return false;
       };
