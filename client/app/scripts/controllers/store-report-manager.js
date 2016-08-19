@@ -444,7 +444,7 @@ angular.module('ShoppinPalApp')
       if($stateParams.reportId) {
         $scope.waitOnPromise = loginService.getReport($stateParams.reportId)
           .then(function (response) {
-            originalReportDataSet = response;
+            originalReportDataSet = response.stockOrderLineitemModels;
             setup();
           });
       }
