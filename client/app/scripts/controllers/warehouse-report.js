@@ -386,8 +386,8 @@
                 return !item.hidden;
               });
 
-              setupBoxes(response);
-              setupUnboxedItems(response);
+              setupBoxes(lineItems);
+              setupUnboxedItems(lineItems);
               //makeItEasyToTestSubmission();
               $scope.jumpToDepartment();
             });
