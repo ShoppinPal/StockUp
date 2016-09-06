@@ -81,35 +81,41 @@ angular.module('ShoppinPalApp').controller(
 
       this.uploader.onAfterAddingFile = function (fileItem) {
         var filename = fileItem.file.name;
-        var slicedFilename = filename.slice(0,-4);
-        var data = slicedFilename.split('-');
+        var re = /(?:\.([^.]+))?$/;
+        var fileExtension = re.exec(filename);
 
-        if (data[0]===undefined || data[1]===undefined) {
-          self.validUpload = false;
-          $spAlerts.addAlert('Filename is not valid', 'error', 5000);
-        }
-        else {
-          var storeName = data[0];
-          storeName = storeName.replace(/_/g, ' '); // . is treated as regex when
-          //console.log('regex with storeName', storeName);
+        if(fileExtension[1] === 'csv' || fileExtension[1] === 'CSV'){
+          var slicedFilename = filename.slice(0,-4);
+          var data = slicedFilename.split('-');
+          if (data[0]===undefined || data[1]===undefined) {
+            self.validUpload = false;
+            $spAlerts.addAlert('Filename is not valid', 'error', 5000);
+          }
+          else {
 
-          var supplierName = data[1];
-          supplierName = supplierName.replace(/_/g, ' '); // . is treated as regex when
-          //console.log('regex with supplierName', supplierName);
+            var storeName = data[0];
+            storeName = storeName.replace(/_/g, ' '); // . is treated as regex when
 
-          if (storeExists(storeName,self.stores)) {
-            if (supplierExists(supplierName,self.suppliers)) {
-              self.validUpload = true;
+            var supplierName = data[1];
+            supplierName = supplierName.replace(/_/g, ' '); // . is treated as regex when
+
+            if (storeExists(storeName,self.stores)) {
+              if (supplierExists(supplierName,self.suppliers)) {
+                self.validUpload = true;
+              }
+              else {
+                self.validUpload = false;
+                $spAlerts.addAlert('Supplier Name is not valid', 'error', 5000);
+              }
             }
             else {
               self.validUpload = false;
-              $spAlerts.addAlert('Supplier Name is not valid', 'error', 5000);
+              $spAlerts.addAlert('Store Name is not valid', 'error', 5000);
             }
           }
-          else {
-            self.validUpload = false;
-            $spAlerts.addAlert('Store Name is not valid', 'error', 5000);
-          }
+        }
+        else if(fileExtension === 'xls' || fileExtension[1] === 'xlsx' || fileExtension[1] === 'XLS' || fileExtension[1] === 'XLSX'){
+          self.validUpload = true;
         }
       };
 
