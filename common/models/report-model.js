@@ -226,7 +226,6 @@ module.exports = function(ReportModel) {
             cb(error);
           });
 
-          cb(null);
         });
     }
   };

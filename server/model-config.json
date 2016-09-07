@@ -71,5 +71,9 @@
   "container": {
     "dataSource": "storage",
     "public": true
+  },
+  "StoreMappingModel": {
+    "dataSource": "db",
+    "public": false
   }
 }
