@@ -84,7 +84,7 @@ angular.module('ShoppinPalApp').controller(
         var re = /(?:\.([^.]+))?$/;
         var fileExtension = re.exec(filename);
 
-        if(fileExtension[1] === 'csv' || fileExtension[1] === 'CSV'){
+        if(fileExtension[1].toLowerCase() === 'csv'){
           var slicedFilename = filename.slice(0,-4);
           var data = slicedFilename.split('-');
           if (data[0]===undefined || data[1]===undefined) {
@@ -114,7 +114,7 @@ angular.module('ShoppinPalApp').controller(
             }
           }
         }
-        else if(fileExtension === 'xls' || fileExtension[1] === 'xlsx' || fileExtension[1] === 'XLS' || fileExtension[1] === 'XLSX'){
+        else if(fileExtension[1].toLowerCase() === 'xls' || fileExtension[1].toLowerCase() === 'xlsx'){
           self.validUpload = true;
         }
       };

@@ -6,7 +6,9 @@ var Promise = require('bluebird');
 var _ = require('underscore');
 
 
-module.exports = function(app){
+module.exports = createStoreMappings;
+
+function createStoreMappings(app,cb){
   var StoreModel = app.models.StoreModel;
   var StoreMappingModel = app.models.StoreMappingModel;
 
@@ -20,6 +22,7 @@ module.exports = function(app){
   } catch (err) {
     debug('Please configure your data in `seed.json`.');
     debug('Copy `seed.json.template` to `seed.json` and replace the values with your own.');
+    cb(err);
   }
   if(seed){
     debug('seed each store-mapping, one-by-one');
@@ -44,5 +47,13 @@ module.exports = function(app){
         },
         {concurrency:1}
     )
+    .then(function(){
+      debug('Done with seeding mappings');
+      cb();
+    })
+    .catch(function(err){
+      log.error('error',err);
+      cb(err);
+    });
   }
-};
+}

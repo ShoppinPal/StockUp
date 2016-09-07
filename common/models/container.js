@@ -60,7 +60,7 @@ module.exports = function(Container) {
     var fileExtension = re.exec(item.name);
     var stream = Container.downloadStream(item.container, item.name);
 
-    if(fileExtension[1] == 'xls' || fileExtension[1] == 'xlsx' || fileExtension[1] == 'XLS' || fileExtension[1] == 'XLSX') {
+    if(fileExtension[1].toLowerCase() === 'xls' || fileExtension[1].toLowerCase() === 'xlsx') {
 
       stream.pipe(excel())  // same as excel({sheetIndex: 0})
         .on('data', function (excelDataToJSON) {
@@ -182,7 +182,7 @@ module.exports = function(Container) {
             });
         });
     }
-    else if(fileExtension[1] == 'csv' || fileExtension[1] == 'CSV'){
+    else if(fileExtension[1].toLowerCase() === 'csv'){
 
       var Converter = require('csvtojson').Converter;
       var converter = new Converter({constructResult:true}); //new converter instance
