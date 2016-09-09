@@ -1,7 +1,7 @@
 <div class="container"
      cg-busy="{promise:waitOnPromise,message:message}">
     <shoppin-pal-header is-home-page="true"
-                        button1-label="Create manual order"
+                        button1-label="New Stock Order"
                         button1-class="button-large-green"
                         on-button1-click="createManualOrder()">
     </shoppin-pal-header>
@@ -55,7 +55,7 @@
                     </table>
                     <div class="scrollable-table">
                         <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
-                            <tbody ng-repeat="storeReport in filteredLists | orderBy:['supplier.name', '-state', 'name']| groupBy: 'supplier.name'">
+                            <tbody ng-repeat="storeReport in filteredLists | orderBy:['supplier.name', '-created', '-state', 'name'] | groupBy: 'supplier.name'">
                                 <tr class="inner-table-heading"
                                     id="jumpto{{storeReport.supplier.name}}"
                                     ng-if="storeReport.group_by_CHANGED">
@@ -74,7 +74,10 @@
                                     ng-click="drilldownToReport($index, storeReport)"
                                     ng-swipe-left="importExport($index)"
                                     ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'">
-                                    <td width="10%">{{::storeReport.id}}</td>
+                                    <td width="10%">
+                                        {{::storeReport.created | date:'yyyy-MM-dd @ h:mma'}}
+                                        <!--{{::storeReport.id}}-->
+                                    </td>
                                     <td width="15%">{{::storeReport.outlet.name}} - {{::storeReport.name}}</td>
                                     <td width="15%">
                                         <div class="status-td">
@@ -107,7 +110,11 @@
                                         <div class="col-sm-5 store-landing-edit-button-row">
                                             <button class="import-btn">Import</button>
                                             <button class="export-btn">Export</button>
-                                            <button class="fulfilled-btn">Fulfilled</button>
+                                            <button class="fulfilled-btn"
+                                                    ng-click="delete($index, storeReport.id)">
+                                                Delete
+                                            </button>
+                                            <!--<button class="fulfilled-btn">Fulfilled</button>-->
                                         </div>
                                     </td>
                                 </tr>

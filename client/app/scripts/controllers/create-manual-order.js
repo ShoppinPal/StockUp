@@ -11,18 +11,23 @@ angular.module('ShoppinPalApp').controller(
   'CreateManualOrderCtrl',
   [
     '$sessionStorage', '$state', /* angular's modules/services/factories etc. */
-    'LoopBackAuth', 'SupplierModel', 'UserModel', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
+    '$spAlerts', 'LoopBackAuth', 'SupplierModel', 'UserModel', 'ReportModel', 'StoreModel', /* shoppinpal's custom modules/services/factories etc. */
+    'FileUploader', /* 3rd party modules/services/factories etc. */
     'ReportModelStates', /* constants */
     function CreateManualOrderCtrl (
       $sessionStorage, $state,
-      LoopBackAuth, SupplierModel, UserModel, ReportModel,
+      $spAlerts, LoopBackAuth, SupplierModel, UserModel, ReportModel, StoreModel,
+      FileUploader,
       ReportModelStates)
     {
+      var self = this;
+
       this.storeName = ($sessionStorage.currentStore) ? $sessionStorage.currentStore.name : null;
       this.roles = $sessionStorage.roles;
       this.suppliers = [];
       this.stores = [];
-      var self = this;
+
+      this.validUpload = true;
 
       this.isWarehouser = function () {
         return _.contains(self.roles, 'admin');
@@ -38,21 +43,118 @@ angular.module('ShoppinPalApp').controller(
 
       this.homeState = this.isWarehouser() ? 'warehouse-landing' : 'store-landing';
 
+      // known UX issue: https://github.com/nervgh/angular-file-upload/issues/489
+      this.uploader = new FileUploader({
+        url: 'api/containers/'+ LoopBackAuth.currentUserId + '/upload',
+        filters: [{
+          name: 'singleFileOnly',
+          fn: function() {
+            if(this.queue.length===1){
+              console.log('applying singleFileOnly filter');
+              this.clearQueue();
+            }
+            return true;
+          }
+        }],
+        removeAfterUpload: true
+      });
+      this.uploader.onSuccessItem = function(){
+        console.log('this.uploader.onSuccessItem() > ' +
+          'since we have kicked off the work, let\'s go back to the landing page based on the user\'s role');
+        return $state.go(self.homeState);
+      };
+      this.uploader.onErrorItem = function(fileItem, response, status/*, headers*/) {
+        console.log('onErrorItem', fileItem.file.name, status);
+        console.info('onErrorItem', fileItem.file.name, status);
+
+        // show something in the UI too
+        var error = response.error;
+        if(error && error.message) {
+          console.error(error.message);
+          $spAlerts.addAlert(error.message, 'error', 10000);
+        }
+        else {
+          console.error(error);
+          $spAlerts.addAlert('Something went wrong! Try again or report to an admin.', 'error', 10000);
+        }
+      };
+
+      this.uploader.onAfterAddingFile = function (fileItem) {
+        var filename = fileItem.file.name;
+        var slicedFilename = filename.slice(0,-4);
+        var data = slicedFilename.split('-');
+
+        if (data[0]===undefined || data[1]===undefined) {
+          self.validUpload = false;
+          $spAlerts.addAlert('Filename is not valid', 'error', 5000);
+        }
+        else {
+          var storeName = data[0];
+          storeName = storeName.replace(/_/g, ' '); // . is treated as regex when
+          //console.log('regex with storeName', storeName);
+
+          var supplierName = data[1];
+          supplierName = supplierName.replace(/_/g, ' '); // . is treated as regex when
+          //console.log('regex with supplierName', supplierName);
+
+          if (storeExists(storeName,self.stores)) {
+            if (supplierExists(supplierName,self.suppliers)) {
+              self.validUpload = true;
+            }
+            else {
+              self.validUpload = false;
+              $spAlerts.addAlert('Supplier Name is not valid', 'error', 5000);
+            }
+          }
+          else {
+            self.validUpload = false;
+            $spAlerts.addAlert('Store Name is not valid', 'error', 5000);
+          }
+        }
+      };
+
+      var storeExists = function (storeName, array) {
+        var i = null;
+        for (i = 0; array.length > i; i += 1) {
+          if (array[i].name === storeName) {
+            return true;
+          }
+        }
+        return false;
+      };
+
+      var supplierExists = function (supplierName, array) {
+        var i = null;
+        for (i = 0; array.length > i; i += 1) {
+          if (array[i].name === supplierName) {
+            return true;
+          }
+        }
+        return false;
+      };
+
       // Load the data
-      SupplierModel.listSuppliers({})
+      this.waitOnPromise = SupplierModel.listSuppliers({})
         .$promise.then(function(response) {
           self.suppliers = response;
           if(self.suppliers && self.suppliers.length > 0) {
             self.selectedSupplier = self.suppliers[0];
           }
 
-          return UserModel.storeModels({id: LoopBackAuth.currentUserId})
-            .$promise.then(function(response){
-              self.stores = response;
-              if(self.stores && self.stores.length > 0) {
-                self.selectedStore = self.stores[0];
-              }
-            });
+          var aPromise = null;
+          if(self.isWarehouser()){
+            aPromise = StoreModel.listStores({id: LoopBackAuth.currentUserId}).$promise;
+          }
+          else
+          {
+            aPromise = UserModel.storeModels({id: LoopBackAuth.currentUserId}).$promise;
+          }
+          return aPromise.then(function(response){
+            self.stores = response;
+            if(self.stores && self.stores.length > 0) {
+              self.selectedStore = self.stores[0];
+            }
+          });
         });
 
       /** @method generateOrder
@@ -88,19 +190,22 @@ angular.module('ShoppinPalApp').controller(
               },
               function(response){
                 console.log(response);
-                // after kicking off the work, go back to a user's respective landing page
-                if (_.contains($sessionStorage.roles, 'manager')) {
-                  return $state.go('store-landing');
-                }
-                else if (_.contains($sessionStorage.roles, 'admin')) {
-                  return $state.go('warehouse-landing');
-                }
+                console.log('since we have kicked off the work, let\'s go back to the landing page based on the user\'s role');
+                return $state.go(self.homeState);
               },
               function(err){
                 console.error(err);
                 // TODO: @ayush - show a friendly error to user somehow
               });
           });
+      };
+
+      // ====================================================
+      // Alert code which cannot be directly called from HTML
+      // ====================================================
+      this.closeAlert = function(index) {
+        console.log('calling closeAlert() from create-manual-order.js');
+        $spAlerts.closeAlert(index);
       };
 
     }

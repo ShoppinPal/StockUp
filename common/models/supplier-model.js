@@ -1,8 +1,8 @@
 var Promise = require('bluebird');
 
-var path = require('path');
+/*var path = require('path');
 var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
-var log = require('debug')('common:models:'+fileName);
+var log = require('./../lib/debug-extension')('common:models:'+fileName);*/
 
 module.exports = function(SupplierModel) {
 

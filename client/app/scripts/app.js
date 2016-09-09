@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('ShoppinPalApp',[
-  'angular-virtual-keyboard'
+  'angularFileUpload'
   ,'cgBusy'
   ,'geocoder'
   ,'mgcrea.ngStrap'
@@ -13,7 +13,6 @@ angular.module('ShoppinPalApp',[
   ,'ngStorage'
   ,'ngTouch'
   ,'ng.deviceDetector'
-  ,'ng-fastclick'
   ,'shoppinpal-constants'
   ,'shoppinpal-loopback'
   ,'shoppinpal-prestashop'

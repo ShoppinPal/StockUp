@@ -2,7 +2,9 @@
   "name": "UserModel",
   "base": "User",
   "idInjection": true,
-  "properties": {},
+  "properties": {
+    "id": {"type": "string", "generated": true, "id": true}
+  },
   "validations": [],
   "relations": {
     "teamModels": {

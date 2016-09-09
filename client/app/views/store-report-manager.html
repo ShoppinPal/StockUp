@@ -1,45 +1,17 @@
 <div class="container"
      cg-busy="waitOnPromise">
-    <!--<div class="row">
-        <div class="col-sm-12 col-md-12">
-            &lt;!&ndash; Select store header &ndash;&gt;
-            <header class="header">
-                <div class="row">
-                    &lt;!&ndash; Back button given here &ndash;&gt;
-                    <div class="col-md-5 col-sm-3 col-xs-12">
-                        <div class="logo">{{::storeName}}</div>
-                        <div>
-                            &lt;!&ndash; <back-button back="Back"></back-button> &ndash;&gt;
-                            <a class="fa fa-home shopping-pal-home" ui-sref="store-landing"></a>
-                        </div>
-                    </div>
-                    <div class="col-md-7 col-sm-9 col-xs-12">
-                        <div class="note-sub-text pull-right"><a ui-sref="logout" class="logout-text">LOGOUT</a></div>
-                        <div class="clearfix"></div>
-                        <div class="btn-align">
-                            <button type="submit" class="btn btn-primary button-large-blue"
-                                    ng-click="toggleRowsDisplayed()">
-                                Show {{displayPendingRows && 'Completed' || 'Pending'}}
-                            </button>
-                            <button type="submit" class="btn btn-primary button-large-green" ng-click="submitToWarehouse()">{{submitToWarehouseButton}}</button>
-                        </div>
-                    </div>
-                </div>
-                &lt;!&ndash; <div class="row">
-                    <p class="note-text"><span><strong>Note:</strong></span> <span class="note-sub-text"> Swipe left to re-edit or tap 'Submit' to send to the Warehouse</span></p>
-                </div> &ndash;&gt;
-            </header>
-        </div>
-    </div>-->
     <shoppin-pal-header store-name="{{::storeName}}"
                         home-state="store-landing"
-                        button1-label="Show {{displayPendingRows && 'Completed' || 'Pending'}}"
+                        button1-label="{{ (displayPendingRows) ? 'Add a Product' : null }}"
                         button1-class="button-large-blue"
-                        button2-label="{{submitToWarehouseButton}}"
-                        button2-class="button-large-green"
-                        button2-disabled="!isShipmentFullyReceived"
-                        on-button1-click="toggleRows()"
-                        on-button2-click="submitToWarehouse()">
+                        on-button1-click="selectSku()"
+                        button2-label="Show {{displayPendingRows && 'Completed' || 'Pending'}}"
+                        button2-class="button-large-blue"
+                        on-button2-click="toggleRows()"
+                        button3-label="{{submitToWarehouseButton}}"
+                        button3-class="button-large-green"
+                        button3-disabled="!isShipmentFullyReceived"
+                        on-button3-click="submitToWarehouse()">
     </shoppin-pal-header>
     <!-- Store Manager page content -->
     <div class="row main-container">
@@ -68,7 +40,9 @@
                         </thead>
                     </table>
                     <div class="scrollable-table">
-                        <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table" device-detector ng-class="{'ipad-table': device === 'ipad'}">
+                        <table cellspacing="0" cellpadding="0" width="100%"
+                               class="table table-responsive store-landing-right-table"
+                               ng-class="{'ipad-table': device === 'ipad'}">
                             <tbody ng-repeat="storeReportRow in storesReport" class="animate-repeat">
                                 <!--http://stackoverflow.com/questions/15412897/how-to-obtain-previous-item-in-ng-repeat-->
                                 <tr ng-if="displayPendingRows && storeReportRow.type!==storesReport[$index - 1].type"
@@ -86,15 +60,19 @@
                                     <td class="report-head4">{{storeReportRow.desiredStockLevel}}</td>
                                     <td class="report-head5">{{storeReportRow.orderQuantity}}</td>
                                 </tr>
-                                <tr ng-if="storeReportRow.comment"
+                                <tr ng-if="storeReportRow.comments[ReportModelStates.MANAGER_IN_PROCESS]"
                                     ng-hide="$index==selectedRowIndex">
                                     <td colspan="5">
                                         <span class="fa fa-comment comment-icon"></span>&nbsp;&nbsp;
-                                        <strong>Comments:</strong><span class="comment-span"> {{storeReportRow.comment}}</span>
+                                        <strong>Comments:</strong><span class="comment-span"> {{storeReportRow.comments[ReportModelStates.MANAGER_IN_PROCESS]}}</span>
                                     </td>
                                 </tr>
                                 <!-- Edit store-report start -->
                                 <!-- <tr ng-show="$index==selectedRowIndex" class="edit-row" ng-mouseleave="dismissEdit(storeReportRow)"> -->
+                                <!-- NOTE: Clarion team implemented a solution where the `onEditInit` methods uses
+                                           the `editable-panel` class to track when a user clicks outside the editable row.
+                                           So all the elements that comprise the editable row are marked with that class.
+                                -->
                                 <tr ng-if="$index==selectedRowIndex"
                                     ng-init="onEditInit(storeReportRow)"
                                     class="edit-row editable-panel animate-if">
@@ -109,27 +87,62 @@
                                             </div>
                                         </div>
                                         <div class="edit-window editable-panel">
-                                            <div class="float-left column-text margin-right editable-panel">Desired
-                                                <br/> Stock Level:</div>
-                                            <div class="float-left margin-right-50px editable-panel">
-                                                <input type="text" class="form-control input-small editable-panel" ng-model="storeReportRow.desiredStockLevel">
+                                            <div class="float-left column-text margin-right editable-panel">
+                                                Desired<br/> Stock Level:
                                             </div>
-                                            <div class="float-left column-text margin-right editable-panel">Order
-                                                <br/> Qty:</div>
                                             <div class="float-left margin-right-10px margin-top editable-panel">
-                                                <span class="fa fa-minus-circle fa-lg edit-icon editable-panel" ng-click="decreaseQty(storeReportRow)"></span>
+                                                <span class="fa fa-minus-circle fa-lg edit-icon editable-panel"
+                                                      ng-click="decreaseDSL(storeReportRow)"/>
                                             </div>
                                             <div class="float-left margin-right-10px editable-panel">
-                                                <input type="text" class="form-control input-small editable-panel" ng-model="storeReportRow.orderQuantity">
+                                                <input type="number" pattern="[0-9]*"
+                                                       class="form-control input-small editable-panel"
+                                                       ng-model="storeReportRow.desiredStockLevel">
                                             </div>
                                             <div class="float-left margin-right margin-top editable-panel">
-                                                <span class="fa fa-plus-circle fa-lg edit-icon editable-panel" ng-click="increaseQty(storeReportRow)"></span>
+                                                <span class="fa fa-plus-circle fa-lg edit-icon editable-panel"
+                                                      ng-click="increaseDSL(storeReportRow)"/>
+                                            </div>
+                                            <div class="float-left column-text margin-right editable-panel">
+                                                Order<br/> Qty:
+                                            </div>
+                                            <div class="float-left margin-right-10px margin-top editable-panel">
+                                                <span class="fa fa-minus-circle fa-lg edit-icon editable-panel"
+                                                      ng-click="decreaseOrderQuantity(storeReportRow)"/>
+                                            </div>
+                                            <div class="float-left margin-right-10px editable-panel">
+                                                <input type="number" pattern="[0-9]*"
+                                                       class="form-control input-small editable-panel"
+                                                       ng-model="storeReportRow.orderQuantity"
+                                                       ng-disabled="(storeReportRow.caseQuantity > 0)">
+                                            </div>
+                                            <div class="float-left margin-right margin-top editable-panel">
+                                                <span class="fa fa-plus-circle fa-lg edit-icon editable-panel"
+                                                      ng-click="increaseOrderQuantity(storeReportRow)"/>
                                             </div>
                                             <div class="clearfix editable-panel"></div>
                                         </div>
-                                        <div class="row editable-panel" ng-show="ReviewSubmitPage">
-                                            <input device-detector ng-if='device !== "ipad"' type="text" class="form-control comment-input editable-panel" placeholder="-- Add your Comments --" ng-model="storeReportRow.comment">
-                                            <input device-detector ng-if='device === "ipad"' type="text" class="form-control comment-input editable-panel" placeholder="-- Add your Comments --" ng-model="storeReportRow.comment" ng-readonly="true" ng-virtual-keyboard="{relative: true, vki_attached:true}">
+                                        <div class="editable-panel">
+                                            <div class="float-left column-text margin-right editable-panel">
+                                                <button class="btn button-large-green editable-panel"
+                                                        ng-click="deleteRow($index, storeReportRow)">
+                                                    Delete
+                                                </button>
+                                            </div>
+                                            <div ng-if="storeReportRow.state!==ROW_STATE_COMPLETE"
+                                                 class="pull-right column-text margin-right editable-panel">
+                                                <button class="btn button-large-green editable-panel"
+                                                        ng-click="markRowAsCompleted($index, storeReportRow, true)">
+                                                    Order
+                                                </button>
+                                            </div>
+                                            <div class="clearfix editable-panel"></div>
+                                        </div>
+                                        <div class="row editable-panel">
+                                            <input type="text"
+                                                   class="form-control comment-input editable-panel"
+                                                   placeholder="-- Add your Comments --"
+                                                   ng-model="storeReportRow.comments[ReportModelStates.MANAGER_IN_PROCESS]">
                                         </div>
                                     </td>
                                 </tr>

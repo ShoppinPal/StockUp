@@ -31,6 +31,15 @@ module.exports = function (grunt) {
         }
       }
     },
+    mustache_render: {
+      all: {
+        files: [{
+          data: "server/config-data.json",
+          template: "server/config.mustache",
+          dest: "server/config." + process.env.NODE_ENV + ".js"
+        }]
+      }
+    },
     /* jshint ignore:end */
     open: {
       server: {
@@ -114,8 +123,7 @@ module.exports = function (grunt) {
           jshintrc: '<%= yeoman.app %>/.jshintrc',
           ignores: [
             '<%= yeoman.app %>/scripts/shoppinpal-loopback.js',
-            '<%= yeoman.app %>/scripts/shoppinpal-utils.js',
-            '<%= yeoman.app %>/scripts/directives/dismiss-keyboard.js'
+            '<%= yeoman.app %>/scripts/shoppinpal-utils.js'
           ],
           reporter: require('jshint-stylish')
         },
@@ -352,7 +360,32 @@ module.exports = function (grunt) {
     if (!env) {
       return grunt.util.error('You must specify an environment');
     }
-    var config = grunt.file.readJSON('server/config.' + env + '.json');
+
+    var _ = require('lodash');
+
+    var config = {};
+    if (grunt.file.exists('./server/config.json')) {
+      config = grunt.file.readJSON('server/config.json');
+    }
+    else if (grunt.file.exists('./server/config.js')) {
+      config = require('./server/config.js');
+    }
+    else {
+      throw new Error('Incorrect workflow#1 detected in the "loadConfig" task');
+    }
+
+    if (grunt.file.exists('./server/config.' + env + '.json')) {
+      _.merge(config, grunt.file.readJSON('server/config.' + env + '.json'));
+    }
+    else if (grunt.file.exists('./server/config.' + env + '.js')) {
+      _.merge(config, require('./server/config.' + env + '.js'));
+    }
+    else {
+      throw new Error('Incorrect workflow#2 detected in the "loadConfig" task');
+    }
+
+    console.log('config:', config);
+
     config.environment = env;
     grunt.config('buildProperties', config);
   });
@@ -430,6 +463,15 @@ module.exports = function (grunt) {
       'rev',
       'usemin',
       'replace:all'
+    ]);
+  });
+  grunt.registerTask('configsetup', function(env){
+    if (!env) {
+      return grunt.util.error('You must specify an environment');
+    }
+    grunt.option('environment', env);
+    grunt.task.run([
+      'mustache_render:all'
     ]);
   });
 

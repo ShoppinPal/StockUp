@@ -1,0 +1,22 @@
+exports.config = {
+  seleniumAddress: 'http://localhost:4444/wd/hub',
+  //baseUrl: 'https://mppulkit11.localtunnel.me/',
+  specs: ['spec.js'],
+  multiCapabilities: [
+    /*{ 'browserName': 'firefox' },*/
+    {
+      browserName: 'chrome',
+      chromeOptions: {
+        mobileEmulation: {
+          /*deviceMetrics: {
+            width: 1024,
+            height: 768,
+            pixelRatio: 2.0
+          },
+          //device: 'Apple iPad',*/
+          deviceName: 'Apple iPad 3 / 4'
+        }
+      }
+    }
+  ]
+};

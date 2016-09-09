@@ -5,7 +5,7 @@ var Promise = require('bluebird');
 
 var path = require('path');
 var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
-var log = require('debug')('common:models:'+fileName);
+var log = require('./../lib/debug-extension')('common:models:'+fileName);
 
 module.exports = function(Model, options) {
 
@@ -13,7 +13,7 @@ module.exports = function(Model, options) {
     var ctx = loopback.getCurrentContext();
     var currentUser = ctx && ctx.get('currentUser');
     if (currentUser) {
-      log('inside ' + Model.definition.name + '.getCurrentUserModel() - currentUser: ', currentUser.username);
+      log.trace('inside ' + Model.definition.name + '.getCurrentUserModel() - currentUser: ', currentUser.username);
       //return currentUser;
       return Promise.promisifyAll(
         currentUser,

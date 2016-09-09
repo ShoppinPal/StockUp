@@ -10,10 +10,10 @@
 angular.module('ShoppinPalApp')
   .controller('WarehouseLandingCtrl', [
     '$scope', '$state', '$anchorScroll', '$location', '$sessionStorage', '$filter', /* angular's modules/services/factories etc. */
-    'loginService', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
+    'loginService', 'uiUtils', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
     'ReportModelStates', /* constants */
     function($scope, $state, $anchorScroll, $location, $sessionStorage, $filter,
-             loginService, ReportModel,
+             loginService, uiUtils, ReportModel,
              ReportModelStates)
     {
       $scope.roles = $sessionStorage.roles;
@@ -27,8 +27,9 @@ angular.module('ShoppinPalApp')
         'receive':   true
       };
 
+      $scope.currentSupplier = '';
       $scope.supplierWiseListSize = {};
-      var showMoreValue = 5;
+      $scope.showMoreValue = 5;
 
       // TODO: should be methods of an injectable service
       $scope.isWarehouser = function () {
@@ -48,58 +49,12 @@ angular.module('ShoppinPalApp')
         $scope.selectedRowIndex = $scope.storereportlength + 1;
       };
 
-      var currentSupplier = '';
-
-      /** @method supplierFilter
-       * filter orders based on supplier
-       */
-      var supplierFilter = function(report) {
-        return report.supplier.name === currentSupplier;
-      };
-
-      /** @method limitListAsPerSupplier
-       * creates filtered list based on individual supplier limit size
-       */
-      var limitListAsPerSupplier = function(){
-        var suppliers = [];
-        // extract all the suppliers through out the reports list
-        angular.forEach($scope.reportLists, function(report) {
-          if(suppliers.indexOf(report.supplier.name) < 0) {
-            suppliers.push(report.supplier.name);
-            if(!$scope.supplierWiseListSize[report.supplier.name]) {
-              // set the list size per supplier, for show more feature
-              $scope.supplierWiseListSize[report.supplier.name] = {size: showMoreValue, enabled: true};
-            }
-          }
-        });
-
-        var filteredLists = [];
-        // find the supplier wise list limited to the list size value
-        angular.forEach($scope.supplierWiseListSize, function(supplier, key) {
-          // filter based on current supplier eg: CSC
-          currentSupplier = key;
-          var array = $filter('filter')($scope.reportLists, supplierFilter);
-          // disable show more link (for individual supplier) if there is no more item to show
-          if(array.length <= supplier.size) {
-            supplier.enabled = false;
-          } else {
-            supplier.enabled = true;
-          }
-          // filter based on the supplier list size
-          array = $filter('limitTo')(array, supplier.size);
-          angular.forEach(array, function(report) {
-            filteredLists.push(report);
-          });
-        });
-        $scope.filteredLists = angular.copy(filteredLists);
-      };
-
       /** @method showMore
        * increase the list display size for a specific supplier
        */
       $scope.showMore = function(supplier) {
-        $scope.supplierWiseListSize[supplier].size += showMoreValue;
-        limitListAsPerSupplier();
+        $scope.supplierWiseListSize[supplier].size += $scope.showMoreValue;
+        uiUtils.limitListAsPerSupplier($scope);
       };
 
       /** @method orderFilter
@@ -129,7 +84,7 @@ angular.module('ShoppinPalApp')
        */
       $scope.filterOrders = function() {
         $scope.reportLists = $filter('filter')($scope.backUpReportList, orderFilter);
-        limitListAsPerSupplier();
+        uiUtils.limitListAsPerSupplier($scope);
       };
 
       /** @method createManualOrder
@@ -194,5 +149,26 @@ angular.module('ShoppinPalApp')
           $state.go('logout');
         }
       };
+
+      $scope.delete = function(rowIndex, reportId) {
+        console.log('delete > reportId:', reportId);
+        if ($scope.isWarehouser()) {
+          console.log('delete > isWarehouser()');
+          //$scope.waitOnPromise = ReportModel.remove({
+          $scope.waitOnPromise = ReportModel.removeReport({
+            id: reportId
+          })
+            .$promise.then(function (response) {
+              console.log('delete > done:', response);
+              $scope.dismissEdit();
+              $scope.backUpReportList.splice(rowIndex, 1);
+              $scope.filterOrders();
+            });
+        }
+        else {
+          // do nothing?
+        }
+      };
+
     }
   ]);

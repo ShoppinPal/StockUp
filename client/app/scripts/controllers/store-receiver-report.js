@@ -9,17 +9,19 @@
    */
   angular.module('ShoppinPalApp').controller('StoreReceiverCtrl', [
     '$scope', '$sessionStorage', '$state', '$stateParams', '$filter', '$location', '$anchorScroll', /* angular's modules/services/factories etc. */
-    'loginService', 'StockOrderLineitemModel', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
+    'loginService', 'uiUtils','StockOrderLineitemModel', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
     'deviceDetector', 'ngDialog', /* 3rd party modules/services/factories etc. */
     'ReportModelStates', /* constants */
     function ($scope, $sessionStorage, $state, $stateParams, $filter, $location, $anchorScroll,
-              loginService, StockOrderLineitemModel, ReportModel,
+              loginService, uiUtils, StockOrderLineitemModel, ReportModel,
               deviceDetector, ngDialog,
               ReportModelStates)
     {
-      var ROW_STATE_UNBOXED = 'unboxed';
+      $scope.ReportModelStates = ReportModelStates;
+      $scope.ROW_STATE_BOXED = 'boxed';
+      $scope.ROW_STATE_UNBOXED = 'unboxed';
 
-      $scope.deviceDetector = deviceDetector;
+      $scope.device = deviceDetector.device;
       $scope.storeName = ($sessionStorage.currentStore) ? $sessionStorage.currentStore.name : null;
       $scope.isShipmentFullyReceived = false;
       $scope.items = [];
@@ -32,7 +34,12 @@
       $scope.decreaseQty = function (item) {
         item.receivedQuantity = parseInt(item.receivedQuantity, 10); // parse it from string to integer
         if (item.receivedQuantity > 0) {
-          item.receivedQuantity -= 1;
+          if (item.caseQuantity) {
+            item.receivedQuantity -= item.caseQuantity;
+          }
+          else {
+            item.receivedQuantity -= 1;
+          }
         }
       };
 
@@ -42,14 +49,27 @@
        */
       $scope.increaseQty = function (item) {
         item.receivedQuantity = parseInt(item.receivedQuantity, 10);
-        item.receivedQuantity += 1;
+        if (item.caseQuantity) {
+          item.receivedQuantity += item.caseQuantity;
+        }
+        else {
+          item.receivedQuantity += 1;
+        }
       };
 
-      /** @method editReceivedQuantity()
+      /** @method editRow()
        * @param selectedRow
        * This method display the edit functionality on right swipe
        */
-      $scope.editReceivedQuantity = function (selectedRow) {
+      $scope.editRow = function (selectedRow) {
+        console.log('inside editRow()');
+
+        /**
+         * As a rule-of-thumb its simpler for the editRow() method to go unbind everything else
+         * related to the previous row, before it sets a new selected row
+         */
+        uiUtils.handleNittyGrittyStuffForDismissingEditableRow($scope); // cleanup before starting
+
         $scope.selectedRowIndex = selectedRow;
       };
 
@@ -78,7 +98,13 @@
 
           var filterData = {'boxNumber': box.boxNumber};
           $scope.items = $filter('filter')(angular.copy($scope.receivedItems), filterData);
-          $scope.jumpToDepartment();
+          $scope.items = $filter('orderBy')($scope.items, 'sku');
+          // NOTE: by handling the filtering here we reduce the time spent in the $digest cycle
+          //       AND we don't have to do a search for the correct index later on like:
+          //         $scope.items.splice($scope.items.indexOf(item),1); // correct index but slower
+          //           vs.
+          //         $scope.items.splice(rowIndex, 1); // incorrect rowIndex handed by UI if filtering happens via directive
+          //       which would take additional time on the user's device/browser
         }
       };
 
@@ -87,22 +113,7 @@
        * This method is called once user choose to edit order name using right swipe
        */
       $scope.onEditInit = function (item) {
-        var shoppinPalMainDiv = angular.element(document.querySelector('.shoppinPal-warehouse'));
-        if ($scope.deviceDetector.isDesktop()) {
-          shoppinPalMainDiv.bind('mousedown', function (event) {
-            if (!event.target.classList.contains('editable-panel')) {
-              $scope.dismissEdit(item);
-              shoppinPalMainDiv.unbind('mousedown');
-            }
-          });
-        } else {
-          shoppinPalMainDiv.bind('touchstart', function (event) {
-            if (!event.target.classList.contains('editable-panel')) {
-              $scope.dismissEdit(item);
-              shoppinPalMainDiv.unbind('touchstart');
-            }
-          });
-        }
+        uiUtils.bindToTrackDismissal($scope, item);
       };
 
       /** @method dismissEdit
@@ -116,6 +127,7 @@
         $scope.waitOnPromise = StockOrderLineitemModel.prototype$updateAttributes(
           { id: storeReportRow.id },
           {
+            comments: storeReportRow.comments,
             receivedQuantity: storeReportRow.receivedQuantity
           }
         )
@@ -144,15 +156,22 @@
       /** @method markAsReceived
        * This method will mark the item as received when it is swiped to right
        */
-      $scope.markAsReceived = function (index, storeReportRow) {
+      $scope.markAsReceived = function (rowIndex, storeReportRow, dismissEditableRowFlag) {
+        console.log('> > > > > ', 'markAsReceived',
+          '\n\t', 'rowIndex', rowIndex,/*
+           '\n\t', '$scope.items[rowIndex]', $scope.items[rowIndex],
+           '\n\t', 'storeReportRow', storeReportRow,*/
+          '\n\t', 'equal?', ($scope.items[rowIndex]===storeReportRow));
+
         $scope.waitOnPromise = StockOrderLineitemModel.updateBasedOnState({
             id: storeReportRow.id,
             attributes: {
-              receivedQuantity: storeReportRow.receivedQuantity, /* NOTE: why pass receivedQuantity explicitly here?
-              this is calculated by the UI, so if someone doesn't edit the row and directly marks it as done,
-              we would miss out on persisting this value*/
-              state: ROW_STATE_UNBOXED
-            }
+              comments: storeReportRow.comments,
+              receivedQuantity: storeReportRow.receivedQuantity,
+              state: $scope.ROW_STATE_UNBOXED
+            } // NOTE: why pass receivedQuantity explicitly here?
+              //       this is calculated by the UI, so if someone doesn't edit the row and directly marks it as done,
+              //       we would miss out on persisting this value
           }
         )
           .$promise.then(function(updatedStockOrderLineitemModelInstance){
@@ -164,17 +183,31 @@
             storeReportRow.updatedAt = updatedStockOrderLineitemModelInstance.updatedAt;
             storeReportRow.state = updatedStockOrderLineitemModelInstance.state;
 
-            delete $scope.items[index].boxNumber;
-            delete $scope.items[index].boxName;
-            $scope.items.splice(index, 1);
+            if(dismissEditableRowFlag) {
+              uiUtils.handleNittyGrittyStuffForDismissingEditableRow($scope);
+            }
+
+            // update originalReportDataSet
+            var originalRowIndex = _.findIndex(originalReportDataSet, {id: storeReportRow.id});
+            originalReportDataSet.splice(originalRowIndex, 1);
+
+            // update rows being viewed
+            delete $scope.items[rowIndex].boxNumber;
+            delete $scope.items[rowIndex].boxName;
+            $scope.items.splice(rowIndex, 1);
             $scope.selectedBox.totalItems -= 1;
 
             if ($scope.selectedBox.totalItems === 0) {
               $scope.selectedBox = null;
             }
 
-            $scope.jumpToDepartment();
             $scope.isShipmentFullyReceived = checkIfFullyReceived();
+          })
+          .catch(function(error){
+            console.error(error);
+            // NOTE: this a stop-gap measure because the styling for $spAlerts
+            //       doesn't fit well anywhere on the current view
+            alert('Something went wrong! Try again or report to an admin.', 'error');
           });
       };
 
@@ -206,40 +239,6 @@
           }
         });
       };
-
-      /** @method goToDepartment
-       * @param value
-       * This method
-       */
-      $scope.goToDepartment = function (value) {
-        var jumpToHash;
-        if (value) {
-          for (var i = 0; i < $scope.items.length; i++) {
-            var type = $scope.items[i].type,
-                typeFirstChar = type.slice(0, 1).toUpperCase();
-            $scope.alphabets.push(typeFirstChar);
-            if (typeFirstChar === value) {
-              jumpToHash = 'jumpTo' + $scope.items[i].type;
-            }
-          }
-
-        }
-        $location.hash(jumpToHash);
-        $anchorScroll();
-      };
-
-      /** @method jumpToDepartment
-       * This method will return available departments firstChar for jumpTo department functionality
-       */
-      $scope.jumpToDepartment = function () {
-        $scope.alphabets = [];
-        for (var i = 0; i < $scope.items.length; i++) {
-          var type = $scope.items[i].type,
-              typeFirstChar = type.slice(0, 1).toUpperCase();
-          $scope.alphabets.push(typeFirstChar);
-        }
-      };
-
 
       var setupBoxes = function(response){
         var groupByBoxNumber = _.chain(response).groupBy('boxNumber').value();
@@ -286,7 +285,7 @@
 
       var setupBoxedItems = function(response) {
         $scope.receivedItems = _.filter(response, function(item){
-          return item.state !== ROW_STATE_UNBOXED;
+          return item.state !== $scope.ROW_STATE_UNBOXED;
         });
         // if receivedQuantity hasn't been set, then it should equal fulfilledQuantity by default
         angular.forEach($scope.receivedItems, function (item) {
@@ -296,9 +295,36 @@
         });
       };
 
+      // ----
+      // setup the logic for looking up and adding a product by SKU
+      // ----
+      uiUtils.lookupAndAddProductBySku($scope, $stateParams, ngDialog, ReportModel,
+        function(closeDialogMethod, stockOrderLineitemModelInstance){
+          console.log('store-receiver-report', 'stockOrderLineitemModelInstance:', stockOrderLineitemModelInstance);
+
+          // update the client-side list and redo any setup
+          originalReportDataSet.push(stockOrderLineitemModelInstance);
+          setup();
+
+          // explicitly unset/reset to repaint UI
+          var temp = $scope.selectedBox;
+          $scope.selectedBox = null;
+          $scope.openBox(temp);
+
+          closeDialogMethod('true');
+        }
+      );
+
       // -------------
       // Load the data
       // -------------
+      var originalReportDataSet; // no need to put everything in the $scope, only what's needed
+
+      var setup = function(){
+        setupBoxes(originalReportDataSet);
+        setupBoxedItems(originalReportDataSet);
+        $scope.isShipmentFullyReceived = checkIfFullyReceived();
+      };
 
       /** @method viewContentLoaded
        * This method will load the storesReport from api on view load
@@ -307,9 +333,8 @@
         if($stateParams.reportId) {
           $scope.waitOnPromise = loginService.getReport($stateParams.reportId)
             .then(function (response) {
-              setupBoxes(response);
-              setupBoxedItems(response);
-              $scope.isShipmentFullyReceived = checkIfFullyReceived();
+              originalReportDataSet = response.stockOrderLineitemModels;
+              setup();
             });
         }
         else { // if live data can't be loaded due to some bug, use MOCK data so testing can go on

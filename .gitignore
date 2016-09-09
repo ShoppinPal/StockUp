@@ -13,9 +13,13 @@ newrelic.js
 npm-debug.log
 /test
 server/config.*.json
+server/config.*.js
 /server/boot/seed.json
 /server/boot/seed.*.json
 /server/boot/seed.json.*
 /db.json
 /db.*.json
 /db.json.*
+/server/storage/*
+!/server/storage/touch
+seeds

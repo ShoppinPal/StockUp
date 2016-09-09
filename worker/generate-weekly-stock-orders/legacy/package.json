@@ -1,0 +1,28 @@
+{
+  "name": "create-weekly-stock-orders",
+  "version": "1.0.0",
+  "description": "This master worker runs periodically in order to queue-up other jobs (like generating stock orders) that should run on a weekly basis",
+  "main": "create-weekly-stock-orders.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ShoppinPal/warehouse.git"
+  },
+  "keywords": [
+    "iron",
+    "ironworker"
+  ],
+  "author": "Pulkit Singhal",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/ShoppinPal/warehouse/issues"
+  },
+  "homepage": "https://github.com/ShoppinPal/warehouse#readme",
+  "dependencies": {
+    "bluebird": "3.3.5",
+    "iron_worker": "0.1.6",
+    "tracer": "0.8.3"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "initial:before": {
+    "loopback#favicon": {},
+    "loopback#context": {},
+    "loopback#token": {
+      "params": ["state"]
+    },
+    "./middleware/userContext": {}
+  },
+  "initial": {
+    "compression": {}
+  },
+  "session": {
+  },
+  "auth": {
+  },
+  "parse": {
+  },
+  "routes:before": {
+    "./middleware/accessLogger": {
+      "paths": "/api/*"
+    }
+  },
+  "routes": {
+  },
+  "files": {
+    "loopback#static": [
+      {
+        "name": "tmp",
+        "params": "$!../.tmp"
+      },
+      {
+        "name": "client",
+        "params": "$!../client/app"
+      }
+    ]
+  },
+  "final": {
+    "loopback#urlNotFound": {}
+  },
+  "final:after": {
+    "loopback#errorHandler": {}
+  }
+}

@@ -2,7 +2,8 @@ var Promise = require('bluebird');
 
 var path = require('path');
 var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
-var log = require('debug')('common:models:'+fileName);
+var logger = require('./../lib/debug-extension')('common:models:'+fileName);
+var log = logger.debug.bind(logger); // TODO: over time, please use log.LOGLEVEL(msg) explicitly
 
 // HINT(s):
 //   Getting the app object: http://docs.strongloop.com/display/public/LB/Working+with+LoopBack+objects
@@ -158,4 +159,66 @@ module.exports = function(StoreModel) {
     ],
     http: {path: '/:id/vend/product', verb: 'put'}
   });
+
+  /**
+   * Team admins can use this to find the full list of stores for users in their team.
+   *
+   * @param id - userId of the UserModel that is making the call,
+   *             its used primarily by loopback's built-in ACL
+   *             to provide basic access validation.
+   *
+   * @param cb - loopback's callback to which we should hand back control
+   */
+  StoreModel.listStores = function(id, cb){
+    log('inside listStores()');
+    var currentUser = StoreModel.getCurrentUserModel(cb); // returns immediately if no currentUser
+
+    if(currentUser) {
+      StoreModel.find({})
+        .then(function(storeModels){
+          log('fetched all StoreModels', storeModels.length);
+          var teamStores = [];
+          Promise.map(
+            storeModels || [], // can't handle undefined
+            function (storeModel) {
+              var TeamModel = StoreModel.app.models.TeamModel;
+              log('check if currentUserId:', currentUser.id, '\n',
+                'and the StoreModel\'s owner\'s Id:', storeModel.userModelToStoreModelId, '\n',
+                'have an admin-to-teamMember relationship');
+              return TeamModel.count({
+                ownerId: currentUser.id,
+                memberId: storeModel.userModelToStoreModelId
+              })
+                .then(function(count) {
+                  log('is a team member? count > 0', (count > 0));
+                  if(count > 0){ // true = is a team member
+                    teamStores.push(storeModel);
+                  }
+                  return Promise.resolve();
+                });
+            },
+            {concurrency: 1}
+          ) // Promise.map() block ends
+            .then(function () {
+              log('finished filtering out stores based on admin-to-teamMember relationship', teamStores);
+              cb(null, teamStores);
+            })
+            .catch(function(error){
+              cb(error);
+            });
+        })
+        .catch(function(error){
+          cb(error);
+        });
+    }
+  };
+
+  StoreModel.remoteMethod('listStores', {
+    accepts: [
+      {arg: 'id', type: 'string', required: true}
+    ],
+    http: {path: '/:id/listStores', verb: 'get'},
+    returns: {arg: 'stores', type: 'array', root:true}
+  });
+
 };

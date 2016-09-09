@@ -2,7 +2,7 @@
      cg-busy="{promise:waitOnPromise,message:message}">
     <shoppin-pal-header is-home-page="true"
                         store-name="{{::storeName}}"
-                        button1-label="Create manual order"
+                        button1-label="New Stock Order"
                         button1-class="button-large-green"
                         on-button1-click="createManualOrder()">
     </shoppin-pal-header>
@@ -55,7 +55,7 @@
                     </table>
                     <div class="scrollable-table">
                         <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
-                            <tbody ng-repeat="storeReport in filteredLists | orderBy:['supplier.name', '-state', 'name']| groupBy: 'supplier.name'">
+                            <tbody ng-repeat="storeReport in filteredLists | orderBy:['supplier.name', '-created', '-state', 'name'] | groupBy: 'supplier.name'">
                                 <tr ng-if="storeReport.group_by_CHANGED"
                                     id="jumpto{{storeReport.supplier.name}}"
                                     class="inner-table-heading">
@@ -74,7 +74,10 @@
                                     ng-click="drilldownToReport($index, storeReport)"
                                     ng-swipe-left="editOrder($index, storeReport)"
                                     ng-class=" ($index+1)%2 == 0 ? 'tr-even' : 'tr-odd'">
-                                    <td width="5%">{{storeReport.id}}</td>
+                                    <td width="5%">
+                                        {{::storeReport.created | date:'yyyy-MM-dd @ h:mma'}}
+                                        <!--{{::storeReport.id}}-->
+                                    </td>
                                     <td width="10%"
                                         ng-if="storeReport.state.toLowerCase() === ReportModelStates.MANAGER_NEW_ORDERS">
                                         {{storeReport.name || "&lt;swipe right-to-left and rename this auto-generated report&gt;"}}
@@ -90,8 +93,41 @@
                                                              'status-square-manager-inProcess-storeLanding': storeReport.state == ReportModelStates.MANAGER_IN_PROCESS,
                                                              'status-square-receive': storeReport.state == ReportModelStates.MANAGER_RECEIVE}"></span>
                                             <span ng-if="storeReport.state == ReportModelStates.REPORT_COMPLETE">Completed</span>
-                                            <!--<div ng-if="storeReport.state === 'empty'">{{storeReport.workerStatus}}</div>
-                                            <div ng-if="storeReport.state !== 'empty'">{{storeReport.state}}</div>-->
+                                            <span ng-if="(storeReport.state == ReportModelStates.REPORT_EMPTY) && storeReport.workerStatus == 'queued'">
+                                                in the queue, waiting to run (tap to refresh status)
+                                            </span>
+                                            <span ng-if="(storeReport.state == ReportModelStates.REPORT_EMPTY) && storeReport.workerStatus == 'running'">
+                                                running (tap to refresh status)
+                                            </span>
+                                            <span ng-if="(storeReport.state == ReportModelStates.REPORT_EMPTY) && storeReport.workerStatus == 'complete'">
+                                                finished running (tap to refresh status)
+                                            </span>
+                                            <span ng-if="(storeReport.state == ReportModelStates.REPORT_EMPTY) && storeReport.workerStatus == 'error'">
+                                                error during processing
+                                            </span>
+                                            <span ng-if="(storeReport.state == ReportModelStates.REPORT_EMPTY) && storeReport.workerStatus == 'cancelled'">
+                                                cancelled by user
+                                            </span>
+                                            <span ng-if="(storeReport.state == ReportModelStates.REPORT_EMPTY) && storeReport.workerStatus == 'killed'">
+                                                killed by system
+                                            </span>
+                                            <span ng-if="(storeReport.state == ReportModelStates.REPORT_EMPTY) && storeReport.workerStatus == 'timeout'">
+                                                timed out
+                                            </span>
+                                            <span ng-if="(storeReport.state == ReportModelStates.REPORT_EMPTY) && storeReport.workerStatus == 'Queued up.'">
+                                                Queued up. (tap to refresh status)
+                                            </span>
+                                            <span ng-if="(storeReport.state == ReportModelStates.REPORT_EMPTY) &&
+                                                          storeReport.workerStatus != 'queued' &&
+                                                          storeReport.workerStatus != 'running' &&
+                                                          storeReport.workerStatus != 'complete' &&
+                                                          storeReport.workerStatus != 'error' &&
+                                                          storeReport.workerStatus != 'cancelled' &&
+                                                          storeReport.workerStatus != 'killed' &&
+                                                          storeReport.workerStatus != 'timeout' &&
+                                                          storeReport.workerStatus != 'Queued up.'">
+                                                Oops! Get an admin to have a look and clean this up.
+                                            </span>
                                         </div>
                                     </td>
                                     <td width="5%">{{storeReport.totalRows}}</td>

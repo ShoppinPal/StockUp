@@ -6,7 +6,7 @@
         <!-- Back button given here -->
         <div class="col-md-6 col-sm-6 col-xs-12">
           <div class="logo">
-            <div class="header-store-name">{{::storeName}}</div>
+            <div class="header-store-name">{{storeName}}</div>
             <div ng-show="!isHomePage">
               <a ng-if="homeState" class="fa fa-home shoppin-pal-home" ui-sref="{{::homeState}}"></a>
             </div>
@@ -24,6 +24,11 @@
                     type="submit" class="btn {{::button2Class}}"
                     ng-click="onButton2Click()" ng-disabled="button2Disabled()">
                 {{button2Label}}
+            </button>
+            <button ng-if="button3Label"
+                    type="submit" class="btn {{::button3Class}}"
+                    ng-click="onButton3Click()" ng-disabled="button3Disabled()">
+              {{button3Label}}
             </button>
           </div>
         </div>

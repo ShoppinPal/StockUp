@@ -1,0 +1,6 @@
+v1.1.1 - Aug 29, 2016
+- Hotfix bug that occured due to previous commits for Issue #191
+
+v1.1.0 - Aug 22, 2016
+- Fixed Issue #184 : Incompatible filename can crash the server
+- Fixed Issue #191 : Warehouser should see store name on top left

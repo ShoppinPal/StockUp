@@ -3,9 +3,10 @@
   "base": "PersistedModel",
   "idInjection": true,
   "properties": {
+    "id": {"type": "string", "generated": true, "id": true},
     "productId": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "sku": {
       "type": "string",
@@ -16,6 +17,10 @@
       "required": false
     },
     "quantityOnHand": {
+      "type": "number",
+      "required": false
+    },
+    "caseQuantity": {
       "type": "number",
       "required": false
     },
@@ -43,8 +48,8 @@
       "type": "string",
       "required": false
     },
-    "comment": {
-      "type": "string",
+    "comments": {
+      "type": "object",
       "required": false
     },
     "state": {
@@ -61,6 +66,10 @@
     },
     "vendConsignmentProduct": {
       "type": "object",
+      "required": false
+    },
+    "supplyPrice": {
+      "type": "number",
       "required": false
     }
   },

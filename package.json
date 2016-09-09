@@ -1,16 +1,19 @@
 {
   "name": "shoppinpal-warehouse-mongo",
-  "version": "1.0.5",
+  "version": "1.0.10",
   "dependencies": {
     "bluebird": "2.9.14",
     "compression": "^1.0.3",
+    "csvtojson": "0.4.2",
     "debug": "^2.1.0",
     "ejs": "~0.8.5",
     "errorhandler": "^1.1.1",
     "form-data": "~0.1.4",
     "iron_worker": "0.1.4",
+    "lodash": "3.10.1",
     "loopback": "2.18.0",
     "loopback-boot": "2.8.1",
+    "loopback-component-storage": "1.5.1",
     "loopback-connector-mongodb": "1.11.2",
     "loopback-datasource-juggler": "2.31.0",
     "nconf": "^0.7.1",
@@ -21,7 +24,7 @@
     "serve-favicon": "^2.0.1",
     "supertest-as-promised": "2.0.1",
     "underscore": "^1.7.0",
-    "vend-nodejs-sdk": "^1.0.7",
+    "vend-nodejs-sdk": "^1.0.13",
     "winston": "^0.8.3"
   },
   "optionalDependencies": {
@@ -47,6 +50,7 @@
     "grunt-karma": "~0.6.2",
     "grunt-localtunnel-me": "^0.1.1",
     "grunt-loopback-sdk-angular": "^1.1.2",
+    "grunt-mustache-render":"1.9.2",
     "grunt-ngmin": "~0.0.3",
     "grunt-open": "~0.2.3",
     "grunt-protractor-runner": "~0.2.4",
@@ -60,7 +64,9 @@
     "loopback-testing": "^1.0.3",
     "matchdep": "~0.3.0",
     "protractor": "~0.22.0",
-    "time-grunt": "~0.2.9"
+    "time-grunt": "~0.2.9",
+    "wd": "^0.3.12",
+    "wd-bridge": "0.0.2"
   },
   "engines": {
     "node": "0.10.x"

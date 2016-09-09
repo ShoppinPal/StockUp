@@ -9,46 +9,32 @@
    */
   angular.module('ShoppinPalApp').controller('WarehouseReportCtrl', [
     '$scope', '$state', '$stateParams', '$anchorScroll', '$location', '$filter', /* angular's modules/services/factories etc. */
-    'loginService', 'StockOrderLineitemModel', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
+    'loginService', 'uiUtils', 'StockOrderLineitemModel', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
     'deviceDetector', 'ngDialog', /* 3rd party modules/services/factories etc. */
     'ReportModelStates', /* constants */
     function ($scope, $state, $stateParams, $anchorScroll, $location, $filter,
-              loginService, StockOrderLineitemModel, ReportModel,
+              loginService, uiUtils, StockOrderLineitemModel, ReportModel,
               deviceDetector, ngDialog,
               ReportModelStates)
     {
-      var ROW_STATE_COMPLETE = 'boxed';
+      $scope.ReportModelStates = ReportModelStates;
+      $scope.ROW_STATE_COMPLETE = 'boxed';
 
       $scope.submit = 'Submit';
       $scope.closeBoxButtonLabel = 'CLOSE THIS BOX';
-      //$scope.printSlipButtonLabel = 'PRINT PACKING SLIP';
-      $scope.ReviewSubmitPage = true;
-      $scope.deviceDetector = deviceDetector;
+      $scope.printSlipButtonLabel = 'PRINT PACKING SLIP';
+
+      $scope.device = deviceDetector.device;
       $scope.boxes = [];
       $scope.selectedBox = null;
-      $scope.items = [];
+      $scope.itemsBeingViewed = [];
       $scope.allProcessed = false;
 
       /** @method onEditInit()
        * This method is called once user choose to edit a row using right swipe
        */
       $scope.onEditInit = function (item) {
-        var shoppinPalMainDiv = angular.element(document.querySelector('.shoppinPal-warehouse'));
-        if ($scope.deviceDetector.isDesktop()) {
-          shoppinPalMainDiv.bind('mousedown', function (event) {
-            if (!event.target.classList.contains('editable-panel')) {
-              $scope.dismissEdit(item);
-              shoppinPalMainDiv.unbind('mousedown');
-            }
-          });
-        } else {
-          shoppinPalMainDiv.bind('touchstart', function (event) {
-            if (!event.target.classList.contains('editable-panel')) {
-              $scope.dismissEdit(item);
-              shoppinPalMainDiv.unbind('touchstart');
-            }
-          });
-        }
+        uiUtils.bindToTrackDismissal($scope, item);
       };
 
       /** @method dismissEdit
@@ -58,20 +44,19 @@
         // update the backend
         /*console.log('update', {
           fulfilledQuantity: storeReportRow.fulfilledQuantity,
-          comment: storeReportRow.comment
+          comments: storeReportRow.comments
         });*/
         $scope.waitOnPromise = StockOrderLineitemModel.prototype$updateAttributes(
           { id: storeReportRow.id },
           {
             fulfilledQuantity: storeReportRow.fulfilledQuantity,
-            comment: storeReportRow.comment
+            comments: storeReportRow.comments
           }
         )
           .$promise.then(function(response){
             //console.log('updated', response);
             storeReportRow.updatedAt = response.updatedAt;
-            $scope.selectedRowIndex = $scope.storereportlength + 1; // dismiss the edit view in UI
-            //$scope.selectedRowIndex = -1; // @ayush: is there merit to one over the other?
+            uiUtils.handleNittyGrittyStuffForDismissingEditableRow($scope);
           });
       };
 
@@ -104,14 +89,15 @@
           var proceed = data.value;
           if (proceed) {
             //console.log('submitting report');
-            ReportModel.prototype$updateAttributes(
-              { id: $stateParams.reportId },
-              {
-                state: ReportModelStates.MANAGER_RECEIVE
-              }
-            )
-              .$promise.then(function(/*response*/){
-                //console.log('updated report', response);
+            // server-side will update the report's state and create the matching consignment in Vend
+            // and then set it from OPEN to SENT
+            $scope.waitOnPromise = ReportModel.setReportStatus({
+              id: $stateParams.reportId,
+              from: ReportModelStates.WAREHOUSE_FULFILL,
+              to: ReportModelStates.MANAGER_RECEIVE
+            })
+              .$promise.then(function(updatedReportModelInstance){
+                console.log('updatedReportModelInstance', updatedReportModelInstance);
                 $state.go('warehouse-landing');
               });
           }
@@ -129,7 +115,7 @@
           }
         });
         // copy the items (order by type) to a new list for display
-        $scope.items = $filter('orderBy')(angular.copy($scope.orderedItems), 'type');
+        $scope.itemsBeingViewed = $filter('orderBy')($scope.orderedItems, 'type');
       };
 
       var setupBoxes = function(response){
@@ -191,6 +177,28 @@
         //box.isOpen = false;
         $scope.selectedBox.isOpen = false;
         $scope.selectedBox = null;
+        $scope.toggleActiveBoxContents(false); // make sure that we go back to viewing unboxed products
+      };
+
+      $scope.displayBoxedContents = false;
+      $scope.toggleActiveBoxContents = function (beSpecific) {
+        if(beSpecific === true || beSpecific === false) {
+          $scope.displayBoxedContents = beSpecific;
+        }
+        else {
+          $scope.displayBoxedContents = !$scope.displayBoxedContents;
+        }
+
+        // TODO: update the JUMP-TO sidebar or completely delete it?
+        if ($scope.displayBoxedContents) {
+          var filterData1 = {'boxNumber': $scope.selectedBox.boxNumber};
+          $scope.itemsBeingViewed = $filter('filter')($scope.allOrderedItems, filterData1);
+        }
+        else {
+          var filterData2 = {'state': '!boxed'};
+          $scope.itemsBeingViewed = $filter('filter')($scope.orderedItems, filterData2);
+          $scope.itemsBeingViewed = $filter('orderBy')($scope.itemsBeingViewed, 'type');
+        }
       };
 
       /** @method moveToBox
@@ -199,15 +207,15 @@
       $scope.moveToBox = function (item, index) {
         if($scope.selectedBox) {
           $scope.selectedBox.totalItems ++; // update totals for current box
-          $scope.items.splice(index, 1); // remove the item from the currently rendered list
+          removeItem(index);
 
           $scope.waitOnPromise = StockOrderLineitemModel.prototype$updateAttributes(
             { id: item.id },
             {
               fulfilledQuantity: item.fulfilledQuantity,
-              comment: item.comment,
+              comments: item.comments,
               boxNumber: $scope.selectedBox.boxNumber,
-              state: ROW_STATE_COMPLETE
+              state: $scope.ROW_STATE_COMPLETE
             }
           )
             .$promise.then(function(response){
@@ -217,10 +225,11 @@
               // change the UI after the backend finishes for data-integrity/assurance
               // but if this visibly messes with UI/UX, we might want to do it earlier...
               item.updatedAt = response.updatedAt;
-              item.state = ROW_STATE_COMPLETE;
+              item.state = $scope.ROW_STATE_COMPLETE;
+              item.boxNumber = response.boxNumber;
 
               // check if all items have been processed, if yes close the box and enable submit button
-              if($scope.items.length === 0) {
+              if($scope.itemsBeingViewed.length === 0) {
                 $scope.allProcessed = true;
                 $scope.closeBox($scope.selectedBox);
               }
@@ -234,11 +243,55 @@
         }
       };
 
-      /** @method editWarehouse
+      var removeItem = function(rowIndex) {
+        console.log('remove the item from the currently rendered list');
+        $scope.itemsBeingViewed.splice(rowIndex, 1);
+
+        console.log('remove the item from the order~able list');
+        $scope.orderedItems.splice(rowIndex, 1);
+      };
+
+      var dismissEditableRow = function(rowIndex) {
+        // (1)
+        uiUtils.handleNittyGrittyStuffForDismissingEditableRow($scope);
+
+        // (2)
+        removeItem(rowIndex);
+      };
+
+      $scope.hideRow = function(rowIndex, item) {
+        console.log('> > > > > ', 'hideRow',
+          '\n\t', 'rowIndex', rowIndex,
+          '\n\t', '$scope.itemsBeingViewed[rowIndex]', $scope.itemsBeingViewed[rowIndex],
+          '\n\t', 'item', item,
+          '\n\t', 'equal?', ($scope.itemsBeingViewed[rowIndex]===item));
+
+        $scope.waitOnPromise = StockOrderLineitemModel.prototype$updateAttributes(
+          { id: item.id },
+          {
+            hidden: true
+          }
+        )
+          .$promise.then(function(response){
+            //console.log('updated', response);
+            item.hidden = response.hidden;
+            dismissEditableRow(rowIndex);
+          });
+      };
+
+      /** @method editRow
        * @param selectedRow
        * enable the edit mode in UI
        */
-      $scope.editWarehouse = function (selectedRow) {
+      $scope.editRow = function (selectedRow) {
+        console.log('inside editRow()');
+
+        /**
+         * As a rule-of-thumb its simpler for the editRow() method to go unbind everything else
+         * related to the previous row, before it sets a new selected row
+         */
+        uiUtils.handleNittyGrittyStuffForDismissingEditableRow($scope); // cleanup before starting
+
         $scope.selectedRowIndex = selectedRow;
       };
 
@@ -270,12 +323,12 @@
       $scope.goToDepartment = function (value) {
         var jumpToHash;
         if (value) {
-          for (var i = 0; i < $scope.items.length; i++) {
-            var type = $scope.items[i].type,
+          for (var i = 0; i < $scope.itemsBeingViewed.length; i++) {
+            var type = $scope.itemsBeingViewed[i].type,
                 typeFirstChar = type.slice(0, 1).toUpperCase();
             $scope.alphabets.push(typeFirstChar);
             if (typeFirstChar === value) {
-              jumpToHash = 'jumpTo' + $scope.items[i].type;
+              jumpToHash = 'jumpTo' + $scope.itemsBeingViewed[i].type;
               break; // stop at the first matching department
             }
           }
@@ -290,8 +343,8 @@
        */
       $scope.jumpToDepartment = function () {
         $scope.alphabets = [];
-        for (var i = 0; i < $scope.items.length; i++) {
-          var type = $scope.items[i].type,
+        for (var i = 0; i < $scope.itemsBeingViewed.length; i++) {
+          var type = $scope.itemsBeingViewed[i].type,
               typeFirstChar = type.slice(0, 1).toUpperCase();
           $scope.alphabets.push(typeFirstChar);
         }
@@ -301,10 +354,10 @@
       /*var makeItEasyToTestSubmission = function(){
         // auto place N-1 items in a box
         $scope.selectedBox.totalItems = $scope.orderedItems.length-1;
-        $scope.items = [$scope.orderedItems[$scope.orderedItems.length-1]];
+        $scope.itemsBeingViewed = [$scope.orderedItems[$scope.orderedItems.length-1]];
         console.log(
           '$scope.orderedItems.length', $scope.orderedItems.length, '\n',
-          '$scope.items.length', $scope.items.length, '\n',
+          '$scope.itemsBeingViewed.length', $scope.itemsBeingViewed.length, '\n',
           '$scope.selectedBox.totalItems', $scope.selectedBox.totalItems
         );
       };*/
@@ -317,24 +370,37 @@
        * This method will load the storesReport from api on view load
        */
       $scope.$on('$viewContentLoaded', function () {
-        $scope.device = $scope.deviceDetector.device;
         if($stateParams.reportId) {
           $scope.waitOnPromise = loginService.getReport($stateParams.reportId)
             .then(function (response) {
-              setupBoxes(response);
-              setupUnboxedItems(response);
+              $scope.storeName = response.storeName;
+              var lineItems = response.stockOrderLineitemModels;
+              $scope.allOrderedItems = lineItems;
+
+              //filter out anything with ordered quantity of zero from a warehouse report
+              lineItems = _.filter(lineItems, function(item){
+                return item.orderQuantity && item.orderQuantity > 0;
+              });
+              //filter out any hidden (pseudo-deleted) rows
+              lineItems = _.filter(lineItems, function(item){
+                return !item.hidden;
+              });
+
+              setupBoxes(lineItems);
+              setupUnboxedItems(lineItems);
               //makeItEasyToTestSubmission();
               $scope.jumpToDepartment();
             });
         }
         else { // if live data can't be loaded due to some bug, use MOCK data so testing can go on
           loginService.getWarehouseReport().then(function (response) {
+            $scope.allOrderedItems = response.data.stockOrderLineitemModels;
             $scope.orderedItems = response.data.stockOrderLineitemModels;
             angular.forEach($scope.orderedItems, function (item) {
               item.fulfilledQuantity = item.orderQuantity;
             });
             // copy the items (order by type) to a new list for display
-            $scope.items = $filter('orderBy')(angular.copy($scope.orderedItems), 'type');
+            $scope.itemsBeingViewed = $filter('orderBy')($scope.orderedItems, 'type');
             $scope.addNewBox();
             $scope.jumpToDepartment();
           });

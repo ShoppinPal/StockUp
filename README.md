@@ -64,6 +64,33 @@ bower install
 }
 ```
 
+#### Using Docker
+1. build a docker image (replacing DOCKER_HANDLE and SUBDOMAIN is upto you)
+
+  ```
+  cd ~/dev/ && \
+  git clone https://github.com/ShoppinPal/warehouse.git warehouse && \
+  cd ~/dev/warehouse \
+  docker build -t DOCKER_HANDLE/warehouse \
+    --build-arg VM_EXTERNAL_IP=SUBDOMAIN.ngrok.io \
+    --build-arg SEED_FILE=server/boot/seed.json \
+    ~/dev/w2
+  ```
+1. run a container in detached state
+
+  ```
+  docker run \
+     --env SKIP_SEEDING=false \
+     --env MONGOLAB_URI=mongodb://localhost:27000/warehouse \
+     --name warehouse \
+     --publish 3000:3000 --detach DOCKER_HANDLE/warehouse
+  ```
+1. follow the logs
+
+  ```
+  docker logs --follow warehouse
+  ```
+
 #### For developing dependencies alongside:
 ```
 cd ~/dev/
