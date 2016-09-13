@@ -1,0 +1,29 @@
+# circle.yml
+machine:
+  node:
+    version: 0.10.46
+  services:
+    - docker
+
+dependencies:
+  override:
+    # Extract the version number
+    - export PACKAGE_VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g')
+    - ./scripts/build/image.sh $PACKAGE_VERSION
+
+
+# test:
+#   post:
+#     - ./scripts/circle/ci
+#     - ./scripts/circle/build-binary
+
+deployment:
+  staging:
+    branch: develop
+    commands:
+      - ./scripts/deploy.sh $PACKAGE_VERSION
+
+  production:
+    branch: master
+    commands:
+      - ./scripts/deploy.sh $PACKAGE_VERSION

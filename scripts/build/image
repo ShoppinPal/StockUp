@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e
+
+if [ -z "$1" ]; then
+    >&2 echo "First argument must be image tag."
+    exit 1
+fi
+
+TAG=$1
+docker build -t shoppinpal/warehouse:$TAG .
