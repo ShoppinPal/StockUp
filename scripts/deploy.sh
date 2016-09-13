@@ -5,14 +5,15 @@ set -ex
 RAW_VERSION=$1
 # Extract the exact version number
 VERSION=$(echo $RAW_VERSION | sed 's/-.*//g')
-BUILD_TAG="$VERSION-${CIRCLE_BUILD_NUM}"
+BUILD_TAG="v$VERSION-b${CIRCLE_BUILD_NUM}"
 scripts/build/tag ${RAW_VERSION} ${BUILD_TAG}
+docker login -e ${DOCKER_EMAIL} -u ${DOCKER_USER} -p ${DOCKER_PASS}
 
 if [ "${CIRCLE_BRANCH}" = "master" ]; then
   scripts/build/tag ${BUILD_TAG} "prod-${BUILD_TAG}"
-  docker push shoppinpal/warehouse:prod-${BUILD_TAG}
+  docker push shoppinpal/warehouse:production-${BUILD_TAG}
 fi
 if [ "${CIRCLE_BRANCH}" = "develop" ]; then
-  scripts/build/tag ${BUILD_TAG} "stag-${BUILD_TAG}"
-  docker push shoppinpal/warehouse:stag-${BUILD_TAG}
+  scripts/build/tag ${BUILD_TAG} "staging-${BUILD_TAG}"
+  docker push shoppinpal/warehouse:staging-${BUILD_TAG}
 fi
