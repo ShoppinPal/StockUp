@@ -8,7 +8,7 @@ Create a branch, update version, and add release notes by running `make-branch`
 ./script/release/make-branch
 ```
 As part of this script you'll be asked to:
-1. Update the version in package.json
+1. Update the version in package.json and npm-shrinkwrap.json
 2. Write release notes in CHANGELOG.txt
 
   Almost every feature enhancement should be mentioned, with the most visible/exciting ones first. Use descriptive sentences and give context where appropriate.
@@ -27,6 +27,6 @@ As part of this script you'll be asked to:
 
 1. update CHANGELOG.txt to bring it in line with release.
 
-2. bump the version in package.json to the next minor version number with dev appended. For example, if you just released 1.4.0, update it to 1.5.0dev.
+2. bump the version in package.json and npm-shrinkwrap.json to the next minor version number with dev appended. For example, if you just released 1.4.0, update it to 1.5.0dev.
 
 2.Get the PR merged.

@@ -8,6 +8,9 @@ editor=${EDITOR:-vim}
 echo "Update version in package.json"
 $editor package.json
 
+echo "Update version in npm-shrinkwrap.json"
+$editor npm-shrinkwrap.json
+
 echo "Write release notes in CHANGELOG.txt"
 $editor CHANGELOG.txt
 
