@@ -72,10 +72,11 @@ module.exports = function(Container) {
 
           return StoreMappingModel.find({})
             .then(function(storeMappings){
+              orders = [];
               excelRows.forEach(function (row) {
                 var storeName = findMapping(row.CustomerNumber, storeMappings);
                 var orderType = row.CustomerPONumber ? 'NewItems' : 'WeeklyOrder';
-                if (!(orderExists(row.SalesOrderNumber, orders)) && storeName != false) {
+                if (storeName && (!(orderExists(row.SalesOrderNumber, orders)))) {
                   orders.push({
                     storeName: storeName,
                     supplierName: 'CSC',
@@ -177,6 +178,7 @@ module.exports = function(Container) {
 
 
            .then(function () {
+              excelRows = [];
               console.log("done!");
               next();
             });
