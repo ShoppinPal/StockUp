@@ -1,0 +1,5 @@
+#!/bin/bash
+
+RELEASE_VERSION=$(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g' | sed 's/-.*//g')
+git-flow release finish v${RELEASE_VERSION}
+git push --tags
