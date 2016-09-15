@@ -1,6 +1,7 @@
 #!/bin/bash
 
 RELEASE_VERSION=$(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g' | sed 's/-.*//g')
+echo "It is assumed that you have merged your changes into develop branch."
 echo "Creating a release branch release/$RELEASE_VERSION from develop branch"
 git checkout develop && git-flow release start v${RELEASE_VERSION}
 

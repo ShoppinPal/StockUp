@@ -1,6 +1,11 @@
 # Prerequisites
 The release require the following tools installed on the host:
-- https://github.com/nvie/gitflow/wiki/Installation
+- Installation
+
+  ```  brew install git-flow  ```
+- Initialize git-clow for the project
+
+  ``` git checkout master && git-flow init -d ```
 
 # To get started with a new release
 Create a branch, update version, and add release notes by running `make-branch`
