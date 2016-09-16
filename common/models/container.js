@@ -75,7 +75,7 @@ module.exports = function(Container) {
               orders = [];
               excelRows.forEach(function (row) {
                 var storeName = findMapping(row.CustomerNumber, storeMappings);
-                var orderType = row.CustomerPONumber ? 'NewItems' : 'WeeklyOrder';
+                var orderType = row.CustomerPONumber ? row.CustomerPONumber : 'WeeklyOrder';
                 if (storeName && (!(orderExists(row.SalesOrderNumber, orders)))) {
                   orders.push({
                     storeName: storeName,
