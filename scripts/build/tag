@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -ex
+SOURCE_TAG=$1
+DEST_TAG=$2
+
+docker tag shoppinpal/warehouse:${SOURCE_TAG} shoppinpal/warehouse:${DEST_TAG}
