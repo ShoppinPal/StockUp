@@ -24,6 +24,7 @@
     "grunt-rev": "^0.1.0",
     "grunt-usemin": "^2.0.2",
     "iron_worker": "0.1.4",
+    "jshint-stylish": "~0.1.5",
     "lodash": "3.10.1",
     "loopback": "2.18.0",
     "loopback-boot": "2.8.1",
