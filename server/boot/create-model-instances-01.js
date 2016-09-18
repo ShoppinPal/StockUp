@@ -133,6 +133,7 @@ module.exports = function(app, cb) {
   } catch (err) {
     debug('Please configure your data in `seed.json`.');
     debug('Copy `seed.json.template` to `seed.json` and replace the values with your own.');
+    return cb(err);
   }
 
   // DEBUG=boot:create-model-instances node server/server.js
