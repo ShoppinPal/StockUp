@@ -39,7 +39,7 @@ function createStoreMappings(app, cb){
               });
           },
           {concurrency:1}
-        )
+        );
       },
       {concurrency:1}
     )
