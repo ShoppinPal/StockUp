@@ -33,7 +33,7 @@
     "loopback-datasource-juggler": "2.31.0",
     "matchdep": "~0.3.0",
     "nconf": "^0.7.1",
-    "newrelic": "~1.6.0",
+    "newrelic": "1.30.3",
     "q": "^1.1.2",
     "request": "2.53.0",
     "request-promise": "0.3.2",

@@ -1,5 +1,18 @@
 'use strict';
 
+if (process.env.NEW_RELIC_ENABLED && process.env.NEW_RELIC_ENABLED.toLowerCase() === 'true' &&
+    process.env.NEW_RELIC_NO_CONFIG_FILE &&
+    process.env.NEW_RELIC_LICENSE_KEY &&
+    process.env.NEW_RELIC_APP_NAME &&
+    process.env.NEW_RELIC_LOG_LEVEL)
+{
+  console.log('starting newrelic agent');
+  require('newrelic');
+}
+else {
+  console.log('skipped newrelic agent');
+}
+
 global.Promise = require('bluebird');
 var loopback = require('loopback');
 var boot = require('loopback-boot');
