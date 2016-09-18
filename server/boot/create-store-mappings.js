@@ -13,7 +13,7 @@ function createStoreMappings(app, cb){
     seed = require('./seed.json');
     if(process.env.SKIP_SEEDING) {
       debug('Will skip the database seeding process');
-      cb();
+      return cb();
     }
   } catch (err) {
     debug('Please configure your data in `seed.json`.');
