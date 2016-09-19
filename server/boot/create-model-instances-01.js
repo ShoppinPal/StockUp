@@ -16,7 +16,7 @@ var createApplication = function(Application, model, callback){
   );
 };
 
-module.exports = function(app) {
+module.exports = function(app, cb) {
   var UserModel = app.models.UserModel;
   var Role = app.models.Role;
   var RoleMapping = app.models.RoleMapping;
@@ -128,11 +128,12 @@ module.exports = function(app) {
     seed = require('./seed.json');
     if(process.env.SKIP_SEEDING) {
       debug('Will skip the database seeding process');
-      return;
+      return cb();
     }
   } catch (err) {
     debug('Please configure your data in `seed.json`.');
     debug('Copy `seed.json.template` to `seed.json` and replace the values with your own.');
+    return cb(err);
   }
 
   // DEBUG=boot:create-model-instances node server/server.js
@@ -144,7 +145,7 @@ module.exports = function(app) {
   };
   createApplication(Application, newAppModel, function(err, appModel) {
     if (err) {
-      throw err;
+      cb(err);
     }
     debug('appModel', appModel);
 
@@ -152,7 +153,7 @@ module.exports = function(app) {
     createApplication(Application, newAppModel, function(err, appModel) {
       try {
         if (err) {
-          throw err;
+          cb(err);
         }
         debug(appModel);
 
@@ -380,11 +381,14 @@ module.exports = function(app) {
                 });
             }
           })
+          .then(function(){
+            cb();
+          })
           .catch(function(error){
             debug('error!');
             debug(error);
             //return debug('%j', error);
-            //cb(error);
+            cb(error);
           });
       } // end of try-block
       catch (e) {
@@ -394,7 +398,7 @@ module.exports = function(app) {
         else {
           console.trace(e);
         }
-        throw e;
+        cb(e);
       } // end of catch-block
     });
 

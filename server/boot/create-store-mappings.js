@@ -3,12 +3,8 @@
 var debug = require('debug')('boot:create-store-mappings');
 
 var Promise = require('bluebird');
-var _ = require('underscore');
 
-
-module.exports = createStoreMappings;
-
-function createStoreMappings(app,cb){
+function createStoreMappings(app, cb){
   var StoreModel = app.models.StoreModel;
   var StoreMappingModel = app.models.StoreMappingModel;
 
@@ -17,7 +13,7 @@ function createStoreMappings(app,cb){
     seed = require('./seed.json');
     if(process.env.SKIP_SEEDING) {
       debug('Will skip the database seeding process');
-      return;
+      return cb();
     }
   } catch (err) {
     debug('Please configure your data in `seed.json`.');
@@ -26,34 +22,36 @@ function createStoreMappings(app,cb){
   }
   if(seed){
     debug('seed each store-mapping, one-by-one');
-      return Promise.map(
-        seed.storeConfigModels,
-        function (storeData) {
-
-          return Promise.map(
-            storeData.storeMappingModels,
-            function(oneMapping){
-              return StoreMappingModel.findOrCreate(
-                {where:{code:oneMapping.code}},
-                oneMapping
-              )
-                .spread(function(mappingModelInstance,created){
-                  (created) ? debug('mapping created', 'StoreMappingModel', mappingModelInstance)
-                    : debug('mapping found', 'StoreMappingModel', mappingModelInstance);
+    Promise.map(
+      seed.storeConfigModels,
+      function (storeData) {
+        return Promise.map(
+          storeData.storeMappingModels || [],
+          function(oneMapping){
+            return StoreMappingModel.findOrCreate(
+              {where:{code:oneMapping.code}},
+              oneMapping
+            )
+              .spread(function(mappingModelInstance,created){
+                (created) ? debug('mapping created', 'StoreMappingModel', mappingModelInstance)
+                          : debug('mapping found', 'StoreMappingModel', mappingModelInstance);
+                return Promise.resolve();
               });
-            },
-            {concurrency:1}
-          )
-        },
-        {concurrency:1}
+          },
+          {concurrency:1}
+        );
+      },
+      {concurrency:1}
     )
     .then(function(){
       debug('Done with seeding mappings');
       cb();
     })
     .catch(function(err){
-      log.error('error',err);
+      debug('error', err);
       cb(err);
     });
   }
 }
+
+module.exports = createStoreMappings;
