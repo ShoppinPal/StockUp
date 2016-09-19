@@ -61,7 +61,7 @@
                     <div class="col-xs-8">
                         <input id="file-import-input"
                                type="file"
-                               accept=".csv"
+                               accept=".csv,.xls"
                                nv-file-select
                                uploader="orderController.uploader"/>
                         <span ng-if="orderController.uploader.queue.length===1 && orderController.validUpload">Ready for import: {{orderController.uploader.queue[0].file.name}}</span>

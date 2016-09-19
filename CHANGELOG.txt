@@ -1,3 +1,6 @@
+v1.2.0 - Sep 19, 2016
+- New feature for Excel File Import to generate orders for admin
+
 v1.1.1 - Aug 29, 2016
 - Hotfix bug that occured due to previous commits for Issue #191
 

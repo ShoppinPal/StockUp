@@ -73,7 +73,7 @@ ENV SCHEME=http
 ####
 ### start: logically grouped section of steps
 ## Step 26
-RUN gosu node npm install
+RUN gosu node npm install --production
 ## Step 27
 RUN gosu node npm install grunt-cli
 ## Step 28

@@ -1,0 +1,38 @@
+# circle.yml
+machine:
+  node:
+    version: 0.10.46
+  services:
+    - docker
+  hosts:
+    staging.warehouse.shoppinpal.com: 127.0.0.1
+
+  environment:
+    DATABASE_URL: mongodb://mongo-local:27017/test
+    DEBUG_OPTIONS: server:middleware:*,common:models:*,boot:*
+
+dependencies:
+  override:
+    # Extract the version number
+    - ./scripts/build/image $(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g')
+    - docker run --name mongo-local -d mongo
+
+
+test:
+  override:
+     - docker run -d --link mongo-local --name=warehouse -p 3000:3000 -e "MONGOLAB_URI=mongodb://mongo-local:27017/test" -e "NODE_ENV=staging" shoppinpal/warehouse:$(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g')
+     - docker ps | grep warehouse
+     - docker logs warehouse
+     #- curl --retry 10 --retry-delay 10 -v http://staging.warehouse.shoppinpal.com:3000
+
+
+deployment:
+  staging:
+    branch: develop
+    commands:
+        - ./scripts/deploy.sh $(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g')
+
+  production:
+    branch: master
+    commands:
+      - ./scripts/deploy.sh $(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g')
