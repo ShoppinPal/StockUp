@@ -10,7 +10,7 @@ scripts/build/tag ${RAW_VERSION} ${BUILD_TAG}
 docker login -e ${DOCKER_EMAIL} -u ${DOCKER_USER} -p ${DOCKER_PASS}
 
 if [ "${CIRCLE_BRANCH}" = "master" ]; then
-  scripts/build/tag ${BUILD_TAG} "prod-${BUILD_TAG}"
+  scripts/build/tag ${BUILD_TAG} "production-${BUILD_TAG}"
   docker push shoppinpal/warehouse:production-${BUILD_TAG}
 fi
 if [ "${CIRCLE_BRANCH}" = "develop" ]; then
