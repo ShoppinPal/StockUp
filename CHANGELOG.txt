@@ -1,3 +1,7 @@
+v1.2.1 - Sep 20, 2016
+- Fix for issue #206 by adding newRelic agent for performance monitoring (PR #205)
+- Fix for issue #199 by removing caseQuantity constraints (PR #209)
+
 v1.2.0 - Sep 19, 2016
 - New feature for Excel File Import to generate orders for admin
 

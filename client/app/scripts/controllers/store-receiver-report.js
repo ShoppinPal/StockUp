@@ -34,12 +34,7 @@
       $scope.decreaseQty = function (item) {
         item.receivedQuantity = parseInt(item.receivedQuantity, 10); // parse it from string to integer
         if (item.receivedQuantity > 0) {
-          if (item.caseQuantity) {
-            item.receivedQuantity -= item.caseQuantity;
-          }
-          else {
-            item.receivedQuantity -= 1;
-          }
+          item.receivedQuantity -= 1;
         }
       };
 
@@ -49,12 +44,7 @@
        */
       $scope.increaseQty = function (item) {
         item.receivedQuantity = parseInt(item.receivedQuantity, 10);
-        if (item.caseQuantity) {
-          item.receivedQuantity += item.caseQuantity;
-        }
-        else {
-          item.receivedQuantity += 1;
-        }
+        item.receivedQuantity += 1;
       };
 
       /** @method editRow()

@@ -1,9 +1,15 @@
 #!/bin/bash
 
+if [[ "$OSTYPE" == "linux-gnu" ]]; then
+  GITFLOW_COMMAND="git flow"
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  GITFLOW_COMMAND="git-flow"
+fi
 RELEASE_VERSION=$(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g' | sed 's/-.*//g')
 echo "It is assumed that you have merged your changes into develop branch."
 echo "Creating a release branch release/$RELEASE_VERSION from develop branch"
-git checkout develop && git flow release start v${RELEASE_VERSION}
+git checkout develop
+${GITFLOW_COMMAND} release start v${RELEASE_VERSION}
 
 editor=${EDITOR:-vim}
 echo "Update version in package.json"
@@ -22,4 +28,4 @@ git commit -a -m "Bump ${RELEASE_VERSION}" --signoff --no-verify
 
 
 echo "Push branch to docker remote"
-git flow release publish v${RELEASE_VERSION}
+${GITFLOW_COMMAND} release publish v${RELEASE_VERSION}
