@@ -92,7 +92,6 @@ module.exports = function(Container) {
                   if (row.SalesOrderNumber == singleOrder.orderNumber) {
                     singleOrder.items.push({
                       sku: row.ItemNumber,
-                      name: row.ItemDescription,
                       orderQuantity: row.QtyOrdered,
                       supplyPrice: row.UnitPrice
                     });

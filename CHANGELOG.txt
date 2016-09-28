@@ -1,3 +1,6 @@
+v1.2.2 - Sep 28, 2016
+- Hotfix bug for excel file feature which had issue of naming of products in reports not according to Vend
+
 v1.2.1 - Sep 20, 2016
 - Fix for issue #206 by adding newRelic agent for performance monitoring (PR #205)
 - Fix for issue #199 by removing caseQuantity constraints (PR #209)
