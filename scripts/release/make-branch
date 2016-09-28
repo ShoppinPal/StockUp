@@ -22,8 +22,7 @@ echo "Write release notes in CHANGELOG.txt"
 $editor CHANGELOG.txt
 
 git diff
-echo "Verify changes before commit. Exit the shell to commit changes"
-$SHELL || true
+echo "Verify changes before commit."
 git commit -a -m "Bump ${RELEASE_VERSION}" --signoff --no-verify
 
 
