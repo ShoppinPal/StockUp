@@ -89,7 +89,7 @@ module.exports = function(Container) {
 
               orders.forEach(function (singleOrder) {
                 excelRows.forEach(function (row) {
-                  if (row.SalesOrderNumber == singleOrder.orderNumber) {
+                  if (row.QtyBackordered==0 && row.SalesOrderNumber == singleOrder.orderNumber) {
                     singleOrder.items.push({
                       sku: row.ItemNumber,
                       orderQuantity: row.QtyOrdered,
