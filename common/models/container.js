@@ -89,12 +89,15 @@ module.exports = function(Container) {
 
               orders.forEach(function (singleOrder) {
                 excelRows.forEach(function (row) {
-                  if (row.QtyBackordered==0 && row.SalesOrderNumber == singleOrder.orderNumber) {
-                    singleOrder.items.push({
-                      sku: row.ItemNumber,
-                      orderQuantity: row.QtyOrdered,
-                      supplyPrice: row.UnitPrice
-                    });
+                  if (row.QtyShipped>0 && row.SalesOrderNumber == singleOrder.orderNumber) {
+                    if(!(startsWith(row.ItemNumber.toString(),"S-"))) {
+                      singleOrder.items.push({
+                        sku: row.ItemNumber,
+                        orderQuantity: row.QtyOrdered,
+                        fulfilledQuantity : row.QtyShipped,
+                        supplyPrice: row.UnitPrice
+                      });
+                    }
                   }
                 })
               });
@@ -451,4 +454,7 @@ module.exports = function(Container) {
     return false;
   };
 
+  var startsWith = function(str,substr){
+    return str.lastIndexOf(substr, 0) === 0;
+  }
 };
