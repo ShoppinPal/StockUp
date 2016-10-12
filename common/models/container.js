@@ -94,6 +94,7 @@ module.exports = function(Container) {
                       singleOrder.items.push({
                         sku: row.ItemNumber,
                         orderQuantity: row.QtyOrdered,
+                        fulfilledQuantity : row.QtyShipped,
                         supplyPrice: row.UnitPrice
                       });
                     }
