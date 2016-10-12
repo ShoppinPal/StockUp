@@ -1,3 +1,7 @@
+v1.2.4 - Oct 12,2016
+- Product names starting with "S-" excluded from order (PR #222)
+- Fulfilled quantity field added in report by default for excel file(Fix for issue #220) (PR #222)
+
 v1.2.3 - Oct 05,2016
 - Bug fix for additional checking required for backordered items
 
