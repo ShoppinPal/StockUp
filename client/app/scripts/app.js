@@ -2,6 +2,7 @@
 
 angular.module('ShoppinPalApp',[
   'angularFileUpload'
+  ,'btford.socket-io'
   ,'cgBusy'
   ,'geocoder'
   ,'mgcrea.ngStrap'

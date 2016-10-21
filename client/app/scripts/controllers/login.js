@@ -15,8 +15,10 @@ angular.module('ShoppinPalApp')
   .controller('LoginCtrl',[
     '$scope', '$sessionStorage', '$state', /* angular's modules/services/factories etc. */
     'UserModel', /* shoppinpal's custom modules/services/factories etc. */
+    '$sockets', /* 3rd party modules/services/factories etc. */
     function ($scope, $sessionStorage, $state,
-              UserModel)
+              UserModel,
+              $sockets)
     {
       $scope.userName = '';
       $scope.password = '';
