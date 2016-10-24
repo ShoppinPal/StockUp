@@ -325,6 +325,7 @@ module.exports = function (grunt) {
                 apiKey: '<%= buildProperties.prestashop.apiKey %>',
                 baseUrl: '<%= buildProperties.site.baseUrl %>',
                 loopbackApiRoot: '<%= buildProperties.restApiRoot %>',
+                notificationUrl: '<%= buildProperties.notificationUrl %>',
                 proxyUrl: '<%= buildProperties.site.proxyUrl %>',
                 vendAuthEndpoint: '<%= buildProperties.vend.auth_endpoint %>',
                 vendClientId: '<%= buildProperties.vend.client_id %>'

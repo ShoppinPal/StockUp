@@ -44,7 +44,8 @@ module.exports = function(ReportModel) {
 
   ReportModel.remoteMethod('generateStockOrderReportForManager', {
     accepts: [
-      {arg: 'id', type: 'string', required: true}
+      {arg: 'id', type: 'string', required: true},
+      {arg: 'notificationId', type: 'string', required: false}
     ],
     http: {path: '/:id/generateStockOrderReportForManager', verb: 'get'},
     returns: {arg: 'reportModelInstance', type: 'object', root:true}
@@ -452,8 +453,9 @@ module.exports = function(ReportModel) {
     }
   };
 
-  ReportModel.generateStockOrderReportForManager = function(id, cb) {
+  ReportModel.generateStockOrderReportForManager = function(id, notificationId, cb) {
     var currentUser = ReportModel.getCurrentUserModel(cb); // returns  immediately if no currentUser
+    log.debug('generateStockOrderReportForManager', 'notificationId', notificationId);
     if(currentUser) {
       // (1) generate a token for the worker to use on the currentUser's behalf
       currentUser.createAccessTokenAsync(1209600)// can't be empty ... time to live (in seconds) 1209600 is 2 weeks (default of loopback)
@@ -475,6 +477,12 @@ module.exports = function(ReportModel) {
                 reportModelInstance,
                 ReportModel.app.get('generateStockOrderWorker')
               );
+
+              // (5) Optionally, add a notification id for browser/client
+              //     so that the worker may let it know when its done
+              if (notificationId) {
+                options.json.notificationId = notificationId;
+              }
 
               return ReportModel.sendPayload(reportModelInstance, options, cb)
                 .then(function(updatedReportModelInstance){

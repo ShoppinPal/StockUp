@@ -96,8 +96,21 @@ angular.module('ShoppinPalApp',[
     }
   ])
 
-  .run(['$rootScope', '$sessionStorage', '$state', '$timeout', '$interval',
-    function($rootScope, $sessionStorage, $state, $timeout, $interval){
+  .run(['$rootScope', '$sessionStorage', '$state', '$timeout', '$interval', '$sockets',
+    function($rootScope, $sessionStorage, $state, $timeout, $interval, $sockets){
+
+      $sockets.on('register', function(id) {
+        console.log('app.js', 'socket:register', id);
+        $sessionStorage.socketId = id;
+      });
+
+      $sockets.on('notify', function(message) {
+        console.log('app.js', 'socket:notify', message);
+      });
+
+      $sockets.on('error', function(message) {
+        console.error('app.js', 'socket:error', message);
+      });
 
       $rootScope.$on('$stateChangeStart', function(event, toState){
         if(toState.authenticate && !$sessionStorage.currentUser) {

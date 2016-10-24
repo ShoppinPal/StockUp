@@ -192,7 +192,8 @@ angular.module('ShoppinPalApp').controller(
             console.log(reportModelInstance);
             return ReportModel.generateStockOrderReportForManager(
               {
-                id: reportModelInstance.id
+                id: reportModelInstance.id,
+                notificationId: $sessionStorage.socketId
               },
               function(response){
                 console.log(response);
