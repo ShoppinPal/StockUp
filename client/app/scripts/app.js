@@ -21,13 +21,14 @@ angular.module('ShoppinPalApp',[
   ,'shoppinpal-vend'
   ,'sp-alerts'
   ,'sp-formatters'
+  ,'ui-notification'
   ,'ui.router'
   ,'ui.utils'
 ])
 
   .config([
-    '$stateProvider', '$urlRouterProvider', 'LoopBackResourceProvider', 'baseUrl', 'loopbackApiRoot',
-    function ($stateProvider, $urlRouterProvider, LoopBackResourceProvider, baseUrl, loopbackApiRoot) {
+    '$stateProvider', '$urlRouterProvider', 'LoopBackResourceProvider', 'NotificationProvider', 'baseUrl', 'loopbackApiRoot',
+    function ($stateProvider, $urlRouterProvider, LoopBackResourceProvider, NotificationProvider, baseUrl, loopbackApiRoot) {
       $stateProvider
         .state('login', {
           url: '/login',
@@ -93,19 +94,30 @@ angular.module('ShoppinPalApp',[
 
       // Configure backend URL
       LoopBackResourceProvider.setUrlBase(baseUrl + loopbackApiRoot);
+
+      NotificationProvider.setOptions({
+        delay: 15000,
+        startTop: 20,
+        startRight: 10,
+        verticalSpacing: 20,
+        horizontalSpacing: 20,
+        positionX: 'right',
+        positionY: 'top'
+      });
     }
   ])
 
-  .run(['$rootScope', '$sessionStorage', '$state', '$timeout', '$interval', '$sockets',
-    function($rootScope, $sessionStorage, $state, $timeout, $interval, $sockets){
+  .run(['$rootScope', '$sessionStorage', '$state', '$timeout', '$interval', '$sockets', '$spAlerts', 'Notification',
+    function($rootScope, $sessionStorage, $state, $timeout, $interval, $sockets, $spAlerts, Notification){
 
       $sockets.on('register', function(id) {
         console.log('app.js', 'socket:register', id);
         $sessionStorage.socketId = id;
       });
 
-      $sockets.on('notify', function(message) {
-        console.log('app.js', 'socket:notify', message);
+      $sockets.on('notify', function(notification) {
+        console.log('app.js', 'socket:notify', notification);
+        Notification.success(notification.message);
       });
 
       $sockets.on('error', function(message) {
