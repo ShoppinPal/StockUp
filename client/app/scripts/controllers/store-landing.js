@@ -11,11 +11,11 @@ angular.module('ShoppinPalApp')
   .controller('StoreLandingCtrl', [
     '$scope', '$anchorScroll', '$location', '$state', '$filter', '$sessionStorage', /* angular's modules/services/factories etc. */
     'uiUtils','UserModel', 'LoopBackAuth', 'StoreModel', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
-    'deviceDetector', 'ngDialog', /* 3rd party modules/services/factories etc. */
+    'deviceDetector', 'ngDialog', 'Notification', /* 3rd party modules/services/factories etc. */
     'ReportModelStates', /* constants */
     function($scope, $anchorScroll, $location, $state, $filter, $sessionStorage,
              uiUtils, UserModel, LoopBackAuth, StoreModel, ReportModel,
-             deviceDetector, ngDialog,
+             deviceDetector, ngDialog, Notification,
              ReportModelStates)
     {
       $scope.storeName = ($sessionStorage.currentStore) ? $sessionStorage.currentStore.name : null;
@@ -293,5 +293,16 @@ angular.module('ShoppinPalApp')
         }
       };
 
+      $scope.$on('socket:notify', function (event, notification) {
+        console.log('store-landing.js', 'socket:notify', event);
+        if (notification && notification.message) {
+          Notification.success({
+            message: notification.message,
+            onClose: function() {
+              return $state.go($state.current, {}, {reload: true}); // $stateParams isn't injected, therefore not reused
+            }
+          });
+        }
+      });
     }
   ]);

@@ -107,18 +107,15 @@ angular.module('ShoppinPalApp',[
     }
   ])
 
-  .run(['$rootScope', '$sessionStorage', '$state', '$timeout', '$interval', '$sockets', '$spAlerts', 'Notification',
-    function($rootScope, $sessionStorage, $state, $timeout, $interval, $sockets, $spAlerts, Notification){
+  .run(['$rootScope', '$sessionStorage', '$state', '$timeout', '$interval', '$sockets',
+    function($rootScope, $sessionStorage, $state, $timeout, $interval, $sockets){
 
       $sockets.on('register', function(id) {
         console.log('app.js', 'socket:register', id);
         $sessionStorage.socketId = id;
       });
 
-      $sockets.on('notify', function(notification) {
-        console.log('app.js', 'socket:notify', notification);
-        Notification.success(notification.message);
-      });
+      $sockets.forward('notify');
 
       $sockets.on('error', function(message) {
         console.error('app.js', 'socket:error', message);
