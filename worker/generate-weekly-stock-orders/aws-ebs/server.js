@@ -2,7 +2,16 @@ var http = require('http');
 
 var logger = require('tracer').console(); //var logger = console;
 
+var taskId, messageId;
+require('log-prefix')(function() {
+    return '[taskId:'+taskId+'] [messageId:'+messageId+']';
+});
+
 http.createServer(function(req,res){
+
+    taskId = Date.now();
+    logger.debug('req.headers:', req.headers);
+    messageId = req.headers['x-aws-sqsd-msgid'];
 
     req.on('data',function(data){
         var payload, config;

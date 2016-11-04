@@ -6,15 +6,16 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "aws-sdk":"2.0.*",
+    "aws-sdk": "2.0.*",
     "bluebird": "3.3.5",
     "iron_worker": "0.1.6",
-    "mime":"1.2.*",
-    "request":"2.45.*",
+    "log-prefix": "https://registry.npmjs.org/log-prefix/-/log-prefix-0.0.0.tgz",
+    "mime": "1.2.*",
+    "request": "2.45.*",
     "tracer": "0.8.3",
-    "winston":"0.8.*"
+    "winston": "0.8.*"
   },
-  "engines" : {
-    "node" : "0.10.44"
+  "engines": {
+    "node": "0.10.44"
   }
 }

@@ -275,6 +275,11 @@
         }
       }
     },
+    "log-prefix": {
+      "version": "0.0.0",
+      "from": "log-prefix@latest",
+      "resolved": "https://registry.npmjs.org/log-prefix/-/log-prefix-0.0.0.tgz"
+    },
     "mime": {
       "version": "1.2.11",
       "from": "mime@>=1.2.0 <1.3.0",
