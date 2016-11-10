@@ -492,19 +492,14 @@ module.exports = function(ReportModel) {
   ReportModel.preparePayload = function(storeModelInstance, domainPrefix, newAccessToken, reportModelInstance, workerName){
     log.debug('prepare payload for worker');
     return {
-      url: ReportModel.app.get('ironWorkersUrl'),
-      qs: {
-        'oauth': ReportModel.app.get('ironWorkersOauthToken'),
-        'code_name': workerName || ReportModel.app.get('stockOrderWorker'),
-        'priority': 1
-      },
       json: {
+        op: workerName || ReportModel.app.get('stockOrderWorker'),
         tokenService: 'https://{DOMAIN_PREFIX}.vendhq.com/api/1.0/token', //TODO: fetch from global-config or config.*.json
         clientId: ReportModel.app.get('vend').client_id,
         clientSecret: ReportModel.app.get('vend').client_secret,
         tokenType: 'Bearer',
-        accessToken: storeModelInstance.storeConfigModel().vendAccessToken,//'XN4ceup1M9Rp6Sf1AqeqarDjN9TMa06Mwr15K7lk',
-        refreshToken: storeModelInstance.storeConfigModel().vendRefreshToken,//'qSl8JF9fD2UMGAZfpsN2yr2d8XRNZgmQEKh7v5jp',
+        accessToken: storeModelInstance.storeConfigModel().vendAccessToken,
+        refreshToken: storeModelInstance.storeConfigModel().vendRefreshToken,
         domainPrefix: domainPrefix, //'fermiyontest', // TODO: extract from storeConfigModelInstance.posUrl
         loopbackServerUrl: process.env['site:baseUrl'] || ReportModel.app.get('site').baseUrl,
         //loopbackServerHost: 'mppulkit1.localtunnel.me',
@@ -520,14 +515,35 @@ module.exports = function(ReportModel) {
   };
 
   ReportModel.sendPayload = function(reportModelInstance, options, cb){
-    log.debug('will send a request with', 'options:', JSON.stringify(options,null,2));
-    return request.post(options)
+    log.debug('will send a request with', 'options.json', JSON.stringify(options.json,null,2));
+
+    var AWS = require('aws-sdk');
+    var sqs = new AWS.SQS({
+      region: ReportModel.app.get('awsQueueRegion'),
+      accessKeyId: ReportModel.app.get('awsQueueAccessKeyId'),
+      secretAccessKey: ReportModel.app.get('awsQueueSecretAccessKey')
+    });
+    //var msg = { payload: 'a message' };
+    var sqsParams = {
+      MessageBody: JSON.stringify(options.json),
+      QueueUrl: ReportModel.app.get('awsQueueUrl')
+    };
+    var sendMessageAsync = Promise.promisify(sqs.sendMessage, sqs);
+    return sendMessageAsync(sqsParams)
       .then(successHandler)
       .then(function(data){
         log.debug('save the task info in ReportModel', JSON.stringify(data,null,2));
+        /*SQS sample response:
+        {
+          "ResponseMetadata": {
+            "RequestId": "aaa"
+          },
+          "MD5OfMessageBody": "bbb",
+          "MessageId": "ccc"
+        }*/
         return reportModelInstance.updateAttributes({
-          workerTaskId: data.id,
-          workerStatus: data.msg
+          workerTaskId: data.MessageId //data.id
+          //,workerStatus: data.msg
         });
       })
       .catch(ClientError, function(e) {
@@ -552,43 +568,9 @@ module.exports = function(ReportModel) {
       });
   };
 
+  // DEPRECATED: remove from loopback-server and angular-UI side as well
   ReportModel.getWorkerStatus = function(id, cb) {
-    var currentUser = ReportModel.getCurrentUserModel(cb); // returns  immediately if no currentUser
-    if(currentUser) {
-      // (1) fetch the report
-      ReportModel.findById(id, function (error, reportModelInstance) {
-        //log.trace('reportModelInstance:', reportModelInstance);
-
-        // (2) setup the iron worker client
-        var IronWorker = require('iron_worker');
-        var workerClient = new IronWorker.Client({
-          token: ReportModel.app.get('ironWorkersOauthToken'),
-          'project_id': ReportModel.app.get('ironWorkersProjectId')
-        });
-
-        // (3) fetch the task status
-        if(reportModelInstance.workerTaskId) {
-          workerClient.tasksGet(reportModelInstance.workerTaskId, function(error, body) {
-            if (error) {
-              console.error(error);
-              return cb(error);
-            }
-            log.debug(JSON.stringify(body, null, 2));
-            //return cb(null, body);
-            return reportModelInstance.updateAttributes({
-              workerStatus: body.status //body.msg || body.status
-            })
-              .then(function(updatedReportModelInstance){
-                log.debug('return the updated ReportModel');
-                cb(null, updatedReportModelInstance);
-              });
-          });
-        }
-        else {
-          cb(null);
-        }
-      });
-    }
+    cb(null);
   };
 
   ReportModel.setReportStatus = function(id, from, to, cb) {
@@ -718,7 +700,6 @@ module.exports = function(ReportModel) {
                         updatedReportModelInstance,
                         ReportModel.app.get('removeUnfulfilledProducts')
                       );
-                      options.json.op = 'removeUnfulfilledProducts'; // TODO: remove the need to specify this
                       log.debug('inside setReportStatus() - updated the report model (assuming generated order)' +
                         ' removeUnfulfilledProducts > payload ready');
 
@@ -765,7 +746,6 @@ module.exports = function(ReportModel) {
                       updatedReportModelInstance,
                       ReportModel.app.get('removeUnreceivedProducts')
                     );
-                    options.json.op = 'removeUnreceivedProducts'; // TODO: remove the need to specify this
                     log.debug('inside setReportStatus() - updated the report model' +
                       ' removeUnreceivedProducts > payload ready');
 
