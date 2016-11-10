@@ -102,6 +102,15 @@ module.exports = function(Container) {
                 })
               });
 
+              orders.forEach(function(singleOrder){
+                if(singleOrder.items.length == 0){
+                  var index = orders.indexOf(singleOrder);
+                  if (index > -1) {
+                    orders.splice(index, 1);
+                  }
+                }
+              });
+
               Promise.map(orders,
                 function (singleOrder) {
                   return createReportModelForExcel(singleOrder, Container, next)
