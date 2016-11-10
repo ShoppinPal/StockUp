@@ -1,3 +1,6 @@
+v1.2.5 - Nov 10,2016
+- Cornercase fixing for removing itemless orders(PR #227)
+
 v1.2.4 - Oct 12,2016
 - Product names starting with "S-" excluded from order (PR #222)
 - Fulfilled quantity field added in report by default for excel file(Fix for issue #220) (PR #222)
