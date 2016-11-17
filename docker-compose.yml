@@ -1,0 +1,16 @@
+version: "2"
+
+services:
+  web:
+    build: .
+    environment:
+      NODE_ENV: local
+      MONGOLAB_URI: mongodb://db:27017/warehouse-local
+    command: nodemon --debug=5858
+    volumes:
+      - .:/apps/warehouse
+    ports:
+      - "3000:3000"
+      - "5858:5858"
+  db:
+    image: mongo:3.2
