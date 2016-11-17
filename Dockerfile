@@ -1,5 +1,9 @@
 FROM node:0.10.48
 RUN apt-get -y update && apt-get -y dist-upgrade
+RUN chown -R node:node /usr/local
+RUN apt-get -y update && apt-get install -y python-pip && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
+RUN pip install awscli
+ENV DEBIAN_FRONTEND=noninteractive
 ENV GOSU_VERSION 1.7
 RUN set -x \
 	&& apt-get update && apt-get install -y --no-install-recommends ca-certificates wget && rm -rf /var/lib/apt/lists/* \
@@ -12,23 +16,16 @@ RUN set -x \
 	&& chmod +x /usr/local/bin/gosu \
 	&& gosu nobody true \
 	&& apt-get purge -y --auto-remove ca-certificates wget
-
-ENV SCHEME=http
-RUN chown -R node:node /usr/local
-RUN apt-get -y update && apt-get install -y python-pip
-RUN pip install awscli
-ENV DEBIAN_FRONTEND=noninteractive
 RUN mkdir -p /apps/warehouse
 RUN chown -R node:node /apps/warehouse
 WORKDIR /apps/warehouse
 RUN npm install -g nodemon
 COPY package.json /apps/warehouse/package.json
-RUN npm install --production
-RUN npm install grunt-cli
-RUN npm install bower
+RUN npm install --production && npm install grunt-cli && npm install bower
 RUN mv /apps/warehouse/node_modules /apps/node_modules
 COPY . /apps/warehouse
 RUN ../node_modules/bower/bin/bower --allow-root install
+ENV SCHEME=http
 ENV DEBUG=shoppinpal:*,boot:*,common:models:*,server:*
 ENTRYPOINT [ "./docker-entrypoint.sh" ]
 EXPOSE 3000
