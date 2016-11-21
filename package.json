@@ -2,6 +2,7 @@
   "name": "shoppinpal-warehouse-mongo",
   "version": "1.2.5",
   "dependencies": {
+    "aws-sdk": "2.6.15",
     "bluebird": "2.9.14",
     "compression": "^1.0.3",
     "csvtojson": "0.4.2",
