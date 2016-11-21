@@ -1,6 +1,7 @@
 'use strict';
 
 module.exports = function (grunt) {
+  grunt.file.expand('../node_modules/grunt-*/tasks').forEach(grunt.loadTasks);
   require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
 
   // Time how long tasks take. Can help when optimizing build times
