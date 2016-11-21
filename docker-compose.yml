@@ -6,6 +6,7 @@ services:
     environment:
       NODE_ENV: local
       MONGOLAB_URI: mongodb://db:27017/warehouse-local
+    env_file: .env
     command: nodemon -L --debug=5858
     volumes:
       - .:/apps/warehouse
