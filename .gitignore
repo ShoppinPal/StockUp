@@ -1,6 +1,7 @@
 .idea
 .tmp
 .sass-cache
+.env
 node_modules/
 dist/
 client/app/bower_components
