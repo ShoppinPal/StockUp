@@ -6,7 +6,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - nginx.warehouse.conf:/etc/nginx/conf.d/nginx.warehouse.conf
+      - ./nginx.warehouse.conf:/etc/nginx/conf.d/nginx.warehouse.conf
     depends_on:
       - web
       - worker-web
