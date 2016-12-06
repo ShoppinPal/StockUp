@@ -1,6 +1,15 @@
 version: "2"
 
 services:
+  lb:
+    image: nginx:stable
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.warehouse.conf:/etc/nginx/conf.d/nginx.warehouse.conf
+    depends_on:
+      - web
+      - worker-web
   web:
     build: .
     environment:
@@ -10,10 +19,16 @@ services:
     command: nodemon -L --debug=5858
     volumes:
       - .:/apps/warehouse
-    ports:
-      - "3000:3000"
-      - "5858:5858"
+  worker-web:
+    build: .
+    environment:
+      NODE_ENV: local
+      MONGOLAB_URI: mongodb://db:27017/warehouse-local
+    env_file: .env
+    command: nodemon -L --debug=5858
+    volumes:
+      - .:/apps/warehouse
   db:
     image: mongo:3.2
     ports:
-      - "27017:27017"
+      - "27018:27017"

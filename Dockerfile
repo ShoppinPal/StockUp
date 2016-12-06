@@ -2,9 +2,9 @@ FROM node:0.10.48
 RUN apt-get -y update && apt-get -y dist-upgrade
 RUN chown -R node:node /usr/local
 RUN apt-get -y update && apt-get -y dist-upgrade && apt-get install -y python-pip python-dev && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
-RUN pip install awscli
+RUN pip install awscli --upgrade
 ENV DEBIAN_FRONTEND=noninteractive
-ENV GOSU_VERSION 1.7
+ENV GOSU_VERSION 1.10
 RUN set -x \
 	&& apt-get update && apt-get install -y --no-install-recommends ca-certificates wget && rm -rf /var/lib/apt/lists/* \
 	&& wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture)" \
