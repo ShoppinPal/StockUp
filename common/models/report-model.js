@@ -496,86 +496,291 @@ module.exports = function(ReportModel) {
       supplierIdForPayload = reportModelInstance.supplier.id;
       supplierNameForPayload = reportModelInstance.supplier.name;
     }
-    return {
-      json: {
-        op: workerName || ReportModel.app.get('stockOrderWorker'),
-        tokenService: 'https://{DOMAIN_PREFIX}.vendhq.com/api/1.0/token', //TODO: fetch from global-config or config.*.json
-        clientId: ReportModel.app.get('vend').client_id,
-        clientSecret: ReportModel.app.get('vend').client_secret,
-        tokenType: 'Bearer',
-        accessToken: storeModelInstance.storeConfigModel().vendAccessToken,
-        refreshToken: storeModelInstance.storeConfigModel().vendRefreshToken,
-        domainPrefix: domainPrefix, //'fermiyontest', // TODO: extract from storeConfigModelInstance.posUrl
-        loopbackServerUrl: process.env['site:baseUrl'] || ReportModel.app.get('site').baseUrl,
-        //loopbackServerHost: 'mppulkit1.localtunnel.me',
-        //loopbackServerPort: '443',
-        loopbackAccessToken: newAccessToken, // let it be the full json object
-        reportId: reportModelInstance.id,
-        outletName: reportModelInstance.outlet.name,
-        supplierName: supplierNameForPayload,
-        outletId: reportModelInstance.outlet.id,//'aea67e1a-b85c-11e2-a415-bc764e10976c',
-        supplierId: supplierIdForPayload//'c364c506-f8f4-11e3-a0f5-b8ca3a64f8f4'
-      }
-    };
+
+    if(ReportModel.app.get('workerType') == "AWS"){
+      return {
+        json: {
+          op: workerName || ReportModel.app.get('stockOrderWorker'),
+          tokenService: 'https://{DOMAIN_PREFIX}.vendhq.com/api/1.0/token', //TODO: fetch from global-config or config.*.json
+          clientId: ReportModel.app.get('vend').client_id,
+          clientSecret: ReportModel.app.get('vend').client_secret,
+          tokenType: 'Bearer',
+          accessToken: storeModelInstance.storeConfigModel().vendAccessToken,
+          refreshToken: storeModelInstance.storeConfigModel().vendRefreshToken,
+          domainPrefix: domainPrefix, //'fermiyontest', // TODO: extract from storeConfigModelInstance.posUrl
+          loopbackServerUrl: process.env['site:baseUrl'] || ReportModel.app.get('site').baseUrl,
+          //loopbackServerHost: 'mppulkit1.localtunnel.me',
+          //loopbackServerPort: '443',
+          loopbackAccessToken: newAccessToken, // let it be the full json object
+          reportId: reportModelInstance.id,
+          outletName: reportModelInstance.outlet.name,
+          supplierName: supplierNameForPayload,
+          outletId: reportModelInstance.outlet.id,//'aea67e1a-b85c-11e2-a415-bc764e10976c',
+          supplierId: supplierIdForPayload//'c364c506-f8f4-11e3-a0f5-b8ca3a64f8f4'
+        }
+      };
+    }
+    else if(ReportModel.app.get('workerType') == "IronWorker"){
+      return {
+        url: ReportModel.app.get('ironWorkersUrl'),
+        qs: {
+          'oauth': ReportModel.app.get('ironWorkersOauthToken'),
+          'code_name': workerName || ReportModel.app.get('stockOrderWorker'),
+          'priority': 1
+        },
+        json: {
+          tokenService: 'https://{DOMAIN_PREFIX}.vendhq.com/api/1.0/token', //TODO: fetch from global-config or config.*.json
+          clientId: ReportModel.app.get('vend').client_id,
+          clientSecret: ReportModel.app.get('vend').client_secret,
+          tokenType: 'Bearer',
+          accessToken: storeModelInstance.storeConfigModel().vendAccessToken,//'XN4ceup1M9Rp6Sf1AqeqarDjN9TMa06Mwr15K7lk',
+          refreshToken: storeModelInstance.storeConfigModel().vendRefreshToken,//'qSl8JF9fD2UMGAZfpsN2yr2d8XRNZgmQEKh7v5jp',
+          domainPrefix: domainPrefix, //'fermiyontest', // TODO: extract from storeConfigModelInstance.posUrl
+          loopbackServerUrl: process.env['site:baseUrl'] || ReportModel.app.get('site').baseUrl,
+          //loopbackServerHost: 'mppulkit1.localtunnel.me',
+          //loopbackServerPort: '443',
+          loopbackAccessToken: newAccessToken, // let it be the full json object
+          reportId: reportModelInstance.id,
+          outletName: reportModelInstance.outlet.name,
+          supplierName: supplierNameForPayload,
+          outletId: reportModelInstance.outlet.id,//'aea67e1a-b85c-11e2-a415-bc764e10976c',
+          supplierId: supplierIdForPayload//'c364c506-f8f4-11e3-a0f5-b8ca3a64f8f4'
+        }
+      };
+    }
+    else{
+      return {
+        url: ReportModel.app.get('ironWorkersUrl'),
+        qs: {
+          'oauth': ReportModel.app.get('ironWorkersOauthToken'),
+          'code_name': workerName || ReportModel.app.get('stockOrderWorker'),
+          'priority': 1
+        },
+        json: {
+          tokenService: 'https://{DOMAIN_PREFIX}.vendhq.com/api/1.0/token', //TODO: fetch from global-config or config.*.json
+          clientId: ReportModel.app.get('vend').client_id,
+          clientSecret: ReportModel.app.get('vend').client_secret,
+          tokenType: 'Bearer',
+          accessToken: storeModelInstance.storeConfigModel().vendAccessToken,
+          refreshToken: storeModelInstance.storeConfigModel().vendRefreshToken,
+          domainPrefix: domainPrefix, //'fermiyontest', // TODO: extract from storeConfigModelInstance.posUrl
+          loopbackServerUrl: process.env['site:baseUrl'] || ReportModel.app.get('site').baseUrl,
+          //loopbackServerHost: 'mppulkit1.localtunnel.me',
+          //loopbackServerPort: '443',
+          loopbackAccessToken: newAccessToken, // let it be the full json object
+          reportId: reportModelInstance.id,
+          outletName: reportModelInstance.outlet.name,
+          supplierName: supplierNameForPayload,
+          outletId: reportModelInstance.outlet.id,//'aea67e1a-b85c-11e2-a415-bc764e10976c',
+          supplierId: supplierIdForPayload//'c364c506-f8f4-11e3-a0f5-b8ca3a64f8f4'
+        }
+      };
+    }
+
+
   };
 
   ReportModel.sendPayload = function(reportModelInstance, options, cb){
     log.debug('will send a request with', 'options.json', JSON.stringify(options.json,null,2));
 
-    var AWS = require('aws-sdk');
-    var sqs = new AWS.SQS({
-      region: ReportModel.app.get('awsQueueRegion'),
-      accessKeyId: ReportModel.app.get('awsQueueAccessKeyId'),
-      secretAccessKey: ReportModel.app.get('awsQueueSecretAccessKey')
-    });
-    //var msg = { payload: 'a message' };
-    var sqsParams = {
-      MessageBody: JSON.stringify(options.json),
-      QueueUrl: ReportModel.app.get('awsQueueUrl')
-    };
-    var sendMessageAsync = Promise.promisify(sqs.sendMessage, sqs);
-    return sendMessageAsync(sqsParams)
-      .then(successHandler)
-      .then(function(data){
-        log.debug('save the task info in ReportModel', JSON.stringify(data,null,2));
-        /*SQS sample response:
-        {
-          "ResponseMetadata": {
-            "RequestId": "aaa"
-          },
-          "MD5OfMessageBody": "bbb",
-          "MessageId": "ccc"
-        }*/
-        return reportModelInstance.updateAttributes({
-          workerTaskId: data.MessageId //data.id
-          //,workerStatus: data.msg
+    if(ReportModel.app.get('workerType') == "IronWorker") {
+      return request.post(options)
+        .then(successHandler)
+        .then(function (data) {
+          log.debug('save the task info in ReportModel', JSON.stringify(data, null, 2));
+          return reportModelInstance.updateAttributes({
+            workerTaskId: data.id,
+            workerStatus: data.msg
+          });
+        })
+        .catch(ClientError, function (e) {
+          var message = e.response.body;
+          if (_.isObject(message)) {
+            message = JSON.stringify(message, null, 2);
+          }
+          console.error('A ClientError happened: \n'
+            + e.statusCode + ' ' + message + '\n'
+            /*+ JSON.stringify(e.response.headers,null,2)
+             + JSON.stringify(e,null,2)*/
+          );
+          // TODO: add retry logic?
+          //return Promise.reject(e.statusCode + ' ' + message); // TODO: throw unknown errors but reject well known errors?
+          cb(e.statusCode + ' ' + message);
+        })
+        .catch(function (e) {
+          console.error('report-model.js - generateStockOrderReportForManager - An unexpected error occurred: ', e);
+          //throw e; // TODO: throw unknown errors but reject well known errors?
+          //return Promise.reject(e);
+          cb(e);
         });
-      })
-      .catch(ClientError, function(e) {
-        var message = e.response.body;
-        if(_.isObject(message)) {
-          message = JSON.stringify(message,null,2);
-        }
-        console.error('A ClientError happened: \n'
-          + e.statusCode + ' ' + message + '\n'
-          /*+ JSON.stringify(e.response.headers,null,2)
-           + JSON.stringify(e,null,2)*/
-        );
-        // TODO: add retry logic?
-        //return Promise.reject(e.statusCode + ' ' + message); // TODO: throw unknown errors but reject well known errors?
-        cb(e.statusCode + ' ' + message);
-      })
-      .catch(function(e) {
-        console.error('report-model.js - generateStockOrderReportForManager - An unexpected error occurred: ', e);
-        //throw e; // TODO: throw unknown errors but reject well known errors?
-        //return Promise.reject(e);
-        cb(e);
+    }
+    else if (ReportModel.app.get('workerType') == "AWS"){
+      var AWS = require('aws-sdk');
+      var sqs = new AWS.SQS({
+        region: ReportModel.app.get('awsQueueRegion'),
+        accessKeyId: ReportModel.app.get('awsQueueAccessKeyId'),
+        secretAccessKey: ReportModel.app.get('awsQueueSecretAccessKey')
       });
+      //var msg = { payload: 'a message' };
+      var sqsParams = {
+        MessageBody: JSON.stringify(options.json),
+        QueueUrl: ReportModel.app.get('awsQueueUrl')
+      };
+      var sendMessageAsync = Promise.promisify(sqs.sendMessage, sqs);
+
+      return sendMessageAsync(sqsParams)
+        .then(successHandler)
+        .then(function(data){
+          log.debug('save the task info in ReportModel', JSON.stringify(data,null,2));
+          /*SQS sample response:
+           {
+           "ResponseMetadata": {
+           "RequestId": "aaa"
+           },
+           "MD5OfMessageBody": "bbb",
+           "MessageId": "ccc"
+           }*/
+          return reportModelInstance.updateAttributes({
+            workerTaskId: data.MessageId //data.id
+            //,workerStatus: data.msg
+          });
+        })
+        .catch(ClientError, function(e) {
+          var message = e.response.body;
+          if(_.isObject(message)) {
+            message = JSON.stringify(message,null,2);
+          }
+          console.error('A ClientError happened: \n'
+            + e.statusCode + ' ' + message + '\n'
+            /*+ JSON.stringify(e.response.headers,null,2)
+             + JSON.stringify(e,null,2)*/
+          );
+          // TODO: add retry logic?
+          //return Promise.reject(e.statusCode + ' ' + message); // TODO: throw unknown errors but reject well known errors?
+          cb(e.statusCode + ' ' + message);
+        })
+        .catch(function(e) {
+          console.error('report-model.js - generateStockOrderReportForManager - An unexpected error occurred: ', e);
+          //throw e; // TODO: throw unknown errors but reject well known errors?
+          //return Promise.reject(e);
+          cb(e);
+        });
+    }
+    else{
+      return request.post(options)
+        .then(successHandler)
+        .then(function (data) {
+          log.debug('save the task info in ReportModel', JSON.stringify(data, null, 2));
+          return reportModelInstance.updateAttributes({
+            workerTaskId: data.id,
+            workerStatus: data.msg
+          });
+        })
+        .catch(ClientError, function (e) {
+          var message = e.response.body;
+          if (_.isObject(message)) {
+            message = JSON.stringify(message, null, 2);
+          }
+          console.error('A ClientError happened: \n'
+            + e.statusCode + ' ' + message + '\n'
+            /*+ JSON.stringify(e.response.headers,null,2)
+             + JSON.stringify(e,null,2)*/
+          );
+          // TODO: add retry logic?
+          //return Promise.reject(e.statusCode + ' ' + message); // TODO: throw unknown errors but reject well known errors?
+          cb(e.statusCode + ' ' + message);
+        })
+        .catch(function (e) {
+          console.error('report-model.js - generateStockOrderReportForManager - An unexpected error occurred: ', e);
+          //throw e; // TODO: throw unknown errors but reject well known errors?
+          //return Promise.reject(e);
+          cb(e);
+        });
+    }
+
   };
 
   // DEPRECATED: remove from loopback-server and angular-UI side as well
   ReportModel.getWorkerStatus = function(id, cb) {
-    cb(null);
+    if(ReportModel.app.get('workerType') == "AWS"){
+      cb(null);
+    }
+    else if(ReportModel.app.get('workerType') == "IronWorker") {
+      var currentUser = ReportModel.getCurrentUserModel(cb); // returns  immediately if no currentUser
+      if (currentUser) {
+        // (1) fetch the report
+        ReportModel.findById(id, function (error, reportModelInstance) {
+          //log.trace('reportModelInstance:', reportModelInstance);
+
+          // (2) setup the iron worker client
+          var IronWorker = require('iron_worker');
+          var workerClient = new IronWorker.Client({
+            token: ReportModel.app.get('ironWorkersOauthToken'),
+            'project_id': ReportModel.app.get('ironWorkersProjectId')
+          });
+
+          // (3) fetch the task status
+          if (reportModelInstance.workerTaskId) {
+            workerClient.tasksGet(reportModelInstance.workerTaskId, function (error, body) {
+              if (error) {
+                console.error(error);
+                return cb(error);
+              }
+              log.debug(JSON.stringify(body, null, 2));
+              //return cb(null, body);
+              return reportModelInstance.updateAttributes({
+                  workerStatus: body.status //body.msg || body.status
+                })
+                .then(function (updatedReportModelInstance) {
+                  log.debug('return the updated ReportModel');
+                  cb(null, updatedReportModelInstance);
+                });
+            });
+          }
+          else {
+            cb(null);
+          }
+        });
+      }
+    }
+    else {
+      var currentUser = ReportModel.getCurrentUserModel(cb); // returns  immediately if no currentUser
+      if (currentUser) {
+        // (1) fetch the report
+        ReportModel.findById(id, function (error, reportModelInstance) {
+          //log.trace('reportModelInstance:', reportModelInstance);
+
+          // (2) setup the iron worker client
+          var IronWorker = require('iron_worker');
+          var workerClient = new IronWorker.Client({
+            token: ReportModel.app.get('ironWorkersOauthToken'),
+            'project_id': ReportModel.app.get('ironWorkersProjectId')
+          });
+
+          // (3) fetch the task status
+          if (reportModelInstance.workerTaskId) {
+            workerClient.tasksGet(reportModelInstance.workerTaskId, function (error, body) {
+              if (error) {
+                console.error(error);
+                return cb(error);
+              }
+              log.debug(JSON.stringify(body, null, 2));
+              //return cb(null, body);
+              return reportModelInstance.updateAttributes({
+                  workerStatus: body.status //body.msg || body.status
+                })
+                .then(function (updatedReportModelInstance) {
+                  log.debug('return the updated ReportModel');
+                  cb(null, updatedReportModelInstance);
+                });
+            });
+          }
+          else {
+            cb(null);
+          }
+        });
+      }
+    }
   };
 
   ReportModel.setReportStatus = function(id, from, to, cb) {
@@ -705,6 +910,15 @@ module.exports = function(ReportModel) {
                         updatedReportModelInstance,
                         ReportModel.app.get('removeUnfulfilledProducts')
                       );
+                      if(ReportModel.app.get('workerType') == "IronWorker") {
+                        options.json.op = 'removeUnfulfilledProducts';
+                      }
+                      else if(ReportModel.app.get('workerType') == "AWS"){
+
+                      }
+                      else{
+                        options.json.op = 'removeUnfulfilledProducts';
+                      }
                       log.debug('inside setReportStatus() - updated the report model (assuming generated order)' +
                         ' removeUnfulfilledProducts > payload ready');
 
@@ -751,6 +965,16 @@ module.exports = function(ReportModel) {
                       updatedReportModelInstance,
                       ReportModel.app.get('removeUnreceivedProducts')
                     );
+                    if(ReportModel.app.get('workerType') == "IronWorker") {
+                      options.json.op = 'removeUnreceivedProducts';
+                    }
+                    else if(ReportModel.app.get('workerType') == "AWS"){
+
+                    }
+                    else{
+                      options.json.op = 'removeUnreceivedProducts';
+                    }
+
                     log.debug('inside setReportStatus() - updated the report model' +
                       ' removeUnreceivedProducts > payload ready');
 
