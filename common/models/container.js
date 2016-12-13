@@ -72,123 +72,227 @@ module.exports = function(Container) {
 
           return StoreMappingModel.find({})
             .then(function(storeMappings){
-              orders = [];
-              excelRows.forEach(function (row) {
-                var storeName = findMapping(row.CustomerNumber, storeMappings);
-                var orderType = row.CustomerPONumber ? row.CustomerPONumber : 'WeeklyOrder';
-                if (storeName && (!(orderExists(row.SalesOrderNumber, orders)))) {
-                  orders.push({
-                    storeName: storeName,
-                    supplierName: 'CSC',
-                    orderType: orderType,
-                    orderNumber: row.SalesOrderNumber,
-                    items: []
-                  });
-                }
-              });
 
-              orders.forEach(function (singleOrder) {
-                excelRows.forEach(function (row) {
-                  if (row.QtyShipped>0 && row.SalesOrderNumber == singleOrder.orderNumber) {
-                    if(!(startsWith(row.ItemNumber.toString(),"S-"))) {
+              if(item.name == "FFCC.xls"){
+
+                orders = [];
+                storeMappings.forEach(function (singleMapping) {
+                  if(!(orderStoreNameExists(singleMapping.shortName,orders))){
+                    orders.push({
+                      storeName : singleMapping.shortName,
+                      items : []
+                    });
+                  }
+                });
+
+
+                orders.forEach(function(singleOrder){
+                  excelRows.forEach(function(row){
+                    if(row[singleOrder.storeName] > 0){
                       singleOrder.items.push({
-                        sku: row.ItemNumber,
-                        orderQuantity: row.QtyOrdered,
-                        fulfilledQuantity : row.QtyShipped,
-                        supplyPrice: row.UnitPrice
-                      });
+                        sku : row["sku"],
+                        fulfilledQuantity : row[singleOrder.storeName]
+                      })
+                    }
+                  });
+                });
+
+                for(var i = orders.length - 1 ; i >= 0 ; i--){
+                  console.log(orders[i].storeName +" : "+ orders[i].items.length);
+                  if(orders[i].items.length == 0){
+                    var index = orders.indexOf(orders[i]);
+                    if (index > -1) {
+                      orders.splice(index, 1);
                     }
                   }
-                })
-              });
-
-              orders.forEach(function(singleOrder){
-                if(singleOrder.items.length == 0){
-                  var index = orders.indexOf(singleOrder);
-                  if (index > -1) {
-                    orders.splice(index, 1);
-                  }
                 }
-              });
 
-              Promise.map(orders,
-                function (singleOrder) {
-                  return createReportModelForExcel(singleOrder, Container, next)
-                    .then(function (reportModelInstance)
-                    {
-                      console.log(reportModelInstance);
-
-                      _.each(singleOrder.items, function (excelRowAsObject) {
-                        excelRowAsObject.reportId = reportModelInstance.id;
-                        excelRowAsObject.userId = reportModelInstance.userModelToReportModelId;
-                      });
-                      var StockOrderLineitemModel = Container.app.models.StockOrderLineitemModel;
-                      StockOrderLineitemModel.create(singleOrder.items, function (err, results)
+                Promise.map(orders,
+                  function (singleOrder) {
+                    return createReportModelForExcelWithoutSupplier(singleOrder, Container, next)
+                      .then(function (reportModelInstance)
                       {
-                        if (err) {
-                          //log.error('error occured', err);
-                          //console.error('error occured', err);
-                          next(err);
+                        console.log(reportModelInstance);
+
+                        _.each(singleOrder.items, function (excelRowAsObject) {
+                          excelRowAsObject.reportId = reportModelInstance.id;
+                          excelRowAsObject.userId = reportModelInstance.userModelToReportModelId;
+                        });
+                        var StockOrderLineitemModel = Container.app.models.StockOrderLineitemModel;
+                        StockOrderLineitemModel.create(singleOrder.items, function (err, results)
+                        {
+                          if (err) {
+                            //log.error('error occured', err);
+                            //console.error('error occured', err);
+                            next(err);
+                          }
+                          else {
+                            log.debug('created StockOrderLineitemModels:', results.length);
+
+                            log.debug('#3 submit a job to the worker infrastructure');
+                            var UserModel = Container.app.models.UserModel;
+                            return UserModel.findById(reportModelInstance.userModelToReportModelId)
+                              .then(function (userModelInstance) {
+                                log.trace('userModelInstance', userModelInstance);
+
+                                log.debug('(1) generate a token for the worker to use on the currentUser\'s behalf');
+                                return userModelInstance.createAccessTokenAsync(1209600)// can't be empty ... time to live (in seconds) 1209600 is 2 weeks (default of loopback)
+                                  .then(function (newAccessToken) {
+                                    log.debug('(2) fetch the report, store and store-config');
+                                    var ReportModel = Container.app.models.ReportModel;
+                                    return ReportModel.getAllRelevantModelInstancesForReportModel(reportModelInstance.id)
+                                      .spread(function (reportModelInstance, storeModelInstance, storeConfigInstance) {
+                                        log.debug('(3) extract domainPrefix from store-config\'s posUrl');
+                                        var posUrl = storeConfigInstance.posUrl;
+                                        var regexp = /^https?:\/\/(.*)\.vendhq\.com$/i;
+                                        var matches = posUrl.match(regexp);
+                                        var domainPrefix = matches[1];
+
+                                        var options = ReportModel.preparePayload(
+                                          storeModelInstance,
+                                          domainPrefix,
+                                          newAccessToken,
+                                          reportModelInstance,
+                                          Container.app.get('importStockOrderToWarehouseWithoutSupplier')
+                                        );
+
+                                        return ReportModel.sendPayload(reportModelInstance, options, next)
+                                          .then(function (updatedReportModelInstance) {
+                                            log.trace('updatedReportModelInstance:', updatedReportModelInstance);
+                                            //next();
+                                          });
+                                      });
+                                  });
+                              });
+                          }
+                        });
+                      })
+                      .catch(function (error) {
+                        if (error instanceof Error) {
+                          log.error('Container > afterRemote > upload > end_parsed',
+                            '\n', error.name + ':', error.message,
+                            '\n', error.stack);
                         }
                         else {
-                          log.debug('created StockOrderLineitemModels:', results.length);
-
-                          log.debug('#3 submit a job to the worker infrastructure');
-                          var UserModel = Container.app.models.UserModel;
-                          return UserModel.findById(reportModelInstance.userModelToReportModelId)
-                            .then(function (userModelInstance) {
-                              log.trace('userModelInstance', userModelInstance);
-
-                              log.debug('(1) generate a token for the worker to use on the currentUser\'s behalf');
-                              return userModelInstance.createAccessTokenAsync(1209600)// can't be empty ... time to live (in seconds) 1209600 is 2 weeks (default of loopback)
-                                .then(function (newAccessToken) {
-                                  log.debug('(2) fetch the report, store and store-config');
-                                  var ReportModel = Container.app.models.ReportModel;
-                                  return ReportModel.getAllRelevantModelInstancesForReportModel(reportModelInstance.id)
-                                    .spread(function (reportModelInstance, storeModelInstance, storeConfigInstance) {
-                                      log.debug('(3) extract domainPrefix from store-config\'s posUrl');
-                                      var posUrl = storeConfigInstance.posUrl;
-                                      var regexp = /^https?:\/\/(.*)\.vendhq\.com$/i;
-                                      var matches = posUrl.match(regexp);
-                                      var domainPrefix = matches[1];
-
-                                      var options = ReportModel.preparePayload(
-                                        storeModelInstance,
-                                        domainPrefix,
-                                        newAccessToken,
-                                        reportModelInstance,
-                                        Container.app.get('importStockOrderToWarehouse')
-                                      );
-
-                                      return ReportModel.sendPayload(reportModelInstance, options, next)
-                                        .then(function (updatedReportModelInstance) {
-                                          log.trace('updatedReportModelInstance:', updatedReportModelInstance);
-                                          //next();
-                                        });
-                                    });
-                                });
-                            });
+                          log.error('Container > afterRemote > upload > end_parsed',
+                            '\n', error);
                         }
+                        next(error)
                       });
-                    })
-                    .catch(function (error) {
-                      if (error instanceof Error) {
-                        log.error('Container > afterRemote > upload > end_parsed',
-                          '\n', error.name + ':', error.message,
-                          '\n', error.stack);
-                      }
-                      else {
-                        log.error('Container > afterRemote > upload > end_parsed',
-                          '\n', error);
-                      }
-                      next(error)
+                  },
+                  {concurrency: 1})
+              }
+              else{
+
+                orders = [];
+                excelRows.forEach(function (row) {
+                  var storeName = findMapping(row.CustomerNumber, storeMappings);
+                  var orderType = row.CustomerPONumber ? row.CustomerPONumber : 'WeeklyOrder';
+                  if (storeName && (!(orderNumberExists(row.SalesOrderNumber, orders)))) {
+                    orders.push({
+                      storeName: storeName,
+                      supplierName: 'CSC',
+                      orderType: orderType,
+                      orderNumber: row.SalesOrderNumber,
+                      items: []
                     });
-                },
-                {concurrency: 1})
+                  }
+                });
+
+                orders.forEach(function (singleOrder) {
+                  excelRows.forEach(function (row) {
+                    if (row.QtyShipped>0 && row.SalesOrderNumber == singleOrder.orderNumber) {
+                      if(!(startsWith(row.ItemNumber.toString(),"S-"))) {
+                        singleOrder.items.push({
+                          sku: row.ItemNumber,
+                          orderQuantity: row.QtyOrdered,
+                          fulfilledQuantity : row.QtyShipped,
+                          supplyPrice: row.UnitPrice
+                        });
+                      }
+                    }
+                  })
+                });
+
+                Promise.map(orders,
+                  function (singleOrder) {
+                    return createReportModelForExcel(singleOrder, Container, next)
+                      .then(function (reportModelInstance)
+                      {
+                        console.log(reportModelInstance);
+
+                        _.each(singleOrder.items, function (excelRowAsObject) {
+                          excelRowAsObject.reportId = reportModelInstance.id;
+                          excelRowAsObject.userId = reportModelInstance.userModelToReportModelId;
+                        });
+                        var StockOrderLineitemModel = Container.app.models.StockOrderLineitemModel;
+                        StockOrderLineitemModel.create(singleOrder.items, function (err, results)
+                        {
+                          if (err) {
+                            //log.error('error occured', err);
+                            //console.error('error occured', err);
+                            next(err);
+                          }
+                          else {
+                            log.debug('created StockOrderLineitemModels:', results.length);
+
+                            log.debug('#3 submit a job to the worker infrastructure');
+                            var UserModel = Container.app.models.UserModel;
+                            return UserModel.findById(reportModelInstance.userModelToReportModelId)
+                              .then(function (userModelInstance) {
+                                log.trace('userModelInstance', userModelInstance);
+
+                                log.debug('(1) generate a token for the worker to use on the currentUser\'s behalf');
+                                return userModelInstance.createAccessTokenAsync(1209600)// can't be empty ... time to live (in seconds) 1209600 is 2 weeks (default of loopback)
+                                  .then(function (newAccessToken) {
+                                    log.debug('(2) fetch the report, store and store-config');
+                                    var ReportModel = Container.app.models.ReportModel;
+                                    return ReportModel.getAllRelevantModelInstancesForReportModel(reportModelInstance.id)
+                                      .spread(function (reportModelInstance, storeModelInstance, storeConfigInstance) {
+                                        log.debug('(3) extract domainPrefix from store-config\'s posUrl');
+                                        var posUrl = storeConfigInstance.posUrl;
+                                        var regexp = /^https?:\/\/(.*)\.vendhq\.com$/i;
+                                        var matches = posUrl.match(regexp);
+                                        var domainPrefix = matches[1];
+
+                                        var options = ReportModel.preparePayload(
+                                          storeModelInstance,
+                                          domainPrefix,
+                                          newAccessToken,
+                                          reportModelInstance,
+                                          Container.app.get('importStockOrderToWarehouse')
+                                        );
+
+                                        return ReportModel.sendPayload(reportModelInstance, options, next)
+                                          .then(function (updatedReportModelInstance) {
+                                            log.trace('updatedReportModelInstance:', updatedReportModelInstance);
+                                            //next();
+                                          });
+                                      });
+                                  });
+                              });
+                          }
+                        });
+                      })
+                      .catch(function (error) {
+                        if (error instanceof Error) {
+                          log.error('Container > afterRemote > upload > end_parsed',
+                            '\n', error.name + ':', error.message,
+                            '\n', error.stack);
+                        }
+                        else {
+                          log.error('Container > afterRemote > upload > end_parsed',
+                            '\n', error);
+                        }
+                        next(error)
+                      });
+                  },
+                  {concurrency: 1})
+              }
             })
 
 
-           .then(function () {
+            .then(function () {
               excelRows = [];
               console.log("done!");
               next();
@@ -369,32 +473,32 @@ module.exports = function(Container) {
     try {
       // before: 41st_Gift_Shop-CSC-114340-WeeklyOrder.CSV
       /*filename = filename.slice(0,-4);
-      var data = filename.split('-');
-      // after: [ 41st_Gift_Shop, CSC, 114340, WeeklyOrder.CSV ]
+       var data = filename.split('-');
+       // after: [ 41st_Gift_Shop, CSC, 114340, WeeklyOrder.CSV ]
 
-      if (!data || data.length < 2 || !data[0] || !data[1]) {
-        log.error('Container > createReportModel', 'Invalid filename: ' + filename);
-        next(new Error('Invalid filename: ' + filename));
-      }
-      else {
-      */
-        //var storeName = data[0];
-        singleOrder.storeName = singleOrder.storeName.replace(/_/g, '.'); // . is treated as regex when
-        log.debug('regex with storeName', singleOrder.storeName);
+       if (!data || data.length < 2 || !data[0] || !data[1]) {
+       log.error('Container > createReportModel', 'Invalid filename: ' + filename);
+       next(new Error('Invalid filename: ' + filename));
+       }
+       else {
+       */
+      //var storeName = data[0];
+      singleOrder.storeName = singleOrder.storeName.replace(/_/g, '.'); // . is treated as regex when
+      log.debug('regex with storeName', singleOrder.storeName);
 
-        //var supplierName = data[1];
-        singleOrder.supplierName = singleOrder.supplierName.replace(/_/g, '.'); // . is treated as regex when
-        log.debug('regex with supplierName', singleOrder.supplierName);
+      //var supplierName = data[1];
+      singleOrder.supplierName = singleOrder.supplierName.replace(/_/g, '.'); // . is treated as regex when
+      log.debug('regex with supplierName', singleOrder.supplierName);
 
-        // TODO: current user should only be able to search his/her own stores and suppliers, not all of them!
+      // TODO: current user should only be able to search his/her own stores and suppliers, not all of them!
 
-        var StoreModel = Container.app.models.StoreModel;
-        return StoreModel.findOne({where: {name: {like: singleOrder.storeName}}})
-          .then(function (storeModelInstance) {
-            log.trace('storeModelInstance', storeModelInstance);
-            if (storeModelInstance) {
-              var SupplierModel = Container.app.models.SupplierModel;
-              return SupplierModel.findOne({
+      var StoreModel = Container.app.models.StoreModel;
+      return StoreModel.findOne({where: {name: {like: singleOrder.storeName}}})
+        .then(function (storeModelInstance) {
+          log.trace('storeModelInstance', storeModelInstance);
+          if (storeModelInstance) {
+            var SupplierModel = Container.app.models.SupplierModel;
+            return SupplierModel.findOne({
                 where: {
                   name: {
                     like: singleOrder.supplierName
@@ -402,34 +506,34 @@ module.exports = function(Container) {
                   storeConfigModelToSupplierModelId: storeModelInstance.storeConfigModelToStoreModelId
                 }
               })
-                .then(function (supplierModelInstance) {
-                  log.trace('supplierModelInstance', supplierModelInstance);
-                  if (supplierModelInstance) {
-                    //return Promise.resolve([storeModelInstance,supplierModelInstance]);
-                    var ReportModel = Container.app.models.ReportModel;
-                    return ReportModel.create({
-                      name: singleOrder.storeName+"_"+singleOrder.supplierName+"_"+singleOrder.orderNumber+"_"+singleOrder.orderType,
-                      userModelToReportModelId: storeModelInstance.userModelToStoreModelId, // explicitly setup the foreignKeys for related models
-                      state: ReportModel.ReportModelStates.REPORT_EMPTY,
-                      outlet: {
-                        id: storeModelInstance.api_id, // jshint ignore:line
-                        name: storeModelInstance.name,
-                      },
-                      supplier: {
-                        id: supplierModelInstance.apiId,
-                        name: supplierModelInstance.name
-                      }
-                    });
-                  }
-                  else {
-                    return Promise.reject('Could not find a matching supplier for: ' + filename);
-                  }
-                });
-            }
-            else {
-              return Promise.reject('Could not find a matching store for: ' + filename);
-            }
-          });
+              .then(function (supplierModelInstance) {
+                log.trace('supplierModelInstance', supplierModelInstance);
+                if (supplierModelInstance) {
+                  //return Promise.resolve([storeModelInstance,supplierModelInstance]);
+                  var ReportModel = Container.app.models.ReportModel;
+                  return ReportModel.create({
+                    name: singleOrder.storeName+"_"+singleOrder.supplierName+"_"+singleOrder.orderNumber+"_"+singleOrder.orderType,
+                    userModelToReportModelId: storeModelInstance.userModelToStoreModelId, // explicitly setup the foreignKeys for related models
+                    state: ReportModel.ReportModelStates.REPORT_EMPTY,
+                    outlet: {
+                      id: storeModelInstance.api_id, // jshint ignore:line
+                      name: storeModelInstance.name,
+                    },
+                    supplier: {
+                      id: supplierModelInstance.apiId,
+                      name: supplierModelInstance.name
+                    }
+                  });
+                }
+                else {
+                  return Promise.reject('Could not find a matching supplier for: ' + filename);
+                }
+              });
+          }
+          else {
+            return Promise.reject('Could not find a matching store for: ' + filename);
+          }
+        });
 
     }
     catch (error) {
@@ -437,6 +541,55 @@ module.exports = function(Container) {
       next(error);
     }
   };
+
+  var createReportModelForExcelWithoutSupplier = function(singleOrder, Container, next){
+    try {
+      // before: 41st_Gift_Shop-CSC-114340-WeeklyOrder.CSV
+      /*filename = filename.slice(0,-4);
+       var data = filename.split('-');
+       // after: [ 41st_Gift_Shop, CSC, 114340, WeeklyOrder.CSV ]
+
+       if (!data || data.length < 2 || !data[0] || !data[1]) {
+       log.error('Container > createReportModel', 'Invalid filename: ' + filename);
+       next(new Error('Invalid filename: ' + filename));
+       }
+       else {
+       */
+      //var storeName = data[0];
+      singleOrder.storeName = singleOrder.storeName.replace(/_/g, '.'); // . is treated as regex when
+      log.debug('regex with storeName', singleOrder.storeName);
+
+      var StoreModel = Container.app.models.StoreModel;
+      return StoreModel.findOne({where: {name: {like: singleOrder.storeName}}})
+        .then(function (storeModelInstance) {
+          log.trace('storeModelInstance', storeModelInstance);
+          if (storeModelInstance) {
+            var ReportModel = Container.app.models.ReportModel;
+            return ReportModel.create({
+              name: singleOrder.storeName+"_"+new Date(),
+              userModelToReportModelId: storeModelInstance.userModelToStoreModelId, // explicitly setup the foreignKeys for related models
+              state: ReportModel.ReportModelStates.REPORT_EMPTY,
+              outlet: {
+                id: storeModelInstance.api_id, // jshint ignore:line
+                name: storeModelInstance.name,
+              },
+              supplier: {
+                name: "ANY"
+              }
+            });
+          }
+          else {
+            return Promise.reject('Could not find a matching store for: ' + filename);
+          }
+        });
+
+    }
+    catch (error) {
+      log.error('Container > createReportModel', '\n', error);
+      next(error);
+    }
+  };
+
 
   var processExcelData = function (excelRow) {
     excelRows.push(excelRow);
@@ -453,7 +606,7 @@ module.exports = function(Container) {
   };
 
 
-  var orderExists = function (orderNumber, array) {
+  var orderNumberExists = function (orderNumber, array) {
     var i = null;
     for (i = 0; array.length > i; i += 1) {
       if (array[i].orderNumber === orderNumber) {
@@ -466,4 +619,14 @@ module.exports = function(Container) {
   var startsWith = function(str,substr){
     return str.lastIndexOf(substr, 0) === 0;
   }
+
+  var orderStoreNameExists = function (orderStoreName, array) {
+    var i = null;
+    for (i = 0; array.length > i; i += 1) {
+      if (array[i].storeName === orderStoreName) {
+        return true;
+      }
+    }
+    return false;
+  };
 };

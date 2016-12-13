@@ -491,6 +491,11 @@ module.exports = function(ReportModel) {
 
   ReportModel.preparePayload = function(storeModelInstance, domainPrefix, newAccessToken, reportModelInstance, workerName){
     log.debug('prepare payload for worker');
+    var supplierIdForPayload = '' ,supplierNameForPayload ='';
+    if(reportModelInstance.supplier){
+      supplierIdForPayload = reportModelInstance.supplier.id;
+      supplierNameForPayload = reportModelInstance.supplier.name;
+    }
     return {
       json: {
         op: workerName || ReportModel.app.get('stockOrderWorker'),
@@ -507,9 +512,9 @@ module.exports = function(ReportModel) {
         loopbackAccessToken: newAccessToken, // let it be the full json object
         reportId: reportModelInstance.id,
         outletName: reportModelInstance.outlet.name,
-        supplierName: reportModelInstance.supplier.name,
+        supplierName: supplierNameForPayload,
         outletId: reportModelInstance.outlet.id,//'aea67e1a-b85c-11e2-a415-bc764e10976c',
-        supplierId: reportModelInstance.supplier.id//'c364c506-f8f4-11e3-a0f5-b8ca3a64f8f4'
+        supplierId: supplierIdForPayload//'c364c506-f8f4-11e3-a0f5-b8ca3a64f8f4'
       }
     };
   };
