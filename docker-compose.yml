@@ -1,6 +1,7 @@
 version: "2"
 
 services:
+
   lb:
     image: nginx:stable
     ports:
