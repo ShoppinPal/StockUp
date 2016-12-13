@@ -1,6 +1,6 @@
 {
   "name": "shoppinpal-warehouse-mongo",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "dependencies": {
     "aws-sdk": "2.6.15",
     "bluebird": "2.9.14",
