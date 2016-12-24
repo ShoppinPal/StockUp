@@ -73,7 +73,8 @@ module.exports = function(Container) {
           return StoreMappingModel.find({})
             .then(function(storeMappings){
 
-              if(item.name == "FFCC.xls"){
+              var filename = item.name;
+              if(filename.lastIndexOf("FFCC", 0) === 0){
 
                 orders = [];
                 storeMappings.forEach(function (singleMapping) {
@@ -571,7 +572,7 @@ module.exports = function(Container) {
               state: ReportModel.ReportModelStates.REPORT_EMPTY,
               outlet: {
                 id: storeModelInstance.api_id, // jshint ignore:line
-                name: storeModelInstance.name,
+                name: storeModelInstance.name
               },
               supplier: {
                 name: "ANY"

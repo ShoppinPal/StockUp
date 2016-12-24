@@ -7,6 +7,7 @@ var _ = require('underscore');
 var path = require('path');
 var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 var log = require('./../lib/debug-extension')('common:models:'+fileName);
+var mongodb = require('mongodb');
 
 module.exports = function(ReportModel) {
 
@@ -209,7 +210,7 @@ module.exports = function(ReportModel) {
           // (3) Add some operations to be executed
           _.each(rows,function(row){
             //log.trace('_.omit(row,\'id\')', _.omit(row,'id'));
-            var ObjectID = require('./../../node_modules/loopback-connector-mongodb/node_modules/mongodb').ObjectID;
+            var ObjectID = mongodb.ObjectID;
             // TODO: need to (a) either remove all the ObejctId(s) otherwise they'll be overwritten as Strings,
              //      or (b) cast them properly before sending,
              //      or (c) cast them properly and instead of sending the whole object, send the diff only
