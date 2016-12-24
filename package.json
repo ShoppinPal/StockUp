@@ -44,7 +44,8 @@
     "underscore": "^1.7.0",
     "vend-nodejs-sdk": "^1.0.13",
     "winston": "^0.8.3",
-    "xlsx": "~0.8.0"
+    "xlsx": "~0.8.0",
+    "mongodb": "~2.2.16"
   },
   "optionalDependencies": {
     "loopback-explorer": "^1.1.0"
