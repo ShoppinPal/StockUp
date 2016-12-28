@@ -9,7 +9,6 @@ var appRoot = require('app-root-path');
 var modulePath = appRoot.require('/node_modules/loopback-connector-mongodb/node_modules/mongodb');
 var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 var log = require('./../lib/debug-extension')('common:models:'+fileName);
-var mongodb = require('mongodb');
 
 module.exports = function(ReportModel) {
 

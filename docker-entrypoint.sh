@@ -66,5 +66,6 @@ if [ "$1" = 'node' -a -z "$wantHelp" ]; then
   }
   chown -R node:node .
   exec gosu node "$@"
+
 fi
 exec "$@"
