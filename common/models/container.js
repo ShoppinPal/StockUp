@@ -92,7 +92,8 @@ module.exports = function(Container) {
                     if(row[singleOrder.storeName] > 0){
                       singleOrder.items.push({
                         sku : row["sku"],
-                        fulfilledQuantity : row[singleOrder.storeName]
+                        fulfilledQuantity : row[singleOrder.storeName],
+                        orderQuantity : row[singleOrder.storeName]
                       })
                     }
                   });
