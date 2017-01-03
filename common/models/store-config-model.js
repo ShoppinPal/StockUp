@@ -1,4 +1,6 @@
 var Promise = require('bluebird');
+var appRoot = require('app-root-path');
+var vendUtilPath = appRoot.require('/common/utils/vend');
 
 module.exports = function(StoreConfigModel) {
 
@@ -38,8 +40,7 @@ module.exports = function(StoreConfigModel) {
           console.log('globalConfig', globalConfig);
           cb(null);
         });*/
-
-      var oauthVendUtil = require('./../../common/utils/vend')({
+      var oauthVendUtil = vendUtilPath({
         'GlobalConfigModel': StoreConfigModel.app.models.GlobalConfigModel,
         'StoreConfigModel': StoreConfigModel,
         'currentUser': currentUser
@@ -58,7 +59,7 @@ module.exports = function(StoreConfigModel) {
     var currentUser = StoreConfigModel.getCurrentUserModel(cb); // returns immediately if no currentUser
 
     if(currentUser) {
-      var oauthVendUtil = require('./../../common/utils/vend')({
+      var oauthVendUtil = vendUtilPath({
         'GlobalConfigModel': StoreConfigModel.app.models.GlobalConfigModel,
         'StoreConfigModel': StoreConfigModel,
         'currentUser': currentUser
@@ -78,7 +79,7 @@ module.exports = function(StoreConfigModel) {
     var currentUser = StoreConfigModel.getCurrentUserModel(cb); // returns immediately if no currentUser
 
     if(currentUser) {
-      var oauthVendUtil = require('./../../common/utils/vend')({
+      var oauthVendUtil = vendUtilPath({
         'GlobalConfigModel': StoreConfigModel.app.models.GlobalConfigModel,
         'StoreConfigModel': StoreConfigModel,
         'currentUser': currentUser
@@ -98,7 +99,7 @@ module.exports = function(StoreConfigModel) {
     var currentUser = StoreConfigModel.getCurrentUserModel(cb); // returns immediately if no currentUser
 
     if(currentUser) {
-      var oauthVendUtil = require('./../../common/utils/vend')({
+      var oauthVendUtil = vendUtilPath({
         'GlobalConfigModel': StoreConfigModel.app.models.GlobalConfigModel,
         'StoreConfigModel': StoreConfigModel,
         'currentUser': currentUser
@@ -124,7 +125,7 @@ module.exports = function(StoreConfigModel) {
   StoreConfigModel.getVendAccessToken = function(code, domainPrefix, state, cb) {
     var currentUser = StoreConfigModel.getCurrentUserModel(cb); // returns immediately if no currentUser
 
-    var oauthVendUtil = require('./../../common/utils/vend')({
+    var oauthVendUtil = vendUtilPath({
       'StoreConfigModel': StoreConfigModel,
       'currentUser': currentUser
     });

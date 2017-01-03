@@ -2,8 +2,11 @@ var Promise = require('bluebird');
 
 var path = require('path');
 var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
-var logger = require('./../lib/debug-extension')('common:models:'+fileName);
+var appRoot = require('app-root-path');
+var vendUtilPath = appRoot.require('/common/utils/vend');
+var logger = appRoot.require('/common/lib/debug-extension')('common:models:'+fileName);
 var log = logger.debug.bind(logger); // TODO: over time, please use log.LOGLEVEL(msg) explicitly
+var responseHandlerPath = appRoot.require('/common/utils/response-handler');
 
 // HINT(s):
 //   Getting the app object: http://docs.strongloop.com/display/public/LB/Working+with+LoopBack+objects
@@ -87,7 +90,7 @@ module.exports = function(StoreModel) {
   );
 
   var q = require('q')
-    , responseHandler = require('../utils/response-handler')
+    , responseHandler = responseHandlerPath
     , request = require('request');
 
   // DEPRECATED: remove this code since it isn't used in this project anymore
@@ -128,9 +131,8 @@ module.exports = function(StoreModel) {
   StoreModel.setDesiredStockLevelForVend = function(id, productId, desiredStockLevel, cb) {
     log('inside setDesiredStockLevelForVend()');
     var currentUser = StoreModel.getCurrentUserModel(cb); // returns immediately if no currentUser
-
     if(currentUser) {
-      var oauthVendUtil = require('./../../common/utils/vend')({
+      var oauthVendUtil = vendUtilPath({
         'GlobalConfigModel': StoreModel.app.models.GlobalConfigModel,
         'StoreConfigModel': StoreModel.app.models.StoreConfigModel,
         'currentUser': currentUser

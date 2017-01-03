@@ -9,7 +9,8 @@ var _ = require('underscore')
   , Promise = require('bluebird')// TODO: stick to one promise library: Q or bluebird
   , vendSdk = require('vend-nodejs-sdk')({});
 
-var log = require('./../lib/debug-extension')('shoppinpal:utils:vend');
+var appRoot = require('app-root-path');
+var log = appRoot.require('/common/lib/debug-extension')('shoppinpal:utils:vend');//appRoot
 
 /**
  * TODO: deprecate and replace

@@ -2,7 +2,9 @@
 
 var path = require('path');
 var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
-var log = require('./../../common/lib/debug-extension')('server:middleware:'+fileName);
+var appRoot = require('app-root-path');
+var log = appRoot.require('/common/lib/debug-extension')('server:middleware:'+fileName);
+
 
 module.exports = function() {
   return function accessLogger(req, res, next) {

@@ -5,7 +5,8 @@ var Promise = require('bluebird');
 
 var path = require('path');
 var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
-var log = require('./../lib/debug-extension')('common:models:'+fileName);
+var appRoot = require('app-root-path');
+var log = appRoot.require('/common/lib/debug-extension')('common:models:'+fileName);
 
 module.exports = function(Model, options) {
 

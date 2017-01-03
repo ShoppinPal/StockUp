@@ -4,8 +4,10 @@ var _ = require('underscore');
 
 var path = require('path');
 var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
-var logger = require('./../lib/debug-extension')('common:models:'+fileName);
+var appRoot = require('app-root-path');
+var logger = appRoot.require('/common/lib/debug-extension')('common:models:'+fileName);
 var log = logger.debug.bind(logger); // TODO: over time, please use log.LOGLEVEL(msg) explicitly
+var vendUtilPath = appRoot.require('/common/utils/vend');
 
 module.exports = function(StockOrderLineitemModel) {
 
@@ -76,7 +78,7 @@ module.exports = function(StockOrderLineitemModel) {
           var ReportModel = StockOrderLineitemModel.app.models.ReportModel;
           ReportModel.getAllRelevantModelInstancesForReportModel(stockOrderLineitemModelInstance.reportId)
             .spread(function(reportModelInstance, storeModelInstance/*, storeConfigInstance*/){
-              var oauthVendUtil = require('./../../common/utils/vend')({
+              var oauthVendUtil = vendUtilPath({
                 'GlobalConfigModel': StockOrderLineitemModel.app.models.GlobalConfigModel,
                 'StoreConfigModel': StockOrderLineitemModel.app.models.StoreConfigModel,
                 'currentUser': currentUser
@@ -220,7 +222,7 @@ module.exports = function(StockOrderLineitemModel) {
             var ReportModel = StockOrderLineitemModel.app.models.ReportModel;
             waitFor1 = ReportModel.getAllRelevantModelInstancesForReportModel(stockOrderLineitemModelInstance.reportId)
               .spread(function(reportModelInstance, storeModelInstance/*, storeConfigInstance*/){
-                var oauthVendUtil = require('./../../common/utils/vend')({
+                var oauthVendUtil = vendUtilPath({
                   'GlobalConfigModel': StockOrderLineitemModel.app.models.GlobalConfigModel,
                   'StoreConfigModel': StockOrderLineitemModel.app.models.StoreConfigModel,
                   'currentUser': currentUser

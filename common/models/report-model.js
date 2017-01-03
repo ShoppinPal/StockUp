@@ -7,7 +7,9 @@ var _ = require('underscore');
 var path = require('path');
 var modulePath = require('loopback-connector-mongodb/node_modules/mongodb');
 var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
-var log = require('./../lib/debug-extension')('common:models:'+fileName);
+var appRoot = require('app-root-path');
+var log = appRoot.require('/common/lib/debug-extension')('common:models:'+fileName);
+var vendUtilPath = appRoot.require('/common/utils/vend');
 
 module.exports = function(ReportModel) {
 
@@ -241,7 +243,7 @@ module.exports = function(ReportModel) {
             var conditionalPromise;
             if(reportModelInstance.vendConsignmentId) {
               log.debug('removeReport > will delete Vend consignment', reportModelInstance.vendConsignmentId);
-              var oauthVendUtil = require('./../../common/utils/vend')({
+              var oauthVendUtil = vendUtilPath({
                 'GlobalConfigModel': ReportModel.app.models.GlobalConfigModel,
                 'StoreConfigModel': ReportModel.app.models.StoreConfigModel,
                 'currentUser': currentUser
@@ -290,7 +292,8 @@ module.exports = function(ReportModel) {
       ReportModel.getAllRelevantModelInstancesForReportModel(id)
         .spread(function(reportModelInstance, storeModelInstance/*, storeConfigInstance*/){
           log.debug(commandName + ' > will loopkup product by SKU');
-          var oauthVendUtil = require('./../../common/utils/vend')({
+          //appRootForVendUtil
+          var oauthVendUtil = vendUtilPath({
             'GlobalConfigModel': ReportModel.app.models.GlobalConfigModel,
             'StoreConfigModel': ReportModel.app.models.StoreConfigModel,
             'currentUser': currentUser
@@ -790,7 +793,7 @@ module.exports = function(ReportModel) {
     if(currentUser) {
       ReportModel.getAllRelevantModelInstancesForReportModel(id)
         .spread(function(reportModelInstance, storeModelInstance, storeConfigInstance){
-          var oauthVendUtil = require('./../../common/utils/vend')({
+          var oauthVendUtil = vendUtilPath({
             'GlobalConfigModel': ReportModel.app.models.GlobalConfigModel,
             'StoreConfigModel': ReportModel.app.models.StoreConfigModel,
             'currentUser': currentUser
