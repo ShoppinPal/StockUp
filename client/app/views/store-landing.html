@@ -93,7 +93,7 @@
                                                              'status-square-manager-inProcess-storeLanding': storeReport.state == ReportModelStates.MANAGER_IN_PROCESS,
                                                              'status-square-receive': storeReport.state == ReportModelStates.MANAGER_RECEIVE}"></span>
                                             <span ng-if="storeReport.state == ReportModelStates.REPORT_COMPLETE">Completed</span>
-                                            <span ng-if="(storeReport.state == ReportModelStates.REPORT_EMPTY) && storeReport.workerStatus == 'queued'">
+                                            <!--span ng-if="(storeReport.state == ReportModelStates.REPORT_EMPTY) && storeReport.workerStatus == 'queued'">
                                                 in the queue, waiting to run (tap to refresh status)
                                             </span>
                                             <span ng-if="(storeReport.state == ReportModelStates.REPORT_EMPTY) && storeReport.workerStatus == 'running'">
@@ -116,7 +116,7 @@
                                             </span>
                                             <span ng-if="(storeReport.state == ReportModelStates.REPORT_EMPTY) && storeReport.workerStatus == 'Queued up.'">
                                                 Queued up. (tap to refresh status)
-                                            </span>
+                                            </span-->
                                             <span ng-if="(storeReport.state == ReportModelStates.REPORT_EMPTY) &&
                                                           storeReport.workerStatus != 'queued' &&
                                                           storeReport.workerStatus != 'running' &&
@@ -126,7 +126,7 @@
                                                           storeReport.workerStatus != 'killed' &&
                                                           storeReport.workerStatus != 'timeout' &&
                                                           storeReport.workerStatus != 'Queued up.'">
-                                                Oops! Get an admin to have a look and clean this up.
+                                                Job in Process. Please Wait.
                                             </span>
                                         </div>
                                     </td>

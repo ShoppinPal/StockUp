@@ -3,6 +3,7 @@
 var Promise = require('bluebird');
 var request = require('request-promise');
 var _ = require('underscore');
+var moment = require('moment');
 
 var path = require('path');
 var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
@@ -568,7 +569,7 @@ module.exports = function(Container) {
           if (storeModelInstance) {
             var ReportModel = Container.app.models.ReportModel;
             return ReportModel.create({
-              name: singleOrder.storeName+"_"+new Date(),
+              name: singleOrder.storeName+"_"+moment().format("YYYY-MM-DD"),
               userModelToReportModelId: storeModelInstance.userModelToStoreModelId, // explicitly setup the foreignKeys for related models
               state: ReportModel.ReportModelStates.REPORT_EMPTY,
               outlet: {

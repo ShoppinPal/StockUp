@@ -236,10 +236,14 @@ angular.module('ShoppinPalApp')
           $state.go('warehouse-report', {reportId:storeReport.id});
         }
         else if (_.contains($scope.roles, 'manager') &&
-                 storeReport.state === ReportModelStates.MANAGER_NEW_ORDERS)
+                 storeReport.state === ReportModelStates.MANAGER_NEW_ORDERS && storeReport.totalRows>0)
         {
           console.log('update report state');
           drillDownToManagerNewOrder(storeReport);
+        }
+        else if(_.contains($scope.roles, 'manager') &&
+          storeReport.state === ReportModelStates.MANAGER_NEW_ORDERS && storeReport.totalRows<=0){
+          alert('Report still in process.');
         }
         else if (_.contains($scope.roles, 'manager') &&
                  storeReport.state === ReportModelStates.MANAGER_IN_PROCESS)
