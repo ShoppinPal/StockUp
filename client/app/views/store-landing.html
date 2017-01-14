@@ -93,10 +93,10 @@
                                                              'status-square-manager-inProcess-storeLanding': storeReport.state == ReportModelStates.MANAGER_IN_PROCESS,
                                                              'status-square-receive': storeReport.state == ReportModelStates.MANAGER_RECEIVE}"></span>
                                             <span ng-if="storeReport.state == ReportModelStates.REPORT_COMPLETE">Completed</span>
-                                            <span ng-if="(storeReport.state == ReportModelStates.REPORT_EMPTY) && storeReport.workerStatus == 'queued'">
-                                                in the queue, waiting to run (tap to refresh status)
+                                            <span ng-if="(storeReport.state == ReportModelStates.REPORT_EMPTY)">
+                                                Not yet ready (tap to refresh status)
                                             </span>
-                                            <span ng-if="(storeReport.state == ReportModelStates.REPORT_EMPTY) && storeReport.workerStatus == 'running'">
+                                            <!--span ng-if="(storeReport.state == ReportModelStates.REPORT_EMPTY) && storeReport.workerStatus == 'running'">
                                                 running (tap to refresh status)
                                             </span>
                                             <span ng-if="(storeReport.state == ReportModelStates.REPORT_EMPTY) && storeReport.workerStatus == 'complete'">
@@ -127,7 +127,7 @@
                                                           storeReport.workerStatus != 'timeout' &&
                                                           storeReport.workerStatus != 'Queued up.'">
                                                 Oops! Get an admin to have a look and clean this up.
-                                            </span>
+                                            </span-->
                                         </div>
                                     </td>
                                     <td width="5%">{{storeReport.totalRows}}</td>
