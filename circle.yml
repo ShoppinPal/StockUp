@@ -1,7 +1,7 @@
 # circle.yml
 machine:
   node:
-    version: 0.10.46
+    version: 0.10.48
   services:
     - docker
   hosts:
@@ -14,6 +14,8 @@ machine:
 dependencies:
   override:
     # Extract the version number
+    - npm install -g bower
+    - bower --allow-root install  
     - ./scripts/build/image $(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g')
     - docker run --name mongo-local -d mongo
 

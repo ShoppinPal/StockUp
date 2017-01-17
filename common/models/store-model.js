@@ -90,6 +90,7 @@ module.exports = function(StoreModel) {
     , responseHandler = require('../utils/response-handler')
     , request = require('request');
 
+  // DEPRECATED: remove this code since it isn't used in this project anymore
   var startProductImportJob = function(storeModel, storeConfigModel, globalConfigModel) {
     console.log('inside startProductImportJob() - store id: ' + storeModel.objectId);
     console.log(JSON.stringify({

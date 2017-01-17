@@ -19,7 +19,7 @@
     },
     "supplier": {
       "type": "object",
-      "required": true
+      "required": false
     },
     "outlet": {
       "type": "object",

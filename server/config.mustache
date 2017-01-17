@@ -16,13 +16,19 @@ module.exports = {
     'client_id': {{VEND_CLIENT_ID}},
     'client_secret': {{VEND_CLIENT_SECRET}}
   },
-  'ironWorkersProjectId': '{{IW_PROJECT_ID}}',
+  'ironWorkersProjectId': {{IW_PROJECT_ID}},
   'ironWorkersUrl': {{IW_URL}},
   'ironWorkersOauthToken': {{IW_OAUTH_TOKEN}},
+  'awsQueueRegion': {{AWS_SQS_REGION}},
+  'awsQueueAccessKeyId': {{AWS_SQS_ACCESS_KEY_ID}},
+  'awsQueueSecretAccessKey': {{AWS_SQS_SECRET_ACCESS_KEY}},
+  'awsQueueUrl': {{AWS_SQS_URL}},
   'importStockOrderToWarehouse': {{IMPORT_STOCK_ORDER_TO_WAREHOUSE}},
+  'importStockOrderToWarehouseWithoutSupplier': {{IMPORT_STOCK_ORDER_TO_WAREHOUSE_WITHOUT_SUPPLIER}},
   'importStockOrderToPos': {{IMPORT_STOCK_ORDER_TO_POS}},
   'generateStockOrderWorker': {{GENERATE_STOCK_ORDER_WORKER}},
   'removeUnfulfilledProducts': {{REMOVE_UNFULFILLED_PRODUCTS_WORKER}},
   'removeUnreceivedProducts': {{REMOVE_UNRECEIVED_PRODUCTS_WORKER}},
-  'stockOrderWorker': {{STOCK_ORDER_WORKER}}
+  'stockOrderWorker': {{STOCK_ORDER_WORKER}},
+  'workerType': {{WORKER_TYPE}}
 };

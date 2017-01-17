@@ -5,6 +5,7 @@ var request = require('request-promise');
 var _ = require('underscore');
 
 var path = require('path');
+var modulePath = require('loopback-connector-mongodb/node_modules/mongodb');
 var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 var log = require('./../lib/debug-extension')('common:models:'+fileName);
 
@@ -51,12 +52,12 @@ module.exports = function(ReportModel) {
   });
 
   /*ReportModel.remoteMethod('getRows', {
-    accepts: [
-      {arg: 'id', type: 'string', required: true}
-    ],
-    http: {path: '/:id/rows', verb: 'get'},
-    returns: {arg: 'rows', type: 'array', root:true}
-  });*/
+   accepts: [
+   {arg: 'id', type: 'string', required: true}
+   ],
+   http: {path: '/:id/rows', verb: 'get'},
+   returns: {arg: 'rows', type: 'array', root:true}
+   });*/
 
   ReportModel.remoteMethod('getRows', {
     accepts: [
@@ -143,7 +144,7 @@ module.exports = function(ReportModel) {
             where: {'api_id': reportModelInstance.outlet.id}, //assumption: there aren't any duplicate entries
             include: 'storeConfigModel' // (4) also fetch the store-config
           }
-        )
+          )
           .then(function(storeModelInstance) {
             log.trace('print object for storeModelInstance: ', storeModelInstance);
             var storeConfigInstance = storeModelInstance.storeConfigModel();
@@ -209,10 +210,10 @@ module.exports = function(ReportModel) {
           // (3) Add some operations to be executed
           _.each(rows,function(row){
             //log.trace('_.omit(row,\'id\')', _.omit(row,'id'));
-            var ObjectID = require('./../../node_modules/loopback-connector-mongodb/node_modules/mongodb').ObjectID;
+            var ObjectID = modulePath.ObjectID;
             // TODO: need to (a) either remove all the ObejctId(s) otherwise they'll be overwritten as Strings,
-             //      or (b) cast them properly before sending,
-             //      or (c) cast them properly and instead of sending the whole object, send the diff only
+            //      or (b) cast them properly before sending,
+            //      or (c) cast them properly and instead of sending the whole object, send the diff only
             batch.find({'_id': new ObjectID(row.id)}).updateOne({$set: _.omit(row,'id','reportId','userId')});
             // TODO: updatedAt doesn't get a new timestamp
           });
@@ -237,46 +238,46 @@ module.exports = function(ReportModel) {
       log.debug('removeReport > will fetch report and related models for Vend calls');
       ReportModel.getAllRelevantModelInstancesForReportModel(id)
         .spread(function(reportModelInstance, storeModelInstance/*, storeConfigInstance*/){
-          var conditionalPromise;
-          if(reportModelInstance.vendConsignmentId) {
-            log.debug('removeReport > will delete Vend consignment', reportModelInstance.vendConsignmentId);
-            var oauthVendUtil = require('./../../common/utils/vend')({
-              'GlobalConfigModel': ReportModel.app.models.GlobalConfigModel,
-              'StoreConfigModel': ReportModel.app.models.StoreConfigModel,
-              'currentUser': currentUser
-            });
-            conditionalPromise = oauthVendUtil.deleteStockOrder(storeModelInstance, reportModelInstance);
-          }
-          else {
-            log.debug('removeReport > no vendConsignmentId found for deletion');
-            conditionalPromise = Promise.resolve();
-          }
+            var conditionalPromise;
+            if(reportModelInstance.vendConsignmentId) {
+              log.debug('removeReport > will delete Vend consignment', reportModelInstance.vendConsignmentId);
+              var oauthVendUtil = require('./../../common/utils/vend')({
+                'GlobalConfigModel': ReportModel.app.models.GlobalConfigModel,
+                'StoreConfigModel': ReportModel.app.models.StoreConfigModel,
+                'currentUser': currentUser
+              });
+              conditionalPromise = oauthVendUtil.deleteStockOrder(storeModelInstance, reportModelInstance);
+            }
+            else {
+              log.debug('removeReport > no vendConsignmentId found for deletion');
+              conditionalPromise = Promise.resolve();
+            }
 
-          return conditionalPromise.then(function(){
-            log.debug('removeReport > will fetch related lineitems');
-            var StockOrderLineitemModel = ReportModel.app.models.StockOrderLineitemModel;
-            return StockOrderLineitemModel.destroyAll({reportId: id}, function (err, info) {
-              log.debug('removeReport > destroy related lineitems > DONE!', info);
-              if (err) {
-                cb(err);
-              }
-              else {
-                return ReportModel.destroyById(id, function(){
-                  log.debug('removeReport > destroyById(): DONE!');
-                  if (err) {
-                    cb(err);
-                  }
-                  else {
-                    cb(null);
-                  }
-                });
-              }
+            return conditionalPromise.then(function(){
+              log.debug('removeReport > will fetch related lineitems');
+              var StockOrderLineitemModel = ReportModel.app.models.StockOrderLineitemModel;
+              return StockOrderLineitemModel.destroyAll({reportId: id}, function (err, info) {
+                log.debug('removeReport > destroy related lineitems > DONE!', info);
+                if (err) {
+                  cb(err);
+                }
+                else {
+                  return ReportModel.destroyById(id, function(){
+                    log.debug('removeReport > destroyById(): DONE!');
+                    if (err) {
+                      cb(err);
+                    }
+                    else {
+                      cb(null);
+                    }
+                  });
+                }
+              });
             });
+          },
+          function(error){
+            cb(error);
           });
-        },
-        function(error){
-          cb(error);
-        });
     }
   };
 
@@ -458,136 +459,328 @@ module.exports = function(ReportModel) {
       // (1) generate a token for the worker to use on the currentUser's behalf
       currentUser.createAccessTokenAsync(1209600)// can't be empty ... time to live (in seconds) 1209600 is 2 weeks (default of loopback)
         .then(function(newAccessToken){
-          // (2) fetch the report, store and store-config
-          return ReportModel.getAllRelevantModelInstancesForReportModel(id)
-            .spread(function(reportModelInstance, storeModelInstance, storeConfigInstance){
-              // (3) extract domainPrefix from store-config's posUrl
-              var posUrl = storeConfigInstance.posUrl;
-              var regexp = /^https?:\/\/(.*)\.vendhq\.com$/i;
-              var matches = posUrl.match(regexp);
-              var domainPrefix = matches[1];
+            // (2) fetch the report, store and store-config
+            return ReportModel.getAllRelevantModelInstancesForReportModel(id)
+              .spread(function(reportModelInstance, storeModelInstance, storeConfigInstance){
+                // (3) extract domainPrefix from store-config's posUrl
+                var posUrl = storeConfigInstance.posUrl;
+                var regexp = /^https?:\/\/(.*)\.vendhq\.com$/i;
+                var matches = posUrl.match(regexp);
+                var domainPrefix = matches[1];
 
-              // (4) Prepare payload for worker
-              var options = ReportModel.preparePayload(
-                storeModelInstance,
-                domainPrefix,
-                newAccessToken,
-                reportModelInstance,
-                ReportModel.app.get('generateStockOrderWorker')
-              );
+                // (4) Prepare payload for worker
+                var options = ReportModel.preparePayload(
+                  storeModelInstance,
+                  domainPrefix,
+                  newAccessToken,
+                  reportModelInstance,
+                  ReportModel.app.get('generateStockOrderWorker')
+                );
 
-              return ReportModel.sendPayload(reportModelInstance, options, cb)
-                .then(function(updatedReportModelInstance){
-                  log.debug('return the updated ReportModel');
-                  cb(null, updatedReportModelInstance);
-                });
-            });
-        },
-        function(error){
-          cb(error);
-        });
+                return ReportModel.sendPayload(reportModelInstance, options, cb)
+                  .then(function(updatedReportModelInstance){
+                    log.debug('return the updated ReportModel');
+                    cb(null, updatedReportModelInstance);
+                  });
+              });
+          },
+          function(error){
+            cb(error);
+          });
     }
   };
 
   ReportModel.preparePayload = function(storeModelInstance, domainPrefix, newAccessToken, reportModelInstance, workerName){
     log.debug('prepare payload for worker');
-    return {
-      url: ReportModel.app.get('ironWorkersUrl'),
-      qs: {
-        'oauth': ReportModel.app.get('ironWorkersOauthToken'),
-        'code_name': workerName || ReportModel.app.get('stockOrderWorker'),
-        'priority': 1
-      },
-      json: {
-        tokenService: 'https://{DOMAIN_PREFIX}.vendhq.com/api/1.0/token', //TODO: fetch from global-config or config.*.json
-        clientId: ReportModel.app.get('vend').client_id,
-        clientSecret: ReportModel.app.get('vend').client_secret,
-        tokenType: 'Bearer',
-        accessToken: storeModelInstance.storeConfigModel().vendAccessToken,//'XN4ceup1M9Rp6Sf1AqeqarDjN9TMa06Mwr15K7lk',
-        refreshToken: storeModelInstance.storeConfigModel().vendRefreshToken,//'qSl8JF9fD2UMGAZfpsN2yr2d8XRNZgmQEKh7v5jp',
-        domainPrefix: domainPrefix, //'fermiyontest', // TODO: extract from storeConfigModelInstance.posUrl
-        loopbackServerUrl: process.env['site:baseUrl'] || ReportModel.app.get('site').baseUrl,
-        //loopbackServerHost: 'mppulkit1.localtunnel.me',
-        //loopbackServerPort: '443',
-        loopbackAccessToken: newAccessToken, // let it be the full json object
-        reportId: reportModelInstance.id,
-        outletName: reportModelInstance.outlet.name,
-        supplierName: reportModelInstance.supplier.name,
-        outletId: reportModelInstance.outlet.id,//'aea67e1a-b85c-11e2-a415-bc764e10976c',
-        supplierId: reportModelInstance.supplier.id//'c364c506-f8f4-11e3-a0f5-b8ca3a64f8f4'
-      }
-    };
+    var supplierIdForPayload = '' ,supplierNameForPayload ='';
+    if(reportModelInstance.supplier){
+      supplierIdForPayload = reportModelInstance.supplier.id;
+      supplierNameForPayload = reportModelInstance.supplier.name;
+    }
+
+    if(ReportModel.app.get('workerType') == "AWS"){
+      return {
+        json: {
+          op: workerName || ReportModel.app.get('stockOrderWorker'),
+          tokenService: 'https://{DOMAIN_PREFIX}.vendhq.com/api/1.0/token', //TODO: fetch from global-config or config.*.json
+          clientId: ReportModel.app.get('vend').client_id,
+          clientSecret: ReportModel.app.get('vend').client_secret,
+          tokenType: 'Bearer',
+          accessToken: storeModelInstance.storeConfigModel().vendAccessToken,
+          refreshToken: storeModelInstance.storeConfigModel().vendRefreshToken,
+          domainPrefix: domainPrefix, //'fermiyontest', // TODO: extract from storeConfigModelInstance.posUrl
+          loopbackServerUrl: process.env['site:baseUrl'] || ReportModel.app.get('site').baseUrl,
+          //loopbackServerHost: 'mppulkit1.localtunnel.me',
+          //loopbackServerPort: '443',
+          loopbackAccessToken: newAccessToken, // let it be the full json object
+          reportId: reportModelInstance.id,
+          outletName: reportModelInstance.outlet.name,
+          supplierName: supplierNameForPayload,
+          outletId: reportModelInstance.outlet.id,//'aea67e1a-b85c-11e2-a415-bc764e10976c',
+          supplierId: supplierIdForPayload//'c364c506-f8f4-11e3-a0f5-b8ca3a64f8f4'
+        }
+      };
+    }
+    else if(ReportModel.app.get('workerType') == "IronWorker"){
+      return {
+        url: ReportModel.app.get('ironWorkersUrl'),
+        qs: {
+          'oauth': ReportModel.app.get('ironWorkersOauthToken'),
+          'code_name': workerName || ReportModel.app.get('stockOrderWorker'),
+          'priority': 1
+        },
+        json: {
+          tokenService: 'https://{DOMAIN_PREFIX}.vendhq.com/api/1.0/token', //TODO: fetch from global-config or config.*.json
+          clientId: ReportModel.app.get('vend').client_id,
+          clientSecret: ReportModel.app.get('vend').client_secret,
+          tokenType: 'Bearer',
+          accessToken: storeModelInstance.storeConfigModel().vendAccessToken,//'XN4ceup1M9Rp6Sf1AqeqarDjN9TMa06Mwr15K7lk',
+          refreshToken: storeModelInstance.storeConfigModel().vendRefreshToken,//'qSl8JF9fD2UMGAZfpsN2yr2d8XRNZgmQEKh7v5jp',
+          domainPrefix: domainPrefix, //'fermiyontest', // TODO: extract from storeConfigModelInstance.posUrl
+          loopbackServerUrl: process.env['site:baseUrl'] || ReportModel.app.get('site').baseUrl,
+          //loopbackServerHost: 'mppulkit1.localtunnel.me',
+          //loopbackServerPort: '443',
+          loopbackAccessToken: newAccessToken, // let it be the full json object
+          reportId: reportModelInstance.id,
+          outletName: reportModelInstance.outlet.name,
+          supplierName: supplierNameForPayload,
+          outletId: reportModelInstance.outlet.id,//'aea67e1a-b85c-11e2-a415-bc764e10976c',
+          supplierId: supplierIdForPayload//'c364c506-f8f4-11e3-a0f5-b8ca3a64f8f4'
+        }
+      };
+    }
+    else{
+      return {
+        url: ReportModel.app.get('ironWorkersUrl'),
+        qs: {
+          'oauth': ReportModel.app.get('ironWorkersOauthToken'),
+          'code_name': workerName || ReportModel.app.get('stockOrderWorker'),
+          'priority': 1
+        },
+        json: {
+          tokenService: 'https://{DOMAIN_PREFIX}.vendhq.com/api/1.0/token', //TODO: fetch from global-config or config.*.json
+          clientId: ReportModel.app.get('vend').client_id,
+          clientSecret: ReportModel.app.get('vend').client_secret,
+          tokenType: 'Bearer',
+          accessToken: storeModelInstance.storeConfigModel().vendAccessToken,
+          refreshToken: storeModelInstance.storeConfigModel().vendRefreshToken,
+          domainPrefix: domainPrefix, //'fermiyontest', // TODO: extract from storeConfigModelInstance.posUrl
+          loopbackServerUrl: process.env['site:baseUrl'] || ReportModel.app.get('site').baseUrl,
+          //loopbackServerHost: 'mppulkit1.localtunnel.me',
+          //loopbackServerPort: '443',
+          loopbackAccessToken: newAccessToken, // let it be the full json object
+          reportId: reportModelInstance.id,
+          outletName: reportModelInstance.outlet.name,
+          supplierName: supplierNameForPayload,
+          outletId: reportModelInstance.outlet.id,//'aea67e1a-b85c-11e2-a415-bc764e10976c',
+          supplierId: supplierIdForPayload//'c364c506-f8f4-11e3-a0f5-b8ca3a64f8f4'
+        }
+      };
+    }
+
+
   };
 
   ReportModel.sendPayload = function(reportModelInstance, options, cb){
-    log.debug('will send a request with', 'options:', JSON.stringify(options,null,2));
-    return request.post(options)
-      .then(successHandler)
-      .then(function(data){
-        log.debug('save the task info in ReportModel', JSON.stringify(data,null,2));
-        return reportModelInstance.updateAttributes({
-          workerTaskId: data.id,
-          workerStatus: data.msg
+    log.debug('will send a request with', 'options.json', JSON.stringify(options.json,null,2));
+
+    if(ReportModel.app.get('workerType') == "IronWorker") {
+      return request.post(options)
+        .then(successHandler)
+        .then(function (data) {
+          log.debug('save the task info in ReportModel', JSON.stringify(data, null, 2));
+          return reportModelInstance.updateAttributes({
+            workerTaskId: data.id,
+            workerStatus: data.msg
+          });
+        })
+        .catch(ClientError, function (e) {
+          var message = e.response.body;
+          if (_.isObject(message)) {
+            message = JSON.stringify(message, null, 2);
+          }
+          console.error('A ClientError happened: \n'
+            + e.statusCode + ' ' + message + '\n'
+            /*+ JSON.stringify(e.response.headers,null,2)
+             + JSON.stringify(e,null,2)*/
+          );
+          // TODO: add retry logic?
+          //return Promise.reject(e.statusCode + ' ' + message); // TODO: throw unknown errors but reject well known errors?
+          cb(e.statusCode + ' ' + message);
+        })
+        .catch(function (e) {
+          console.error('report-model.js - generateStockOrderReportForManager - An unexpected error occurred: ', e);
+          //throw e; // TODO: throw unknown errors but reject well known errors?
+          //return Promise.reject(e);
+          cb(e);
         });
-      })
-      .catch(ClientError, function(e) {
-        var message = e.response.body;
-        if(_.isObject(message)) {
-          message = JSON.stringify(message,null,2);
-        }
-        console.error('A ClientError happened: \n'
-          + e.statusCode + ' ' + message + '\n'
-          /*+ JSON.stringify(e.response.headers,null,2)
-           + JSON.stringify(e,null,2)*/
-        );
-        // TODO: add retry logic?
-        //return Promise.reject(e.statusCode + ' ' + message); // TODO: throw unknown errors but reject well known errors?
-        cb(e.statusCode + ' ' + message);
-      })
-      .catch(function(e) {
-        console.error('report-model.js - generateStockOrderReportForManager - An unexpected error occurred: ', e);
-        //throw e; // TODO: throw unknown errors but reject well known errors?
-        //return Promise.reject(e);
-        cb(e);
+    }
+    else if (ReportModel.app.get('workerType') == "AWS"){
+      var AWS = require('aws-sdk');
+      var sqs = new AWS.SQS({
+        region: ReportModel.app.get('awsQueueRegion'),
+        accessKeyId: ReportModel.app.get('awsQueueAccessKeyId'),
+        secretAccessKey: ReportModel.app.get('awsQueueSecretAccessKey')
       });
+      //var msg = { payload: 'a message' };
+      var sqsParams = {
+        MessageBody: JSON.stringify(options.json),
+        QueueUrl: ReportModel.app.get('awsQueueUrl')
+      };
+      var sendMessageAsync = Promise.promisify(sqs.sendMessage, sqs);
+
+      return sendMessageAsync(sqsParams)
+        .then(successHandler)
+        .then(function(data){
+          log.debug('save the task info in ReportModel', JSON.stringify(data,null,2));
+          /*SQS sample response:
+           {
+           "ResponseMetadata": {
+           "RequestId": "aaa"
+           },
+           "MD5OfMessageBody": "bbb",
+           "MessageId": "ccc"
+           }*/
+          return reportModelInstance.updateAttributes({
+            workerTaskId: data.MessageId //data.id
+            //,workerStatus: data.msg
+          });
+        })
+        .catch(ClientError, function(e) {
+          var message = e.response.body;
+          if(_.isObject(message)) {
+            message = JSON.stringify(message,null,2);
+          }
+          console.error('A ClientError happened: \n'
+            + e.statusCode + ' ' + message + '\n'
+            /*+ JSON.stringify(e.response.headers,null,2)
+             + JSON.stringify(e,null,2)*/
+          );
+          // TODO: add retry logic?
+          //return Promise.reject(e.statusCode + ' ' + message); // TODO: throw unknown errors but reject well known errors?
+          cb(e.statusCode + ' ' + message);
+        })
+        .catch(function(e) {
+          console.error('report-model.js - generateStockOrderReportForManager - An unexpected error occurred: ', e);
+          //throw e; // TODO: throw unknown errors but reject well known errors?
+          //return Promise.reject(e);
+          cb(e);
+        });
+    }
+    else{
+      return request.post(options)
+        .then(successHandler)
+        .then(function (data) {
+          log.debug('save the task info in ReportModel', JSON.stringify(data, null, 2));
+          return reportModelInstance.updateAttributes({
+            workerTaskId: data.id,
+            workerStatus: data.msg
+          });
+        })
+        .catch(ClientError, function (e) {
+          var message = e.response.body;
+          if (_.isObject(message)) {
+            message = JSON.stringify(message, null, 2);
+          }
+          console.error('A ClientError happened: \n'
+            + e.statusCode + ' ' + message + '\n'
+            /*+ JSON.stringify(e.response.headers,null,2)
+             + JSON.stringify(e,null,2)*/
+          );
+          // TODO: add retry logic?
+          //return Promise.reject(e.statusCode + ' ' + message); // TODO: throw unknown errors but reject well known errors?
+          cb(e.statusCode + ' ' + message);
+        })
+        .catch(function (e) {
+          console.error('report-model.js - generateStockOrderReportForManager - An unexpected error occurred: ', e);
+          //throw e; // TODO: throw unknown errors but reject well known errors?
+          //return Promise.reject(e);
+          cb(e);
+        });
+    }
+
   };
 
+  // DEPRECATED: remove from loopback-server and angular-UI side as well
   ReportModel.getWorkerStatus = function(id, cb) {
-    var currentUser = ReportModel.getCurrentUserModel(cb); // returns  immediately if no currentUser
-    if(currentUser) {
-      // (1) fetch the report
-      ReportModel.findById(id, function (error, reportModelInstance) {
-        //log.trace('reportModelInstance:', reportModelInstance);
+    if(ReportModel.app.get('workerType') == "AWS"){
+      cb(null);
+    }
+    else if(ReportModel.app.get('workerType') == "IronWorker") {
+      var currentUser = ReportModel.getCurrentUserModel(cb); // returns  immediately if no currentUser
+      if (currentUser) {
+        // (1) fetch the report
+        ReportModel.findById(id, function (error, reportModelInstance) {
+          //log.trace('reportModelInstance:', reportModelInstance);
 
-        // (2) setup the iron worker client
-        var IronWorker = require('iron_worker');
-        var workerClient = new IronWorker.Client({
-          token: ReportModel.app.get('ironWorkersOauthToken'),
-          'project_id': ReportModel.app.get('ironWorkersProjectId')
-        });
-
-        // (3) fetch the task status
-        if(reportModelInstance.workerTaskId) {
-          workerClient.tasksGet(reportModelInstance.workerTaskId, function(error, body) {
-            if (error) {
-              console.error(error);
-              return cb(error);
-            }
-            log.debug(JSON.stringify(body, null, 2));
-            //return cb(null, body);
-            return reportModelInstance.updateAttributes({
-              workerStatus: body.status //body.msg || body.status
-            })
-              .then(function(updatedReportModelInstance){
-                log.debug('return the updated ReportModel');
-                cb(null, updatedReportModelInstance);
-              });
+          // (2) setup the iron worker client
+          var IronWorker = require('iron_worker');
+          var workerClient = new IronWorker.Client({
+            token: ReportModel.app.get('ironWorkersOauthToken'),
+            'project_id': ReportModel.app.get('ironWorkersProjectId')
           });
-        }
-        else {
-          cb(null);
-        }
-      });
+
+          // (3) fetch the task status
+          if (reportModelInstance.workerTaskId) {
+            workerClient.tasksGet(reportModelInstance.workerTaskId, function (error, body) {
+              if (error) {
+                console.error(error);
+                return cb(error);
+              }
+              log.debug(JSON.stringify(body, null, 2));
+              //return cb(null, body);
+              return reportModelInstance.updateAttributes({
+                  workerStatus: body.status //body.msg || body.status
+                })
+                .then(function (updatedReportModelInstance) {
+                  log.debug('return the updated ReportModel');
+                  cb(null, updatedReportModelInstance);
+                });
+            });
+          }
+          else {
+            cb(null);
+          }
+        });
+      }
+    }
+    else {
+      var currentUser = ReportModel.getCurrentUserModel(cb); // returns  immediately if no currentUser
+      if (currentUser) {
+        // (1) fetch the report
+        ReportModel.findById(id, function (error, reportModelInstance) {
+          //log.trace('reportModelInstance:', reportModelInstance);
+
+          // (2) setup the iron worker client
+          var IronWorker = require('iron_worker');
+          var workerClient = new IronWorker.Client({
+            token: ReportModel.app.get('ironWorkersOauthToken'),
+            'project_id': ReportModel.app.get('ironWorkersProjectId')
+          });
+
+          // (3) fetch the task status
+          if (reportModelInstance.workerTaskId) {
+            workerClient.tasksGet(reportModelInstance.workerTaskId, function (error, body) {
+              if (error) {
+                console.error(error);
+                return cb(error);
+              }
+              log.debug(JSON.stringify(body, null, 2));
+              //return cb(null, body);
+              return reportModelInstance.updateAttributes({
+                  workerStatus: body.status //body.msg || body.status
+                })
+                .then(function (updatedReportModelInstance) {
+                  log.debug('return the updated ReportModel');
+                  cb(null, updatedReportModelInstance);
+                });
+            });
+          }
+          else {
+            cb(null);
+          }
+        });
+      }
     }
   };
 
@@ -607,45 +800,45 @@ module.exports = function(ReportModel) {
             'to', to
           );
           if (from === reportModelInstance.state &&
-              reportModelInstance.state === ReportModel.ReportModelStates.MANAGER_NEW_ORDERS &&
-              to === ReportModel.ReportModelStates.MANAGER_IN_PROCESS)
+            reportModelInstance.state === ReportModel.ReportModelStates.MANAGER_NEW_ORDERS &&
+            to === ReportModel.ReportModelStates.MANAGER_IN_PROCESS)
           {
             log.debug('inside setReportStatus() - will create a stock order in Vend');
             oauthVendUtil.createStockOrderForVend(storeModelInstance, reportModelInstance)
               .then(function(newStockOrder){
-                log.debug('inside setReportStatus() - PASS - created a stock order in Vend', newStockOrder);
-                reportModelInstance.vendConsignmentId = newStockOrder.id;
-                reportModelInstance.vendConsignment = newStockOrder;
-                reportModelInstance.state = ReportModel.ReportModelStates.MANAGER_IN_PROCESS;
-                reportModelInstance.save()
-                  .then(function(updatedReportModelInstance){
-                    log.debug('inside setReportStatus() - PASS - updated the report model');
-                    cb(null, updatedReportModelInstance);
-                  });
-              },
-              function(error){
-                cb(error);
-              });
+                  log.debug('inside setReportStatus() - PASS - created a stock order in Vend', newStockOrder);
+                  reportModelInstance.vendConsignmentId = newStockOrder.id;
+                  reportModelInstance.vendConsignment = newStockOrder;
+                  reportModelInstance.state = ReportModel.ReportModelStates.MANAGER_IN_PROCESS;
+                  reportModelInstance.save()
+                    .then(function(updatedReportModelInstance){
+                      log.debug('inside setReportStatus() - PASS - updated the report model');
+                      cb(null, updatedReportModelInstance);
+                    });
+                },
+                function(error){
+                  cb(error);
+                });
           }
           else if (from === reportModelInstance.state &&
-                   reportModelInstance.state === ReportModel.ReportModelStates.MANAGER_IN_PROCESS &&
-                   to === ReportModel.ReportModelStates.WAREHOUSE_FULFILL)
+            reportModelInstance.state === ReportModel.ReportModelStates.MANAGER_IN_PROCESS &&
+            to === ReportModel.ReportModelStates.WAREHOUSE_FULFILL)
           {
             log.debug('inside setReportStatus() - will update the status of stock order in Vend to SENT');
             oauthVendUtil.markStockOrderAsSent(storeModelInstance, reportModelInstance)
               .then(function(updatedStockOrder){
-                log.debug('inside setReportStatus() - PASS - updated stock order in Vend to SENT', updatedStockOrder);
-                reportModelInstance.vendConsignment = updatedStockOrder;
-                reportModelInstance.state = ReportModel.ReportModelStates.WAREHOUSE_FULFILL;
-                reportModelInstance.save()
-                  .then(function(updatedReportModelInstance){
-                    log.debug('inside setReportStatus() - PASS - updated the report model');
-                    cb(null, updatedReportModelInstance);
-                  });
-              },
-              function(error){
-                cb(error);
-              });
+                  log.debug('inside setReportStatus() - PASS - updated stock order in Vend to SENT', updatedStockOrder);
+                  reportModelInstance.vendConsignment = updatedStockOrder;
+                  reportModelInstance.state = ReportModel.ReportModelStates.WAREHOUSE_FULFILL;
+                  reportModelInstance.save()
+                    .then(function(updatedReportModelInstance){
+                      log.debug('inside setReportStatus() - PASS - updated the report model');
+                      cb(null, updatedReportModelInstance);
+                    });
+                },
+                function(error){
+                  cb(error);
+                });
           }
           else if (from === reportModelInstance.state &&
             reportModelInstance.state === ReportModel.ReportModelStates.WAREHOUSE_FULFILL &&
@@ -655,50 +848,105 @@ module.exports = function(ReportModel) {
               log.debug('inside setReportStatus() - will create a stock order in Vend (for imported order)');
               return oauthVendUtil.createStockOrderForVend(storeModelInstance, reportModelInstance)
                 .then(function(newStockOrder){
-                  log.debug('inside setReportStatus() - PASS - created a stock order in Vend (for imported order)', newStockOrder);
-                  reportModelInstance.vendConsignmentId = newStockOrder.id;
-                  reportModelInstance.vendConsignment = newStockOrder;
-                  return reportModelInstance.save()
-                    .then(function(updatedReportModelInstance){
-                      log.debug('inside setReportStatus() - PASS - updated the report model (for imported order)');
+                    log.debug('inside setReportStatus() - PASS - created a stock order in Vend (for imported order)', newStockOrder);
+                    reportModelInstance.vendConsignmentId = newStockOrder.id;
+                    reportModelInstance.vendConsignment = newStockOrder;
+                    return reportModelInstance.save()
+                      .then(function(updatedReportModelInstance){
+                        log.debug('inside setReportStatus() - PASS - updated the report model (for imported order)');
 
-                      // (a) submit long running task as a job to iron
-                      // (a.1) generate a token for the worker to use on the currentUser's behalf
-                      return currentUser.createAccessTokenAsync(1209600)// can't be empty ... time to live (in seconds) 1209600 is 2 weeks (default of loopback)
-                        .then(function(newAccessToken){
-                          // (a.2) extract domainPrefix from store-config's posUrl
-                          var posUrl = storeConfigInstance.posUrl;
-                          var regexp = /^https?:\/\/(.*)\.vendhq\.com$/i;
-                          var matches = posUrl.match(regexp);
-                          var domainPrefix = matches[1];
-                          // (a.3) Prepare payload for worker
-                          var options = ReportModel.preparePayload(
-                            storeModelInstance,
-                            domainPrefix,
-                            newAccessToken,
-                            updatedReportModelInstance,
-                            ReportModel.app.get('importStockOrderToPos')
-                          );
-                          // (a.4) Submit it
-                          return ReportModel.sendPayload(updatedReportModelInstance, options, cb)
-                            .then(function(updatedReportModelInstance){
-                              log.debug('return the updated ReportModel');
-                              cb(null, updatedReportModelInstance);
-                            });
-                        });
-                    });
-                },
-                function(error){
-                  cb(error);
-                });
+                        // (a) submit long running task as a job to iron
+                        // (a.1) generate a token for the worker to use on the currentUser's behalf
+                        return currentUser.createAccessTokenAsync(1209600)// can't be empty ... time to live (in seconds) 1209600 is 2 weeks (default of loopback)
+                          .then(function(newAccessToken){
+                            // (a.2) extract domainPrefix from store-config's posUrl
+                            var posUrl = storeConfigInstance.posUrl;
+                            var regexp = /^https?:\/\/(.*)\.vendhq\.com$/i;
+                            var matches = posUrl.match(regexp);
+                            var domainPrefix = matches[1];
+                            // (a.3) Prepare payload for worker
+                            var options = ReportModel.preparePayload(
+                              storeModelInstance,
+                              domainPrefix,
+                              newAccessToken,
+                              updatedReportModelInstance,
+                              ReportModel.app.get('importStockOrderToPos')
+                            );
+                            // (a.4) Submit it
+                            return ReportModel.sendPayload(updatedReportModelInstance, options, cb)
+                              .then(function(updatedReportModelInstance){
+                                log.debug('return the updated ReportModel');
+                                cb(null, updatedReportModelInstance);
+                              });
+                          });
+                      });
+                  },
+                  function(error){
+                    cb(error);
+                  });
             }
             else {
               log.debug('inside setReportStatus() - stock order in Vend already exists (assuming generated order)');
               reportModelInstance.state = ReportModel.ReportModelStates.MANAGER_RECEIVE;
               return reportModelInstance.save()
                 .then(function(updatedReportModelInstance){
-                  log.debug('inside setReportStatus() - updated the report model (assuming generated order)' +
-                    ' - will kick off a worker to removeUnfulfilledProducts');
+                    log.debug('inside setReportStatus() - updated the report model (assuming generated order)' +
+                      ' - will kick off a worker to removeUnfulfilledProducts');
+
+                    // (a) submit long running task as a job to iron
+                    // (a.1) generate a token for the worker to use on the currentUser's behalf
+                    return currentUser.createAccessTokenAsync(1209600)// can't be empty ... time to live (in seconds) 1209600 is 2 weeks (default of loopback)
+                      .then(function(newAccessToken){
+                        // (a.2) extract domainPrefix from store-config's posUrl
+                        var posUrl = storeConfigInstance.posUrl;
+                        var regexp = /^https?:\/\/(.*)\.vendhq\.com$/i;
+                        var matches = posUrl.match(regexp);
+                        var domainPrefix = matches[1];
+
+                        // (a.3) Prepare payload for worker
+                        var options = ReportModel.preparePayload(
+                          storeModelInstance,
+                          domainPrefix,
+                          newAccessToken,
+                          updatedReportModelInstance,
+                          ReportModel.app.get('removeUnfulfilledProducts')
+                        );
+                        if(ReportModel.app.get('workerType') == "IronWorker") {
+                          options.json.op = 'removeUnfulfilledProducts';
+                        }
+                        else if(ReportModel.app.get('workerType') == "AWS"){
+
+                        }
+                        else{
+                          options.json.op = 'removeUnfulfilledProducts';
+                        }
+                        log.debug('inside setReportStatus() - updated the report model (assuming generated order)' +
+                          ' removeUnfulfilledProducts > payload ready');
+
+                        // (a.4) Submit it
+                        return ReportModel.sendPayload(updatedReportModelInstance, options, cb)
+                          .then(function(updatedReportModelInstance){
+                            log.debug('inside setReportStatus() - updated the report model (assuming generated order)' +
+                              ' removeUnfulfilledProducts > payload sent > return the updated ReportModel');
+                            cb(null, updatedReportModelInstance);
+                          });
+                      });
+                  },
+                  function(error){
+                    cb(error);
+                  });
+            }
+          }
+          else if (from === reportModelInstance.state &&
+            reportModelInstance.state === ReportModel.ReportModelStates.MANAGER_RECEIVE &&
+            to === ReportModel.ReportModelStates.REPORT_COMPLETE)
+          {
+            log.debug('inside setReportStatus() - will update the state of stock order in Warehouse as REPORT_COMPLETE');
+            reportModelInstance.state = ReportModel.ReportModelStates.REPORT_COMPLETE;
+            reportModelInstance.save()
+              .then(function(updatedReportModelInstance){
+                  log.debug('inside setReportStatus() - updated the report model' +
+                    ' - will kick off a worker to removeUnreceivedProducts');
 
                   // (a) submit long running task as a job to iron
                   // (a.1) generate a token for the worker to use on the currentUser's behalf
@@ -716,17 +964,26 @@ module.exports = function(ReportModel) {
                         domainPrefix,
                         newAccessToken,
                         updatedReportModelInstance,
-                        ReportModel.app.get('removeUnfulfilledProducts')
+                        ReportModel.app.get('removeUnreceivedProducts')
                       );
-                      options.json.op = 'removeUnfulfilledProducts'; // TODO: remove the need to specify this
-                      log.debug('inside setReportStatus() - updated the report model (assuming generated order)' +
-                        ' removeUnfulfilledProducts > payload ready');
+                      if(ReportModel.app.get('workerType') == "IronWorker") {
+                        options.json.op = 'removeUnreceivedProducts';
+                      }
+                      else if(ReportModel.app.get('workerType') == "AWS"){
+
+                      }
+                      else{
+                        options.json.op = 'removeUnreceivedProducts';
+                      }
+
+                      log.debug('inside setReportStatus() - updated the report model' +
+                        ' removeUnreceivedProducts > payload ready');
 
                       // (a.4) Submit it
                       return ReportModel.sendPayload(updatedReportModelInstance, options, cb)
                         .then(function(updatedReportModelInstance){
-                          log.debug('inside setReportStatus() - updated the report model (assuming generated order)' +
-                            ' removeUnfulfilledProducts > payload sent > return the updated ReportModel');
+                          log.debug('inside setReportStatus() - updated the report model' +
+                            ' removeUnreceivedProducts > payload sent > return the updated ReportModel');
                           cb(null, updatedReportModelInstance);
                         });
                     });
@@ -734,53 +991,6 @@ module.exports = function(ReportModel) {
                 function(error){
                   cb(error);
                 });
-            }
-          }
-          else if (from === reportModelInstance.state &&
-                   reportModelInstance.state === ReportModel.ReportModelStates.MANAGER_RECEIVE &&
-                   to === ReportModel.ReportModelStates.REPORT_COMPLETE)
-          {
-            log.debug('inside setReportStatus() - will update the state of stock order in Warehouse as REPORT_COMPLETE');
-            reportModelInstance.state = ReportModel.ReportModelStates.REPORT_COMPLETE;
-            reportModelInstance.save()
-              .then(function(updatedReportModelInstance){
-                log.debug('inside setReportStatus() - updated the report model' +
-                  ' - will kick off a worker to removeUnreceivedProducts');
-
-                // (a) submit long running task as a job to iron
-                // (a.1) generate a token for the worker to use on the currentUser's behalf
-                return currentUser.createAccessTokenAsync(1209600)// can't be empty ... time to live (in seconds) 1209600 is 2 weeks (default of loopback)
-                  .then(function(newAccessToken){
-                    // (a.2) extract domainPrefix from store-config's posUrl
-                    var posUrl = storeConfigInstance.posUrl;
-                    var regexp = /^https?:\/\/(.*)\.vendhq\.com$/i;
-                    var matches = posUrl.match(regexp);
-                    var domainPrefix = matches[1];
-
-                    // (a.3) Prepare payload for worker
-                    var options = ReportModel.preparePayload(
-                      storeModelInstance,
-                      domainPrefix,
-                      newAccessToken,
-                      updatedReportModelInstance,
-                      ReportModel.app.get('removeUnreceivedProducts')
-                    );
-                    options.json.op = 'removeUnreceivedProducts'; // TODO: remove the need to specify this
-                    log.debug('inside setReportStatus() - updated the report model' +
-                      ' removeUnreceivedProducts > payload ready');
-
-                    // (a.4) Submit it
-                    return ReportModel.sendPayload(updatedReportModelInstance, options, cb)
-                      .then(function(updatedReportModelInstance){
-                        log.debug('inside setReportStatus() - updated the report model' +
-                          ' removeUnreceivedProducts > payload sent > return the updated ReportModel');
-                        cb(null, updatedReportModelInstance);
-                      });
-                  });
-              },
-              function(error){
-                cb(error);
-              });
           }
           else {
             cb(null, {updated:false}); // TODO: maybe use http status code 400 to indicate invalid input?

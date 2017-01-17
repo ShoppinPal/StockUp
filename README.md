@@ -1,6 +1,6 @@
 # warehouse
 
-Replenishing stock is one of the most important repetitive tasks performed by a retailer, yet for majority of the retail world this process is highly inefficient and time consuming. We've created a (first of its kind) open-source and free iPad application that makes the stock ordering process fast and fun, and frees up a whole lot of time for store managers and warehouse folks. To top it off, this app works beautifully with your inventory and POS! Just let us know which system(s) you use and we can add the integration. 
+Replenishing stock is one of the most important repetitive tasks performed by a retailer, yet for majority of the retail world this process is highly inefficient and time consuming. We've created a (first of its kind) open-source and free iPad application that makes the stock ordering process fast and fun, and frees up a whole lot of time for store managers and warehouse folks. To top it off, this app works beautifully with your inventory and POS! Just let us know which system(s) you use and we can add the integration.
 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ShoppinPal/warehouse?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -9,6 +9,21 @@ Replenishing stock is one of the most important repetitive tasks performed by a 
 Please follow the [Git-Flow Branching](http://blog.sourcetreeapp.com/2012/08/01/smart-branching-with-sourcetree-and-git-flow/) model when working with this repo.
 
 In order to hack on this you'll need a few things installed and setup first:
+
+### Using Docker
+#### Pre-requisites
+- Install [Docker for Mac](https://download.docker.com/mac/stable/Docker.dmg) Or [Windows](https://download.docker.com/win/stable/InstallDocker.msi)
+- Install [Docker Compose](https://docs.docker.com/compose/install/)
+
+#### Deploy application
+
+```
+git clone https://github.com/ShoppinPal/warehouse.git
+cd warehouse && docker-compose up
+```
+Open application in your browser with url http://localhost:3000/
+
+### Non Docker Way
 
 #### Install These:
 ```
@@ -19,7 +34,7 @@ In order to hack on this you'll need a few things installed and setup first:
 * [Yeoman](http://yeoman.io)
 ```
 
-#### Clone it and then:
+#### Clone it and run:
 ```
 cd ~/dev/
 git clone https://github.com/ShoppinPal/warehouse.git warehouse
@@ -64,44 +79,6 @@ bower install
 }
 ```
 
-#### Using Docker
-1. build a docker image (replacing DOCKER_HANDLE and SUBDOMAIN is upto you)
-
-  ```
-  cd ~/dev/ && \
-  git clone https://github.com/ShoppinPal/warehouse.git warehouse && \
-  cd ~/dev/warehouse \
-  docker build -t DOCKER_HANDLE/warehouse \
-    --build-arg VM_EXTERNAL_IP=SUBDOMAIN.ngrok.io \
-    --build-arg SEED_FILE=server/boot/seed.json \
-    ~/dev/w2
-  ```
-1. run a container in detached state
-
-  ```
-  docker run \
-     --env SKIP_SEEDING=false \
-     --env MONGOLAB_URI=mongodb://localhost:27000/warehouse \
-     --name warehouse \
-     --publish 3000:3000 --detach DOCKER_HANDLE/warehouse
-  ```
-1. follow the logs
-
-  ```
-  docker logs --follow warehouse
-  ```
-
-#### For developing dependencies alongside:
-```
-cd ~/dev/
-git clone https://github.com/ShoppinPal/vend-nodejs-sdk.git vend-nodejs-sdk
-cd vend-nodejs-sdk
-npm install
-npm link
-cd ~/dev/warehouse/
-npm link vend-nodejs-sdk
-```
-
 #### Testing
 
 * Unit tests: `grunt test`
@@ -138,5 +115,3 @@ Launch your loopback server in development mode.
 grunt server:development --subdomain <subdomain>
 DEBUG=shoppinpal:*,boot:create-model-instances,boot:create-role-resolver grunt server:development --subdomain <subdomain>
 ```
- 
-

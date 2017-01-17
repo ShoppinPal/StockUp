@@ -1,6 +1,7 @@
 .idea
 .tmp
 .sass-cache
+.env
 node_modules/
 dist/
 client/app/bower_components
@@ -23,3 +24,4 @@ server/config.*.js
 /server/storage/*
 !/server/storage/touch
 seeds
+/worker/generate-weekly-stock-orders/aws-ebs/seed

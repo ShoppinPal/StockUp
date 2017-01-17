@@ -21,6 +21,12 @@ $editor npm-shrinkwrap.json
 echo "Write release notes in CHANGELOG.txt"
 $editor CHANGELOG.txt
 
+UPDATED_RELEASE_VERSION=$(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g' | sed 's/-.*//g')
+
+if [ "${UPDATED_RELEASE_VERSION}" != "${RELEASE_VERSION}" ]; then
+    RELEASE_VERSION=${UPDATED_RELEASE_VERSION}
+fi
+
 git diff
 echo "Verify changes before commit."
 git commit -a -m "Bump ${RELEASE_VERSION}" --signoff --no-verify
