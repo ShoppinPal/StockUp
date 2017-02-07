@@ -309,7 +309,7 @@ module.exports = function(ReportModel) {
               var filteredProducts = _.filter(results.products, function(product){
                 return ( product.inventory &&
                   _.contains(_.pluck(product.inventory,'outlet_id'), reportModelInstance.outlet.id) &&
-                  reportModelInstance.supplier.name === product.supplier_name
+                  (reportModelInstance.supplier.name === product.supplier_name || reportModelInstance.supplier.name === "ANY")
                 );
               });
               log.debug(commandName + ' > filtered products.length: ' + filteredProducts.length);
