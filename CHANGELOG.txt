@@ -1,4 +1,7 @@
-v1.3.0 - Jan 17,2016
+v1.3.1 - Feb 10,2017
+- Bug Fix for SKU while receiving
+
+v1.3.0 - Jan 17,2017
 - New release version with Excel import part 2 feature(Issue #219) and migration from IronWorker to AWS Elastic Beanstalk
 
 v1.2.5 - Nov 10,2016

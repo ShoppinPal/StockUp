@@ -1,6 +1,6 @@
 {
   "name": "shoppinpal-warehouse-mongo",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "dependencies": {
     "aws-sdk": {
       "version": "2.6.15",
