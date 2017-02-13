@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ex
+set -e
 # Read the version to be build image for
 RAW_VERSION=$1
 # Extract the exact version number
