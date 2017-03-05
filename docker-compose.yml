@@ -2,6 +2,13 @@ version: "2"
 
 services:
 
+  ngrok:
+    image: wernight/ngrok
+    links:
+      - "web:http"
+    command: ngrok http web:3000
+    ports:
+      - "4040:4040"
   lb:
     image: nginx:stable
     ports:
@@ -17,7 +24,7 @@ services:
       NODE_ENV: local
       MONGOLAB_URI: mongodb://db:27017/warehouse-local
     env_file: .env
-    command: nodemon -L --debug=5858
+#    command: nodemon -L --debug=5858
     volumes:
       - .:/apps/warehouse
   worker-web:
@@ -26,7 +33,7 @@ services:
       NODE_ENV: local
       MONGOLAB_URI: mongodb://db:27017/warehouse-local
     env_file: .env
-    command: nodemon -L --debug=5858
+ #   command: nodemon -L --debug=5858
     volumes:
       - .:/apps/warehouse
   db:

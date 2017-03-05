@@ -119,6 +119,7 @@ module.exports = function(ReportModel) {
     else if(_.isString(response)) {
       console.log('response is a string');
       try{
+        console.log(response);
         var responseObject = JSON.parse(response);
         //console.log(responseObject);
         return Promise.resolve(responseObject);
@@ -476,7 +477,7 @@ module.exports = function(ReportModel) {
                   reportModelInstance,
                   ReportModel.app.get('generateStockOrderWorker')
                 );
-
+                console.log('trying with these options : '+options);
                 return ReportModel.sendPayload(reportModelInstance, options, cb)
                   .then(function(updatedReportModelInstance){
                     log.debug('return the updated ReportModel');
@@ -549,15 +550,11 @@ module.exports = function(ReportModel) {
         }
       };
     }
-    else{
+    else if(ReportModel.app.get('workerType') == "Kue"){
       return {
-        url: ReportModel.app.get('ironWorkersUrl'),
-        qs: {
-          'oauth': ReportModel.app.get('ironWorkersOauthToken'),
-          'code_name': workerName || ReportModel.app.get('stockOrderWorker'),
-          'priority': 1
-        },
+        url: ReportModel.app.get('kueUrl'),
         json: {
+          op: workerName || ReportModel.app.get('stockOrderWorker'),
           tokenService: 'https://{DOMAIN_PREFIX}.vendhq.com/api/1.0/token', //TODO: fetch from global-config or config.*.json
           clientId: ReportModel.app.get('vend').client_id,
           clientSecret: ReportModel.app.get('vend').client_secret,
@@ -667,14 +664,13 @@ module.exports = function(ReportModel) {
           cb(e);
         });
     }
-    else{
+    else if(ReportModel.app.get('workerType') == "Kue"){
       return request.post(options)
         .then(successHandler)
         .then(function (data) {
           log.debug('save the task info in ReportModel', JSON.stringify(data, null, 2));
           return reportModelInstance.updateAttributes({
-            workerTaskId: data.id,
-            workerStatus: data.msg
+            workerTaskId: data
           });
         })
         .catch(ClientError, function (e) {
@@ -918,7 +914,7 @@ module.exports = function(ReportModel) {
 
                         }
                         else{
-                          options.json.op = 'removeUnfulfilledProducts';
+
                         }
                         log.debug('inside setReportStatus() - updated the report model (assuming generated order)' +
                           ' removeUnfulfilledProducts > payload ready');
@@ -973,7 +969,7 @@ module.exports = function(ReportModel) {
 
                       }
                       else{
-                        options.json.op = 'removeUnreceivedProducts';
+
                       }
 
                       log.debug('inside setReportStatus() - updated the report model' +
