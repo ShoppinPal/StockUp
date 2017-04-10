@@ -1,3 +1,4 @@
+require('@risingstack/trace');
 'use strict';
 
 if (process.env.NEW_RELIC_ENABLED && process.env.NEW_RELIC_ENABLED.toLowerCase() === 'true' &&
