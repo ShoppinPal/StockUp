@@ -128,5 +128,6 @@ docker-compose up -d --build
 
 Open file `/etc/hosts` and add following entry
 ```
+sudo vim /etc/hosts
 127.0.0.1 lb
 ```
