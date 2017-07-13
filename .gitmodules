@@ -1,0 +1,3 @@
+[submodule "warehouse-workers"]
+	path = warehouse-workers
+	url = git@github.com:ShoppinPal/warehouse-workers.git
