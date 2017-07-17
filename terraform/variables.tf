@@ -1,0 +1,2 @@
+variable "Q" {}
+variable "DLQ" {}
