@@ -14,8 +14,7 @@ RUN set -x \
 	&& gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu \
 	&& rm -r "$GNUPGHOME" /usr/local/bin/gosu.asc \
 	&& chmod +x /usr/local/bin/gosu \
-	&& gosu nobody true \
-	&& apt-get purge -y --auto-remove ca-certificates wget
+	&& gosu nobody true
 RUN mkdir -p /apps/warehouse
 RUN chown -R node:node /apps/warehouse
 WORKDIR /apps/warehouse
