@@ -101,3 +101,21 @@ docker-compose up -d --build --force-recreate
 # or:
 docker-compose up --build --force-recreate
 ```
+
+# Remote Dev Machine
+
+1. Setup dropbox on local machine
+1. [Setup dropbx on remote machine](https://training.shoppinpal.com/setup-a-machine-in-the-cloud/setup-box/shared-filesystem/dropbox.html)
+1. Create a directory on your local machine to house any and all projects meant for remote development: `mkdir -p ~/Dropbox/rDev`
+1. Go to the directory where you cloned warehouse locally, for example: `cd ~/dev/warehouse`
+1. Then wire it up to your local Dropbox folder: `ln -s `pwd` ~/Dropbox/rDev/warehouse`
+1. When you check the status on your remote machine/droplet via your ssh terminal: `~/bin/dropbox.py status` ... you will see that the sync has begun:
+
+    ```
+    ~/bin/dropbox.py status
+    Syncing (239 files remaining)
+    Downloading 239 files...
+    ```
+1. From now on whenever you work on your remote machine/droplet via your ssh terminal ... switch to the directory that has the sync enabled: `cd ~/Dropbox/rDev/warehouse/` to do your work.
+1. On your local machine use `selective sync` via the dropbox UI to prevent the transfer of bulky dependencies back to your local filesystem. Go ahead and exclude `node_modules` and `bower_components` etc from being synced back to your machine. This is all done via UI so it should be very easy.
+    * `dropbox > preferences > account > selective sync > change settings...`
