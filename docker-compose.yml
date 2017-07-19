@@ -43,24 +43,25 @@ services:
       - ./server:/apps/warehouse/server
       - ./package.json:/apps/warehouse/package.json
       - ./npm-shrinkwrap.json:/apps/warehouse/npm-shrinkwrap.json
-      - ./wait-for:/wait/wait-for
-    depends_on:
-      - worker-web
-    command: ["/wait/wait-for", "worker-web:3000", "--", "node","server/server.js"]
   worker-web:
     build: .
     ports:
       - "3000"
     environment:
-      NODE_ENV: local
+      NODE_ENV: staging
       MONGOLAB_URI: mongodb://db:27017/warehouse-local
     env_file: .env
-    command: node server/server.js
+    entrypoint: /docker-entrypoint.sh
+    command: ["/wait/wait-for", "web:3000", "--", "node","server/server.js"]
     volumes:
       - ./common:/apps/warehouse/common
       - ./server:/apps/warehouse/server
       - ./package.json:/apps/warehouse/package.json
       - ./npm-shrinkwrap.json:/apps/warehouse/npm-shrinkwrap.json
+      - ./wait-for:/wait/wait-for
+      - ./docker-entrypoint.sh:/docker-entrypoint.sh
+    depends_on:
+      - web
   worker:
     build:
       context: ./warehouse-workers

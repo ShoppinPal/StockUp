@@ -32,7 +32,7 @@ sudo vim /etc/hosts
 # 6a. build and run in a detached state
 docker-compose up -d --build
 
-# 6a. build and run in the foreground
+# 6b. build and run in the foreground
 docker-compose up --build
 ```
 Open application in your browser with url http://lb/
@@ -96,5 +96,8 @@ docker-compose run nodejs npm shrinkwrap
 ```
 # if builds keep failing and it makes no-sence, maybe cleanup is required, try:
 docker system prune
+# either:
 docker-compose up -d --build --force-recreate
+# or:
+docker-compose up --build --force-recreate
 ```
