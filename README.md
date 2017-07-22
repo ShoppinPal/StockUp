@@ -126,6 +126,7 @@ docker-compose up --build --force-recreate
         ```
         cd ~/Dropbox && dropbox exclude add rDev/warehouse/node_modules
         cd ~/Dropbox && dropbox exclude add rDev/warehouse/client/app/bower_components
+        cd ~/Dropbox && dropbox exclude add rDev/warehouse-workers/node_modules
         ```
 1. On your local machine use `selective sync` via the dropbox UI to prevent the transfer of bulky dependencies back to your local filesystem. Go ahead and exclude `node_modules` and `bower_components` etc from being synced back to your machine. This is all done via UI so it should be very easy.
     * `dropbox > preferences > account > selective sync > change settings...`
