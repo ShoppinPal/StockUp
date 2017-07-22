@@ -109,6 +109,7 @@ docker-compose up --build --force-recreate
 1. Create a directory on your local machine to house any and all projects meant for remote development: `mkdir -p ~/Dropbox/rDev`
 1. Go to the directory where you cloned warehouse locally, for example: `cd ~/dev/warehouse`
 1. Then wire it up to your local Dropbox folder:
+
     ```
     ln -s `pwd` ~/Dropbox/rDev/warehouse
     ```
@@ -120,5 +121,11 @@ docker-compose up --build --force-recreate
     Downloading 239 files...
     ```
 1. From now on whenever you work on your remote machine/droplet via your ssh terminal ... switch to the directory that has the sync enabled: `cd ~/Dropbox/rDev/warehouse/` to do your work.
+    * prevent remote machine from syncing unnecessary stuff to dropbox:
+
+        ```
+        cd ~/Dropbox && dropbox exclude add rDev/warehouse/node_modules
+        cd ~/Dropbox && dropbox exclude add rDev/warehouse/client/app/bower_components
+        ```
 1. On your local machine use `selective sync` via the dropbox UI to prevent the transfer of bulky dependencies back to your local filesystem. Go ahead and exclude `node_modules` and `bower_components` etc from being synced back to your machine. This is all done via UI so it should be very easy.
     * `dropbox > preferences > account > selective sync > change settings...`
