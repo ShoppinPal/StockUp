@@ -91,6 +91,7 @@ services:
   # docker-compose run e2e-protractor-test-runner-debug
   e2e-protractor-test-runner-debug:
     build: ./e2e
-    command: protractor.conf.js --seleniumAddress=http://e2e-selenium-and-chrome-debug:4444/wd/hub --baseUrl=http://kamalocean.shoppinpal.com/
+    env_file: ./e2e/.env
+    command: protractor.conf.js --seleniumAddress=http://e2e-selenium-and-chrome-debug:4444/wd/hub --baseUrl=http://kamalocean.shoppinpal.com/#/
     volumes:
       - ./e2e:/project

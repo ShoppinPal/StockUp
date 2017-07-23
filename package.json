@@ -79,7 +79,7 @@
   },
   "scripts": {
     "postinstall": "echo -n $NODE_ENV | grep -v 'production' && ./node_modules/protractor/bin/webdriver-manager update || echo 'will NOT run webdriver install or update'",
-    "test": "grunt test"
+    "test": "docker-compose run e2e-protractor-test-runner-debug"
   },
   "main": "server/server.js"
 }
