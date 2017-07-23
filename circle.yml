@@ -5,6 +5,7 @@ machine:
   services:
     - docker
   hosts:
+    localhost: 127.0.0.1
     staging.warehouse.shoppinpal.com: 127.0.0.1
 
   environment:
@@ -15,7 +16,8 @@ dependencies:
   override:
     # Extract the version number
     - npm install -g bower
-    - bower --allow-root install  
+    - npm install -g protractor
+    - bower --allow-root install
     - ./scripts/build/image $(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g')
     - docker run --name mongo-local -d mongo
 
@@ -25,6 +27,8 @@ test:
      - docker run -d --link mongo-local --name=warehouse -p 3000:3000 -e "MONGOLAB_URI=mongodb://mongo-local:27017/test" -e "NODE_ENV=staging" shoppinpal/warehouse:$(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g')
      - docker ps | grep warehouse
      - docker logs warehouse
+     - docker run -d -p 4444:4444 -p 5900:5900 --link warehouse:warehouse -v /dev/shm:/dev/shm selenium/standalone-chrome-debug
+     - docker build -f ./e2e/Dockerfile -t shoppinpal/warehouse-test . && docker run --name warehouse-test shoppinpal/warehouse-test ./e2e/protractor.conf.js --baseUrl http://warehouse:3000
      #- curl --retry 10 --retry-delay 10 -v http://staging.warehouse.shoppinpal.com:3000
 
 
