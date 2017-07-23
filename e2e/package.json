@@ -1,0 +1,28 @@
+{
+  "name": "warehouse-e2e",
+  "version": "1.0.0",
+  "description": "Warehouse e2e protractor tests",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ShoppinPal/warehouse.git"
+  },
+  "keywords": [
+    "warehouse",
+    "protractor",
+    "e2e"
+  ],
+  "scripts": {
+    "protractor": "protractor",
+    "webdriver-manager": "webdriver-manager"
+  },
+  "devDependencies": {
+    "protractor-jasmine2-screenshot-reporter": "0.4.0",
+    "protractor": "5.1.2"
+  },
+  "author": "Kamal Khatwani",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ShoppinPal/warehouse/issues"
+  },
+  "homepage": "https://github.com/ShoppinPal/warehouse#readme"
+}

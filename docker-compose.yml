@@ -79,3 +79,18 @@ services:
       - "27020:27017"
   memcache:
     image: memcached:latest
+  # docker-compose up e2e-selenium-and-chrome-debug
+  # mac > spotlight > vnc://localhost:5900
+  e2e-selenium-and-chrome-debug:
+    ports:
+      - "4444"
+      - "5900:5900"
+    image: selenium/standalone-chrome-debug
+    volumes:
+      - /dev/shm:/dev/shm
+  # docker-compose run e2e-protractor-test-runner-debug
+  e2e-protractor-test-runner-debug:
+    build: ./e2e
+    command: protractor.conf.js --seleniumAddress=http://e2e-selenium-and-chrome-debug:4444/wd/hub --baseUrl=http://kamalocean.shoppinpal.com/
+    volumes:
+      - ./e2e:/project
