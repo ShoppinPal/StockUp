@@ -13,7 +13,9 @@
   ],
   "scripts": {
     "protractor": "protractor",
-    "webdriver-manager": "webdriver-manager"
+    "webdriver-manager": "webdriver-manager",
+    "test": "docker-compose up e2e-protractor-test-runner-debug",
+    "stressTest": "docker-compose up --scale e2e-protractor-test-runner-debug=${SCALE} e2e-protractor-test-runner-debug"
   },
   "devDependencies": {
     "protractor-jasmine2-screenshot-reporter": "0.4.0",
