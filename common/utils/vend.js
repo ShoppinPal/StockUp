@@ -474,7 +474,18 @@ var setDesiredStockLevelForVend = function(storeConfigId, outletId, productId, d
       return vendSdk.products.update({apiId:{value: product.id},body:{value: updateData}},connectionInfo);
     })
     .then(function(response) {
-      log.debug('Vend product updated.\n', response.product);
+      var miniProduct = response.product;
+      if (miniProduct) {
+        miniProduct = {
+          id: response.product.id,
+          handle: response.product.handle,
+          name: response.product.name,
+          sku: response.product.sku,
+          inventory: _.find(response.product.inventory||[], function(inv){ return inv.outlet_id==outletId; }),
+          updated_at: response.product.updated_at
+        };
+      }
+      log.debug('Vend product updated.\n', miniProduct);
       return q(response.product);
     },
     function(error){
