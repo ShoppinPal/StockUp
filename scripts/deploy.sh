@@ -15,5 +15,7 @@ if [ "${CIRCLE_BRANCH}" = "master" ]; then
 fi
 if [ "${CIRCLE_BRANCH}" = "develop" ]; then
   scripts/build/tag ${BUILD_TAG} "staging-${BUILD_TAG}"
+  scripts/build/tag ${BUILD_TAG} "staging"
   docker push shoppinpal/warehouse:staging-${BUILD_TAG}
+  docker push shoppinpal/warehouse:staging
 fi
