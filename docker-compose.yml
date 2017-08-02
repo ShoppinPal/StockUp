@@ -1,4 +1,4 @@
-version: "2"
+version: "2.1"
 services:
   nodejs:
     image: node:0.10.48
@@ -43,6 +43,13 @@ services:
       - ./server:/apps/warehouse/server
       - ./package.json:/apps/warehouse/package.json
       - ./npm-shrinkwrap.json:/apps/warehouse/npm-shrinkwrap.json
+    depends_on:
+      - db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://web:3000/api/StoreModels"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
   worker-web:
     build: .
     ports:
@@ -62,6 +69,7 @@ services:
       - ./docker-entrypoint.sh:/docker-entrypoint.sh
     depends_on:
       - web
+      - db
   worker:
     build:
       context: ./warehouse-workers
