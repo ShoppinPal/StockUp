@@ -7,7 +7,7 @@ RAW_VERSION=$1
 VERSION=$(echo $RAW_VERSION | sed 's/-.*//g')
 BUILD_TAG="v$VERSION-b${CIRCLE_BUILD_NUM}"
 scripts/build/tag ${RAW_VERSION} ${BUILD_TAG}
-docker login -e ${DOCKER_EMAIL} -u ${DOCKER_USER} -p ${DOCKER_PASS}
+docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
 
 if [ "${CIRCLE_BRANCH}" = "master" ]; then
   scripts/build/tag ${BUILD_TAG} "production-${BUILD_TAG}"
