@@ -52,6 +52,7 @@
     "loopback-explorer": "^1.1.0"
   },
   "devDependencies": {
+    "eslint": "4.3.0",
     "grunt-autoprefixer": "~0.6.5",
     "grunt-concurrent": "~0.4.3",
     "grunt-contrib-coffee": "~0.9.0",
@@ -78,6 +79,7 @@
     "node": "6.11.1"
   },
   "scripts": {
+    "eslint": "eslint",
     "postinstall": "echo -n $NODE_ENV | grep -v 'production' && ./node_modules/protractor/bin/webdriver-manager update || echo 'will NOT run webdriver install or update'"
   },
   "main": "server/server.js"
