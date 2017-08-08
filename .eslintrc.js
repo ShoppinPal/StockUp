@@ -37,7 +37,7 @@ module.exports = {
             "always"
         ],
         "func-names": [
-            "warn",
+            "error",
             "always"
         ]
     }
