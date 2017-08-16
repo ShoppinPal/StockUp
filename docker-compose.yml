@@ -1,7 +1,7 @@
 version: "2.1"
 services:
   nodejs:
-    image: node:0.10.48
+    image: node:6.11.1
     working_dir: /apps/warehouse
     volumes:
       - .:/apps/warehouse
@@ -21,7 +21,7 @@ services:
     # https://github.com/nginxinc/docker-nginx/blob/7e278fff2f12f852ef1be2aed17e9a2f822365ac/stable/stretch/Dockerfile#L43
     # CMD ["nginx", "-g", "daemon off;"]
     #
-    # 2. the nginx image dosn't have `nc` (netcat) or `curl` so we can't use the `wait-for` script
+    # 2. the nginx image doesn't have `nc` (netcat) or `curl` so we can't use the `wait-for` script
     ###
     #command: ["/wait/wait-for", "web:3000", "--", "nginx", "-g", "daemon off;"]
   web:

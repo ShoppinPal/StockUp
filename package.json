@@ -75,7 +75,7 @@
     "wd-bridge": "0.0.2"
   },
   "engines": {
-    "node": "0.10.x"
+    "node": "6.11.1"
   },
   "scripts": {
     "postinstall": "echo -n $NODE_ENV | grep -v 'production' && ./node_modules/protractor/bin/webdriver-manager update || echo 'will NOT run webdriver install or update'"

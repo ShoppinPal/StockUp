@@ -1,4 +1,4 @@
-FROM node:0.10.48
+FROM node:6.11.1
 RUN apt-get -y update && apt-get -y dist-upgrade
 RUN chown -R node:node /usr/local
 RUN apt-get -y update && apt-get -y dist-upgrade && apt-get install -y python-pip python-dev && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
