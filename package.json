@@ -52,6 +52,7 @@
     "loopback-explorer": "^1.1.0"
   },
   "devDependencies": {
+    "grunt": "https://registry.npmjs.org/grunt/-/grunt-0.4.5.tgz",
     "grunt-autoprefixer": "~0.6.5",
     "grunt-concurrent": "~0.4.3",
     "grunt-contrib-coffee": "~0.9.0",
