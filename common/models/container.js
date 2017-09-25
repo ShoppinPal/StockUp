@@ -7,24 +7,24 @@ var moment = require('moment');
 
 var path = require('path');
 var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
-var log = require('./../lib/debug-extension')('common:models:'+fileName);
+var log = require('./../lib/debug-extension')('common:models:' + fileName);
 var excel = require('excel-stream');
 
 var excelRows = [];
 var orders = [];
 
-module.exports = function(Container) {
+module.exports = function (Container) {
 
-  Container.beforeRemote('upload', function(ctx, unused, next) {
+  Container.beforeRemote('upload', function (ctx, unused, next) {
     log.trace('Container > beforeRemote > upload');
     var userId = ctx.req.params.container; // TODO: validate userId basedon accessToken
     log.debug('Container > beforeRemote > upload > userId', userId);
-    Container.getContainer(userId, function(err1, container1){
+    Container.getContainer(userId, function (err1, container1) {
       if (err1) {
         if (err1.code === 'ENOENT') {
           log.debug('Container > beforeRemote > upload > Container does not exist > let us create a new one');
-          Container.createContainer({name: userId}, function(err2, container2) {
-            if(err2){
+          Container.createContainer({name: userId}, function (err2, container2) {
+            if (err2) {
               log.debug('Container > beforeRemote > upload > Could not create a new container > unexpected error', err2);
               console.error(err2);
               next(err2);
@@ -48,7 +48,7 @@ module.exports = function(Container) {
     });
   });
 
-  Container.afterRemote('upload', function(ctx, unused, next) {
+  Container.afterRemote('upload', function (ctx, unused, next) {
     log.debug('Container > afterRemote > upload');
     var files = ctx.result.result.files.file;
     log.debug('Container > afterRemote > upload',
@@ -61,7 +61,7 @@ module.exports = function(Container) {
     var fileExtension = re.exec(item.name);
     var stream = Container.downloadStream(item.container, item.name);
 
-    if(fileExtension[1].toLowerCase() === 'xls' || fileExtension[1].toLowerCase() === 'xlsx') {
+    if (fileExtension[1].toLowerCase() === 'xls' || fileExtension[1].toLowerCase() === 'xlsx') {
 
       stream.pipe(excel())  // same as excel({sheetIndex: 0})
         .on('data', function (excelDataToJSON) {
@@ -72,120 +72,121 @@ module.exports = function(Container) {
           var StoreMappingModel = Container.app.models.StoreMappingModel;
 
           return StoreMappingModel.find({})
-            .then(function(storeMappings){
+            .then(function (storeMappings) {
 
               var filename = item.name;
-              if(filename.lastIndexOf("FFCC", 0) === 0){
+              if (filename.lastIndexOf("FFCC", 0) === 0) {
 
-                orders = [];
-                storeMappings.forEach(function (singleMapping) {
-                  if(!(orderStoreNameExists(singleMapping.shortName,orders))){
-                    orders.push({
-                      storeName : singleMapping.shortName,
-                      items : []
-                    });
-                  }
-                });
+                next('FFCC supplier is disabled');
+                /*orders = [];
+                 storeMappings.forEach(function (singleMapping) {
+                 if(!(orderStoreNameExists(singleMapping.shortName,orders))){
+                 orders.push({
+                 storeName : singleMapping.shortName,
+                 items : []
+                 });
+                 }
+                 });
 
 
-                orders.forEach(function(singleOrder){
-                  excelRows.forEach(function(row){
-                    if(row[singleOrder.storeName] > 0){
-                      singleOrder.items.push({
-                        sku : row["sku"],
-                        fulfilledQuantity : row[singleOrder.storeName],
-                        orderQuantity : row[singleOrder.storeName]
-                      })
-                    }
-                  });
-                });
+                 orders.forEach(function(singleOrder){
+                 excelRows.forEach(function(row){
+                 if(row[singleOrder.storeName] > 0){
+                 singleOrder.items.push({
+                 sku : row["sku"],
+                 fulfilledQuantity : row[singleOrder.storeName],
+                 orderQuantity : row[singleOrder.storeName]
+                 })
+                 }
+                 });
+                 });
 
-                for(var i = orders.length - 1 ; i >= 0 ; i--){
-                  console.log(orders[i].storeName +" : "+ orders[i].items.length);
-                  if(orders[i].items.length == 0){
-                    var index = orders.indexOf(orders[i]);
-                    if (index > -1) {
-                      orders.splice(index, 1);
-                    }
-                  }
-                }
+                 for(var i = orders.length - 1 ; i >= 0 ; i--){
+                 console.log(orders[i].storeName +" : "+ orders[i].items.length);
+                 if(orders[i].items.length == 0){
+                 var index = orders.indexOf(orders[i]);
+                 if (index > -1) {
+                 orders.splice(index, 1);
+                 }
+                 }
+                 }
 
-                Promise.map(orders,
-                  function (singleOrder) {
-                    return createReportModelForExcelWithoutSupplier(singleOrder, Container, next)
-                      .then(function (reportModelInstance)
-                      {
-                        console.log(reportModelInstance);
+                 Promise.map(orders,
+                 function (singleOrder) {
+                 return createReportModelForExcelWithoutSupplier(singleOrder, Container, next)
+                 .then(function (reportModelInstance)
+                 {
+                 console.log(reportModelInstance);
 
-                        _.each(singleOrder.items, function (excelRowAsObject) {
-                          excelRowAsObject.reportId = reportModelInstance.id;
-                          excelRowAsObject.userId = reportModelInstance.userModelToReportModelId;
-                        });
-                        var StockOrderLineitemModel = Container.app.models.StockOrderLineitemModel;
-                        StockOrderLineitemModel.create(singleOrder.items, function (err, results)
-                        {
-                          if (err) {
-                            //log.error('error occured', err);
-                            //console.error('error occured', err);
-                            next(err);
-                          }
-                          else {
-                            log.debug('created StockOrderLineitemModels:', results.length);
+                 _.each(singleOrder.items, function (excelRowAsObject) {
+                 excelRowAsObject.reportId = reportModelInstance.id;
+                 excelRowAsObject.userId = reportModelInstance.userModelToReportModelId;
+                 });
+                 var StockOrderLineitemModel = Container.app.models.StockOrderLineitemModel;
+                 StockOrderLineitemModel.create(singleOrder.items, function (err, results)
+                 {
+                 if (err) {
+                 //log.error('error occured', err);
+                 //console.error('error occured', err);
+                 next(err);
+                 }
+                 else {
+                 log.debug('created StockOrderLineitemModels:', results.length);
 
-                            log.debug('#3 submit a job to the worker infrastructure');
-                            var UserModel = Container.app.models.UserModel;
-                            return UserModel.findById(reportModelInstance.userModelToReportModelId)
-                              .then(function (userModelInstance) {
-                                log.trace('userModelInstance', userModelInstance);
+                 log.debug('#3 submit a job to the worker infrastructure');
+                 var UserModel = Container.app.models.UserModel;
+                 return UserModel.findById(reportModelInstance.userModelToReportModelId)
+                 .then(function (userModelInstance) {
+                 log.trace('userModelInstance', userModelInstance);
 
-                                log.debug('(1) generate a token for the worker to use on the currentUser\'s behalf');
-                                return userModelInstance.createAccessTokenAsync(1209600)// can't be empty ... time to live (in seconds) 1209600 is 2 weeks (default of loopback)
-                                  .then(function (newAccessToken) {
-                                    log.debug('(2) fetch the report, store and store-config');
-                                    var ReportModel = Container.app.models.ReportModel;
-                                    return ReportModel.getAllRelevantModelInstancesForReportModel(reportModelInstance.id)
-                                      .spread(function (reportModelInstance, storeModelInstance, storeConfigInstance) {
-                                        log.debug('(3) extract domainPrefix from store-config\'s posUrl');
-                                        var posUrl = storeConfigInstance.posUrl;
-                                        var regexp = /^https?:\/\/(.*)\.vendhq\.com$/i;
-                                        var matches = posUrl.match(regexp);
-                                        var domainPrefix = matches[1];
+                 log.debug('(1) generate a token for the worker to use on the currentUser\'s behalf');
+                 return userModelInstance.createAccessTokenAsync(1209600)// can't be empty ... time to live (in seconds) 1209600 is 2 weeks (default of loopback)
+                 .then(function (newAccessToken) {
+                 log.debug('(2) fetch the report, store and store-config');
+                 var ReportModel = Container.app.models.ReportModel;
+                 return ReportModel.getAllRelevantModelInstancesForReportModel(reportModelInstance.id)
+                 .spread(function (reportModelInstance, storeModelInstance, storeConfigInstance) {
+                 log.debug('(3) extract domainPrefix from store-config\'s posUrl');
+                 var posUrl = storeConfigInstance.posUrl;
+                 var regexp = /^https?:\/\/(.*)\.vendhq\.com$/i;
+                 var matches = posUrl.match(regexp);
+                 var domainPrefix = matches[1];
 
-                                        var options = ReportModel.preparePayload(
-                                          storeModelInstance,
-                                          domainPrefix,
-                                          newAccessToken,
-                                          reportModelInstance,
-                                          Container.app.get('importStockOrderToWarehouseWithoutSupplier')
-                                        );
+                 var options = ReportModel.preparePayload(
+                 storeModelInstance,
+                 domainPrefix,
+                 newAccessToken,
+                 reportModelInstance,
+                 Container.app.get('importStockOrderToWarehouseWithoutSupplier')
+                 );
 
-                                        return ReportModel.sendPayload(reportModelInstance, options, next)
-                                          .then(function (updatedReportModelInstance) {
-                                            log.trace('updatedReportModelInstance:', updatedReportModelInstance);
-                                            //next();
-                                          });
-                                      });
-                                  });
-                              });
-                          }
-                        });
-                      })
-                      .catch(function (error) {
-                        if (error instanceof Error) {
-                          log.error('Container > afterRemote > upload > end_parsed',
-                            '\n', error.name + ':', error.message,
-                            '\n', error.stack);
-                        }
-                        else {
-                          log.error('Container > afterRemote > upload > end_parsed',
-                            '\n', error);
-                        }
-                        next(error)
-                      });
-                  },
-                  {concurrency: 1})
+                 return ReportModel.sendPayload(reportModelInstance, options, next)
+                 .then(function (updatedReportModelInstance) {
+                 log.trace('updatedReportModelInstance:', updatedReportModelInstance);
+                 //next();
+                 });
+                 });
+                 });
+                 });
+                 }
+                 });
+                 })
+                 .catch(function (error) {
+                 if (error instanceof Error) {
+                 log.error('Container > afterRemote > upload > end_parsed',
+                 '\n', error.name + ':', error.message,
+                 '\n', error.stack);
+                 }
+                 else {
+                 log.error('Container > afterRemote > upload > end_parsed',
+                 '\n', error);
+                 }
+                 next(error)
+                 });
+                 },
+                 {concurrency: 1})*/
               }
-              else{
+              else {
 
                 orders = [];
                 excelRows.forEach(function (row) {
@@ -205,11 +206,11 @@ module.exports = function(Container) {
                 orders.forEach(function (singleOrder) {
                   excelRows.forEach(function (row) {
                     if (row.QtyShipped>0 && row.SalesOrderNumber == singleOrder.orderNumber) {
-                      if(!(startsWith(row.ItemNumber.toString(),"S-"))) {
+                      if (!(startsWith(row.ItemNumber.toString(), "S-"))) {
                         singleOrder.items.push({
                           sku: row.ItemNumber,
                           orderQuantity: row.QtyOrdered,
-                          fulfilledQuantity : row.QtyShipped,
+                          fulfilledQuantity: row.QtyShipped,
                           supplyPrice: row.UnitPrice
                         });
                       }
@@ -220,8 +221,7 @@ module.exports = function(Container) {
                 Promise.map(orders,
                   function (singleOrder) {
                     return createReportModelForExcel(singleOrder, Container, next)
-                      .then(function (reportModelInstance)
-                      {
+                      .then(function (reportModelInstance) {
                         console.log(reportModelInstance);
 
                         _.each(singleOrder.items, function (excelRowAsObject) {
@@ -229,8 +229,7 @@ module.exports = function(Container) {
                           excelRowAsObject.userId = reportModelInstance.userModelToReportModelId;
                         });
                         var StockOrderLineitemModel = Container.app.models.StockOrderLineitemModel;
-                        StockOrderLineitemModel.create(singleOrder.items, function (err, results)
-                        {
+                        StockOrderLineitemModel.create(singleOrder.items, function (err, results) {
                           if (err) {
                             //log.error('error occured', err);
                             //console.error('error occured', err);
@@ -302,13 +301,13 @@ module.exports = function(Container) {
             });
         });
     }
-    else if(fileExtension[1].toLowerCase() === 'csv'){
+    else if (fileExtension[1].toLowerCase() === 'csv') {
 
       var Converter = require('csvtojson').Converter;
-      var converter = new Converter({constructResult:true}); //new converter instance
+      var converter = new Converter({constructResult: true}); //new converter instance
 
       //record_parsed will be emitted each time a row has been parsed.
-      converter.on('record_parsed', function(resultRow, rawRow, rowIndex) {
+      converter.on('record_parsed', function (resultRow, rawRow, rowIndex) {
         // map header/column names from the CSV to the field names from StockOrderLineitemModel
         resultRow['supplyPrice'] = resultRow['supplier_cost'];
         resultRow['orderQuantity'] = resultRow['quantity'];
@@ -322,16 +321,16 @@ module.exports = function(Container) {
 
         log.debug('#1 create a new Reportmodel');
         createReportModelForCsv(item.name, Container, next)
-          .then(function(reportModelInstance){
+          .then(function (reportModelInstance) {
             log.trace('reportModelInstance:', reportModelInstance);
 
             log.debug('#2 create lineitems from CSV row data and associate them with the new Reportmodel and its user');
-            _.each(arrayOfCsvRowsAsObjects, function(csvRowAsObject){
+            _.each(arrayOfCsvRowsAsObjects, function (csvRowAsObject) {
               csvRowAsObject.reportId = reportModelInstance.id;
               csvRowAsObject.userId = reportModelInstance.userModelToReportModelId;
             });
             var StockOrderLineitemModel = Container.app.models.StockOrderLineitemModel;
-            StockOrderLineitemModel.create(arrayOfCsvRowsAsObjects, function(err, results){
+            StockOrderLineitemModel.create(arrayOfCsvRowsAsObjects, function (err, results) {
               if (err) {
                 //log.error('error occured', err);
                 //console.error('error occured', err);
@@ -343,12 +342,12 @@ module.exports = function(Container) {
                 log.debug('#3 submit a job to the worker infrastructure');
                 var UserModel = Container.app.models.UserModel;
                 UserModel.findById(reportModelInstance.userModelToReportModelId)
-                  .then(function(userModelInstance){
+                  .then(function (userModelInstance) {
                     log.trace('userModelInstance', userModelInstance);
 
                     log.debug('(1) generate a token for the worker to use on the currentUser\'s behalf');
                     userModelInstance.createAccessTokenAsync(1209600)// can't be empty ... time to live (in seconds) 1209600 is 2 weeks (default of loopback)
-                      .then(function(newAccessToken) {
+                      .then(function (newAccessToken) {
                         log.debug('(2) fetch the report, store and store-config');
                         var ReportModel = Container.app.models.ReportModel;
                         ReportModel.getAllRelevantModelInstancesForReportModel(reportModelInstance.id)
@@ -368,7 +367,7 @@ module.exports = function(Container) {
                             );
 
                             ReportModel.sendPayload(reportModelInstance, options, next)
-                              .then(function(updatedReportModelInstance){
+                              .then(function (updatedReportModelInstance) {
                                 log.trace('updatedReportModelInstance:', updatedReportModelInstance);
                                 next();
                               });
@@ -378,7 +377,7 @@ module.exports = function(Container) {
               }
             });
           })
-          .catch(function(error){
+          .catch(function (error) {
             if (error instanceof Error) {
               log.error('Container > afterRemote > upload > end_parsed',
                 '\n', error.name + ':', error.message,
@@ -397,14 +396,14 @@ module.exports = function(Container) {
     }
   });
 
-  var createReportModelForCsv = function(filename, Container, next){
+  var createReportModelForCsv = function (filename, Container, next) {
     try {
       // before: 41st_Gift_Shop-CSC-114340-WeeklyOrder.CSV
-      filename = filename.slice(0,-4);
+      filename = filename.slice(0, -4);
       var data = filename.split('-');
       // after: [ 41st_Gift_Shop, CSC, 114340, WeeklyOrder.CSV ]
 
-      if (!data || data.length < 2 || !data[0] || !data[1]) {
+      if (!data || data.length<2 || !data[0] || !data[1]) {
         log.error('Container > createReportModel', 'Invalid filename: ' + filename);
         next(new Error('Invalid filename: ' + filename));
       }
@@ -428,13 +427,14 @@ module.exports = function(Container) {
             if (storeModelInstance) {
               var SupplierModel = Container.app.models.SupplierModel;
               return SupplierModel.findOne({
-                  where: {
-                    name: {
-                      like: supplierName
-                    },
-                    storeConfigModelToSupplierModelId: storeModelInstance.storeConfigModelToStoreModelId
-                  }
-                })
+                where: {
+                  and: [
+                    {name: {like: supplierName}},
+                    {isActive: true},
+                    {storeConfigModelToSupplierModelId: storeModelInstance.storeConfigModelToStoreModelId}
+                  ]
+                }
+              })
                 .then(function (supplierModelInstance) {
                   log.trace('supplierModelInstance', supplierModelInstance);
                   if (supplierModelInstance) {
@@ -472,7 +472,7 @@ module.exports = function(Container) {
   };
 
 
-  var createReportModelForExcel = function(singleOrder, Container, next){
+  var createReportModelForExcel = function (singleOrder, Container, next) {
     try {
       // before: 41st_Gift_Shop-CSC-114340-WeeklyOrder.CSV
       /*filename = filename.slice(0,-4);
@@ -502,20 +502,21 @@ module.exports = function(Container) {
           if (storeModelInstance) {
             var SupplierModel = Container.app.models.SupplierModel;
             return SupplierModel.findOne({
-                where: {
-                  name: {
-                    like: singleOrder.supplierName
-                  },
-                  storeConfigModelToSupplierModelId: storeModelInstance.storeConfigModelToStoreModelId
-                }
-              })
+              where: {
+                and: [
+                  {name: {like: singleOrder.supplierName}},
+                  {isActive: true},
+                  {storeConfigModelToSupplierModelId: storeModelInstance.storeConfigModelToStoreModelId}
+                ],
+              }
+            })
               .then(function (supplierModelInstance) {
                 log.trace('supplierModelInstance', supplierModelInstance);
                 if (supplierModelInstance) {
                   //return Promise.resolve([storeModelInstance,supplierModelInstance]);
                   var ReportModel = Container.app.models.ReportModel;
                   return ReportModel.create({
-                    name: singleOrder.storeName+"_"+singleOrder.supplierName+"_"+singleOrder.orderNumber+"_"+singleOrder.orderType,
+                    name: singleOrder.storeName + "_" + singleOrder.supplierName + "_" + singleOrder.orderNumber + "_" + singleOrder.orderType,
                     userModelToReportModelId: storeModelInstance.userModelToStoreModelId, // explicitly setup the foreignKeys for related models
                     state: ReportModel.ReportModelStates.REPORT_EMPTY,
                     outlet: {
@@ -545,7 +546,7 @@ module.exports = function(Container) {
     }
   };
 
-  var createReportModelForExcelWithoutSupplier = function(singleOrder, Container, next){
+  var createReportModelForExcelWithoutSupplier = function (singleOrder, Container, next) {
     try {
       // before: 41st_Gift_Shop-CSC-114340-WeeklyOrder.CSV
       /*filename = filename.slice(0,-4);
@@ -569,7 +570,7 @@ module.exports = function(Container) {
           if (storeModelInstance) {
             var ReportModel = Container.app.models.ReportModel;
             return ReportModel.create({
-              name: singleOrder.storeName+"_"+moment().format("YYYY-MM-DD"),
+              name: singleOrder.storeName + "_" + moment().format("YYYY-MM-DD"),
               userModelToReportModelId: storeModelInstance.userModelToStoreModelId, // explicitly setup the foreignKeys for related models
               state: ReportModel.ReportModelStates.REPORT_EMPTY,
               outlet: {
@@ -600,7 +601,7 @@ module.exports = function(Container) {
 
   var findMapping = function (customerNumber, array) {
     var i = null;
-    for (i = 0; array.length > i; i += 1) {
+    for (i = 0; array.length>i; i += 1) {
       if (array[i].code === customerNumber) {
         return array[i].storeName;
       }
@@ -611,7 +612,7 @@ module.exports = function(Container) {
 
   var orderNumberExists = function (orderNumber, array) {
     var i = null;
-    for (i = 0; array.length > i; i += 1) {
+    for (i = 0; array.length>i; i += 1) {
       if (array[i].orderNumber === orderNumber) {
         return true;
       }
@@ -619,13 +620,13 @@ module.exports = function(Container) {
     return false;
   };
 
-  var startsWith = function(str,substr){
+  var startsWith = function (str, substr) {
     return str.lastIndexOf(substr, 0) === 0;
   }
 
   var orderStoreNameExists = function (orderStoreName, array) {
     var i = null;
-    for (i = 0; array.length > i; i += 1) {
+    for (i = 0; array.length>i; i += 1) {
       if (array[i].storeName === orderStoreName) {
         return true;
       }
