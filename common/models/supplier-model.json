@@ -10,6 +10,11 @@
     "apiId": {
       "type": "string",
       "required": true
+    },
+    "isActive": {
+      "type": "boolean",
+      "required": true,
+      "default": true
     }
   },
   "validations": [],
