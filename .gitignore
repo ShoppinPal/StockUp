@@ -7,7 +7,7 @@ dist/
 client/app/bower_components
 public/
 /heroku*
-.env
+*.env
 db.json
 config.*.json
 newrelic.js

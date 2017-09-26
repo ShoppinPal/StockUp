@@ -1,7 +1,8 @@
 {
   "name": "shoppinpal-warehouse-mongo",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "dependencies": {
+    "@risingstack/trace": "^3.6.2",
     "aws-sdk": "2.6.15",
     "bluebird": "2.9.14",
     "compression": "^1.0.3",
@@ -33,6 +34,7 @@
     "loopback-connector-mongodb": "1.11.2",
     "loopback-datasource-juggler": "2.31.0",
     "matchdep": "~0.3.0",
+    "moment": "~2.17.1",
     "nconf": "^0.7.1",
     "newrelic": "1.30.3",
     "q": "^1.1.2",
@@ -44,8 +46,7 @@
     "underscore": "^1.7.0",
     "vend-nodejs-sdk": "^1.0.13",
     "winston": "^0.8.3",
-    "xlsx": "~0.8.0",
-    "moment": "~2.17.1"
+    "xlsx": "~0.8.0"
   },
   "optionalDependencies": {
     "loopback-explorer": "^1.1.0"
@@ -74,11 +75,10 @@
     "wd-bridge": "0.0.2"
   },
   "engines": {
-    "node": "0.10.x"
+    "node": "6.11.1"
   },
   "scripts": {
-    "postinstall": "echo -n $NODE_ENV | grep -v 'production' && ./node_modules/protractor/bin/webdriver-manager update || echo 'will NOT run webdriver install or update'",
-    "test": "grunt test"
+    "postinstall": "echo -n $NODE_ENV | grep -v 'production' && ./node_modules/protractor/bin/webdriver-manager update || echo 'will NOT run webdriver install or update'"
   },
   "main": "server/server.js"
 }

@@ -1,35 +1,89 @@
-version: "2"
-
+version: "2.1"
 services:
-
+  nodejs:
+    image: node:6.11.1
+    working_dir: /apps/warehouse
+    volumes:
+      - .:/apps/warehouse
+      - ./wait-for:/wait/wait-for
+    command: tail -f /dev/null
   lb:
     image: nginx:stable
     ports:
       - "80:80"
     volumes:
-      - ./nginx.warehouse.conf:/etc/nginx/conf.d/nginx.warehouse.conf
+      - ./nginx.warehouse.conf:/etc/nginx/conf.d/default.conf
+      - ./wait-for:/wait/wait-for
     depends_on:
       - web
-      - worker-web
+    ###
+    # 1. Found the nginx image's default command here:
+    # https://github.com/nginxinc/docker-nginx/blob/7e278fff2f12f852ef1be2aed17e9a2f822365ac/stable/stretch/Dockerfile#L43
+    # CMD ["nginx", "-g", "daemon off;"]
+    #
+    # 2. the nginx image doesn't have `nc` (netcat) or `curl` so we can't use the `wait-for` script
+    ###
+    #command: ["/wait/wait-for", "web:3000", "--", "nginx", "-g", "daemon off;"]
   web:
     build: .
+    ports:
+      - "3000"
     environment:
-      NODE_ENV: local
+      NODE_ENV: staging
       MONGOLAB_URI: mongodb://db:27017/warehouse-local
     env_file: .env
-    command: nodemon -L --debug=5858
+    command: node server/server.js
     volumes:
-      - .:/apps/warehouse
+      - ./client/app/images:/apps/warehouse/client/app/images
+      - ./client/app/scripts:/apps/warehouse/client/app/scripts
+      - ./client/app/styles:/apps/warehouse/client/app/styles
+      - ./client/app/views:/apps/warehouse/client/app/views
+      - ./client/app/index.html:/apps/warehouse/client/app/index.html
+      - ./common:/apps/warehouse/common
+      - ./server:/apps/warehouse/server
+      - ./package.json:/apps/warehouse/package.json
+      - ./npm-shrinkwrap.json:/apps/warehouse/npm-shrinkwrap.json
+    depends_on:
+      - db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://web:3000/api/StoreModels"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
   worker-web:
     build: .
+    ports:
+      - "3000"
     environment:
-      NODE_ENV: local
+      NODE_ENV: staging
       MONGOLAB_URI: mongodb://db:27017/warehouse-local
     env_file: .env
-    command: nodemon -L --debug=5858
+    entrypoint: /docker-entrypoint.sh
+    command: ["/wait/wait-for", "web:3000", "--", "node","server/server.js"]
     volumes:
-      - .:/apps/warehouse
+      - ./common:/apps/warehouse/common
+      - ./server:/apps/warehouse/server
+      - ./package.json:/apps/warehouse/package.json
+      - ./npm-shrinkwrap.json:/apps/warehouse/npm-shrinkwrap.json
+      - ./wait-for:/wait/wait-for
+      - ./docker-entrypoint.sh:/docker-entrypoint.sh
+    depends_on:
+      - web
+      - db
+  worker:
+    build:
+      context: ./warehouse-workers
+    working_dir: /apps/workers
+    command: node sqsWorker.js
+    volumes:
+      - ./warehouse-workers:/apps/workers
+    restart: always
+    env_file: worker.env
+    depends_on:
+      - memcache
   db:
     image: mongo:3.2
     ports:
-      - "27018:27017"
+      - "27020:27017"
+  memcache:
+    image: memcached:latest

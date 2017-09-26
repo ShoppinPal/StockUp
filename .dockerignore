@@ -5,3 +5,5 @@ README.md
 server/boot/explorer.js
 scripts
 docs
+*.env
+warehouse-workers/

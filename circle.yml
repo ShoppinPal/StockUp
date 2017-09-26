@@ -15,7 +15,7 @@ dependencies:
   override:
     # Extract the version number
     - npm install -g bower
-    - bower --allow-root install  
+    - bower --allow-root install
     - ./scripts/build/image $(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g')
     - docker run --name mongo-local -d mongo
 

@@ -1,6 +1,8 @@
 'use strict';
 
 module.exports = function (grunt) {
+  grunt.option('stack', true);
+
   grunt.file.expand('../node_modules/grunt-*/tasks').forEach(grunt.loadTasks);
   require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
 

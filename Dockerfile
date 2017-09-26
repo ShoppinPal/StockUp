@@ -1,4 +1,4 @@
-FROM node:0.10.48
+FROM node:6.11.1
 RUN apt-get -y update && apt-get -y dist-upgrade
 RUN chown -R node:node /usr/local
 RUN apt-get -y update && apt-get -y dist-upgrade && apt-get install -y python-pip python-dev && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
@@ -14,8 +14,7 @@ RUN set -x \
 	&& gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu \
 	&& rm -r "$GNUPGHOME" /usr/local/bin/gosu.asc \
 	&& chmod +x /usr/local/bin/gosu \
-	&& gosu nobody true \
-	&& apt-get purge -y --auto-remove ca-certificates wget
+	&& gosu nobody true
 RUN mkdir -p /apps/warehouse
 RUN chown -R node:node /apps/warehouse
 WORKDIR /apps/warehouse
@@ -27,7 +26,9 @@ RUN mv /apps/warehouse/node_modules /apps/node_modules
 COPY . /apps/warehouse
 RUN ../node_modules/bower/bin/bower --allow-root install
 ENV SCHEME=http
-ENV DEBUG=shoppinpal:*,boot:*,common:models:*,server:*
+# Disable the debug logs for warehouse
+#ENV DEBUG=shoppinpal:*,boot:*,common:models:*,server:*
+HEALTHCHECK --interval=1m --timeout=3s --start-period=1m CMD curl -f http://localhost:3000/api/StoreModels || exit 1
 ENTRYPOINT [ "./docker-entrypoint.sh" ]
 EXPOSE 3000
 CMD [ "node","server/server.js" ]

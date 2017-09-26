@@ -1,0 +1,17 @@
+version: "2"
+services:
+  e2e-selenium-and-chrome-debug:
+    ports:
+      - "4444"
+      - "5900:5900"
+    image: selenium/standalone-chrome-debug
+    volumes:
+      - /dev/shm:/dev/shm
+  e2e-protractor-test-runner-debug:
+    build: .
+    env_file: .env
+    command: protractor.conf.js --seleniumAddress=http://e2e-selenium-and-chrome-debug:4444/wd/hub
+    volumes:
+      - ./modules:/project/modules
+      - ./package.json:/project/package.json
+      - ./protractor.conf.js:/project/protractor.conf.js
