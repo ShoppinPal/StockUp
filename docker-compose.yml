@@ -1,12 +1,5 @@
 version: "2.1"
 services:
-  nodejs:
-    image: node:6.11.1
-    working_dir: /apps/warehouse
-    volumes:
-      - .:/apps/warehouse
-      - ./wait-for:/wait/wait-for
-    command: tail -f /dev/null
   lb:
     image: nginx:stable
     ports:
