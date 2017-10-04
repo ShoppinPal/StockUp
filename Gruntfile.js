@@ -3,7 +3,7 @@
 module.exports = function (grunt) {
   grunt.option('stack', true);
 
-  grunt.file.expand('../node_modules/grunt-*/tasks').forEach(grunt.loadTasks);
+  grunt.file.expand('./node_modules/grunt-*/tasks').forEach(grunt.loadTasks);
   require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
 
   // Time how long tasks take. Can help when optimizing build times
@@ -500,7 +500,7 @@ module.exports = function (grunt) {
     ]);
   });
 
-  grunt.registerTask('test', function(){
-    console.log ('skip tests for now - to be implemented...');
+  grunt.registerTask('test', (env) => {
+    grunt.task.run([`configsetup:${env}`,`deploy:${env}`]);
   });
 };
