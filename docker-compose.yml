@@ -8,7 +8,7 @@ services:
       - ./nginx.warehouse.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - web
-      - worker-web
+      #- worker-web
   web:
     build: .
     environment:
