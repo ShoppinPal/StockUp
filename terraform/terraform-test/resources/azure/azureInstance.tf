@@ -53,7 +53,7 @@ resource "azurerm_network_interface" "test" {
 # Storage account
 # Note: Change storage account 'name' field if you want to recreate it in quick succession. Azure stores previous account name for some time!
 resource "azurerm_storage_account" "test" {
-  name                = "accsayogesh11"
+  name                = "accsayogesh1"
   resource_group_name = "${azurerm_resource_group.test.name}"
   location            = "eastus"
   account_type        = "Standard_LRS"
@@ -117,7 +117,7 @@ resource "azurerm_virtual_machine" "server" {
       "sudo add-apt-repository 'deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable' -y && ",
       "sudo apt-get update -y && ",
       "sudo apt-get install docker-ce -y && ",
-      "echo AWS_SQS_URL=${var.Q_URL} > aws_environment.txt && pwd"
+      "echo 'export AWS_SQS_URL=${var.Q_URL}' >> ~/.bashrc"
     ]
 
     connection {
