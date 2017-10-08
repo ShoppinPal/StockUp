@@ -2,6 +2,7 @@
 
 variable "aws_access_key" {}
 variable "aws_secret_key" {}
+variable "admin_password" {}
 
 variable "Q" {}
 variable "DLQ" {}
@@ -43,6 +44,7 @@ module "azure_server" {
   source = "./resources/azure"
   Q_URL = "${module.sqs_queues.Q_URL}"
   DLQ_URL = "${module.sqs_queues.DLQ_URL}"
+  admin_password = "${var.admin_password}"
 }
 
 output "Q_URL" {

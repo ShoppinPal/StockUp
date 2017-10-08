@@ -1,8 +1,6 @@
 variable "Q_URL" {}
 variable "DLQ_URL" {}
-variable "admin_password" {
-  default = "Password1234!"
-}
+variable "admin_password" {}
 # Resource Group
 resource "azurerm_resource_group" "test" {
   name     = "terraform_test"
@@ -55,7 +53,7 @@ resource "azurerm_network_interface" "test" {
 # Storage account
 # Note: Change storage account 'name' field if you want to recreate it in quick succession. Azure stores previous account name for some time!
 resource "azurerm_storage_account" "test" {
-  name                = "accsayogesh10"
+  name                = "accsayogesh11"
   resource_group_name = "${azurerm_resource_group.test.name}"
   location            = "eastus"
   account_type        = "Standard_LRS"
@@ -95,7 +93,7 @@ resource "azurerm_virtual_machine" "server" {
   os_profile {
     computer_name  = "terraform"
     admin_username = "terraform"
-    admin_password = "Password1234!"
+    admin_password = "${var.admin_password}"
   }
 
   storage_os_disk {

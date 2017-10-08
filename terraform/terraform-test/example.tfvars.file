@@ -1,6 +1,8 @@
 # Note: Save your file as terraform.tfvars. This file name helps terraform to autoload the file.
 aws_access_key = ""
-aws_secret_key = "/Pd2Tk5gt90W39P"
+aws_secret_key = ""
+
+admin_password = ""
 
 Q = "<YOUR-NAME>_warehouse_workers_Q"
 DLQ = "<YOUR-NAME>_warehouse_workers_DLQ"
