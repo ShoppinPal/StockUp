@@ -2,6 +2,9 @@
 aws_access_key = ""
 aws_secret_key = ""
 
+aws_iam_access_key = ""
+aws_iam_secret_key = ""
+
 admin_password = ""
 
 Q = "<YOUR-NAME>_warehouse_workers_Q"
