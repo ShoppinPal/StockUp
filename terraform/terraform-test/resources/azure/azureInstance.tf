@@ -93,7 +93,7 @@ resource "azurerm_virtual_machine" "server" {
   name                  = "${var.vm_name}"
   resource_group_name   = "${azurerm_resource_group.test.name}"
   network_interface_ids = ["${azurerm_network_interface.test.id}"]
-  vm_size               = "Standard_A0"
+  vm_size               = "Standard_A3"
 
   delete_os_disk_on_termination = true
   delete_data_disks_on_termination = true

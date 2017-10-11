@@ -60,7 +60,7 @@ module "azure_server_warehouse" {
   subnet_name             = "acctsub"
   public_ip_name          = "publicIp"
   network_interface_name  = "acctni"
-  storage_account_name    = "accsayogesh5"
+  storage_account_name    = "accsayogesh6"
   storage_container_name  = "vhds"
   vm_name                 = "warehouse-service"
 }
