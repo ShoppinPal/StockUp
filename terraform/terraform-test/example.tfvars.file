@@ -1,0 +1,19 @@
+# Note: Save your file as terraform.tfvars. This file name helps terraform to autoload the file.
+aws_access_key = ""
+aws_secret_key = ""
+
+aws_iam_access_key = ""
+aws_iam_secret_key = ""
+
+admin_password = ""
+
+Q = "<YOUR-NAME>_warehouse_workers_Q"
+DLQ = "<YOUR-NAME>_warehouse_workers_DLQ"
+
+# Step 1: Install azure cli: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest
+# Step 2: Obtain below credentials after installing azure cli and following instructions at: https://www.terraform.io/docs/providers/azurerm/authenticating_via_service_principal.html
+
+azure_client_id = ""
+azure_client_secret = ""
+azure_subscription_id = ""
+azure_tenant_id = ""
