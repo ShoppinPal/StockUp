@@ -9,8 +9,11 @@ client/app/bower_components
 public/
 /heroku*
 *.env
+*.tfvars
 *.tfstate
 *.tfstate.backup
+/terraform/.terraform/
+/terraform/terraform.tfstate
 /terraform/terraform-test/.terraform/
 /terraform/terraform-test/terraform.tfvars
 /terraform/terraform-test/terraform.tfstate
