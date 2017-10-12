@@ -31,13 +31,13 @@ The [warehouse-workers](https://github.com/ShoppinPal/warehouse-workers) project
     ```
     # Add all necessary key-value pairs
     ```
-2. Create terraform.tfvars inside ~/terraform. Add IAM access keys: 
+2. Create terraform.tfvars inside ~/terraform. Add IAM access keys for provisioning queues: 
     ```
         # Must have the appriopriate IAM permissions to manipulate SQS
         aws_iam_access_key      = ""
         aws_iam_secret_key      = ""
-        Q                       = "terraform_warehouse_workers_Q"
-        DLQ                     = "terraform_warehouse_workers_DLQ"
+        Q                       = "terraform_warehouse_workers_Q"   # use whatever name you find useful
+        DLQ                     = "terraform_warehouse_workers_DLQ" # use whatever name you find useful
     ```
 3. Run:
     ```
