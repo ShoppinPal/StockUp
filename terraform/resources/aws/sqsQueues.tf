@@ -36,7 +36,7 @@ resource "aws_sqs_queue" "warehouse_workers_Q" {
   visibility_timeout_seconds  = "1800" 
 
   provisioner "local-exec" {
-      command = "echo 'AWS_SQS_URL=${self.id}' >> ../.env"
+      command = "echo 'AWS_SQS_URL=${self.id}' >> ../.env && echo 'AWS_SQS_URL=${self.id}' >> ../worker.env"
   }
 }
 
