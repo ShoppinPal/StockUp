@@ -3,6 +3,13 @@
 .sass-cache
 .env
 .DS_Store
+node_modules/
+dist/
+client/app/bower_components
+public/
+.DS_Store
+/heroku*
+*.DS_Store
 *.tfvars
 *.tfstate
 *.tfstate.backup
