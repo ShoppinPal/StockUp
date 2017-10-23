@@ -383,13 +383,20 @@ module.exports = function (Container) {
                             var regexp = /^https?:\/\/(.*)\.vendhq\.com$/i;
                             var matches = posUrl.match(regexp);
                             var domainPrefix = matches[1];
+                            var worker;
+                            if(reportModelInstance.supplier.name === 'ANY') {
+                              worker = Container.app.get('importStockOrderToWarehouseWithoutSupplier');
+                            }
+                            else {
+                              worker = Container.app.get('importStockOrderToWarehouse');
+                            }
 
                             var options = ReportModel.preparePayload(
                               storeModelInstance,
                               domainPrefix,
                               newAccessToken,
                               reportModelInstance,
-                              Container.app.get('importStockOrderToWarehouse')
+                              worker
                             );
 
                             ReportModel.sendPayload(reportModelInstance, options, next)
