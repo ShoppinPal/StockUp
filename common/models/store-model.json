@@ -12,6 +12,11 @@
       "type": "string",
       "required": true
     },
+    "isWarehouse": {
+      "type": "boolean",
+      "required": true,
+      "default": false
+    },
     "phone": {
       "type": "string"
     },
