@@ -7,6 +7,13 @@ dist/
 client/app/bower_components
 public/
 /heroku*
+*.DS_Store
+*.tfvars
+*.tfstate
+*.tfstate.backup
+./terraform/.terraform
+./terraform/terraform-elk/.terraform
+./terraform/terraform-test/.terraform
 *.env
 db.json
 config.*.json

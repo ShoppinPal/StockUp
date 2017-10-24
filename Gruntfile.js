@@ -49,26 +49,40 @@ module.exports = function (grunt) {
         url: 'http://localhost:<%= connect.options.port %>'
       }
     },
+    // watch: {
+    //   express: { // TODO: change this to loopback (its just naming right?)
+    //     files: [
+    //       '<%= yeoman.app %>/{,*//*}*.html',
+    //       '{.tmp,<%= yeoman.app %>}/styles/{,*//*}*.css',
+    //       '{.tmp,<%= yeoman.app %>}/scripts/{,*//*}*.js',
+    //       '<%= yeoman.app %>/images/{,*//*}*.{png,jpg,jpeg,gif,webp,svg}',
+    //       'server.js',
+    //       'lib/{,*//*}*.{js,json}'
+    //     ],
+    //     //tasks: ['run:development'],
+    //     options: {
+    //       livereload: true/*,
+    //       spawn: false //Without this option specified express won't be reloaded
+    //       */
+    //     }
+    //   },
+    //   styles: {
+    //     files: ['<%= yeoman.app %>/styles/{,*/}*.css'],
+    //     tasks: ['copy:styles', 'autoprefixer']
+    //   }
+    // },
     watch: {
-      express: { // TODO: change this to loopback (its just naming right?)
+      scripts: {
         files: [
-          '<%= yeoman.app %>/{,*//*}*.html',
-          '{.tmp,<%= yeoman.app %>}/styles/{,*//*}*.css',
-          '{.tmp,<%= yeoman.app %>}/scripts/{,*//*}*.js',
-          '<%= yeoman.app %>/images/{,*//*}*.{png,jpg,jpeg,gif,webp,svg}',
-          'server.js',
-          'lib/{,*//*}*.{js,json}'
+          './server/*.js',
+          './common/*.js',
+          './warehouse-workers/**/*.js'
         ],
-        //tasks: ['run:development'],
+        //tasks: ['jshint'],
         options: {
-          livereload: true/*,
-          spawn: false //Without this option specified express won't be reloaded
-          */
+          livereload: true,
+          spawn: false,
         }
-      },
-      styles: {
-        files: ['<%= yeoman.app %>/styles/{,*/}*.css'],
-        tasks: ['copy:styles', 'autoprefixer']
       }
     },
     autoprefixer: {
@@ -483,24 +497,43 @@ module.exports = function (grunt) {
       return grunt.util.error('You must specify an environment');
     }
     grunt.option('environment', env);
+    if(env === 'local' || env === 'development'){
+      localGruntTask(env);
+    }else{
+      grunt.task.run([
+        'jshint',
+        'loadConfig:' + env,
+        'loopback_sdk_angular',
+        'clean:dist',
+        'useminPrepare',
+        'concat',
+        'copy:dist',
+        'cdnify',
+        //'cssmin',
+        'uglify',
+        'rev',
+        'usemin',
+        'replace:all'
+      ]);
+    }
+    
+  });
+
+  grunt.registerTask('test', function(env){
+    localGruntTask(env);
+    console.log ('skip tests for now - to be implemented...');
+  });
+
+  // Function to load development friendly tasks only, skipping minification/uglification etc....
+  function localGruntTask(env) {
+    console.log('Skipping unnecessary steps for dev environment');
     grunt.task.run([
       'jshint',
       'loadConfig:' + env,
       'loopback_sdk_angular',
-      'clean:dist',
-      'useminPrepare',
-      'concat',
-      'copy:dist',
-      'cdnify',
-      //'cssmin',
-      'uglify',
-      'rev',
-      'usemin',
-      'replace:all'
+      'replace:all',
+      //'connect',
+      //'watch:scripts'
     ]);
-  });
-
-  grunt.registerTask('test', function(){
-    console.log ('skip tests for now - to be implemented...');
-  });
+  }
 };

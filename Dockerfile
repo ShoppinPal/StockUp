@@ -31,4 +31,4 @@ ENV SCHEME=http
 HEALTHCHECK --interval=1m --timeout=3s --start-period=1m CMD curl -f http://localhost:3000/api/StoreModels || exit 1
 ENTRYPOINT [ "./docker-entrypoint.sh" ]
 EXPOSE 3000
-CMD [ "node","server/server.js" ]
+#CMD [ "nodemon","server/server.js" ]
