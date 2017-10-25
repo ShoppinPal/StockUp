@@ -433,7 +433,7 @@ module.exports = function (Container) {
       // TODO: add validation for warehouse?
       // TODO: current user should only be able to search his/her own stores and suppliers, not all of them!
 
-      var storeOutlet;
+    var storeOutlet, warehouseOutlet;
       var StoreModel = Container.app.models.StoreModel;
       return StoreModel.findById(storeOutletId)
         .then(function (storeModelInstance) {
@@ -441,16 +441,19 @@ module.exports = function (Container) {
             return Promise.reject('Could not find a matching store for: ' + filename);
           }
           else {
-            log.trace('stosreModelInstance', storeModelInstance);
             storeOutlet = storeModelInstance;
+          return StoreModel.findById(warehouseOutletId);
+        }
+      })
+      .then(function (warehouseInstance) {
+        warehouseOutlet = warehouseInstance;
             var SupplierModel = Container.app.models.SupplierModel;
             return SupplierModel.find({
               where: {
                 id: supplierId,
-                storeConfigModelToSupplierModelId: storeModelInstance.storeConfigModelToStoreModelId
-              }
-            })
+            storeConfigModelToSupplierModelId: storeOutlet.storeConfigModelToStoreModelId
           }
+        });
         })
         .then(function (supplierModelInstance) {
           log.trace('supplierModelInstance', supplierModelInstance);
@@ -476,7 +479,10 @@ module.exports = function (Container) {
               name: supplierModelInstance[0].name
             },
             createSales: createSales,
-            warehouseOutletId: warehouseOutletId
+          warehouseOutlet: {
+            id: warehouseOutlet.api_id,
+            name: warehouseOutlet.name
+          }
           });
         })
         .catch(function (error) {

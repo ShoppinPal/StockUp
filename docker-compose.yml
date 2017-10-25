@@ -43,6 +43,7 @@ services:
       - ./server:/apps/warehouse/server
       - ./package.json:/apps/warehouse/package.json
       - ./npm-shrinkwrap.json:/apps/warehouse/npm-shrinkwrap.json
+      - ./Gruntfile.js:/apps/warehouse/Gruntfile.js
     depends_on:
       - db
     healthcheck:
@@ -79,6 +80,20 @@ services:
       - ./warehouse-workers:/apps/workers
     restart: always
     env_file: worker.env
+    depends_on:
+      - memcache
+  worker2:
+    build:
+      context: ./warehouse-workers/workers-v2
+    working_dir: /apps/workers
+    command: node sqsWorker.js
+    volumes:
+      - ./warehouse-workers/workers-v2:/apps/workers/workers-v2
+      - ./warehouse-workers/jobs:/apps/workers/jobs
+      - ./warehouse-workers/sqsWorker.js:/apps/workers/sqsWorker.js
+      - ./warehouse-workers/config:/apps/workers/config
+    restart: always
+    env_file: worker2.env
     depends_on:
       - memcache
   db:
