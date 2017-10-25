@@ -531,9 +531,7 @@ module.exports = function (grunt) {
       'jshint',
       'loadConfig:' + env,
       'loopback_sdk_angular',
-      'replace:all',
-      //'connect',
-      //'watch:scripts'
+      'replace:all'
     ]);
   }
 };
