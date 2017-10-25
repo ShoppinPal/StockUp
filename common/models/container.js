@@ -542,7 +542,6 @@ module.exports = function (Container) {
       logger.debug({log: {message: `regex with supplierName: ${singleOrder.supplierName}`}});
 
       var storeConfigModelId;
-
       // TODO: current user should only be able to search his/her own stores and suppliers, not all of them!
 
       var StoreModel = Container.app.models.StoreModel;
