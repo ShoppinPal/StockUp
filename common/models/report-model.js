@@ -851,6 +851,7 @@ module.exports = function (ReportModel) {
             to === ReportModel.ReportModelStates.MANAGER_RECEIVE) {
             //When submit button is pressed by warehouse manager
             if (!reportModelInstance.vendConsignmentId) {
+              var accessTokenForWorker, updatedReportModelInstance;
               log.debug('inside setReportStatus() - will create a stock order in Vend (for imported order)');
               return oauthVendUtil.createStockOrderForVend(storeModelInstance, reportModelInstance)
                 .then(function (newStockOrder) {
@@ -859,7 +860,8 @@ module.exports = function (ReportModel) {
                   reportModelInstance.vendConsignment = newStockOrder;
                   return reportModelInstance.save();
                 })
-                .then(function (updatedReportModelInstance) {
+                .then(function (reportModelInstance) {
+                  updatedReportModelInstance = reportModelInstance;
                   log.debug('inside setReportStatus() - PASS - updated the report model (for imported order)');
 
                   // (a) submit long running task as a job to iron
@@ -883,9 +885,9 @@ module.exports = function (ReportModel) {
                   // (a.4) Submit it
                   return ReportModel.sendPayload(updatedReportModelInstance, options, cb);
                 })
-                .then(function (updatedReportModelInstance) {
+                .then(function (reportModelInstance) {
                   log.debug('return the updated ReportModel');
-                  cb(null, updatedReportModelInstance);
+                  cb(null, reportModelInstance);
                 })
                 .catch(function (error) {
                   log.error(error);

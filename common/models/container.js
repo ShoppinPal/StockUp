@@ -327,6 +327,7 @@ module.exports = function (Container) {
         // map header/column names from the CSV to the field names from StockOrderLineitemModel
         resultRow['supplyPrice'] = resultRow['supplier_cost'];
         resultRow['orderQuantity'] = resultRow['quantity'];
+        //TODO: handle blank rows
         resultRow['orderQuantity'] = resultRow['Quantity'];
         resultRow['sku'] = resultRow['SKU'];
         delete resultRow['SKU'];
