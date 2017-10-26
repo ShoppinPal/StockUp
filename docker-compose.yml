@@ -75,7 +75,7 @@ services:
     build:
       context: ./warehouse-workers
     working_dir: /apps/workers
-    command: nodemon -e js sqsWorker.js
+    command: node sqsWorker.js
     volumes:
       - ./warehouse-workers:/apps/workers
     restart: always
