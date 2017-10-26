@@ -45,6 +45,7 @@ The [warehouse-workers](https://github.com/ShoppinPal/warehouse-workers) project
         2. terraform get
         3. terraform plan
         4. terraform apply
+        5. terraform destroy // to destroy your infrastructure!
     ```
 
 Note: This is for local development setup. Once terraform creates queues, appropriate AWS_SQS_URL will be added to .env and worker.env 
