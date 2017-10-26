@@ -23,13 +23,27 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="selectSupplier" class="control-label col-xs-3">Order From</label>
+                    <label for="selectSupplier" class="control-label col-xs-3">Order From
+                        <small>(optional)</small>
+                    </label>
                     <div class="col-xs-8">
                         <select id="selectSupplier" name="selectSupplier"
                                 class="form-control"
                                 ng-model="orderController.selectedSupplier"
-                                ng-options="supplier.name for supplier in orderController.suppliers"
-                                required>
+                                ng-options="supplier.name for supplier in orderController.suppliers">
+                            <option disabled selected value="">Select a supplier (optional)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="selectWarehouse" class="control-label col-xs-3">Warehouse</label>
+                    <div class="col-xs-8">
+                        <select id="selectWarehouse" name="selectWarehouse"
+                                class="form-control"
+                                ng-model="orderController.selectedWarehouse"
+                                ng-options="store.name for store in orderController.stores | filter: !store.isWarehouse"
+                                required
+                                disabled>
                         </select>
                     </div>
                 </div>
@@ -39,12 +53,12 @@
                         <select id="selectStore" name="selectStore"
                                 class="form-control"
                                 ng-model="orderController.selectedStore"
-                                ng-options="store.name for store in orderController.stores"
+                                ng-options="store.name for store in orderController.stores | filter: !!store.isWarehouse"
                                 required>
+                            <option selected disabled value="">Select a store to deliver to</option>
                         </select>
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label for="selectDate" class="control-label col-xs-3">Due At</label>
                     <div class="col-xs-8 calendar">
@@ -65,7 +79,24 @@
                                nv-file-select
                                uploader="orderController.uploader"/>
                         <span ng-if="orderController.uploader.queue.length===1 && orderController.validUpload">Ready for import: {{orderController.uploader.queue[0].file.name}}</span>
-                        <span ng-if="orderController.uploader.queue.length===1 && orderController.validUpload==false" style="color: red">File is not valid for import: {{orderController.uploader.queue[0].file.name}}</span>
+                        <span ng-if="orderController.uploader.queue.length===1 && orderController.validUpload==false"
+                              style="color: red">File is not valid for import: {{orderController.uploader.queue[0].file.name}}</span>
+                    </div>
+                </div>
+                <div class="form-group"
+                     ng-if="orderController.isWarehouser()">
+                    <label class="control-label col-xs-3">Create sales for this order?
+                        <small>(Only for file imports)</small>
+                    </label>
+                    <div class="checkbox col-xs-8">
+                        <label>
+                            <input type="radio" ng-model="orderController.createSales" name="createSales"
+                                   ng-value="true" checked="checked"/>Yes
+                        </label>
+                        <label>
+                            <input type="radio" ng-model="orderController.createSales" name="createSales"
+                                   ng-value="false"/>No
+                        </label>
                     </div>
                 </div>
                 <div class="form-group">

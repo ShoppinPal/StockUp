@@ -520,7 +520,7 @@ var createStockOrderForVend = function(storeModelInstance, reportModelInstance){
   var reportName = reportModelInstance.name;
   var outletId = storeModelInstance.api_id; // reportModelInstance.outlet.id - same thing
   var supplierId = null;
-  if(reportModelInstance.supplier.id != undefined){
+  if(reportModelInstance.supplier.id !== undefined){
     var supplierId = reportModelInstance.supplier.id;
   }
   log.debug('createStockOrderForVend()', 'storeConfigId: ' + storeConfigId);
