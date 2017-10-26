@@ -25,3 +25,4 @@ server/config.*.js
 !/server/storage/touch
 seeds
 /worker/generate-weekly-stock-orders/aws-ebs/seed
+docker
