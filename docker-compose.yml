@@ -32,6 +32,7 @@ services:
       NODE_ENV: local
       MONGOLAB_URI: mongodb://db:27017/warehouse-local
     env_file: .env
+    entrypoint: /dev-entrypoint.sh
     command: nodemon server/server.js
     volumes:
       - ./client/app/images:/apps/warehouse/client/app/images
