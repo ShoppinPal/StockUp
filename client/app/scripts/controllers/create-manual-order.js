@@ -59,22 +59,12 @@ angular.module('ShoppinPalApp').controller(
         removeAfterUpload: true
       });
       this.uploader.onBeforeUploadItem = function (item) {
-        if (self.selectedSupplier) {
-          item.formData.push({
-            createSales: self.createSales,
-            supplierId: self.selectedSupplier.id,
-            storeOutletId: self.selectedStore.objectId,
-            warehouseOutletId: self.selectedWarehouse.objectId
-          });
-        }
-        else {
-          item.formData.push({
-            createSales: self.createSales,
-            supplierId: undefined,
-            storeOutletId: self.selectedStore.objectId,
-            warehouseOutletId: self.selectedWarehouse.objectId
-          });
-        }
+        item.formData.push({
+          createSales: self.createSales,
+          supplierId: (self.selectedSupplier) ? self.selectedSupplier.id : undefined,
+          storeOutletId: self.selectedStore.objectId,
+          warehouseOutletId: self.selectedWarehouse.objectId
+        });
       };
       this.uploader.onSuccessItem = function () {
         console.log('this.uploader.onSuccessItem() > ' +
