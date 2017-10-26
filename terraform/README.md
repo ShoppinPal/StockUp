@@ -31,7 +31,7 @@ The [warehouse-workers](https://github.com/ShoppinPal/warehouse-workers) project
     ```
     # Add all necessary key-value pairs
     ```
-2. Create terraform.tfvars inside ~/terraform. Add IAM access keys for provisioning queues: 
+2. Create terraform.tfvars inside ~/terraform. Add IAM access keys for provisioning queues: (Use example.tfvars.file as template)
     ```
         # Must have the appriopriate IAM permissions to manipulate SQS
         aws_iam_access_key      = ""
@@ -47,5 +47,6 @@ The [warehouse-workers](https://github.com/ShoppinPal/warehouse-workers) project
         4. terraform apply
         5. terraform destroy // to destroy your infrastructure!
     ```
+4. There is another folder called terraform-test. You can create an azure instance and sqs queues through it by following above instructions.
 
 Note: This is for local development setup. Once terraform creates queues, appropriate AWS_SQS_URL will be added to .env and worker.env 

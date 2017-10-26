@@ -7,6 +7,9 @@ aws_iam_secret_key = ""
 
 admin_password = ""
 
+vend_client_id = ""
+vend_client_secret = ""
+
 Q = "<YOUR-NAME>_warehouse_workers_Q"
 DLQ = "<YOUR-NAME>_warehouse_workers_DLQ"
 
