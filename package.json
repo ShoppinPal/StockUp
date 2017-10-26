@@ -2,6 +2,11 @@
   "name": "shoppinpal-warehouse-mongo",
   "version": "1.4.0",
   "dependencies": {
+    "@angular/animations": "^4.4.6",
+    "@angular/cdk": "^2.0.0-beta.12",
+    "@angular/material": "^2.0.0-beta.12",
+    "@mean-expert/loopback-component-realtime": "1.0.0-rc.9.6",
+    "@mean-expert/loopback-sdk-builder": "2.1.0-rc.14",
     "@risingstack/trace": "^3.6.2",
     "aws-sdk": "2.6.15",
     "bluebird": "2.9.14",
@@ -32,8 +37,8 @@
     "jshint-stylish": "~0.1.5",
     "kerberos": "0.0.23",
     "lodash": "3.10.1",
-    "loopback": "2.18.0",
-    "loopback-boot": "2.8.1",
+    "loopback": "2.37.1",
+    "loopback-boot": "2.18.1",
     "loopback-component-storage": "1.5.1",
     "loopback-connector-mongodb": "1.11.2",
     "loopback-datasource-juggler": "2.31.0",
@@ -57,6 +62,7 @@
     "loopback-explorer": "^1.1.0"
   },
   "devDependencies": {
+    "@angular/cli": "1.4.9",
     "grunt-autoprefixer": "~0.6.5",
     "grunt-concurrent": "~0.4.3",
     "grunt-contrib-coffee": "~0.9.0",
@@ -83,7 +89,8 @@
   },
   "scripts": {
     "postinstall": "echo -n $NODE_ENV | grep -v 'production' && ./node_modules/protractor/bin/webdriver-manager update || echo 'will NOT run webdriver install or update'",
-    "lb-sdk": "../node_modules/grunt-cli/bin/grunt loopback_sdk_angular"
+    "angular1-sdk": "../node_modules/grunt-cli/bin/grunt loopback_sdk_angular",
+    "angular2-sdk": "DEBUG=boot:* SKIP_SEEDING=true ./node_modules/.bin/lb-sdk server/server.js admin/src/app/shared/sdk -i disabled"
   },
   "main": "server/server.js"
 }
