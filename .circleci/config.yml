@@ -34,41 +34,51 @@ jobs:
                 name: Try running the tests
                 command: |
                     docker run -d --link mongo-local --name=warehouse -p 3000:3000 -e "MONGOLAB_URI=mongodb://mongo-local:27017/test" -e "NODE_ENV=staging" shoppinpal/warehouse:$(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g')
+            - run:
+                name: Deploy warehouse
+                command: |
+                    if [ "${CIRCLE_BRANCH}" == "develop" ]; then
+                      ./scripts/deploy.sh $(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g')
+                    elif [ "${CIRCLE_BRANCH}" == "master" ]; then
+                      ./scripts/deploy.sh $(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g')
+                    elif [[ "${CIRCLE_BRANCH}" == ^release.* ]]; then
+                      ./scripts/deploy.sh $(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g')
+                    fi
 
-    deploy:
-
-      working_directory: /home/circleci/warehouse
-
-      docker:
-        - image: docker:17.06.1-ce
-
-      steps:
-        - checkout
-        - setup_remote_docker:
-          version: 17.06.1-ce
-        - run:
-            name: Install dependencies
-            command: apk add --no-cache bash
-        - run:
-            name: Build Push Docker Image
-            command: |
-              cd /home/circleci/warehouse
-              ./scripts/deploy.sh $(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g')
-
-workflows:
-
-  version: 2
-  
-  build-and-deploy:
-    jobs:
-      - build
-      - deploy:
-          context: org-global
-          requires:
-            - build
-          filters:
-            branches:
-              only:
-                - master
-                - develop
-                - /^release.*/
+#     deploy:
+#
+#       working_directory: /home/circleci/warehouse
+#
+#       docker:
+#         - image: docker:17.06.1-ce
+#
+#       steps:
+#         - checkout
+#         - setup_remote_docker:
+#           version: 17.06.1-ce
+#         - run:
+#             name: Install dependencies
+#             command: apk add --no-cache bash
+#         - run:
+#             name: Build Push Docker Image
+#             command: |
+#               cd /home/circleci/warehouse
+#               ./scripts/deploy.sh $(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g')
+#
+# workflows:
+#
+#   version: 2
+#
+#   build-and-deploy:
+#     jobs:
+#       - build
+#       - deploy:
+#           context: org-global
+#           requires:
+#             - build
+#           filters:
+#             branches:
+#               only:
+#                 - master
+#                 - develop
+#                 - /^release.*/
