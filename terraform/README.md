@@ -15,7 +15,8 @@ cp worker.env.example worker.env
 4. Download and install Terraform at [https://www.terraform.io/downloads.html](https://www.terraform.io/downloads.html)
 (Tested with Terraform v0.10.7 as of this writing)
 
-5. Create **terraform.tfvars** under **$PROJECT_ROOT/terraform**. Add IAM access keys for provisioning queues: (Use **example.tfvars.file** as template)
+5. Create **terraform.tfvars** under **$PROJECT_ROOT/terraform/** directory. (Use **$PROJECT_ROOT/terraform/example.tfvars.file** as template.)
+    Below is example.tfvars.file
     ```
         # Must have the appriopriate IAM permissions to manipulate SQS
         aws_iam_access_key      = ""
