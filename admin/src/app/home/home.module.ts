@@ -5,13 +5,15 @@ import { HomeRoutingModule } from './home-routing.module';
 import { HomeComponent } from './home/home.component';
 
 import { StoresModule } from '../stores/stores.module';
-import {FullLayoutComponent} from "../containers/full-layout/full-layout.component";
+import { PaymentsModule } from '../payments/payments.module';
+
 
 @NgModule({
   imports: [
     CommonModule,
     HomeRoutingModule,
-    StoresModule
+    StoresModule,
+    PaymentsModule
   ],
   declarations: [HomeComponent],
   exports: [HomeComponent]

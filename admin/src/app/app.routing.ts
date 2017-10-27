@@ -13,13 +13,6 @@ export const routes: Routes = [
     component: FullLayoutComponent,
     loadChildren: './home/home.module#HomeModule'
   },
-  // {
-  //   path: '',
-  //   component: FullLayoutComponent,
-  //   data: {
-  //     title: 'Home'
-  //   }
-  // },
   {
     path: 'login',
     loadChildren: './login/login.module#LoginModule'
