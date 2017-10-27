@@ -11,57 +11,64 @@ Replenishing stock is one of the most important repetitive tasks performed by a 
 
 # Deploy
 
-```
-# 1. clone warehouse and any submodules
-git clone --recursive git@github.com:ShoppinPal/warehouse.git
+1. Clone warehouse and any submodules
 
-# 2. open project directory
-cd warehouse
-
-# 3. copy the templates for configuring environment variables
-cp .env.example .env
-cp worker.env.example worker.env
-
-# 4. then fill in the values for env variables
-# into `.env` and `worker.env` files
-
-# 5. cd into $PROJECT_ROOT/terraform/ directory.
-cd terraform
-
-# 6. Create terraform.tfvars under $PROJECT_ROOT/terraform/ directory. (Use $PROJECT_ROOT/terraform/example.tfvars.file as template.)
-# Below is example.tfvars.file
     ```
-        # Must have the appriopriate IAM permissions to manipulate SQS
-        aws_iam_access_key      = ""
-        aws_iam_secret_key      = ""
-        aws_region              = "us-west-1"
-        Q                       = "terraform_warehouse_workers_Q"   # use whatever name you find useful
-        DLQ                     = "terraform_warehouse_workers_DLQ" # use whatever name you find useful
+    git clone --recursive git@github.com:ShoppinPal/warehouse.git
     ```
-# Note: File name should be terraform.tfvars so that terraform can autoload this file.
+1. Setup project root directory as an environment variable:
 
-# 7. Run these commands under $PROJECT_ROOT/terraform/ directory:
     ```
-        1. docker-compose run terraform init
-        2. docker-compose run terraform get    // used to download and update modules mentioned in the root module (main.tf).
-        3. docker-compose run terraform plan
-        4. docker-compose run terraform apply
-        5. docker-compose run terraform destroy // to destroy your infrastructure!
+    export PROJECT_ROOT=`pwd` && echo $PROJECT_ROOT
     ```
-# Note: This is for local development setup. Once terraform creates queues, appropriate AWS_SQS_URL and AWS_SQS_REGION will be added to .env and worker.env. 
-# Tested with Terraform v0.10.8 as of this commit.
+1. Open project directory: `cd $PROJECT_ROOT`
+1. Copy the templates for configuring environment variables
 
-# 8. Open file `/etc/hosts` and add following entry
-#    127.0.0.1 lb
-sudo vim /etc/hosts
+    ```
+    cp .env.example .env
+    cp worker.env.example worker.env
+    ```
+1. Move to the terraform directory:: `cd $PROJECT_ROOT/terraform`
+    * Use `$PROJECT_ROOT/terraform/example.tfvars.file` as template:
 
-# 6a. build and run in a detached state
-docker-compose up -d --build
+        ```
+        cp $PROJECT_ROOT/terraform/example.tfvars.file $PROJECT_ROOT/terraform/terraform.tfvars
+        ```
+    * Fill in the values for the env variables in `$PROJECT_ROOT/terraform/terraform.tfvars`
+1. Run these commands:
 
-# 6b. build and run in the foreground
-docker-compose up --build
-```
-Open application in your browser with url http://lb/
+
+    ```
+    # Tested with Terraform v0.10.8 as of this commit.
+
+    # step 1
+    cd $PROJECT_ROOT/terraform/
+    # step 2
+    docker-compose run terraform init
+    # step 3: used to download and update modules mentioned in the root module (main.tf).
+    docker-compose run terraform get
+    # step 4
+    docker-compose run terraform plan
+    # step 5
+    docker-compose run terraform apply
+    # step 6: to destroy your infrastructure!
+    docker-compose run terraform destroy
+
+    # Once terraform creates queues, the appropriate
+    # AWS_SQS_URL and AWS_SQS_REGION will be
+    # automatically added to your .env and worker.env files.
+    ```
+1. Fill in any remaining values that are empty in `.env` and `worker.env` files
+1. Open file `/etc/hosts`: `sudo vim /etc/hosts`
+    * Append the following line
+
+        ```
+        127.0.0.1 lb
+        ```
+1. To build and run, choose:
+    * background: `docker-compose up -d --build`
+    * foreground: `docker-compose up --build`
+1. For local development, open application in your browser with url http://lb/
 
 # Troubleshooting
 
@@ -73,7 +80,6 @@ Open application in your browser with url http://lb/
     ##
     docker-compose run web /bin/bash
     ```
-
 1. To attach to a running container and troubleshoot:
 
     ```
@@ -82,56 +88,57 @@ Open application in your browser with url http://lb/
     ##
     docker-compose exec web /bin/bash
     ```
+1. If builds keep failing and it makes no-sence, maybe cleanup is required, try:
+    ```
+    docker system prune
 
-1. The `docker-compose.local.yml` file is a close mirror of ``docker-compose.yml` with a few small differences to ease the life of developers when developing or torubleshooting.
+    # either:
+    docker-compose up -d --build --force-recreate
+    # or:
+    docker-compose up --build --force-recreate
+    ```
 
-```
-# install dependencies based on the projects's nodejs version
-#       BEFORE the following command runs:
-#       `RUN mv /apps/warehouse/node_modules /apps/node_modules`
-docker-compose run nodejs node --version
-docker-compose run nodejs npm install
+# FAQs
 
-# TIPS: to add NEW dependencies based on the projects's nodejs version
-#       BEFORE the following command runs:
-#       `RUN mv /apps/warehouse/node_modules /apps/node_modules`
-docker-compose run nodejs npm install --save-dev --save-exact <someNewModule>
-docker-compose run nodejs npm install --save --save-exact <someNewModule>
+* What is the difference between `docker-compose.local.yml` and `docker-compose.yml`?
+    * The `docker-compose.local.yml` file is a close mirror of `docker-compose.yml` with a few small differences to ease the life of developers when developing or torubleshooting.
+* How should we install dependencies based on the projects's nodejs version?
+    * If you are performing this BEFORE the `Dockerfile` build, where the following command runs: `RUN mv /apps/warehouse/node_modules /apps/node_modules`, then use:
 
-# TIPS: if you add a new module then please make sure to shrinkwrap it
-docker-compose run nodejs npm shrinkwrap
-```
+        ```
+        docker-compose run nodejs node --version
+        docker-compose run nodejs npm install
+        ```
+    * If you are performing this AFTER the `Dockerfile` build, where the following command runs: `RUN mv /apps/warehouse/node_modules /apps/node_modules`, then use:
 
-```
-# install dependencies based on the projects's nodejs version
-#       AFTER the following command runs:
-#       `RUN mv /apps/warehouse/node_modules /apps/node_modules`
-docker-compose run nodejs node --version
-docker-compose run nodejs npm --prefix /apps/warehouse install
+        ```
+        docker-compose run nodejs node --version
+        docker-compose run nodejs npm --prefix /apps/warehouse install
+        ```
+* How should we add NEW dependencies based on the projects's nodejs version?
+    * If you are performing this BEFORE the `Dockerfile` build, where the following command runs: `RUN mv /apps/warehouse/node_modules /apps/node_modules`, then use:
+        ```
+        docker-compose run nodejs npm install --save-dev --save-exact <someNewModule>
+        docker-compose run nodejs npm install --save --save-exact <someNewModule>
 
-# TIPS: to add NEW dependencies based on the projects's nodejs version
-#       AFTER the following command runs:
-#       `RUN mv /apps/warehouse/node_modules /apps/node_modules`
-docker-compose run nodejs npm install --prefix /apps/warehouse --save-dev --save-exact <someNewModule>
-docker-compose run nodejs npm install --prefix /apps/warehouse --save --save-exact <someNewModule>
+        # NOTE: If you add a new module then please
+        #       make sure to shrinkwrap it using:
+        #       docker-compose run nodejs npm shrinkwrap
+        ```
+    * If you are performing this AFTER the `Dockerfile` build, where the following command runs: `RUN mv /apps/warehouse/node_modules /apps/node_modules`, then use:
+        ```
+        docker-compose run nodejs npm install --prefix /apps/warehouse --save-dev --save-exact <someNewModule>
+        docker-compose run nodejs npm install --prefix /apps/warehouse --save --save-exact <someNewModule>
 
-# TIPS: if you add a new module then please make sure to shrinkwrap it
-docker-compose run nodejs npm shrinkwrap
-```
-
-```
-# if builds keep failing and it makes no-sence, maybe cleanup is required, try:
-docker system prune
-# either:
-docker-compose up -d --build --force-recreate
-# or:
-docker-compose up --build --force-recreate
-```
+        # NOTE: If you add a new module then please
+        #       make sure to shrinkwrap it using:
+        #       docker-compose run nodejs npm shrinkwrap
+        ```
 
 # Remote Dev Machine
 
 1. Setup dropbox on local machine
-1. [Setup dropbx on remote machine](https://training.shoppinpal.com/setup-a-machine-in-the-cloud/setup-box/shared-filesystem/dropbox.html)
+1. [Setup dropbox on remote machine](https://training.shoppinpal.com/setup-a-machine-in-the-cloud/setup-box/shared-filesystem/dropbox.html)
 1. Create a directory on your local machine to house any and all projects meant for remote development: `mkdir -p ~/Dropbox/rDev`
 1. Go to the directory where you cloned warehouse locally, for example: `cd ~/dev/warehouse`
 1. Then wire it up to your local Dropbox folder:
