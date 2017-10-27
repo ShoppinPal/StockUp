@@ -34,6 +34,7 @@ cd terraform
         # Must have the appriopriate IAM permissions to manipulate SQS
         aws_iam_access_key      = ""
         aws_iam_secret_key      = ""
+        aws_region              = "us-west-1"
         Q                       = "terraform_warehouse_workers_Q"   # use whatever name you find useful
         DLQ                     = "terraform_warehouse_workers_DLQ" # use whatever name you find useful
     ```
