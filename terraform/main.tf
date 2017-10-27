@@ -22,6 +22,9 @@ module "sqs_queues" {
   aws_secret_key  = "${var.aws_iam_access_key}"
   Q               = "${var.Q}"
   DLQ             = "${var.DLQ}"
+  aws_region      = "${var.aws_region}"
+  aws_access_key = "${var.aws_iam_access_key}"
+  aws_secret_key = "${var.aws_iam_secret_key}"
 }
 
 output "Q_URL" {

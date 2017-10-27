@@ -2,38 +2,12 @@
 
 Automate queues and deadLetter queues setup. This is where the workers pull payloads from.
 
-# How to run
+# Notes
 
-1. git clone --recursive git@github.com:ShoppinPal/warehouse.git
+1. After you have decided to destroy your SQS queue infrastructure by running following command:
 
-2. Copy the templates for configuring environment variables
-cp .env.example .env
-cp worker.env.example worker.env
+    `$PROJECT_ROOT/terraform/docker-compose run terraform destroy`
 
-3. Then fill in the values for env variables into `.env` and `worker.env` files
+    You must wait 60 seconds after deleting a queue before you can create another with the same name.
 
-4. Download and install Terraform at [https://www.terraform.io/downloads.html](https://www.terraform.io/downloads.html)
-(Tested with Terraform v0.10.7 as of this writing)
-
-5. Create **terraform.tfvars** under **$PROJECT_ROOT/terraform/** directory. (Use **$PROJECT_ROOT/terraform/example.tfvars.file** as template.)
-    Below is example.tfvars.file
-    ```
-        # Must have the appriopriate IAM permissions to manipulate SQS
-        aws_iam_access_key      = ""
-        aws_iam_secret_key      = ""
-        aws_region              = "us-west-1"
-        Q                       = "terraform_warehouse_workers_Q"   # use whatever name you find useful
-        DLQ                     = "terraform_warehouse_workers_DLQ" # use whatever name you find useful
-    ```
-    Note: File name should be **terraform.tfvars** so that terraform can autoload this file.
-6. Run these commands under **$PROJECT_ROOT/terraform** directory:
-    ```
-        1. terraform init
-        2. terraform get    // used to download and update modules mentioned in the root module (main.tf).
-        3. terraform plan
-        4. terraform apply
-        5. terraform destroy // to destroy your infrastructure!
-    ```
-7. There is another folder called terraform-test. You can create an azure instance and sqs queues through it by following above instructions from point 4 (assuming points 1 - 4 are already completed). Follow from step 5 under **$PROJECT_ROOT/terraform/terraform-test** directory 
-
-Note: This is for local development setup. Once terraform creates queues, appropriate AWS_SQS_URL will be added to .env and worker.env 
+2. This setup was tested with terraform version `0.10.8` as of this commit.
