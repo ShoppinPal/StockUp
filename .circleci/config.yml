@@ -41,7 +41,7 @@ jobs:
                       ./scripts/deploy.sh $(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g')
                     elif [ "${CIRCLE_BRANCH}" == "master" ]; then
                       ./scripts/deploy.sh $(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g')
-                    elif [[ "${CIRCLE_BRANCH}" == ^release.* ]]; then
+                    elif [[ "${CIRCLE_BRANCH}" =~ ^release.* ]]; then
                       ./scripts/deploy.sh $(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g')
                     fi
 
