@@ -485,7 +485,7 @@ module.exports = function (Container) {
             name: warehouseOutlet.name
           },
           paymentTypeId: warehouseOutlet.defaultPaymentType.api_id ? warehouseOutlet.defaultPaymentType.api_id : null,
-          vendCustomerId: warehouseOutlet.vendCustomerId
+          vendCustomerId: storeOutlet.vendCustomerId
         });
       })
       .catch(function (error) {
