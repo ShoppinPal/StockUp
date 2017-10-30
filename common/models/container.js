@@ -385,7 +385,7 @@ module.exports = function (Container) {
                             var matches = posUrl.match(regexp);
                             var domainPrefix = matches[1];
                             var worker;
-                            if(reportModelInstance.supplier.name === 'ANY') {
+                            if (reportModelInstance.supplier.name === 'ANY') {
                               worker = Container.app.get('importStockOrderToWarehouseWithoutSupplier');
                             }
                             else {
@@ -431,66 +431,67 @@ module.exports = function (Container) {
   });
 
   var createReportModelForCsv = function (filename, Container, supplierId, storeOutletId, warehouseOutletId, createSales) {
-      // TODO: add validation for warehouse?
-      // TODO: current user should only be able to search his/her own stores and suppliers, not all of them!
+    // TODO: add validation for warehouse?
+    // TODO: current user should only be able to search his/her own stores and suppliers, not all of them!
 
     var storeOutlet, warehouseOutlet;
-      var StoreModel = Container.app.models.StoreModel;
-      return StoreModel.findById(storeOutletId)
-        .then(function (storeModelInstance) {
-          if (!storeModelInstance) {
-            return Promise.reject('Could not find a matching store for: ' + filename);
-          }
-          else {
-            storeOutlet = storeModelInstance;
+    var StoreModel = Container.app.models.StoreModel;
+    return StoreModel.findById(storeOutletId)
+      .then(function (storeModelInstance) {
+        if (!storeModelInstance) {
+          return Promise.reject('Could not find a matching store for: ' + filename);
+        }
+        else {
+          storeOutlet = storeModelInstance;
           return StoreModel.findById(warehouseOutletId);
         }
       })
       .then(function (warehouseInstance) {
         warehouseOutlet = warehouseInstance;
-            var SupplierModel = Container.app.models.SupplierModel;
-            return SupplierModel.find({
-              where: {
-                id: supplierId,
+        var SupplierModel = Container.app.models.SupplierModel;
+        return SupplierModel.find({
+          where: {
+            id: supplierId,
             storeConfigModelToSupplierModelId: storeOutlet.storeConfigModelToStoreModelId
           }
         });
-        })
-        .then(function (supplierModelInstance) {
-          log.trace('supplierModelInstance', supplierModelInstance);
-          if (!supplierModelInstance.length) {
-            log.debug('Could not find a supplier, will create report without supplier');
-            //create a report without supplier
-            supplierModelInstance[0] = {
-              apiId: null,
-              name: 'ANY'
-            };
-          }
-          var ReportModel = Container.app.models.ReportModel;
-          return ReportModel.create({
-            name: filename,
-            userModelToReportModelId: storeOutlet.userModelToStoreModelId, // explicitly setup the foreignKeys for related models
-            state: ReportModel.ReportModelStates.REPORT_EMPTY,
-            outlet: {
-              id: storeOutlet.api_id, // jshint ignore:line
-              name: storeOutlet.name
-            },
-            supplier: {
-              id: supplierModelInstance[0].apiId,
-              name: supplierModelInstance[0].name
-            },
-            createSales: createSales,
+      })
+      .then(function (supplierModelInstance) {
+        log.trace('supplierModelInstance', supplierModelInstance);
+        if (!supplierModelInstance.length) {
+          log.debug('Could not find a supplier, will create report without supplier');
+          //create a report without supplier
+          supplierModelInstance[0] = {
+            apiId: null,
+            name: 'ANY'
+          };
+        }
+        var ReportModel = Container.app.models.ReportModel;
+        return ReportModel.create({
+          name: filename,
+          userModelToReportModelId: storeOutlet.userModelToStoreModelId, // explicitly setup the foreignKeys for related models
+          state: ReportModel.ReportModelStates.REPORT_EMPTY,
+          outlet: {
+            id: storeOutlet.api_id, // jshint ignore:line
+            name: storeOutlet.name
+          },
+          supplier: {
+            id: supplierModelInstance[0].apiId,
+            name: supplierModelInstance[0].name
+          },
+          createSales: createSales,
           warehouseOutlet: {
             id: warehouseOutlet.api_id,
             name: warehouseOutlet.name
-          }
-          });
-        })
-        .catch(function (error) {
-          log.error('Error creating report', error);
-          return Promise.reject('Error creating report', error);
+          },
+          paymentTypeId: warehouseOutlet.defaultPaymentType.api_id ? warehouseOutlet.defaultPaymentType.api_id : null
         });
-    };
+      })
+      .catch(function (error) {
+        log.error('Error creating report', error);
+        return Promise.reject('Error creating report', error);
+      });
+  };
 
 
   var createReportModelForExcel = function (singleOrder, Container, next) {

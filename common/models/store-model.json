@@ -59,6 +59,9 @@
     },
     "hideOutOfStockProducts": {
       "type": "boolean"
+    },
+    "defaultPaymentType": {
+      "type": "object"
     }
   },
   "validations": [],
