@@ -12,6 +12,11 @@
       "type": "string",
       "required": true
     },
+    "isWarehouse": {
+      "type": "boolean",
+      "required": true,
+      "default": false
+    },
     "phone": {
       "type": "string"
     },
@@ -54,6 +59,9 @@
     },
     "hideOutOfStockProducts": {
       "type": "boolean"
+    },
+    "defaultPaymentType": {
+      "type": "object"
     }
   },
   "validations": [],
