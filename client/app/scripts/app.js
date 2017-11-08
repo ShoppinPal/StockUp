@@ -3,6 +3,7 @@
 angular.module('ShoppinPalApp',[
   'angularFileUpload'
   ,'cgBusy'
+  ,'bd.sockjs'
   ,'geocoder'
   ,'mgcrea.ngStrap'
   ,'ngAnimate'
@@ -20,13 +21,14 @@ angular.module('ShoppinPalApp',[
   ,'shoppinpal-vend'
   ,'sp-alerts'
   ,'sp-formatters'
+  ,'ui-notification'
   ,'ui.router'
   ,'ui.utils'
 ])
 
   .config([
-    '$stateProvider', '$urlRouterProvider', 'LoopBackResourceProvider', 'baseUrl', 'loopbackApiRoot',
-    function ($stateProvider, $urlRouterProvider, LoopBackResourceProvider, baseUrl, loopbackApiRoot) {
+    '$stateProvider', '$urlRouterProvider', 'LoopBackResourceProvider', 'NotificationProvider', 'baseUrl', 'loopbackApiRoot',
+    function ($stateProvider, $urlRouterProvider, LoopBackResourceProvider, NotificationProvider, baseUrl, loopbackApiRoot) {
       $stateProvider
         .state('login', {
           url: '/login',
@@ -92,11 +94,39 @@ angular.module('ShoppinPalApp',[
 
       // Configure backend URL
       LoopBackResourceProvider.setUrlBase(baseUrl + loopbackApiRoot);
+
+      NotificationProvider.setOptions({
+        delay: 15000,
+        startTop: 20,
+        startRight: 10,
+        verticalSpacing: 20,
+        horizontalSpacing: 20,
+        positionX: 'right',
+        positionY: 'top'
+      });
     }
   ])
+  .factory('$socket', function (socketFactory) {
+    var sockjs = new SockJS('http://52.175.205.186:4000/echo?token=qwerty');
+    
+      var socket = socketFactory({
+        socket: sockjs
+      });
+    
+      return socket;
+  })
 
-  .run(['$rootScope', '$sessionStorage', '$state', '$timeout', '$interval',
-    function($rootScope, $sessionStorage, $state, $timeout, $interval){
+  .run(['$rootScope', '$sessionStorage', '$state', '$timeout', '$interval', '$socket',
+    function($rootScope, $sessionStorage, $state, $timeout, $interval, $socket){
+
+      // $socket.setHandler('open', function() {
+      //   console.log('app.js', 'socket:open', JSON.stringify($socket));
+      //   $socket.send(JSON.stringify({event: 'USER_AUTHENTICATE', payload: 'test', userId: 'angular'}));
+      // });
+      $rootScope.socket = $socket;
+      // $socket.setHandler('error', function(message) {
+      //   console.error('app.js', 'socket:error', message);
+      // });
 
       $rootScope.$on('$stateChangeStart', function(event, toState){
         if(toState.authenticate && !$sessionStorage.currentUser) {

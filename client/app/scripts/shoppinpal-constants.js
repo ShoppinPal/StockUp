@@ -7,6 +7,7 @@ angular.module('shoppinpal-constants', [])
     'MANAGER_RECEIVE': 'manager_receive',
     'REPORT_COMPLETE': 'report_complete'
   })
+  .constant('notificationUrl', '@@notificationUrl')
   .constant('proxyUrl', '@@proxyUrl')
   .constant('vendClientId','@@vendClientId')
   .constant('vendAuthEndpoint', '@@vendAuthEndpoint')
