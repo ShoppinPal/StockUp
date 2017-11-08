@@ -42,6 +42,6 @@ server/config.*.js
 !/server/storage/touch
 seeds
 /worker/generate-weekly-stock-orders/aws-ebs/seed
-docker
+/docker/
 client/app/scripts/shoppinpal-loopback.js
 client/admin/
