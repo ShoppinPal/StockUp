@@ -14,6 +14,7 @@ angular.module('ShoppinPalApp')
     {
       UserModel.logout()
         .$promise.then(function() {
+          $scope.socket.close();
           $sessionStorage.currentUser = null;
           $sessionStorage.currentStore = null;
           $sessionStorage.roles = null;

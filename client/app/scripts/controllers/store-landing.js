@@ -293,15 +293,63 @@ angular.module('ShoppinPalApp')
         }
       };
    
+      if ($scope.socket) {
+        console.log('Fetching pending notifications...');
+        $scope.socket.send(JSON.stringify({event: 'USER_FETCH_NOTIFICATION_HISTORY', payload: {}, userId: $sessionStorage.currentUser.userId}));
+      }
       $scope.socket.setHandler('message', function(event) {
-        console.log('Inside store landing message event', event.data);
-        var notif = JSON.parse(event.data);
-        Notification.success({
-          message: notif.payload.message,
-          onClose: function() {
-            return $state.go($state.current, {}, {reload: true}); // $stateParams isn't injected, therefore not reused
+        console.log('Inside warehouse landing message event', event.data);
+
+        try{
+          var notif = JSON.parse(event.data);
+
+          switch (notif.event) {
+
+            case 'NOTIFICATION_HISTORY':
+              let ids = [];
+              notif.notifications.forEach((notif) => {
+                  ids.push(notif._id);
+                  notifyMe(notif);
+              });
+              $scope.socket.send(JSON.stringify({event: 'NOTIFICATION_BULK_RECEIVED_ACK', payload: {}, messageIds: ids, userId: $sessionStorage.currentUser.userId}));
+              
+            break;
+
+            case 'WORKER_NOTIFICATION':
+              notifyMe(notif);
+              $scope.socket.send(JSON.stringify({event: 'NOTIFICATION_RECEIVED_ACK', messageId: notif._id, payload: {}, userId: $sessionStorage.currentUser.userId}));
+              console.log('notification ack sent');
+            break;
+
+            case 'NOTIFICATION_HISTORY_EMPTY':
+              console.log('Up to date with notifications. Make api call to fetch archived notifications in the next step');
+            break;
+
+            case 'MESSAGES_DELETED':
+            
+            break;
+            
+            case 'BULK_MESSAGES_DELETED':
+            
+            break;
+
+            default:
+              console.log('Unknown Event');
+            break;
           }
-        });
+
+          function notifyMe (notif) {
+            Notification.success({
+              message: notif.payload.message,
+              onClose: function() {
+                return $state.go($state.current, {}, {reload: true}); // $stateParams isn't injected, therefore not reused
+              }
+            });
+          }
+        }catch(error) {
+          console.log(error);
+        }
+        
       });
 
     }

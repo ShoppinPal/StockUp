@@ -112,7 +112,6 @@ angular.module('ShoppinPalApp',[
       var socket = socketFactory({
         socket: sockjs
       });
-    
       return socket;
   })
 
@@ -124,9 +123,13 @@ angular.module('ShoppinPalApp',[
       //   $socket.send(JSON.stringify({event: 'USER_AUTHENTICATE', payload: 'test', userId: 'angular'}));
       // });
       $rootScope.socket = $socket;
-      // $socket.setHandler('error', function(message) {
-      //   console.error('app.js', 'socket:error', message);
-      // });
+      $socket.setHandler('error', function(message) {
+        console.error('app.js', 'socket:error', message);
+      });
+
+      $socket.setHandler('close', function() {
+        console.log('app.js', 'socket:closed');
+      });
 
       $rootScope.$on('$stateChangeStart', function(event, toState){
         if(toState.authenticate && !$sessionStorage.currentUser) {
