@@ -3,6 +3,7 @@
   "VM_EXTERNAL_IP":"process.env.VM_EXTERNAL_IP",
   "VEND_CLIENT_ID":"process.env.VEND_CLIENT_ID",
   "VEND_CLIENT_SECRET":"process.env.VEND_CLIENT_SECRET",
+  "NOTIFICATION_URL":"process.env.NOTIFICATION_URL",
   "IW_URL":"process.env.IW_URL",
   "IW_PROJECT_ID":"process.env.IW_PROJECT_ID",
   "IW_OAUTH_TOKEN":"process.env.IW_OAUTH_TOKEN",

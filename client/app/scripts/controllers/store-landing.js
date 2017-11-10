@@ -292,7 +292,7 @@ angular.module('ShoppinPalApp')
           console.log('do nothing?');
         }
       };
-   
+      console.log('Previous state', $scope.reportLists);
       if ($scope.socket) {
         console.log('Fetching pending notifications...');
         $scope.socket.send(JSON.stringify({event: 'USER_FETCH_NOTIFICATION_HISTORY', payload: {}, userId: $sessionStorage.currentUser.userId}));
@@ -317,17 +317,17 @@ angular.module('ShoppinPalApp')
 
             case 'WORKER_NOTIFICATION':
               notifyMe(notif);
+              
               $scope.socket.send(JSON.stringify({event: 'NOTIFICATION_RECEIVED_ACK', messageId: notif._id, payload: {}, userId: $sessionStorage.currentUser.userId}));
               if (_.isArray($scope.reportLists)) {
                 $scope.reportLists.forEach(function (report) {
-                  if (report.workerTaskId === notif.taskId) {
+                  if (report.id === notif.reportId) {
                     // Update the row status
                     report.state = notif.payload.state;
                     $scope.$apply();
                     console.log('Row status updated');
                   }
                 });
-                
                 console.log('rows', $scope.reportLists);
               }
               /* TODO: Row status update logic here if possible? We can match taskId from notification and workerTaskId from reportLists array and update the row status. */

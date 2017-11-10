@@ -27,8 +27,8 @@ angular.module('ShoppinPalApp',[
 ])
 
   .config([
-    '$stateProvider', '$urlRouterProvider', 'LoopBackResourceProvider', 'NotificationProvider', 'baseUrl', 'loopbackApiRoot',
-    function ($stateProvider, $urlRouterProvider, LoopBackResourceProvider, NotificationProvider, baseUrl, loopbackApiRoot) {
+    '$stateProvider', '$urlRouterProvider', 'LoopBackResourceProvider', 'NotificationProvider', 'baseUrl', 'loopbackApiRoot', 'notificationUrl',
+    function ($stateProvider, $urlRouterProvider, LoopBackResourceProvider, NotificationProvider, baseUrl, loopbackApiRoot, notificationUrl) {
       $stateProvider
         .state('login', {
           url: '/login',
@@ -94,6 +94,7 @@ angular.module('ShoppinPalApp',[
 
       // Configure backend URL
       LoopBackResourceProvider.setUrlBase(baseUrl + loopbackApiRoot);
+      console.log(notificationUrl + '?token=qwerty');
 
       NotificationProvider.setOptions({
         delay: 15000,
@@ -106,9 +107,9 @@ angular.module('ShoppinPalApp',[
       });
     }
   ])
-  .factory('$socket', function (socketFactory) {
-    var sockjs = new SockJS('http://52.175.205.186:4000/echo?token=qwerty');
-    
+  .factory('$socket', function (socketFactory, notificationUrl) {
+    var sockjs = new SockJS(notificationUrl + '?token=qwerty');
+
       var socket = socketFactory({
         socket: sockjs
       });
