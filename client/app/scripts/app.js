@@ -107,13 +107,47 @@ angular.module('ShoppinPalApp',[
       });
     }
   ])
-  .factory('$socket', function (socketFactory, notificationUrl) {
+  .factory('$socket', function (socketFactory, notificationUrl, $rootScope, $sessionStorage) {
     var sockjs = new SockJS(notificationUrl + '?token=qwerty');
+    var timerId = null;
 
-      var socket = socketFactory({
-        socket: sockjs
-      });
-      return socket;
+    sockjs.onopen = function () {
+      console.log('websocket connected');
+    }
+    sockjs.onclose = function () {
+      reconnect();
+    }
+
+    var socket = socketFactory({
+      socket: sockjs
+    });
+
+    function reconnect() {
+      console.log('reconnect called');
+      timerId = setInterval(function () {
+        sockjs = new SockJS(notificationUrl + '?token=qwerty');
+        //registerListeners(sockjs, timerId);
+        sockjs.onopen = function () {
+          clearInterval(timerId);
+          sockjs.send(JSON.stringify({ event: 'USER_AUTHENTICATE', payload: 'test', userId: $sessionStorage.currentUser.userId }));
+          console.log('websocket re-connected...')
+          var socket = socketFactory({
+            socket: sockjs
+          });
+
+          $rootScope.socket = socket;
+          $rootScope.$apply();
+          console.log('Root scope updated');
+          sockjs.onclose = function () {
+            reconnect();
+          }
+        }
+      }, 1000 * 10);
+    }
+      
+    $rootScope.socket = socket;
+    $rootScope.$apply();
+    return socket;
   })
 
   .run(['$rootScope', '$sessionStorage', '$state', '$timeout', '$interval', '$socket',
@@ -123,14 +157,14 @@ angular.module('ShoppinPalApp',[
       //   console.log('app.js', 'socket:open', JSON.stringify($socket));
       //   $socket.send(JSON.stringify({event: 'USER_AUTHENTICATE', payload: 'test', userId: 'angular'}));
       // });
-      $rootScope.socket = $socket;
+      //$rootScope.socket = $socket;
       $socket.setHandler('error', function(message) {
         console.error('app.js', 'socket:error', message);
       });
 
-      $socket.setHandler('close', function() {
-        console.log('app.js', 'socket:closed');
-      });
+      // $socket.setHandler('close', function() {
+      //   console.log('app.js', 'socket:closed');
+      // });
 
       $rootScope.$on('$stateChangeStart', function(event, toState){
         if(toState.authenticate && !$sessionStorage.currentUser) {
