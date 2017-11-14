@@ -1,17 +1,18 @@
 {
-  "name": "Admin",
+  "name": "Warehouse Admin",
   "version": "1.0.0",
   "description": "Warehouse Admin",
   "author": "Kamal Khatwani",
   "homepage": "http://shoppinpal.com",
   "license": "MIT",
   "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "test": "ng test",
-    "lint": "ng lint",
-    "e2e": "ng e2e"
+    "ng": "./node_modules/@angular/cli/bin/ng",
+    "start": "./node_modules/@angular/cli/bin/ng serve --host 0.0.0.0 --disable-host-check",
+    "admin": "./node_modules/@angular/cli/bin/ng build --prod --aot=false --base-href /admin/",
+    "test": "./node_modules/@angular/cli/bin/ng test --watch false",
+    "lint": "./node_modules/@angular/cli/bin/ng lint",
+    "e2e": "./node_modules/@angular/cli/bin/ng e2e",
+    "ver": "./node_modules/@angular/cli/bin/ng -v"
   },
   "private": true,
   "dependencies": {
