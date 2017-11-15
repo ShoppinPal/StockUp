@@ -167,7 +167,7 @@ module.exports = function (StoreConfigModel) {
       log: {
         message: `ctx.result.redirectUrl: ${ctx.result.redirectUrl}`
       }
-    })
+    });
     //console.log('remoteMethodResponse.redirectUrl: ' + remoteMethodResponse.redirectUrl);
     logger.debug({
       log: {
@@ -201,7 +201,6 @@ module.exports = function (StoreConfigModel) {
         vend: StoreConfigModel.app.get('vend')
       }
     });
-
     // NOTE: You can get a reference to the app INSIDE remote methods, remote hooks,
     //       and model hooks because those are triggered after the application finishes loading.
     //       http://docs.strongloop.com/display/public/LB/Working+with+LoopBack+objects#WorkingwithLoopBackobjects-Fromamodelscript
@@ -220,6 +219,7 @@ module.exports = function (StoreConfigModel) {
         function (error) {
           cb(error);
         });
+
   };
   StoreConfigModel.afterRemote('getVendAccessToken', function (ctx, remoteMethodResponse, next) {
     console.log('inside afterRemote:getVendAccessToken');
