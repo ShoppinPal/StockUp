@@ -44,6 +44,7 @@ services:
       - ./package.json:/apps/warehouse/package.json
       - ./npm-shrinkwrap.json:/apps/warehouse/npm-shrinkwrap.json
       - ./Gruntfile.js:/apps/warehouse/Gruntfile.js
+      - ./dev-entrypoint.sh:/apps/warehouse/dev-entrypoint.sh
     depends_on:
       - db
     healthcheck:
