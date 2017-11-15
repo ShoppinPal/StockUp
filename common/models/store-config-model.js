@@ -1,19 +1,17 @@
 var Promise = require('bluebird');
-var path = require('path');
-var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
-var log = require('./../lib/debug-extension')('common:models:' + fileName);
+var logger = require('sp-json-logger');
 
-module.exports = function(StoreConfigModel) {
+module.exports = function (StoreConfigModel) {
 
   // https://github.com/strongloop/loopback/issues/418
   // once a model is attached to the data source
-  StoreConfigModel.on('dataSourceAttached', function(obj){
+  StoreConfigModel.on('dataSourceAttached', function (obj) {
     // wrap the whole model in Promise
     // but we need to avoid 'validate' method
     StoreConfigModel = Promise.promisifyAll(
       StoreConfigModel,
       {
-        filter: function(name, func, target){
+        filter: function (name, func, target) {
           return !( name == 'validate');
         }
       }
@@ -21,12 +19,12 @@ module.exports = function(StoreConfigModel) {
   });
 
   /*StoreConfigModel.beforeValidate = function(next, modelInstance) {
-    console.log('inside StoreConfigModel.beforeValidate()');
-    console.log(modelInstance);
-    modelInstance.transactionFee = 0.1;
-    console.log(modelInstance);
-    next();
-  };*/
+   console.log('inside StoreConfigModel.beforeValidate()');
+   console.log(modelInstance);
+   modelInstance.transactionFee = 0.1;
+   console.log(modelInstance);
+   next();
+   };*/
 
   // TODO: Create a StoreConfigModel for UserModel (identify the owner via token)
   //       if this is exposed via remote method then there is no need to validate token as ACLs would have done it
@@ -39,21 +37,21 @@ module.exports = function(StoreConfigModel) {
     ],
     //http: {path: '/:id/:pos/:entity', verb: 'get'}
     http: {path: '/:id/vend/registers', verb: 'get'},
-    returns: {arg: 'registers', type: 'array', root:true}
+    returns: {arg: 'registers', type: 'array', root: true}
   });
-  StoreConfigModel.getVendRegisters = function(id, cb) {
+  StoreConfigModel.getVendRegisters = function (id, cb) {
     var currentUser = StoreConfigModel.getCurrentUserModel(cb); // returns  immediately if no currentUser
 
-    if(currentUser) {
+    if (currentUser) {
       //cb(null);
 
       // Is GlobalConfigModel already promise'fied? YES!!!
       /*var GlobalConfigModel = StoreConfigModel.app.models.GlobalConfigModel;
-      return GlobalConfigModel.findOne({})
-        .then(function(globalConfig) {
-          console.log('globalConfig', globalConfig);
-          cb(null);
-        });*/
+       return GlobalConfigModel.findOne({})
+       .then(function(globalConfig) {
+       console.log('globalConfig', globalConfig);
+       cb(null);
+       });*/
 
       var oauthVendUtil = require('./../../common/utils/vend')({
         'GlobalConfigModel': StoreConfigModel.app.models.GlobalConfigModel,
@@ -61,12 +59,12 @@ module.exports = function(StoreConfigModel) {
         'currentUser': currentUser
       });
       oauthVendUtil.getVendRegisters(id)
-        .then(function(registers){
-          cb(null, registers);
-        },
-        function(error){
-          cb(error);
-        });
+        .then(function (registers) {
+            cb(null, registers);
+          },
+          function (error) {
+            cb(error);
+          });
     }
   };
 
@@ -75,12 +73,12 @@ module.exports = function(StoreConfigModel) {
       {arg: 'id', type: 'string', required: true}
     ],
     http: {path: '/:id/vend/outlets', verb: 'get'},
-    returns: {arg: 'outlets', type: 'array', root:true}
+    returns: {arg: 'outlets', type: 'array', root: true}
   });
-  StoreConfigModel.getVendOutlets = function(id, cb) {
+  StoreConfigModel.getVendOutlets = function (id, cb) {
     var currentUser = StoreConfigModel.getCurrentUserModel(cb); // returns immediately if no currentUser
 
-    if(currentUser) {
+    if (currentUser) {
       var oauthVendUtil = require('./../../common/utils/vend')({
         'GlobalConfigModel': StoreConfigModel.app.models.GlobalConfigModel,
         'StoreConfigModel': StoreConfigModel,
@@ -88,12 +86,12 @@ module.exports = function(StoreConfigModel) {
       });
       // TODO: use it for something real!
       oauthVendUtil.getVendOutlets(id)
-        .then(function(outlets){
-          cb(null, outlets);
-        },
-        function(error){
-          cb(error);
-        });
+        .then(function (outlets) {
+            cb(null, outlets);
+          },
+          function (error) {
+            cb(error);
+          });
     }
   };
 
@@ -102,12 +100,12 @@ module.exports = function(StoreConfigModel) {
       {arg: 'id', type: 'string', required: true}
     ],
     http: {path: '/:id/vend/taxes', verb: 'get'},
-    returns: {arg: 'taxes', type: 'array', root:true}
+    returns: {arg: 'taxes', type: 'array', root: true}
   });
-  StoreConfigModel.getVendTaxes = function(id, cb) {
+  StoreConfigModel.getVendTaxes = function (id, cb) {
     var currentUser = StoreConfigModel.getCurrentUserModel(cb); // returns immediately if no currentUser
 
-    if(currentUser) {
+    if (currentUser) {
       var oauthVendUtil = require('./../../common/utils/vend')({
         'GlobalConfigModel': StoreConfigModel.app.models.GlobalConfigModel,
         'StoreConfigModel': StoreConfigModel,
@@ -115,12 +113,12 @@ module.exports = function(StoreConfigModel) {
       });
       // TODO: use it for something real!
       oauthVendUtil.getVendTaxes(id)
-        .then(function(taxes){
-          cb(null, taxes);
-        },
-        function(error){
-          cb(error);
-        });
+        .then(function (taxes) {
+            cb(null, taxes);
+          },
+          function (error) {
+            cb(error);
+          });
     }
   };
 
@@ -129,12 +127,12 @@ module.exports = function(StoreConfigModel) {
       {arg: 'id', type: 'string', required: true}
     ],
     http: {path: '/:id/vend/payment_types', verb: 'get'},
-    returns: {arg: 'payment_types', type: 'array', root:true}
+    returns: {arg: 'payment_types', type: 'array', root: true}
   });
-  StoreConfigModel.getVendPaymentTypes = function(id, cb) {
+  StoreConfigModel.getVendPaymentTypes = function (id, cb) {
     var currentUser = StoreConfigModel.getCurrentUserModel(cb); // returns immediately if no currentUser
 
-    if(currentUser) {
+    if (currentUser) {
       var oauthVendUtil = require('./../../common/utils/vend')({
         'GlobalConfigModel': StoreConfigModel.app.models.GlobalConfigModel,
         'StoreConfigModel': StoreConfigModel,
@@ -142,12 +140,12 @@ module.exports = function(StoreConfigModel) {
       });
       // TODO: use it for something real!
       oauthVendUtil.getVendPaymentTypes(id)
-        .then(function(paymentTypes){
-          cb(null, paymentTypes);
-        },
-        function(error){
-          cb(error);
-        });
+        .then(function (paymentTypes) {
+            cb(null, paymentTypes);
+          },
+          function (error) {
+            cb(error);
+          });
     }
   };
 
@@ -160,20 +158,49 @@ module.exports = function(StoreConfigModel) {
     http: {path: '/token/vend', verb: 'get'},
     returns: {arg: 'redirectUrl', type: 'string'}
   });
-  StoreConfigModel.getVendAccessToken = function(code, domainPrefix, state, cb) {
+
+  StoreConfigModel.afterRemote('getVendAccessToken', function (ctx, remoteMethodResponse, next) {
+    //console.log('inside afterRemote:getVendAccessToken');
+    logger.debug({log: {message: 'inside afterRemote:getVendAccessToken'}});
+    //console.log('ctx.result.redirectUrl: ' + ctx.result.redirectUrl);
+    logger.debug({
+      log: {
+        message: `ctx.result.redirectUrl: ${ctx.result.redirectUrl}`
+      }
+    })
+    //console.log('remoteMethodResponse.redirectUrl: ' + remoteMethodResponse.redirectUrl);
+    logger.debug({
+      log: {
+        message: `remoteMethodResponse.redirectUrl ${remoteMethodResponse.redirectUrl}`
+      }
+    });
+    ctx.res.redirect(301, remoteMethodResponse.redirectUrl);
+  });
+  StoreConfigModel.getVendAccessToken = function (code, domainPrefix, state, cb) {
     var currentUser = StoreConfigModel.getCurrentUserModel(cb); // returns immediately if no currentUser
 
     var oauthVendUtil = require('./../../common/utils/vend')({
       'StoreConfigModel': StoreConfigModel,
       'currentUser': currentUser
     });
-    console.log('inside getVendAccessToken(), args:' +
-      '\n code: ' + code +
-      '\n domainPrefix' + domainPrefix +
-      '\n state ' + state + // user's authN session token
-      //'\n baseUrl ' + StoreConfigModel.app.get('site').baseUrl +
-      '\n restApiRoot ' + StoreConfigModel.app.get('restApiRoot') +
-      '\n vend ' + StoreConfigModel.app.get('vend'));
+    // console.log('inside getVendAccessToken(), args:' +
+    //   '\n code: ' + code +
+    //   '\n domainPrefix' + domainPrefix +
+    //   '\n state ' + state + // user's authN session token
+    //   //'\n baseUrl ' + StoreConfigModel.app.get('site').baseUrl +
+    //   '\n restApiRoot ' + StoreConfigModel.app.get('restApiRoot') +
+    //   '\n vend ' + StoreConfigModel.app.get('vend'));
+    logger.debug({
+      log: {
+        message: 'inside getVendAccessToken()',
+        code: code,
+        domainPrefix: domainPrefix,
+        state: state,
+        baseUrl: StoreConfigModel.app.get('site').baseUrl,
+        restApiRoot: StoreConfigModel.app.get('restApiRoot'),
+        vend: StoreConfigModel.app.get('vend')
+      }
+    });
 
     // NOTE: You can get a reference to the app INSIDE remote methods, remote hooks,
     //       and model hooks because those are triggered after the application finishes loading.
@@ -185,15 +212,16 @@ module.exports = function(StoreConfigModel) {
       StoreConfigModel.app.get('restApiRoot'),
       StoreConfigModel.app.get('vend')
     )
-      .then(function(redirectUrl){
-        console.log('redirectUrl: ' + redirectUrl);
-        cb(null, redirectUrl);
-      },
-      function(error){
-        cb(error);
-      });
+      .then(function (redirectUrl) {
+          //console.log('redirectUrl: ' + redirectUrl);
+          logger.debug({log: {message: `redirectUrl ${redirectUrl}`}});
+          cb(null, redirectUrl);
+        },
+        function (error) {
+          cb(error);
+        });
   };
-  StoreConfigModel.afterRemote('getVendAccessToken', function(ctx, remoteMethodResponse, next) {
+  StoreConfigModel.afterRemote('getVendAccessToken', function (ctx, remoteMethodResponse, next) {
     console.log('inside afterRemote:getVendAccessToken');
     //console.log('ctx.result.redirectUrl: ' + ctx.result.redirectUrl);
     console.log('remoteMethodResponse.redirectUrl: ' + remoteMethodResponse.redirectUrl);
@@ -252,11 +280,6 @@ module.exports = function(StoreConfigModel) {
         return Promise.reject(error);
       });
   }
-
-
-
-
-
 
 
 };
