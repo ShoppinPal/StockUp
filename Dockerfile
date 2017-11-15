@@ -21,10 +21,10 @@ WORKDIR /apps/warehouse
 RUN npm install -g nodemon
 COPY package.json /apps/warehouse/package.json
 COPY npm-shrinkwrap.json /apps/warehouse/npm-shrinkwrap.json
-RUN npm install --production && npm install grunt-cli && npm install bower
-RUN mv /apps/warehouse/node_modules /apps/node_modules
+RUN npm install --production && npm install grunt-cli && npm install -g bower
+RUN cp -r /apps/warehouse/node_modules /apps/node_modules
 COPY . /apps/warehouse
-RUN ../node_modules/bower/bin/bower --allow-root install
+RUN bower --allow-root install
 ENV SCHEME=http
 # Disable the debug logs for warehouse
 #ENV DEBUG=shoppinpal:*,boot:*,common:models:*,server:*
