@@ -196,8 +196,8 @@ angular.module('ShoppinPalApp')
               case 'WORKER_NOTIFICATION':
                 notifyMe(notif);
                 $scope.socket.send(JSON.stringify({event: 'NOTIFICATION_RECEIVED_ACK', messageId: notif._id, payload: {}, userId: $sessionStorage.currentUser.userId}));
-                if (_.isArray($scope.reportLists)) {
-                  $scope.reportLists.forEach(function (report) {
+                if (_.isArray($scope.filteredLists)) {
+                  $scope.filteredLists.forEach(function (report) {
                     if (report.id === notif.reportId) {
                       // Update the row status
                       report.state = notif.payload.state;
@@ -205,7 +205,7 @@ angular.module('ShoppinPalApp')
                       console.log('Row status updated');
                     }
                   });
-                  console.log('rows', $scope.reportLists);
+                  console.log('rows', $scope.filteredLists);
                 }
                 console.log('notification ack sent');
               break;
