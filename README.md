@@ -104,29 +104,47 @@ docker-compose up --build --force-recreate
 
 # Remote Dev Machine
 
+1. [Setup dropbox on remote machine](https://training.shoppinpal.com/setup-box-on-azure/setup-dropbox-on-azure.html)
+1. On your remote machine, execute the instructions from the [Deploy](https://github.com/ShoppinPal/warehouse#deploy) section above.
+1. Setup project root directory as an environment variable:
+    * For example, if your cloned project resides at: `~/dev/warehouse`
+    * then go there first: `cd ~/dev/warehouse`
+    * then run the following command:
+
+      ```
+      export WAREHOUSE_HOME=`pwd` && echo $WAREHOUSE_HOME
+      ```
+1. To setup a project root that can survive across multiple ssh sessions, you can use the following:
+    * but make sure to change `~/dev/warehouse` in this command to your actual project path, if its different
+
+        ```
+        echo 'export WAREHOUSE_HOME=`echo ~/dev/warehouse`' >> ~/.bashrc && source ~/.bashrc && echo $WAREHOUSE_HOME
+        ```
+1. Before making our project sync-capable, let us add rules to prevent unnecessary stuff from syncing:
+
+        ```
+        mkdir -p ~/Dropbox/remote-dev/warehouse && \
+        cd ~/Dropbox && dropbox exclude add remote-dev/warehouse/node_modules && \
+        cd ~/Dropbox && dropbox exclude add remote-dev/warehouse/client/app/bower_components && \
+        cd ~/Dropbox && dropbox exclude add remote-dev/warehouse-workers/node_modules
+1. To check if they are now excluded, use `dropbox exclude list | grep remote-dev`
+    * if an incorrect path was excluded, you can fix it with: `dropbox exclude remove /the/path`
+1. Wire up your project root to be synced via Dropbox:
+    * go to your WAREHOUSE_HOME: `cd $WAREHOUSE_HOME`
+    * then run the following command:
+
+        ```
+        ln -s `pwd` ~/Dropbox/remote-dev/warehouse
+        ```
+1. When you check the status on your remote machine via your ssh terminal: `dropbox status` ... you will see that the sync has begun
+    ```
+    Syncing (353 files remaining)
+    Indexing 353 files...
+    ```
 1. Setup dropbox on local machine
-1. [Setup dropbx on remote machine](https://training.shoppinpal.com/setup-a-machine-in-the-cloud/setup-box/shared-filesystem/dropbox.html)
-1. Create a directory on your local machine to house any and all projects meant for remote development: `mkdir -p ~/Dropbox/rDev`
-1. Go to the directory where you cloned warehouse locally, for example: `cd ~/dev/warehouse`
-1. Then wire it up to your local Dropbox folder:
-
-    ```
-    ln -s `pwd` ~/Dropbox/rDev/warehouse
-    ```
-1. When you check the status on your remote machine/droplet via your ssh terminal: `~/bin/dropbox.py status` ... you will see that the sync has begun:
-
-    ```
-    ~/bin/dropbox.py status
-    Syncing (239 files remaining)
-    Downloading 239 files...
-    ```
-1. From now on whenever you work on your remote machine/droplet via your ssh terminal ... switch to the directory that has the sync enabled: `cd ~/Dropbox/rDev/warehouse/` to do your work.
-    * prevent remote machine from syncing unnecessary stuff to dropbox:
-
-        ```
-        cd ~/Dropbox && dropbox exclude add rDev/warehouse/node_modules
-        cd ~/Dropbox && dropbox exclude add rDev/warehouse/client/app/bower_components
-        cd ~/Dropbox && dropbox exclude add rDev/warehouse-workers/node_modules
-        ```
+1. Dropbox's autosync will create a directory on your local machine, you can jump into it
+    * make sure to run this command on your local terminal (NOT the ssh remote terminal): `cd ~/Dropbox/remote-dev/warehouse`
+    * open your favorite IDE and start working
+        * for exammple, visual studio can be opened with: `code ~/Dropbox/remote-dev/warehouse`
 1. On your local machine use `selective sync` via the dropbox UI to prevent the transfer of bulky dependencies back to your local filesystem. Go ahead and exclude `node_modules` and `bower_components` etc from being synced back to your machine. This is all done via UI so it should be very easy.
     * `dropbox > preferences > account > selective sync > change settings...`
