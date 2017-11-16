@@ -7,7 +7,7 @@ var _ = require('underscore');
 var path = require('path');
 var modulePath = require('loopback-connector-mongodb/lib/mongodb'); // yogesh: Change this to proper module dependency
 var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
-//var log = require('./../lib/debug-extension')('common:models:' + fileName);
+var log = require('./../lib/debug-extension')('common:models:' + fileName);
 var logger = require('sp-json-logger');
 
 module.exports = function (ReportModel) {
@@ -332,7 +332,7 @@ module.exports = function (ReportModel) {
               // log.debug(commandName + ' > filter & dilute the search results to match the inventory for store and supplier tied with this report');
               // log.debug(commandName + ' > results products.length: ' + results.products.length);
               logger.debug({log: {
-                commandName: commandName, 
+                commandName: commandName,
                 message: `${commandName} filter & dilute the search results to match the inventory for store and supplier tied with this report`,
                 productsLength: results.product.length
               }});
@@ -377,14 +377,14 @@ module.exports = function (ReportModel) {
                 if (dilutedProducts[0].sku !== sku) {
                   var error = new Error('No exact matches found for given SKU. Comparison is case-sensitive.');
                   error.statusCode = 400;
-                  log.error(commandName + ' > ', error.statusCode, error.message);
+                  logger.error(commandName + ' > ', error.statusCode, error.message);
                   return cb(error);
                 }
                 else {
                   // add an instance of StockOrderLineitemModel to the report
                   //log.debug(commandName + ' > putting together data to create a StockOrderLineitemModel from:', dilutedProduct);
                   logger.debug({log: {
-                    commandName: commandName, 
+                    commandName: commandName,
                     message: `${commandName} > putting together data to create a StockOrderLineitemModel from dilutedProduct`,
                     dilutedProduct: dilutedProduct
                     }});
@@ -455,8 +455,8 @@ module.exports = function (ReportModel) {
                       error.statusCode = 400;
                       //log.error(commandName + ' > ', error.statusCode, error.message);
                       logger.error({
-                        err: error, 
-                        commandName: commandName, 
+                        err: error,
+                        commandName: commandName,
                         statusCode: error.statusCode,
                         message: error.message});
                       return cb(error);
@@ -491,9 +491,9 @@ module.exports = function (ReportModel) {
                 error.statusCode = 400;
                 //log.error(commandName + ' > ', error.statusCode, error.message);
                 logger.error({
-                  err: error, 
+                  err: error,
                   statusCode: error.statusCode,
-                  commandName: commandName, 
+                  commandName: commandName,
                   message: error.message
                 });
                 return cb(error);
@@ -503,9 +503,9 @@ module.exports = function (ReportModel) {
                 error.statusCode = 400;
                 //log.error(commandName + ' > ', error.statusCode, error.message);
                 logger.error({
-                  err: error, 
+                  err: error,
                   statusCode: error.statusCode,
-                  commandName: commandName, 
+                  commandName: commandName,
                   message: error.message
                 });
                 return cb(error);
@@ -1015,7 +1015,7 @@ module.exports = function (ReportModel) {
                     // log.debug('inside setReportStatus() - updated the report model (assuming generated order)' +
                     //   ' - will kick off a worker to removeUnfulfilledProducts');
                     logger.debug({log: {
-                      message: 'inside setReportStatus() - updated the report model (assuming generated order)  - will kick off a worker to removeUnfulfilledProducts' 
+                      message: 'inside setReportStatus() - updated the report model (assuming generated order)  - will kick off a worker to removeUnfulfilledProducts'
                     }});
 
                     // (a) submit long running task as a job to iron
@@ -1127,7 +1127,7 @@ module.exports = function (ReportModel) {
                           // log.debug('inside setReportStatus() - updated the report model' +
                           //   ' removeUnreceivedProducts > payload sent > return the updated ReportModel');
                           logger.debug({log: {
-                            message: 'inside setReportStatus() - updated the report model' + 
+                            message: 'inside setReportStatus() - updated the report model' +
                             ' removeUnreceivedProducts > payload sent > return the updated ReportModel'
                           }});
                           cb(null, updatedReportModelInstance);

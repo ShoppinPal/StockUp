@@ -24,27 +24,27 @@ module.exports = function (Container) {
     Container.getContainer(userId, function (err1, container1) {
       if (err1) {
         if (err1.code === 'ENOENT') {
-          log.debug('Container > beforeRemote > upload > Container does not exist > let us create a new one');
+          logger.debug({log: { message: 'Container > beforeRemote > upload > Container does not exist > let us create a new one'}});
           Container.createContainer({name: userId}, function (err2, container2) {
             if (err2) {
-              log.debug('Container > beforeRemote > upload > Could not create a new container > unexpected error', err2);
+              logger.debug({log: { message: 'Container > beforeRemote > upload > Could not create a new container > unexpected error', error: err2 }});
               console.error(err2);
               next(err2);
             }
             else {
-              log.debug('Container > beforeRemote > upload > Created a new container', container2.name);
+              logger.debug({log: { message: `Container > beforeRemote > upload > Created a new container ${container2.name}` }});
               next();
             }
           });
         }
         else {
-          log.debug('Container > beforeRemote > upload > Container does not exist > unexpected error', err1);
+          logger.debug({log: { message: 'Container > beforeRemote > upload > Container does not exist > unexpected error', error: err1 }});
           console.error(err1);
           next(err1);
         }
       }
       else {
-        log.debug('Container > beforeRemote > upload > Container already exists', container1.name);
+        logger.debug({log: {message: `Container > beforeRemote > upload > Container already exists ${container1.name}` }});
         next();
       }
     });
@@ -130,7 +130,7 @@ module.exports = function (Container) {
                     //create empty reports for all stores and store them in ReportModel
                     return createReportModelForExcelWithoutSupplier(singleOrder, Container, next)
                       .then(function (reportModelInstance) {
-                        console.log(reportModelInstance);
+                        logger.debug({reportModelInstance: reportModelInstance});
 
                         _.each(singleOrder.items, function (excelRowAsObject) {
                           excelRowAsObject.reportId = reportModelInstance.id;
@@ -270,16 +270,16 @@ module.exports = function (Container) {
                             var UserModel = Container.app.models.UserModel;
                             return UserModel.findById(reportModelInstance.userModelToReportModelId)
                               .then(function (userModelInstance) {
-                                log.trace('userModelInstance', userModelInstance);
+                                logger.trace({log: {message: 'userModelInstance', userModelInstance: userModelInstance }});
 
-                                log.debug('(1) generate a token for the worker to use on the currentUser\'s behalf');
+                                logger.debug({log: {message: '(1) generate a token for the worker to use on the currentUser\'s behalf' }});
                                 return userModelInstance.createAccessTokenAsync(1209600)// can't be empty ... time to live (in seconds) 1209600 is 2 weeks (default of loopback)
                                   .then(function (newAccessToken) {
-                                    log.debug('(2) fetch the report, store and store-config');
+                                    logger.debug({log: {message: '(2) fetch the report, store and store-config' }});
                                     var ReportModel = Container.app.models.ReportModel;
                                     return ReportModel.getAllRelevantModelInstancesForReportModel(reportModelInstance.id)
                                       .spread(function (reportModelInstance, storeModelInstance, storeConfigInstance) {
-                                        log.debug('(3) extract domainPrefix from store-config\'s posUrl');
+                                        logger.debug({log: {message: '(3) extract domainPrefix from store-config\'s posUrl' }});
                                         var posUrl = storeConfigInstance.posUrl;
                                         var regexp = /^https?:\/\/(.*)\.vendhq\.com$/i;
                                         var matches = posUrl.match(regexp);
@@ -295,7 +295,7 @@ module.exports = function (Container) {
 
                                         return ReportModel.sendPayload(reportModelInstance, options, next)
                                           .then(function (updatedReportModelInstance) {
-                                            log.trace('updatedReportModelInstance:', updatedReportModelInstance);
+                                            logger.trace({log: {message: 'updatedReportModelInstance:', updatedReportModelInstance: updatedReportModelInstance }});
                                             //next();
                                           });
                                       });
@@ -334,7 +334,7 @@ module.exports = function (Container) {
     }
     else if (fileExtension[1].toLowerCase() === 'csv') {
 
-      log.debug('Converting csv to json');
+      logger.debug({log: { message: 'Converting csv to json' }});
       var Converter = require('csvtojson').Converter;
       var converter = new Converter({constructResult: true}); //new converter instance
 
@@ -353,7 +353,7 @@ module.exports = function (Container) {
       });
 
       converter.on('error', function (error) {
-        log.error('Could not parse csv information', error);
+        logger.error({err: error, message:'Could not parse csv information' });
         next('Could not parse csv information');
       });
 
@@ -391,16 +391,16 @@ module.exports = function (Container) {
                 //TODO: it sends the wrong userId when report is generated from file import
                 UserModel.findById(reportModelInstance.userModelToReportModelId)
                   .then(function (userModelInstance) {
-                    log.trace('userModelInstance', userModelInstance);
+                    logger.trace({log: {message: 'userModelInstance', userModelInstance: userModelInstance }});
 
-                    log.debug('(1) generate a token for the worker to use on the currentUser\'s behalf');
+                    logger.debug({log: { message: '(1) generate a token for the worker to use on the currentUser\'s behalf' }});
                     userModelInstance.createAccessTokenAsync(1209600)// can't be empty ... time to live (in seconds) 1209600 is 2 weeks (default of loopback)
                       .then(function (newAccessToken) {
-                        log.debug('(2) fetch the report, store and store-config');
+                        logger.debug({log: {message: '(2) fetch the report, store and store-config' }});
                         var ReportModel = Container.app.models.ReportModel;
                         ReportModel.getAllRelevantModelInstancesForReportModel(reportModelInstance.id)
                           .spread(function (reportModelInstance, storeModelInstance, storeConfigInstance) {
-                            log.debug('(3) extract domainPrefix from store-config\'s posUrl');
+                            logger.debug({log: {message: '(3) extract domainPrefix from store-config\'s posUrl' }});
                             var posUrl = storeConfigInstance.posUrl;
                             var regexp = /^https?:\/\/(.*)\.vendhq\.com$/i;
                             var matches = posUrl.match(regexp);
@@ -423,7 +423,7 @@ module.exports = function (Container) {
 
                             ReportModel.sendPayload(reportModelInstance, options, next)
                               .then(function (updatedReportModelInstance) {
-                                log.trace('updatedReportModelInstance:', updatedReportModelInstance);
+                                logger.trace({log: {message: 'updatedReportModelInstance:', updatedReportModelInstance: updatedReportModelInstance }});
                                 next();
                               });
                           });
@@ -479,9 +479,9 @@ module.exports = function (Container) {
         });
       })
       .then(function (supplierModelInstance) {
-        log.trace('supplierModelInstance', supplierModelInstance);
+        logger.trace({log: {message: 'supplierModelInstance', supplierModelInstance: supplierModelInstance }});
         if (!supplierModelInstance.length) {
-          log.debug('Could not find a supplier, will create report without supplier');
+          logger.debug({log: {message: 'Could not find a supplier, will create report without supplier' }});
           //create a report without supplier
           supplierModelInstance[0] = {
             apiId: null,
@@ -512,7 +512,7 @@ module.exports = function (Container) {
         });
       })
       .catch(function (error) {
-        log.error('Error creating report', error);
+        logger.error({ err: error, message: 'Error creating report' });
         return Promise.reject('Error creating report', error);
       });
   };

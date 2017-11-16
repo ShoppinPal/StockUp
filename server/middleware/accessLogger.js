@@ -3,18 +3,16 @@
 var path = require('path');
 var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 var log = require('./../../common/lib/debug-extension')('server:middleware:'+fileName);
+var logger = require('sp-json-logger');
 
 module.exports = function() {
   return function accessLogger(req, res, next) {
     // enable audit log for API
     if (req.accessToken) {
-      log.debug('req', req.method, req.originalUrl,
-        //'\n\t', 'userId:', req.accessToken.id,
-        /*'\n\t',*/ 'token:', JSON.stringify(req.accessToken,null,0)
-      );
+      logger.debug({log: {req: { method: req.method, originUrl: req.originalUrl, accessToken: req.accessToken }}});
     }
     else {
-      log.debug('req', req.method, req.originalUrl);
+      logger.debug({log: {req: { method: req.method, originUrl: req.originalUrl }}});
     }
 
     // http://www.senchalabs.org/connect/responseTime.html
@@ -27,15 +25,15 @@ module.exports = function() {
     // install a listener for when the response is finished
     res.on('finish', function() { // the request was handled, print the log entry
       var duration = new Date - start;
-      log.debug('res', req.method, req.originalUrl,
-        JSON.stringify({
-          lbHttpMethod:req.method,
-          lbUrl:req.originalUrl,
-          lbStatusCode:res.statusCode,
-          lbResponseTime:duration,
-          lbResponseTimeUnit:'ms'
-        },null,0)
-      );
+      logger.debug({log: { res: {
+        method: req.method,
+        originUrl: req.originalUrl,
+        lbHttpMethod: req.method,
+        lbUrl: req.originalUrl,
+        lbStatusCode: res.statusCode,
+        lbResponseTime: duration,
+        lbResponseTimeUnit: 'ms'
+      }}});
     });
 
     // resume the routing pipeline,

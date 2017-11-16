@@ -2,6 +2,7 @@
 
 // DEBUG=boot:create-model-instances slc run
 var debug = require('debug')('boot:create-model-instances');
+var logger = require('sp-json-logger');
 
 var Promise = require('bluebird');
 var _ = require('underscore');
