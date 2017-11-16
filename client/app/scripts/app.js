@@ -153,18 +153,9 @@ angular.module('ShoppinPalApp',[
   .run(['$rootScope', '$sessionStorage', '$state', '$timeout', '$interval', '$socket',
     function($rootScope, $sessionStorage, $state, $timeout, $interval, $socket){
 
-      // $socket.setHandler('open', function() {
-      //   console.log('app.js', 'socket:open', JSON.stringify($socket));
-      //   $socket.send(JSON.stringify({event: 'USER_AUTHENTICATE', payload: 'test', userId: 'angular'}));
-      // });
-      //$rootScope.socket = $socket;
       $socket.setHandler('error', function(message) {
         console.error('app.js', 'socket:error', message);
       });
-
-      // $socket.setHandler('close', function() {
-      //   console.log('app.js', 'socket:closed');
-      // });
 
       $rootScope.$on('$stateChangeStart', function(event, toState){
         if(toState.authenticate && !$sessionStorage.currentUser) {
