@@ -123,7 +123,7 @@ docker-compose up --build --force-recreate
 1. Before making our project sync-capable, let us add rules to prevent unnecessary stuff from syncing:
 
         ```
-        mkdir -p ~/Dropbox/remote-dev/warehouse && \
+        mkdir -p ~/Dropbox/remote-dev/ && \
         cd ~/Dropbox && dropbox exclude add remote-dev/warehouse/.git
         cd ~/Dropbox && dropbox exclude add remote-dev/warehouse/node_modules && \
         cd ~/Dropbox && dropbox exclude add remote-dev/warehouse/client/app/bower_components && \
