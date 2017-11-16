@@ -326,6 +326,7 @@ module.exports = function (grunt) {
             {
               json: {
                 apiKey: '<%= buildProperties.prestashop.apiKey %>',
+                notificationUrl: '<%= buildProperties.site.notificationUrl %>',
                 baseUrl: '<%= buildProperties.site.baseUrl %>',
                 loopbackApiRoot: '<%= buildProperties.restApiRoot %>',
                 proxyUrl: '<%= buildProperties.site.proxyUrl %>',
@@ -484,7 +485,7 @@ module.exports = function (grunt) {
     }
     grunt.option('environment', env);
     grunt.task.run([
-      'jshint',
+      //'jshint',
       'loadConfig:' + env,
       'loopback_sdk_angular',
       'clean:dist',

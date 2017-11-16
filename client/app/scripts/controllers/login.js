@@ -40,6 +40,7 @@ angular.module('ShoppinPalApp')
           .$promise.then(function(accessToken){
             console.log('accessToken', accessToken);
             $sessionStorage.currentUser = accessToken;
+            $scope.socket.send(JSON.stringify({event: 'USER_AUTHENTICATE', payload: 'test', userId: $sessionStorage.currentUser.userId}));
             console.log('sessiontoken:', $sessionStorage.currentUser.id);
             return UserModel.prototype$__get__roles({id: $sessionStorage.currentUser.userId}) // jshint ignore:line
               .$promise.then(function(roles){

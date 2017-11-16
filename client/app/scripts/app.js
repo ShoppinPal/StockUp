@@ -3,6 +3,7 @@
 angular.module('ShoppinPalApp',[
   'angularFileUpload'
   ,'cgBusy'
+  ,'bd.sockjs'
   ,'geocoder'
   ,'mgcrea.ngStrap'
   ,'ngAnimate'
@@ -20,13 +21,14 @@ angular.module('ShoppinPalApp',[
   ,'shoppinpal-vend'
   ,'sp-alerts'
   ,'sp-formatters'
+  ,'ui-notification'
   ,'ui.router'
   ,'ui.utils'
 ])
 
   .config([
-    '$stateProvider', '$urlRouterProvider', 'LoopBackResourceProvider', 'baseUrl', 'loopbackApiRoot',
-    function ($stateProvider, $urlRouterProvider, LoopBackResourceProvider, baseUrl, loopbackApiRoot) {
+    '$stateProvider', '$urlRouterProvider', 'LoopBackResourceProvider', 'NotificationProvider', 'baseUrl', 'loopbackApiRoot', 'notificationUrl',
+    function ($stateProvider, $urlRouterProvider, LoopBackResourceProvider, NotificationProvider, baseUrl, loopbackApiRoot, notificationUrl) {
       $stateProvider
         .state('login', {
           url: '/login',
@@ -92,11 +94,68 @@ angular.module('ShoppinPalApp',[
 
       // Configure backend URL
       LoopBackResourceProvider.setUrlBase(baseUrl + loopbackApiRoot);
+      console.log(notificationUrl + '?token=qwerty');
+
+      NotificationProvider.setOptions({
+        delay: 15000,
+        startTop: 20,
+        startRight: 10,
+        verticalSpacing: 20,
+        horizontalSpacing: 20,
+        positionX: 'right',
+        positionY: 'top'
+      });
     }
   ])
+  .factory('$socket', function (socketFactory, notificationUrl, $rootScope, $sessionStorage) {
+    var sockjs = new SockJS(notificationUrl + '?token=qwerty');
+    var timerId = null;
 
-  .run(['$rootScope', '$sessionStorage', '$state', '$timeout', '$interval',
-    function($rootScope, $sessionStorage, $state, $timeout, $interval){
+    sockjs.onopen = function () {
+      console.log('websocket connected');
+    }
+    sockjs.onclose = function () {
+      reconnect();
+    }
+
+    var socket = socketFactory({
+      socket: sockjs
+    });
+
+    function reconnect() {
+      console.log('reconnect called');
+      timerId = setInterval(function () {
+        sockjs = new SockJS(notificationUrl + '?token=qwerty');
+        //registerListeners(sockjs, timerId);
+        sockjs.onopen = function () {
+          clearInterval(timerId);
+          sockjs.send(JSON.stringify({ event: 'USER_AUTHENTICATE', payload: 'test', userId: $sessionStorage.currentUser.userId }));
+          console.log('websocket re-connected...')
+          var socket = socketFactory({
+            socket: sockjs
+          });
+
+          $rootScope.socket = socket;
+          $rootScope.$apply();
+          console.log('Root scope updated');
+          sockjs.onclose = function () {
+            reconnect();
+          }
+        }
+      }, 1000 * 10);
+    }
+      
+    $rootScope.socket = socket;
+    $rootScope.$apply();
+    return socket;
+  })
+
+  .run(['$rootScope', '$sessionStorage', '$state', '$timeout', '$interval', '$socket',
+    function($rootScope, $sessionStorage, $state, $timeout, $interval, $socket){
+
+      $socket.setHandler('error', function(message) {
+        console.error('app.js', 'socket:error', message);
+      });
 
       $rootScope.$on('$stateChangeStart', function(event, toState){
         if(toState.authenticate && !$sessionStorage.currentUser) {
