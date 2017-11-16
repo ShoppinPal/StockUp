@@ -82,7 +82,8 @@
     "node": "6.11.1"
   },
   "scripts": {
-    "postinstall": "echo -n $NODE_ENV | grep -v 'production' && ./node_modules/protractor/bin/webdriver-manager update || echo 'will NOT run webdriver install or update'"
+    "postinstall": "echo -n $NODE_ENV | grep -v 'production' && ./node_modules/protractor/bin/webdriver-manager update || echo 'will NOT run webdriver install or update'",
+    "lb-sdk": "../node_modules/grunt-cli/bin/grunt loopback_sdk_angular"
   },
   "main": "server/server.js"
 }
