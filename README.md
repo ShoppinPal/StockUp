@@ -124,6 +124,7 @@ docker-compose up --build --force-recreate
 
         ```
         mkdir -p ~/Dropbox/remote-dev/warehouse && \
+        cd ~/Dropbox && dropbox exclude add remote-dev/warehouse/.git
         cd ~/Dropbox && dropbox exclude add remote-dev/warehouse/node_modules && \
         cd ~/Dropbox && dropbox exclude add remote-dev/warehouse/client/app/bower_components && \
         cd ~/Dropbox && dropbox exclude add remote-dev/warehouse-workers/node_modules
@@ -136,6 +137,7 @@ docker-compose up --build --force-recreate
         ```
         ln -s `pwd` ~/Dropbox/remote-dev/warehouse
         ```
+    * make sure it worked: `ls -alrt ~/Dropbox/remote-dev/warehouse`
 1. When you check the status on your remote machine via your ssh terminal: `dropbox status` ... you will see that the sync has begun
     ```
     Syncing (353 files remaining)
@@ -145,6 +147,6 @@ docker-compose up --build --force-recreate
 1. Dropbox's autosync will create a directory on your local machine, you can jump into it
     * make sure to run this command on your local terminal (NOT the ssh remote terminal): `cd ~/Dropbox/remote-dev/warehouse`
     * open your favorite IDE and start working
-        * for exammple, visual studio can be opened with: `code ~/Dropbox/remote-dev/warehouse`
+        * for example, visual studio can be opened with: `code ~/Dropbox/remote-dev/warehouse`
 1. On your local machine use `selective sync` via the dropbox UI to prevent the transfer of bulky dependencies back to your local filesystem. Go ahead and exclude `node_modules` and `bower_components` etc from being synced back to your machine. This is all done via UI so it should be very easy.
     * `dropbox > preferences > account > selective sync > change settings...`
