@@ -27,8 +27,8 @@ COPY . /apps/warehouse
 RUN bower --allow-root install
 ENV SCHEME=http
 # Disable the debug logs for warehouse
-#ENV DEBUG=shoppinpal:*,boot:*,common:models:*,server:*
+ENV DEBUG=shoppinpal:*,boot:*,common:models:*,server:*
 HEALTHCHECK --interval=1m --timeout=3s --start-period=1m CMD curl -f http://localhost:3000/api/StoreModels || exit 1
 ENTRYPOINT [ "./dev-entrypoint.sh" ]
 EXPOSE 3000
-#CMD [ "nodemon","server/server.js" ]
+CMD [ "node","server/server.js" ]
