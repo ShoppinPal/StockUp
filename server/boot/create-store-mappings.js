@@ -1,6 +1,7 @@
 'use strict';
 
 var debug = require('debug')('boot:create-store-mappings');
+var logger = require('sp-json-logger');
 
 var Promise = require('bluebird');
 
@@ -12,16 +13,22 @@ function createStoreMappings(app, cb){
   try {
     seed = require('./seed.json');
     if(process.env.SKIP_SEEDING) {
-      debug('Will skip the database seeding process');
+      //debug('Will skip the database seeding process');
+      logger.debug({log: {message: 'Will skip the database seeding process' }});
       return cb();
     }
   } catch (err) {
-    debug('Please configure your data in `seed.json`.');
-    debug('Copy `seed.json.template` to `seed.json` and replace the values with your own.');
+    // debug('Please configure your data in `seed.json`.');
+    // debug('Copy `seed.json.template` to `seed.json` and replace the values with your own.');
+    logger.debug({log: {
+      message: `Please configure your data in 'seed.json'.\n
+      Copy 'seed.json.template' to 'seed.json' and replace the values with your own.`
+    }});
     cb(err);
   }
   if(seed){
-    debug('seed each store-mapping, one-by-one');
+    //debug('seed each store-mapping, one-by-one');
+    logger.debug({log: {message: 'seed each store-mapping, one-by-one' }});
     Promise.map(
       seed.storeConfigModels,
       function (storeData) {
@@ -33,8 +40,10 @@ function createStoreMappings(app, cb){
               oneMapping
             )
               .spread(function(mappingModelInstance,created){
-                (created) ? debug('mapping created', 'StoreMappingModel', mappingModelInstance)
-                          : debug('mapping found', 'StoreMappingModel', mappingModelInstance);
+                // (created) ? debug('mapping created', 'StoreMappingModel', mappingModelInstance)
+                //           : debug('mapping found', 'StoreMappingModel', mappingModelInstance);
+                (created) ? logger.debug({log: {message: 'mapping created', storeMappingModel: mappingModelInstance }})
+                : logger.debug({log: {message: 'mapping found', storeMappingModel: mappingModelInstance }});
                 return Promise.resolve();
               });
           },
@@ -44,11 +53,12 @@ function createStoreMappings(app, cb){
       {concurrency:1}
     )
     .then(function(){
-      debug('Done with seeding mappings');
+      logger.debug({message: 'Done with seeding mappings'});
       cb();
     })
     .catch(function(err){
-      debug('error', err);
+      //debug('error', err);
+      logger.error({err: error});
       cb(err);
     });
   }

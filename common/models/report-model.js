@@ -866,13 +866,15 @@ module.exports = function (ReportModel) {
                 console.error(error);
                 return cb(error);
               }
-              log.debug(JSON.stringify(body, null, 2));
+              //log.debug(JSON.stringify(body, null, 2));
+              logger.debug({log: {body: body }});
               //return cb(null, body);
               return reportModelInstance.updateAttributes({
                 workerStatus: body.status //body.msg || body.status
               })
                 .then(function (updatedReportModelInstance) {
-                  log.debug('return the updated ReportModel');
+                  //log.debug('return the updated ReportModel');
+                  logger.debug({log: {message: 'return the updated ReportModel' }});
                   cb(null, updatedReportModelInstance);
                 });
             });
