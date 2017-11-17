@@ -444,10 +444,12 @@ module.exports = function(app, cb) {
       } // end of try-block
       catch (e) {
         if(e.stack) {
-          console.trace(e.stack);
+          //console.trace(e.stack);
+          logger.error({err: e});
         }
         else {
-          console.trace(e);
+          //console.trace(e);
+          logger.trace({log: {error: e}});
         }
         cb(e);
       } // end of catch-block
