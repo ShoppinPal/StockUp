@@ -1,17 +1,20 @@
 import {NgModule} from '@angular/core';
 import {Routes, RouterModule} from '@angular/router';
+import {UserResolverService} from './shared/services/user-resolver.service';
 
 // Import Containers
 import {
-  FullLayoutComponent,
-  SimpleLayoutComponent
+  FullLayoutComponent
 } from './containers';
 
 export const routes: Routes = [
   {
     path: '',
     component: FullLayoutComponent,
-    loadChildren: './home/home.module#HomeModule'
+    loadChildren: './home/home.module#HomeModule',
+    resolve: {
+      user: UserResolverService
+    }
   },
   {
     path: 'login',

@@ -6,12 +6,14 @@ import { HomeComponent } from './home/home.component';
 
 import { StoresModule } from '../stores/stores.module';
 import { PaymentsModule } from '../payments/payments.module';
+import { SharedModule } from './../shared/shared.module';
 
 
 @NgModule({
   imports: [
     CommonModule,
     HomeRoutingModule,
+    SharedModule,
     StoresModule,
     PaymentsModule
   ],

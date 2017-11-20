@@ -1,8 +1,8 @@
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { LocationStrategy, HashLocationStrategy } from '@angular/common';
+import {BrowserModule} from '@angular/platform-browser';
+import {NgModule} from '@angular/core';
+import {LocationStrategy, HashLocationStrategy} from '@angular/common';
 
-import { AppComponent } from './app.component';
+import {AppComponent} from './app.component';
 
 // Import containers
 import {
@@ -59,22 +59,34 @@ const APP_DIRECTIVES = [
 ]
 
 // Import routing module
-import { AppRoutingModule } from './app.routing';
+import {AppRoutingModule} from './app.routing';
 
 // Import 3rd party components
-import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
-import { TabsModule } from 'ngx-bootstrap/tabs';
-import { ChartsModule } from 'ng2-charts/ng2-charts';
-import { SDKBrowserModule } from './shared/lb-sdk/index';
+import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
+import {ChartsModule} from 'ng2-charts/ng2-charts';
+import {LoadingModule, ANIMATION_TYPES} from 'ngx-loading';
+import {SDKBrowserModule} from './shared/lb-sdk/index';
+import {SharedModule} from './shared/shared.module';
+import {TabsModule} from 'ngx-bootstrap/tabs';
 
 @NgModule({
   imports: [
-    BrowserModule,
     AppRoutingModule,
+    BrowserModule,
     BsDropdownModule.forRoot(),
-    TabsModule.forRoot(),
     ChartsModule,
-    SDKBrowserModule.forRoot()
+    LoadingModule.forRoot({
+      animationType: ANIMATION_TYPES.rotatingPlane,
+      backdropBackgroundColour: 'rgba(0,0,0,0.1)',
+      backdropBorderRadius: '4px',
+      primaryColour: '#ffffff',
+      fullScreenBackdrop: true,
+      secondaryColour: '#ffffff',
+      tertiaryColour: '#ffffff'
+    }),
+    SDKBrowserModule.forRoot(),
+    SharedModule.forRoot(),
+    TabsModule.forRoot()
   ],
   declarations: [
     AppComponent,
@@ -87,6 +99,7 @@ import { SDKBrowserModule } from './shared/lb-sdk/index';
     provide: LocationStrategy,
     useClass: HashLocationStrategy
   }],
-  bootstrap: [ AppComponent ]
+  bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+}
