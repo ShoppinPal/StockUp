@@ -20,7 +20,7 @@ RUN chown -R node:node /apps/warehouse
 WORKDIR /apps/warehouse/admin
 COPY admin/package.json /apps/warehouse/admin/package.json
 RUN npm install
-RUN npm run admin
+#RUN npm run admin
 WORKDIR /apps/warehouse
 COPY package.json /apps/warehouse/package.json
 RUN npm install
