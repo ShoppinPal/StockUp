@@ -76,12 +76,12 @@ import {TabsModule} from 'ngx-bootstrap/tabs';
     BsDropdownModule.forRoot(),
     ChartsModule,
     LoadingModule.forRoot({
-      animationType: ANIMATION_TYPES.rotatingPlane,
-      backdropBackgroundColour: 'rgba(0,0,0,0.1)',
+      animationType: ANIMATION_TYPES.threeBounce,
+      backdropBackgroundColour: '#00000096',
       backdropBorderRadius: '4px',
-      primaryColour: '#ffffff',
+      primaryColour: '#20a8d8',
       fullScreenBackdrop: true,
-      secondaryColour: '#ffffff',
+      secondaryColour: '#20a8d89c',
       tertiaryColour: '#ffffff'
     }),
     SDKBrowserModule.forRoot(),

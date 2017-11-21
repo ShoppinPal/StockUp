@@ -1,5 +1,8 @@
 import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {Router, ActivatedRoute} from '@angular/router';
+import {UserModelApi} from '../../shared/lb-sdk/services';
+import {BASE_URL, API_VERSION} from '../../shared/base.url';
+import {LoopBackConfig}        from '../../shared/lb-sdk/lb.config';
 
 @Component({
   selector: 'app-header',
@@ -8,9 +11,13 @@ import {ActivatedRoute} from '@angular/router';
 export class AppHeaderComponent implements OnInit {
 
   public user: any;
+  public loading = false;
 
-  constructor(private _route: ActivatedRoute) {
+  constructor(private userModelApi: UserModelApi, private _router: Router, private _route: ActivatedRoute) {
+    LoopBackConfig.setBaseURL(BASE_URL);
+    LoopBackConfig.setApiVersion(API_VERSION);
   }
+
 
   ngOnInit() {
     this.getRouteData()
@@ -24,5 +31,16 @@ export class AppHeaderComponent implements OnInit {
         console.log('error in fetching user data', error);
       });
   }
+
+  logout() {
+    this.loading = true;
+    this.userModelApi.logout().subscribe((res => {
+      this.loading = false;
+      this._router.navigate(['/login']);
+    }),
+    err => {
+      console.log('Couldn\'t logout due to error', err);
+    });
+  };
 
 }
