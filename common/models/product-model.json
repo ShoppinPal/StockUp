@@ -1,0 +1,32 @@
+{
+  "name": "ProductModel",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "sku": {
+      "type": "string",
+      "required": true
+    },
+    "api_id": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "supplierModel": {
+      "type": "belongsTo",
+      "model": "SupplierModel",
+      "foreignKey": "supplierId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}
