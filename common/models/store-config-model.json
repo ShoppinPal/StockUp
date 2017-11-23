@@ -2,6 +2,9 @@
   "name": "StoreConfigModel",
   "base": "PersistedModel",
   "idInjection": false,
+  "mixins": {
+    "Utils": true
+  },
   "properties": {
     "objectId": {
       "type": "number",
@@ -127,8 +130,5 @@
       "property": "getVendAccessToken"
     }
   ],
-  "methods": [],
-  "mixins": {
-    "Utils": true
-  }
+  "methods": {}
 }

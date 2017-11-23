@@ -75,5 +75,9 @@
   "StoreMappingModel": {
     "dataSource": "db",
     "public": false
+  },
+  "ProductModel": {
+    "dataSource": "db",
+    "public": false
   }
 }

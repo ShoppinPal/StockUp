@@ -3,34 +3,29 @@
     "loopback#favicon": {},
     "loopback#context": {},
     "loopback#token": {
-      "params": ["state"]
+      "params": [
+        "state"
+      ]
     },
     "./middleware/userContext": {}
   },
   "initial": {
     "compression": {}
   },
-  "session": {
-  },
-  "auth": {
-  },
-  "parse": {
-  },
+  "session": {},
+  "auth": {},
+  "parse": {},
   "routes:before": {
     "./middleware/accessLogger": {
       "paths": "/api/*"
     }
   },
-  "routes": {
-  },
   "files": {
     "loopback#static": [
       {
-        "name": "tmp",
         "params": "$!../.tmp"
       },
       {
-        "name": "client",
         "params": "$!../client/app"
       }
     ]
