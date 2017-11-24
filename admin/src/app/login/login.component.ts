@@ -1,14 +1,14 @@
 import {Component, OnInit} from '@angular/core';
 import { Resolve , Router, ActivatedRoute} from '@angular/router';
-import {BASE_URL, API_VERSION} from '../../shared/base.url';
-import {LoopBackConfig}        from '../../shared/lb-sdk/lb.config';
-import {UserModel, AccessToken} from '../../shared/lb-sdk/models';
-import {UserModelApi} from '../../shared/lb-sdk/services';
+import {BASE_URL, API_VERSION} from '../shared/base.url';
+import {LoopBackConfig}        from '../shared/lb-sdk';
+import {UserModel, AccessToken} from '../shared/lb-sdk';
+import {UserModelApi} from '../shared/lb-sdk';
 
 @Component({
   selector: 'app-login',
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  templateUrl: 'login.component.html',
+  styleUrls: ['login.component.scss']
 })
 export class LoginComponent implements OnInit {
 
