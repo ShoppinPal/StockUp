@@ -3,6 +3,8 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {UserModelApi} from '../../shared/lb-sdk/services';
 import {BASE_URL, API_VERSION} from '../../shared/base.url';
 import {LoopBackConfig}        from '../../shared/lb-sdk/lb.config';
+import {SDKStorage} from '../../shared/lb-sdk';
+
 
 @Component({
   selector: 'app-header',
@@ -13,14 +15,17 @@ export class AppHeaderComponent implements OnInit {
   public user: any;
   public loading = false;
 
-  constructor(private userModelApi: UserModelApi, private _router: Router, private _route: ActivatedRoute) {
+  constructor(private userModelApi: UserModelApi,
+              private _router: Router,
+              private _route: ActivatedRoute,
+              private localStorage: SDKStorage) {
     LoopBackConfig.setBaseURL(BASE_URL);
     LoopBackConfig.setApiVersion(API_VERSION);
   }
 
 
   ngOnInit() {
-    this.getRouteData()
+    this.getRouteData();
   }
 
   getRouteData() {
@@ -35,12 +40,18 @@ export class AppHeaderComponent implements OnInit {
   logout() {
     this.loading = true;
     this.userModelApi.logout().subscribe((res => {
-      this.loading = false;
-      this._router.navigate(['/login']);
-    }),
-    err => {
-      console.log('Couldn\'t logout due to error', err);
-    });
+
+        //also logout from warehouse-v1 app
+        this.localStorage.remove('$LoopBack$accessTokenId');
+        this.localStorage.remove('$LoopBack$currentUserId');
+        this.localStorage.remove('$LoopBack$rememberMe');
+
+        this.loading = false;
+        this._router.navigate(['/login']);
+      }),
+      err => {
+        console.log('Couldn\'t logout due to error', err);
+      });
   };
 
 }

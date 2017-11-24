@@ -31,6 +31,7 @@ var boot = require('loopback-boot');
 //   Getting the app object:
 //     http://docs.strongloop.com/display/public/LB/Working+with+LoopBack+objects
 var app = module.exports = loopback();
+var path = require('path');
 
 // boot scripts mount components like REST API
 boot(app, __dirname);
@@ -40,6 +41,13 @@ app.start = function() {
   return app.listen(function() {
     app.emit('started');
     console.log('Web server listening at: %s', app.get('url'));
+
+    app.use('/v2', app.loopback.static(path.resolve(__dirname, './../client/admin')));
+
+    app.get('/v2*', function (req, res, next) {
+        res.sendFile('index.html', {root: path.resolve(__dirname, './../client/admin')});
+    });
+
   });
 };
 

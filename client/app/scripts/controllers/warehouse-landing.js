@@ -9,10 +9,10 @@
  */
 angular.module('ShoppinPalApp')
   .controller('WarehouseLandingCtrl', [
-    '$scope', '$state', '$anchorScroll', '$location', '$sessionStorage', '$filter', /* angular's modules/services/factories etc. */
+    '$scope', '$state', '$anchorScroll', '$location', '$sessionStorage', '$filter', '$window', /* angular's modules/services/factories etc. */
     'loginService', 'uiUtils', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
     'ReportModelStates', /* constants */
-    function($scope, $state, $anchorScroll, $location, $sessionStorage, $filter,
+    function($scope, $state, $anchorScroll, $location, $sessionStorage, $filter, $window,
              loginService, uiUtils, ReportModel,
              ReportModelStates)
     {
@@ -100,6 +100,10 @@ angular.module('ShoppinPalApp')
        */
       $scope.importExport = function(index) {
         $scope.selectedRowIndex = index;
+      };
+
+      $scope.goToBinLocations = function () {
+        $window.location.href = '/v2';
       };
 
       /** @method gotoDepartment
