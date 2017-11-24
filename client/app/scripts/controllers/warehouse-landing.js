@@ -103,7 +103,7 @@ angular.module('ShoppinPalApp')
       };
 
       $scope.goToBinLocations = function () {
-        $window.location.href = '/v2';
+        $window.location.href = '/v2/#/products/bin-locations';
       };
 
       /** @method gotoDepartment

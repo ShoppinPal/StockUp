@@ -1,7 +1,8 @@
 import {NgModule} from '@angular/core';
 import {Routes, RouterModule} from '@angular/router';
-import {StoresComponent} from '../stores/stores/stores.component';
-import {PaymentsComponent} from '../payments/payments/payments.component';
+import {StoresComponent} from './stores/stores.component';
+import {PaymentsComponent} from './payments/payments.component';
+import {ProductsComponent} from './products/products.component';
 import {UserResolverService} from './../shared/services/user-resolver.service';
 import {AccessService} from "../shared/services/access.service";
 
@@ -30,6 +31,13 @@ const routes: Routes = [
         component: PaymentsComponent,
         data: {
           title: 'Home > Payments'
+        }
+      },
+      {
+        path: 'products',
+        component: ProductsComponent,
+        data: {
+          title: 'Home > Products'
         }
       }
     ]

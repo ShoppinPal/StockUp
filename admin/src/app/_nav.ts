@@ -1,11 +1,24 @@
 export const navigation = [
   {
     title: true,
+    name: 'Products'
+  },
+  {
+    name: 'Bin Locations',
+    url: '/products/bin-locations',
+    icon: 'icon-location-pin',
+    badge: {
+      variant: 'success',
+      text: 'new'
+    }
+  },
+  {
+    title: true,
     name: 'Orders'
   },
   {
     name: 'Stuck Orders',
-    url: '',
+    url: 'stuck-orders',
     icon: 'icon-close',
     badge: {
       variant: 'info',

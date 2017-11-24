@@ -54,4 +54,8 @@ export class AppHeaderComponent implements OnInit {
       });
   };
 
+  backToOldWarehouse() {
+    window.location.href = BASE_URL + '/#/warehouse-landing';
+  }
+
 }
