@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "ng": "./node_modules/@angular/cli/bin/ng",
-    "start": "./node_modules/@angular/cli/bin/ng serve --host 0.0.0.0 --disable-host-check",
+    "start": "./node_modules/@angular/cli/bin/ng serve --host 0.0.0.0 --base-href /v2/ --disable-host-check -v",
     "admin": "./node_modules/@angular/cli/bin/ng build --prod --aot=false --base-href /v2/ -op ./../client/admin/",
     "test": "./node_modules/@angular/cli/bin/ng test --watch false",
     "lint": "./node_modules/@angular/cli/bin/ng lint",
