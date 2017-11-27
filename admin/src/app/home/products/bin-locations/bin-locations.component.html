@@ -1,4 +1,5 @@
 <bin-locations-filters></bin-locations-filters>
+<ngx-loading [show]="loading"></ngx-loading>
 <div class="animated fadeIn">
   <div class="row">
     <div class="col-sm-12">
@@ -42,83 +43,36 @@
               <th>Bin Location</th>
               <th>Name</th>
               <th>Supplier</th>
+              <th>Save</th>
             </tr>
             </thead>
             <tbody>
-            <tr class="table-success">
-              <td>GA0876</td>
+            <!--<tr class="table-success">-->
+            <!--<td>GA0876</td>-->
+            <!--<td><input type="text" class="form-control-sm" placeholder="Scan bin location"></td>-->
+            <!--<td>INMAN CuffBracelet INMAN CuffBracelet INMAN CuffBracelet</td>-->
+            <!--<td>JT Inman</td>-->
+            <!--</tr>-->
+            <tr *ngFor="let product of products">
+              <td>{{product.sku}}</td>
               <td><input type="text" class="form-control-sm" placeholder="Scan bin location"></td>
-              <td>INMAN CuffBracelet INMAN CuffBracelet INMAN CuffBracelet</td>
-              <td>JT Inman</td>
+              <td>{{product.name}}</td>
+              <td>{{(product.supplier && product.supplier.name) || 'No Supplier'}}</td>
+              <td>
+                <button class="btn btn-primary" type="button">
+                  <i class="fa fa-save"></i> Save
+                </button>
+              </td>
             </tr>
-            <tr>
-              <td>GA0876</td>
-              <td><input type="text" class="form-control-sm" placeholder="Scan bin location"></td>
-              <td>INMAN CuffBracelet INMAN CuffBracelet INMAN CuffBracelet</td>
-              <td>JT Inman</td>
-            </tr>
-            <tr>
-              <td>GA0876</td>
-              <td><input type="text" class="form-control-sm" placeholder="Scan bin location"></td>
-              <td>INMAN CuffBracelet INMAN CuffBracelet INMAN CuffBracelet</td>
-              <td>JT Inman</td>
-            </tr>
-            <tr>
-              <td>GA0876</td>
-              <td><input type="text" class="form-control-sm" placeholder="Scan bin location"></td>
-              <td>INMAN CuffBracelet INMAN CuffBracelet INMAN CuffBracelet</td>
-              <td>JT Inman</td>
-            </tr>
-            <tr>
-              <td>GA0876</td>
-              <td><input type="text" class="form-control-sm" placeholder="Scan bin location"></td>
-              <td>INMAN CuffBracelet INMAN CuffBracelet INMAN CuffBracelet</td>
-              <td>JT Inman</td>
-            </tr>
-            <tr>
-              <td>GA0876</td>
-              <td><input type="text" class="form-control-sm" placeholder="Scan bin location"></td>
-              <td>INMAN</td>
-              <td>JT Inman</td>
-            </tr>
-            <tr>
-              <td>GA0876</td>
-              <td><input type="text" class="form-control-sm" placeholder="Scan bin location"></td>
-              <td>INMAN CuffBracelet INMAN CuffBracelet INMAN CuffBracelet</td>
-              <td>JT Inman</td>
-            </tr>
-            <tr>
-              <td>GA0876</td>
-              <td><input type="text" class="form-control-sm" placeholder="Scan bin location"></td>
-              <td>INMAN CuffBracelet INMAN CuffBracelet INMAN CuffBracelet</td>
-              <td>JT Inman</td>
-            </tr>
-            <tr>
-              <td>GA0876</td>
-              <td><input type="text" class="form-control-sm" placeholder="Scan bin location"></td>
-              <td>INMAN CuffBracelet INMAN CuffBracelet INMAN CuffBracelet</td>
-              <td>JT Inman</td>
-            </tr>
-            <tr>
-              <td>GA0876</td>
-              <td><input type="text" class="form-control-sm" placeholder="Scan bin location"></td>
-              <td>INMAN CuffBracelet INMAN CuffBracelet INMAN CuffBracelet</td>
-              <td>JT Inman</td>
-            </tr>
-
-
             </tbody>
           </table>
           <ul class="pagination">
-            <li class="page-item"><a class="page-link" href="#">Prev</a></li>
-            <li class="page-item active">
-              <a class="page-link" href="#">1</a>
+            <li class="page-item" *ngFor="let page of products | paginate: {itemsPerPage: 10,
+                                                                 currentPage: p,
+                                                                 totalItems: totalProducts}">
             </li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li>
-            <li class="page-item"><a class="page-link" href="#">4</a></li>
-            <li class="page-item"><a class="page-link" href="#">Next</a></li>
           </ul>
+          <pagination-controls (pageChange)="fetchProducts(null, p); p=$event"></pagination-controls>
         </div>
       </div>
     </div>

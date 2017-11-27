@@ -29,12 +29,12 @@ module.exports = function (UserModel) {
     });
 
     UserModel.profile = function (id, cb) {
-      console.log('hiiiii');
       log('profile').info('Profile method was called');
       UserModel.findById(id, {
-        include: ['roles']
+        include: ['roles', 'storeConfigModels']
       })
         .then(function (userModelInstance) {
+          log('profile').debug('Found this user', userModelInstance);
           var roles = [];
           userModelInstance.roles().forEach(function (role) {
             roles.push(role.name);
@@ -45,7 +45,8 @@ module.exports = function (UserModel) {
             username: userModelInstance.username,
             email: userModelInstance.email,
             roles: roles,
-            userId: userModelInstance.id
+            userId: userModelInstance.id,
+            storeConfigModelId: userModelInstance.storeConfigModels()[0].id
           };
           log('profile').debug('Fetching user profile', profileDataAsResponse);
           cb(null, profileDataAsResponse);

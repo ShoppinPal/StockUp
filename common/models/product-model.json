@@ -17,6 +17,9 @@
     "api_id": {
       "type": "string",
       "required": true
+    },
+    "binLocation": {
+      "type": "string"
     }
   },
   "validations": [],
@@ -25,6 +28,11 @@
       "type": "belongsTo",
       "model": "SupplierModel",
       "foreignKey": "supplierId"
+    },
+    "storeConfigModel": {
+      "type": "belongsTo",
+      "model": "StoreConfigModel",
+      "foreignKey": "storeConfigModelId"
     }
   },
   "acls": [],

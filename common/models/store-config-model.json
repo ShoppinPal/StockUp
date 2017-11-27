@@ -83,6 +83,11 @@
       "type": "hasMany",
       "model": "StoreModel",
       "foreignKey": "storeConfigModelToStoreModelId"
+    },
+    "productModels": {
+      "type": "hasMany",
+      "model": "ProductModel",
+      "foreignKey": "storeConfigModelId"
     }
   },
   "acls": [
