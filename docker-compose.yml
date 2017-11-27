@@ -29,10 +29,10 @@ services:
     ports:
       - "3000"
     environment:
-      NODE_ENV: staging
+      NODE_ENV: local
       MONGOLAB_URI: mongodb://db:27017/warehouse-local
     env_file: .env
-    command: node server/server.js
+    command: nodemon server/server.js
     volumes:
       - ./client/app/images:/apps/warehouse/client/app/images
       - ./client/app/scripts:/apps/warehouse/client/app/scripts
@@ -44,6 +44,7 @@ services:
       - ./package.json:/apps/warehouse/package.json
       - ./npm-shrinkwrap.json:/apps/warehouse/npm-shrinkwrap.json
       - ./Gruntfile.js:/apps/warehouse/Gruntfile.js
+      - ./dev-entrypoint.sh:/apps/warehouse/dev-entrypoint.sh
     depends_on:
       - db
     healthcheck:
@@ -56,11 +57,11 @@ services:
     ports:
       - "3000"
     environment:
-      NODE_ENV: staging
+      NODE_ENV: local
       MONGOLAB_URI: mongodb://db:27017/warehouse-local
     env_file: .env
     entrypoint: /docker-entrypoint.sh
-    command: ["/wait/wait-for", "web:3000", "--", "node","server/server.js"]
+    command: ["/wait/wait-for", "web:3000", "--", "nodemon","server/server.js"]
     volumes:
       - ./common:/apps/warehouse/common
       - ./server:/apps/warehouse/server
