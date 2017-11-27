@@ -12,7 +12,7 @@
             <div class="col-sm-12">
               <div class="form-group">
                 <div class="input-group">
-                  <input type="text" class="form-control" id="name" placeholder="Scan SKU barcode here or enter text">
+                  <input type="text" class="form-control" id="searchSKU" placeholder="Scan SKU barcode here or enter text" autoFocus="searchSKUFocused">
                   <span class="input-group-btn">
                     <button class="btn btn-primary" type="button">
                       <i class="fa fa-search"></i> Search
@@ -68,11 +68,11 @@
           </table>
           <ul class="pagination">
             <li class="page-item" *ngFor="let page of products | paginate: {itemsPerPage: 10,
-                                                                 currentPage: p,
+                                                                 currentPage: currentPage,
                                                                  totalItems: totalProducts}">
             </li>
           </ul>
-          <pagination-controls (pageChange)="fetchProducts(null, p); p=$event"></pagination-controls>
+          <pagination-controls (pageChange)="fetchProducts(null, currentPage); currentPage=$event"></pagination-controls>
         </div>
       </div>
     </div>

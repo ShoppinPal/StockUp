@@ -5,6 +5,7 @@ import { SharedModule } from '../../../shared/shared.module';
 import { BinLocationsFiltersModule } from './bin-locations-filters/bin-locations-filters.module';
 import { LoadingModule } from 'ngx-loading';
 import {NgxPaginationModule} from 'ngx-pagination';
+import { AutoFocusDirective } from './auto-focus.directive';
 
 @NgModule({
   imports: [
@@ -14,6 +15,6 @@ import {NgxPaginationModule} from 'ngx-pagination';
     LoadingModule,
     NgxPaginationModule
   ],
-  declarations: [BinLocationsComponent]
+  declarations: [BinLocationsComponent, AutoFocusDirective]
 })
 export class BinLocationsModule { }

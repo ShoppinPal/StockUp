@@ -17,9 +17,11 @@ export class BinLocationsComponent implements OnInit {
   public products: Array<any>;
   public totalProducts: number;
   public totalPages: number;
-  public p: number = 1;
+  public currentPage: number = 1;
+  private searchSKUFocused: boolean = false;
 
-  constructor(private storeConfigModelApi: StoreConfigModelApi, private _route: ActivatedRoute) {
+  constructor(private storeConfigModelApi: StoreConfigModelApi,
+              private _route: ActivatedRoute) {
   }
 
   ngOnInit() {
