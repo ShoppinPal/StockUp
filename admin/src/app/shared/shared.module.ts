@@ -4,12 +4,27 @@ import {UserProfileService} from './services/user-profile.service';
 import {AccessService} from './services/access.service';
 import {UserResolverService} from './services/user-resolver.service';
 
+// Import directives
+import {
+  AsideToggleDirective,
+  NAV_DROPDOWN_DIRECTIVES,
+  ReplaceDirective,
+  SIDEBAR_TOGGLE_DIRECTIVES
+} from '../directives';
+
+const APP_DIRECTIVES = [
+  AsideToggleDirective,
+  NAV_DROPDOWN_DIRECTIVES,
+  ReplaceDirective,
+  SIDEBAR_TOGGLE_DIRECTIVES
+];
+
 @NgModule({
   imports: [
-    CommonModule
+    CommonModule,
   ],
-  exports: [],
-  declarations: [],
+  exports: [...APP_DIRECTIVES],
+  declarations: [...APP_DIRECTIVES],
   providers: []
 })
 export class SharedModule {

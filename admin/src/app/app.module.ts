@@ -14,11 +14,10 @@ import {
 const APP_CONTAINERS = [
   FullLayoutComponent,
   SimpleLayoutComponent
-]
+];
 
 // Import components
 import {
-  AppAsideComponent,
   AppBreadcrumbsComponent,
   AppFooterComponent,
   AppHeaderComponent,
@@ -31,7 +30,6 @@ import {
 } from './components';
 
 const APP_COMPONENTS = [
-  AppAsideComponent,
   AppBreadcrumbsComponent,
   AppFooterComponent,
   AppHeaderComponent,
@@ -41,21 +39,6 @@ const APP_COMPONENTS = [
   AppSidebarHeaderComponent,
   AppSidebarMinimizerComponent,
   APP_SIDEBAR_NAV
-]
-
-// Import directives
-import {
-  AsideToggleDirective,
-  NAV_DROPDOWN_DIRECTIVES,
-  ReplaceDirective,
-  SIDEBAR_TOGGLE_DIRECTIVES
-} from './directives';
-
-const APP_DIRECTIVES = [
-  AsideToggleDirective,
-  NAV_DROPDOWN_DIRECTIVES,
-  ReplaceDirective,
-  SIDEBAR_TOGGLE_DIRECTIVES
 ]
 
 // Import routing module
@@ -92,9 +75,9 @@ import {TabsModule} from 'ngx-bootstrap/tabs';
     AppComponent,
     ...APP_CONTAINERS,
     ...APP_COMPONENTS,
-    ...APP_DIRECTIVES,
     FullLayoutComponent
   ],
+  exports: [],
   providers: [{
     provide: LocationStrategy,
     useClass: HashLocationStrategy
