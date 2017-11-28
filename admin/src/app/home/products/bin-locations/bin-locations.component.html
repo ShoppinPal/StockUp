@@ -12,7 +12,8 @@
             <div class="col-sm-12">
               <div class="form-group">
                 <div class="input-group">
-                  <input type="text" class="form-control" id="searchSKU" placeholder="Scan SKU barcode here or enter text" autoFocus="searchSKUFocused">
+                  <input type="text" class="form-control" id="searchSKU"
+                         placeholder="Scan SKU barcode here or enter text" autoFocus="searchSKUFocused">
                   <span class="input-group-btn">
                     <button class="btn btn-primary" type="button">
                       <i class="fa fa-search"></i> Search
@@ -53,17 +54,20 @@
             <!--<td>INMAN CuffBracelet INMAN CuffBracelet INMAN CuffBracelet</td>-->
             <!--<td>JT Inman</td>-->
             <!--</tr>-->
-            <tr *ngFor="let product of products" [ngClass]="{'table-danger': product.error, 'table-success': product.success}">
-              <td>{{product.sku}}</td>
-              <td><input type="text" class="form-control-sm" placeholder="Scan bin location" #binLocation value="{{product.binLocation}}"></td>
-              <td>{{product.name}}</td>
-              <td>{{(product.supplier && product.supplier.name) || 'No Supplier'}}</td>
-              <td>
-                <button class="btn btn-primary" type="button" (click)="updateBinLocation(product, binLocation.value)">
-                  <i class="fa fa-save"></i> Save
-                </button>
-              </td>
-            </tr>
+
+              <tr *ngFor="let product of products"
+                  [ngClass]="{'table-danger': product.error, 'table-success': product.success, 'table-info': product.info}">
+                <td>{{product.sku}}</td>
+                <td><input type="text" class="form-control-sm" placeholder="Scan bin location" #binLocation
+                           value="{{product.binLocation}}" required/></td>
+                <td>{{product.name}}</td>
+                <td>{{(product.supplier && product.supplier.name) || 'No Supplier'}}</td>
+                <td>
+                  <button class="btn btn-primary" type="submit" (click)="updateBinLocation(product, binLocation.value)">
+                    <i class="fa fa-save"></i> Save
+                  </button>
+                </td>
+              </tr>
             </tbody>
           </table>
           <ul class="pagination">
@@ -72,7 +76,8 @@
                                                                  totalItems: totalProducts}">
             </li>
           </ul>
-          <pagination-controls (pageChange)="fetchProducts(null, currentPage); currentPage=$event"></pagination-controls>
+          <pagination-controls
+            (pageChange)="fetchProducts(null, currentPage); currentPage=$event"></pagination-controls>
         </div>
       </div>
     </div>

@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {StoreConfigModelApi} from '../../../shared/lb-sdk';
 import {ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-bin-locations',
@@ -22,7 +23,8 @@ export class BinLocationsComponent implements OnInit {
 
 
   constructor(private storeConfigModelApi: StoreConfigModelApi,
-              private _route: ActivatedRoute) {
+              private _route: ActivatedRoute,
+              private toastr: ToastrService) {
   }
 
   ngOnInit() {
@@ -60,23 +62,40 @@ export class BinLocationsComponent implements OnInit {
       });
   };
 
-
   updateBinLocation(product: any, binLocation: string) {
     this.loading = true;
     product.error = '';
     product.success = false;
-    this.storeConfigModelApi.updateBinLocation(this.userProfile.storeConfigModelId, product.id, binLocation)
-      .subscribe((data: any) => {
-
-          this.loading = false;
-          product.success = true;
-          console.log('updated bin location', data);
-        },
-        error => {
-          this.loading = false;
-          product.error = error.message;
-          console.log('error in updating bin location', error);
-        });
+    if (!binLocation) {
+      this.loading = false;
+      this.toastr.error('Please enter bin location');
+      product.error = 'Please enter bin location';
+    }
+    else if(product.binLocation === binLocation) {
+      this.loading = false;
+      this.toastr.info('No change in bin location');
+      product.info = 'No change in bin location';
+      setTimeout(() => {
+        product.info = '';
+      }, 5000);
+    }
+    else {
+      this.storeConfigModelApi.updateBinLocation(this.userProfile.storeConfigModelId, product.id, binLocation)
+        .subscribe((data: any) => {
+            this.toastr.success('Updated bin location successfully');
+            this.loading = false;
+            product.success = true;
+            setTimeout(() => {
+              product.success = false;
+            }, 5000);
+          },
+          error => {
+            this.toastr.error('Error in updating bin location');
+            this.loading = false;
+            product.error = error.message;
+            console.log('error in updating bin location', error);
+          });
+    }
 
   }
 }

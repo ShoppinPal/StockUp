@@ -51,10 +51,13 @@ import {LoadingModule, ANIMATION_TYPES} from 'ngx-loading';
 import {SDKBrowserModule} from './shared/lb-sdk/index';
 import {SharedModule} from './shared/shared.module';
 import {TabsModule} from 'ngx-bootstrap/tabs';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
   imports: [
     AppRoutingModule,
+    BrowserAnimationsModule,
     BrowserModule,
     BsDropdownModule.forRoot(),
     ChartsModule,
@@ -69,7 +72,8 @@ import {TabsModule} from 'ngx-bootstrap/tabs';
     }),
     SDKBrowserModule.forRoot(),
     SharedModule.forRoot(),
-    TabsModule.forRoot()
+    TabsModule.forRoot(),
+    ToastrModule.forRoot()
   ],
   declarations: [
     AppComponent,
