@@ -18,7 +18,8 @@ export class BinLocationsComponent implements OnInit {
   public totalProducts: number;
   public totalPages: number;
   public currentPage: number = 1;
-  private searchSKUFocused: boolean = false;
+  public searchSKUFocused: boolean = false;
+
 
   constructor(private storeConfigModelApi: StoreConfigModelApi,
               private _route: ActivatedRoute) {
@@ -39,7 +40,6 @@ export class BinLocationsComponent implements OnInit {
   }
 
   fetchProducts(limit?: number, skip?: number) {
-    console.log('called', skip);
     this.loading = true;
     this.filter = {
       limit: 10,
@@ -61,7 +61,22 @@ export class BinLocationsComponent implements OnInit {
   };
 
 
-  updateBinLocation() {
+  updateBinLocation(product: any, binLocation: string) {
+    this.loading = true;
+    product.error = '';
+    product.success = false;
+    this.storeConfigModelApi.updateBinLocation(this.userProfile.storeConfigModelId, product.id, binLocation)
+      .subscribe((data: any) => {
+
+          this.loading = false;
+          product.success = true;
+          console.log('updated bin location', data);
+        },
+        error => {
+          this.loading = false;
+          product.error = error.message;
+          console.log('error in updating bin location', error);
+        });
 
   }
 }

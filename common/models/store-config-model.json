@@ -133,6 +133,13 @@
       "principalId": "$authenticated",
       "permission": "ALLOW",
       "property": "getVendAccessToken"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teamMember",
+      "permission": "ALLOW",
+      "property": "updateBinLocation"
     }
   ],
   "methods": {}
