@@ -24,6 +24,9 @@ export class BinLocationsComponent implements OnInit {
   public searchedProduct: Array<any>;
   public foundSKU: boolean = false;
   public productsLimitPerPage: number = 10;
+  public readingBarcode: any;
+  public enableBarcode: boolean = true;
+  public searchSKUText: string;
 
   constructor(private storeConfigModelApi: StoreConfigModelApi,
               private _route: ActivatedRoute,
@@ -31,6 +34,10 @@ export class BinLocationsComponent implements OnInit {
               private _userProfileService: UserProfileService) {
   }
 
+  /**
+   * @description Fetch products from resolve data and
+   * load into the component view
+   */
   ngOnInit() {
     this.userProfile = this._userProfileService.getProfileData();
     this._route.data.subscribe((data: any) => {
@@ -43,7 +50,62 @@ export class BinLocationsComponent implements OnInit {
       });
   }
 
+  /**
+   * @description If the scan mode is changed
+   * to barcode scanning, then focus is set back to the sku
+   * search bar
+   */
+  changeScanMode() {
+    if (this.enableBarcode) {
+      this.searchSKUFocused = true;
+    }
+    else {
+      this.searchSKUFocused = false;
+    }
+  }
+
+  //TODO: this code should be in a directive somewhere
+  /**
+   * @description Code to detect barcode scanner input and
+   * calls the search sku function
+   * @param searchText
+   */
+  barcodeSearchSKU(searchText) {
+    if (this.enableBarcode) {
+      clearTimeout(this.readingBarcode);
+      this.readingBarcode = setTimeout(() => {
+        this.searchSKU(searchText);
+      }, 100);
+    }
+  }
+
+  /**
+   * @description Code to detect barcode scanner input and
+   * calls the save bin location function
+   * @param product
+   * @param binLocation
+   */
+  barcodeSaveBinLocation(product, binLocation) {
+    if (this.enableBarcode) {
+      clearTimeout(this.readingBarcode);
+      this.readingBarcode = setTimeout(() => {
+        this.updateBinLocation(product, binLocation)
+      }, 100);
+    }
+  }
+
+  /**
+   * @description Fetches all products from backend according
+   * to the pagination params
+   * @param limit
+   * @param skip
+   */
   fetchProducts(limit?: number, skip?: number) {
+    if (!(limit && skip)) {
+      this.searchSKUText = '';
+    }
+    this.searchSKUFocused = true;
+    this.foundSKU = false;
     this.searchedProduct = null;
     this.loading = true;
     let filter = {
@@ -65,9 +127,15 @@ export class BinLocationsComponent implements OnInit {
       });
   };
 
+  /**
+   * @description Update the bin location of a particular sku
+   * @param product
+   * @param binLocation
+   */
   updateBinLocation(product: any, binLocation: string) {
     this.loading = true;
     product.error = '';
+    product.info = '';
     product.success = false;
     if (!binLocation) {
       this.loading = false;
@@ -76,6 +144,8 @@ export class BinLocationsComponent implements OnInit {
     }
     else if (product.binLocation === binLocation) {
       this.loading = false;
+      this.foundSKU = false;
+      this.searchSKUFocused = true;
       this.toastr.info('No change in bin location');
       product.info = 'No change in bin location';
       setTimeout(() => {
@@ -103,6 +173,10 @@ export class BinLocationsComponent implements OnInit {
     }
   }
 
+  /**
+   * @description Function to search for a particular sku
+   * @param searchText
+   */
   searchSKU(searchText: string) {
     this.loading = true;
     let filter = {
@@ -114,7 +188,6 @@ export class BinLocationsComponent implements OnInit {
       .subscribe((data: Array<any>) => {
           this.loading = false;
           if (data.length === 1) {
-            console.log('found this product', data[0]);
             this.searchedProduct = data;
             this.searchSKUFocused = false;
             this.totalPages = 1;

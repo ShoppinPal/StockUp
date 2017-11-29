@@ -12,8 +12,13 @@
             <div class="col-sm-12">
               <div class="form-group">
                 <div class="input-group">
-                  <input type="text" class="form-control" id="searchSKU" #searchSKUText
-                         placeholder="Scan SKU barcode here or enter text" [appAutoFocus]="searchSKUFocused">
+                  <input type="text"
+                         class="form-control"
+                         id="searchSKU"
+                         #searchSKUText
+                         placeholder="Scan SKU barcode here or enter text"
+                         [appAutoFocus]="searchSKUFocused"
+                         (keypress)="barcodeSearchSKU(searchSKUText.value)">
                   <span class="input-group-btn">
                     <button class="btn btn-primary" type="button" (click)="searchSKU(searchSKUText.value)">
                       <i class="fa fa-search"></i> Search
@@ -25,7 +30,27 @@
           </div><!--/.row-->
         </div>
         <div class="card-footer">
-          <button type="button" class="btn btn-link" (click)="fetchProducts(0,0)">Clear All</button>
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="form-group">
+                <div class="input-group">
+                  <span>Manual Entry &nbsp;&nbsp; </span>
+                  <label class="switch switch-3d switch-primary">
+                    <input type="checkbox"
+                           [(ngModel)]="enableBarcode"
+                           (ngModelChange)="changeScanMode()"
+                           class="switch-input">
+                    <span class="switch-label"></span>
+                    <span class="switch-handle"></span>
+                  </label>
+                  <span> &nbsp;&nbsp; Barcode Scanning</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <button type="button" class="btn btn-link float-right" (click)="searchSKUText.value='';fetchProducts(0,0)">Clear All Searches</button>
+            </div>
+          </div>
         </div>
       </div>
     </div><!--/.col-->
@@ -51,19 +76,27 @@
             </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let product of searchedProduct || products"
-                  [ngClass]="{'table-danger': product.error, 'table-success': product.success, 'table-info': product.info}">
-                <td>{{product.sku}}</td>
-                <td><input type="text" class="form-control-sm" placeholder="Scan bin location" #binLocation
-                           value="{{product.binLocation}}" required [appAutoFocus]="foundSKU"/></td>
-                <td>{{product.name}}</td>
-                <td>{{(product.supplier && product.supplier.name) || 'No Supplier'}}</td>
-                <td>
-                  <button class="btn btn-primary" type="submit" (click)="updateBinLocation(product, binLocation.value)">
-                    <i class="fa fa-save"></i> Save
-                  </button>
-                </td>
-              </tr>
+            <tr *ngFor="let product of searchedProduct || products"
+                [ngClass]="{'table-danger': product.error, 'table-success': product.success, 'table-info': product.info}">
+              <td>{{product.sku}}</td>
+              <td>
+                <input type="text"
+                       class="form-control-sm"
+                       placeholder="Scan bin location"
+                       #binLocation
+                       (keypress)="barcodeSaveBinLocation(product, binLocation.value)"
+                       value="{{product.binLocation}}"
+                       required
+                       [appAutoFocus]="foundSKU"/>
+              </td>
+              <td>{{product.name}}</td>
+              <td>{{(product.supplier && product.supplier.name) || 'No Supplier'}}</td>
+              <td>
+                <button class="btn btn-primary" type="submit" (click)="updateBinLocation(product, binLocation.value)">
+                  <i class="fa fa-save"></i> Save
+                </button>
+              </td>
+            </tr>
             </tbody>
           </table>
           <ul class="pagination">

@@ -47,6 +47,7 @@ import {AppRoutingModule} from './app.routing';
 // Import 3rd party components
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {ChartsModule} from 'ng2-charts/ng2-charts';
+import {FormsModule} from '@angular/forms';
 import {LoadingModule, ANIMATION_TYPES} from 'ngx-loading';
 import {SDKBrowserModule} from './shared/lb-sdk/index';
 import {SharedModule} from './shared/shared.module';
@@ -61,6 +62,7 @@ import { ToastrModule } from 'ngx-toastr';
     BrowserModule,
     BsDropdownModule.forRoot(),
     ChartsModule,
+    FormsModule,
     LoadingModule.forRoot({
       animationType: ANIMATION_TYPES.threeBounce,
       backdropBackgroundColour: '#00000096',
