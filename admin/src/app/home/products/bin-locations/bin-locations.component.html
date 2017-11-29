@@ -12,10 +12,10 @@
             <div class="col-sm-12">
               <div class="form-group">
                 <div class="input-group">
-                  <input type="text" class="form-control" id="searchSKU"
-                         placeholder="Scan SKU barcode here or enter text" autoFocus="searchSKUFocused">
+                  <input type="text" class="form-control" id="searchSKU" #searchSKUText
+                         placeholder="Scan SKU barcode here or enter text" [appAutoFocus]="searchSKUFocused">
                   <span class="input-group-btn">
-                    <button class="btn btn-primary" type="button">
+                    <button class="btn btn-primary" type="button" (click)="searchSKU(searchSKUText.value)">
                       <i class="fa fa-search"></i> Search
                     </button>
                   </span>
@@ -23,6 +23,9 @@
               </div>
             </div>
           </div><!--/.row-->
+        </div>
+        <div class="card-footer">
+          <button type="button" class="btn btn-link" (click)="fetchProducts(0,0)">Clear All</button>
         </div>
       </div>
     </div><!--/.col-->
@@ -48,18 +51,11 @@
             </tr>
             </thead>
             <tbody>
-            <!--<tr class="table-success">-->
-            <!--<td>GA0876</td>-->
-            <!--<td><input type="text" class="form-control-sm" placeholder="Scan bin location"></td>-->
-            <!--<td>INMAN CuffBracelet INMAN CuffBracelet INMAN CuffBracelet</td>-->
-            <!--<td>JT Inman</td>-->
-            <!--</tr>-->
-
-              <tr *ngFor="let product of products"
+              <tr *ngFor="let product of searchedProduct || products"
                   [ngClass]="{'table-danger': product.error, 'table-success': product.success, 'table-info': product.info}">
                 <td>{{product.sku}}</td>
                 <td><input type="text" class="form-control-sm" placeholder="Scan bin location" #binLocation
-                           value="{{product.binLocation}}" required/></td>
+                           value="{{product.binLocation}}" required [appAutoFocus]="foundSKU"/></td>
                 <td>{{product.name}}</td>
                 <td>{{(product.supplier && product.supplier.name) || 'No Supplier'}}</td>
                 <td>
@@ -77,7 +73,7 @@
             </li>
           </ul>
           <pagination-controls
-            (pageChange)="fetchProducts(null, currentPage); currentPage=$event"></pagination-controls>
+            (pageChange)="fetchProducts(productsLimitPerPage, currentPage); currentPage=$event"></pagination-controls>
         </div>
       </div>
     </div>

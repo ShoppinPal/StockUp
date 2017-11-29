@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ProductsComponent } from './products.component';
 import { ProductsRoutingModule } from './products-routing.module';
 import { BinLocationsModule } from './bin-locations/bin-locations.module';
+import {BinLocationsResolverService} from "./bin-locations/services/bin-locations-resolver.service";
 
 @NgModule({
   imports: [
@@ -10,6 +11,7 @@ import { BinLocationsModule } from './bin-locations/bin-locations.module';
     BinLocationsModule,
     ProductsRoutingModule
   ],
-  declarations: [ProductsComponent]
+  declarations: [ProductsComponent],
+  providers: [BinLocationsResolverService]
 })
 export class ProductsModule { }

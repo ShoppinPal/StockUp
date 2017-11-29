@@ -3,6 +3,7 @@ import {Routes, RouterModule} from '@angular/router';
 import {BinLocationsComponent} from './bin-locations/bin-locations.component';
 import {UserResolverService} from './../../shared/services/user-resolver.service';
 import {AccessService} from "../../shared/services/access.service";
+import {BinLocationsResolverService} from "./bin-locations/services/bin-locations-resolver.service";
 
 const routes: Routes = [
   {
@@ -22,6 +23,9 @@ const routes: Routes = [
         component: BinLocationsComponent,
         data: {
           title: 'Home > Products > Bin-Locations'
+        },
+        resolve: {
+          products: BinLocationsResolverService
         }
       }
     ]
