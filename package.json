@@ -9,7 +9,7 @@
     "compression": "^1.0.3",
     "csvtojson": "0.4.2",
     "debug": "^2.1.0",
-    "ejs": "~0.8.5",
+    "ejs": "2.5.7",
     "errorhandler": "^1.1.1",
     "excel-stream": "~1.1.1",
     "exec-buffer": "^0.1.1",
