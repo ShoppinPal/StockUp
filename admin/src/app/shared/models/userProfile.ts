@@ -5,40 +5,42 @@
  * @class UserProfile
  */
 export class UserProfile {
-    private email: string;
-    private name: string;
-    private roles: Array<any>;
-    private userId: string;
-    private isAuthenticated: boolean;
+  private email: string;
+  private name: string;
+  private roles: Array<any>;
+  private userId: string;
+  private isAuthenticated: boolean;
+  private storeConfigModelId: string;
 
-    /**
-     * Creates an instance of UserProfile.
-     * @param {*} profile
-     *
-     * @memberof UserProfile
-     */
-    constructor(profile: any) {
-        this.email = profile.email || null;
-        this.name = profile.name || null;
-        this.roles = profile.roles || [];
-        this.userId = profile.userId || null;
-    }
+  /**
+   * Creates an instance of UserProfile.
+   * @param {*} profile
+   *
+   * @memberof UserProfile
+   */
+  constructor(profile: any) {
+    this.email = profile.email || null;
+    this.name = profile.name || null;
+    this.roles = profile.roles || [];
+    this.userId = profile.userId || null;
+    this.storeConfigModelId = profile.storeConfigModelId || null;
+  }
 
-    public isUserAuthenticated(): boolean {
-        return this.isAuthenticated;
-    }
+  public isUserAuthenticated(): boolean {
+    return this.isAuthenticated;
+  }
 
-    public hasRole(role: string): boolean {
-        return this.roles.indexOf(role) !== -1;
-    }
+  public hasRole(role: string): boolean {
+    return this.roles.indexOf(role) !== -1;
+  }
 
-    public hasAnyRole(roles: Array<string>): boolean {
-        return roles.some((role) => {
-            return this.roles.indexOf(role) !== -1;
-        });
-    }
+  public hasAnyRole(roles: Array<string>): boolean {
+    return roles.some((role) => {
+      return this.roles.indexOf(role) !== -1;
+    });
+  }
 
-    public isAnonymous():boolean {
-        return !this.isAuthenticated;
-    }
+  public isAnonymous(): boolean {
+    return !this.isAuthenticated;
+  }
 }

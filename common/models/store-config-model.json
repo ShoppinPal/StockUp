@@ -2,6 +2,9 @@
   "name": "StoreConfigModel",
   "base": "PersistedModel",
   "idInjection": false,
+  "mixins": {
+    "Utils": true
+  },
   "properties": {
     "objectId": {
       "type": "number",
@@ -80,6 +83,11 @@
       "type": "hasMany",
       "model": "StoreModel",
       "foreignKey": "storeConfigModelToStoreModelId"
+    },
+    "productModels": {
+      "type": "hasMany",
+      "model": "ProductModel",
+      "foreignKey": "storeConfigModelId"
     }
   },
   "acls": [
@@ -125,10 +133,14 @@
       "principalId": "$authenticated",
       "permission": "ALLOW",
       "property": "getVendAccessToken"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teamMember",
+      "permission": "ALLOW",
+      "property": "updateBinLocation"
     }
   ],
-  "methods": [],
-  "mixins": {
-    "Utils": true
-  }
+  "methods": {}
 }

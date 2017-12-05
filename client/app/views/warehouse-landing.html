@@ -1,9 +1,12 @@
 <div class="container"
      cg-busy="{promise:waitOnPromise,message:message}">
     <shoppin-pal-header is-home-page="true"
-                        button1-label="New Stock Order"
+                        button2-label="New Stock Order"
+                        button2-class="button-large-green"
+                        on-button2-click="createManualOrder()"
+                        button1-label="Bin Locations"
                         button1-class="button-large-green"
-                        on-button1-click="createManualOrder()">
+                        on-button1-click="goToBinLocations()">
     </shoppin-pal-header>
     <!-- warehouse landing status button start -->
     <div class="row main-container">
@@ -27,7 +30,7 @@
         <!--<button class="status-btn-inprocess" ng-click="inProcessOrder()">In Process</button>
         <button class="status-btn-fullfil" ng-click="fulfilledOrder()">Fullfil</button>
         <button class="status-btn-receive" ng-click="recievedOrder()">Receive</button>-->
-      </div>  
+      </div>
     </div>
     <!-- warehouse landing status button end -->
     <!-- Store Manager page content -->

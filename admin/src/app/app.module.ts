@@ -14,11 +14,10 @@ import {
 const APP_CONTAINERS = [
   FullLayoutComponent,
   SimpleLayoutComponent
-]
+];
 
 // Import components
 import {
-  AppAsideComponent,
   AppBreadcrumbsComponent,
   AppFooterComponent,
   AppHeaderComponent,
@@ -31,7 +30,6 @@ import {
 } from './components';
 
 const APP_COMPONENTS = [
-  AppAsideComponent,
   AppBreadcrumbsComponent,
   AppFooterComponent,
   AppHeaderComponent,
@@ -43,38 +41,28 @@ const APP_COMPONENTS = [
   APP_SIDEBAR_NAV
 ]
 
-// Import directives
-import {
-  AsideToggleDirective,
-  NAV_DROPDOWN_DIRECTIVES,
-  ReplaceDirective,
-  SIDEBAR_TOGGLE_DIRECTIVES
-} from './directives';
-
-const APP_DIRECTIVES = [
-  AsideToggleDirective,
-  NAV_DROPDOWN_DIRECTIVES,
-  ReplaceDirective,
-  SIDEBAR_TOGGLE_DIRECTIVES
-]
-
 // Import routing module
 import {AppRoutingModule} from './app.routing';
 
 // Import 3rd party components
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {ChartsModule} from 'ng2-charts/ng2-charts';
+import {FormsModule} from '@angular/forms';
 import {LoadingModule, ANIMATION_TYPES} from 'ngx-loading';
 import {SDKBrowserModule} from './shared/lb-sdk/index';
 import {SharedModule} from './shared/shared.module';
 import {TabsModule} from 'ngx-bootstrap/tabs';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
   imports: [
     AppRoutingModule,
+    BrowserAnimationsModule,
     BrowserModule,
     BsDropdownModule.forRoot(),
     ChartsModule,
+    FormsModule,
     LoadingModule.forRoot({
       animationType: ANIMATION_TYPES.threeBounce,
       backdropBackgroundColour: '#00000096',
@@ -86,15 +74,16 @@ import {TabsModule} from 'ngx-bootstrap/tabs';
     }),
     SDKBrowserModule.forRoot(),
     SharedModule.forRoot(),
-    TabsModule.forRoot()
+    TabsModule.forRoot(),
+    ToastrModule.forRoot()
   ],
   declarations: [
     AppComponent,
     ...APP_CONTAINERS,
     ...APP_COMPONENTS,
-    ...APP_DIRECTIVES,
     FullLayoutComponent
   ],
+  exports: [],
   providers: [{
     provide: LocationStrategy,
     useClass: HashLocationStrategy

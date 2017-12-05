@@ -6,18 +6,24 @@
 'use strict';
 
 angular.module('ShoppinPalApp')
-  .controller('LogoutCtrl',[
+  .controller('LogoutCtrl', [
     '$scope', '$sessionStorage', '$state', /* angular's modules/services/factories etc. */
     'UserModel', /* loopback models */
     function ($scope, $sessionStorage, $state,
-              UserModel)
-    {
+              UserModel) {
       UserModel.logout()
-        .$promise.then(function() {
-          $sessionStorage.currentUser = null;
-          $sessionStorage.currentStore = null;
-          $sessionStorage.roles = null;
-          $state.go('login');
-        });
+        .$promise.then(function () {
+        //also logout from warehouse-v2 app
+        document.cookie = '$LoopBackSDK$created=;expires=0';
+        document.cookie = '$LoopBackSDK$id=;expires=0';
+        document.cookie = '$LoopBackSDK$rememberMe=;expires=0';
+        document.cookie = '$LoopBackSDK$ttl=;expires=0';
+        document.cookie = '$LoopBackSDK$user=;expires=0';
+        document.cookie = '$LoopBackSDK$userId=;expires=0';
+        $sessionStorage.currentUser = null;
+        $sessionStorage.currentStore = null;
+        $sessionStorage.roles = null;
+        $state.go('login');
+      });
     }
   ]);
