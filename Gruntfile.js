@@ -49,28 +49,6 @@ module.exports = function (grunt) {
         url: 'http://localhost:<%= connect.options.port %>'
       }
     },
-    // watch: {
-    //   express: { // TODO: change this to loopback (its just naming right?)
-    //     files: [
-    //       '<%= yeoman.app %>/{,*//*}*.html',
-    //       '{.tmp,<%= yeoman.app %>}/styles/{,*//*}*.css',
-    //       '{.tmp,<%= yeoman.app %>}/scripts/{,*//*}*.js',
-    //       '<%= yeoman.app %>/images/{,*//*}*.{png,jpg,jpeg,gif,webp,svg}',
-    //       'server.js',
-    //       'lib/{,*//*}*.{js,json}'
-    //     ],
-    //     //tasks: ['run:development'],
-    //     options: {
-    //       livereload: true/*,
-    //       spawn: false //Without this option specified express won't be reloaded
-    //       */
-    //     }
-    //   },
-    //   styles: {
-    //     files: ['<%= yeoman.app %>/styles/{,*/}*.css'],
-    //     tasks: ['copy:styles', 'autoprefixer']
-    //   }
-    // },
     watch: {
       scripts: {
         files: [
@@ -100,7 +78,7 @@ module.exports = function (grunt) {
     wiredep: {
       app: {
         src: ['<%= yeoman.app %>/index.html'],
-        ignorePath:  /\.\.\//
+        ignorePath: /\.\.\//
       },
       sass: {
         src: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}'],
@@ -122,7 +100,7 @@ module.exports = function (grunt) {
       server: '.tmp'
     },
     jshint: {
-      server:{
+      server: {
         options: {
           jshintrc: '.jshintrc',
           reporter: require('jshint-stylish')
@@ -171,7 +149,7 @@ module.exports = function (grunt) {
       html: ['<%= yeoman.dist %>/{,*/}*.html'],
       css: ['<%= yeoman.dist %>/styles/{,*/}*.css'],
       options: {
-        assetsDirs: ['<%= yeoman.dist %>','<%= yeoman.dist %>/images']
+        assetsDirs: ['<%= yeoman.dist %>', '<%= yeoman.dist %>/images']
       }
     },
     imagemin: {
@@ -364,7 +342,7 @@ module.exports = function (grunt) {
           port: '<%= connect.options.port %>',
           open: true,
           keepalive: false,
-          handleTunnelSuccess: function(tunnel) {
+          handleTunnelSuccess: function (tunnel) {
             grunt.config('buildProperties.site.baseUrl', tunnel.url);
             grunt.log.ok('updated buildProperties.site.baseUrl: ' + grunt.config('buildProperties.site.baseUrl'));
           }
@@ -373,7 +351,7 @@ module.exports = function (grunt) {
     }
   });
 
-  grunt.registerTask('loadConfig', function(env) {
+  grunt.registerTask('loadConfig', function (env) {
     if (!env) {
       return grunt.util.error('You must specify an environment');
     }
@@ -407,7 +385,7 @@ module.exports = function (grunt) {
     grunt.config('buildProperties', config);
   });
 
-  grunt.registerTask('run', 'Start the app server', function() {
+  grunt.registerTask('run', 'Start the app server', function () {
     var done = this.async();
 
     var connectConfig = grunt.config.get().connect.options;
@@ -420,16 +398,16 @@ module.exports = function (grunt) {
     server.set('port', connectConfig.port);
     server.set('host', connectConfig.hostname);
     server.start()
-      .on('listening', function() {
+      .on('listening', function () {
         if (!keepAlive) {
           done();
         }
       })
-      .on('error', function(err) {
+      .on('error', function (err) {
         if (err.code === 'EADDRINUSE') {
           grunt.fatal('Port ' + connectConfig.port +
             ' is already in use by another process.');
-        } else {
+        }else {
           grunt.fatal(err);
         }
       });
@@ -439,9 +417,9 @@ module.exports = function (grunt) {
    * "env" may be development|staging|production:
    */
   grunt.registerTask('server',
-      'For example:' +
-      '\n\tgrunt server:local' +
-      '\n\tgrunt server:development --subdomain mppulkit',
+    'For example:' +
+    '\n\tgrunt server:local' +
+    '\n\tgrunt server:development --subdomain mppulkit',
     function (env) {
       if (!env) {
         return grunt.util.error('You must specify an environment');
@@ -460,7 +438,7 @@ module.exports = function (grunt) {
       ]);
     });
 
-  grunt.registerTask('build', function(env) {
+  grunt.registerTask('build', function (env) {
     if (!env) {
       return grunt.util.error('You must specify an environment');
     }
@@ -482,7 +460,7 @@ module.exports = function (grunt) {
       'replace:all'
     ]);
   });
-  grunt.registerTask('configsetup', function(env){
+  grunt.registerTask('configsetup', function (env) {
     if (!env) {
       return grunt.util.error('You must specify an environment');
     }
@@ -492,7 +470,7 @@ module.exports = function (grunt) {
     ]);
   });
 
-  grunt.registerTask('deploy', function(env) {
+  grunt.registerTask('deploy', function (env) {
     if (!env) {
       return grunt.util.error('You must specify an environment');
     }
@@ -516,7 +494,7 @@ module.exports = function (grunt) {
         'replace:all'
       ]);
     }
-    
+
   });
 
   grunt.registerTask('test', function(env){
