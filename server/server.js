@@ -1,15 +1,5 @@
 'use strict';
 
-if (process.env.TRACE_ENABLED && process.env.TRACE_ENABLED.toLowerCase() === 'true' &&
-    process.env.TRACE_SERVICE_NAME &&
-    process.env.TRACE_API_KEY)
-{
-  console.log('starting trace agent');
-  require('@risingstack/trace');
-}
-else {
-  console.log('skipped trace agent');
-}
 if (process.env.NEW_RELIC_ENABLED && process.env.NEW_RELIC_ENABLED.toLowerCase() === 'true' &&
     process.env.NEW_RELIC_NO_CONFIG_FILE &&
     process.env.NEW_RELIC_LICENSE_KEY &&
