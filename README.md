@@ -147,12 +147,11 @@ Replenishing stock is one of the most important repetitive tasks performed by a 
       ```
       export WAREHOUSE_HOME=`pwd` && echo $WAREHOUSE_HOME
       ```
-1. To setup a project root that can survive across multiple ssh sessions, you can use the following:
-    * but make sure to change `~/dev/warehouse` in this command to your actual project path, if its different
+    * Optionally, if you performed a regular clone instead of a recursive clone, then correct this using the follwing command to get the submodules:
 
-        ```
-        echo 'export WAREHOUSE_HOME=`echo ~/dev/warehouse`' >> ~/.bashrc && source ~/.bashrc && echo $WAREHOUSE_HOME
-        ```
+      ```
+      cd $WAREHOUSE_HOME && git submodule update --init --recursive
+      ```
 1. Before making our project sync-capable, let us add rules to prevent unnecessary stuff from syncing:
 
         ```
@@ -176,14 +175,14 @@ Replenishing stock is one of the most important repetitive tasks performed by a 
         # make sure this is setup
         echo WAREHOUSE_SYNC_DIR_NAME=$WAREHOUSE_SYNC_DIR_NAME
 
-        # make sure thsi is setup
+        # make sure this is setup
         echo $WAREHOUSE_HOME
 
         # run as-is
         cd $WAREHOUSE_HOME && \
           ln -s `pwd` ~/Dropbox/remote-dev/$WAREHOUSE_SYNC_DIR_NAME
         ```
-    * make sure it worked: `ls -alrt ~/Dropbox/remote-dev/warehouse`
+    * make sure it worked: `ls -alrt ~/Dropbox/remote-dev/`
 1. When you check the status on your remote machine via your ssh terminal: `dropbox status` ... you will see that the sync has begun
     ```
     Syncing (353 files remaining)
