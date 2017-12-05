@@ -41,6 +41,20 @@ const APP_COMPONENTS = [
   APP_SIDEBAR_NAV
 ]
 
+// Import directives
+import {
+  NAV_DROPDOWN_DIRECTIVES,
+  ReplaceDirective,
+  SIDEBAR_TOGGLE_DIRECTIVES
+} from './directives';
+
+const APP_DIRECTIVES = [
+  NAV_DROPDOWN_DIRECTIVES,
+  ReplaceDirective,
+  SIDEBAR_TOGGLE_DIRECTIVES
+];
+
+
 // Import routing module
 import {AppRoutingModule} from './app.routing';
 
@@ -81,6 +95,7 @@ import { ToastrModule } from 'ngx-toastr';
     AppComponent,
     ...APP_CONTAINERS,
     ...APP_COMPONENTS,
+    ...APP_DIRECTIVES,
     FullLayoutComponent
   ],
   exports: [],
