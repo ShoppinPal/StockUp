@@ -28,6 +28,19 @@ module.exports = function(StoreConfigModel) {
     next();
   };*/
 
+  // TODO: Create a StoreConfigModel for UserModel (identify the owner via token)
+  //       if this is exposed via remote method then there is no need to validate token as ACLs would have done it
+  //       also the calling remote method wrapper can provide the UserModel instance
+  //       so that related models can have it as their $owner
+
+  StoreConfigModel.remoteMethod('getVendRegisters', {
+    accepts: [
+      {arg: 'id', type: 'string', required: true}
+    ],
+    //http: {path: '/:id/:pos/:entity', verb: 'get'}
+    http: {path: '/:id/vend/registers', verb: 'get'},
+    returns: {arg: 'registers', type: 'array', root:true}
+  });
   StoreConfigModel.getVendRegisters = function(id, cb) {
     var currentUser = StoreConfigModel.getCurrentUserModel(cb); // returns  immediately if no currentUser
 
@@ -57,6 +70,13 @@ module.exports = function(StoreConfigModel) {
     }
   };
 
+  StoreConfigModel.remoteMethod('getVendOutlets', {
+    accepts: [
+      {arg: 'id', type: 'string', required: true}
+    ],
+    http: {path: '/:id/vend/outlets', verb: 'get'},
+    returns: {arg: 'outlets', type: 'array', root:true}
+  });
   StoreConfigModel.getVendOutlets = function(id, cb) {
     var currentUser = StoreConfigModel.getCurrentUserModel(cb); // returns immediately if no currentUser
 
@@ -77,6 +97,13 @@ module.exports = function(StoreConfigModel) {
     }
   };
 
+  StoreConfigModel.remoteMethod('getVendTaxes', {
+    accepts: [
+      {arg: 'id', type: 'string', required: true}
+    ],
+    http: {path: '/:id/vend/taxes', verb: 'get'},
+    returns: {arg: 'taxes', type: 'array', root:true}
+  });
   StoreConfigModel.getVendTaxes = function(id, cb) {
     var currentUser = StoreConfigModel.getCurrentUserModel(cb); // returns immediately if no currentUser
 
@@ -97,6 +124,13 @@ module.exports = function(StoreConfigModel) {
     }
   };
 
+  StoreConfigModel.remoteMethod('getVendPaymentTypes', {
+    accepts: [
+      {arg: 'id', type: 'string', required: true}
+    ],
+    http: {path: '/:id/vend/payment_types', verb: 'get'},
+    returns: {arg: 'payment_types', type: 'array', root:true}
+  });
   StoreConfigModel.getVendPaymentTypes = function(id, cb) {
     var currentUser = StoreConfigModel.getCurrentUserModel(cb); // returns immediately if no currentUser
 
@@ -117,13 +151,15 @@ module.exports = function(StoreConfigModel) {
     }
   };
 
-  StoreConfigModel.afterRemote('getVendAccessToken', function(ctx, remoteMethodResponse, next) {
-    console.log('inside afterRemote:getVendAccessToken');
-    //console.log('ctx.result.redirectUrl: ' + ctx.result.redirectUrl);
-    console.log('remoteMethodResponse.redirectUrl: ' + remoteMethodResponse.redirectUrl);
-    ctx.res.redirect(301, remoteMethodResponse.redirectUrl);
+  StoreConfigModel.remoteMethod('getVendAccessToken', {
+    accepts: [
+      {arg: 'code', type: 'string', required: true},
+      {arg: 'domain_prefix', type: 'string', required: true},
+      {arg: 'state', type: 'string', required: true}
+    ],
+    http: {path: '/token/vend', verb: 'get'},
+    returns: {arg: 'redirectUrl', type: 'string'}
   });
-
   StoreConfigModel.getVendAccessToken = function(code, domainPrefix, state, cb) {
     var currentUser = StoreConfigModel.getCurrentUserModel(cb); // returns immediately if no currentUser
 
@@ -157,7 +193,22 @@ module.exports = function(StoreConfigModel) {
         cb(error);
       });
   };
+  StoreConfigModel.afterRemote('getVendAccessToken', function(ctx, remoteMethodResponse, next) {
+    console.log('inside afterRemote:getVendAccessToken');
+    //console.log('ctx.result.redirectUrl: ' + ctx.result.redirectUrl);
+    console.log('remoteMethodResponse.redirectUrl: ' + remoteMethodResponse.redirectUrl);
+    ctx.res.redirect(301, remoteMethodResponse.redirectUrl);
+  });
 
+  StoreConfigModel.remoteMethod('updateBinLocation', {
+    accepts: [
+      {arg: 'id', type: 'string', required: true},
+      {arg: 'productId', type: 'string', required: true},
+      {arg: 'binLocation', type: 'string', required: true}
+    ],
+    http: {path: '/:id/updateBinLocation', verb: 'post'},
+    returns: {arg: 'product', type: 'object'}
+  });
   /**
    * @description Updates bin location of a product
    * @param id
@@ -182,57 +233,30 @@ module.exports = function(StoreConfigModel) {
   //       if this is exposed via remote method then there is no need to validate token as ACLs would have done it
   //       also the calling remote method wrapper can provide the UserModel instance
   //       so that related models can have it as their $owner
-  StoreConfigModel.remoteMethod('getVendRegisters', {
-    accepts: [
-      {arg: 'id', type: 'string', required: true}
-    ],
-    //http: {path: '/:id/:pos/:entity', verb: 'get'}
-    http: {path: '/:id/vend/registers', verb: 'get'},
-    returns: {arg: 'registers', type: 'array', root:true}
-  });
-
-  StoreConfigModel.remoteMethod('getVendOutlets', {
-    accepts: [
-      {arg: 'id', type: 'string', required: true}
-    ],
-    http: {path: '/:id/vend/outlets', verb: 'get'},
-    returns: {arg: 'outlets', type: 'array', root:true}
-  });
-
-  StoreConfigModel.remoteMethod('getVendTaxes', {
-    accepts: [
-      {arg: 'id', type: 'string', required: true}
-    ],
-    http: {path: '/:id/vend/taxes', verb: 'get'},
-    returns: {arg: 'taxes', type: 'array', root:true}
-  });
-
-  StoreConfigModel.remoteMethod('getVendPaymentTypes', {
-    accepts: [
-      {arg: 'id', type: 'string', required: true}
-    ],
-    http: {path: '/:id/vend/payment_types', verb: 'get'},
-    returns: {arg: 'payment_types', type: 'array', root:true}
-  });
-
-  StoreConfigModel.remoteMethod('getVendAccessToken', {
-    accepts: [
-      {arg: 'code', type: 'string', required: true},
-      {arg: 'domain_prefix', type: 'string', required: true},
-      {arg: 'state', type: 'string', required: true}
-    ],
-    http: {path: '/token/vend', verb: 'get'},
-    returns: {arg: 'redirectUrl', type: 'string'}
-  });
-
-  StoreConfigModel.remoteMethod('updateBinLocation', {
+  StoreConfigModel.remoteMethod('initiateSync', {
     accepts: [
       {arg: 'id', type: 'string', required: true},
-      {arg: 'productId', type: 'string', required: true},
-      {arg: 'binLocation', type: 'string', required: true}
+      {arg: 'names', type: 'array', required: true}
     ],
-    http: {path: '/:id/updateBinLocation', verb: 'post'},
-    returns: {arg: 'product', type: 'object'}
+    http: {path: '/:id/sync', verb: 'get'}
   });
+  StoreConfigModel.initiateSync = function (id, names, cb) {
+    log('initiateSync').debug('Called initiate sync api, will call the corresponding method');
+    return StoreConfigModel.app.models.SyncModel.initiateSync(id, names, cb)
+      .then(function (response) {
+        log('initiateSync').debug('Initiate sync successful');
+        return Promise.resolve();
+      })
+      .catch(function (error) {
+        log('initiateSync').error('ERROR', error);
+        return Promise.reject(error);
+      });
+  }
+
+
+
+
+
+
 
 };

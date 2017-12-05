@@ -1,0 +1,36 @@
+{
+  "name": "SyncModel",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "mixins": {
+    "Utils": true
+  },
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "syncInProcess": {
+      "type": "boolean",
+      "required": true,
+      "default": false
+    },
+    "version": {
+      "type": "number",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "storeConfigModel": {
+      "type": "belongsTo",
+      "model": "StoreConfigModel",
+      "foreignKey": "storeConfigModelId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}
