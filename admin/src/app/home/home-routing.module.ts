@@ -1,5 +1,6 @@
 import {NgModule} from '@angular/core';
 import {Routes, RouterModule} from '@angular/router';
+import {SyncWithVendComponent} from './sync-with-vend/sync-with-vend.component';
 import {StoresComponent} from './stores/stores.component';
 import {PaymentsComponent} from './payments/payments.component';
 import {ProductsComponent} from './products/products.component';
@@ -18,6 +19,13 @@ const routes: Routes = [
         path: '',
         redirectTo: 'stores',
         pathMatch: 'full'
+      },
+      {
+        path: 'sync-with-vend',
+        component: SyncWithVendComponent,
+        data: {
+          title: 'Home > Stores'
+        }
       },
       {
         path: 'stores',
