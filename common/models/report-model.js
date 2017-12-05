@@ -5,7 +5,7 @@ var request = require('request-promise');
 var _ = require('underscore');
 
 var path = require('path');
-var modulePath = require('loopback-connector-mongodb/lib/mongodb');
+var modulePath = require('loopback-connector-mongodb/node_modules/mongodb');
 var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 var log = require('./../lib/debug-extension')('common:models:' + fileName);
 
@@ -524,7 +524,8 @@ module.exports = function (ReportModel) {
           outletName: reportModelInstance.outlet.name,
           supplierName: supplierNameForPayload,
           outletId: reportModelInstance.outlet.id,//'aea67e1a-b85c-11e2-a415-bc764e10976c',
-          supplierId: supplierIdForPayload//'c364c506-f8f4-11e3-a0f5-b8ca3a64f8f4'
+          supplierId: supplierIdForPayload,//'c364c506-f8f4-11e3-a0f5-b8ca3a64f8f4'
+          storeConfigModelId: reportModelInstance.storeConfigModelId
         }
       };
     }

@@ -140,6 +140,13 @@
       "principalId": "teamMember",
       "permission": "ALLOW",
       "property": "updateBinLocation"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teamMember",
+      "permission": "ALLOW",
+      "property": "__get__products"
     }
   ],
   "methods": {}
