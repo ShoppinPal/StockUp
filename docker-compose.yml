@@ -58,6 +58,7 @@ services:
       - ./client/app/styles:/apps/warehouse/client/app/styles
       - ./client/app/views:/apps/warehouse/client/app/views
       - ./client/app/index.html:/apps/warehouse/client/app/index.html
+      - ./client/admin:/apps/warehouse/client/admin
       - ./common:/apps/warehouse/common
       - ./server:/apps/warehouse/server
       - ./package.json:/apps/warehouse/package.json
@@ -112,6 +113,8 @@ services:
       - ./warehouse-workers/jobs:/apps/workers/jobs
       - ./warehouse-workers/sqsWorker.js:/apps/workers/sqsWorker.js
       - ./warehouse-workers/config:/apps/workers/config
+      - ./../vend-nodejs-sdk:/apps/node_modules/vend-nodejs-sdk
+      - ./../vend-nodejs-sdk:/apps/workers/node_modules/vend-nodejs-sdk
     restart: always
     env_file: worker2.env
     depends_on:
