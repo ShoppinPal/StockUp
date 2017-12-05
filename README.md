@@ -176,7 +176,7 @@ Replenishing stock is one of the most important repetitive tasks performed by a 
         echo WAREHOUSE_SYNC_DIR_NAME=$WAREHOUSE_SYNC_DIR_NAME
 
         # make sure this is setup
-        echo $WAREHOUSE_HOME
+        echo WAREHOUSE_HOME=$WAREHOUSE_HOME
 
         # run as-is
         cd $WAREHOUSE_HOME && \
