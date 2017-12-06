@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {UserModelApi} from '../../shared/lb-sdk/services';
-import {BASE_URL, API_VERSION} from '../../shared/base.url';
+import {environment} from '../../../environments/environment';
 import {LoopBackConfig}        from '../../shared/lb-sdk/lb.config';
 import {SDKStorage} from '../../shared/lb-sdk';
 
@@ -19,8 +19,8 @@ export class AppHeaderComponent implements OnInit {
               private _router: Router,
               private _route: ActivatedRoute,
               private localStorage: SDKStorage) {
-    LoopBackConfig.setBaseURL(BASE_URL);
-    LoopBackConfig.setApiVersion(API_VERSION);
+    LoopBackConfig.setBaseURL(environment.BASE_URL);
+    LoopBackConfig.setApiVersion(environment.API_VERSION);
   }
 
 
@@ -55,7 +55,7 @@ export class AppHeaderComponent implements OnInit {
   };
 
   backToOldWarehouse() {
-    window.location.href = BASE_URL + '/#/warehouse-landing';
+    window.location.href = environment.BASE_URL + '/#/warehouse-landing';
   }
 
 }
