@@ -1,4 +1,7 @@
 var Promise = require('bluebird');
+var path = require('path');
+var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
+var log = require('./../lib/debug-extension')('common:models:' + fileName);
 
 module.exports = function(StoreConfigModel) {
 
@@ -155,6 +158,26 @@ module.exports = function(StoreConfigModel) {
       });
   };
 
+  /**
+   * @description Updates bin location of a product
+   * @param id
+   * @param productId
+   * @param binLocation
+   * @return {Promise.<TResult>}
+   */
+  StoreConfigModel.updateBinLocation = function (id, productId, binLocation) {
+    log('updateBinLocation').debug('Received \nid: ', id, '\n ProductId: ', productId, '\nBinLocation: ', binLocation);
+    return StoreConfigModel.app.models.ProductModel.updateBinLocation(id, productId, binLocation)
+      .then(function (response) {
+        log('updateBinLocation').debug('Updated bin location successfully');
+        return Promise.resolve(response);
+      })
+      .catch(function (error) {
+        log('updateBinLocation').error('Bin location update failed', error);
+        return Promise.reject(error);
+      });
+  };
+
   // TODO: Create a StoreConfigModel for UserModel (identify the owner via token)
   //       if this is exposed via remote method then there is no need to validate token as ACLs would have done it
   //       also the calling remote method wrapper can provide the UserModel instance
@@ -200,6 +223,16 @@ module.exports = function(StoreConfigModel) {
     ],
     http: {path: '/token/vend', verb: 'get'},
     returns: {arg: 'redirectUrl', type: 'string'}
+  });
+
+  StoreConfigModel.remoteMethod('updateBinLocation', {
+    accepts: [
+      {arg: 'id', type: 'string', required: true},
+      {arg: 'productId', type: 'string', required: true},
+      {arg: 'binLocation', type: 'string', required: true}
+    ],
+    http: {path: '/:id/updateBinLocation', verb: 'post'},
+    returns: {arg: 'product', type: 'object'}
   });
 
 };

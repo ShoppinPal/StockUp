@@ -3,7 +3,11 @@
   "base": "User",
   "idInjection": true,
   "properties": {
-    "id": {"type": "string", "generated": true, "id": true}
+    "id": {
+      "type": "string",
+      "id": true,
+      "generated": true
+    }
   },
   "validations": [],
   "relations": {
@@ -45,8 +49,8 @@
     "roles": {
       "type": "hasMany",
       "model": "Role",
-      "through": "RoleMapping",
-      "foreignKey": "principalId"
+      "foreignKey": "principalId",
+      "through": "RoleMapping"
     }
   },
   "acls": [
@@ -61,7 +65,14 @@
       "principalType": "ROLE",
       "principalId": "admin",
       "permission": "ALLOW"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teamMember",
+      "permission": "ALLOW",
+      "property": "profile"
     }
   ],
-  "methods": []
+  "methods": {}
 }
