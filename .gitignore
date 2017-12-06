@@ -42,6 +42,5 @@ server/config.*.js
 seeds
 /worker/generate-weekly-stock-orders/aws-ebs/seed
 docker
-/admin/src/app/shared/lb-sdk/
 client/app/scripts/shoppinpal-loopback.js
 client/admin/
