@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import { Resolve , Router, ActivatedRoute} from '@angular/router';
-import {BASE_URL, API_VERSION} from '../shared/base.url';
+import {environment} from '../../environments/environment';
 import {LoopBackConfig}        from '../shared/lb-sdk';
 import {UserModel, AccessToken} from '../shared/lb-sdk';
 import {UserModelApi} from '../shared/lb-sdk';
@@ -16,8 +16,8 @@ export class LoginComponent implements OnInit {
   public loading = false;
 
   constructor(private userModelApi: UserModelApi, private _router: Router, private _route: ActivatedRoute) {
-    LoopBackConfig.setBaseURL(BASE_URL);
-    LoopBackConfig.setApiVersion(API_VERSION);
+    LoopBackConfig.setBaseURL(environment.BASE_URL);
+    LoopBackConfig.setApiVersion(environment.API_VERSION);
   }
 
   fetchInput(username: string, password: string) {

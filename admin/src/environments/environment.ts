@@ -5,5 +5,7 @@
 
 export const environment = {
   production: false,
-  'API_URL': 'http://kamalazure.shoppinpal.com/api'
+  API_URL: 'http://kamalazure.shoppinpal.com/api',
+  BASE_URL: 'http://kamalazure.shoppinpal.com',
+  API_VERSION: 'api'
 };
