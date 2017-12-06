@@ -1,17 +1,15 @@
 {
   "name": "shoppinpal-warehouse-mongo",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "dependencies": {
     "@mean-expert/loopback-component-realtime": "1.0.0-rc.9.6",
     "@mean-expert/loopback-sdk-builder": "^2.1.0-rc.14",
-    "@risingstack/trace": "^3.6.2",
     "aws-sdk": "2.6.15",
     "bluebird": "2.9.14",
     "commander": "^2.9.0",
     "compression": "^1.0.3",
     "csvtojson": "0.4.2",
     "debug": "^2.1.0",
-    "ejs": "~0.8.5",
     "errorhandler": "^1.1.1",
     "excel-stream": "~1.1.1",
     "exec-buffer": "^0.1.1",
