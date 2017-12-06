@@ -163,6 +163,7 @@ Replenishing stock is one of the most important repetitive tasks performed by a 
         cd ~/Dropbox && dropbox exclude add remote-dev/$WAREHOUSE_SYNC_DIR_NAME/.git && \
         cd ~/Dropbox && dropbox exclude add remote-dev/$WAREHOUSE_SYNC_DIR_NAME/node_modules && \
         cd ~/Dropbox && dropbox exclude add remote-dev/$WAREHOUSE_SYNC_DIR_NAME/client/app/bower_components && \
+        cd ~/Dropbox && dropbox exclude add remote-dev/$WAREHOUSE_SYNC_DIR_NAME/docker/volumes && \
         cd ~/Dropbox && dropbox exclude add remote-dev/$WAREHOUSE_SYNC_DIR_NAME/warehouse-workers/.git && \
         cd ~/Dropbox && dropbox exclude add remote-dev/$WAREHOUSE_SYNC_DIR_NAME/warehouse-workers/node_modules
 1. To check if they are now excluded, use `dropbox exclude list | grep remote-dev`
