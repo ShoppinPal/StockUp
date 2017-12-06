@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {LoopBackConfig} from './shared/lb-sdk';
-import {BASE_URL, API_VERSION} from './shared/base.url';
+import {environment} from '../environments/environment.prod';
 
 
 @Component({
@@ -10,7 +10,7 @@ import {BASE_URL, API_VERSION} from './shared/base.url';
 })
 export class AppComponent {
   constructor() {
-    LoopBackConfig.setBaseURL(BASE_URL);
-    LoopBackConfig.setApiVersion(API_VERSION);
+    LoopBackConfig.setBaseURL(environment.BASE_URL);
+    LoopBackConfig.setApiVersion(environment.API_VERSION);
   }
 }
