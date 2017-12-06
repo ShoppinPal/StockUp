@@ -2,11 +2,11 @@
   "name": "SyncModel",
   "base": "PersistedModel",
   "idInjection": true,
-  "mixins": {
-    "Utils": true
-  },
   "options": {
     "validateUpsert": true
+  },
+  "mixins": {
+    "Utils": true
   },
   "properties": {
     "name": {
@@ -21,6 +21,9 @@
     "version": {
       "type": "number",
       "required": true
+    },
+    "lastSyncedAt": {
+      "type": "date"
     }
   },
   "validations": [],

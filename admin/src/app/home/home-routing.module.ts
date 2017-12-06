@@ -6,6 +6,7 @@ import {PaymentsComponent} from './payments/payments.component';
 import {ProductsComponent} from './products/products.component';
 import {UserResolverService} from './../shared/services/user-resolver.service';
 import {AccessService} from "../shared/services/access.service";
+import {SyncWithVendResolverService} from "./sync-with-vend/services/sync-with-vend-resolver.service";
 
 const routes: Routes = [
   {
@@ -25,6 +26,9 @@ const routes: Routes = [
         component: SyncWithVendComponent,
         data: {
           title: 'Home > Stores'
+        },
+        resolve: {
+          syncModels: SyncWithVendResolverService
         }
       },
       {
@@ -54,7 +58,8 @@ const routes: Routes = [
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
+  providers:[SyncWithVendResolverService]
 })
 export class HomeRoutingModule {
 }

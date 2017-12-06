@@ -2,26 +2,26 @@
 <div class="animated fadeIn">
   <div class="row">
     <div class="col-sm-6 col-lg-4">
-      <div class="card">
+      <div *ngFor="let syncModel of syncModels" class="card">
         <div class="card-body">
           <div class="row">
             <div class="col-sm-5">
               <div class="h4 m-0">89.9%</div>
-              <div>Products sync</div>
+              <div>{{syncModel.name}} sync</div>
             </div>
             <div class="col-sm-2"></div>
             <div class="col-sm-5">
               <div class="h4 m-0 float-right">11,492</div>
-              <small class="text-muted float-right">Total products</small>
+              <small class="text-muted float-right">Total {{syncModel.name}}</small>
             </div>
           </div>
           <div class="progress progress-xs my-3">
             <div class="progress-bar bg-success" role="progressbar" style="width: 95%" aria-valuenow="25"
                  aria-valuemin="0" aria-valuemax="100"></div>
           </div>
-          <button type="button" class="btn btn-primary" (click)="initiateSync(['products'])">Sync now</button>
+          <button type="button" [disabled]="syncModel.syncInProcess" class="btn btn-primary" (click)="initiateSync(['products'])">Sync now</button>
           <br/>
-          <small class="text-muted">Last synced at 21:37:51</small>
+          <small class="text-muted">Last synced at {{syncModel.lastSyncedAt | date:'medium'}}</small>
         </div>
       </div>
     </div><!--/.col-->

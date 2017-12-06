@@ -20,28 +20,33 @@ module.exports = function (SyncModel) {
         }
       }
     };
-    var storeConfigInstance, syncModels;
+    var storeConfigInstance, syncModels, syncInProgressNames;
 
-    return SyncModel.app.models.StoreConfigModel.findById(id)
+    return SyncModel.app.models.StoreConfigModel.findById(id, filter)
       .then(function (storeConfigModelInstance) {
         storeConfigInstance = storeConfigModelInstance;
         if (!storeConfigModelInstance) {
           log('initiateSync').error('Could not find the organisation', id);
           return Promise.reject('Could not find your organisation');
         }
-        else if (!storeConfigModelInstance.syncModels() || storeConfigModelInstance.syncModels().length>0) {
-          log('initiateSync').debug('No sync models found for current org, will initiate sync models first');
-          return Promise.map(names, function (eachName) {
-            return SyncModel.create({
-              name: eachName,
-              version: 0,
-              syncInProgress: false,
-              storeConfigModelId: id
-            });
-          })
-        }
         else {
-          return Promise.resolve(storeConfigModelInstance.syncModels());
+          log('initiateSync').debug('Found this storeConfigModel', JSON.stringify(storeConfigModelInstance, null, 2));
+          log('initiateSync').debug('Found these sync models', storeConfigModelInstance.syncModels());
+          if (!storeConfigModelInstance.syncModels() || !storeConfigModelInstance.syncModels().length) {
+            log('initiateSync').debug('No sync models found for current org, will initiate sync models first');
+            return Promise.map(names, function (eachName) {
+              return SyncModel.create({
+                name: eachName,
+                version: 0,
+                syncInProcess: false,
+                storeConfigModelId: id
+              });
+            })
+          }
+          else {
+            //TODO: reject the ones whose syncs are already in progress
+            return Promise.resolve(storeConfigModelInstance.syncModels());
+          }
         }
       })
       .then(function (response) {
@@ -80,7 +85,7 @@ module.exports = function (SyncModel) {
           return SyncModel.updateAll({
             name: eachModel.name
           }, {
-            syncInProgress: true,
+            syncInProcess: true,
             workerTaskId: response.MessageId
           });
         });

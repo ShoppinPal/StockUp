@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {UserProfileService} from '../../shared/services/user-profile.service';
 import {StoreConfigModelApi} from '../../shared/lb-sdk';
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'app-sync-with-vend',
@@ -10,14 +11,22 @@ import {StoreConfigModelApi} from '../../shared/lb-sdk';
 export class SyncWithVendComponent implements OnInit {
 
   public userProfile: any;
-  public loading = false;
+  public loading: boolean = false;
+  public syncModels: any;
 
   constructor(private _userProfileService: UserProfileService,
-              private storeConfigModelApi: StoreConfigModelApi) {
+              private storeConfigModelApi: StoreConfigModelApi,
+              private _route: ActivatedRoute) {
   }
 
   ngOnInit() {
     this.userProfile = this._userProfileService.getProfileData();
+    this._route.data.subscribe((data: any) => {
+        this.syncModels = data.syncModels;
+      },
+      error => {
+        console.log('error', error)
+      });
   }
 
   initiateSync(dataObjects) {
