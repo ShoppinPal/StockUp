@@ -83,5 +83,9 @@
   "SyncModel": {
     "dataSource": "db",
     "public": false
+  },
+  "InventoryModel": {
+    "dataSource": "db",
+    "public": false
   }
 }

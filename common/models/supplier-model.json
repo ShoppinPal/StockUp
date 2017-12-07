@@ -30,7 +30,7 @@
     "productModels": {
       "type": "hasMany",
       "model": "ProductModel",
-      "foreignKey": ""
+      "foreignKey": "productModelId"
     }
   },
   "acls": [

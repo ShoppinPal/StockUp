@@ -93,6 +93,16 @@
       "type": "hasMany",
       "model": "SyncModel",
       "foreignKey": "storeConfigModelId"
+    },
+    "inventoryModels": {
+      "type": "hasMany",
+      "model": "InventoryModel",
+      "foreignKey": "storeConfigModelId"
+    },
+    "supplierModels": {
+      "type": "hasMany",
+      "model": "SupplierModel",
+      "foreignKey": "storeConfigModelId"
     }
   },
   "acls": [

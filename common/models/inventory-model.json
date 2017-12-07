@@ -1,32 +1,30 @@
 {
-  "name": "SyncModel",
+  "name": "InventoryModel",
   "base": "PersistedModel",
   "idInjection": true,
   "options": {
     "validateUpsert": true
   },
-  "mixins": {
-    "Utils": true
-  },
   "properties": {
-    "name": {
+    "api_id": {
       "type": "string",
       "required": true
     },
-    "syncInProcess": {
-      "type": "boolean",
-      "required": true,
-      "default": false
+    "outlet_id": {
+      "type": "string",
+      "required": true
     },
-    "version": {
+    "inventory_level": {
       "type": "number",
       "required": true
     },
-    "lastSyncedAt": {
-      "type": "date"
+    "reorder_point": {
+      "type": "number",
+      "required": true
     },
-    "workerTaskId": {
-      "type": "string"
+    "reorder_amount": {
+      "type": "number",
+      "required": true
     }
   },
   "validations": [],
@@ -35,6 +33,11 @@
       "type": "belongsTo",
       "model": "StoreConfigModel",
       "foreignKey": "storeConfigModelId"
+    },
+    "productModel": {
+      "type": "belongsTo",
+      "model": "ProductModel",
+      "foreignKey": "productModelId"
     }
   },
   "acls": [],
