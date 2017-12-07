@@ -154,19 +154,19 @@ Replenishing stock is one of the most important repetitive tasks performed by a 
       ```
 1. Before making our project sync-capable, let us add rules to prevent unnecessary stuff from syncing:
 
-        ```
-        # change this according to your needs before running
-        export WAREHOUSE_SYNC_DIR_NAME=warehouse-sync-pr-xxx && echo $WAREHOUSE_SYNC_DIR_NAME
+    ```
+    # change this according to your needs before running
+    export WAREHOUSE_SYNC_DIR_NAME=warehouse-sync-pr-xxx && echo $WAREHOUSE_SYNC_DIR_NAME
 
-        # run this as-is
-        mkdir -p ~/Dropbox/remote-dev/ && \
-        cd ~/Dropbox && dropbox exclude add remote-dev/$WAREHOUSE_SYNC_DIR_NAME/.git && \
-        cd ~/Dropbox && dropbox exclude add remote-dev/$WAREHOUSE_SYNC_DIR_NAME/node_modules && \
-        cd ~/Dropbox && dropbox exclude add remote-dev/$WAREHOUSE_SYNC_DIR_NAME/client/app/bower_components && \
-        cd ~/Dropbox && dropbox exclude add remote-dev/$WAREHOUSE_SYNC_DIR_NAME/docker/volumes && \
-        cd ~/Dropbox && dropbox exclude add remote-dev/$WAREHOUSE_SYNC_DIR_NAME/warehouse-workers/.git && \
-        cd ~/Dropbox && dropbox exclude add remote-dev/$WAREHOUSE_SYNC_DIR_NAME/warehouse-workers/node_modules
-        ```
+    # run this as-is
+    mkdir -p ~/Dropbox/remote-dev/ && \
+    cd ~/Dropbox && dropbox exclude add remote-dev/$WAREHOUSE_SYNC_DIR_NAME/.git && \
+    cd ~/Dropbox && dropbox exclude add remote-dev/$WAREHOUSE_SYNC_DIR_NAME/node_modules && \
+    cd ~/Dropbox && dropbox exclude add remote-dev/$WAREHOUSE_SYNC_DIR_NAME/client/app/bower_components && \
+    cd ~/Dropbox && dropbox exclude add remote-dev/$WAREHOUSE_SYNC_DIR_NAME/docker/volumes && \
+    cd ~/Dropbox && dropbox exclude add remote-dev/$WAREHOUSE_SYNC_DIR_NAME/warehouse-workers/.git && \
+    cd ~/Dropbox && dropbox exclude add remote-dev/$WAREHOUSE_SYNC_DIR_NAME/warehouse-workers/node_modules
+    ```
 1. To check if they are now excluded, use `dropbox exclude list | grep remote-dev`
     * if an incorrect path was excluded, you can fix it with: `dropbox exclude remove /the/path`
 1. Wire up your project root to be synced via Dropbox:
