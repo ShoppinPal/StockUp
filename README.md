@@ -166,6 +166,7 @@ Replenishing stock is one of the most important repetitive tasks performed by a 
         cd ~/Dropbox && dropbox exclude add remote-dev/$WAREHOUSE_SYNC_DIR_NAME/docker/volumes && \
         cd ~/Dropbox && dropbox exclude add remote-dev/$WAREHOUSE_SYNC_DIR_NAME/warehouse-workers/.git && \
         cd ~/Dropbox && dropbox exclude add remote-dev/$WAREHOUSE_SYNC_DIR_NAME/warehouse-workers/node_modules
+        ```
 1. To check if they are now excluded, use `dropbox exclude list | grep remote-dev`
     * if an incorrect path was excluded, you can fix it with: `dropbox exclude remove /the/path`
 1. Wire up your project root to be synced via Dropbox:
