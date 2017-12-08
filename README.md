@@ -28,6 +28,10 @@ Replenishing stock is one of the most important repetitive tasks performed by a 
     cp .env.example .env
     cp worker.env.example worker.env
     ```
+    OR 
+    
+    you can run the command `npm run generate-env` , which will ask you for the environment variables to be configured.Once done, It will generate a .env file for you as per the values you specified.
+
 1. Move to the terraform directory:: `cd $PROJECT_ROOT/terraform`
     * Use `$PROJECT_ROOT/terraform/example.tfvars.file` as template:
 
