@@ -2,6 +2,9 @@
   "name": "SupplierModel",
   "base": "PersistedModel",
   "idInjection": true,
+  "mixins": {
+    "Utils": true
+  },
   "properties": {
     "name": {
       "type": "string",
@@ -23,6 +26,11 @@
       "type": "belongsTo",
       "model": "StoreConfigModel",
       "foreignKey": "storeConfigModelToSupplierModelId"
+    },
+    "productModels": {
+      "type": "hasMany",
+      "model": "ProductModel",
+      "foreignKey": ""
     }
   },
   "acls": [
@@ -57,8 +65,5 @@
       "permission": "ALLOW"
     }
   ],
-  "methods": [],
-  "mixins": {
-    "Utils": true
-  }
+  "methods": {}
 }

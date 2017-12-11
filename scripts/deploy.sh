@@ -14,6 +14,13 @@ if [ "${CIRCLE_BRANCH}" = "master" ]; then
   docker push shoppinpal/warehouse:production-${BUILD_TAG}
 fi
 if [ "${CIRCLE_BRANCH}" = "develop" ]; then
+  scripts/build/tag ${BUILD_TAG} "dev-${BUILD_TAG}"
+  scripts/build/tag ${BUILD_TAG} "dev"
+  docker push shoppinpal/warehouse:dev-${BUILD_TAG}
+  docker push shoppinpal/warehouse:dev
+fi
+
+if [[ "${CIRCLE_BRANCH}" =~ ^release.* ]]; then
   scripts/build/tag ${BUILD_TAG} "staging-${BUILD_TAG}"
   scripts/build/tag ${BUILD_TAG} "staging"
   docker push shoppinpal/warehouse:staging-${BUILD_TAG}

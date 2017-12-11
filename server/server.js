@@ -1,15 +1,5 @@
 'use strict';
 
-if (process.env.TRACE_ENABLED && process.env.TRACE_ENABLED.toLowerCase() === 'true' &&
-    process.env.TRACE_SERVICE_NAME &&
-    process.env.TRACE_API_KEY)
-{
-  console.log('starting trace agent');
-  require('@risingstack/trace');
-}
-else {
-  console.log('skipped trace agent');
-}
 if (process.env.NEW_RELIC_ENABLED && process.env.NEW_RELIC_ENABLED.toLowerCase() === 'true' &&
     process.env.NEW_RELIC_NO_CONFIG_FILE &&
     process.env.NEW_RELIC_LICENSE_KEY &&
@@ -31,6 +21,7 @@ var boot = require('loopback-boot');
 //   Getting the app object:
 //     http://docs.strongloop.com/display/public/LB/Working+with+LoopBack+objects
 var app = module.exports = loopback();
+var path = require('path');
 
 // boot scripts mount components like REST API
 boot(app, __dirname);
@@ -40,6 +31,13 @@ app.start = function() {
   return app.listen(function() {
     app.emit('started');
     console.log('Web server listening at: %s', app.get('url'));
+
+    app.use('/v2', app.loopback.static(path.resolve(__dirname, './../client/admin')));
+
+    app.get('/v2*', function (req, res, next) {
+        res.sendFile('index.html', {root: path.resolve(__dirname, './../client/admin')});
+    });
+
   });
 };
 

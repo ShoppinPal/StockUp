@@ -2,8 +2,15 @@
   "name": "StockOrderLineitemModel",
   "base": "PersistedModel",
   "idInjection": true,
+  "mixins": {
+    "Utils": true
+  },
   "properties": {
-    "id": {"type": "string", "generated": true, "id": true},
+    "id": {
+      "type": "string",
+      "id": true,
+      "generated": true
+    },
     "productId": {
       "type": "string",
       "required": false
@@ -112,8 +119,5 @@
       "permission": "ALLOW"
     }
   ],
-  "methods": [],
-  "mixins": {
-    "Utils": true
-  }
+  "methods": {}
 }
