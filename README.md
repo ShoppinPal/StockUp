@@ -30,7 +30,9 @@ Replenishing stock is one of the most important repetitive tasks performed by a 
     ```
     OR 
     
-    you can run the command `npm run generate-env` , which will ask you for the environment variables to be configured.Once done, It will generate a .env file for you as per the values you specified.
+    you can run the command `npm run generate-env` , which will ask you for the environment variables to be configured.Once done, It will generate a .env file for you as per the values you specified. This utility uses npm module `inquirer`. Thus make sure you install it by running ```npm install inquirer --save```.
+    
+    This command also accepts an argument as `npm run generate-env --state=worker2` to generate environment configuration for worker2.
 
 1. Move to the terraform directory:: `cd $PROJECT_ROOT/terraform`
     * Use `$PROJECT_ROOT/terraform/example.tfvars.file` as template:
