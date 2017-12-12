@@ -1,43 +1,40 @@
 {
-  "name": "ProductModel",
+  "name": "SyncModel",
   "base": "PersistedModel",
   "idInjection": true,
   "options": {
     "validateUpsert": true
+  },
+  "mixins": {
+    "Utils": true
   },
   "properties": {
     "name": {
       "type": "string",
       "required": true
     },
-    "sku": {
-      "type": "string",
+    "syncInProcess": {
+      "type": "boolean",
+      "required": true,
+      "default": false
+    },
+    "version": {
+      "type": "number",
       "required": true
     },
-    "api_id": {
-      "type": "string",
-      "required": true
+    "lastSyncedAt": {
+      "type": "date"
     },
-    "binLocation": {
+    "workerTaskId": {
       "type": "string"
     }
   },
   "validations": [],
   "relations": {
-    "supplierModel": {
-      "type": "belongsTo",
-      "model": "SupplierModel",
-      "foreignKey": "supplierModelId"
-    },
     "storeConfigModel": {
       "type": "belongsTo",
       "model": "StoreConfigModel",
       "foreignKey": "storeConfigModelId"
-    },
-    "inventoryModel": {
-      "type": "hasOne",
-      "model": "InventoryModel",
-      "foreignKey": "productModelId"
     }
   },
   "acls": [],

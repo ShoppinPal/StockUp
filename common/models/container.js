@@ -485,7 +485,8 @@ module.exports = function (Container) {
             name: warehouseOutlet.name
           },
           paymentTypeId: warehouseOutlet.defaultPaymentType && warehouseOutlet.defaultPaymentType.api_id ? warehouseOutlet.defaultPaymentType.api_id : null,
-          vendCustomerId: storeOutlet.vendCustomerId
+          vendCustomerId: storeOutlet.vendCustomerId,
+          storeConfigModelId: storeOutlet.storeConfigModelToStoreModelId
         });
       })
       .catch(function (error) {
@@ -516,12 +517,15 @@ module.exports = function (Container) {
       singleOrder.supplierName = singleOrder.supplierName.replace(/_/g, '.'); // . is treated as regex when
       log.debug('regex with supplierName', singleOrder.supplierName);
 
+      var storeConfigModelId;
+
       // TODO: current user should only be able to search his/her own stores and suppliers, not all of them!
 
       var StoreModel = Container.app.models.StoreModel;
       return StoreModel.findOne({where: {name: {like: singleOrder.storeName}}})
         .then(function (storeModelInstance) {
           log.trace('storeModelInstance', storeModelInstance);
+          storeConfigModelId = storeModelInstance.storeConfigModelToStoreModelId;
           if (storeModelInstance) {
             var SupplierModel = Container.app.models.SupplierModel;
             return SupplierModel.findOne({
@@ -548,7 +552,8 @@ module.exports = function (Container) {
                     supplier: {
                       id: supplierModelInstance.apiId,
                       name: supplierModelInstance.name
-                    }
+                    },
+                    storeConfigModelId: storeConfigModelId
                   });
                 }
                 else {
@@ -611,7 +616,8 @@ module.exports = function (Container) {
               },
               supplier: {
                 name: "ANY" //TODO: why to use static value, when I chose CSC in the UI, and the file I uploaded was for FFCC
-              }
+              },
+              storeConfigModelId: storeModelInstance.storeConfigModelToStoreModelId
             });
           }
           else {

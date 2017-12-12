@@ -1,42 +1,42 @@
 {
-  "name": "ProductModel",
+  "name": "InventoryModel",
   "base": "PersistedModel",
   "idInjection": true,
   "options": {
     "validateUpsert": true
   },
   "properties": {
-    "name": {
-      "type": "string",
-      "required": true
-    },
-    "sku": {
-      "type": "string",
-      "required": true
-    },
     "api_id": {
       "type": "string",
       "required": true
     },
-    "binLocation": {
-      "type": "string"
+    "outlet_id": {
+      "type": "string",
+      "required": true
+    },
+    "inventory_level": {
+      "type": "number",
+      "required": true
+    },
+    "reorder_point": {
+      "type": "number",
+      "required": true
+    },
+    "reorder_amount": {
+      "type": "number",
+      "required": true
     }
   },
   "validations": [],
   "relations": {
-    "supplierModel": {
-      "type": "belongsTo",
-      "model": "SupplierModel",
-      "foreignKey": "supplierModelId"
-    },
     "storeConfigModel": {
       "type": "belongsTo",
       "model": "StoreConfigModel",
       "foreignKey": "storeConfigModelId"
     },
-    "inventoryModel": {
-      "type": "hasOne",
-      "model": "InventoryModel",
+    "productModel": {
+      "type": "belongsTo",
+      "model": "ProductModel",
       "foreignKey": "productModelId"
     }
   },

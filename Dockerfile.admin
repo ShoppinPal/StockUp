@@ -17,11 +17,11 @@ RUN set -x \
 	&& gosu nobody true
 RUN mkdir -p /apps/warehouse/admin
 RUN chown -R node:node /apps/warehouse
-WORKDIR /apps/warehouse/admin
-COPY admin/package.json /apps/warehouse/admin/package.json
-RUN npm install
-#RUN npm run admin
 WORKDIR /apps/warehouse
 COPY package.json /apps/warehouse/package.json
 RUN npm install
-#RUN npm run build:sdk
+RUN npm run angular2-sdk
+WORKDIR /apps/warehouse/admin
+COPY admin/package.json /apps/warehouse/admin/package.json
+RUN npm install
+RUN npm run admin

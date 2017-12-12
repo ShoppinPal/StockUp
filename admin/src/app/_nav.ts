@@ -31,13 +31,18 @@ export const navigation = [
     name: 'Settings'
   },
   {
+    name: 'Syncing with Vend',
+    url: '/sync-with-vend',
+    icon: 'icon-refresh'
+  },
+  {
     name: 'Stores',
     url: '/stores',
-    icon: 'icon-location-pin'
+    icon: 'icon-settings'
   },
   {
     name: 'Payments',
     url: '/payments',
-    icon: 'icon-credit-card'
+    icon: 'icon-settings'
   }
 ];

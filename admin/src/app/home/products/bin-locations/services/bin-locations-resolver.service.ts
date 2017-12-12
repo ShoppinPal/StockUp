@@ -21,7 +21,6 @@ export class BinLocationsResolverService {
   }
 
   fetchProducts(limit?: number, skip?: number): Observable<any> {
-    // this.loading = true;
     let filter = {
       limit: 10,
       skip: skip || 0
@@ -39,7 +38,6 @@ export class BinLocationsResolverService {
         }
       },
       err => {
-        // this.loading = false;
         console.log('Couldn\'t load products', err);
       });
   };
