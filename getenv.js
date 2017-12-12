@@ -2,7 +2,7 @@
 
 var questions = require('./questions/qustions').getQustions();
 var inquirer = require('inquirer');
-var state = process.env.npm_config_state;
+var environment = process.env.npm_config_e ? process.env.npm_config_e : 'web';
 var fs = require('fs');
 var obj = {};
 var text;
@@ -26,7 +26,7 @@ function writeToFile(destPath, messageId) {
 }
 
 function generateEnv(data) {
-    if (state) {
+    if (environment==='worker') {
         for (var wkey in data) {
             if (data.hasOwnProperty(wkey)) {
                 switch (wkey) {
@@ -71,9 +71,9 @@ function generateEnv(data) {
             }
         }
         if (data.end.completion) {
-            writeToFile('worker2.env', text);
+            writeToFile('worker.env', text);
         }
-    } else {
+    } else if(environment==='web') {
         for (var key in data) {
             if (data.hasOwnProperty(key)) {
                 switch (key) {
@@ -155,7 +155,8 @@ function generateEnv(data) {
     
 }
 
-if (state) {
+
+if (environment==='worker') {
     text = '';
     inquirer.prompt(questions.workerqs).then(answers => {
         obj.answers = answers;
@@ -170,7 +171,7 @@ if (state) {
             });
         });
     });
-} else {
+} else if(environment==='web') {
     text = ' GENERATE_STOCK_ORDER_WORKER=generateStockOrderSeriallyWithPaging\
     \n IMPORT_STOCK_ORDER_TO_POS=addProductsToVendConsignment\
     \n IMPORT_STOCK_ORDER_TO_WAREHOUSE=wh.order.import.cached\
@@ -198,6 +199,10 @@ if (state) {
             });
         });
     });
+}else{
+    console.log('------------------------------------');
+    console.log('Oops ! An Invalid Option Entered, Please choose either web or worker as an environment');
+    console.log('------------------------------------');
 }
 
 
