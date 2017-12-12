@@ -11,6 +11,7 @@ export interface SupplierModelInterface {
   "id"?: any;
   "userId"?: any;
   "storeConfigModelToSupplierModelId"?: any;
+  "storeConfigModelId"?: any;
   userModel?: UserModel;
   storeConfigModel?: StoreConfigModel;
   productModels?: any[];
@@ -22,6 +23,7 @@ export class SupplierModel implements SupplierModelInterface {
   "id": any;
   "userId": any;
   "storeConfigModelToSupplierModelId": any;
+  "storeConfigModelId": any;
   userModel: UserModel;
   storeConfigModel: StoreConfigModel;
   productModels: any[];
@@ -75,6 +77,10 @@ export class SupplierModel implements SupplierModelInterface {
         },
         "storeConfigModelToSupplierModelId": {
           name: 'storeConfigModelToSupplierModelId',
+          type: 'any'
+        },
+        "storeConfigModelId": {
+          name: 'storeConfigModelId',
           type: 'any'
         },
       },

@@ -1,7 +1,8 @@
 /* tslint:disable */
 import {
   UserModel,
-  StoreModel
+  StoreModel,
+  SupplierModel
 } from '../index';
 
 declare var Object: any;
@@ -28,7 +29,10 @@ export interface StoreConfigModelInterface {
   "userId"?: any;
   userModel?: UserModel;
   storeModels?: StoreModel[];
+  supplierModels?: SupplierModel[];
   productModels?: any[];
+  syncModels?: any[];
+  inventoryModels?: any[];
 }
 
 export class StoreConfigModel implements StoreConfigModelInterface {
@@ -54,7 +58,10 @@ export class StoreConfigModel implements StoreConfigModelInterface {
   "userId": any;
   userModel: UserModel;
   storeModels: StoreModel[];
+  supplierModels: SupplierModel[];
   productModels: any[];
+  syncModels: any[];
+  inventoryModels: any[];
   constructor(data?: StoreConfigModelInterface) {
     Object.assign(this, data);
   }
@@ -179,8 +186,23 @@ export class StoreConfigModel implements StoreConfigModelInterface {
           type: 'StoreModel[]',
           model: 'StoreModel'
         },
+        supplierModels: {
+          name: 'supplierModels',
+          type: 'SupplierModel[]',
+          model: 'SupplierModel'
+        },
         productModels: {
           name: 'productModels',
+          type: 'any[]',
+          model: ''
+        },
+        syncModels: {
+          name: 'syncModels',
+          type: 'any[]',
+          model: ''
+        },
+        inventoryModels: {
+          name: 'inventoryModels',
           type: 'any[]',
           model: ''
         },
