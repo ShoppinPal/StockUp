@@ -1,5 +1,3 @@
-variable "aws_access_key" {}
-variable "aws_secret_key" {}
 variable "Q" {}
 variable "DLQ" {}
 variable "aws_region" {}
@@ -26,7 +24,7 @@ resource "aws_sqs_queue" "warehouse_workers_Q" {
   message_retention_seconds   = 1209600,
   receive_wait_time_seconds   = 10,
   redrive_policy              = "{\"deadLetterTargetArn\":\"${aws_sqs_queue.warehouse_workers_DLQ.arn}\",\"maxReceiveCount\":1}",
-  visibility_timeout_seconds  = "1800"
+  visibility_timeout_seconds  = "1800" 
 
   provisioner "local-exec" {
     command = "echo '\n##\n# Warehouse sends jobs/payloads to a queue so that a worker may pick them up and finish them off.\n# There are many technologies that can provide a queue implementation: SQS, RabbitMQ, redis, etc.\n##' >> ../.env"
