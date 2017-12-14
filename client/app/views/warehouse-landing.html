@@ -90,7 +90,7 @@
                                                              'status-square-complete': storeReport.state == ReportModelStates.MANAGER_RECEIVE}">
                                             </span>
                                             <span ng-if="storeReport.state == ReportModelStates.REPORT_COMPLETE">Completed</span>
-                                            <!--<div ng-if="storeReport.state !== 'empty'">{{storeReport.state}}</div>-->
+                                            <div ng-if="storeReport.state == ReportModelStates.REPORT_EMPTY">Still processing... Tap to refresh status</div>
                                         </div>
                                     </td>
                                     <td width="10%">{{storeReport.desiredStockLevel}}</td>
