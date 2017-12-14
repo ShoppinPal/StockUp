@@ -11,8 +11,8 @@ Replenishing stock is one of the most important repetitive tasks performed by a 
 
 # Deploy
 
-1. [On remote machine with Docker while editing locally](readme/local-ide-remote-docker.md)
-1. [Locally](readme/local.md) (not recommended)
+1. [On remote machine with Docker while editing locally](docs/local-ide-remote-docker.md)
+1. [Locally](docs/local.md) (not recommended)
 
 # Troubleshooting
 

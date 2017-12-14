@@ -116,7 +116,7 @@
         echo "###"
 
         export SYNC_DEV_HOME=`echo ~/Dropbox/remote-dev` && \
-            export WAREHOUSE_PROJECT_NAME=w273 && \
+            export WAREHOUSE_PROJECT_NAME=warehouse-1 && \
             export WAREHOUSE_SYNC_DIR_NAME=`echo $WAREHOUSE_PROJECT_NAME.sync` && \
             export SLAVE_WAREHOUSE_HOME=`echo $SYNC_DEV_HOME/$WAREHOUSE_SYNC_DIR_NAME` && \
         echo SYNC_DEV_HOME=$SYNC_DEV_HOME && \
@@ -134,6 +134,7 @@
         * Once done, it will generate files for you as per the values you specified.
     * then run the command `docker-compose run nodejs npm run generate-env -e=worker` for generating `worker.env` for warehouse worker service.
     * `@Bhushan001` we need `worker2.env` as well
+    * Once these env files are generated, you can go ahead and run the terraform scripts in the next step to add-on [SQS](https://aws.amazon.com/sqs/) infrastructure.
 1. On master, move to the terraform directory: `cd $WAREHOUSE_HOME/terraform`
     * Use `$WAREHOUSE_HOME/terraform/example.tfvars.file` as template:
 
