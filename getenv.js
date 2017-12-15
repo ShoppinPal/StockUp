@@ -7,7 +7,6 @@ var fs = require('fs');
 var obj = {};
 var text;
 
-
 function writeToFile(destPath, messageId) {
     fs.open(destPath, 'w+', function (err, fd) {
         if (err) {
@@ -26,7 +25,7 @@ function writeToFile(destPath, messageId) {
 }
 
 function generateEnv(data) {
-    if (environment==='worker') {
+    if (environment === 'worker') {
         for (var wkey in data) {
             if (data.hasOwnProperty(wkey)) {
                 switch (wkey) {
@@ -44,36 +43,13 @@ function generateEnv(data) {
                             }
                         }
                         break;
-                    case 'sqsvals':
-                        for (var sKey in data[wkey]) {
-                            if (data[wkey].hasOwnProperty(sKey)) {
-                                switch (sKey) {
-                                    case 'aws_sqs_region':
-                                        text += '\n AWS_SQS_REGION = ' + data[wkey][sKey];
-                                        break;
-                                    case 'aws_sqs_secret_access_key':
-                                        text += '\n AWS_SQS_SECRET_ACCESS_KEY = ' + data[wkey][sKey];
-                                        break;
-                                    case 'aws_sqs_access_key_id':
-                                        text += '\n AWS_SQS_ACCESS_KEY_ID = ' + data[wkey][sKey];
-                                        break;
-                                    case 'aws_sqs_url':
-                                        text += '\n AWS_SQS_URL = ' + data[wkey][sKey];
-                                        break;
-                                    case 'aws_sqs_url_2':
-                                        text += '\n AWS_SQS_URL_2 = ' + data[wkey][sKey];
-                                        break;
-                                }
-                            }
-                        }
-                        break;
                 }
             }
         }
         if (data.end.completion) {
             writeToFile('worker.env', text);
         }
-    } else if(environment==='web') {
+    } else if (environment === 'web') {
         for (var key in data) {
             if (data.hasOwnProperty(key)) {
                 switch (key) {
@@ -88,6 +64,9 @@ function generateEnv(data) {
                                         text += '\n SCHEME = ' + data[key][gKey];
                                         break;
                                     case 'external_ip':
+                                        text+='\n\n ##\
+                                        \n # To accommodate redirects, the code needs to know the external facing URL (FQDN or IP)\
+                                        \n ##';
                                         text += '\n VM_EXTERNAL_IP = ' + data[key][gKey];
                                         break;
                                     case 'worker_type':
@@ -98,6 +77,7 @@ function generateEnv(data) {
                         }
                         break;
                     case 'aws':
+                        text+='\n\n # AWS account credentials\n'
                         for (var aKey in data[key]) {
                             if (data[key].hasOwnProperty(aKey)) {
                                 switch (aKey) {
@@ -108,6 +88,7 @@ function generateEnv(data) {
                                         text += '\n AWS_SECRET_ACCESS_KEY = ' + data[key][aKey];
                                         break;
                                     case 'aws_bucket':
+                                        text +='\n\n ## \n # A seed file contains information to populate the database. It contains: \n # - roles, usernames, passwords \n # - integration tokens gained via a successful oauth handshake, \n #   used to communicate with a point-of-sale (Vend) on behalf of retailers \n # - suppliers, outlets \n # - anything and everything which we cannot add via a UI for onboarding warehouse users. \n ##\n';
                                         text += '\n AWS_BUCKET = ' + data[key][aKey];
                                         break;
                                     case 'aws_default_region':
@@ -121,6 +102,14 @@ function generateEnv(data) {
                         }
                         break;
                     case 'vend':
+                        text+='\n\n ##\
+                        \n # Whomever is running warehouse, needs to be identified as a unique player by the point-of-sale (Vend)\
+                        \n # To get these, you can:\
+                        \n # - Register as a developer or Sign In: https://developers.vendhq.com/\
+                        \n # - View or Add Application\
+                        \n #   - https://developers.vendhq.com/developer/applications\
+                        \n ##\
+                        \n\n # your identification credentials given by Vend\n';
                         for (var vKey in data[key]) {
                             if (data[key].hasOwnProperty(vKey)) {
                                 switch (vKey) {
@@ -139,7 +128,7 @@ function generateEnv(data) {
                             if (data[key].hasOwnProperty(oKey)) {
                                 switch (oKey) {
                                     case 'oauth_secret_key':
-                                        text += '\n OAUTH SECRET KEY = ' + data[key][oKey];
+                                        text += '\n\n OAUTH SECRET KEY = ' + data[key][oKey];
                                         break;
                                 }
                             }
@@ -152,33 +141,30 @@ function generateEnv(data) {
             writeToFile('.env', text);
         }
     }
-    
+
 }
 
 
-if (environment==='worker') {
+if (environment === 'worker') {
     text = '';
     inquirer.prompt(questions.workerqs).then(answers => {
         obj.answers = answers;
         //obj.worker=answers;
     }).then(() => {
-        inquirer.prompt(questions.sqsqs).then(sqsvals => {
-            obj.sqsvals = sqsvals;
-        }).then(() => {
-            inquirer.prompt(questions.endqs).then(endval => {
-                obj.end = endval;
-                generateEnv(obj);
-            });
+        inquirer.prompt(questions.endqs).then(endval => {
+            obj.end = endval;
+            generateEnv(obj);
         });
     });
-} else if(environment==='web') {
-    text = ' GENERATE_STOCK_ORDER_WORKER=generateStockOrderSeriallyWithPaging\
+} else if (environment === 'web') {
+    text = ' ## \n # Each worker takes care of a different task. \n # Sometimes workers are renamed, so in order to avoid code changes, \n # those worker names can be configured here, instead.\n # DO NOT TOUCH - unless you are a developer.\n ## \n';
+    text+='\n GENERATE_STOCK_ORDER_WORKER=generateStockOrderSeriallyWithPaging\
     \n IMPORT_STOCK_ORDER_TO_POS=addProductsToVendConsignment\
     \n IMPORT_STOCK_ORDER_TO_WAREHOUSE=wh.order.import.cached\
     \n IMPORT_STOCK_ORDER_TO_WAREHOUSE_WITHOUT_SUPPLIER=wh.order.import.cached.excel.without.supplier\
     \n REMOVE_UNFULFILLED_PRODUCTS_WORKER=removeUnfulfilledProductsFromStockOrder\
     \n REMOVE_UNRECEIVED_PRODUCTS_WORKER=removeUnreceivedProductsFromStockOrder\
-    \n STOCK_ORDER_WORKER=generateStockOrder';
+    \n STOCK_ORDER_WORKER=generateStockOrder\n';
     inquirer.prompt(questions.generalQuestions).then(answers => {
         obj.general = answers;
     }).then(() => {
@@ -199,11 +185,12 @@ if (environment==='worker') {
             });
         });
     });
-}else{
+} else {
     console.log('------------------------------------');
     console.log('Oops ! An Invalid Option Entered, Please choose either web or worker as an environment');
     console.log('------------------------------------');
 }
+
 
 
 

@@ -100,32 +100,6 @@ var getQustions=function getQustions() {
                 name:'cache_url',
                 message:'enter the Cache URL for the worker'
             }
-        ],
-        sqsqs:[
-            {
-                type: 'input',
-                name: 'aws_sqs_region',
-                message: 'enter the AWS SQS Region for the worker'
-            },
-            {
-                type:'input',
-                name:'aws_sqs_secret_access_key',
-                message:'enter the AWS SQS Secret Access Key for the worker'
-            },
-            {
-                type: 'input',
-                name: 'aws_sqs_access_key_id',
-                message: 'enter the AWS SQS Access ID for the worker'
-            },
-            {
-                type:'input',
-                name:'aws_sqs_url',
-                message:'enter the AWS SQS URL for the worker'
-            },{
-                type: 'input',
-                name: 'aws_sqs_url_2',
-                message: 'enter the AWS SQS URL(2) for the worker'
-            }
         ]
     };
     return questions;

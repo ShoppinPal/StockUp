@@ -11,21 +11,13 @@
     ```
     export PROJECT_ROOT=`pwd` && echo $PROJECT_ROOT
     ```
-1. Copy the templates for configuring environment variables
-
-    ```
-    cp .env.example .env
-    cp worker.env.example worker.env
-    ```
-    OR 
-    
-    you can run the command `npm run generate-env` , which will ask you for the environment variables to be configured. Once done, It will generate a .env file for you as per the values you specified. This utility uses npm module `inquirer`. Thus make sure you install it by running ```npm install inquirer --save```.
-    
-    This command also accepts an argument as `-e` where possible values are either `web` or `worker`. Choosing either one among them will allow you to generate env configuration for that environment.
-    eg. 
-    ```npm run generate-env``` or ```npm run generate-env -e=web``` for generating .env for warehouse web app.
-    ```npm run generate-env -e=worker``` for generating .env for worker.
-
+1. Setup the environment files
+    * run: `npm install inquirer --save-dev`
+    * then run the command `npm run generate-env -e=web` for generating `.env` for warehouse web service
+        * It will ask you for the environment variables to be configured.
+        * Once done, it will generate files for you as per the values you specified.
+    * then run the command `npm run generate-env -e=worker` for generating `worker.env` for warehouse worker service.
+    * Once these env files are generated, you can go ahead and run the terraform scripts in the next step to add-on [SQS](https://aws.amazon.com/sqs/) infrastructure.
 1. Move to the terraform directory:: `cd $PROJECT_ROOT/terraform`
     * Use `$PROJECT_ROOT/terraform/example.tfvars.file` as template:
 
