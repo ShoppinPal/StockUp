@@ -17,7 +17,6 @@
         * It will ask you for the environment variables to be configured.
         * Once done, it will generate files for you as per the values you specified.
     * then run the command `npm run generate-env -e=worker` for generating `worker.env` for warehouse worker service.
-    * `@Bhushan001` we need `worker2.env` as well
     * Once these env files are generated, you can go ahead and run the terraform scripts in the next step to add-on [SQS](https://aws.amazon.com/sqs/) infrastructure.
 1. Move to the terraform directory:: `cd $PROJECT_ROOT/terraform`
     * Use `$PROJECT_ROOT/terraform/example.tfvars.file` as template:
