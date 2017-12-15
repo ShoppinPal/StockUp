@@ -633,7 +633,7 @@ module.exports = function (ReportModel) {
       //var msg = { payload: 'a message' };
       var sqsParams = {
         MessageBody: JSON.stringify(options.json),
-        QueueUrl: ReportModel.app.get('awsQueueUrl')
+        QueueUrl: ReportModel.app.get('awsQueueUrl2')
       };
       var sendMessageAsync = Promise.promisify(sqs.sendMessage, sqs);
 

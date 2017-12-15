@@ -145,7 +145,7 @@ angular.module('ShoppinPalApp').controller(
       };
 
       // Load the data
-      this.waitOnPromise = SupplierModel.listSuppliers({})
+      this.waitOnPromise = SupplierModel.listSuppliers({id:LoopBackAuth.currentUserId})
         .$promise.then(function (response) {
           self.suppliers = response;
           var aPromise = null;
