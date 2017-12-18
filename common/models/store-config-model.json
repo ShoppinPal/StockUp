@@ -70,6 +70,9 @@
       "type": [
         "object"
       ]
+    },
+    "usesWorkersV2": {
+      "type": "object"
     }
   },
   "validations": [],
@@ -169,6 +172,20 @@
       "principalId": "teamMember",
       "permission": "ALLOW",
       "property": "initiateSync"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teamMember",
+      "permission": "ALLOW",
+      "property": "getWorkerSettings"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teamMember",
+      "permission": "ALLOW",
+      "property": "updateWorkerSettings"
     }
   ],
   "methods": {}

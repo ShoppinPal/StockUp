@@ -36,6 +36,11 @@ export const navigation = [
     icon: 'icon-refresh'
   },
   {
+    name: 'Worker Settings',
+    url: '/worker-settings',
+    icon: 'icon-settings'
+  },
+  {
     name: 'Stores',
     url: '/stores',
     icon: 'icon-settings'
