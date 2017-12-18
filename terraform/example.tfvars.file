@@ -1,0 +1,10 @@
+
+aws_iam_access_key      = ""
+aws_iam_secret_key      = ""
+
+aws_region              = "us-west-1"
+
+# We can use a single IAM's access keys and grant permissions!
+
+Q                       = "terraform_warehouse1_workers_Q"
+DLQ                     = "terraform_warehouse1_workers_DLQ"
