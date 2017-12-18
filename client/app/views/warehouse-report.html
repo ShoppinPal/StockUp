@@ -30,7 +30,8 @@
                             <thead>
                                 <tr>
                                     <th width="20%">SKU</th>
-                                    <th width="70%">Name</th>
+                                    <th width="50%">Name</th>
+                                    <th width="20%">Bin Location</th>
                                     <th width="5%">Ordered Quantity</th>
                                     <th width="5%">Fulfilled Quantity</th>
                                 </tr>
@@ -52,7 +53,8 @@
                                         ng-swipe-left="editRow($index)"
                                         ng-swipe-right="moveToBox(item, $index)">
                                         <td class="report-head1">{{item.sku}}</td>
-                                        <td class="report-head2">{{item.name}}</td>
+                                        <td class="report-head2">{{item.productModel.name || item.name}}</td>
+                                        <td class="report-head2">{{item.productModel.binLocation}}</td>
                                         <td class="report-head3">{{item.orderQuantity}}</td>
                                         <td class="report-head4">{{item.fulfilledQuantity}}</td>
                                     </tr>

@@ -29,7 +29,7 @@ module.exports = function(SupplierModel) {
           id: id
         },
         include: {
-          relation: 'storeConfigModels',
+          relation: 'storeConfigModel',
           scope: {
             include: 'supplierModels'
           }
@@ -41,7 +41,7 @@ module.exports = function(SupplierModel) {
            * they have to be fetched by a relationship with storeConfigModel
            * and the api should only accept storeConfigModelId as id
            */
-          cb(null, response[0].storeConfigModels()[0].supplierModels());
+          cb(null, response[0].storeConfigModel().supplierModels());
         })
         .catch(function (error) {
           console.log('error');
