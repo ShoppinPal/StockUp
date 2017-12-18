@@ -31,7 +31,7 @@ module.exports = function (UserModel) {
     UserModel.profile = function (id, cb) {
       log('profile').info('Profile method was called');
       UserModel.findById(id, {
-        include: ['roles', 'storeConfigModels']
+        include: ['roles', 'storeConfigModel']
       })
         .then(function (userModelInstance) {
           log('profile').debug('Found this user', userModelInstance);
@@ -46,7 +46,7 @@ module.exports = function (UserModel) {
             email: userModelInstance.email,
             roles: roles,
             userId: userModelInstance.id,
-            storeConfigModelId: userModelInstance.storeConfigModels()[0].id
+            storeConfigModelId: userModelInstance.storeConfigModel().id
           };
           log('profile').debug('Fetching user profile', profileDataAsResponse);
           cb(null, profileDataAsResponse);
