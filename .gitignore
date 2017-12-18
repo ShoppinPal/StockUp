@@ -3,6 +3,12 @@
 .sass-cache
 .env
 .DS_Store
+*.tfvars
+*.tfstate
+*.tfstate.backup
+./terraform/.terraform
+./terraform/terraform-elk/.terraform
+./terraform/terraform-test/.terraform
 node_modules/
 dist/
 client/app/bower_components
