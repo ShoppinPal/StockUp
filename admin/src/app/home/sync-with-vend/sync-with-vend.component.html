@@ -1,6 +1,25 @@
 <ngx-loading [show]="loading"></ngx-loading>
 <div class="animated fadeIn">
   <div class="row">
+    <div class="col-md-12 col-lg-6">
+      <div class="card">
+        <div class="card-header">
+          <h4>Instructions</h4>
+        </div>
+        <div class="card-body">
+          The syncing happens every 5 minutes automatically. If there is a need for manually syncing
+          the data, following order has to be followed:
+          <ul style="list-style-type: decimal">
+            <li>Suppliers</li>
+            <li>Products (dependent on Suppliers)</li>
+            <li>Inventory (dependent on Products)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
     <div class="col-sm-6 col-lg-4" *ngFor="let syncModel of syncModels">
       <div class="card">
         <div class="card-body">
@@ -34,7 +53,7 @@
     <div class="col-md-12 col-lg-6">
       <div class="card">
         <div class="card-header">
-          Data to sync
+          <h4>Data to sync</h4>
         </div>
         <div class="card-body p-0">
           <table class="table table-hover table-striped table-align-middle mb-0">
