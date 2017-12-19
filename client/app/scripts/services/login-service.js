@@ -63,7 +63,7 @@ angular.module('ShoppinPalApp')
                   include: {
                     relation: 'productModel',
                     scope: {
-                      fields: ['name', 'binLocation']
+                      fields: ['name', 'binLocation', 'type']
                     }
                   }
                   // skip: 0,
