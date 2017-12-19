@@ -12,8 +12,7 @@ angular.module('ShoppinPalApp')
     '$http', /* angular's modules/services/factories etc. */
     'ReportModel', /* loopback models */
     function ($http,
-              ReportModel)
-    {
+              ReportModel) {
       // AngularJS will instantiate a singleton by calling 'new' on this function
       return {
 
@@ -33,7 +32,7 @@ angular.module('ShoppinPalApp')
               console.error(error);
             });
         },
-         /**
+        /**
          * @method getSelectStore
          * Get all selected stores
          */
@@ -59,26 +58,32 @@ angular.module('ShoppinPalApp')
             id: reportId,
             filter: {
               include: {
-                relation: 'stockOrderLineitemModels'/*,
+                relation: 'stockOrderLineitemModels',
                 scope: {
-                  skip: 0,
-                  limit: 500
-                }*/ /*TODO: use count() to determine total # of pages*/
+                  include: {
+                    relation: 'productModel',
+                    scope: {
+                      fields: ['name', 'binLocation', 'type']
+                    }
+                  }
+                  // skip: 0,
+                  // limit: 500
+                }/*TODO: use count() to determine total # of pages*/
               }
             }
           })
             .$promise.then(function (data) {
-              //console.log('data:\n' + JSON.stringify(data, null, 2));
-              //console.log('data.stockOrderLineitemModels:\n' + JSON.stringify(data.stockOrderLineitemModels, null, 2));
-              return {
-                storeName: data.outlet.name,
-                stockOrderLineitemModels: data.stockOrderLineitemModels
-              };
-            },
-            function (error) {
-              alert('Something went wrong.');
-              console.log(error);
-            });
+                //console.log('data:\n' + JSON.stringify(data, null, 2));
+                //console.log('data.stockOrderLineitemModels:\n' + JSON.stringify(data.stockOrderLineitemModels, null, 2));
+                return {
+                  storeName: data.outlet.name,
+                  stockOrderLineitemModels: data.stockOrderLineitemModels
+                };
+              },
+              function (error) {
+                alert('Something went wrong.');
+                console.log(error);
+              });
         },
 
         /**
@@ -90,12 +95,12 @@ angular.module('ShoppinPalApp')
             url: 'scripts/json/warehouseReport.json',
             method: 'GET'
           }).then(function (response) {
-                return response;
-              },
-              function (error) {
-                alert('Something went wrong.');
-                console.error(error);
-              });
+              return response;
+            },
+            function (error) {
+              alert('Something went wrong.');
+              console.error(error);
+            });
         },
 
         /**
@@ -107,12 +112,12 @@ angular.module('ShoppinPalApp')
             url: 'scripts/json/receiverReport.json',
             method: 'GET'
           }).then(function (response) {
-            return response;
-          },
-          function (error) {
-            alert('Something went wrong.');
-            console.error(error);
-          });
+              return response;
+            },
+            function (error) {
+              alert('Something went wrong.');
+              console.error(error);
+            });
         }
       };
     }

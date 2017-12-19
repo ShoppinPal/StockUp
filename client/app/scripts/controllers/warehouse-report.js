@@ -15,8 +15,7 @@
     function ($scope, $state, $stateParams, $anchorScroll, $location, $filter,
               loginService, uiUtils, StockOrderLineitemModel, ReportModel,
               deviceDetector, ngDialog,
-              ReportModelStates)
-    {
+              ReportModelStates) {
       $scope.ReportModelStates = ReportModelStates;
       $scope.ROW_STATE_COMPLETE = 'boxed';
 
@@ -43,17 +42,17 @@
       $scope.dismissEdit = function (storeReportRow) {
         // update the backend
         /*console.log('update', {
-          fulfilledQuantity: storeReportRow.fulfilledQuantity,
-          comments: storeReportRow.comments
-        });*/
+         fulfilledQuantity: storeReportRow.fulfilledQuantity,
+         comments: storeReportRow.comments
+         });*/
         $scope.waitOnPromise = StockOrderLineitemModel.prototype$updateAttributes(
-          { id: storeReportRow.id },
+          {id: storeReportRow.id},
           {
             fulfilledQuantity: storeReportRow.fulfilledQuantity,
             comments: storeReportRow.comments
           }
         )
-          .$promise.then(function(response){
+          .$promise.then(function (response) {
             //console.log('updated', response);
             storeReportRow.updatedAt = response.updatedAt;
             uiUtils.handleNittyGrittyStuffForDismissingEditableRow($scope);
@@ -69,8 +68,8 @@
         var popupWin = window.open('', '_blank', 'width=300,height=300');
         popupWin.document.open();
         var printSlipHTML =
-            '<html><head><link rel="stylesheet" type="text/css" href="style.css" />' +
-            '</head><body onload="window.print()">' + printContents + '</html>';
+          '<html><head><link rel="stylesheet" type="text/css" href="style.css" />' +
+          '</head><body onload="window.print()">' + printContents + '</html>';
         popupWin.document.write(printSlipHTML);
         popupWin.document.close();
       };
@@ -79,7 +78,8 @@
        * Submit the warehouse page to receiver
        */
       $scope.submitToReceiver = function () {
-        var dialog = ngDialog.open({ template: 'views/popup/submitToReceiverPopUp.html',
+        var dialog = ngDialog.open({
+          template: 'views/popup/submitToReceiverPopUp.html',
           className: 'ngdialog-theme-plain',
           scope: $scope
         });
@@ -96,7 +96,7 @@
               from: ReportModelStates.WAREHOUSE_FULFILL,
               to: ReportModelStates.MANAGER_RECEIVE
             })
-              .$promise.then(function(updatedReportModelInstance){
+              .$promise.then(function (updatedReportModelInstance) {
                 console.log('updatedReportModelInstance', updatedReportModelInstance);
                 $state.go('warehouse-landing');
               });
@@ -104,13 +104,14 @@
         });
       };
 
-      var setupUnboxedItems = function(response) {
-        $scope.orderedItems = _.filter(response, function(item){
+      var setupUnboxedItems = function (response) {
+        $scope.orderedItems = _.filter(response, function (item) {
           return item.state !== 'boxed';
         });
         // if fulfilledQuantity hasn't been set, then it should equal orderQuantity by default
         angular.forEach($scope.orderedItems, function (item) {
-          if(item.fulfilledQuantity === undefined || item.fulfilledQuantity === null) {
+          item.type = item.productModel.type ? item.productModel.type : item.type;
+          if (item.fulfilledQuantity === undefined || item.fulfilledQuantity === null) {
             item.fulfilledQuantity = item.orderQuantity;
           }
         });
@@ -118,10 +119,12 @@
         $scope.itemsBeingViewed = $filter('orderBy')($scope.orderedItems, 'type');
       };
 
-      var setupBoxes = function(response){
-        var existingBoxes = _.chain(response).countBy('boxNumber').value();
+      var setupBoxes = function (response) {
+        var existingBoxes = _.chain(response).each(function (eachItem) {
+          eachItem.type = eachItem.productModel.type ? eachItem.productModel.type : eachItem.type;
+        }).countBy('boxNumber').value();
         //console.log(existingBoxes);
-        if (existingBoxes && _.keys(existingBoxes).length > 0) {
+        if (existingBoxes && _.keys(existingBoxes).length>0) {
           populateExistingBoxes(existingBoxes);
         }
         else {
@@ -144,8 +147,8 @@
         $scope.selectedBox = $scope.boxes[$scope.boxes.length - 1];
       };
 
-      var populateExistingBoxes = function(existingBoxes) {
-        var boxNumbersAsKeys = _.filter(_.keys(existingBoxes),function(key){
+      var populateExistingBoxes = function (existingBoxes) {
+        var boxNumbersAsKeys = _.filter(_.keys(existingBoxes), function (key) {
           var number = Number(key);
           return _.isNumber(number) && _.isFinite(number);
         }); // Math.max.apply(null, boxNumbersAsKeys)
@@ -156,7 +159,7 @@
         //var maxBoxNumber = Math.max.apply(null, boxNumbersAsKeys);
         //console.log(maxBoxNumber);
 
-        _.each(boxNumbersAsKeys, function(boxNumberAsKey){
+        _.each(boxNumbersAsKeys, function (boxNumberAsKey) {
           var box = {
             'boxNumber': Number(boxNumberAsKey),
             'boxName': 'Box' + boxNumberAsKey,
@@ -182,7 +185,7 @@
 
       $scope.displayBoxedContents = false;
       $scope.toggleActiveBoxContents = function (beSpecific) {
-        if(beSpecific === true || beSpecific === false) {
+        if (beSpecific === true || beSpecific === false) {
           $scope.displayBoxedContents = beSpecific;
         }
         else {
@@ -205,12 +208,12 @@
        * This method assigns selected box number and box name to the item swiped to right
        */
       $scope.moveToBox = function (item, index) {
-        if($scope.selectedBox) {
-          $scope.selectedBox.totalItems ++; // update totals for current box
+        if ($scope.selectedBox) {
+          $scope.selectedBox.totalItems++; // update totals for current box
           removeItem(index);
 
           $scope.waitOnPromise = StockOrderLineitemModel.prototype$updateAttributes(
-            { id: item.id },
+            {id: item.id},
             {
               fulfilledQuantity: item.fulfilledQuantity,
               comments: item.comments,
@@ -218,7 +221,7 @@
               state: $scope.ROW_STATE_COMPLETE
             }
           )
-            .$promise.then(function(response){
+            .$promise.then(function (response) {
               //console.log('hopefully finished updating the row');
               //console.log(response);
 
@@ -229,7 +232,7 @@
               item.boxNumber = response.boxNumber;
 
               // check if all items have been processed, if yes close the box and enable submit button
-              if($scope.itemsBeingViewed.length === 0) {
+              if ($scope.itemsBeingViewed.length === 0) {
                 $scope.allProcessed = true;
                 $scope.closeBox($scope.selectedBox);
               }
@@ -237,13 +240,13 @@
               // keep the departments updated as per the remaining items
               $scope.jumpToDepartment();
             });
-        } else {
+        }else {
           // TODO: remove this alert and use some good stuff
           alert('Please open a box');
         }
       };
 
-      var removeItem = function(rowIndex) {
+      var removeItem = function (rowIndex) {
         console.log('remove the item from the currently rendered list');
         $scope.itemsBeingViewed.splice(rowIndex, 1);
 
@@ -251,7 +254,7 @@
         $scope.orderedItems.splice(rowIndex, 1);
       };
 
-      var dismissEditableRow = function(rowIndex) {
+      var dismissEditableRow = function (rowIndex) {
         // (1)
         uiUtils.handleNittyGrittyStuffForDismissingEditableRow($scope);
 
@@ -259,20 +262,20 @@
         removeItem(rowIndex);
       };
 
-      $scope.hideRow = function(rowIndex, item) {
+      $scope.hideRow = function (rowIndex, item) {
         console.log('> > > > > ', 'hideRow',
           '\n\t', 'rowIndex', rowIndex,
           '\n\t', '$scope.itemsBeingViewed[rowIndex]', $scope.itemsBeingViewed[rowIndex],
           '\n\t', 'item', item,
-          '\n\t', 'equal?', ($scope.itemsBeingViewed[rowIndex]===item));
+          '\n\t', 'equal?', ($scope.itemsBeingViewed[rowIndex] === item));
 
         $scope.waitOnPromise = StockOrderLineitemModel.prototype$updateAttributes(
-          { id: item.id },
+          {id: item.id},
           {
             hidden: true
           }
         )
-          .$promise.then(function(response){
+          .$promise.then(function (response) {
             //console.log('updated', response);
             item.hidden = response.hidden;
             dismissEditableRow(rowIndex);
@@ -301,7 +304,7 @@
        */
       $scope.decreaseQty = function (item) {
         item.fulfilledQuantity = parseInt(item.fulfilledQuantity, 10); // parse it from string to integer
-        if (item.fulfilledQuantity > 0) {
+        if (item.fulfilledQuantity>0) {
           item.fulfilledQuantity -= 1;
         }
       };
@@ -323,9 +326,9 @@
       $scope.goToDepartment = function (value) {
         var jumpToHash;
         if (value) {
-          for (var i = 0; i < $scope.itemsBeingViewed.length; i++) {
+          for (var i = 0; i<$scope.itemsBeingViewed.length; i++) {
             var type = $scope.itemsBeingViewed[i].type,
-                typeFirstChar = type.slice(0, 1).toUpperCase();
+              typeFirstChar = type.slice(0, 1).toUpperCase();
             $scope.alphabets.push(typeFirstChar);
             if (typeFirstChar === value) {
               jumpToHash = 'jumpTo' + $scope.itemsBeingViewed[i].type;
@@ -343,24 +346,24 @@
        */
       $scope.jumpToDepartment = function () {
         $scope.alphabets = [];
-        for (var i = 0; i < $scope.itemsBeingViewed.length; i++) {
+        for (var i = 0; i<$scope.itemsBeingViewed.length; i++) {
           var type = $scope.itemsBeingViewed[i].type,
-              typeFirstChar = type.slice(0, 1).toUpperCase();
+            typeFirstChar = type.slice(0, 1).toUpperCase();
           $scope.alphabets.push(typeFirstChar);
         }
         $scope.alphabets.sort();
       };
 
       /*var makeItEasyToTestSubmission = function(){
-        // auto place N-1 items in a box
-        $scope.selectedBox.totalItems = $scope.orderedItems.length-1;
-        $scope.itemsBeingViewed = [$scope.orderedItems[$scope.orderedItems.length-1]];
-        console.log(
-          '$scope.orderedItems.length', $scope.orderedItems.length, '\n',
-          '$scope.itemsBeingViewed.length', $scope.itemsBeingViewed.length, '\n',
-          '$scope.selectedBox.totalItems', $scope.selectedBox.totalItems
-        );
-      };*/
+       // auto place N-1 items in a box
+       $scope.selectedBox.totalItems = $scope.orderedItems.length-1;
+       $scope.itemsBeingViewed = [$scope.orderedItems[$scope.orderedItems.length-1]];
+       console.log(
+       '$scope.orderedItems.length', $scope.orderedItems.length, '\n',
+       '$scope.itemsBeingViewed.length', $scope.itemsBeingViewed.length, '\n',
+       '$scope.selectedBox.totalItems', $scope.selectedBox.totalItems
+       );
+       };*/
 
       // -------------
       // Load the data
@@ -370,7 +373,7 @@
        * This method will load the storesReport from api on view load
        */
       $scope.$on('$viewContentLoaded', function () {
-        if($stateParams.reportId) {
+        if ($stateParams.reportId) {
           $scope.waitOnPromise = loginService.getReport($stateParams.reportId)
             .then(function (response) {
               $scope.storeName = response.storeName;
@@ -378,11 +381,11 @@
               $scope.allOrderedItems = lineItems;
 
               //filter out anything with ordered quantity of zero from a warehouse report
-              lineItems = _.filter(lineItems, function(item){
-                return item.orderQuantity && item.orderQuantity > 0;
+              lineItems = _.filter(lineItems, function (item) {
+                return item.orderQuantity && item.orderQuantity>0;
               });
               //filter out any hidden (pseudo-deleted) rows
-              lineItems = _.filter(lineItems, function(item){
+              lineItems = _.filter(lineItems, function (item) {
                 return !item.hidden;
               });
 

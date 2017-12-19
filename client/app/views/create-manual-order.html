@@ -24,14 +24,15 @@
                 </div>
                 <div class="form-group">
                     <label for="selectSupplier" class="control-label col-xs-3">Order From
-                        <small>(optional)</small>
+                        <small ng-if="orderController.isWarehouser()">(optional)</small>
                     </label>
                     <div class="col-xs-8">
                         <select id="selectSupplier" name="selectSupplier"
                                 class="form-control"
                                 ng-model="orderController.selectedSupplier"
                                 ng-options="supplier.name for supplier in orderController.suppliers">
-                            <option disabled selected value="">Select a supplier (optional)</option>
+                            <option selected value="" ng-if="orderController.isWarehouser()">Select a supplier (optional)</option>
+                            <option selected value="" ng-if="!orderController.isWarehouser()">Select a supplier</option>
                         </select>
                     </div>
                 </div>

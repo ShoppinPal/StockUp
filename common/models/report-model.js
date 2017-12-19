@@ -483,7 +483,8 @@ module.exports = function (ReportModel) {
                   ReportModel.app.get('generateStockOrderWorker')
                 );
 
-                return ReportModel.sendPayload(reportModelInstance, options, cb)
+                var queueUrl = ReportModel.app.get('awsQueueUrl');
+                return ReportModel.sendPayload(reportModelInstance, options, queueUrl, cb)
                   .then(function (updatedReportModelInstance) {
                     log.debug('return the updated ReportModel');
                     cb(null, updatedReportModelInstance);
@@ -589,8 +590,9 @@ module.exports = function (ReportModel) {
 
   };
 
-  ReportModel.sendPayload = function (reportModelInstance, options, cb) {
+  ReportModel.sendPayload = function (reportModelInstance, options, queueUrl, cb) {
     log.debug('will send a request with', 'options.json', JSON.stringify(options.json, null, 2));
+    log.debug('Queue to be used', queueUrl);
 
     if (ReportModel.app.get('workerType') == "IronWorker") {
       return request.post(options)
@@ -633,7 +635,7 @@ module.exports = function (ReportModel) {
       //var msg = { payload: 'a message' };
       var sqsParams = {
         MessageBody: JSON.stringify(options.json),
-        QueueUrl: ReportModel.app.get('awsQueueUrl')
+        QueueUrl: queueUrl
       };
       var sendMessageAsync = Promise.promisify(sqs.sendMessage, sqs);
 
@@ -883,8 +885,9 @@ module.exports = function (ReportModel) {
                     updatedReportModelInstance,
                     ReportModel.app.get('importStockOrderToPos')
                   );
+                  var queueUrl = ReportModel.app.get('awsQueueUrl');
                   // (a.4) Submit it
-                  return ReportModel.sendPayload(updatedReportModelInstance, options, cb);
+                  return ReportModel.sendPayload(updatedReportModelInstance, options, queueUrl, cb);
                 })
                 .then(function (reportModelInstance) {
                   log.debug('return the updated ReportModel');
@@ -934,7 +937,8 @@ module.exports = function (ReportModel) {
                           ' removeUnfulfilledProducts > payload ready');
 
                         // (a.4) Submit it
-                        return ReportModel.sendPayload(updatedReportModelInstance, options, cb)
+                        var queue = ReportModel.app.get('awsQueueUrl');
+                        return ReportModel.sendPayload(updatedReportModelInstance, options, queue, cb)
                           .then(function (updatedReportModelInstance) {
                             log.debug('inside setReportStatus() - updated the report model (assuming generated order)' +
                               ' removeUnfulfilledProducts > payload sent > return the updated ReportModel');
@@ -989,6 +993,7 @@ module.exports = function (ReportModel) {
                         ' removeUnreceivedProducts > payload ready');
 
                       // (a.4) Submit it
+                      var queue = ReportModel.app.get('awsQueueUrl');
                       return ReportModel.sendPayload(updatedReportModelInstance, options, cb)
                         .then(function (updatedReportModelInstance) {
                           log.debug('inside setReportStatus() - updated the report model' +

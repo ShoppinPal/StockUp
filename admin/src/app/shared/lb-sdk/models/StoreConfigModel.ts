@@ -26,6 +26,7 @@ export interface StoreConfigModelInterface {
   "wepayAccountId"?: string;
   "wepayAccountState"?: any;
   "suppliers"?: Array<any>;
+  "usesWorkersV2"?: any;
   "userId"?: any;
   userModel?: UserModel;
   storeModels?: StoreModel[];
@@ -55,6 +56,7 @@ export class StoreConfigModel implements StoreConfigModelInterface {
   "wepayAccountId": string;
   "wepayAccountState": any;
   "suppliers": Array<any>;
+  "usesWorkersV2": any;
   "userId": any;
   userModel: UserModel;
   storeModels: StoreModel[];
@@ -169,6 +171,10 @@ export class StoreConfigModel implements StoreConfigModelInterface {
         "suppliers": {
           name: 'suppliers',
           type: 'Array&lt;any&gt;'
+        },
+        "usesWorkersV2": {
+          name: 'usesWorkersV2',
+          type: 'any'
         },
         "userId": {
           name: 'userId',

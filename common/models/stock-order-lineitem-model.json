@@ -91,6 +91,11 @@
       "type": "belongsTo",
       "model": "ReportModel",
       "foreignKey": "reportId"
+    },
+    "productModel": {
+      "type": "belongsTo",
+      "model": "ProductModel",
+      "foreignKey": "productId"
     }
   },
   "acls": [
