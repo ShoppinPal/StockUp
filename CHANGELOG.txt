@@ -1,3 +1,8 @@
+v1.4.3 - Dec 19, 2017
+- Order generation through workersV2
+- Worker switching between workersV1 and workersV2 as a fail-safe mechanism
+- Inventory, products and suppliers real-time download from vend
+
 v1.4.0 - Oct 26, 2017
 - Minor Bug Fixes
 
