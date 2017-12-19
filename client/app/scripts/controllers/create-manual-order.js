@@ -172,7 +172,7 @@ angular.module('ShoppinPalApp').controller(
         console.log('inside generateOrder()',
           '\norderName', this.orderName,
           '\nselectedStoreId', this.selectedStore.api_id, // jshint ignore:line
-          '\nselectedSupplierId', this.selectedSupplier.api_id
+          '\nselectedSupplierId', this.selectedSupplier.api_id  // jshint ignore:line
         );
         this.waitOnPromise = UserModel.reportModels.create(
           {id: LoopBackAuth.currentUserId},
@@ -184,7 +184,7 @@ angular.module('ShoppinPalApp').controller(
               name: self.selectedStore.name
             },
             supplier: {
-              id: self.selectedSupplier.api_id,
+              id: self.selectedSupplier.api_id,  // jshint ignore:line
               name: self.selectedSupplier.name
             }
           }
