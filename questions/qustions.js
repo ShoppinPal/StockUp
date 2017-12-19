@@ -100,6 +100,33 @@ var getQustions=function getQustions() {
                 name:'cache_url',
                 message:'enter the Cache URL for the worker'
             }
+        ],
+        terraformqs:[
+            {
+                type: 'input',
+                name: 'aws_iam_access_key',
+                message: 'enter the AWS IAM Access Key for the terraform'
+            },
+            {
+                type:'input',
+                name:'aws_iam_secret_key',
+                message:'enter the AWS IAM Secret Key for the terraform'
+            },
+            {
+                type:'input',
+                name:'aws_region',
+                message:'enter the AWS Region for the terraform'
+            },
+            {
+                type:'input',
+                name:'Q',
+                message:'enter the Queue name for the terraform'
+            },
+            {
+                type:'input',
+                name:'DLQ',
+                message:'enter the DLQ name for the terraform'
+            }
         ]
     };
     return questions;
