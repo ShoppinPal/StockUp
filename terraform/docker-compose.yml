@@ -5,5 +5,4 @@ services:
     working_dir: /terraform
     volumes:
       - ./:/terraform
-      - ../.env:/.env
-      - ../worker.env:/worker.env
+      - ../terraform.json:/terraform.json

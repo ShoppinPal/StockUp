@@ -27,27 +27,27 @@ resource "aws_sqs_queue" "warehouse_workers_Q" {
   visibility_timeout_seconds  = "1800" 
 
   provisioner "local-exec" {
-    command = "echo '\n##\n# Warehouse sends jobs/payloads to a queue so that a worker may pick them up and finish them off.\n# There are many technologies that can provide a queue implementation: SQS, RabbitMQ, redis, etc.\n##' >> ../.env"
+    command = "echo '\n\n \u007B \n' >> ../terraform.json"
   }
 
   provisioner "local-exec" {
-    command = "echo '\n##\n# Warehouse sends jobs/payloads to a queue so that a worker may pick them up and finish them off.\n# There are many technologies that can provide a queue implementation: SQS, RabbitMQ, redis, etc.\n##' >> ../worker.env"
+      command = "echo '\u201CAWS_SQS_URL\u201D: \u201C${self.id}\u201D,' >> ../terraform.json"
   }
 
   provisioner "local-exec" {
-      command = "echo 'AWS_SQS_URL=${self.id}' >> ../.env && echo 'AWS_SQS_URL=${self.id}' >> ../worker.env"
+      command = "echo '\u201CAWS_SQS_REGION\u201D: \u201C${var.aws_region}\u201D,' >> ../terraform.json"
   }
 
   provisioner "local-exec" {
-      command = "echo 'AWS_SQS_REGION=${var.aws_region}' >> ../.env && echo 'AWS_SQS_REGION=${var.aws_region}' >> ../worker.env"
+      command = "echo '\u201CAWS_SQS_ACCESS_KEY_ID\u201D: \u201C${var.aws_access_key}\u201D,' >> ../terraform.json"
   }
 
   provisioner "local-exec" {
-      command = "echo 'AWS_SQS_ACCESS_KEY_ID=${var.aws_access_key}' >> ../.env && echo 'AWS_SQS_ACCESS_KEY_ID=${var.aws_access_key}' >> ../worker.env"
+      command = "echo '\u201CAWS_SQS_SECRET_ACCESS_KEY\u201D: \u201C${var.aws_secret_key}\u201D ' >> ../terraform.json"
   }
 
   provisioner "local-exec" {
-      command = "echo 'AWS_SQS_SECRET_ACCESS_KEY=${var.aws_secret_key}' >> ../.env && echo 'AWS_SQS_SECRET_ACCESS_KEY=${var.aws_secret_key}' >> ../worker.env"
+    command = "echo '\n \u007D \n' >> ../terraform.json"
   }
 }
 
