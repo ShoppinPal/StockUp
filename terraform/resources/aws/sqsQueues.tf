@@ -31,19 +31,19 @@ resource "aws_sqs_queue" "warehouse_workers_Q" {
   }
 
   provisioner "local-exec" {
-      command = "echo '\u201CAWS_SQS_URL\u201D: \u201C${self.id}\u201D,' >> ../terraform.json"
+      command = "echo '\u0022AWS_SQS_URL\u0022: \u0022${self.id}\u0022,' >> ../terraform.json"
   }
 
   provisioner "local-exec" {
-      command = "echo '\u201CAWS_SQS_REGION\u201D: \u201C${var.aws_region}\u201D,' >> ../terraform.json"
+      command = "echo '\u0022AWS_SQS_REGION\u0022: \u0022${var.aws_region}\u0022,' >> ../terraform.json"
   }
 
   provisioner "local-exec" {
-      command = "echo '\u201CAWS_SQS_ACCESS_KEY_ID\u201D: \u201C${var.aws_access_key}\u201D,' >> ../terraform.json"
+      command = "echo '\u0022AWS_SQS_ACCESS_KEY_ID\u0022: \u0022${var.aws_access_key}\u0022,' >> ../terraform.json"
   }
 
   provisioner "local-exec" {
-      command = "echo '\u201CAWS_SQS_SECRET_ACCESS_KEY\u201D: \u201C${var.aws_secret_key}\u201D ' >> ../terraform.json"
+      command = "echo '\u0022AWS_SQS_SECRET_ACCESS_KEY\u0022: \u0022${var.aws_secret_key}\u0022 ' >> ../terraform.json"
   }
 
   provisioner "local-exec" {
