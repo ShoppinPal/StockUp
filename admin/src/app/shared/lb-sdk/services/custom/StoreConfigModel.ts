@@ -13,6 +13,7 @@ import { Observable } from 'rxjs/Rx';
 import { StoreConfigModel } from '../../models/StoreConfigModel';
 import { UserModel } from '../../models/UserModel';
 import { StoreModel } from '../../models/StoreModel';
+import { ReportModel } from '../../models/ReportModel';
 import { SupplierModel } from '../../models/SupplierModel';
 
 
@@ -37,7 +38,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    *
    * @param {any} id StoreConfigModel id
    *
-   * @param {boolean} refresh 
+   * @param {boolean} refresh
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -143,6 +144,99 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
     let _method: string = "PUT";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/StoreConfigModels/:id/storeModels/:fk";
+    let _routeParams: any = {
+      id: id,
+      fk: fk
+    };
+    let _postBody: any = {
+      data: data
+    };
+    let _urlParams: any = {};
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * Find a related item by id for reportModels.
+   *
+   * @param {any} id StoreConfigModel id
+   *
+   * @param {any} fk Foreign key for reportModels
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * <em>
+   * (The remote method definition does not provide any description.
+   * This usually means the response is a `StoreConfigModel` object.)
+   * </em>
+   */
+  public findByIdReportModels(id: any, fk: any, customHeaders?: Function): Observable<any> {
+    let _method: string = "GET";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/StoreConfigModels/:id/reportModels/:fk";
+    let _routeParams: any = {
+      id: id,
+      fk: fk
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * Delete a related item by id for reportModels.
+   *
+   * @param {any} id StoreConfigModel id
+   *
+   * @param {any} fk Foreign key for reportModels
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * This method returns no data.
+   */
+  public destroyByIdReportModels(id: any, fk: any, customHeaders?: Function): Observable<any> {
+    let _method: string = "DELETE";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/StoreConfigModels/:id/reportModels/:fk";
+    let _routeParams: any = {
+      id: id,
+      fk: fk
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * Update a related item by id for reportModels.
+   *
+   * @param {any} id StoreConfigModel id
+   *
+   * @param {any} fk Foreign key for reportModels
+   *
+   * @param {object} data Request data.
+   *
+   * This method expects a subset of model properties as request parameters.
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * <em>
+   * (The remote method definition does not provide any description.
+   * This usually means the response is a `StoreConfigModel` object.)
+   * </em>
+   */
+  public updateByIdReportModels(id: any, fk: any, data: any = {}, customHeaders?: Function): Observable<any> {
+    let _method: string = "PUT";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/StoreConfigModels/:id/reportModels/:fk";
     let _routeParams: any = {
       id: id,
       fk: fk
@@ -532,7 +626,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    *
    * @param {any} id StoreConfigModel id
    *
-   * @param {object} filter 
+   * @param {object} filter
    *
    * @returns {object[]} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -627,7 +721,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    *
    * Data properties:
    *
-   *  - `count` – `{number}` - 
+   *  - `count` – `{number}` -
    */
   public countStoreModels(id: any, where: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
@@ -644,11 +738,128 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   }
 
   /**
+   * Queries reportModels of StoreConfigModel.
+   *
+   * @param {any} id StoreConfigModel id
+   *
+   * @param {object} filter
+   *
+   * @returns {object[]} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * <em>
+   * (The remote method definition does not provide any description.
+   * This usually means the response is a `StoreConfigModel` object.)
+   * </em>
+   */
+  public getReportModels(id: any, filter: LoopBackFilter = {}, customHeaders?: Function): Observable<any> {
+    let _method: string = "GET";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/StoreConfigModels/:id/reportModels";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    if (typeof filter !== 'undefined' && filter !== null) _urlParams.filter = filter;
+    console.log('urlparams', _urlParams.filter);
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * Creates a new instance in reportModels of this model.
+   *
+   * @param {any} id StoreConfigModel id
+   *
+   * @param {object} data Request data.
+   *
+   * This method expects a subset of model properties as request parameters.
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * <em>
+   * (The remote method definition does not provide any description.
+   * This usually means the response is a `StoreConfigModel` object.)
+   * </em>
+   */
+  public createReportModels(id: any, data: any = {}, customHeaders?: Function): Observable<any> {
+    let _method: string = "POST";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/StoreConfigModels/:id/reportModels";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {
+      data: data
+    };
+    let _urlParams: any = {};
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * Deletes all reportModels of this model.
+   *
+   * @param {any} id StoreConfigModel id
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * This method returns no data.
+   */
+  public deleteReportModels(id: any, customHeaders?: Function): Observable<any> {
+    let _method: string = "DELETE";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/StoreConfigModels/:id/reportModels";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * Counts reportModels of StoreConfigModel.
+   *
+   * @param {any} id StoreConfigModel id
+   *
+   * @param {object} where Criteria to match model instances
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * Data properties:
+   *
+   *  - `count` – `{number}` -
+   */
+  public countReportModels(id: any, where: any = {}, customHeaders?: Function): Observable<any> {
+    let _method: string = "GET";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/StoreConfigModels/:id/reportModels/count";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    if (typeof where !== 'undefined' && where !== null) _urlParams.where = where;
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
    * Queries supplierModels of StoreConfigModel.
    *
    * @param {any} id StoreConfigModel id
    *
-   * @param {object} filter 
+   * @param {object} filter
    *
    * @returns {object[]} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -743,7 +954,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    *
    * Data properties:
    *
-   *  - `count` – `{number}` - 
+   *  - `count` – `{number}` -
    */
   public countSupplierModels(id: any, where: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
@@ -764,7 +975,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    *
    * @param {any} id StoreConfigModel id
    *
-   * @param {object} filter 
+   * @param {object} filter
    *
    * @returns {object[]} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -859,7 +1070,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    *
    * Data properties:
    *
-   *  - `count` – `{number}` - 
+   *  - `count` – `{number}` -
    */
   public countProductModels(id: any, where: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
@@ -880,7 +1091,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    *
    * @param {any} id StoreConfigModel id
    *
-   * @param {object} filter 
+   * @param {object} filter
    *
    * @returns {object[]} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -975,7 +1186,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    *
    * Data properties:
    *
-   *  - `count` – `{number}` - 
+   *  - `count` – `{number}` -
    */
   public countSyncModels(id: any, where: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
@@ -996,7 +1207,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    *
    * @param {any} id StoreConfigModel id
    *
-   * @param {object} filter 
+   * @param {object} filter
    *
    * @returns {object[]} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1091,7 +1302,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    *
    * Data properties:
    *
-   *  - `count` – `{number}` - 
+   *  - `count` – `{number}` -
    */
   public countInventoryModels(id: any, where: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
@@ -1112,7 +1323,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
          * (The remote method definition does not provide any description.)
          * </em>
    *
-   * @param {string} id 
+   * @param {string} id
    *
    * @returns {object[]} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1141,7 +1352,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
          * (The remote method definition does not provide any description.)
          * </em>
    *
-   * @param {string} id 
+   * @param {string} id
    *
    * @returns {object[]} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1170,7 +1381,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
          * (The remote method definition does not provide any description.)
          * </em>
    *
-   * @param {string} id 
+   * @param {string} id
    *
    * @returns {object[]} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1199,7 +1410,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
          * (The remote method definition does not provide any description.)
          * </em>
    *
-   * @param {string} id 
+   * @param {string} id
    *
    * @returns {object[]} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1228,11 +1439,11 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
          * (The remote method definition does not provide any description.)
          * </em>
    *
-   * @param {string} code 
+   * @param {string} code
    *
-   * @param {string} domain_prefix 
+   * @param {string} domain_prefix
    *
-   * @param {string} state 
+   * @param {string} state
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1240,7 +1451,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    *
    * Data properties:
    *
-   *  - `redirectUrl` – `{string}` - 
+   *  - `redirectUrl` – `{string}` -
    */
   public getVendAccessToken(code: any, domain_prefix: any, state: any, customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
@@ -1263,11 +1474,11 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    *
    * @param {object} data Request data.
    *
-   *  - `id` – `{string}` - 
+   *  - `id` – `{string}` -
    *
-   *  - `productId` – `{string}` - 
+   *  - `productId` – `{string}` -
    *
-   *  - `binLocation` – `{string}` - 
+   *  - `binLocation` – `{string}` -
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1275,7 +1486,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    *
    * Data properties:
    *
-   *  - `product` – `{object}` - 
+   *  - `product` – `{object}` -
    */
   public updateBinLocation(id: any, productId: any, binLocation: any, customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
@@ -1297,9 +1508,9 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
          * (The remote method definition does not provide any description.)
          * </em>
    *
-   * @param {string} id 
+   * @param {string} id
    *
-   * @param {any} names 
+   * @param {any} names
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1343,6 +1554,39 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/StoreConfigModels/:id/storeModels";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {
+      data: data
+    };
+    let _urlParams: any = {};
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * Creates a new instance in reportModels of this model.
+   *
+   * @param {any} id StoreConfigModel id
+   *
+   * @param {object} data Request data.
+   *
+   * This method expects a subset of model properties as request parameters.
+   *
+   * @returns {object[]} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * <em>
+   * (The remote method definition does not provide any description.
+   * This usually means the response is a `StoreConfigModel` object.)
+   * </em>
+   */
+  public createManyReportModels(id: any, data: any[] = [], customHeaders?: Function): Observable<any> {
+    let _method: string = "POST";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/StoreConfigModels/:id/reportModels";
     let _routeParams: any = {
       id: id
     };

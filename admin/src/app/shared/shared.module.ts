@@ -8,10 +8,12 @@ import {AsideToggleDirective} from '../directives';
 
 @NgModule({
   imports: [
-    CommonModule,
+    CommonModule
   ],
   declarations: [AsideToggleDirective],
-  exports: [AsideToggleDirective]
+  exports: [
+    AsideToggleDirective
+  ]
 })
 
 export class SharedModule {

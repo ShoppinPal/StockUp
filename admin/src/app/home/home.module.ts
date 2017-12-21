@@ -9,6 +9,7 @@ import {StoresModule} from './stores/stores.module';
 import {PaymentsModule} from './payments/payments.module';
 import {ProductsModule} from './products/products.module';
 import {SharedModule} from './../shared/shared.module';
+import {OrdersModule} from "./orders/orders.module";
 
 
 @NgModule({
@@ -19,7 +20,8 @@ import {SharedModule} from './../shared/shared.module';
     SharedModule,
     StoresModule,
     PaymentsModule,
-    ProductsModule
+    ProductsModule,
+    OrdersModule
   ],
   declarations: [HomeComponent],
   exports: [HomeComponent]

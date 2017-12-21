@@ -18,7 +18,7 @@ export const navigation = [
   },
   {
     name: 'Stuck Orders',
-    url: 'stuck-orders',
+    url: '/orders/stuck-orders',
     icon: 'icon-close',
     badge: {
       variant: 'info',

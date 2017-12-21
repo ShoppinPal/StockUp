@@ -103,6 +103,11 @@
       "type": "hasMany",
       "model": "SupplierModel",
       "foreignKey": "storeConfigModelId"
+    },
+    "reportModels": {
+      "type": "hasMany",
+      "model": "ReportModel",
+      "foreignKey": "storeConfigModelId"
     }
   },
   "acls": [
