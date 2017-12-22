@@ -24,34 +24,34 @@ function writeToFile(destPath, messageId) {
     });
 }
 
+function getSqsVariables() {
+    var temp = '';
+    var sqsVals = require('./terraform.json');
+    for (var tkey in sqsVals) {
+        switch (tkey) {
+            case 'AWS_SQS_URL':
+                temp += '\n\n AWS_SQS_URL = ' + sqsVals[tkey];
+                break;
+            case 'AWS_SQS_REGION':
+                temp += '\n AWS_SQS_REGION = ' + sqsVals[tkey];
+                break;
+            case 'AWS_SQS_ACCESS_KEY_ID':
+                temp += '\n AWS_SQS_ACCESS_KEY_ID = ' + sqsVals[tkey];
+                break;
+            case 'AWS_SQS_SECRET_ACCESS_KEY':
+                temp += '\n AWS_SQS_SECRET_ACCESS_KEY = ' + sqsVals[tkey];
+                break;
+            default:
+                break;
+        }
+    }
+    return temp;
+}
+
 function generateEnv(data) {
     switch (environment) {
-        case 'worker':
-            for (var wkey in data) {
-                if (data.hasOwnProperty(wkey)) {
-                    switch (wkey) {
-                        case 'answers':
-                            for (var gKey in data[wkey]) {
-                                if (data[wkey].hasOwnProperty(gKey)) {
-                                    switch (gKey) {
-                                        case 'db_url':
-                                            text += '\n DbUrl = ' + data[wkey][gKey];
-                                            break;
-                                        case 'cache_url':
-                                            text += '\n cacheUrl = ' + data[wkey][gKey];
-                                            break;
-                                    }
-                                }
-                            }
-                            break;
-                    }
-                }
-            }
-            if (data.end.completion) {
-                writeToFile('worker.env', text);
-            }
-            break;
         case 'web':
+            text = '';
             for (var key in data) {
                 if (data.hasOwnProperty(key)) {
                     switch (key) {
@@ -136,14 +136,54 @@ function generateEnv(data) {
                                 }
                             }
                             break;
+                        case 'workers':
+                            text += '\n\n ## \n # Each worker takes care of a different task. \n # Sometimes workers are renamed, so in order to avoid code changes, \n # those worker names can be configured here, instead.\n # DO NOT TOUCH - unless you are a developer.\n ## \n';
+                            for (var zKey in data[key]) {
+                                if (data[key].hasOwnProperty(zKey)) {
+                                    switch (zKey) {
+                                        case 'GENERATE_STOCK_ORDER_WORKER':
+                                            text += '\n GENERATE_STOCK_ORDER_WORKER = ' + data[key][zKey];
+                                            break;
+                                        case 'IMPORT_STOCK_ORDER_TO_POS':
+                                            text += '\n IMPORT_STOCK_ORDER_TO_POS = ' + data[key][zKey];
+                                            break;
+                                        case 'IMPORT_STOCK_ORDER_TO_WAREHOUSE_WITHOUT_SUPPLIER':
+                                            text += '\n IMPORT_STOCK_ORDER_TO_WAREHOUSE_WITHOUT_SUPPLIER = ' + data[key][zKey];
+                                            break;
+                                        case 'IMPORT_STOCK_ORDER_TO_WAREHOUSE':
+                                            text += '\n IMPORT_STOCK_ORDER_TO_WAREHOUSE = ' + data[key][zKey];
+                                            break;
+                                        case 'REMOVE_UNFULFILLED_PRODUCTS_WORKER':
+                                            text += '\n REMOVE_UNFULFILLED_PRODUCTS_WORKER = ' + data[key][zKey];
+                                            break;
+                                        case 'REMOVE_UNRECEIVED_PRODUCTS_WORKER':
+                                            text += '\n REMOVE_UNRECEIVED_PRODUCTS_WORKER = ' + data[key][zKey];
+                                            break;
+                                        case 'STOCK_ORDER_WORKER':
+                                            text += '\n STOCK_ORDER_WORKER = ' + data[key][zKey];
+                                            break;
+                                    }
+                                }
+                            }
+                            break;
                     }
                 }
             }
             if (data.end.completion) {
+                text += getSqsVariables();
                 writeToFile('.env', text);
+                console.log('------------------------------------');
+                console.log('Congratulations ! you have successfully generated environment configuration for Web. You can delete the \'aws.json\' from your project.');
+                console.log('------------------------------------');
             }
             break;
         case 'terraform':
+            text = '';
+            fs.writeFile('aws.json', JSON.stringify(data.answers, null, '\t'), function () {
+                console.log('------------------------------------');
+                console.log('we have saved these credentials for future purpose in aws.json');
+                console.log('------------------------------------');
+            });
             for (var tKey in data) {
                 if (data.hasOwnProperty(tKey)) {
                     switch (tKey) {
@@ -152,19 +192,19 @@ function generateEnv(data) {
                                 if (data[tKey].hasOwnProperty(sKey)) {
                                     switch (sKey) {
                                         case 'aws_iam_access_key':
-                                            text += '\n aws_iam_access_key = \"'+data[tKey][sKey]+'\"';
+                                            text += '\n aws_iam_access_key = \"' + data[tKey][sKey] + '\"';
                                             break;
                                         case 'aws_iam_secret_key':
-                                            text += '\n aws_iam_secret_key = \"'+data[tKey][sKey]+'\"';
+                                            text += '\n aws_iam_secret_key = \"' + data[tKey][sKey] + '\"';
                                             break;
                                         case 'aws_region':
-                                            text += '\n aws_region = \"'+data[tKey][sKey]+'\"';
+                                            text += '\n aws_region = \"' + data[tKey][sKey] + '\"';
                                             break;
                                         case 'Q':
-                                            text += '\n Q = \"'+data[tKey][sKey]+'\"';
+                                            text += '\n Q = \"' + data[tKey][sKey] + '\"';
                                             break;
                                         case 'DLQ':
-                                            text += '\n DLQ = \"'+data[tKey][sKey]+'\"';
+                                            text += '\n DLQ = \"' + data[tKey][sKey] + '\"';
                                             break;
                                     }
                                 }
@@ -177,9 +217,76 @@ function generateEnv(data) {
             }
             if (data.end.completion) {
                 writeToFile('terraform/terraform.tfvars', text);
+                console.log('------------------------------------');
+                console.log('Congratulations ! You have successfully configured the SQS infrastructure. Now you can generate the environment configuration again for web,worker & worker2 respectively.');
+                console.log('------------------------------------');
+            }
+            break;
+        case 'worker':
+            text = '';
+            for (var wkey in data) {
+                if (data.hasOwnProperty(wkey)) {
+                    switch (wkey) {
+                        case 'answers':
+                            for (var gKey1 in data[wkey]) {
+                                if (data[wkey].hasOwnProperty(gKey1)) {
+                                    switch (gKey1) {
+                                        case 'db_url':
+                                            text += '\n DbUrl = ' + data[wkey][gKey1];
+                                            break;
+                                        case 'cache_url':
+                                            text += '\n cacheUrl = ' + data[wkey][gKey1];
+                                            break;
+                                        case 'WORKERS_VERSION':
+                                            text += '\n WORKERS_VERSION = ' + data[wkey][gKey1];
+                                            break;
+                                    }
+                                }
+                            }
+                            break;
+                    }
+                }
+            }
+            if (data.end.completion) {
+                text += getSqsVariables();
+                writeToFile('worker.env', text);
+                console.log('------------------------------------');
+                console.log('Congratulations ! you have successfully generated environment configuration for Worker.');
+                console.log('------------------------------------');
             }
             break;
         case 'worker2':
+            text = '';
+            for (var wkey2 in data) {
+                if (data.hasOwnProperty(wkey2)) {
+                    switch (wkey2) {
+                        case 'answers':
+                            for (var gKey2 in data[wkey2]) {
+                                if (data[wkey2].hasOwnProperty(gKey2)) {
+                                    switch (gKey2) {
+                                        case 'db_url':
+                                            text += '\n DbUrl = ' + data[wkey2][gKey2];
+                                            break;
+                                        case 'cache_url':
+                                            text += '\n cacheUrl = ' + data[wkey2][gKey2];
+                                            break;
+                                        case 'WORKERS_VERSION':
+                                            text += '\n WORKERS_VERSION = ' + data[wkey2][gKey2];
+                                            break;
+                                    }
+                                }
+                            }
+                            break;
+                    }
+                }
+            }
+            if (data.end.completion) {
+                text += getSqsVariables();
+                writeToFile('worker2.env', text);
+                console.log('------------------------------------');
+                console.log('Congratulations ! you have successfully generated environment configuration for Worker2.');
+                console.log('------------------------------------');
+            }
             break;
         default:
             break;
@@ -187,27 +294,7 @@ function generateEnv(data) {
 }
 
 switch (environment) {
-    case 'worker':
-        text = '';
-        inquirer.prompt(questions.workerqs).then(answers => {
-            obj.answers = answers;
-            //obj.worker=answers;
-        }).then(() => {
-            inquirer.prompt(questions.endqs).then(endval => {
-                obj.end = endval;
-                generateEnv(obj);
-            });
-        });
-        break;
     case 'web':
-        text = ' ## \n # Each worker takes care of a different task. \n # Sometimes workers are renamed, so in order to avoid code changes, \n # those worker names can be configured here, instead.\n # DO NOT TOUCH - unless you are a developer.\n ## \n';
-        text += '\n GENERATE_STOCK_ORDER_WORKER=generateStockOrderSeriallyWithPaging\
-    \n IMPORT_STOCK_ORDER_TO_POS=addProductsToVendConsignment\
-    \n IMPORT_STOCK_ORDER_TO_WAREHOUSE=wh.order.import.cached\
-    \n IMPORT_STOCK_ORDER_TO_WAREHOUSE_WITHOUT_SUPPLIER=wh.order.import.cached.excel.without.supplier\
-    \n REMOVE_UNFULFILLED_PRODUCTS_WORKER=removeUnfulfilledProductsFromStockOrder\
-    \n REMOVE_UNRECEIVED_PRODUCTS_WORKER=removeUnreceivedProductsFromStockOrder\
-    \n STOCK_ORDER_WORKER=generateStockOrder\n';
         inquirer.prompt(questions.generalQuestions).then(answers => {
             obj.general = answers;
         }).then(() => {
@@ -220,9 +307,13 @@ switch (environment) {
                     inquirer.prompt(questions.oauthqs).then(oavals => {
                         obj.oauth = oavals;
                     }).then(() => {
-                        inquirer.prompt(questions.endqs).then(endval => {
-                            obj.end = endval;
-                            generateEnv(obj);
+                        inquirer.prompt(questions.workersqs).then(workers => {
+                            obj.workers = workers;
+                        }).then(() => {
+                            inquirer.prompt(questions.endqs).then(endval => {
+                                obj.end = endval;
+                                generateEnv(obj);
+                            });
                         });
                     });
                 });
@@ -230,8 +321,17 @@ switch (environment) {
         });
         break;
     case 'terraform':
-        text = '';
         inquirer.prompt(questions.terraformqs).then(answers => {
+            obj.answers = answers;
+        }).then(() => {
+            inquirer.prompt(questions.endqs).then(endval => {
+                obj.end = endval;
+                generateEnv(obj);
+            });
+        });
+        break;
+    case 'worker':
+        inquirer.prompt(questions.workerqs).then(answers => {
             obj.answers = answers;
             //obj.worker=answers;
         }).then(() => {
@@ -242,9 +342,14 @@ switch (environment) {
         });
         break;
     case 'worker2':
-        console.log('------------------------------------');
-        console.log('We will be configuring terraform here.');
-        console.log('------------------------------------');
+        inquirer.prompt(questions.worker2qs).then(answers => {
+            obj.answers = answers;
+        }).then(() => {
+            inquirer.prompt(questions.endqs).then(endval => {
+                obj.end = endval;
+                generateEnv(obj);
+            });
+        });
         break;
 
     default:
