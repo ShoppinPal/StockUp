@@ -129,41 +129,32 @@
     * for example, visual studio can be opened with: `cd $SLAVE_WAREHOUSE_HOME && code .`
 1. On master, create empty env files: `cd $WAREHOUSE_HOME && touch .env worker.env worker2.env`
     * run: `docker-compose run nodejs npm install inquirer --save-dev`
-    * then run the command `docker-compose run nodejs npm run generate-env -e=web` for generating `.env` for warehouse web service
+    * then run the command `npm run generate-env -e=terraform` for generating a `terraform.tfvars` file.
+        * It will be used by [terraform](https://www.terraform.io/) to generate queues in your AWS [SQS](https://aws.amazon.com/sqs/) infrastructure.
+        * Run these commands:
+
+            ```
+            # Tested with Terraform v0.10.8 as of this commit.
+
+            # step 1
+            cd $WAREHOUSE_HOME/terraform/
+            # step 2
+            docker-compose run terraform init
+            # step 3: used to download and update modules mentioned in the root module (main.tf).
+            docker-compose run terraform get
+            # step 4
+            docker-compose run terraform plan
+            # step 5
+            docker-compose run terraform apply
+            # step 6: to destroy your infrastructure!
+            docker-compose run terraform destroy
+            ```
+        * Once terraform creates queues, the appropriate AWS_SQS_URL and AWS_SQS_REGION will be automatically added to your .env and worker.env files.
+    * then run the command `docker-compose run nodejs npm run generate-env -e=web` for configuring the remaining portions of `.env` file for warehouse web service
         * It will ask you for the environment variables to be configured.
         * Once done, it will generate files for you as per the values you specified.
-    * then run the command `docker-compose run nodejs npm run generate-env -e=worker` for generating `worker.env` for warehouse worker service.
-    * `@Bhushan001` we need `worker2.env` as well
-    * Once these env files are generated, you can go ahead and run the terraform scripts in the next step to add-on [SQS](https://aws.amazon.com/sqs/) infrastructure.
-1. On master, move to the terraform directory: `cd $WAREHOUSE_HOME/terraform`
-    * Use `$WAREHOUSE_HOME/terraform/example.tfvars.file` as template:
-
-        ```
-        cp $WAREHOUSE_HOME/terraform/example.tfvars.file $WAREHOUSE_HOME/terraform/terraform.tfvars
-        ```
-    * Fill in the values for the env variables in `$WAREHOUSE_HOME/terraform/terraform.tfvars`
-    * Run these commands:
-
-        ```
-        # Tested with Terraform v0.10.8 as of this commit.
-
-        # step 1
-        cd $WAREHOUSE_HOME/terraform/
-        # step 2
-        docker-compose run terraform init
-        # step 3: used to download and update modules mentioned in the root module (main.tf).
-        docker-compose run terraform get
-        # step 4
-        docker-compose run terraform plan
-        # step 5
-        docker-compose run terraform apply
-        # step 6: to destroy your infrastructure!
-        docker-compose run terraform destroy
-
-        # Once terraform creates queues, the appropriate
-        # AWS_SQS_URL and AWS_SQS_REGION will be
-        # automatically added to your .env and worker.env files.
-        ```
+    * then run the command `docker-compose run nodejs npm run generate-env -e=worker` for configuring the remaining portions of `worker.env` for warehouse worker service.
+    * then run the command `npm run generate-env -e=worker2` for configuring the remaining portions of `worker2.env` for warehouse worker2 service.
 1. Fill in any remaining values that are empty in `.env` and `worker.env` and `worker2.env` files
 1. Open file `/etc/hosts`: `sudo vim /etc/hosts`
     * Append the following line
