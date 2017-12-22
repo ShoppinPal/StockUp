@@ -5,7 +5,7 @@ var request = require('request-promise');
 var _ = require('underscore');
 
 var path = require('path');
-var modulePath = require('loopback-connector-mongodb/lib/mongodb'); // yogesh: Change this to proper module dependency
+var modulePath = require('mongodb');
 var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 var log = require('./../lib/debug-extension')('common:models:' + fileName);
 var logger = require('sp-json-logger');

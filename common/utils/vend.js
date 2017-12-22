@@ -131,12 +131,12 @@ var token = function(code, domainPrefix, state, /*baseUrl,*/ restApiRoot, vendCo
   //   '\n vendConfig ' + vendConfig
   // );
   logger.debug({log: {
-    message: `inside token()`, 
-    code: code, 
-    domainPrefix: domainPrefix, 
-    state: state, 
-    baseUrl: baseUrl, 
-    restApiRoot: restApiRoot, 
+    message: `inside token()`,
+    code: code,
+    domainPrefix: domainPrefix,
+    state: state,
+    baseUrl: baseUrl,
+    restApiRoot: restApiRoot,
     vendConfig: vendConfig
   }});
   var userSessionToken = state;
@@ -221,7 +221,7 @@ var getAccessToken = function (storeConfigId) {
             // log.debug('Access token obtained from redis:' +
             //   '\n\tkey: ' + accessTokenKey +
             //   '\n\tvalue: ' + value);
-            logger.debug({log: {message: 'Access token obtained from redis', key: accessTokenKey, value: value }}); 
+            logger.debug({log: {message: 'Access token obtained from redis', key: accessTokenKey, value: value }});
             redisClient.disconnect();
             return q(value);
           }
@@ -612,7 +612,7 @@ var createStockOrderForVend = function(storeModelInstance, reportModelInstance){
 var markStockOrderAsSent = function(storeModelInstance, reportModelInstance){
   var storeConfigId = storeModelInstance.storeConfigModelToStoreModelId;
   //log.debug('markStockOrderAsSent()', 'storeConfigId: ' + storeConfigId);
-  logger.debug({log: {message: 'markStockOrderAsSent()', storeConfig: storeConfig }});
+  logger.debug({log: {message: 'markStockOrderAsSent()', storeConfig: storeConfigId }});
   return getVendConnectionInfo(storeConfigId)
     .then(function(connectionInfo){
       var argsForStockOrder = vendSdk.args.consignments.stockOrders.markAsSent();
