@@ -35,6 +35,8 @@ public/
 /terraform/terraform-test/terraform.tfstate.backup
 /terraform/terraform-test/terraform.tfstate
 db.json
+aws.json
+terraform.json
 config.*.json
 newrelic.js
 npm-debug.log
