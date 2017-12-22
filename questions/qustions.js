@@ -188,6 +188,11 @@ var getQustions = function getQustions() {
             },
             {
                 type: 'input',
+                name: 'AWS_SQS_URL_2',
+                message: 'enter the alternate url for sqs queue for the worker'
+            },
+            {
+                type: 'input',
                 name: 'WORKERS_VERSION',
                 message: 'enter the workers version for the worker',
                 default: function () {

@@ -26,23 +26,32 @@ function writeToFile(destPath, messageId) {
 
 function getSqsVariables() {
     var temp = '';
-    var sqsVals = require('./terraform.json');
-    for (var tkey in sqsVals) {
-        switch (tkey) {
-            case 'AWS_SQS_URL':
-                temp += '\n\n AWS_SQS_URL = ' + sqsVals[tkey];
-                break;
-            case 'AWS_SQS_REGION':
-                temp += '\n AWS_SQS_REGION = ' + sqsVals[tkey];
-                break;
-            case 'AWS_SQS_ACCESS_KEY_ID':
-                temp += '\n AWS_SQS_ACCESS_KEY_ID = ' + sqsVals[tkey];
-                break;
-            case 'AWS_SQS_SECRET_ACCESS_KEY':
-                temp += '\n AWS_SQS_SECRET_ACCESS_KEY = ' + sqsVals[tkey];
-                break;
-            default:
-                break;
+    var sqsVals;
+    try {
+        sqsVals = require('./terraform.json');
+    } catch (e) {
+        console.log('------------------------------------');
+        console.log('Oops ! Seems like you haven\'t generated the SQS configuration yet. Do that & try again.');
+        console.log('------------------------------------');
+    }
+    if (sqsVals) {
+        for (var tkey in sqsVals) {
+            switch (tkey) {
+                case 'AWS_SQS_URL':
+                    temp += '\n\n AWS_SQS_URL = ' + sqsVals[tkey];
+                    break;
+                case 'AWS_SQS_REGION':
+                    temp += '\n AWS_SQS_REGION = ' + sqsVals[tkey];
+                    break;
+                case 'AWS_SQS_ACCESS_KEY_ID':
+                    temp += '\n AWS_SQS_ACCESS_KEY_ID = ' + sqsVals[tkey];
+                    break;
+                case 'AWS_SQS_SECRET_ACCESS_KEY':
+                    temp += '\n AWS_SQS_SECRET_ACCESS_KEY = ' + sqsVals[tkey];
+                    break;
+                default:
+                    break;
+            }
         }
     }
     return temp;
@@ -235,9 +244,14 @@ function generateEnv(data) {
                                             text += '\n DbUrl = ' + data[wkey][gKey1];
                                             break;
                                         case 'cache_url':
+                                            text += '\n # cache is used when we want to:\n # - limit the memory consumed by workers\n # - reuse common data across multiple worker runs\n # DO NOT TOUCH - unless you are a developer/devops';
                                             text += '\n cacheUrl = ' + data[wkey][gKey1];
                                             break;
+                                        case 'AWS_SQS_URL_2':
+                                            text += '\n AWS_SQS_URL_2 = ' + data[wkey][gKey1];
+                                            break;
                                         case 'WORKERS_VERSION':
+                                            text += '\n # Important to determine which set of workers are being called\n # to route the operations properly. This is for the time-being\n # until all workers are transitioned to v2';
                                             text += '\n WORKERS_VERSION = ' + data[wkey][gKey1];
                                             break;
                                     }
@@ -268,9 +282,11 @@ function generateEnv(data) {
                                             text += '\n DbUrl = ' + data[wkey2][gKey2];
                                             break;
                                         case 'cache_url':
+                                            text += '\n # cache is used when we want to:\n # - limit the memory consumed by workers\n # - reuse common data across multiple worker runs\n # DO NOT TOUCH - unless you are a developer/devops';
                                             text += '\n cacheUrl = ' + data[wkey2][gKey2];
                                             break;
                                         case 'WORKERS_VERSION':
+                                            text += '\n # Important to determine which set of workers are being called\n # to route the operations properly. This is for the time-being\n # until all workers are transitioned to v2';
                                             text += '\n WORKERS_VERSION = ' + data[wkey2][gKey2];
                                             break;
                                     }

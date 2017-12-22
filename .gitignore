@@ -17,6 +17,8 @@ public/
 *.DS_Store
 *.env
 db.json
+aws.json
+terraform.json
 config.*.json
 newrelic.js
 npm-debug.log
