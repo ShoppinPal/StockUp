@@ -73,7 +73,9 @@ services:
       timeout: 10s
       retries: 3
   worker-web:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile-dev
     ports:
       - "3000"
     environment:

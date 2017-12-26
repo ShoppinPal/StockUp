@@ -103,6 +103,11 @@
       "type": "hasMany",
       "model": "SupplierModel",
       "foreignKey": "storeConfigModelId"
+    },
+    "reportModels": {
+      "type": "hasMany",
+      "model": "ReportModel",
+      "foreignKey": "storeConfigModelId"
     }
   },
   "acls": [
@@ -169,7 +174,22 @@
       "principalId": "teamMember",
       "permission": "ALLOW",
       "property": "initiateSync"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teamMember",
+      "permission": "ALLOW",
+      "property": "getStuckOrders"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teamMember",
+      "permission": "ALLOW",
+      "property": "removeStuckOrders"
     }
+
   ],
   "methods": {}
 }

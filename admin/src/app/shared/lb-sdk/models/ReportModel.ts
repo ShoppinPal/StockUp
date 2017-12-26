@@ -1,6 +1,7 @@
 /* tslint:disable */
 import {
   UserModel,
+  StoreConfigModel,
   StockOrderLineitemModel
 } from '../index';
 
@@ -18,7 +19,9 @@ export interface ReportModelInterface {
   "vendConsignmentId"?: string;
   "vendConsignment"?: any;
   "userModelToReportModelId"?: any;
+  "storeConfigModelId"?: any;
   userModel?: UserModel;
+  storeConfigModel?: StoreConfigModel;
   stockOrderLineitemModels?: StockOrderLineitemModel[];
 }
 
@@ -35,7 +38,9 @@ export class ReportModel implements ReportModelInterface {
   "vendConsignmentId": string;
   "vendConsignment": any;
   "userModelToReportModelId": any;
+  "storeConfigModelId": any;
   userModel: UserModel;
+  storeConfigModel: StoreConfigModel;
   stockOrderLineitemModels: StockOrderLineitemModel[];
   constructor(data?: ReportModelInterface) {
     Object.assign(this, data);
@@ -117,12 +122,21 @@ export class ReportModel implements ReportModelInterface {
           name: 'userModelToReportModelId',
           type: 'any'
         },
+        "storeConfigModelId": {
+          name: 'storeConfigModelId',
+          type: 'any'
+        },
       },
       relations: {
         userModel: {
           name: 'userModel',
           type: 'UserModel',
           model: 'UserModel'
+        },
+        storeConfigModel: {
+          name: 'storeConfigModel',
+          type: 'StoreConfigModel',
+          model: 'StoreConfigModel'
         },
         stockOrderLineitemModels: {
           name: 'stockOrderLineitemModels',

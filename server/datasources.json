@@ -1,9 +1,9 @@
 {
   "db": {
+    "port": 27020,
     "name": "db",
     "connector": "mongodb",
-    "debug": false,
-    "port": 27020
+    "debug": false
   },
   "storage": {
     "name": "storage",

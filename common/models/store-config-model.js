@@ -279,7 +279,55 @@ module.exports = function (StoreConfigModel) {
         log('initiateSync').error('ERROR', error);
         return Promise.reject(error);
       });
-  }
+  };
 
+  StoreConfigModel.remoteMethod('getStuckOrders', {
+    accepts: [
+      {arg: 'id', type: 'string', required: true},
+      {arg: 'limit', type: 'number'},
+      {arg: 'skip', type: 'number'}
+    ],
+    http: {path: '/:id/getStuckOrders', verb: 'get'},
+    returns: {arg: 'stuckOrders', type: 'object', root: true}
+  });
+
+  StoreConfigModel.getStuckOrders = function (id, limit, skip, cb) {
+    logger.tag('getStuckOrders').debug({
+      log: {
+        message: 'Will route to ReportModel.getStuckOrders()'
+      }
+    });
+    StoreConfigModel.app.models.ReportModel.getStuckOrders(id, limit, skip)
+      .then(function (orders) {
+        cb(null, orders);
+      })
+      .catch(function (error) {
+        cb(error);
+      });
+  };
+
+  StoreConfigModel.remoteMethod('removeStuckOrders', {
+    accepts: [
+      {arg: 'id', type: 'string', required: true},
+      {arg: 'stuckOrders', type: 'array', required: true}
+    ],
+    http: {path: '/:id/removeStuckOrders', verb: 'post'},
+    returns: {arg: 'removed', type: 'object', root: true}
+  });
+
+  StoreConfigModel.removeStuckOrders = function (id, stuckOrders, cb) {
+    logger.tag('removeStuckOrders').debug({
+      log: {
+        message: 'Will route to ReportModel.removeStuckOrders()'
+      }
+    });
+    StoreConfigModel.app.models.ReportModel.removeStuckOrders(id, stuckOrders)
+      .then(function (removed) {
+        cb(null, removed);
+      })
+      .catch(function (error) {
+        cb(error);
+      });
+  };
 
 };
