@@ -38,7 +38,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Find a related item by id for accessTokens.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {any} fk Foreign key for accessTokens
    *
@@ -68,7 +68,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Delete a related item by id for accessTokens.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {any} fk Foreign key for accessTokens
    *
@@ -95,7 +95,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Update a related item by id for accessTokens.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {any} fk Foreign key for accessTokens
    *
@@ -131,7 +131,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Find a related item by id for roles.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {any} fk Foreign key for roles
    *
@@ -161,7 +161,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Delete a related item by id for roles.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {any} fk Foreign key for roles
    *
@@ -188,7 +188,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Update a related item by id for roles.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {any} fk Foreign key for roles
    *
@@ -224,7 +224,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Add a related item by id for roles.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {any} fk Foreign key for roles
    *
@@ -260,7 +260,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Remove the roles relation to an item by id.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {any} fk Foreign key for roles
    *
@@ -287,7 +287,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Check the existence of roles relation to an item by id.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {any} fk Foreign key for roles
    *
@@ -317,7 +317,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Find a related item by id for teamModels.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {any} fk Foreign key for teamModels
    *
@@ -347,7 +347,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Delete a related item by id for teamModels.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {any} fk Foreign key for teamModels
    *
@@ -374,7 +374,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Update a related item by id for teamModels.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {any} fk Foreign key for teamModels
    *
@@ -410,7 +410,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Fetches hasOne relation globalConfigModels.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {boolean} refresh 
    *
@@ -440,7 +440,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in globalConfigModels of this model.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} data Request data.
    *
@@ -455,7 +455,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public createGlobalConfigModels(id: any, data: any = {}, customHeaders?: Function): Observable<any> {
+  public createGlobalConfigModels(id: any, data: GlobalConfigModel = new GlobalConfigModel(), customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/globalConfigModels";
@@ -473,7 +473,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Update globalConfigModels of this model.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} data Request data.
    *
@@ -488,7 +488,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public updateGlobalConfigModels(id: any, data: any = {}, customHeaders?: Function): Observable<any> {
+  public updateGlobalConfigModels(id: any, data: GlobalConfigModel = new GlobalConfigModel(), customHeaders?: Function): Observable<any> {
     let _method: string = "PUT";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/globalConfigModels";
@@ -506,7 +506,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Deletes globalConfigModels of this model.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -530,7 +530,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Find a related item by id for storeConfigModels.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {any} fk Foreign key for storeConfigModels
    *
@@ -560,7 +560,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Delete a related item by id for storeConfigModels.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {any} fk Foreign key for storeConfigModels
    *
@@ -587,7 +587,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Update a related item by id for storeConfigModels.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {any} fk Foreign key for storeConfigModels
    *
@@ -604,7 +604,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public updateByIdStoreConfigModels(id: any, fk: any, data: any = {}, customHeaders?: Function): Observable<any> {
+  public updateByIdStoreConfigModels(id: any, fk: any, data: StoreConfigModel = new StoreConfigModel(), customHeaders?: Function): Observable<any> {
     let _method: string = "PUT";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/storeConfigModels/:fk";
@@ -623,7 +623,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Find a related item by id for storeModels.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {any} fk Foreign key for storeModels
    *
@@ -653,7 +653,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Delete a related item by id for storeModels.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {any} fk Foreign key for storeModels
    *
@@ -680,7 +680,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Update a related item by id for storeModels.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {any} fk Foreign key for storeModels
    *
@@ -697,7 +697,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public updateByIdStoreModels(id: any, fk: any, data: any = {}, customHeaders?: Function): Observable<any> {
+  public updateByIdStoreModels(id: any, fk: any, data: StoreModel = new StoreModel(), customHeaders?: Function): Observable<any> {
     let _method: string = "PUT";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/storeModels/:fk";
@@ -716,7 +716,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Find a related item by id for reportModels.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {any} fk Foreign key for reportModels
    *
@@ -746,7 +746,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Delete a related item by id for reportModels.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {any} fk Foreign key for reportModels
    *
@@ -773,7 +773,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Update a related item by id for reportModels.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {any} fk Foreign key for reportModels
    *
@@ -790,7 +790,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public updateByIdReportModels(id: any, fk: any, data: any = {}, customHeaders?: Function): Observable<any> {
+  public updateByIdReportModels(id: any, fk: any, data: ReportModel = new ReportModel(), customHeaders?: Function): Observable<any> {
     let _method: string = "PUT";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/reportModels/:fk";
@@ -809,7 +809,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Find a related item by id for stockOrderLineitemModels.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {any} fk Foreign key for stockOrderLineitemModels
    *
@@ -839,7 +839,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Delete a related item by id for stockOrderLineitemModels.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {any} fk Foreign key for stockOrderLineitemModels
    *
@@ -866,7 +866,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Update a related item by id for stockOrderLineitemModels.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {any} fk Foreign key for stockOrderLineitemModels
    *
@@ -883,7 +883,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public updateByIdStockOrderLineitemModels(id: any, fk: any, data: any = {}, customHeaders?: Function): Observable<any> {
+  public updateByIdStockOrderLineitemModels(id: any, fk: any, data: StockOrderLineitemModel = new StockOrderLineitemModel(), customHeaders?: Function): Observable<any> {
     let _method: string = "PUT";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/stockOrderLineitemModels/:fk";
@@ -902,7 +902,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Find a related item by id for supplierModels.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {any} fk Foreign key for supplierModels
    *
@@ -932,7 +932,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Delete a related item by id for supplierModels.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {any} fk Foreign key for supplierModels
    *
@@ -959,7 +959,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Update a related item by id for supplierModels.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {any} fk Foreign key for supplierModels
    *
@@ -976,7 +976,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public updateByIdSupplierModels(id: any, fk: any, data: any = {}, customHeaders?: Function): Observable<any> {
+  public updateByIdSupplierModels(id: any, fk: any, data: SupplierModel = new SupplierModel(), customHeaders?: Function): Observable<any> {
     let _method: string = "PUT";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/supplierModels/:fk";
@@ -995,7 +995,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Queries accessTokens of UserModel.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} filter 
    *
@@ -1025,7 +1025,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in accessTokens of this model.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} data Request data.
    *
@@ -1058,7 +1058,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Deletes all accessTokens of this model.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1082,7 +1082,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Counts accessTokens of UserModel.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} where Criteria to match model instances
    *
@@ -1111,7 +1111,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Queries roles of UserModel.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} filter 
    *
@@ -1141,7 +1141,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in roles of this model.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} data Request data.
    *
@@ -1174,7 +1174,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Deletes all roles of this model.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1198,7 +1198,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Counts roles of UserModel.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} where Criteria to match model instances
    *
@@ -1227,7 +1227,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Queries teamModels of UserModel.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} filter 
    *
@@ -1257,7 +1257,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in teamModels of this model.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} data Request data.
    *
@@ -1290,7 +1290,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Deletes all teamModels of this model.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1314,7 +1314,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Counts teamModels of UserModel.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} where Criteria to match model instances
    *
@@ -1343,7 +1343,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Queries storeConfigModels of UserModel.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} filter 
    *
@@ -1373,7 +1373,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in storeConfigModels of this model.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} data Request data.
    *
@@ -1388,7 +1388,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public createStoreConfigModels(id: any, data: any = {}, customHeaders?: Function): Observable<any> {
+  public createStoreConfigModels(id: any, data: StoreConfigModel = new StoreConfigModel(), customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/storeConfigModels";
@@ -1406,7 +1406,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Deletes all storeConfigModels of this model.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1430,7 +1430,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Counts storeConfigModels of UserModel.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} where Criteria to match model instances
    *
@@ -1459,7 +1459,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Queries storeModels of UserModel.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} filter 
    *
@@ -1489,7 +1489,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in storeModels of this model.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} data Request data.
    *
@@ -1504,7 +1504,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public createStoreModels(id: any, data: any = {}, customHeaders?: Function): Observable<any> {
+  public createStoreModels(id: any, data: StoreModel = new StoreModel(), customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/storeModels";
@@ -1522,7 +1522,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Deletes all storeModels of this model.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1546,7 +1546,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Counts storeModels of UserModel.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} where Criteria to match model instances
    *
@@ -1575,7 +1575,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Queries reportModels of UserModel.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} filter 
    *
@@ -1605,7 +1605,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in reportModels of this model.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} data Request data.
    *
@@ -1620,7 +1620,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public createReportModels(id: any, data: any = {}, customHeaders?: Function): Observable<any> {
+  public createReportModels(id: any, data: ReportModel = new ReportModel(), customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/reportModels";
@@ -1638,7 +1638,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Deletes all reportModels of this model.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1662,7 +1662,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Counts reportModels of UserModel.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} where Criteria to match model instances
    *
@@ -1691,7 +1691,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Queries stockOrderLineitemModels of UserModel.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} filter 
    *
@@ -1721,7 +1721,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in stockOrderLineitemModels of this model.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} data Request data.
    *
@@ -1736,7 +1736,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public createStockOrderLineitemModels(id: any, data: any = {}, customHeaders?: Function): Observable<any> {
+  public createStockOrderLineitemModels(id: any, data: StockOrderLineitemModel = new StockOrderLineitemModel(), customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/stockOrderLineitemModels";
@@ -1754,7 +1754,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Deletes all stockOrderLineitemModels of this model.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1778,7 +1778,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Counts stockOrderLineitemModels of UserModel.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} where Criteria to match model instances
    *
@@ -1807,7 +1807,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Queries supplierModels of UserModel.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} filter 
    *
@@ -1837,7 +1837,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in supplierModels of this model.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} data Request data.
    *
@@ -1852,7 +1852,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public createSupplierModels(id: any, data: any = {}, customHeaders?: Function): Observable<any> {
+  public createSupplierModels(id: any, data: SupplierModel = new SupplierModel(), customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/supplierModels";
@@ -1870,7 +1870,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Deletes all supplierModels of this model.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1894,7 +1894,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Counts supplierModels of UserModel.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} where Criteria to match model instances
    *
@@ -1941,7 +1941,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * The response body contains properties of the AccessToken created on login.
    * Depending on the value of `include` parameter, the body may contain additional properties:
    * 
-   *   - `user` - `U+007BUserU+007D` - Data of the currently logged in user. (`include=user`)
+   *   - `user` - `{User}` - Data of the currently logged in user. (`include=user`)
    * 
    *
    */
@@ -1969,7 +1969,7 @@ export class UserModelApi extends BaseLoopBackApi {
   }
 
   /**
-   * Logout a user with access token.
+   * Logout a user with access token
    *
    * @param {object} data Request data.
    *
@@ -1995,7 +1995,7 @@ export class UserModelApi extends BaseLoopBackApi {
   }
 
   /**
-   * Confirm a user registration with email verification token.
+   * Confirm a user registration with email verification token
    *
    * @param {string} uid 
    *
@@ -2024,7 +2024,7 @@ export class UserModelApi extends BaseLoopBackApi {
   }
 
   /**
-   * Reset password for a user with email.
+   * Reset password for a user with email
    *
    * @param {object} data Request data.
    *
@@ -2080,7 +2080,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in globalConfigModels of this model.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} data Request data.
    *
@@ -2095,7 +2095,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public createManyGlobalConfigModels(id: any, data: any[] = [], customHeaders?: Function): Observable<any> {
+  public createManyGlobalConfigModels(id: any, data: GlobalConfigModel[] = new Array<GlobalConfigModel>(), customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/globalConfigModels";
@@ -2113,7 +2113,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in accessTokens of this model.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} data Request data.
    *
@@ -2146,7 +2146,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in roles of this model.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} data Request data.
    *
@@ -2179,7 +2179,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in teamModels of this model.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} data Request data.
    *
@@ -2212,7 +2212,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in storeConfigModels of this model.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} data Request data.
    *
@@ -2227,7 +2227,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public createManyStoreConfigModels(id: any, data: any[] = [], customHeaders?: Function): Observable<any> {
+  public createManyStoreConfigModels(id: any, data: StoreConfigModel[] = new Array<StoreConfigModel>(), customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/storeConfigModels";
@@ -2245,7 +2245,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in storeModels of this model.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} data Request data.
    *
@@ -2260,7 +2260,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public createManyStoreModels(id: any, data: any[] = [], customHeaders?: Function): Observable<any> {
+  public createManyStoreModels(id: any, data: StoreModel[] = new Array<StoreModel>(), customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/storeModels";
@@ -2278,7 +2278,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in reportModels of this model.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} data Request data.
    *
@@ -2293,7 +2293,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public createManyReportModels(id: any, data: any[] = [], customHeaders?: Function): Observable<any> {
+  public createManyReportModels(id: any, data: ReportModel[] = new Array<ReportModel>(), customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/reportModels";
@@ -2311,7 +2311,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in stockOrderLineitemModels of this model.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} data Request data.
    *
@@ -2326,7 +2326,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public createManyStockOrderLineitemModels(id: any, data: any[] = [], customHeaders?: Function): Observable<any> {
+  public createManyStockOrderLineitemModels(id: any, data: StockOrderLineitemModel[] = new Array<StockOrderLineitemModel>(), customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/stockOrderLineitemModels";
@@ -2344,7 +2344,7 @@ export class UserModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in supplierModels of this model.
    *
-   * @param {any} id UserModel id
+   * @param {any} id User id
    *
    * @param {object} data Request data.
    *
@@ -2359,7 +2359,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public createManySupplierModels(id: any, data: any[] = [], customHeaders?: Function): Observable<any> {
+  public createManySupplierModels(id: any, data: SupplierModel[] = new Array<SupplierModel>(), customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/supplierModels";

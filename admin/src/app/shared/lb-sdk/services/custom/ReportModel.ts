@@ -35,7 +35,7 @@ export class ReportModelApi extends BaseLoopBackApi {
   /**
    * Fetches belongsTo relation userModel.
    *
-   * @param {any} id ReportModel id
+   * @param {any} id PersistedModel id
    *
    * @param {boolean} refresh 
    *
@@ -65,7 +65,7 @@ export class ReportModelApi extends BaseLoopBackApi {
   /**
    * Fetches belongsTo relation storeConfigModel.
    *
-   * @param {any} id ReportModel id
+   * @param {any} id PersistedModel id
    *
    * @param {boolean} refresh 
    *
@@ -95,7 +95,7 @@ export class ReportModelApi extends BaseLoopBackApi {
   /**
    * Find a related item by id for stockOrderLineitemModels.
    *
-   * @param {any} id ReportModel id
+   * @param {any} id PersistedModel id
    *
    * @param {any} fk Foreign key for stockOrderLineitemModels
    *
@@ -125,7 +125,7 @@ export class ReportModelApi extends BaseLoopBackApi {
   /**
    * Delete a related item by id for stockOrderLineitemModels.
    *
-   * @param {any} id ReportModel id
+   * @param {any} id PersistedModel id
    *
    * @param {any} fk Foreign key for stockOrderLineitemModels
    *
@@ -152,7 +152,7 @@ export class ReportModelApi extends BaseLoopBackApi {
   /**
    * Update a related item by id for stockOrderLineitemModels.
    *
-   * @param {any} id ReportModel id
+   * @param {any} id PersistedModel id
    *
    * @param {any} fk Foreign key for stockOrderLineitemModels
    *
@@ -169,7 +169,7 @@ export class ReportModelApi extends BaseLoopBackApi {
    * This usually means the response is a `ReportModel` object.)
    * </em>
    */
-  public updateByIdStockOrderLineitemModels(id: any, fk: any, data: any = {}, customHeaders?: Function): Observable<any> {
+  public updateByIdStockOrderLineitemModels(id: any, fk: any, data: StockOrderLineitemModel = new StockOrderLineitemModel(), customHeaders?: Function): Observable<any> {
     let _method: string = "PUT";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/ReportModels/:id/stockOrderLineitemModels/:fk";
@@ -188,7 +188,7 @@ export class ReportModelApi extends BaseLoopBackApi {
   /**
    * Queries stockOrderLineitemModels of ReportModel.
    *
-   * @param {any} id ReportModel id
+   * @param {any} id PersistedModel id
    *
    * @param {object} filter 
    *
@@ -218,7 +218,7 @@ export class ReportModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in stockOrderLineitemModels of this model.
    *
-   * @param {any} id ReportModel id
+   * @param {any} id PersistedModel id
    *
    * @param {object} data Request data.
    *
@@ -233,7 +233,7 @@ export class ReportModelApi extends BaseLoopBackApi {
    * This usually means the response is a `ReportModel` object.)
    * </em>
    */
-  public createStockOrderLineitemModels(id: any, data: any = {}, customHeaders?: Function): Observable<any> {
+  public createStockOrderLineitemModels(id: any, data: StockOrderLineitemModel = new StockOrderLineitemModel(), customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/ReportModels/:id/stockOrderLineitemModels";
@@ -251,7 +251,7 @@ export class ReportModelApi extends BaseLoopBackApi {
   /**
    * Deletes all stockOrderLineitemModels of this model.
    *
-   * @param {any} id ReportModel id
+   * @param {any} id PersistedModel id
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -275,7 +275,7 @@ export class ReportModelApi extends BaseLoopBackApi {
   /**
    * Counts stockOrderLineitemModels of ReportModel.
    *
-   * @param {any} id ReportModel id
+   * @param {any} id PersistedModel id
    *
    * @param {object} where Criteria to match model instances
    *
@@ -533,7 +533,7 @@ export class ReportModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in stockOrderLineitemModels of this model.
    *
-   * @param {any} id ReportModel id
+   * @param {any} id PersistedModel id
    *
    * @param {object} data Request data.
    *
@@ -548,7 +548,7 @@ export class ReportModelApi extends BaseLoopBackApi {
    * This usually means the response is a `ReportModel` object.)
    * </em>
    */
-  public createManyStockOrderLineitemModels(id: any, data: any[] = [], customHeaders?: Function): Observable<any> {
+  public createManyStockOrderLineitemModels(id: any, data: StockOrderLineitemModel[] = new Array<StockOrderLineitemModel>(), customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/ReportModels/:id/stockOrderLineitemModels";

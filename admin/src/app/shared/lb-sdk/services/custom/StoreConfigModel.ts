@@ -36,9 +36,9 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Fetches belongsTo relation userModel.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
-   * @param {boolean} refresh
+   * @param {boolean} refresh 
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -66,7 +66,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Find a related item by id for storeModels.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {any} fk Foreign key for storeModels
    *
@@ -96,7 +96,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Delete a related item by id for storeModels.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {any} fk Foreign key for storeModels
    *
@@ -123,7 +123,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Update a related item by id for storeModels.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {any} fk Foreign key for storeModels
    *
@@ -140,7 +140,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    * This usually means the response is a `StoreConfigModel` object.)
    * </em>
    */
-  public updateByIdStoreModels(id: any, fk: any, data: any = {}, customHeaders?: Function): Observable<any> {
+  public updateByIdStoreModels(id: any, fk: any, data: StoreModel = new StoreModel(), customHeaders?: Function): Observable<any> {
     let _method: string = "PUT";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/StoreConfigModels/:id/storeModels/:fk";
@@ -159,7 +159,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Find a related item by id for reportModels.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {any} fk Foreign key for reportModels
    *
@@ -189,7 +189,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Delete a related item by id for reportModels.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {any} fk Foreign key for reportModels
    *
@@ -216,7 +216,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Update a related item by id for reportModels.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {any} fk Foreign key for reportModels
    *
@@ -233,7 +233,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    * This usually means the response is a `StoreConfigModel` object.)
    * </em>
    */
-  public updateByIdReportModels(id: any, fk: any, data: any = {}, customHeaders?: Function): Observable<any> {
+  public updateByIdReportModels(id: any, fk: any, data: ReportModel = new ReportModel(), customHeaders?: Function): Observable<any> {
     let _method: string = "PUT";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/StoreConfigModels/:id/reportModels/:fk";
@@ -252,7 +252,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Find a related item by id for supplierModels.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {any} fk Foreign key for supplierModels
    *
@@ -282,7 +282,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Delete a related item by id for supplierModels.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {any} fk Foreign key for supplierModels
    *
@@ -309,7 +309,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Update a related item by id for supplierModels.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {any} fk Foreign key for supplierModels
    *
@@ -326,7 +326,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    * This usually means the response is a `StoreConfigModel` object.)
    * </em>
    */
-  public updateByIdSupplierModels(id: any, fk: any, data: any = {}, customHeaders?: Function): Observable<any> {
+  public updateByIdSupplierModels(id: any, fk: any, data: SupplierModel = new SupplierModel(), customHeaders?: Function): Observable<any> {
     let _method: string = "PUT";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/StoreConfigModels/:id/supplierModels/:fk";
@@ -345,7 +345,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Find a related item by id for productModels.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {any} fk Foreign key for productModels
    *
@@ -375,7 +375,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Delete a related item by id for productModels.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {any} fk Foreign key for productModels
    *
@@ -402,7 +402,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Update a related item by id for productModels.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {any} fk Foreign key for productModels
    *
@@ -438,7 +438,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Find a related item by id for syncModels.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {any} fk Foreign key for syncModels
    *
@@ -468,7 +468,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Delete a related item by id for syncModels.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {any} fk Foreign key for syncModels
    *
@@ -495,7 +495,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Update a related item by id for syncModels.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {any} fk Foreign key for syncModels
    *
@@ -531,7 +531,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Find a related item by id for inventoryModels.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {any} fk Foreign key for inventoryModels
    *
@@ -561,7 +561,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Delete a related item by id for inventoryModels.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {any} fk Foreign key for inventoryModels
    *
@@ -588,7 +588,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Update a related item by id for inventoryModels.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {any} fk Foreign key for inventoryModels
    *
@@ -624,9 +624,9 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Queries storeModels of StoreConfigModel.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
-   * @param {object} filter
+   * @param {object} filter 
    *
    * @returns {object[]} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -654,7 +654,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in storeModels of this model.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {object} data Request data.
    *
@@ -669,7 +669,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    * This usually means the response is a `StoreConfigModel` object.)
    * </em>
    */
-  public createStoreModels(id: any, data: any = {}, customHeaders?: Function): Observable<any> {
+  public createStoreModels(id: any, data: StoreModel = new StoreModel(), customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/StoreConfigModels/:id/storeModels";
@@ -687,7 +687,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Deletes all storeModels of this model.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -711,7 +711,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Counts storeModels of StoreConfigModel.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {object} where Criteria to match model instances
    *
@@ -721,7 +721,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    *
    * Data properties:
    *
-   *  - `count` – `{number}` -
+   *  - `count` – `{number}` - 
    */
   public countStoreModels(id: any, where: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
@@ -740,9 +740,9 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Queries reportModels of StoreConfigModel.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
-   * @param {object} filter
+   * @param {object} filter 
    *
    * @returns {object[]} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -763,7 +763,6 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
     let _postBody: any = {};
     let _urlParams: any = {};
     if (typeof filter !== 'undefined' && filter !== null) _urlParams.filter = filter;
-    console.log('urlparams', _urlParams.filter);
     let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
     return result;
   }
@@ -771,7 +770,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in reportModels of this model.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {object} data Request data.
    *
@@ -786,7 +785,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    * This usually means the response is a `StoreConfigModel` object.)
    * </em>
    */
-  public createReportModels(id: any, data: any = {}, customHeaders?: Function): Observable<any> {
+  public createReportModels(id: any, data: ReportModel = new ReportModel(), customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/StoreConfigModels/:id/reportModels";
@@ -804,7 +803,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Deletes all reportModels of this model.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -828,7 +827,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Counts reportModels of StoreConfigModel.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {object} where Criteria to match model instances
    *
@@ -838,7 +837,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    *
    * Data properties:
    *
-   *  - `count` – `{number}` -
+   *  - `count` – `{number}` - 
    */
   public countReportModels(id: any, where: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
@@ -857,9 +856,9 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Queries supplierModels of StoreConfigModel.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
-   * @param {object} filter
+   * @param {object} filter 
    *
    * @returns {object[]} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -887,7 +886,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in supplierModels of this model.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {object} data Request data.
    *
@@ -902,7 +901,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    * This usually means the response is a `StoreConfigModel` object.)
    * </em>
    */
-  public createSupplierModels(id: any, data: any = {}, customHeaders?: Function): Observable<any> {
+  public createSupplierModels(id: any, data: SupplierModel = new SupplierModel(), customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/StoreConfigModels/:id/supplierModels";
@@ -920,7 +919,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Deletes all supplierModels of this model.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -944,7 +943,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Counts supplierModels of StoreConfigModel.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {object} where Criteria to match model instances
    *
@@ -954,7 +953,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    *
    * Data properties:
    *
-   *  - `count` – `{number}` -
+   *  - `count` – `{number}` - 
    */
   public countSupplierModels(id: any, where: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
@@ -973,9 +972,9 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Queries productModels of StoreConfigModel.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
-   * @param {object} filter
+   * @param {object} filter 
    *
    * @returns {object[]} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1003,7 +1002,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in productModels of this model.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {object} data Request data.
    *
@@ -1036,7 +1035,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Deletes all productModels of this model.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1060,7 +1059,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Counts productModels of StoreConfigModel.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {object} where Criteria to match model instances
    *
@@ -1070,7 +1069,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    *
    * Data properties:
    *
-   *  - `count` – `{number}` -
+   *  - `count` – `{number}` - 
    */
   public countProductModels(id: any, where: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
@@ -1089,9 +1088,9 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Queries syncModels of StoreConfigModel.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
-   * @param {object} filter
+   * @param {object} filter 
    *
    * @returns {object[]} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1119,7 +1118,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in syncModels of this model.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {object} data Request data.
    *
@@ -1152,7 +1151,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Deletes all syncModels of this model.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1176,7 +1175,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Counts syncModels of StoreConfigModel.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {object} where Criteria to match model instances
    *
@@ -1186,7 +1185,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    *
    * Data properties:
    *
-   *  - `count` – `{number}` -
+   *  - `count` – `{number}` - 
    */
   public countSyncModels(id: any, where: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
@@ -1205,9 +1204,9 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Queries inventoryModels of StoreConfigModel.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
-   * @param {object} filter
+   * @param {object} filter 
    *
    * @returns {object[]} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1235,7 +1234,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in inventoryModels of this model.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {object} data Request data.
    *
@@ -1268,7 +1267,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Deletes all inventoryModels of this model.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1292,7 +1291,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Counts inventoryModels of StoreConfigModel.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {object} where Criteria to match model instances
    *
@@ -1302,7 +1301,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    *
    * Data properties:
    *
-   *  - `count` – `{number}` -
+   *  - `count` – `{number}` - 
    */
   public countInventoryModels(id: any, where: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
@@ -1323,7 +1322,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
          * (The remote method definition does not provide any description.)
          * </em>
    *
-   * @param {string} id
+   * @param {string} id 
    *
    * @returns {object[]} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1352,7 +1351,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
          * (The remote method definition does not provide any description.)
          * </em>
    *
-   * @param {string} id
+   * @param {string} id 
    *
    * @returns {object[]} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1381,7 +1380,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
          * (The remote method definition does not provide any description.)
          * </em>
    *
-   * @param {string} id
+   * @param {string} id 
    *
    * @returns {object[]} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1410,7 +1409,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
          * (The remote method definition does not provide any description.)
          * </em>
    *
-   * @param {string} id
+   * @param {string} id 
    *
    * @returns {object[]} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1439,11 +1438,11 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
          * (The remote method definition does not provide any description.)
          * </em>
    *
-   * @param {string} code
+   * @param {string} code 
    *
-   * @param {string} domain_prefix
+   * @param {string} domain_prefix 
    *
-   * @param {string} state
+   * @param {string} state 
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1451,7 +1450,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    *
    * Data properties:
    *
-   *  - `redirectUrl` – `{string}` -
+   *  - `redirectUrl` – `{string}` - 
    */
   public getVendAccessToken(code: any, domain_prefix: any, state: any, customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
@@ -1474,11 +1473,11 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    *
    * @param {object} data Request data.
    *
-   *  - `id` – `{string}` -
+   *  - `id` – `{string}` - 
    *
-   *  - `productId` – `{string}` -
+   *  - `productId` – `{string}` - 
    *
-   *  - `binLocation` – `{string}` -
+   *  - `binLocation` – `{string}` - 
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1486,7 +1485,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    *
    * Data properties:
    *
-   *  - `product` – `{object}` -
+   *  - `product` – `{object}` - 
    */
   public updateBinLocation(id: any, productId: any, binLocation: any, customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
@@ -1508,9 +1507,9 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
          * (The remote method definition does not provide any description.)
          * </em>
    *
-   * @param {string} id
+   * @param {string} id 
    *
-   * @param {any} names
+   * @param {any} names 
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1533,9 +1532,44 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   }
 
   /**
+   * <em>
+         * (The remote method definition does not provide any description.)
+         * </em>
+   *
+   * @param {string} id 
+   *
+   * @param {number} limit 
+   *
+   * @param {number} skip 
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * <em>
+   * (The remote method definition does not provide any description.
+   * This usually means the response is a `StoreConfigModel` object.)
+   * </em>
+   */
+  public getStuckOrders(id: any, limit: any = {}, skip: any = {}, customHeaders?: Function): Observable<any> {
+    let _method: string = "GET";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/StoreConfigModels/:id/getStuckOrders";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    if (typeof limit !== 'undefined' && limit !== null) _urlParams.limit = limit;
+    if (typeof skip !== 'undefined' && skip !== null) _urlParams.skip = skip;
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
    * Creates a new instance in storeModels of this model.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {object} data Request data.
    *
@@ -1550,7 +1584,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    * This usually means the response is a `StoreConfigModel` object.)
    * </em>
    */
-  public createManyStoreModels(id: any, data: any[] = [], customHeaders?: Function): Observable<any> {
+  public createManyStoreModels(id: any, data: StoreModel[] = new Array<StoreModel>(), customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/StoreConfigModels/:id/storeModels";
@@ -1568,7 +1602,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in reportModels of this model.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {object} data Request data.
    *
@@ -1583,7 +1617,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    * This usually means the response is a `StoreConfigModel` object.)
    * </em>
    */
-  public createManyReportModels(id: any, data: any[] = [], customHeaders?: Function): Observable<any> {
+  public createManyReportModels(id: any, data: ReportModel[] = new Array<ReportModel>(), customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/StoreConfigModels/:id/reportModels";
@@ -1601,7 +1635,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in supplierModels of this model.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {object} data Request data.
    *
@@ -1616,7 +1650,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
    * This usually means the response is a `StoreConfigModel` object.)
    * </em>
    */
-  public createManySupplierModels(id: any, data: any[] = [], customHeaders?: Function): Observable<any> {
+  public createManySupplierModels(id: any, data: SupplierModel[] = new Array<SupplierModel>(), customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/StoreConfigModels/:id/supplierModels";
@@ -1634,7 +1668,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in productModels of this model.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {object} data Request data.
    *
@@ -1667,7 +1701,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in syncModels of this model.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {object} data Request data.
    *
@@ -1700,7 +1734,7 @@ export class StoreConfigModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in inventoryModels of this model.
    *
-   * @param {any} id StoreConfigModel id
+   * @param {any} id PersistedModel id
    *
    * @param {object} data Request data.
    *

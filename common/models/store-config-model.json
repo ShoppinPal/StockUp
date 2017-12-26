@@ -174,7 +174,15 @@
       "principalId": "teamMember",
       "permission": "ALLOW",
       "property": "initiateSync"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teamMember",
+      "permission": "ALLOW",
+      "property": "getStuckOrders"
     }
+
   ],
   "methods": {}
 }
