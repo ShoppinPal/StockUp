@@ -21,7 +21,6 @@ export class StuckOrdersResolverService {
     skip = skip || 0;
     return this.storeConfigModelApi.getStuckOrders(this.userProfile.storeConfigModelId, limit, skip)
       .map((data: any) => {
-          console.log('reportmodels', data);
           return data;
         },
         err => {

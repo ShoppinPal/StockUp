@@ -16,7 +16,9 @@ export class StuckOrdersComponent implements OnInit {
   public stuckOrders: any;
   public ordersToRemove: any = [];
   public allOrdersSelected: boolean = false;
-  private self = this;
+  public currentPage: number = 1;
+  public totalStuckOrders: number;
+  public ordersLimitPerPage: number = 10;
 
   constructor(private _route: ActivatedRoute,
               private storeConfigModelApi: StoreConfigModelApi,
@@ -27,7 +29,8 @@ export class StuckOrdersComponent implements OnInit {
   ngOnInit() {
     this.userProfile = this._userProfileService.getProfileData();
     this._route.data.subscribe((data: any) => {
-        this.stuckOrders = data.stuckOrders;
+        this.stuckOrders = data.stuckOrders.stuckOrders;
+        this.totalStuckOrders = data.stuckOrders.count;
         console.log(data);
       },
       error => {
@@ -55,7 +58,7 @@ export class StuckOrdersComponent implements OnInit {
         this.stuckOrders = this.stuckOrders.filter(function (eachOrder) {
           return ordersToRemove.indexOf(eachOrder.id) < 0;
         });
-        this.toastr.success('Removed '+this.ordersToRemove.length+' stuck order(s)');
+        this.toastr.success('Removed ' + this.ordersToRemove.length + ' stuck order(s)');
       }, err => {
         this.loading = false;
         this.toastr.error('Could not remove stuck orders');
@@ -78,5 +81,22 @@ export class StuckOrdersComponent implements OnInit {
         }
       }
     }
+  }
+
+  fetchStuckOrders(limit?: number, currentPage?: number) {
+    this.loading = true;
+    limit = limit || 10;
+    let skip = (currentPage-1)*limit || 0;
+    this.storeConfigModelApi.getStuckOrders(this.userProfile.storeConfigModelId, limit, skip)
+      .subscribe((data: any) => {
+          this.loading = false;
+          this.stuckOrders = data.stuckOrders;
+        },
+        err => {
+          this.loading = false;
+          console.log('Could not fetch stuck orders', err);
+          this.toastr.error('Something went wrong', 'Couldn\'t fetch more stuck orders');
+        });
+
   }
 }

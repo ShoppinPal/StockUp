@@ -1254,6 +1254,7 @@ module.exports = function (ReportModel) {
   ReportModel.getStuckOrders = function (id, limit, skip) {
     var date = new Date();
     var previousDate = new Date(date.setDate(date.getDate() - 1));
+    var count;
     limit = limit || 10;
     skip = skip || 0;
     logger.tag('getStuckOrders').debug({
@@ -1262,26 +1263,41 @@ module.exports = function (ReportModel) {
         storeConfigModelId: id
       }
     });
-    return ReportModel.find({
-      limit: limit,
-      skip: skip,
-      where: {
-        storeConfigModelId: id,
-        created: {
-          lt: previousDate
-        },
-        state: 'report_empty'
+
+
+    return ReportModel.count({
+      storeConfigModelId: id,
+      created: {
+        lt: previousDate
       },
-      include: 'stockOrderLineitemModels'
+      state: 'report_empty'
     })
+      .then(function (response) {
+        count = response;
+        return ReportModel.find({
+          limit: limit,
+          skip: skip,
+          where: {
+            storeConfigModelId: id,
+            created: {
+              lt: previousDate
+            },
+            state: 'report_empty'
+          },
+          include: 'stockOrderLineitemModels'
+        })
+      })
       .then(function (reports) {
         logger.tag('getStuckOrders').debug({
           log: {
-            message: 'Found these reports',
-            reports: reports
+            message: 'Found these stuck orders',
+            reports: _.pluck(reports, 'id')
           }
         });
-        return Promise.resolve(reports);
+        return Promise.resolve({
+          stuckOrders: reports,
+          count: count
+        });
       })
       .catch(function (error) {
         logger.tag('getStuckOrders').error({

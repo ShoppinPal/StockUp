@@ -38,7 +38,7 @@
                   <input type="checkbox" class="orders-checkbox" [(ngModel)]="eachOrder.isSelected">
                 </label>
               </td>
-              <td>{{i+1}}</td>
+              <td>{{((currentPage-1)*ordersLimitPerPage)+i+1}}</td>
               <td>{{eachOrder.name}}</td>
               <td>{{eachOrder.stockOrderLineitemModels.length}}</td>
               <td>{{eachOrder.created | date:'MM-dd-yyyy hh:mm:ss'}}</td>
@@ -47,13 +47,13 @@
             </tbody>
           </table>
           <ul class="pagination">
-            <li class="page-item" *ngFor="let page of stuckOrders | paginate: {itemsPerPage: 10,
+            <li class="page-item" *ngFor="let page of stuckOrders | paginate: {itemsPerPage: ordersLimitPerPage,
                                                                  currentPage: currentPage,
-                                                                 totalItems: stuckOrders.length}">
+                                                                 totalItems: totalStuckOrders}">
             </li>
           </ul>
           <pagination-controls
-            (pageChange)="fetchProducts(productsLimitPerPage, currentPage); currentPage=$event"></pagination-controls>
+            (pageChange)="currentPage=$event;fetchStuckOrders(ordersLimitPerPage, currentPage)"></pagination-controls>
         </div>
       </div>
     </div>
