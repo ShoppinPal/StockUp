@@ -181,6 +181,13 @@
       "principalId": "teamMember",
       "permission": "ALLOW",
       "property": "getStuckOrders"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teamMember",
+      "permission": "ALLOW",
+      "property": "removeStuckOrders"
     }
 
   ],

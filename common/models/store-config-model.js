@@ -304,7 +304,30 @@ module.exports = function (StoreConfigModel) {
       .catch(function (error) {
         cb(error);
       });
-  }
+  };
 
+  StoreConfigModel.remoteMethod('removeStuckOrders', {
+    accepts: [
+      {arg: 'id', type: 'string', required: true},
+      {arg: 'stuckOrders', type: 'array', required: true}
+    ],
+    http: {path: '/:id/removeStuckOrders', verb: 'post'},
+    returns: {arg: 'removed', type: 'object', root: true}
+  });
+
+  StoreConfigModel.removeStuckOrders = function (id, stuckOrders, cb) {
+    logger.tag('removeStuckOrders').debug({
+      log: {
+        message: 'Will route to ReportModel.removeStuckOrders()'
+      }
+    });
+    StoreConfigModel.app.models.ReportModel.removeStuckOrders(id, stuckOrders)
+      .then(function (removed) {
+        cb(null, removed);
+      })
+      .catch(function (error) {
+        cb(error);
+      });
+  };
 
 };

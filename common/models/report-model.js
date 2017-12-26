@@ -1252,8 +1252,8 @@ module.exports = function (ReportModel) {
    * @return {Promise.<T>}
    */
   ReportModel.getStuckOrders = function (id, limit, skip) {
-    let date = new Date();
-    let previousDate = new Date(date.setDate(date.getDate() - 1));
+    var date = new Date();
+    var previousDate = new Date(date.setDate(date.getDate() - 1));
     limit = limit || 10;
     skip = skip || 0;
     logger.tag('getStuckOrders').debug({
@@ -1271,7 +1271,8 @@ module.exports = function (ReportModel) {
           lt: previousDate
         },
         state: 'report_empty'
-      }
+      },
+      include: 'stockOrderLineitemModels'
     })
       .then(function (reports) {
         logger.tag('getStuckOrders').debug({
@@ -1289,5 +1290,53 @@ module.exports = function (ReportModel) {
         return Promise.reject(error);
       });
   };
+
+  ReportModel.removeStuckOrders = function (id, stuckOrders) {
+    logger.tag('removeStuckOrders').debug({
+      log: {
+        message: 'Will remove following stuck orders',
+        storeConfigModelId: id,
+        stuckOrders: stuckOrders
+      }
+    });
+    return ReportModel.destroyAll({
+      storeConfigModelId: id,
+      state: 'report_empty',
+      id: {
+        inq: stuckOrders
+      }
+    })
+      .then(function (response) {
+        logger.tag('removeStuckOrders').debug({
+          log: {
+            message: 'Removed report models, will go on to remove line items',
+            response: response
+          }
+        });
+        return ReportModel.app.models.StockOrderLineitemModel.destroyAll({
+          reportId: {
+            inq: stuckOrders
+          }
+        });
+      })
+      .then(function (response) {
+        logger.tag('removeStuckOrders').debug({
+          log: {
+            message: 'Removed line items',
+            response: response
+          }
+        });
+        return Promise.resolve(response);
+      })
+      .catch(function (error) {
+        logger.tag('removeStuckOrders').error({
+          log: {
+            error: error
+          }
+        });
+        return Promise.reject('Could not remove stuck orders', error);
+      });
+
+  }
 
 };
