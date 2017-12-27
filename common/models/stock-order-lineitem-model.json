@@ -95,7 +95,7 @@
     "productModel": {
       "type": "belongsTo",
       "model": "ProductModel",
-      "foreignKey": "productId"
+      "foreignKey": "productModelId"
     }
   },
   "acls": [
