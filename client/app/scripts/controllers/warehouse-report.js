@@ -110,7 +110,7 @@
         });
         // if fulfilledQuantity hasn't been set, then it should equal orderQuantity by default
         angular.forEach($scope.orderedItems, function (item) {
-          item.type = item.productModel.type ? item.productModel.type : item.type;
+          item.type = item.productModel ? item.productModel.type : item.type;
           if (item.fulfilledQuantity === undefined || item.fulfilledQuantity === null) {
             item.fulfilledQuantity = item.orderQuantity;
           }
