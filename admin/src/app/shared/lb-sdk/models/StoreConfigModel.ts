@@ -1,7 +1,8 @@
 /* tslint:disable */
 import {
   UserModel,
-  StoreModel
+  StoreModel,
+  SupplierModel
 } from '../index';
 
 declare var Object: any;
@@ -25,10 +26,14 @@ export interface StoreConfigModelInterface {
   "wepayAccountId"?: string;
   "wepayAccountState"?: any;
   "suppliers"?: Array<any>;
+  "usesWorkersV2"?: any;
   "userId"?: any;
   userModel?: UserModel;
   storeModels?: StoreModel[];
+  supplierModels?: SupplierModel[];
   productModels?: any[];
+  syncModels?: any[];
+  inventoryModels?: any[];
 }
 
 export class StoreConfigModel implements StoreConfigModelInterface {
@@ -51,10 +56,14 @@ export class StoreConfigModel implements StoreConfigModelInterface {
   "wepayAccountId": string;
   "wepayAccountState": any;
   "suppliers": Array<any>;
+  "usesWorkersV2": any;
   "userId": any;
   userModel: UserModel;
   storeModels: StoreModel[];
+  supplierModels: SupplierModel[];
   productModels: any[];
+  syncModels: any[];
+  inventoryModels: any[];
   constructor(data?: StoreConfigModelInterface) {
     Object.assign(this, data);
   }
@@ -163,6 +172,10 @@ export class StoreConfigModel implements StoreConfigModelInterface {
           name: 'suppliers',
           type: 'Array&lt;any&gt;'
         },
+        "usesWorkersV2": {
+          name: 'usesWorkersV2',
+          type: 'any'
+        },
         "userId": {
           name: 'userId',
           type: 'any'
@@ -179,8 +192,23 @@ export class StoreConfigModel implements StoreConfigModelInterface {
           type: 'StoreModel[]',
           model: 'StoreModel'
         },
+        supplierModels: {
+          name: 'supplierModels',
+          type: 'SupplierModel[]',
+          model: 'SupplierModel'
+        },
         productModels: {
           name: 'productModels',
+          type: 'any[]',
+          model: ''
+        },
+        syncModels: {
+          name: 'syncModels',
+          type: 'any[]',
+          model: ''
+        },
+        inventoryModels: {
+          name: 'inventoryModels',
           type: 'any[]',
           model: ''
         },

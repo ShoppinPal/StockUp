@@ -305,6 +305,8 @@ export class SupplierModelApi extends BaseLoopBackApi {
          * (The remote method definition does not provide any description.)
          * </em>
    *
+   * @param {string} id User ID
+   *
    * @returns {object[]} An empty reference that will be
    *   populated with the actual data once the response is returned
    *   from the server.
@@ -314,11 +316,13 @@ export class SupplierModelApi extends BaseLoopBackApi {
    * This usually means the response is a `SupplierModel` object.)
    * </em>
    */
-  public listSuppliers(customHeaders?: Function): Observable<any> {
+  public listSuppliers(id: any, customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/SupplierModels/listSuppliers";
-    let _routeParams: any = {};
+    let _routeParams: any = {
+      id: id
+    };
     let _postBody: any = {};
     let _urlParams: any = {};
     let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);

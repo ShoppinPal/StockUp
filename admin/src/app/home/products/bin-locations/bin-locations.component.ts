@@ -70,12 +70,12 @@ export class BinLocationsComponent implements OnInit {
    * calls the search sku function
    * @param searchText
    */
-  barcodeSearchSKU(searchText) {
+  barcodeSearchSKU() {
     if (this.enableBarcode) {
       clearTimeout(this.readingBarcode);
       this.readingBarcode = setTimeout(() => {
-        this.searchSKU(searchText);
-      }, 100);
+        this.searchSKU();
+      }, 1000);
     }
   }
 
@@ -85,12 +85,12 @@ export class BinLocationsComponent implements OnInit {
    * @param product
    * @param binLocation
    */
-  barcodeSaveBinLocation(product, binLocation) {
+  barcodeSaveBinLocation(product) {
     if (this.enableBarcode) {
       clearTimeout(this.readingBarcode);
       this.readingBarcode = setTimeout(() => {
-        this.updateBinLocation(product, binLocation)
-      }, 100);
+        this.updateBinLocation(product)
+      }, 1000);
     }
   }
 
@@ -132,28 +132,18 @@ export class BinLocationsComponent implements OnInit {
    * @param product
    * @param binLocation
    */
-  updateBinLocation(product: any, binLocation: string) {
+  updateBinLocation(product: any) {
     this.loading = true;
     product.error = '';
     product.info = '';
     product.success = false;
-    if (!binLocation) {
+    if (!product.binLocation) {
       this.loading = false;
       this.toastr.error('Please enter bin location');
       product.error = 'Please enter bin location';
     }
-    else if (product.binLocation === binLocation) {
-      this.loading = false;
-      this.foundSKU = false;
-      this.searchSKUFocused = true;
-      this.toastr.info('No change in bin location');
-      product.info = 'No change in bin location';
-      setTimeout(() => {
-        product.info = '';
-      }, 5000);
-    }
     else {
-      this.storeConfigModelApi.updateBinLocation(this.userProfile.storeConfigModelId, product.id, binLocation)
+      this.storeConfigModelApi.updateBinLocation(this.userProfile.storeConfigModelId, product.id, product.binLocation)
         .subscribe((data: any) => {
             this.toastr.success('Updated bin location successfully');
             this.loading = false;
@@ -177,11 +167,11 @@ export class BinLocationsComponent implements OnInit {
    * @description Function to search for a particular sku
    * @param searchText
    */
-  searchSKU(searchText: string) {
+  searchSKU() {
     this.loading = true;
     let filter = {
       where: {
-        sku: searchText
+        sku: this.searchSKUText
       }
     };
     this.storeConfigModelApi.getProductModels(this.userProfile.storeConfigModelId, filter)
@@ -189,13 +179,14 @@ export class BinLocationsComponent implements OnInit {
           this.loading = false;
           if (data.length === 1) {
             this.searchedProduct = data;
-            this.searchSKUFocused = false;
             this.totalPages = 1;
             this.totalProducts = 1;
+            this.searchSKUFocused = false;
             this.foundSKU = true;
           }
           else {
-            this.toastr.error('Couldn\'t find SKU in database, try refreshing products');
+            this.toastr.error('Couldn\'t find SKU '+this.searchSKUText+' in database, try syncing products', 'SKU not found');
+            this.searchSKUText = '';
           }
         },
         error => {

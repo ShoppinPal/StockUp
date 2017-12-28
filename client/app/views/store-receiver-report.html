@@ -45,7 +45,7 @@
                                         ng-swipe-left="editRow($index)"
                                         ng-swipe-right="markAsReceived($index, item)">
                                         <td class="report-head1">{{item.sku}}</td>
-                                        <td class="report-head2">{{item.name}}</td>
+                                        <td class="report-head2">{{item.productModel.name || item.name}}</td>
                                         <td class="report-head3">{{item.orderQuantity}}</td>
                                         <td class="report-head4">{{item.fulfilledQuantity}}</td>
                                         <td class="report-head5">{{item.receivedQuantity}}</td>

@@ -27,12 +27,17 @@
     "supplierModel": {
       "type": "belongsTo",
       "model": "SupplierModel",
-      "foreignKey": "supplierId"
+      "foreignKey": "supplierModelId"
     },
     "storeConfigModel": {
       "type": "belongsTo",
       "model": "StoreConfigModel",
       "foreignKey": "storeConfigModelId"
+    },
+    "inventoryModel": {
+      "type": "hasOne",
+      "model": "InventoryModel",
+      "foreignKey": "productModelId"
     }
   },
   "acls": [],
