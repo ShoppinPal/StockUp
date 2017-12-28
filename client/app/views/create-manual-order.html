@@ -31,8 +31,7 @@
                                 class="form-control"
                                 ng-model="orderController.selectedSupplier"
                                 ng-options="supplier.name for supplier in orderController.suppliers">
-                            <option selected value="" ng-if="orderController.isWarehouser()">Select a supplier (optional)</option>
-                            <option selected value="" ng-if="!orderController.isWarehouser()">Select a supplier</option>
+                            <option selected value="">Select a supplier </option>
                         </select>
                     </div>
                 </div>

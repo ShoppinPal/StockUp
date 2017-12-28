@@ -121,7 +121,7 @@
 
       var setupBoxes = function (response) {
         var existingBoxes = _.chain(response).each(function (eachItem) {
-          eachItem.type = eachItem.productModel.type ? eachItem.productModel.type : eachItem.type;
+          eachItem.type = eachItem.productModel ? eachItem.productModel.type : eachItem.type;
         }).countBy('boxNumber').value();
         //console.log(existingBoxes);
         if (existingBoxes && _.keys(existingBoxes).length>0) {

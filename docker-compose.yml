@@ -113,8 +113,6 @@ services:
       - ./warehouse-workers/jobs:/apps/workers/jobs
       - ./warehouse-workers/sqsWorker.js:/apps/workers/sqsWorker.js
       - ./warehouse-workers/config:/apps/workers/config
-      - ./../vend-nodejs-sdk:/apps/node_modules/vend-nodejs-sdk
-      - ./../vend-nodejs-sdk:/apps/workers/node_modules/vend-nodejs-sdk
     restart: always
     env_file: worker2.env
     depends_on:
