@@ -1,0 +1,108 @@
+<ngx-loading [show]="loading"></ngx-loading>
+<div class="animated fadeIn">
+  <div class="row">
+    <div class="col-md-12 col-lg-6">
+      <div class="card">
+        <div class="card-header">
+          <h4>Instructions</h4>
+        </div>
+        <div class="card-body">
+          The syncing happens every 5 minutes automatically. If there is a need for manually syncing
+          the data, following order has to be followed:
+          <ul style="list-style-type: decimal">
+            <li>Suppliers</li>
+            <li>Products (dependent on Suppliers)</li>
+            <li>Inventory (dependent on Products)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-6 col-lg-4" *ngFor="let syncModel of syncModels">
+      <div class="card">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-5">
+              <div class="h4 m-0">0%</div>
+              <div>{{syncModel.name | titlecase}} sync</div>
+            </div>
+            <div class="col-sm-2"></div>
+            <div class="col-sm-5">
+              <div class="h4 m-0 float-right">xxxxx</div>
+              <small class="text-muted float-right">Total {{syncModel.name}}</small>
+            </div>
+          </div>
+          <div class="progress progress-xs my-3">
+            <div class="progress-bar bg-success" role="progressbar" style="width: 1%" aria-valuenow="25"
+                 aria-valuemin="20" aria-valuemax="80"></div>
+          </div>
+          <!--<button type="button" [disabled]="syncModel.syncInProcess" class="btn btn-primary"-->
+          <button type="button" class="btn btn-primary"
+                  (click)="initiateSync([syncModel.name])">Sync now
+          </button>
+          <br/>
+          <small class="text-muted">Last synced at {{syncModel.lastSyncedAt | date:'medium'}}</small>
+        </div>
+      </div>
+    </div><!--/.col-->
+  </div>
+
+  <div class="row">
+    <div class="col-md-12 col-lg-6">
+      <div class="card">
+        <div class="card-header">
+          <h4>Data to sync</h4>
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-hover table-striped table-align-middle mb-0">
+            <thead>
+            <th>Data object</th>
+            <th>Sync Status</th>
+            </thead>
+            <tbody>
+            <tr>
+              <td>
+                Products
+              </td>
+              <td>
+                <label class="switch switch-3d switch-primary">
+                  <input type="checkbox" class="switch-input" [ngModel]="checkSync('products')" (change)="toggleSync('products')">
+                  <span class="switch-label"></span>
+                  <span class="switch-handle"></span>
+                </label>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Inventory
+              </td>
+              <td>
+                <label class="switch switch-3d switch-primary">
+                  <input type="checkbox" class="switch-input" [ngModel]="checkSync('inventory')" (change)="toggleSync('inventory')">
+                  <span class="switch-label"></span>
+                  <span class="switch-handle"></span>
+                </label>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Suppliers
+              </td>
+              <td>
+                <label class="switch switch-3d switch-primary">
+                  <input type="checkbox" class="switch-input" [ngModel]="checkSync('suppliers')" (change)="toggleSync('suppliers')">
+                  <span class="switch-label"></span>
+                  <span class="switch-handle"></span>
+                </label>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,45 @@
+{
+  "name": "InventoryModel",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "api_id": {
+      "type": "string",
+      "required": true
+    },
+    "outlet_id": {
+      "type": "string",
+      "required": true
+    },
+    "inventory_level": {
+      "type": "number",
+      "required": true
+    },
+    "reorder_point": {
+      "type": "number",
+      "required": true
+    },
+    "reorder_amount": {
+      "type": "number",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "storeConfigModel": {
+      "type": "belongsTo",
+      "model": "StoreConfigModel",
+      "foreignKey": "storeConfigModelId"
+    },
+    "productModel": {
+      "type": "belongsTo",
+      "model": "ProductModel",
+      "foreignKey": "productModelId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

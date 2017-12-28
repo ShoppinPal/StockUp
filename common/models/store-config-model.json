@@ -70,14 +70,17 @@
       "type": [
         "object"
       ]
+    },
+    "usesWorkersV2": {
+      "type": "object"
     }
   },
   "validations": [],
   "relations": {
-    "userModel": {
-      "type": "belongsTo",
+    "userModels": {
+      "type": "hasMany",
       "model": "UserModel",
-      "foreignKey": "userId"
+      "foreignKey": "storeConfigModelIs"
     },
     "storeModels": {
       "type": "hasMany",
@@ -87,6 +90,21 @@
     "productModels": {
       "type": "hasMany",
       "model": "ProductModel",
+      "foreignKey": "storeConfigModelId"
+    },
+    "syncModels": {
+      "type": "hasMany",
+      "model": "SyncModel",
+      "foreignKey": "storeConfigModelId"
+    },
+    "inventoryModels": {
+      "type": "hasMany",
+      "model": "InventoryModel",
+      "foreignKey": "storeConfigModelId"
+    },
+    "supplierModels": {
+      "type": "hasMany",
+      "model": "SupplierModel",
       "foreignKey": "storeConfigModelId"
     }
   },
@@ -140,6 +158,34 @@
       "principalId": "teamMember",
       "permission": "ALLOW",
       "property": "updateBinLocation"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teamMember",
+      "permission": "ALLOW",
+      "property": "__get__products"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teamMember",
+      "permission": "ALLOW",
+      "property": "initiateSync"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teamMember",
+      "permission": "ALLOW",
+      "property": "getWorkerSettings"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teamMember",
+      "permission": "ALLOW",
+      "property": "updateWorkerSettings"
     }
   ],
   "methods": {}

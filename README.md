@@ -28,6 +28,15 @@ Replenishing stock is one of the most important repetitive tasks performed by a 
     cp .env.example .env
     cp worker.env.example worker.env
     ```
+    OR 
+    
+    you can run the command `npm run generate-env` , which will ask you for the environment variables to be configured. Once done, It will generate a .env file for you as per the values you specified. This utility uses npm module `inquirer`. Thus make sure you install it by running ```npm install inquirer --save```.
+    
+    This command also accepts an argument as `-e` where possible values are either `web` or `worker`. Choosing either one among them will allow you to generate env configuration for that environment.
+    eg. 
+    ```npm run generate-env``` or ```npm run generate-env -e=web``` for generating .env for warehouse web app.
+    ```npm run generate-env -e=worker``` for generating .env for worker.
+
 1. Move to the terraform directory:: `cd $PROJECT_ROOT/terraform`
     * Use `$PROJECT_ROOT/terraform/example.tfvars.file` as template:
 

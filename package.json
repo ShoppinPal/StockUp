@@ -1,6 +1,6 @@
 {
   "name": "shoppinpal-warehouse-mongo",
-  "version": "1.4.1",
+  "version": "1.4.3",
   "dependencies": {
     "@mean-expert/loopback-component-realtime": "1.0.0-rc.9.6",
     "@mean-expert/loopback-sdk-builder": "^2.1.0-rc.14",
@@ -28,6 +28,7 @@
     "grunt-replace": "^0.7.9",
     "grunt-rev": "^0.1.0",
     "grunt-usemin": "^2.0.2",
+    "inquirer": "^4.0.1",
     "iron_worker": "0.1.4",
     "jshint-stylish": "~0.1.5",
     "kerberos": "0.0.23",
@@ -84,7 +85,8 @@
   "scripts": {
     "postinstall": "echo -n $NODE_ENV | grep -v 'production' && ./node_modules/protractor/bin/webdriver-manager update || echo 'will NOT run webdriver install or update'",
     "angular1-sdk": "../node_modules/grunt-cli/bin/grunt loopback_sdk_angular",
-    "angular2-sdk": "DEBUG=boot:*,common:models:*,server:* SKIP_SEEDING=true ./node_modules/.bin/lb-sdk server/server.js admin/src/app/shared/lb-sdk -i disabled"
+    "angular2-sdk": "DEBUG=boot:*,common:models:*,server:* SKIP_SEEDING=true ./node_modules/.bin/lb-sdk server/server.js admin/src/app/shared/lb-sdk -i disabled",
+    "generate-env":"node getenv.js"
   },
   "main": "server/server.js"
 }

@@ -14,9 +14,8 @@ const routes: Routes = [
     },
     children: [
       {
-        redirectTo: 'bin-locations',
         path: 'products',
-        pathMatch: 'full'
+        redirectTo: 'bin-locations'
       },
       {
         path: 'bin-locations',

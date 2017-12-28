@@ -21,10 +21,10 @@
       "model": "GlobalConfigModel",
       "foreignKey": "userModelToGlobalConfigModelId"
     },
-    "storeConfigModels": {
-      "type": "hasMany",
+    "storeConfigModel": {
+      "type": "belongsTo",
       "model": "StoreConfigModel",
-      "foreignKey": "userId"
+      "foreignKey": "storeConfigModelId"
     },
     "supplierModels": {
       "type": "hasMany",

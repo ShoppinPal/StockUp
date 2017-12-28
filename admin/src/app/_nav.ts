@@ -11,8 +11,9 @@ export const navigation = [
       variant: 'success',
       text: 'new'
     }
-  },
-  {
+  }
+  ,
+  /*{
     title: true,
     name: 'Orders'
   },
@@ -25,19 +26,30 @@ export const navigation = [
       text: '5'
     }
 
-  },
+  },*/
   {
     title: true,
     name: 'Settings'
   },
   {
+    name: 'Syncing with Vend',
+    url: '/sync-with-vend',
+    icon: 'icon-refresh'
+  },
+  {
+    name: 'Worker Settings',
+    url: '/worker-settings',
+    icon: 'icon-settings'
+  }
+  /*,
+  {
     name: 'Stores',
     url: '/stores',
-    icon: 'icon-location-pin'
+    icon: 'icon-settings'
   },
   {
     name: 'Payments',
     url: '/payments',
-    icon: 'icon-credit-card'
-  }
+    icon: 'icon-settings'
+  }*/
 ];
