@@ -479,7 +479,7 @@ module.exports = function (Container) {
         return SupplierModel.find({
           where: {
             id: supplierId,
-            storeConfigModelToSupplierModelId: storeOutlet.storeConfigModelToStoreModelId
+            storeConfigModelId: storeOutlet.storeConfigModelToStoreModelId
           }
         });
       })
@@ -562,7 +562,7 @@ module.exports = function (Container) {
                 name: {
                   like: singleOrder.supplierName
                 },
-                storeConfigModelToSupplierModelId: storeModelInstance.storeConfigModelToStoreModelId
+                storeConfigModelId: storeModelInstance.storeConfigModelToStoreModelId
               }
             })
               .then(function (supplierModelInstance) {
