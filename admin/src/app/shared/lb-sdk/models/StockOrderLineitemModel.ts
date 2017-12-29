@@ -7,7 +7,7 @@ import {
 declare var Object: any;
 export interface StockOrderLineitemModelInterface {
   "id"?: any;
-  "productId"?: any;
+  "productId"?: string;
   "sku": string;
   "name"?: string;
   "quantityOnHand"?: number;
@@ -26,6 +26,7 @@ export interface StockOrderLineitemModelInterface {
   "supplyPrice"?: number;
   "userId"?: any;
   "reportId"?: any;
+  "productModelId"?: any;
   userModel?: UserModel;
   reportModel?: ReportModel;
   productModel?: any;
@@ -33,7 +34,7 @@ export interface StockOrderLineitemModelInterface {
 
 export class StockOrderLineitemModel implements StockOrderLineitemModelInterface {
   "id": any;
-  "productId": any;
+  "productId": string;
   "sku": string;
   "name": string;
   "quantityOnHand": number;
@@ -52,6 +53,7 @@ export class StockOrderLineitemModel implements StockOrderLineitemModelInterface
   "supplyPrice": number;
   "userId": any;
   "reportId": any;
+  "productModelId": any;
   userModel: UserModel;
   reportModel: ReportModel;
   productModel: any;
@@ -93,7 +95,7 @@ export class StockOrderLineitemModel implements StockOrderLineitemModelInterface
         },
         "productId": {
           name: 'productId',
-          type: 'any'
+          type: 'string'
         },
         "sku": {
           name: 'sku',
@@ -165,6 +167,10 @@ export class StockOrderLineitemModel implements StockOrderLineitemModelInterface
         },
         "reportId": {
           name: 'reportId',
+          type: 'any'
+        },
+        "productModelId": {
+          name: 'productModelId',
           type: 'any'
         },
       },
