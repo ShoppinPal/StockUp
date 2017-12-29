@@ -70,14 +70,17 @@
       "type": [
         "object"
       ]
+    },
+    "usesWorkersV2": {
+      "type": "object"
     }
   },
   "validations": [],
   "relations": {
-    "userModel": {
-      "type": "belongsTo",
+    "userModels": {
+      "type": "hasMany",
       "model": "UserModel",
-      "foreignKey": "userId"
+      "foreignKey": "storeConfigModelIs"
     },
     "storeModels": {
       "type": "hasMany",
@@ -180,6 +183,20 @@
       "principalType": "ROLE",
       "principalId": "teamMember",
       "permission": "ALLOW",
+      "property": "getWorkerSettings"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teamMember",
+      "permission": "ALLOW",
+      "property": "updateWorkerSettings"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teamMember",
+      "permission": "ALLOW",
       "property": "getStuckOrders"
     },
     {
@@ -189,7 +206,6 @@
       "permission": "ALLOW",
       "property": "removeStuckOrders"
     }
-
   ],
   "methods": {}
 }

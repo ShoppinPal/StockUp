@@ -181,9 +181,10 @@ module.exports = function (Container) {
                                           reportModelInstance,
                                           Container.app.get('importStockOrderToWarehouseWithoutSupplier')
                                         );
+                                        var queueUrl = storeConfigInstance.usesWorkersV2.importOrders ? Container.app.get('awsQueueUrl2') : Container.app.get('awsQueueUrl2');
 
                                         //send payload to worker
-                                        return ReportModel.sendPayload(reportModelInstance, options, next)
+                                        return ReportModel.sendPayload(reportModelInstance, options, queueUrl, next)
                                           .then(function (updatedReportModelInstance) {
                                             //log.trace('updatedReportModelInstance:', updatedReportModelInstance);
                                             logger.tag('updatedReportModelInstance').debug({log: {updatedReportModelInstance: updatedReportModelInstance}});
@@ -293,7 +294,9 @@ module.exports = function (Container) {
                                           Container.app.get('importStockOrderToWarehouse')
                                         );
 
-                                        return ReportModel.sendPayload(reportModelInstance, options, next)
+                                        var queueUrl = storeConfigInstance.usesWorkersV2.importOrders ? ReportModel.app.get('awsQueueUrl2') : ReportModel.app.get('awsQueueUrl');
+
+                                        return ReportModel.sendPayload(reportModelInstance, options, queueUrl, next)
                                           .then(function (updatedReportModelInstance) {
                                             logger.trace({log: {message: 'updatedReportModelInstance:', updatedReportModelInstance: updatedReportModelInstance }});
                                             //next();
@@ -421,7 +424,9 @@ module.exports = function (Container) {
                               worker
                             );
 
-                            ReportModel.sendPayload(reportModelInstance, options, next)
+                            var queueUrl = storeConfigInstance.usesWorkersV2.importOrders ? ReportModel.app.get('awsQueueUrl2') : ReportModel.app.get('awsQueueUrl');
+
+                            ReportModel.sendPayload(reportModelInstance, options, queueUrl, next)
                               .then(function (updatedReportModelInstance) {
                                 logger.trace({log: {message: 'updatedReportModelInstance:', updatedReportModelInstance: updatedReportModelInstance }});
                                 next();

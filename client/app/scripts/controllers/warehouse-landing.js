@@ -12,10 +12,9 @@ angular.module('ShoppinPalApp')
     '$scope', '$state', '$anchorScroll', '$location', '$sessionStorage', '$filter', '$window', /* angular's modules/services/factories etc. */
     'loginService', 'uiUtils', 'ReportModel', /* shoppinpal's custom modules/services/factories etc. */
     'ReportModelStates', /* constants */
-    function($scope, $state, $anchorScroll, $location, $sessionStorage, $filter, $window,
-             loginService, uiUtils, ReportModel,
-             ReportModelStates)
-    {
+    function ($scope, $state, $anchorScroll, $location, $sessionStorage, $filter, $window,
+              loginService, uiUtils, ReportModel,
+              ReportModelStates) {
       $scope.roles = $sessionStorage.roles;
       $scope.ReportModelStates = ReportModelStates;
 
@@ -24,7 +23,7 @@ angular.module('ShoppinPalApp')
       $scope.legends = {
         'inProcess': true,
         'fulfill': true,
-        'receive':   true
+        'receive': true
       };
 
       $scope.currentSupplier = '';
@@ -45,14 +44,14 @@ angular.module('ShoppinPalApp')
       /** @method dismissEdit
        * This method will close the editable mode in store-report
        */
-      $scope.dismissEdit = function() {
+      $scope.dismissEdit = function () {
         $scope.selectedRowIndex = $scope.storereportlength + 1;
       };
 
       /** @method showMore
        * increase the list display size for a specific supplier
        */
-      $scope.showMore = function(supplier) {
+      $scope.showMore = function (supplier) {
         $scope.supplierWiseListSize[supplier].size += $scope.showMoreValue;
         uiUtils.limitListAsPerSupplier($scope);
       };
@@ -60,29 +59,30 @@ angular.module('ShoppinPalApp')
       /** @method orderFilter
        * filter orders based on the report state
        */
-      var orderFilter = function(report){
+      var orderFilter = function (report) {
         var showInProcessOrders = false,
-            showFulfillOrders = false,
-            showReceiveOrders = false;
+          showFulfillOrders = false,
+          showReceiveOrders = false;
         // apply filters based on the legend flag values
-        angular.forEach($scope.legends, function(value, key){
-          if(value) {
-            if(key === 'inProcess'){
+        angular.forEach($scope.legends, function (value, key) {
+          if (value) {
+            if (key === 'inProcess') {
               showInProcessOrders = report.state === ReportModelStates.MANAGER_IN_PROCESS;
-            } else if(key === 'fulfill') {
+            }else if (key === 'fulfill') {
               showFulfillOrders = report.state === ReportModelStates.WAREHOUSE_FULFILL;
-            } else if(key === 'receive') {
+            }else if (key === 'receive') {
               showReceiveOrders = report.state === ReportModelStates.MANAGER_RECEIVE;
             }
           }
         });
-        return showInProcessOrders || showFulfillOrders || showReceiveOrders;
+        var showEmptyOrders = report.state === ReportModelStates.REPORT_EMPTY;
+        return showEmptyOrders || showInProcessOrders || showFulfillOrders || showReceiveOrders;
       };
 
       /** @method filterOrders
        * method filters the orders based on the legend status
        */
-      $scope.filterOrders = function() {
+      $scope.filterOrders = function () {
         $scope.reportLists = $filter('filter')($scope.backUpReportList, orderFilter);
         uiUtils.limitListAsPerSupplier($scope);
       };
@@ -90,7 +90,7 @@ angular.module('ShoppinPalApp')
       /** @method createManualOrder
        * it will allow the warehouse manager to create manual order
        */
-      $scope.createManualOrder = function() {
+      $scope.createManualOrder = function () {
         $state.go('create-manual-order');
       };
 
@@ -98,7 +98,7 @@ angular.module('ShoppinPalApp')
        * @param index
        * on left swipe of store landing page enable export, import for warehouse
        */
-      $scope.importExport = function(index) {
+      $scope.importExport = function (index) {
         $scope.selectedRowIndex = index;
       };
 
@@ -110,7 +110,7 @@ angular.module('ShoppinPalApp')
        * @param value
        * This method
        */
-      $scope.gotoDepartment = function(value) {
+      $scope.gotoDepartment = function (value) {
         var jumpToHash = 'jumpto' + value;
         $location.hash(jumpToHash);
         $anchorScroll();
@@ -119,7 +119,7 @@ angular.module('ShoppinPalApp')
       /** @method viewContentLoaded
        * This method will load the storesReport from api on view load
        */
-      $scope.$on('$viewContentLoaded', function() {
+      $scope.$on('$viewContentLoaded', function () {
         if ($scope.isWarehouser()) {
           console.log('isWarehouser()');
           $scope.waitOnPromise = ReportModel.find()
@@ -140,10 +140,35 @@ angular.module('ShoppinPalApp')
       $scope.drilldownToReport = function (rowIndex, storeReport) {
         // NOTE: warehouser (admin role) is allowed to do anything!
         console.log('inside drilldownToReport:', 'rowIndex:', rowIndex, 'storeReport:', storeReport);
-        if (_.contains($scope.roles, 'admin')){
+        if (_.contains($scope.roles, 'admin')) {
           if (storeReport.state === ReportModelStates.WAREHOUSE_FULFILL) {
             console.log('drill into warehouse report');
-            $state.go('warehouse-report', {reportId:storeReport.id});
+            $state.go('warehouse-report', {reportId: storeReport.id});
+          }
+          else if (storeReport.state === ReportModelStates.REPORT_EMPTY) {
+            console.log('update status for empty report');
+            $scope.message = 'Checking report status...';
+            // get an updated ReportModel with the latest task status as its property
+            $scope.waitOnPromise = ReportModel.findById(
+              {
+                id: storeReport.id
+              },
+              function (updatedStoreReport) {
+                console.log(updatedStoreReport);
+                // drill-down into the report automatically if the state is no longer set to empty
+                if (storeReport.state === ReportModelStates.REPORT_EMPTY &&
+                  updatedStoreReport.state === ReportModelStates.WAREHOUSE_FULFILL) {
+                  // TODO: Should we bother to update the status of the report row visually first, before drilling down?
+                  $state.go('warehouse-report', {reportId: updatedStoreReport.id});
+                }
+                else { // update storeReport
+                  storeReport.state = updatedStoreReport.state;
+                  storeReport.workerStatus = updatedStoreReport.workerStatus;
+                }
+              },
+              function (err) {
+                console.error(err);
+              });
           }
           else {
             console.log('do nothing?');
@@ -154,7 +179,7 @@ angular.module('ShoppinPalApp')
         }
       };
 
-      $scope.delete = function(rowIndex, reportId) {
+      $scope.delete = function (rowIndex, reportId) {
         console.log('delete > reportId:', reportId);
         if ($scope.isWarehouser()) {
           console.log('delete > isWarehouser()');

@@ -8,6 +8,8 @@ import {UserResolverService} from './../shared/services/user-resolver.service';
 import {AccessService} from "../shared/services/access.service";
 import {SyncWithVendResolverService} from "./sync-with-vend/services/sync-with-vend-resolver.service";
 import {OrdersComponent} from "./orders/orders.component";
+import {WorkerSettingsComponent} from "./worker-settings/worker-settings.component";
+import {WorkerSettingsResolverService} from "./worker-settings/services/worker-settings-resolver.service";
 
 const routes: Routes = [
   {
@@ -19,7 +21,7 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'stores',
+        redirectTo: '/products/bin-locations',
         pathMatch: 'full'
       },
       {
@@ -30,6 +32,16 @@ const routes: Routes = [
         },
         resolve: {
           syncModels: SyncWithVendResolverService
+        }
+      },
+      {
+        path: 'worker-settings',
+        component: WorkerSettingsComponent,
+        data: {
+          title: 'Home > Settings > Worker Settings'
+        },
+        resolve: {
+          workerSettings: WorkerSettingsResolverService
         }
       },
       {

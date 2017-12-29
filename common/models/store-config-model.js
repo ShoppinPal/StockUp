@@ -158,24 +158,6 @@ module.exports = function (StoreConfigModel) {
     http: {path: '/token/vend', verb: 'get'},
     returns: {arg: 'redirectUrl', type: 'string'}
   });
-
-  StoreConfigModel.afterRemote('getVendAccessToken', function (ctx, remoteMethodResponse, next) {
-    //console.log('inside afterRemote:getVendAccessToken');
-    logger.debug({log: {message: 'inside afterRemote:getVendAccessToken'}});
-    //console.log('ctx.result.redirectUrl: ' + ctx.result.redirectUrl);
-    logger.debug({
-      log: {
-        message: `ctx.result.redirectUrl: ${ctx.result.redirectUrl}`
-      }
-    });
-    //console.log('remoteMethodResponse.redirectUrl: ' + remoteMethodResponse.redirectUrl);
-    logger.debug({
-      log: {
-        message: `remoteMethodResponse.redirectUrl ${remoteMethodResponse.redirectUrl}`
-      }
-    });
-    ctx.res.redirect(301, remoteMethodResponse.redirectUrl);
-  });
   StoreConfigModel.getVendAccessToken = function (code, domainPrefix, state, cb) {
     var currentUser = StoreConfigModel.getCurrentUserModel(cb); // returns immediately if no currentUser
 
@@ -219,12 +201,23 @@ module.exports = function (StoreConfigModel) {
         function (error) {
           cb(error);
         });
-
   };
+
   StoreConfigModel.afterRemote('getVendAccessToken', function (ctx, remoteMethodResponse, next) {
-    console.log('inside afterRemote:getVendAccessToken');
+    //console.log('inside afterRemote:getVendAccessToken');
+    logger.debug({log: {message: 'inside afterRemote:getVendAccessToken'}});
     //console.log('ctx.result.redirectUrl: ' + ctx.result.redirectUrl);
-    console.log('remoteMethodResponse.redirectUrl: ' + remoteMethodResponse.redirectUrl);
+    logger.debug({
+      log: {
+        message: `ctx.result.redirectUrl: ${ctx.result.redirectUrl}`
+      }
+    });
+    //console.log('remoteMethodResponse.redirectUrl: ' + remoteMethodResponse.redirectUrl);
+    logger.debug({
+      log: {
+        message: `remoteMethodResponse.redirectUrl ${remoteMethodResponse.redirectUrl}`
+      }
+    });
     ctx.res.redirect(301, remoteMethodResponse.redirectUrl);
   });
 
@@ -306,6 +299,93 @@ module.exports = function (StoreConfigModel) {
       });
   };
 
+  StoreConfigModel.remoteMethod('getWorkerSettings', {
+    accepts: [
+      {arg: 'id', type: 'string', required: true}
+    ],
+    http: {path: '/:id/getWorkerSettings', verb: 'get'},
+    returns: {arg: 'usesWorkersV2', type: 'object', root: true}
+  });
+
+  /**
+   * @description Returns worker settings for orders
+   * @param id
+   * @param cb
+   */
+  StoreConfigModel.getWorkerSettings = function (id, cb) {
+    logger.tag('getWorkerSettings').debug({
+      log: {
+        message: 'Will fetch worker settings for storeConfigModelId',
+        storeConfigModelId: id
+      }
+    });
+    StoreConfigModel.findById(id)
+      .then(function (response) {
+        logger.tag('getWorkerSettings').debug({
+          log: {
+            message: 'Found these worker settings',
+            workerSettings: response.usesWorkersV2
+          }
+        });
+        cb(null, response.usesWorkersV2);
+      })
+      .catch(function (error) {
+        logger.tag('getWorkerSettings').error({
+          error: error
+        });
+        cb(error);
+      });
+  };
+
+  StoreConfigModel.remoteMethod('updateWorkerSettings', {
+    accepts: [
+      {arg: 'id', type: 'string', required: true},
+      {arg: 'workerName', type: 'string', required: true}
+    ],
+    http: {path: '/:id/updateWorkerSettings', verb: 'post'},
+    returns: {arg: 'status', type: 'boolean', root: true}
+  });
+  /**
+   * @description Updates worker settings for a particular worker
+   * @param id
+   * @param workerName
+   * @param cb
+   */
+  StoreConfigModel.updateWorkerSettings = function (id, workerName, cb) {
+    logger.tag('updateWorkerSettings').debug({
+      log: {
+        message: 'Will update worker settings for following storeConfigModelId and worker',
+        storeConfigModelId: id,
+        workerName: workerName
+      }
+    });
+    StoreConfigModel.findById(id)
+      .then(function (response) {
+        logger.tag('updateWorkerSettings').debug({
+          log: {
+            message: 'Found this store config model',
+            storeConfigModel: response
+          }
+        });
+        response.usesWorkersV2[workerName] = !response.usesWorkersV2[workerName];
+        return response.save();
+      })
+      .then(function (response) {
+        logger.tag('updateWorkerSettings').debug({
+          log: {
+            message: 'Toggled the worker status'
+          }
+        });
+        cb(null, response);
+      })
+      .catch(function (error) {
+        logger.tag('updateWorkerSettings').error({
+          error: error
+        });
+        cb(error);
+      });
+  };
+
   StoreConfigModel.remoteMethod('removeStuckOrders', {
     accepts: [
       {arg: 'id', type: 'string', required: true},
@@ -314,7 +394,6 @@ module.exports = function (StoreConfigModel) {
     http: {path: '/:id/removeStuckOrders', verb: 'post'},
     returns: {arg: 'removed', type: 'object', root: true}
   });
-
   StoreConfigModel.removeStuckOrders = function (id, stuckOrders, cb) {
     logger.tag('removeStuckOrders').debug({
       log: {

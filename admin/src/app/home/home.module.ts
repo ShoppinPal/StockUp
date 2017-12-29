@@ -5,6 +5,7 @@ import {HomeRoutingModule} from './home-routing.module';
 import {HomeComponent} from './home.component';
 
 import {SyncWithVendModule} from './sync-with-vend/sync-with-vend.module';
+import {WorkerSettingsModule} from './worker-settings/worker-settings.module';
 import {StoresModule} from './stores/stores.module';
 import {PaymentsModule} from './payments/payments.module';
 import {ProductsModule} from './products/products.module';
@@ -21,7 +22,8 @@ import {OrdersModule} from "./orders/orders.module";
     StoresModule,
     PaymentsModule,
     ProductsModule,
-    OrdersModule
+    OrdersModule,
+    WorkerSettingsModule
   ],
   declarations: [HomeComponent],
   exports: [HomeComponent]
