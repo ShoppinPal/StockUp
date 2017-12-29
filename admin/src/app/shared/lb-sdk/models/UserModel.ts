@@ -21,12 +21,14 @@ export interface UserModelInterface {
   "created"?: Date;
   "lastUpdated"?: Date;
   "memberId"?: any;
+  "storeConfigModelIs"?: any;
+  "storeConfigModelId"?: any;
   "password"?: string;
   accessTokens?: any[];
   roles?: any[];
   teamModels?: any[];
   globalConfigModels?: GlobalConfigModel;
-  storeConfigModels?: StoreConfigModel[];
+  storeConfigModel?: StoreConfigModel;
   storeModels?: StoreModel[];
   reportModels?: ReportModel[];
   stockOrderLineitemModels?: StockOrderLineitemModel[];
@@ -45,12 +47,14 @@ export class UserModel implements UserModelInterface {
   "created": Date;
   "lastUpdated": Date;
   "memberId": any;
+  "storeConfigModelIs": any;
+  "storeConfigModelId": any;
   "password": string;
   accessTokens: any[];
   roles: any[];
   teamModels: any[];
   globalConfigModels: GlobalConfigModel;
-  storeConfigModels: StoreConfigModel[];
+  storeConfigModel: StoreConfigModel;
   storeModels: StoreModel[];
   reportModels: ReportModel[];
   stockOrderLineitemModels: StockOrderLineitemModel[];
@@ -135,6 +139,14 @@ export class UserModel implements UserModelInterface {
           name: 'memberId',
           type: 'any'
         },
+        "storeConfigModelIs": {
+          name: 'storeConfigModelIs',
+          type: 'any'
+        },
+        "storeConfigModelId": {
+          name: 'storeConfigModelId',
+          type: 'any'
+        },
         "password": {
           name: 'password',
           type: 'string'
@@ -161,9 +173,9 @@ export class UserModel implements UserModelInterface {
           type: 'GlobalConfigModel',
           model: 'GlobalConfigModel'
         },
-        storeConfigModels: {
-          name: 'storeConfigModels',
-          type: 'StoreConfigModel[]',
+        storeConfigModel: {
+          name: 'storeConfigModel',
+          type: 'StoreConfigModel',
           model: 'StoreConfigModel'
         },
         storeModels: {

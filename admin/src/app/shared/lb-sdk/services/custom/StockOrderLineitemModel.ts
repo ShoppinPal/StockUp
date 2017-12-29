@@ -94,7 +94,7 @@ export class StockOrderLineitemModelApi extends BaseLoopBackApi {
   /**
    * Fetches belongsTo relation productModel.
    *
-   * @param {any} id StockOrderLineitemModel id
+   * @param {any} id PersistedModel id
    *
    * @param {boolean} refresh 
    *
