@@ -1,3 +1,10 @@
+v1.4.4 - Dec 30, 2017
+- CLI tool to setup env files
+- improved terraform script to setup project from scratch
+- Integrated sp-json-logger as the default logging practice
+- One-click removal of stuck orders
+- Bug fixes in importing stock orders (supplier's name)
+
 v1.4.3 - Dec 19, 2017
 - Order generation through workersV2
 - Worker switching between workersV1 and workersV2 as a fail-safe mechanism
