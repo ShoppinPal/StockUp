@@ -6,14 +6,10 @@ export const navigation = [
   {
     name: 'Bin Locations',
     url: '/products/bin-locations',
-    icon: 'icon-location-pin',
-    badge: {
-      variant: 'success',
-      text: 'new'
-    }
+    icon: 'icon-location-pin'
   }
   ,
-  /*{
+  {
     title: true,
     name: 'Orders'
   },
@@ -22,11 +18,10 @@ export const navigation = [
     url: '/orders/stuck-orders',
     icon: 'icon-close',
     badge: {
-      variant: 'info',
-      text: '5'
+      variant: 'success',
+      text: 'new'
     }
-
-  },*/
+  },
   {
     title: true,
     name: 'Settings'
