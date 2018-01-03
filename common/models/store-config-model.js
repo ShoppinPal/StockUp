@@ -238,14 +238,28 @@ module.exports = function (StoreConfigModel) {
    * @return {Promise.<TResult>}
    */
   StoreConfigModel.updateBinLocation = function (id, productId, binLocation) {
-    log('updateBinLocation').debug('Received \nid: ', id, '\n ProductId: ', productId, '\nBinLocation: ', binLocation);
+    // log('updateBinLocation').debug('Received \nid: ', id, '\n ProductId: ', productId, '\nBinLocation: ', binLocation);
+    logger.tag('updateBinLocation').debug({
+      log: {
+        message: 'Received params',
+        id: id,
+        productId: productId,
+        binLocation: binLocation
+      }
+    });
     return StoreConfigModel.app.models.ProductModel.updateBinLocation(id, productId, binLocation)
       .then(function (response) {
-        log('updateBinLocation').debug('Updated bin location successfully');
+        // log('updateBinLocation').debug('Updated bin location successfully');
+        logger.tag('updateBinLocation').debug({
+          log: {message: 'Updated bin location successfully'}
+        });
         return Promise.resolve(response);
       })
       .catch(function (error) {
-        log('updateBinLocation').error('Bin location update failed', error);
+        // log('updateBinLocation').error('Bin location update failed', error);
+        logger.tag('updateBinLocation').error({
+          error: error
+        });
         return Promise.reject(error);
       });
   };
@@ -262,14 +276,25 @@ module.exports = function (StoreConfigModel) {
     http: {path: '/:id/sync', verb: 'get'}
   });
   StoreConfigModel.initiateSync = function (id, names, cb) {
-    log('initiateSync').debug('Called initiate sync api, will call the corresponding method');
+    // log('initiateSync').debug('Called initiate sync api, will call the corresponding method');
+    logger.tag('initiateSync').debug({
+      log: {
+        message: 'Called initiate sync api, will call the corresponding method'
+      }
+    });
     return StoreConfigModel.app.models.SyncModel.initiateSync(id, names, cb)
       .then(function (response) {
-        log('initiateSync').debug('Initiate sync successful');
+        // log('initiateSync').debug('Initiate sync successful');
+        logger.tag('initiateSync').debug({
+          log: {message: 'Initiate sync successful'}
+        });
         return Promise.resolve();
       })
       .catch(function (error) {
-        log('initiateSync').error('ERROR', error);
+        // log('initiateSync').error('ERROR', error);
+        logger.tag('initiateSync').error({
+          error: error
+        });
         return Promise.reject(error);
       });
   };
