@@ -1,0 +1,8 @@
+version: "2.1"
+services:
+  terraform:
+    build: .
+    working_dir: /terraform
+    volumes:
+      - ./:/terraform
+      - ../terraform.json:/terraform.json

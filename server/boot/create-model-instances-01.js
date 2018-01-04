@@ -2,6 +2,7 @@
 
 // DEBUG=boot:create-model-instances slc run
 var debug = require('debug')('boot:create-model-instances');
+var logger = require('sp-json-logger');
 
 var Promise = require('bluebird');
 var _ = require('underscore');
@@ -83,10 +84,13 @@ module.exports = function(app, cb) {
       {name: aUserModel.seedWithRole||'retailer'} // or create
     )
       .spread(function(role, created) {
-        (created) ? debug('(' + (++commentsIndex) + ') ' + 'created', 'Role', role)
-                  : debug('(' + (++commentsIndex) + ') ' + 'found', 'Role', role);
+        // (created) ? debug('(' + (++commentsIndex) + ') ' + 'created', 'Role', role)
+        //           : debug('(' + (++commentsIndex) + ') ' + 'found', 'Role', role);
+        (created) ? logger.debug({log: {message: `(${(++commentsIndex)}) created`, role: role }})
+        : logger.debug({log: {message: `(${(++commentsIndex)}) found`, role: role }});
 
-        debug('(' + (++commentsIndex) + ') ' + 'will assign roles');
+        //debug('(' + (++commentsIndex) + ') ' + 'will assign roles');
+        logger.debug({log: {message: `(${(++commentsIndex)}) will assign roles` }});
         //return role.principals.create({principalType: RoleMapping.USER, principalId: adminUser.id})
         return findOrCreateRelatedModel(
           role.principals,
@@ -94,9 +98,12 @@ module.exports = function(app, cb) {
           {principalType: RoleMapping.USER, principalId: aUserModel.id} // or create
         )
           .spread(function(principal, created) {
-            (created) ? debug('(' + (++commentsIndex) + ') ' + 'created', 'RoleMapping', principal)
-                      : debug('(' + (++commentsIndex) + ') ' + 'found', 'RoleMapping', principal);
-            debug('(' + (++commentsIndex) + ') ' + aUserModel.username + ' now has role: ' + role.name);
+            // (created) ? debug('(' + (++commentsIndex) + ') ' + 'created', 'RoleMapping', principal)
+            //           : debug('(' + (++commentsIndex) + ') ' + 'found', 'RoleMapping', principal);
+            (created) ? logger.debug({log: {message: `(${(++commentsIndex)}) created`, roleMapping: principal }})
+            : logger.debug({log: {message: `(${(++commentsIndex)}) found`, roleMapping: principal }});
+            //debug('(' + (++commentsIndex) + ') ' + aUserModel.username + ' now has role: ' + role.name);
+            logger.debug({log: {message: `(${(++commentsIndex)}) ${aUserModel.username} now has role: ${role.name}` }});
             return Promise.resolve([role, principal]); // can spread() it as needed
           });
       });
@@ -110,8 +117,10 @@ module.exports = function(app, cb) {
   var userLogin = function(rawUser){
     return UserModel.loginAsync({realm: rawUser.realm, username: rawUser.username, password: rawUser.password})
       .tap(function(accessToken) { // create a default/empty report for merchant1
-        debug('(' + (++commentsIndex) + ') ' + 'created', 'AccessToken', JSON.stringify(accessToken, null, 2));
-        debug('(' + (++commentsIndex) + ') ' + 'logged in w/ ' + rawUser.username + ' and token ' + accessToken.id);
+        // debug('(' + (++commentsIndex) + ') ' + 'created', 'AccessToken', JSON.stringify(accessToken, null, 2));
+        // debug('(' + (++commentsIndex) + ') ' + 'logged in w/ ' + rawUser.username + ' and token ' + accessToken.id);
+        logger.debug({log: {message: `(${(++commentsIndex)}) created`, accessToken: accessToken }});
+        logger.debug({log: {message: `(${(++commentsIndex)}) logged in w/ ${rawUser.username} and token ${accessToken.id}` }});
       });
   };
 
@@ -127,12 +136,15 @@ module.exports = function(app, cb) {
   try {
     seed = require('./seed.json');
     if(process.env.SKIP_SEEDING) {
-      debug('Will skip the database seeding process');
+      //debug('Will skip the database seeding process');
+      logger.debug({log: {message: 'Will skip the database seeding process' }});
       return cb();
     }
   } catch (err) {
-    debug('Please configure your data in `seed.json`.');
-    debug('Copy `seed.json.template` to `seed.json` and replace the values with your own.');
+    // debug('Please configure your data in `seed.json`.');
+    // debug('Copy `seed.json.template` to `seed.json` and replace the values with your own.');
+    logger.debug({log: {message: 'Please configure your data in `seed.json`.' }});
+    logger.debug({log: {message: 'Copy `seed.json.template` to `seed.json` and replace the values with your own.' }});
     return cb(err);
   }
 
@@ -147,7 +159,8 @@ module.exports = function(app, cb) {
     if (err) {
       cb(err);
     }
-    debug('appModel', appModel);
+    //debug('appModel', appModel);
+    logger.debug({log: {message: 'appModel', appModel: appModel }});
 
     // sanity test - previous and next applications should both be the same
     createApplication(Application, newAppModel, function(err, appModel) {
@@ -155,24 +168,28 @@ module.exports = function(app, cb) {
         if (err) {
           cb(err);
         }
-        debug(appModel);
+        //debug(appModel);
+        logger.debug({log: {appModel: appModel }});
 
         var adminUser, retailUser, anotherRetailUser,
           adminUserRaw, retailUserRaw, anotherRetailUserRaw;
         if (seed) {
-          debug('('+ (++commentsIndex) +') ' + 'initialize demo users based on seed.json');
+          //debug('('+ (++commentsIndex) +') ' + 'initialize demo users based on seed.json');
+          logger.debug({log: {message: `(${(++commentsIndex)}) initialize demo users based on seed.json` }});
           adminUserRaw = adminUser = seed.userModels[0];
           retailUserRaw = retailUser = seed.userModels[1];
           anotherRetailUserRaw = anotherRetailUser = seed.userModels[2];
         }
         else {
-          debug('('+ (++commentsIndex) +') ' + 'initialize default demo users');
+          //debug('('+ (++commentsIndex) +') ' + 'initialize default demo users');
+          logger.debug({log: {message: `(${(++commentsIndex)}) initialize default demo users` }});
           adminUserRaw = adminUser = {seedWithRole: 'admin', realm: 'portal', username: 'admin@shoppinpal.com', email: 'admin@shoppinpal.com', password: 'admin'};
           retailUserRaw = retailUser = {seedWithRole: 'retailer', realm: 'portal', username: 'merchant1@shoppinpal.com', email: 'merchant1@shoppinpal.com', password: 'merchant1'};
           anotherRetailUserRaw = anotherRetailUser = {seedWithRole: 'retailer', realm: 'portal', username: 'merchant2@shoppinpal.com', email: 'merchant2@shoppinpal.com', password: 'merchant2'};
         }
 
-        debug('('+ (++commentsIndex) +') ' + 'create users');
+        //debug('('+ (++commentsIndex) +') ' + 'create users');
+        logger.debug({log: {message: `(${(++commentsIndex)}) create users` }});
         return Promise.resolve() // this is a no-op but the code looks just a tad prettier this way
           .then(function() {
             return setupUser(adminUser)
@@ -196,9 +213,13 @@ module.exports = function(app, cb) {
               });
           }) // finished setting up anotherRetailUser
           .then(function() {
-            debug('(' + (++commentsIndex) + ') ' +
-              'setup a mock GlobalConfigModel(s) through UserModel ' +
-              'to auto populate the foreign keys in userModelToGlobalConfigModelId correctly');
+            // debug('(' + (++commentsIndex) + ') ' +
+            //   'setup a mock GlobalConfigModel(s) through UserModel ' +
+            //   'to auto populate the foreign keys in userModelToGlobalConfigModelId correctly');
+            logger.debug({log: {
+              message: `(${(++commentsIndex)}) setup a mock GlobalConfigModel(s) through UserModel 
+              to auto populate the foreign keys in userModelToGlobalConfigModelId correctly` 
+            }});
 
             return findOrCreateRelatedModel(
               adminUser.globalConfigModels,
@@ -211,9 +232,13 @@ module.exports = function(app, cb) {
               } // or create
             )
               .spread(function(globalConfigModel, created) {
-                (created) ? debug('(' + (++commentsIndex) + ') ' + 'created', 'GlobalConfigModel', globalConfigModel)
-                          : debug('(' + (++commentsIndex) + ') ' + 'found', 'GlobalConfigModel', globalConfigModel);
-                debug('(' + (++commentsIndex) + ') ' + 'created a globalConfigModel that belongs to ' + adminUser.username);
+                // (created) ? debug('(' + (++commentsIndex) + ') ' + 'created', 'GlobalConfigModel', globalConfigModel)
+                //           : debug('(' + (++commentsIndex) + ') ' + 'found', 'GlobalConfigModel', globalConfigModel);
+                (created) ? logger.debug({log: {message: `(${(++commentsIndex)}) created`,  globalConfigModel: globalConfigModel }})
+                : logger.debug({log: {message: `(${(++commentsIndex)}) found`,  globalConfigModel: globalConfigModel }});
+                          
+                //debug('(' + (++commentsIndex) + ') ' + 'created a globalConfigModel that belongs to ' + adminUser.username);
+                logger.debug({log: {message: `(${(++commentsIndex)}) created a globalConfigModel that belongs to ${adminUser.username}` }});
                 return Promise.resolve();
               });
           }) // finished setting up a singleton for GlobalConfigModel
@@ -226,7 +251,8 @@ module.exports = function(app, cb) {
                 // filed: https://github.com/petkaantonov/bluebird/issues/580
                 seed.storeConfigModels = [];
               }
-              debug('('+ (++commentsIndex) +')', 'seed each store-config, one-by-one');
+              //debug('('+ (++commentsIndex) +')', 'seed each store-config, one-by-one');
+              logger.debug({log: {message: `(${(++commentsIndex)}) seed each store-config, one-by-one` }});
               return Promise.map(
                 seed.storeConfigModels,
                 function(storeConfigSeedData){
@@ -235,32 +261,38 @@ module.exports = function(app, cb) {
                   var teamAdminRaw = storeConfigSeedData.teamAdmin || retailUserRaw;
                   return setupUser(teamAdminRaw)
                     .then(function(userInstance) {
-                      debug('('+ (++commentsIndex) +')', 'created and assigned the teamAdmin:', userInstance.username);
+                      //debug('('+ (++commentsIndex) +')', 'created and assigned the teamAdmin:', userInstance.username);
+                      logger.debug({log: {message: `(${(++commentsIndex)}) created and assigned the teamAdmin: ${userInstance.username}` }});
                       filteredStoreConfigSeedData.userId = userInstance.id;
                       return Promise.resolve();
                     })
                     .then(function() {
-                      debug('('+ (++commentsIndex) +')', 'seed a StoreConfigModel');
+                      //debug('('+ (++commentsIndex) +')', 'seed a StoreConfigModel');
+                      logger.debug({log: {message: `(${(++commentsIndex)}) seed a StoreConfigModel` }});
                       return StoreConfigModel.findOrCreate(
                         {where:{name:filteredStoreConfigSeedData.name}}, // find
                         filteredStoreConfigSeedData // create
                       )
                         .spread(function(storeConfigModelInstance, created) {
-                          (created) ? debug('('+ (++commentsIndex) +')', 'created', 'StoreConfigModel', {objectId: storeConfigModelInstance.objectId, name: storeConfigModelInstance.name})
-                                    : debug('('+ (++commentsIndex) +')', 'found', 'StoreConfigModel', {objectId: storeConfigModelInstance.objectId, name: storeConfigModelInstance.name});
+                          // (created) ? debug('('+ (++commentsIndex) +')', 'created', 'StoreConfigModel', {objectId: storeConfigModelInstance.objectId, name: storeConfigModelInstance.name})
+                          //           : debug('('+ (++commentsIndex) +')', 'found', 'StoreConfigModel', {objectId: storeConfigModelInstance.objectId, name: storeConfigModelInstance.name});
+                          (created) ? logger.debug({log: {message: `(${(++commentsIndex)}) created`, storeConfigModel: {objectId: storeConfigModelInstance.objectId, name: storeConfigModelInstance.name} }})
+                          :logger.debug({log: {message: `(${(++commentsIndex)}) found`, storeConfigModel: {objectId: storeConfigModelInstance.objectId, name: storeConfigModelInstance.name} }});
 
                           if (!storeConfigSeedData.storeModels) {
                             // filed: https://github.com/petkaantonov/bluebird/issues/580
                             storeConfigSeedData.storeModels = [];
                           }
 
-                          debug('('+ (++commentsIndex) +')', 'explicitly attach the foreignKey for related models');
+                          //debug('('+ (++commentsIndex) +')', 'explicitly attach the foreignKey for related models');
+                          logger.debug({log: {message: `(${(++commentsIndex)}) explicitly attach the foreignKey for related models` }});
                           _.each(storeConfigSeedData.storeModels, function(storeModelSeedData){
                             //storeModelSeedData.userModelToStoreModelId = retailUser.id; // gets taken care of later, when manager is created
                             storeModelSeedData.storeConfigModelToStoreModelId = storeConfigModelInstance.objectId;
                           });
 
-                          debug('('+ (++commentsIndex) +')', 'seed each STORE in a given store-config, one-by-one');
+                          //debug('('+ (++commentsIndex) +')', 'seed each STORE in a given store-config, one-by-one');
+                          logger.debug({log: {message: `(${(++commentsIndex)}) seed each STORE in a given store-config, one-by-one` }});
                           return Promise.map(
                             storeConfigSeedData.storeModels,
                             function (storeSeedData) {
@@ -275,18 +307,25 @@ module.exports = function(app, cb) {
                                       password: storeSeedData.managerAccount.password
                                     })
                                       .tap(function (userInstance) {
-                                        debug('(' + (++commentsIndex) + ')', 'add store manager as a team member for', storeSeedData.name);
+                                        //debug('(' + (++commentsIndex) + ')', 'add store manager as a team member for', storeSeedData.name);
+                                        logger.debug({log: {message: `(${(++commentsIndex)}) add store manager as a team member for ${storeSeedData.name}` }});
                                         return TeamModel.findOrCreate(
                                           {where: {ownerId: storeConfigModelInstance.userId, memberId: userInstance.id}}, // find
                                           {ownerId: storeConfigModelInstance.userId, memberId: userInstance.id} // create
                                         )
                                           .spread(function (teamModel, created) {
-                                            (created) ? debug('(' + (++commentsIndex) + ') ' + 'created', 'TeamModel', teamModel)
-                                              : debug('(' + (++commentsIndex) + ') ' + 'found', 'TeamModel', teamModel);
+                                            // (created) ? debug('(' + (++commentsIndex) + ') ' + 'created', 'TeamModel', teamModel)
+                                            //   : debug('(' + (++commentsIndex) + ') ' + 'found', 'TeamModel', teamModel);
+                                            (created) ? logger.debug({log: {message: `(${(++commentsIndex)}) created`, teamModel: teamModel }})
+                                            : logger.debug({log: {message: `(${(++commentsIndex)}) found`, teamModel: teamModel }});
 
-                                            debug('(' + (++commentsIndex) + ')',
-                                              'Let\'s test a team member\'s access to StoreConfigModel',
-                                                'GET /api/StoreConfigModels/' + storeConfigModelInstance.objectId);
+                                            // debug('(' + (++commentsIndex) + ')',
+                                            //   'Let\'s test a team member\'s access to StoreConfigModel',
+                                            //     'GET /api/StoreConfigModels/' + storeConfigModelInstance.objectId);
+                                            logger.debug({log: {
+                                              message: `(${(++commentsIndex)}) Let\'s test a team member\'s access to StoreConfigModel 
+                                              GET /api/StoreConfigModels/${storeConfigModelInstance.objectId}` 
+                                            }});
                                             return userLogin({
                                               realm: 'portal',
                                               username: storeSeedData.managerAccount.email,
@@ -297,19 +336,22 @@ module.exports = function(app, cb) {
                                                   //return json('get', '/api/StoreConfigModels/1')
                                                   .set('Authorization', teamMemberAccessToken.id)
                                                   .then(function (res) {
-                                                    debug('(' + (++commentsIndex) + ')',
-                                                      'TEST', 'found', 'StoreConfigModel',
-                                                      {objectId: res.body.objectId, name: res.body.name}
-                                                    );
+                                                    // debug('(' + (++commentsIndex) + ')',
+                                                    //   'TEST', 'found', 'StoreConfigModel',
+                                                    //   {objectId: res.body.objectId, name: res.body.name}
+                                                    // );
+                                                    logger.debug({log: {message: `(${(++commentsIndex)}) TEST found`, storeConfigModel: {objectId: res.body.objectId, name: res.body.name} }});
                                                     return Promise.resolve();
                                                   });
                                               });
                                           });
                                       })
                                       .then(function (userInstance) {
-                                        debug('(' + (++commentsIndex) + ') ',
-                                            'set ' + storeSeedData.managerAccount.email +
-                                            ' as the owner of ' + storeSeedData.name);
+                                        // debug('(' + (++commentsIndex) + ') ',
+                                        //     'set ' + storeSeedData.managerAccount.email +
+                                        //     ' as the owner of ' + storeSeedData.name);
+                                        logger.debug({log: {message: `(${(++commentsIndex)}) set ${storeSeedData.managerAccount.email} 
+                                        as the owner of ${storeSeedData.name}` }});
                                         storeSeedData.userModelToStoreModelId = userInstance.id;
                                         return Promise.resolve();
                                       });
@@ -320,14 +362,17 @@ module.exports = function(app, cb) {
                                   }
                                 }) // set up the manager's account
                                 .then(function(){
-                                  debug('('+ (++commentsIndex) +') ', 'seed the store: '+ storeSeedData.name);
+                                  //debug('('+ (++commentsIndex) +') ', 'seed the store: '+ storeSeedData.name);
+                                  logger.debug({log: {message: `(${(++commentsIndex)}) seed the store: ${storeSeedData.name}` }}); 
                                   return StoreModel.findOrCreate(
                                     {where:{name:storeSeedData.name}}, // find
                                     _.omit(storeSeedData, 'managerAccount')  // create
                                   )
                                     .spread(function(storeModelInstance, created) {
-                                      (created) ? debug('('+ (++commentsIndex) +')', 'created', 'StoreModel', storeModelInstance)
-                                                : debug('('+ (++commentsIndex) +')', 'found', 'StoreModel', storeModelInstance);
+                                      // (created) ? debug('('+ (++commentsIndex) +')', 'created', 'StoreModel', storeModelInstance)
+                                      //           : debug('('+ (++commentsIndex) +')', 'found', 'StoreModel', storeModelInstance);
+                                      (created) ? logger.debug({log: {message: `(${(++commentsIndex)}) created`, storeModel: storeModelInstance }}) 
+                                      : logger.debug({log: {message: `(${(++commentsIndex)}) found`, storeModel: storeModelInstance }});
 
                                       return Promise.resolve();
                                     });
@@ -336,7 +381,8 @@ module.exports = function(app, cb) {
                             {concurrency: 1}
                           )
                             .then(function () {
-                              debug('finished seeding all STORES for', storeConfigModelInstance.name);
+                              //debug('finished seeding all STORES for', storeConfigModelInstance.name);
+                              logger.debug({log: {message: `finished seeding all STORES for ${storeConfigModelInstance.name}` }});
 
                               if (!storeConfigSeedData.supplierModels) {
                                 // filed: https://github.com/petkaantonov/bluebird/issues/580
@@ -358,8 +404,10 @@ module.exports = function(app, cb) {
                                     supplierSeedData // create
                                   )
                                     .spread(function(supplierModelInstance, created) {
-                                      (created) ? debug('('+ (++commentsIndex) +') ' + 'created', 'SupplierModel', supplierModelInstance)
-                                                : debug('('+ (++commentsIndex) +') ' + 'found', 'SupplierModel', supplierModelInstance);
+                                      // (created) ? debug('('+ (++commentsIndex) +') ' + 'created', 'SupplierModel', supplierModelInstance)
+                                      //           : debug('('+ (++commentsIndex) +') ' + 'found', 'SupplierModel', supplierModelInstance);
+                                      (created) ? logger.debug({log: {message: `(${(++commentsIndex)}) created`, supplierModel: supplierModelInstance }})  
+                                      : logger.debug({log: {message: `(${(++commentsIndex)}) found`, supplierModel: supplierModelInstance }});
                                       return Promise.resolve();
                                     });
                                 },
@@ -367,7 +415,8 @@ module.exports = function(app, cb) {
                               );
                             })
                             .then(function () {
-                              debug('finished seeding all SUPPLIERS for', storeConfigModelInstance.name);
+                              //debug('finished seeding all SUPPLIERS for', storeConfigModelInstance.name);
+                              logger.debug({log: {message: `finished seeding all SUPPLIERS for ${storeConfigModelInstance.name}` }});
                               return Promise.resolve();
                             });
                         });
@@ -376,7 +425,8 @@ module.exports = function(app, cb) {
                 {concurrency: 1}
               )
                 .then(function () {
-                  debug('finished seeding all store configs');
+                  //debug('finished seeding all store configs');
+                  logger.debug({log: {message: 'finished seeding all store configs' }});
                   return Promise.resolve();
                 });
             }
@@ -385,18 +435,21 @@ module.exports = function(app, cb) {
             cb();
           })
           .catch(function(error){
-            debug('error!');
-            debug(error);
+            // debug('error!');
+            // debug(error);
+            logger.error({err: error});
             //return debug('%j', error);
             cb(error);
           });
       } // end of try-block
       catch (e) {
         if(e.stack) {
-          console.trace(e.stack);
+          //console.trace(e.stack);
+          logger.error({err: e});
         }
         else {
-          console.trace(e);
+          //console.trace(e);
+          logger.trace({log: {error: e}});
         }
         cb(e);
       } // end of catch-block

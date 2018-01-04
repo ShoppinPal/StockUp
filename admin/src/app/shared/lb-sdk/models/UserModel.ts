@@ -16,16 +16,19 @@ export interface UserModelInterface {
   "challenges"?: any;
   "email": string;
   "emailVerified"?: boolean;
+  "verificationToken"?: string;
   "status"?: string;
   "created"?: Date;
   "lastUpdated"?: Date;
   "memberId"?: any;
+  "storeConfigModelIs"?: any;
+  "storeConfigModelId"?: any;
   "password"?: string;
   accessTokens?: any[];
   roles?: any[];
   teamModels?: any[];
   globalConfigModels?: GlobalConfigModel;
-  storeConfigModels?: StoreConfigModel[];
+  storeConfigModel?: StoreConfigModel;
   storeModels?: StoreModel[];
   reportModels?: ReportModel[];
   stockOrderLineitemModels?: StockOrderLineitemModel[];
@@ -39,16 +42,19 @@ export class UserModel implements UserModelInterface {
   "challenges": any;
   "email": string;
   "emailVerified": boolean;
+  "verificationToken": string;
   "status": string;
   "created": Date;
   "lastUpdated": Date;
   "memberId": any;
+  "storeConfigModelIs": any;
+  "storeConfigModelId": any;
   "password": string;
   accessTokens: any[];
   roles: any[];
   teamModels: any[];
   globalConfigModels: GlobalConfigModel;
-  storeConfigModels: StoreConfigModel[];
+  storeConfigModel: StoreConfigModel;
   storeModels: StoreModel[];
   reportModels: ReportModel[];
   stockOrderLineitemModels: StockOrderLineitemModel[];
@@ -113,6 +119,10 @@ export class UserModel implements UserModelInterface {
           name: 'emailVerified',
           type: 'boolean'
         },
+        "verificationToken": {
+          name: 'verificationToken',
+          type: 'string'
+        },
         "status": {
           name: 'status',
           type: 'string'
@@ -127,6 +137,14 @@ export class UserModel implements UserModelInterface {
         },
         "memberId": {
           name: 'memberId',
+          type: 'any'
+        },
+        "storeConfigModelIs": {
+          name: 'storeConfigModelIs',
+          type: 'any'
+        },
+        "storeConfigModelId": {
+          name: 'storeConfigModelId',
           type: 'any'
         },
         "password": {
@@ -155,9 +173,9 @@ export class UserModel implements UserModelInterface {
           type: 'GlobalConfigModel',
           model: 'GlobalConfigModel'
         },
-        storeConfigModels: {
-          name: 'storeConfigModels',
-          type: 'StoreConfigModel[]',
+        storeConfigModel: {
+          name: 'storeConfigModel',
+          type: 'StoreConfigModel',
           model: 'StoreConfigModel'
         },
         storeModels: {

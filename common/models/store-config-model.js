@@ -1,7 +1,5 @@
 var Promise = require('bluebird');
-var path = require('path');
-var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
-var log = require('./../lib/debug-extension')('common:models:' + fileName);
+var logger = require('sp-json-logger');
 
 module.exports = function (StoreConfigModel) {
 
@@ -167,14 +165,24 @@ module.exports = function (StoreConfigModel) {
       'StoreConfigModel': StoreConfigModel,
       'currentUser': currentUser
     });
-    console.log('inside getVendAccessToken(), args:' +
-      '\n code: ' + code +
-      '\n domainPrefix' + domainPrefix +
-      '\n state ' + state + // user's authN session token
-      //'\n baseUrl ' + StoreConfigModel.app.get('site').baseUrl +
-      '\n restApiRoot ' + StoreConfigModel.app.get('restApiRoot') +
-      '\n vend ' + StoreConfigModel.app.get('vend'));
-
+    // console.log('inside getVendAccessToken(), args:' +
+    //   '\n code: ' + code +
+    //   '\n domainPrefix' + domainPrefix +
+    //   '\n state ' + state + // user's authN session token
+    //   //'\n baseUrl ' + StoreConfigModel.app.get('site').baseUrl +
+    //   '\n restApiRoot ' + StoreConfigModel.app.get('restApiRoot') +
+    //   '\n vend ' + StoreConfigModel.app.get('vend'));
+    logger.debug({
+      log: {
+        message: 'inside getVendAccessToken()',
+        code: code,
+        domainPrefix: domainPrefix,
+        state: state,
+        baseUrl: StoreConfigModel.app.get('site').baseUrl,
+        restApiRoot: StoreConfigModel.app.get('restApiRoot'),
+        vend: StoreConfigModel.app.get('vend')
+      }
+    });
     // NOTE: You can get a reference to the app INSIDE remote methods, remote hooks,
     //       and model hooks because those are triggered after the application finishes loading.
     //       http://docs.strongloop.com/display/public/LB/Working+with+LoopBack+objects#WorkingwithLoopBackobjects-Fromamodelscript
@@ -186,17 +194,30 @@ module.exports = function (StoreConfigModel) {
       StoreConfigModel.app.get('vend')
     )
       .then(function (redirectUrl) {
-          console.log('redirectUrl: ' + redirectUrl);
+          //console.log('redirectUrl: ' + redirectUrl);
+          logger.debug({log: {message: `redirectUrl ${redirectUrl}`}});
           cb(null, redirectUrl);
         },
         function (error) {
           cb(error);
         });
   };
+
   StoreConfigModel.afterRemote('getVendAccessToken', function (ctx, remoteMethodResponse, next) {
-    console.log('inside afterRemote:getVendAccessToken');
+    //console.log('inside afterRemote:getVendAccessToken');
+    logger.debug({log: {message: 'inside afterRemote:getVendAccessToken'}});
     //console.log('ctx.result.redirectUrl: ' + ctx.result.redirectUrl);
-    console.log('remoteMethodResponse.redirectUrl: ' + remoteMethodResponse.redirectUrl);
+    logger.debug({
+      log: {
+        message: `ctx.result.redirectUrl: ${ctx.result.redirectUrl}`
+      }
+    });
+    //console.log('remoteMethodResponse.redirectUrl: ' + remoteMethodResponse.redirectUrl);
+    logger.debug({
+      log: {
+        message: `remoteMethodResponse.redirectUrl ${remoteMethodResponse.redirectUrl}`
+      }
+    });
     ctx.res.redirect(301, remoteMethodResponse.redirectUrl);
   });
 
@@ -217,14 +238,28 @@ module.exports = function (StoreConfigModel) {
    * @return {Promise.<TResult>}
    */
   StoreConfigModel.updateBinLocation = function (id, productId, binLocation) {
-    log('updateBinLocation').debug('Received \nid: ', id, '\n ProductId: ', productId, '\nBinLocation: ', binLocation);
+    // log('updateBinLocation').debug('Received \nid: ', id, '\n ProductId: ', productId, '\nBinLocation: ', binLocation);
+    logger.tag('updateBinLocation').debug({
+      log: {
+        message: 'Received params',
+        id: id,
+        productId: productId,
+        binLocation: binLocation
+      }
+    });
     return StoreConfigModel.app.models.ProductModel.updateBinLocation(id, productId, binLocation)
       .then(function (response) {
-        log('updateBinLocation').debug('Updated bin location successfully');
+        // log('updateBinLocation').debug('Updated bin location successfully');
+        logger.tag('updateBinLocation').debug({
+          log: {message: 'Updated bin location successfully'}
+        });
         return Promise.resolve(response);
       })
       .catch(function (error) {
-        log('updateBinLocation').error('Bin location update failed', error);
+        // log('updateBinLocation').error('Bin location update failed', error);
+        logger.tag('updateBinLocation').error({
+          error: error
+        });
         return Promise.reject(error);
       });
   };
@@ -241,17 +276,53 @@ module.exports = function (StoreConfigModel) {
     http: {path: '/:id/sync', verb: 'get'}
   });
   StoreConfigModel.initiateSync = function (id, names, cb) {
-    log('initiateSync').debug('Called initiate sync api, will call the corresponding method');
+    // log('initiateSync').debug('Called initiate sync api, will call the corresponding method');
+    logger.tag('initiateSync').debug({
+      log: {
+        message: 'Called initiate sync api, will call the corresponding method'
+      }
+    });
     return StoreConfigModel.app.models.SyncModel.initiateSync(id, names, cb)
       .then(function (response) {
-        log('initiateSync').debug('Initiate sync successful');
+        // log('initiateSync').debug('Initiate sync successful');
+        logger.tag('initiateSync').debug({
+          log: {message: 'Initiate sync successful'}
+        });
         return Promise.resolve();
       })
       .catch(function (error) {
-        log('initiateSync').error('ERROR', error);
+        // log('initiateSync').error('ERROR', error);
+        logger.tag('initiateSync').error({
+          error: error
+        });
         return Promise.reject(error);
       });
-  }
+  };
+
+  StoreConfigModel.remoteMethod('getStuckOrders', {
+    accepts: [
+      {arg: 'id', type: 'string', required: true},
+      {arg: 'limit', type: 'number'},
+      {arg: 'skip', type: 'number'}
+    ],
+    http: {path: '/:id/getStuckOrders', verb: 'get'},
+    returns: {arg: 'stuckOrders', type: 'object', root: true}
+  });
+
+  StoreConfigModel.getStuckOrders = function (id, limit, skip, cb) {
+    logger.tag('getStuckOrders').debug({
+      log: {
+        message: 'Will route to ReportModel.getStuckOrders()'
+      }
+    });
+    StoreConfigModel.app.models.ReportModel.getStuckOrders(id, limit, skip)
+      .then(function (orders) {
+        cb(null, orders);
+      })
+      .catch(function (error) {
+        cb(error);
+      });
+  };
 
   StoreConfigModel.remoteMethod('getWorkerSettings', {
     accepts: [
@@ -260,20 +331,33 @@ module.exports = function (StoreConfigModel) {
     http: {path: '/:id/getWorkerSettings', verb: 'get'},
     returns: {arg: 'usesWorkersV2', type: 'object', root: true}
   });
+
   /**
    * @description Returns worker settings for orders
    * @param id
    * @param cb
    */
   StoreConfigModel.getWorkerSettings = function (id, cb) {
-    log('getWorkerSettings').debug('Will fetch worker settings for storeConfigModelId', id);
+    logger.tag('getWorkerSettings').debug({
+      log: {
+        message: 'Will fetch worker settings for storeConfigModelId',
+        storeConfigModelId: id
+      }
+    });
     StoreConfigModel.findById(id)
       .then(function (response) {
-        log('getWorkerSettings').debug('Found these worker settings', response.usesWorkersV2);
+        logger.tag('getWorkerSettings').debug({
+          log: {
+            message: 'Found these worker settings',
+            workerSettings: response.usesWorkersV2
+          }
+        });
         cb(null, response.usesWorkersV2);
       })
       .catch(function (error) {
-        log('getWorkerSettings').error('ERROR', error);
+        logger.tag('getWorkerSettings').error({
+          error: error
+        });
         cb(error);
       });
   };
@@ -293,22 +377,61 @@ module.exports = function (StoreConfigModel) {
    * @param cb
    */
   StoreConfigModel.updateWorkerSettings = function (id, workerName, cb) {
-    log('updateWorkerSettings').debug('Will update worker settings for storeConfigModelId', id, 'for worker', workerName);
+    logger.tag('updateWorkerSettings').debug({
+      log: {
+        message: 'Will update worker settings for following storeConfigModelId and worker',
+        storeConfigModelId: id,
+        workerName: workerName
+      }
+    });
     StoreConfigModel.findById(id)
       .then(function (response) {
-        log('updateWorkerSettings').debug('Found this store config model', response);
+        logger.tag('updateWorkerSettings').debug({
+          log: {
+            message: 'Found this store config model',
+            storeConfigModel: response
+          }
+        });
         response.usesWorkersV2[workerName] = !response.usesWorkersV2[workerName];
         return response.save();
       })
       .then(function (response) {
-        log('updateWorkerSettings').debug('Toggled the worker status');
+        logger.tag('updateWorkerSettings').debug({
+          log: {
+            message: 'Toggled the worker status'
+          }
+        });
         cb(null, response);
       })
       .catch(function (error) {
-        log('updateWorkerSettings').error('ERROR', error);
+        logger.tag('updateWorkerSettings').error({
+          error: error
+        });
         cb(error);
       });
-  }
+  };
 
+  StoreConfigModel.remoteMethod('removeStuckOrders', {
+    accepts: [
+      {arg: 'id', type: 'string', required: true},
+      {arg: 'stuckOrders', type: 'array', required: true}
+    ],
+    http: {path: '/:id/removeStuckOrders', verb: 'post'},
+    returns: {arg: 'removed', type: 'object', root: true}
+  });
+  StoreConfigModel.removeStuckOrders = function (id, stuckOrders, cb) {
+    logger.tag('removeStuckOrders').debug({
+      log: {
+        message: 'Will route to ReportModel.removeStuckOrders()'
+      }
+    });
+    StoreConfigModel.app.models.ReportModel.removeStuckOrders(id, stuckOrders)
+      .then(function (removed) {
+        cb(null, removed);
+      })
+      .catch(function (error) {
+        cb(error);
+      });
+  };
 
 };

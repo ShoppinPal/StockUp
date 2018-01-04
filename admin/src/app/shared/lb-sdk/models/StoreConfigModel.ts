@@ -2,6 +2,7 @@
 import {
   UserModel,
   StoreModel,
+  ReportModel,
   SupplierModel
 } from '../index';
 
@@ -27,9 +28,9 @@ export interface StoreConfigModelInterface {
   "wepayAccountState"?: any;
   "suppliers"?: Array<any>;
   "usesWorkersV2"?: any;
-  "userId"?: any;
-  userModel?: UserModel;
+  userModels?: UserModel[];
   storeModels?: StoreModel[];
+  reportModels?: ReportModel[];
   supplierModels?: SupplierModel[];
   productModels?: any[];
   syncModels?: any[];
@@ -57,9 +58,9 @@ export class StoreConfigModel implements StoreConfigModelInterface {
   "wepayAccountState": any;
   "suppliers": Array<any>;
   "usesWorkersV2": any;
-  "userId": any;
-  userModel: UserModel;
+  userModels: UserModel[];
   storeModels: StoreModel[];
+  reportModels: ReportModel[];
   supplierModels: SupplierModel[];
   productModels: any[];
   syncModels: any[];
@@ -176,21 +177,22 @@ export class StoreConfigModel implements StoreConfigModelInterface {
           name: 'usesWorkersV2',
           type: 'any'
         },
-        "userId": {
-          name: 'userId',
-          type: 'any'
-        },
       },
       relations: {
-        userModel: {
-          name: 'userModel',
-          type: 'UserModel',
+        userModels: {
+          name: 'userModels',
+          type: 'UserModel[]',
           model: 'UserModel'
         },
         storeModels: {
           name: 'storeModels',
           type: 'StoreModel[]',
           model: 'StoreModel'
+        },
+        reportModels: {
+          name: 'reportModels',
+          type: 'ReportModel[]',
+          model: 'ReportModel'
         },
         supplierModels: {
           name: 'supplierModels',

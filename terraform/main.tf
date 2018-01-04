@@ -2,6 +2,7 @@
 
 variable "aws_iam_access_key" {}
 variable "aws_iam_secret_key" {}
+variable "aws_region" {}
 
 variable "Q" {}
 variable "DLQ" {}
@@ -10,7 +11,7 @@ provider "aws" {
   # WARNING: FIFO queues are only available in two regions
   #          currently: us-east-2 and us-west-2
 
-  region     = "us-west-1"
+  region     = "${var.aws_region}"
   access_key = "${var.aws_iam_access_key}"
   secret_key = "${var.aws_iam_secret_key}"
 
@@ -18,8 +19,6 @@ provider "aws" {
 
 module "sqs_queues" {
   source          = "./resources/aws"
-  aws_access_key  = "${var.aws_iam_access_key}"
-  aws_secret_key  = "${var.aws_iam_access_key}"
   Q               = "${var.Q}"
   DLQ             = "${var.DLQ}"
   aws_region      = "${var.aws_region}"

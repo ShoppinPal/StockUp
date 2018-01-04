@@ -1,9 +1,9 @@
 {
   "name": "shoppinpal-warehouse-mongo",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "dependencies": {
     "@mean-expert/loopback-component-realtime": "1.0.0-rc.9.6",
-    "@mean-expert/loopback-sdk-builder": "^2.1.0-rc.14",
+    "@mean-expert/loopback-sdk-builder": "2.1.0-rc.14",
     "aws-sdk": "2.6.15",
     "bluebird": "2.9.14",
     "commander": "^2.9.0",
@@ -40,12 +40,14 @@
     "loopback-datasource-juggler": "2.31.0",
     "matchdep": "~0.3.0",
     "moment": "~2.17.1",
+    "mongodb": "2.2.31",
     "nconf": "^0.7.1",
     "newrelic": "1.30.3",
     "q": "^1.1.2",
     "request": "2.53.0",
     "request-promise": "0.3.2",
     "serve-favicon": "^2.0.1",
+    "sp-json-logger": "^1.0.9",
     "supertest": "^3.0.0",
     "supertest-as-promised": "2.0.1",
     "time-grunt": "~0.2.9",
@@ -73,9 +75,18 @@
     "grunt-protractor-runner": "~0.2.4",
     "grunt-shell": "^0.7.0",
     "grunt-svgmin": "~0.3.0",
+    "karma-chrome-launcher": "^0.1.12",
+    "karma-coffee-preprocessor": "^0.1.3",
+    "karma-firefox-launcher": "^0.1.7",
+    "karma-html2js-preprocessor": "^0.1.0",
+    "karma-jasmine": "^0.1.6",
+    "karma-phantomjs-launcher": "^0.1.4",
+    "karma-requirejs": "^0.2.6",
+    "karma-script-launcher": "^0.1.0",
     "load-grunt-tasks": "~0.3.0",
     "loopback-testing": "^1.0.3",
     "protractor": "~0.22.0",
+    "requirejs": "^2.3.5",
     "wd": "^0.3.12",
     "wd-bridge": "0.0.2"
   },
@@ -86,7 +97,7 @@
     "postinstall": "echo -n $NODE_ENV | grep -v 'production' && ./node_modules/protractor/bin/webdriver-manager update || echo 'will NOT run webdriver install or update'",
     "angular1-sdk": "../node_modules/grunt-cli/bin/grunt loopback_sdk_angular",
     "angular2-sdk": "DEBUG=boot:*,common:models:*,server:* SKIP_SEEDING=true ./node_modules/.bin/lb-sdk server/server.js admin/src/app/shared/lb-sdk -i disabled",
-    "generate-env":"node getenv.js"
+    "generate-env": "node getenv.js"
   },
   "main": "server/server.js"
 }

@@ -10,6 +10,7 @@ import {StoresModule} from './stores/stores.module';
 import {PaymentsModule} from './payments/payments.module';
 import {ProductsModule} from './products/products.module';
 import {SharedModule} from './../shared/shared.module';
+import {OrdersModule} from "./orders/orders.module";
 
 
 @NgModule({
@@ -21,6 +22,7 @@ import {SharedModule} from './../shared/shared.module';
     StoresModule,
     PaymentsModule,
     ProductsModule,
+    OrdersModule,
     WorkerSettingsModule
   ],
   declarations: [HomeComponent],

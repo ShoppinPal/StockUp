@@ -34,7 +34,7 @@ export class StockOrderLineitemModelApi extends BaseLoopBackApi {
   /**
    * Fetches belongsTo relation userModel.
    *
-   * @param {any} id StockOrderLineitemModel id
+   * @param {any} id PersistedModel id
    *
    * @param {boolean} refresh 
    *
@@ -64,7 +64,7 @@ export class StockOrderLineitemModelApi extends BaseLoopBackApi {
   /**
    * Fetches belongsTo relation reportModel.
    *
-   * @param {any} id StockOrderLineitemModel id
+   * @param {any} id PersistedModel id
    *
    * @param {boolean} refresh 
    *
@@ -94,7 +94,7 @@ export class StockOrderLineitemModelApi extends BaseLoopBackApi {
   /**
    * Fetches belongsTo relation productModel.
    *
-   * @param {any} id StockOrderLineitemModel id
+   * @param {any} id PersistedModel id
    *
    * @param {boolean} refresh 
    *

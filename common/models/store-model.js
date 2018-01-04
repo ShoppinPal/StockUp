@@ -3,7 +3,8 @@ var Promise = require('bluebird');
 var path = require('path');
 var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 var logger = require('./../lib/debug-extension')('common:models:'+fileName);
-var log = logger.debug.bind(logger); // TODO: over time, please use log.LOGLEVEL(msg) explicitly
+//var log = logger.debug.bind(logger); // TODO: over time, please use log.LOGLEVEL(msg) explicitly
+var logger = require('sp-json-logger');
 
 // HINT(s):
 //   Getting the app object: http://docs.strongloop.com/display/public/LB/Working+with+LoopBack+objects
@@ -28,31 +29,36 @@ module.exports = function(StoreModel) {
   StoreModel.importProducts = function(id, cb) {
     var currentUser = StoreModel.getCurrentUserModel(cb); // returns immediately if no currentUser
     if (currentUser) {
-      console.log('inside StoreModel.importProducts() - currentUser: ', currentUser.username);
+      //console.log('inside StoreModel.importProducts() - currentUser: ', currentUser.username);
+      logger.debug({log: {message: `inside StoreModel.importProducts() - currentUser: ${currentUser.username}` }});
 
       // TODO: the following THEN blocks can be lined up and don't have to be nested
 
       // (1)
       StoreModel.findById(id)
         .then(function(storeModel){
-          console.log('print object for storeModel: ', storeModel);
+          //console.log('print object for storeModel: ', storeModel);
+          logger.debug({log: {message: 'print object for storeModel', storeModel: storeModel }});
 
           // (2)
           StoreModel.app.models.StoreConfigModel.findOne( //TODO: use findByIdAsync instead?
             {filter:{where: {id: id}}} // TODO: how can the same ID be used for both store and store-config???
           )
             .then(function(storeConfigModel){
-              console.log('print object for storeConfigModel: ', storeConfigModel);
+              //console.log('print object for storeConfigModel: ', storeConfigModel);
+              logger.debug({log: {message: 'print object for storeConfigModel', storeConfigModel: storeConfigModel }});
 
               // (3)
               StoreModel.app.models.GlobalConfigModel.findOne({})
                 .then(function(globalConfigModel){
-                  console.log('print object for globalConfigModel: ', globalConfigModel);
+                  //console.log('print object for globalConfigModel: ', globalConfigModel);
+                  logger.debug({log: {message: 'print object for globalConfigModel', globalConfigModel: globalConfigModel }});
 
                   // (4)
                   startProductImportJob(storeModel, storeConfigModel, globalConfigModel)
                     .then(function(result){
-                      console.log('inside StoreModel.importProducts() - finished', result);
+                      //console.log('inside StoreModel.importProducts() - finished', result);
+                      logger.debug({log: {message: 'inside StoreModel.importProducts() - finished', result: result }});
                       cb(null, result);
                     }, function(error){
                       cb(error);
@@ -92,12 +98,18 @@ module.exports = function(StoreModel) {
 
   // DEPRECATED: remove this code since it isn't used in this project anymore
   var startProductImportJob = function(storeModel, storeConfigModel, globalConfigModel) {
-    console.log('inside startProductImportJob() - store id: ' + storeModel.objectId);
-    console.log(JSON.stringify({
-      'store': storeModel,
-      'storeConfig': storeConfigModel,
-      'globalConfig': globalConfigModel
-    },null,2));
+    //console.log('inside startProductImportJob() - store id: ' + storeModel.objectId);
+    logger.debug({log: {message: `inside startProductImportJob() - store id: ${storeModel.objectId}` }});
+    // console.log(JSON.stringify({
+    //   'store': storeModel,
+    //   'storeConfig': storeConfigModel,
+    //   'globalConfig': globalConfigModel
+    // },null,2));
+    logger.debug({log: {
+      store: storeModel,
+      storeConfig: storeConfigModel,
+      globalConfig: globalConfigModel
+    }});
 
     var deferred = q.defer();
     request.post({
@@ -126,7 +138,8 @@ module.exports = function(StoreModel) {
   };
 
   StoreModel.setDesiredStockLevelForVend = function(id, productId, desiredStockLevel, cb) {
-    log('inside setDesiredStockLevelForVend()');
+    //log('inside setDesiredStockLevelForVend()');
+    logger.debug({log: {message: `inside setDesiredStockLevelForVend()` }});
     var currentUser = StoreModel.getCurrentUserModel(cb); // returns immediately if no currentUser
 
     if(currentUser) {
@@ -171,27 +184,35 @@ module.exports = function(StoreModel) {
    * @param cb - loopback's callback to which we should hand back control
    */
   StoreModel.listStores = function(id, cb){
-    log('inside listStores()');
+    //log('inside listStores()');
+    logger.debug({log: {message: `inside listStores()` }});
     var currentUser = StoreModel.getCurrentUserModel(cb); // returns immediately if no currentUser
 
     if(currentUser) {
       StoreModel.find({})
         .then(function(storeModels){
-          log('fetched all StoreModels', storeModels.length);
+          //log('fetched all StoreModels', storeModels.length);
+          logger.debug({log: {message: `fetched all StoreModels ${storeModels.length}` }});
           var teamStores = [];
           Promise.map(
             storeModels || [], // can't handle undefined
             function (storeModel) {
               var TeamModel = StoreModel.app.models.TeamModel;
-              log('check if currentUserId:', currentUser.id, '\n',
-                'and the StoreModel\'s owner\'s Id:', storeModel.userModelToStoreModelId, '\n',
-                'have an admin-to-teamMember relationship');
+              // log('check if currentUserId:', currentUser.id, '\n',
+              //   'and the StoreModel\'s owner\'s Id:', storeModel.userModelToStoreModelId, '\n',
+              //   'have an admin-to-teamMember relationship');
+              logger.debug({log: {
+                message: `check if currentUserId: ${currentUser.id} 
+                and the StoreModel\'s owner\'s Id: ${storeModel.userModelToStoreModelId} 
+                have an admin-to-teamMember relationship`
+              }});
               return TeamModel.count({
                 ownerId: currentUser.id,
                 memberId: storeModel.userModelToStoreModelId
               })
                 .then(function(count) {
-                  log('is a team member? count > 0', (count > 0));
+                  //log('is a team member? count > 0', (count > 0));
+                  logger.debug({log: {message: `is a team member? count > 0 ${(count > 0)}` }});
                   if(count > 0){ // true = is a team member
                     teamStores.push(storeModel);
                   }
@@ -201,7 +222,11 @@ module.exports = function(StoreModel) {
             {concurrency: 1}
           ) // Promise.map() block ends
             .then(function () {
-              log('finished filtering out stores based on admin-to-teamMember relationship', teamStores);
+              //log('finished filtering out stores based on admin-to-teamMember relationship', teamStores);
+              logger.debug({log: {
+                message: 'finished filtering out stores based on admin-to-teamMember relationship',
+                teamStores: teamStores
+              }});
               cb(null, teamStores);
             })
             .catch(function(error){
