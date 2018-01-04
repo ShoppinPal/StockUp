@@ -1,3 +1,7 @@
+v1.5 - Jan 5, 2018
+- Generate manager orders with workersV2
+- It completes the bin locations feature completely
+
 v1.4.4 - Dec 30, 2017
 - CLI tool to setup env files
 - improved terraform script to setup project from scratch
