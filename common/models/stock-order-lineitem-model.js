@@ -68,7 +68,7 @@ module.exports = function(StockOrderLineitemModel) {
         .then(function(stockOrderLineitemModelInstance) {
           // log(methodName, '> findById > then', '\n',
           //   '> stockOrderLineitemModelInstance', stockOrderLineitemModelInstance);
-          logger.debug({log: { message:`${methodName} > findById > then`, stockOrderLineitemModelInstance: stockOrderLineitemModelInstance }})
+          logger.debug({log: { message:`${methodName} > findById > then`, stockOrderLineitemModelInstance: stockOrderLineitemModelInstance }});
 
           // log(methodName, '> findById > then', '\n',
           //   '> extending StockOrderLineitemModel with attributes:', attributes);
