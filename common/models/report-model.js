@@ -601,8 +601,13 @@ module.exports = function (ReportModel) {
                   reportModelInstance,
                   ReportModel.app.get('generateStockOrderWorker')
                 );
-
-                var queueUrl = ReportModel.app.get('awsQueueUrl');
+                var queueUrl;
+                if (storeConfigInstance.usesWorkersV2 && storeConfigInstance.usesWorkersV2.generateOrders) {
+                  queueUrl = ReportModel.app.get('awsQueueUrl2');
+                }
+                else {
+                  queueUrl = ReportModel.app.get('awsQueueUrl');
+                }
                 return ReportModel.sendPayload(reportModelInstance, options, queueUrl, cb)
                   .then(function (updatedReportModelInstance) {
                     //log.debug('return the updated ReportModel');
