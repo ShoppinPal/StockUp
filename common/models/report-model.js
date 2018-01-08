@@ -1220,7 +1220,7 @@ module.exports = function (ReportModel) {
 
                       // (a.4) Submit it
                       var queue = ReportModel.app.get('awsQueueUrl');
-                      return ReportModel.sendPayload(updatedReportModelInstance, options, cb)
+                      return ReportModel.sendPayload(updatedReportModelInstance, options, queue, cb)
                         .then(function (updatedReportModelInstance) {
                           // log.debug('inside setReportStatus() - updated the report model' +
                           //   ' removeUnreceivedProducts > payload sent > return the updated ReportModel');
