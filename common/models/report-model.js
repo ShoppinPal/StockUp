@@ -357,7 +357,7 @@ module.exports = function (ReportModel) {
                 log: {
                   commandName: commandName,
                   message: `${commandName} filter & dilute the search results to match the inventory for store and supplier tied with this report`,
-                  productsLength: results.product.length
+                  productsLength: results
                 }
               });
 
@@ -370,7 +370,7 @@ module.exports = function (ReportModel) {
               logger.debug({
                 log: {
                   commandName: commandName,
-                  message: `${commandName} > filtering for supplier ${eportModelInstance.supplier.name} and outlet ${reportModelInstance.outlet.name}`
+                  message: `${commandName} > filtering for supplier ${reportModelInstance.supplier.name} and outlet ${reportModelInstance.outlet.name}`
                 }
               });
               var filteredProducts = _.filter(results.products, function (product) {
