@@ -34,7 +34,6 @@ export class WorkerSettingsComponent implements OnInit {
     this.loading = true;
     this._storeConfigModelApi.updateWorkerSettings(this.userProfile.storeConfigModelId, workerName)
       .subscribe((data: any) => {
-        console.log(data);
         this.loading = false;
         this.toastr.success('Changed worker', workerName);
       }, err => {

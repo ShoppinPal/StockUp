@@ -106,8 +106,9 @@ services:
     depends_on:
       - memcache
   worker2:
-    build:
-      context: ./warehouse-workers/workers-v2
+    image: node:6.9.5
+#    build:
+#      context: ./warehouse-workers/workers-v2
     working_dir: /apps/workers
     command: node sqsWorker.js
     volumes:
@@ -115,10 +116,17 @@ services:
       - ./warehouse-workers/jobs:/apps/workers/jobs
       - ./warehouse-workers/sqsWorker.js:/apps/workers/sqsWorker.js
       - ./warehouse-workers/config:/apps/workers/config
+      - ./warehouse-workers/workers-v2/node_modules:/apps/workers/node_modules
     restart: always
     env_file: worker2.env
     depends_on:
       - memcache
+
+  worker-v2-builder:
+    image: node:6.9.5
+    working_dir: /apps/workers
+    volumes:
+      - ./warehouse-workers/workers-v2:/apps/workers
   db:
     image: mongo:3.2
     ports:

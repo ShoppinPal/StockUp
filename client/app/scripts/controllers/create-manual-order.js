@@ -186,7 +186,8 @@ angular.module('ShoppinPalApp').controller(
             supplier: {
               id: self.selectedSupplier.api_id,  // jshint ignore:line
               name: self.selectedSupplier.name
-            }
+            },
+            storeConfigModelId: self.selectedSupplier.storeConfigModelId
           }
         )
           .$promise.then(function (reportModelInstance) {

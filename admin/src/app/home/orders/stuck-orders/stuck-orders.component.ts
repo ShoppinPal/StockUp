@@ -55,10 +55,8 @@ export class StuckOrdersComponent implements OnInit {
     this.storeConfigModelApi.removeStuckOrders(this.userProfile.storeConfigModelId, this.ordersToRemove)
       .subscribe((data: any) => {
         this.loading = false;
-        this.stuckOrders = this.stuckOrders.filter(function (eachOrder) {
-          return ordersToRemove.indexOf(eachOrder.id) < 0;
-        });
         this.toastr.success('Removed ' + this.ordersToRemove.length + ' stuck order(s)');
+        this.fetchStuckOrders();
       }, err => {
         this.loading = false;
         this.toastr.error('Could not remove stuck orders');
@@ -86,6 +84,7 @@ export class StuckOrdersComponent implements OnInit {
   fetchStuckOrders(limit?: number, currentPage?: number) {
     this.loading = true;
     limit = limit || 10;
+    currentPage = currentPage || 1;
     let skip = (currentPage-1)*limit || 0;
     this.storeConfigModelApi.getStuckOrders(this.userProfile.storeConfigModelId, limit, skip)
       .subscribe((data: any) => {
