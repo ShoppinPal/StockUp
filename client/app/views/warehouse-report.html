@@ -29,9 +29,11 @@
                         <table cellspacing="0" cellpadding="0" width="100%" class="table table-responsive store-landing-right-table">
                             <thead>
                                 <tr>
-                                    <th width="20%">SKU</th>
+                                    <th class="clickable-table-column" ng-if="sortBinLocationsAscending" ng-click="sortBinLocations()" width="20%">Bin Location &nbsp;&nbsp;<i class="icon-sort-by-alphabet"></i></th>
+                                    <th class="clickable-table-column" ng-if="!sortBinLocationsAscending" ng-click="sortBinLocations()" width="20%">Bin Location &nbsp;&nbsp;<i class="icon-sort-by-alphabet-alt"></i></th>
+                                    <th class="clickable-table-column" width="20%" ng-if="sortSKUsAscending" ng-click="sortSKUs()">SKU &nbsp;&nbsp;<i class="icon-sort-by-alphabet"></i></th>
+                                    <th class="clickable-table-column" width="20%" ng-if="!sortSKUsAscending" ng-click="sortSKUs()">SKU &nbsp;&nbsp;<i class="icon-sort-by-alphabet-alt"></i></th>
                                     <th width="50%">Name</th>
-                                    <th width="20%">Bin Location</th>
                                     <th width="5%">Ordered Quantity</th>
                                     <th width="5%">Fulfilled Quantity</th>
                                 </tr>
@@ -44,17 +46,17 @@
                                 <tbody ng-repeat="item in itemsBeingViewed"
                                     class="animate-repeat animate-if">
                                     <tr class="inner-table-heading" id="jumpTo{{item.productModel.binLocation}}"
-                                        ng-if="item.productModel.binLocation !== itemsBeingViewed[$index - 1].productModel.binLocation">
+                                        ng-if="item.binLocation !== itemsBeingViewed[$index - 1].binLocation">
                                         <!--ng-if="item.group_by_CHANGED">-->
-                                        <td colspan="5"><span class="table-heading-font">{{item.productModel.binLocation || 'No Bin Location'}}</span></td>
+                                        <td colspan="5"><span class="table-heading-font">{{item.binLocation || '- No Bin Location'}}</span></td>
                                     </tr>
                                     <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'"
                                         ng-hide="$index==selectedRowIndex"
                                         ng-swipe-left="editRow($index)"
                                         ng-swipe-right="moveToBox(item, $index)">
+                                        <td class="report-head1"></td>
                                         <td class="report-head1">{{item.sku}}</td>
                                         <td class="report-head2">{{item.productModel.name || item.name}}</td>
-                                        <td class="report-head2">{{item.productModel.binLocation}}</td>
                                         <td class="report-head3">{{item.orderQuantity}}</td>
                                         <td class="report-head4">{{item.fulfilledQuantity}}</td>
                                     </tr>
