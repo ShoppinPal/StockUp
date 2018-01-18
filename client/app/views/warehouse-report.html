@@ -43,10 +43,10 @@
                                 <!--ng-if="!item.boxNumber"-->
                                 <tbody ng-repeat="item in itemsBeingViewed"
                                     class="animate-repeat animate-if">
-                                    <tr class="inner-table-heading" id="jumpTo{{item.type}}"
-                                        ng-if="item.type !== itemsBeingViewed[$index - 1].type">
+                                    <tr class="inner-table-heading" id="jumpTo{{item.productModel.binLocation}}"
+                                        ng-if="item.productModel.binLocation !== itemsBeingViewed[$index - 1].productModel.binLocation">
                                         <!--ng-if="item.group_by_CHANGED">-->
-                                        <td colspan="5"><span class="table-heading-font">{{item.type}}</span></td>
+                                        <td colspan="5"><span class="table-heading-font">{{item.productModel.binLocation || 'No Bin Location'}}</span></td>
                                     </tr>
                                     <tr ng-class=" ($index+1)%2 == 0 ?'tr-even' : 'tr-odd'"
                                         ng-hide="$index==selectedRowIndex"

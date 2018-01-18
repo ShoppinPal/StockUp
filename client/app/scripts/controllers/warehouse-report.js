@@ -111,12 +111,13 @@
         // if fulfilledQuantity hasn't been set, then it should equal orderQuantity by default
         angular.forEach($scope.orderedItems, function (item) {
           item.type = item.productModel ? item.productModel.type : item.type;
+          item.binLocation = item.productModel ? item.productModel.binLocation : 'No Bin Location';
           if (item.fulfilledQuantity === undefined || item.fulfilledQuantity === null) {
             item.fulfilledQuantity = item.orderQuantity;
           }
         });
         // copy the items (order by type) to a new list for display
-        $scope.itemsBeingViewed = $filter('orderBy')($scope.orderedItems, 'type');
+        $scope.itemsBeingViewed = $filter('orderBy')($scope.orderedItems, 'binLocation');
       };
 
       var setupBoxes = function (response) {
@@ -327,11 +328,18 @@
         var jumpToHash;
         if (value) {
           for (var i = 0; i<$scope.itemsBeingViewed.length; i++) {
-            var type = $scope.itemsBeingViewed[i].type,
-              typeFirstChar = type.slice(0, 1).toUpperCase();
-            $scope.alphabets.push(typeFirstChar);
-            if (typeFirstChar === value) {
-              jumpToHash = 'jumpTo' + $scope.itemsBeingViewed[i].type;
+            var binLocation = '';
+            if ($scope.itemsBeingViewed[i].productModel) {
+              binLocation = $scope.itemsBeingViewed[i].productModel.binLocation;
+            }
+            $scope.alphabets.push(binLocation);
+            if (binLocation === value) {
+              if ($scope.itemsBeingViewed[i].productModel) {
+                jumpToHash = 'jumpTo' + $scope.itemsBeingViewed[i].productModel.binLocation;
+              }
+              else {
+                jumpToHash = 'jumpTo';
+              }
               break; // stop at the first matching department
             }
           }
@@ -347,9 +355,12 @@
       $scope.jumpToDepartment = function () {
         $scope.alphabets = [];
         for (var i = 0; i<$scope.itemsBeingViewed.length; i++) {
-          var type = $scope.itemsBeingViewed[i].type,
-            typeFirstChar = type.slice(0, 1).toUpperCase();
-          $scope.alphabets.push(typeFirstChar);
+          var binLocation = '';
+          if ($scope.itemsBeingViewed[i].productModel) {
+            binLocation = $scope.itemsBeingViewed[i].productModel.binLocation;
+          }
+          // var typeFirstChar = binLocation.slice(0, 1).toUpperCase();
+          $scope.alphabets.push(binLocation);
         }
         $scope.alphabets.sort();
       };
