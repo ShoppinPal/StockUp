@@ -127,7 +127,6 @@
           eachItem.type = eachItem.productModel ? eachItem.productModel.type : eachItem.type;
           eachItem.binLocation = eachItem.productModel && eachItem.productModel.binLocation ? eachItem.productModel.binLocation : '- No Bin Location';
         }).countBy('boxNumber').value();
-        //console.log(existingBoxes);
         if (existingBoxes && _.keys(existingBoxes).length>0) {
           populateExistingBoxes(existingBoxes);
         }
@@ -200,11 +199,12 @@
         if ($scope.displayBoxedContents) {
           var filterData1 = {'boxNumber': $scope.selectedBox.boxNumber};
           $scope.itemsBeingViewed = $filter('filter')($scope.allOrderedItems, filterData1);
+          $scope.itemsBeingViewed = $filter('orderBy')($scope.itemsBeingViewed, ['binLocation', 'sku']);
         }
         else {
           var filterData2 = {'state': '!boxed'};
           $scope.itemsBeingViewed = $filter('filter')($scope.orderedItems, filterData2);
-          $scope.itemsBeingViewed = $filter('orderBy')($scope.itemsBeingViewed, 'type');
+          $scope.itemsBeingViewed = $filter('orderBy')($scope.itemsBeingViewed, ['binLocation', 'sku']);
         }
       };
 

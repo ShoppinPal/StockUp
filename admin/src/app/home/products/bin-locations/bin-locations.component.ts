@@ -143,7 +143,7 @@ export class BinLocationsComponent implements OnInit {
       product.error = 'Please enter bin location';
     }
     else {
-      this.storeConfigModelApi.updateBinLocation(this.userProfile.storeConfigModelId, product.id, product.binLocation)
+      this.storeConfigModelApi.updateBinLocation(this.userProfile.storeConfigModelId, product.id, product.binLocation.toLowerCase())
         .subscribe((data: any) => {
             this.toastr.success('Updated bin location successfully');
             this.loading = false;
