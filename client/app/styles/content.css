@@ -78,7 +78,7 @@ h1{
     margin: 0px auto;
     border-left:1px solid #d1d1d1;
     border-right:1px solid #d1d1d1;
-    border-bottom: 1px solid #d1d1d1; 
+    border-bottom: 1px solid #d1d1d1;
 }
 .table-heading-font{
     color: #02b8de;
@@ -94,11 +94,11 @@ h1{
 .table.table-responsive.right-table th{
     border-right:0px;
 }
-.store-table.table > thead > tr > th, 
-.store-table.table > tbody > tr > th, 
-.store-table.table > tfoot > tr > th, 
-.store-table.table > thead > tr > td, 
-.store-table.table > tbody > tr > td, 
+.store-table.table > thead > tr > th,
+.store-table.table > tbody > tr > th,
+.store-table.table > tfoot > tr > th,
+.store-table.table > thead > tr > td,
+.store-table.table > tbody > tr > td,
 .store-table.table > tfoot > tr > td {
     border-top: 0px solid #ddd;
     padding: 0px;
@@ -181,11 +181,11 @@ h1{
     vertical-align: top;
 }
 
-.main-table.table > thead > tr > th, 
-.main-table.table > tbody > tr > th, 
-.main-table.table > tfoot > tr > th, 
-.main-table.table > thead > tr > td, 
-.main-table.table > tbody > tr > td, 
+.main-table.table > thead > tr > th,
+.main-table.table > tbody > tr > th,
+.main-table.table > tfoot > tr > th,
+.main-table.table > thead > tr > td,
+.main-table.table > tbody > tr > td,
 .main-table.table > tfoot > tr > td {
     border-top: 0px solid #ddd;
     padding: 0px;
@@ -438,7 +438,7 @@ input:focus{
     background-image: url("../images/img_box_sprite.png");
     display: inline-block;
     height: 45px;
-    width: 73px; 
+    width: 73px;
 }
 .open-box .closed-box {
     background-position: -273px 0;
@@ -459,11 +459,11 @@ p.note-text{
 .table.store-landing-table{
     margin-bottom: 0px;
 }
-.store-landing-table.table > thead > tr > th, 
-.store-landing-table.table > tbody > tr > th, 
-.store-landing-table.table > tfoot > tr > th, 
-.store-landing-table.table > thead > tr > td, 
-.store-landing-table.table > tbody > tr > td, 
+.store-landing-table.table > thead > tr > th,
+.store-landing-table.table > tbody > tr > th,
+.store-landing-table.table > tfoot > tr > th,
+.store-landing-table.table > thead > tr > td,
+.store-landing-table.table > tbody > tr > td,
 .store-landing-table.table > tfoot > tr > td {
     border-top: 0px solid #ddd;
     padding: 0px;
@@ -794,7 +794,7 @@ p.note-text{
     float: left;
 }
 .status-text{
-    
+
 }
 .inprocess-btn{
     background: #4e3173;
@@ -860,7 +860,7 @@ p.note-text{
 .calendar{
     position: relative;
 }
-.calendar .fa-calendar { 
+.calendar .fa-calendar {
   position: absolute;
   top: 12px;
   left: 523px;
@@ -892,10 +892,10 @@ h2{
 
 /* store manager landing  page start*/
 .store-content {
-   margin-right: 0px; 
+   margin-right: 0px;
 }
 .center-block-generate-btn {
-  display: block;  
+  display: block;
   margin-left: 152px;
   margin-right: auto;
   margin-top: 10px;
@@ -915,7 +915,7 @@ h2{
     padding-top: 100px;
 }
 .status-btn-fullfil {
-  background: #b9511a; 
+  background: #b9511a;
   width: 120px;
   height: 30px;
   font-size: 11px;
@@ -927,7 +927,7 @@ h2{
   margin:10px 10px 10px 0;
   padding: 5px 10px;
   text-align: center;
-  text-transform: uppercase; 
+  text-transform: uppercase;
 }
 .status-btn-inprocess {
   width: 120px;
@@ -1327,4 +1327,8 @@ background-color: #E0E0E0;
 .show-more-container {
     text-align: right !important;
     padding: 10px;
+}
+
+.clickable-table-column {
+  cursor: pointer;
 }

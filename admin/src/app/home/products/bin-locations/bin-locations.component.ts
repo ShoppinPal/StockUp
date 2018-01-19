@@ -143,7 +143,7 @@ export class BinLocationsComponent implements OnInit {
       product.error = 'Please enter bin location';
     }
     else {
-      this.storeConfigModelApi.updateBinLocation(this.userProfile.storeConfigModelId, product.id, product.binLocation)
+      this.storeConfigModelApi.updateBinLocation(this.userProfile.storeConfigModelId, product.id, product.binLocation.toLowerCase())
         .subscribe((data: any) => {
             this.toastr.success('Updated bin location successfully');
             this.loading = false;
@@ -183,6 +183,14 @@ export class BinLocationsComponent implements OnInit {
             this.totalProducts = 1;
             this.searchSKUFocused = false;
             this.foundSKU = true;
+          }
+          else if(data.length > 1) {
+            this.searchedProduct = data;
+            this.totalPages = 1;
+            this.totalProducts = 2;
+            this.searchSKUFocused = false;
+            this.foundSKU = true;
+            this.toastr.error('Found duplicate SKU in database, please make SKUs unique before updating bin locations', 'Duplicate SKU');
           }
           else {
             this.toastr.error('Couldn\'t find SKU '+this.searchSKUText+' in database, try syncing products', 'SKU not found');
