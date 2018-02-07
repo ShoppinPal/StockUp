@@ -32,7 +32,7 @@ _deploy_setup() {
 }
 
 if [ "$1" = 'node' -a -z "$wantHelp" ]; then
-  if [ "$2" = 'server/server.js' ]; then
+  #if [ "$2" = 'server/server.js' ]; then
         if [ -z "$MONGOLAB_URI" ]; then
           echo >&2 'error: MONGOLAB_URI is not set. You need to specify MONGOLAB_URI'
           exit 1
@@ -56,7 +56,7 @@ if [ "$1" = 'node' -a -z "$wantHelp" ]; then
         _setup_config ${NODE_ENV}
         _deploy_setup ${NODE_ENV}
         #_generate_config ${NODE_ENV}
-  fi
+  #fi
   # Change uid and gid of node user so it matches ownership of current dir
   MAP_NODE_UID=$PWD
   uid=$(stat -c '%u' "$MAP_NODE_UID")
