@@ -1,3 +1,6 @@
+v1.5.4 - Feb 13, 2018
+- released with json logger
+
 v1.5.1 - Jan 18, 2018
 - Group/sort order items by BinLocations
 - Sort order items by SKUs
