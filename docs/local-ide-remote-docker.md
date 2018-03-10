@@ -105,13 +105,13 @@
       echo WAREHOUSE_SYNC_DIR_NAME=$WAREHOUSE_SYNC_DIR_NAME && \
       echo SLAVE_WAREHOUSE_HOME = $SLAVE_WAREHOUSE_HOME
     ```
-    * Optionally, you can create and save a `setupenv_slave.sh` file for reuse in future sessions but do not commit it:
+    * Optionally, you can create and save a `setenv_slave.sh` file for reuse in future sessions but do not commit it:
 
         ```
         #!/bin/sh
 
         echo "###"
-        echo Its best to invoke this script as: '. ./setupenv_slave.sh' rather than './setupenv_slave.sh'
+        echo Its best to invoke this script as: '. ./setenv_slave.sh' rather than './setenv_slave.sh'
         echo "###"
 
         export SYNC_DEV_HOME=`echo ~/Dropbox/remote-dev` && \
