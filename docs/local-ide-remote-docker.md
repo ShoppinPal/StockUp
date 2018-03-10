@@ -1,7 +1,6 @@
 # Deploy
 
 1. [Setup dropbox on remote machine](https://training.shoppinpal.com/setup-box-on-azure/setup-dropbox-on-azure.html)
-1. On your remote machine, execute the instructions from the [Deploy](https://github.com/ShoppinPal/warehouse#deploy) section above.
 1. On remote, setup the following env variables:
 
     ```
@@ -64,7 +63,7 @@
       dropbox exclude add $SYNC_DEV_HOME/$WAREHOUSE_SYNC_DIR_NAME/warehouse-workers/.git && \
       dropbox exclude add $SYNC_DEV_HOME/$WAREHOUSE_SYNC_DIR_NAME/warehouse-workers/node_modules
     ```
-1. On remote, check if they are now excluded, use `dropbox exclude list | grep remote-dev`
+1. On remote, check if they are now excluded, use `dropbox exclude list | grep $SYNC_DEV_HOME/$WAREHOUSE_SYNC_DIR_NAME`
     * if an incorrect path was excluded, you can fix it with: `dropbox exclude remove /the/path`
     * for example, if you decide to sync the `.git` folder over to your local then un-exclude it with: `dropbox exclude remove $SYNC_DEV_HOME/$WAREHOUSE_SYNC_DIR_NAME/.git`
 1. On remote, wire up your project root to be synced via Dropbox:
