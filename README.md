@@ -8,7 +8,7 @@ Replenishing stock is one of the most important repetitive tasks performed by a 
 #Deployment Architecture
 The deployment consists of the following key components (few aspects have been left out for the the sake of brevity).
 
-![alt text](https://raw.githubusercontent.com/Shoppinpal/warehouse/client/app/images/Screen Shot 2018-07-12 at 2.51.04 PM.png)
+![alt text](https://raw.githubusercontent.com/ShoppinPal/warehouse/feature/kamal/update-readme-with-architecture/client/app/images/Screen%20Shot%202018-07-12%20at%202.51.04%20PM.png)
 
 ###LoopBack (LB) Node Cluster
 - LoopBack Node cluster is the frontend (responsive web app) for Warehouse used by the store and fulfillment center staff.
