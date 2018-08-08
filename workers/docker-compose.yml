@@ -1,0 +1,18 @@
+## Version Selection for compose file
+# https://docs.docker.com/compose/compose-file/#/versioning
+version: '2'
+
+## Defining the services for docker cloud
+services:
+  worker:
+    image: node:6.9.5-alpine
+    command: node sqsWorker.js
+    env_file:
+      - .env
+    volumes:
+      - .:/apps/workers:rw
+    restart: always
+  memcache:
+    image: memcached:1.4.33
+  goaws:
+      image: pafortin/goaws
