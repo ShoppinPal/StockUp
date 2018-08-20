@@ -7,26 +7,30 @@
           <div class="card p-4">
             <div class="card-body">
               <ngx-loading [show]="loading"></ngx-loading>
-              <h1>Login</h1>
-              <p class="text-muted">Sign In to your account</p>
+              <h1>Sign Up</h1>
+              <p class="text-muted">Create a new account</p>
               <div class="input-group mb-3">
                 <span class="input-group-addon"><i class="icon-user"></i></span>
-                <input type="text" #username class="form-control" placeholder="Username">
+                <input type="text" #username class="form-control" placeholder="Organisation Email">
               </div>
               <div class="input-group mb-4">
                 <span class="input-group-addon"><i class="icon-lock"></i></span>
-                <input type="password" #password class="form-control" placeholder="Password">
+                <input type="password" #password class="form-control" placeholder="Create Password">
+              </div>
+              <div class="input-group mb-4">
+                <span class="input-group-addon"><i class="icon-lock"></i></span>
+                <input type="password" #confirmPassword class="form-control" placeholder="Confirm Password">
               </div>
               <div class="row">
                 <div class="col-6">
                   <button type="button" (click)="fetchInput(username.value, password.value)"
-                          class="btn btn-primary px-4">Login
+                          class="btn btn-primary px-4">Signup
                   </button>
                 </div>
               </div>
               <div class="row text-center">
                 <div class="col-12">
-                  <a routerLink="/signup" routerLinkActive="active" (click)="loading=true">New user? Create Account</a>
+                  <a routerLink="/login" routerLinkActive="active" (click)="loading=true">Already a user? Login</a>
                 </div>
               </div>
             </div>
