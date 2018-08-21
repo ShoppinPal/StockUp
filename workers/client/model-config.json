@@ -1,0 +1,20 @@
+{
+  "_meta": {
+    "sources": [
+      "loopback/common/models",
+      "loopback/server/models",
+      "shoppinpal-warehouse-mongo/common/models",
+      "../common/models",
+      "./models"
+    ]
+  },
+  "ReportModel": {
+    "dataSource": "remoteDS"
+  },
+  "StockOrderLineitemModel": {
+    "dataSource": "remoteDS"
+  },
+  "UserModel": {
+    "dataSource": "remoteDS"
+  }
+}
