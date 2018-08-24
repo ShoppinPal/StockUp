@@ -78,7 +78,7 @@
   },
   "ProductModel": {
     "dataSource": "db",
-    "public": false
+    "public": true
   },
   "SyncModel": {
     "dataSource": "db",
@@ -86,6 +86,10 @@
   },
   "InventoryModel": {
     "dataSource": "db",
-    "public": false
+    "public": true
+  },
+  "OrgModel": {
+    "dataSource": "db",
+    "public": true
   }
 }

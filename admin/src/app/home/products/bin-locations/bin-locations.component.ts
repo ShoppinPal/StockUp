@@ -119,6 +119,7 @@ export class BinLocationsComponent implements OnInit {
         this.loading = false;
         this.products = data[0];
         this.totalProducts = data[1].count;
+
         this.totalPages = Math.floor(this.totalProducts / 100);
       },
       err => {

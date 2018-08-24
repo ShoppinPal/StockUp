@@ -1,0 +1,54 @@
+{
+  "name": "OrgModel",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "name": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "userModels": {
+      "type": "hasMany",
+      "model": "UserModel",
+      "foreignKey": "orgModelId"
+    },
+    "storeModels": {
+      "type": "hasMany",
+      "model": "StoreModel",
+      "foreignKey": "orgModelId"
+    },
+    "supplierModels": {
+      "type": "hasMany",
+      "model": "SupplierModel",
+      "foreignKey": "orgModelId"
+    },
+    "stockOrderLineitemModels": {
+      "type": "hasMany",
+      "model": "StockOrderLineitemModel",
+      "foreignKey": "orgModelId"
+    },
+    "reportModels": {
+      "type": "hasMany",
+      "model": "ReportModel",
+      "foreignKey": "orgModelId"
+    },
+    "productModels": {
+      "type": "hasMany",
+      "model": "ProductModel",
+      "foreignKey": "orgModelId"
+    },
+    "inventoryModels": {
+      "type": "hasMany",
+      "model": "InventoryModel",
+      "foreignKey": "orgModelId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}
