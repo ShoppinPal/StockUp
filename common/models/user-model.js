@@ -57,6 +57,18 @@ module.exports = function (UserModel) {
         });
     };
 
+    UserModel.remoteMethod('signup', {
+      accepts: [
+        {arg: 'data', type: 'object', required: true, http: {source: 'body'}}
+      ],
+      http: {path: '/signup', verb: 'get'},
+      returns: {arg: 'user', type: 'object'}
+    });
+
+    UserModel.signup = function (data, cb) {
+      log('')
+    };
+
 
   });
 

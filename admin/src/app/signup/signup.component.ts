@@ -40,8 +40,13 @@ export class SignupComponent implements OnInit {
       });
   }
 
-  private signup(email: string, password: string, confirmPassword: string): void {
-    this.loading = true;
+  findExistingOrganisation(orgName) {
+    console.log('wioll look for ', orgName);
+  }
+
+  private signup(form): void {
+    // this.loading = true;
+    // form.classList.add('was-validated');
 
   }
 }
