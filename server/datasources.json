@@ -1,6 +1,7 @@
 {
   "db": {
-    "port": 27020,
+    "host": "db",
+    "port": 27017,
     "name": "db",
     "connector": "mongodb",
     "debug": false

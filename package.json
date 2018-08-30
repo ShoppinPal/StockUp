@@ -88,6 +88,7 @@
     "karma-script-launcher": "^0.1.0",
     "load-grunt-tasks": "~0.3.0",
     "loopback-testing": "^1.0.3",
+    "nodemon": "1.18.3",
     "protractor": "~0.22.0",
     "requirejs": "^2.3.5",
     "wd": "^0.3.12",
