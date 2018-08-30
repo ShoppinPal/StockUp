@@ -1,29 +1,14 @@
 version: "2.1"
 services:
   admin:
-    build:
-      context: .
-      dockerfile: Dockerfile.admin
+    image: node:6.10
     working_dir: /apps/warehouse/admin
     command: npm run start
-    environment:
-      MONGOLAB_URI: mongodb://db:27017/warehouse-local
     ports:
       - "4200:4200"
     volumes:
-      - ./admin:/apps/warehouse/admin
-      - ./common:/apps/warehouse/common
-      - ./server:/apps/warehouse/server
-      - ./package.json:/apps/warehouse/package.json
-      - ./npm-shrinkwrap.json:/apps/warehouse/npm-shrinkwrap.json
-      - ./Gruntfile.js:/apps/warehouse/Gruntfile.js
-  nodejs:
-    image: node:6.11.1
-    working_dir: /apps/warehouse
-    volumes:
       - .:/apps/warehouse
-      - ./wait-for:/wait/wait-for
-    command: tail -f /dev/null
+
   lb:
     image: nginx:stable
     ports:
@@ -33,100 +18,58 @@ services:
       - ./wait-for:/wait/wait-for
     depends_on:
       - web
-    ###
-    # 1. Found the nginx image's default command here:
-    # https://github.com/nginxinc/docker-nginx/blob/7e278fff2f12f852ef1be2aed17e9a2f822365ac/stable/stretch/Dockerfile#L43
-    # CMD ["nginx", "-g", "daemon off;"]
-    #
-    # 2. the nginx image doesn't have `nc` (netcat) or `curl` so we can't use the `wait-for` script
-    ###
-    #command: ["/wait/wait-for", "web:3000", "--", "nginx", "-g", "daemon off;"]
+
   web:
-    build:
-      context: .
-      dockerfile: Dockerfile-dev
+    image: shoppinpal/node:6.10
+    working_dir: /apps/warehouse
+    entrypoint: ./dev-entrypoint.sh
     ports:
       - "3000"
     environment:
       NODE_ENV: local
-      MONGOLAB_URI: mongodb://db:27017/warehouse-local
     env_file: .env
-    command: nodemon server/server.js
+    command: ./node_modules/nodemon/bin/nodemon.js server/server.js
     volumes:
-      - ./client/app/images:/apps/warehouse/client/app/images
-      - ./client/app/scripts:/apps/warehouse/client/app/scripts
-      - ./client/app/styles:/apps/warehouse/client/app/styles
-      - ./client/app/views:/apps/warehouse/client/app/views
-      - ./client/app/index.html:/apps/warehouse/client/app/index.html
-      - ./client/admin:/apps/warehouse/client/admin
-      - ./common:/apps/warehouse/common
-      - ./server:/apps/warehouse/server
-      - ./package.json:/apps/warehouse/package.json
-      - ./npm-shrinkwrap.json:/apps/warehouse/npm-shrinkwrap.json
-      - ./Gruntfile.js:/apps/warehouse/Gruntfile.js
-      - ./dev-entrypoint.sh:/apps/warehouse/dev-entrypoint.sh
+      - .:/apps/warehouse
     depends_on:
       - db
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://web:3000/api/StoreModels"]
-      interval: 15s
-      timeout: 10s
-      retries: 3
+
   worker-web:
-    build:
-      context: .
-      dockerfile: Dockerfile-dev
+    image: shoppinpal/node:6.10
+    working_dir: /apps/warehouse
     ports:
       - "3000"
-    environment:
-      NODE_ENV: local
-      MONGOLAB_URI: mongodb://db:27017/warehouse-local
     env_file: .env
-    entrypoint: /docker-entrypoint.sh
-    command: ["/wait/wait-for", "web:3000", "--", "nodemon","server/server.js"]
+    entrypoint: ./docker-entrypoint.sh
+    command: ./node_modules/nodemon/bin/nodemon.js server/server.js
     volumes:
-      - ./common:/apps/warehouse/common
-      - ./server:/apps/warehouse/server
-      - ./package.json:/apps/warehouse/package.json
-      - ./npm-shrinkwrap.json:/apps/warehouse/npm-shrinkwrap.json
-      - ./wait-for:/wait/wait-for
-      - ./docker-entrypoint.sh:/docker-entrypoint.sh
+      - .:/apps/warehouse
     depends_on:
       - web
       - db
+
   worker:
-    build:
-      context: ./warehouse-workers
+    image: shoppinpal/node:6.10
     working_dir: /apps/workers
-    command: node sqsWorker.js
+    command: ./node_modules/nodemon/bin/nodemon.js sqsWorker.js
     volumes:
-      - ./warehouse-workers:/apps/workers
+      - ./workers:/apps/workers
     restart: always
     env_file: worker.env
     depends_on:
       - memcache
+
   worker2:
-    image: node:6.9.5
-#    build:
-#      context: ./warehouse-workers/workers-v2
+    image: shoppinpal/node:6.10
     working_dir: /apps/workers
-    command: node sqsWorker.js
+    command: ./node_modules/nodemon/bin/nodemon.js sqsWorker.js
     volumes:
-      - ./warehouse-workers/workers-v2:/apps/workers/workers-v2
-      - ./warehouse-workers/jobs:/apps/workers/jobs
-      - ./warehouse-workers/sqsWorker.js:/apps/workers/sqsWorker.js
-      - ./warehouse-workers/config:/apps/workers/config
-      - ./warehouse-workers/workers-v2/node_modules:/apps/workers/node_modules
+      - ./workers:/apps/workers
     restart: always
     env_file: worker2.env
     depends_on:
       - memcache
 
-  worker-v2-builder:
-    image: node:6.9.5
-    working_dir: /apps/workers
-    volumes:
-      - ./warehouse-workers/workers-v2:/apps/workers
   db:
     image: mongo:3.2
     ports:
