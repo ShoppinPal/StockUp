@@ -32,7 +32,13 @@ app.start = function() {
     app.emit('started');
     console.log('Web server listening at: %s', app.get('url'));
 
-    app.use('/v2', app.loopback.static(path.resolve(__dirname, './../client/admin')));
+    app.use('/v1', app.loopback.static(path.resolve(__dirname, './../client/app')));
+
+    app.get('/v1*', function (req, res, next) {
+        res.sendFile('index.html', {root: path.resolve(__dirname, './../client/app')});
+    });
+
+      app.use('/v2', app.loopback.static(path.resolve(__dirname, './../client/admin')));
 
     app.get('/v2*', function (req, res, next) {
         res.sendFile('index.html', {root: path.resolve(__dirname, './../client/admin')});
