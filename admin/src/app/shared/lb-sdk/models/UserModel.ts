@@ -1,11 +1,6 @@
 /* tslint:disable */
 import {
-  GlobalConfigModel,
-  StoreConfigModel,
-  StoreModel,
-  ReportModel,
-  StockOrderLineitemModel,
-  SupplierModel
+  OrgModel
 } from '../index';
 
 declare var Object: any;
@@ -23,16 +18,19 @@ export interface UserModelInterface {
   "memberId"?: any;
   "storeConfigModelIs"?: any;
   "storeConfigModelId"?: any;
+  "orgModelId"?: any;
   "password"?: string;
   accessTokens?: any[];
   roles?: any[];
   teamModels?: any[];
-  globalConfigModels?: GlobalConfigModel;
-  storeConfigModel?: StoreConfigModel;
-  storeModels?: StoreModel[];
-  reportModels?: ReportModel[];
-  stockOrderLineitemModels?: StockOrderLineitemModel[];
-  supplierModels?: SupplierModel[];
+  globalConfigModels?: any;
+  storeConfigModel?: any;
+  storeModels?: any[];
+  reportModels?: any[];
+  stockOrderLineitemModels?: any[];
+  supplierModels?: any[];
+  orgModel?: OrgModel;
+  roleMappings?: any[];
 }
 
 export class UserModel implements UserModelInterface {
@@ -49,16 +47,19 @@ export class UserModel implements UserModelInterface {
   "memberId": any;
   "storeConfigModelIs": any;
   "storeConfigModelId": any;
+  "orgModelId": any;
   "password": string;
   accessTokens: any[];
   roles: any[];
   teamModels: any[];
-  globalConfigModels: GlobalConfigModel;
-  storeConfigModel: StoreConfigModel;
-  storeModels: StoreModel[];
-  reportModels: ReportModel[];
-  stockOrderLineitemModels: StockOrderLineitemModel[];
-  supplierModels: SupplierModel[];
+  globalConfigModels: any;
+  storeConfigModel: any;
+  storeModels: any[];
+  reportModels: any[];
+  stockOrderLineitemModels: any[];
+  supplierModels: any[];
+  orgModel: OrgModel;
+  roleMappings: any[];
   constructor(data?: UserModelInterface) {
     Object.assign(this, data);
   }
@@ -147,6 +148,10 @@ export class UserModel implements UserModelInterface {
           name: 'storeConfigModelId',
           type: 'any'
         },
+        "orgModelId": {
+          name: 'orgModelId',
+          type: 'any'
+        },
         "password": {
           name: 'password',
           type: 'string'
@@ -170,33 +175,43 @@ export class UserModel implements UserModelInterface {
         },
         globalConfigModels: {
           name: 'globalConfigModels',
-          type: 'GlobalConfigModel',
-          model: 'GlobalConfigModel'
+          type: 'any',
+          model: ''
         },
         storeConfigModel: {
           name: 'storeConfigModel',
-          type: 'StoreConfigModel',
-          model: 'StoreConfigModel'
+          type: 'any',
+          model: ''
         },
         storeModels: {
           name: 'storeModels',
-          type: 'StoreModel[]',
-          model: 'StoreModel'
+          type: 'any[]',
+          model: ''
         },
         reportModels: {
           name: 'reportModels',
-          type: 'ReportModel[]',
-          model: 'ReportModel'
+          type: 'any[]',
+          model: ''
         },
         stockOrderLineitemModels: {
           name: 'stockOrderLineitemModels',
-          type: 'StockOrderLineitemModel[]',
-          model: 'StockOrderLineitemModel'
+          type: 'any[]',
+          model: ''
         },
         supplierModels: {
           name: 'supplierModels',
-          type: 'SupplierModel[]',
-          model: 'SupplierModel'
+          type: 'any[]',
+          model: ''
+        },
+        orgModel: {
+          name: 'orgModel',
+          type: 'OrgModel',
+          model: 'OrgModel'
+        },
+        roleMappings: {
+          name: 'roleMappings',
+          type: 'any[]',
+          model: ''
         },
       }
     }
