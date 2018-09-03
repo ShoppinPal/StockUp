@@ -47,31 +47,31 @@
   },
   "GlobalConfigModel": {
     "dataSource": "db",
-    "public": false
+    "public": true
   },
   "StoreConfigModel": {
     "dataSource": "db",
-    "public": false
+    "public": true
   },
   "StoreModel": {
     "dataSource": "db",
-    "public": false
+    "public": true
   },
   "ReportModel": {
     "dataSource": "db",
-    "public": false
+    "public": true
   },
   "StockOrderLineitemModel": {
     "dataSource": "db",
-    "public": false
+    "public": true
   },
   "SupplierModel": {
     "dataSource": "db",
-    "public": false
+    "public": true
   },
   "container": {
     "dataSource": "storage",
-    "public": false
+    "public": true
   },
   "StoreMappingModel": {
     "dataSource": "db",

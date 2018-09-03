@@ -11,6 +11,12 @@ import { ErrorHandler } from '../core/error.service';
 import { Subject } from 'rxjs/Subject';
 import { Observable } from 'rxjs/Rx';
 import { UserModel } from '../../models/UserModel';
+import { GlobalConfigModel } from '../../models/GlobalConfigModel';
+import { StoreConfigModel } from '../../models/StoreConfigModel';
+import { StoreModel } from '../../models/StoreModel';
+import { ReportModel } from '../../models/ReportModel';
+import { StockOrderLineitemModel } from '../../models/StockOrderLineitemModel';
+import { SupplierModel } from '../../models/SupplierModel';
 import { OrgModel } from '../../models/OrgModel';
 
 
@@ -450,7 +456,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public createGlobalConfigModels(id: any, data: any = {}, customHeaders?: Function): Observable<any> {
+  public createGlobalConfigModels(id: any, data: GlobalConfigModel = new GlobalConfigModel(), customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/globalConfigModels";
@@ -483,7 +489,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public updateGlobalConfigModels(id: any, data: any = {}, customHeaders?: Function): Observable<any> {
+  public updateGlobalConfigModels(id: any, data: GlobalConfigModel = new GlobalConfigModel(), customHeaders?: Function): Observable<any> {
     let _method: string = "PUT";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/globalConfigModels";
@@ -629,7 +635,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public updateByIdStoreModels(id: any, fk: any, data: any = {}, customHeaders?: Function): Observable<any> {
+  public updateByIdStoreModels(id: any, fk: any, data: StoreModel = new StoreModel(), customHeaders?: Function): Observable<any> {
     let _method: string = "PUT";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/storeModels/:fk";
@@ -722,7 +728,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public updateByIdReportModels(id: any, fk: any, data: any = {}, customHeaders?: Function): Observable<any> {
+  public updateByIdReportModels(id: any, fk: any, data: ReportModel = new ReportModel(), customHeaders?: Function): Observable<any> {
     let _method: string = "PUT";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/reportModels/:fk";
@@ -815,7 +821,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public updateByIdStockOrderLineitemModels(id: any, fk: any, data: any = {}, customHeaders?: Function): Observable<any> {
+  public updateByIdStockOrderLineitemModels(id: any, fk: any, data: StockOrderLineitemModel = new StockOrderLineitemModel(), customHeaders?: Function): Observable<any> {
     let _method: string = "PUT";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/stockOrderLineitemModels/:fk";
@@ -908,7 +914,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public updateByIdSupplierModels(id: any, fk: any, data: any = {}, customHeaders?: Function): Observable<any> {
+  public updateByIdSupplierModels(id: any, fk: any, data: SupplierModel = new SupplierModel(), customHeaders?: Function): Observable<any> {
     let _method: string = "PUT";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/supplierModels/:fk";
@@ -1443,7 +1449,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public createStoreModels(id: any, data: any = {}, customHeaders?: Function): Observable<any> {
+  public createStoreModels(id: any, data: StoreModel = new StoreModel(), customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/storeModels";
@@ -1559,7 +1565,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public createReportModels(id: any, data: any = {}, customHeaders?: Function): Observable<any> {
+  public createReportModels(id: any, data: ReportModel = new ReportModel(), customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/reportModels";
@@ -1675,7 +1681,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public createStockOrderLineitemModels(id: any, data: any = {}, customHeaders?: Function): Observable<any> {
+  public createStockOrderLineitemModels(id: any, data: StockOrderLineitemModel = new StockOrderLineitemModel(), customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/stockOrderLineitemModels";
@@ -1791,7 +1797,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public createSupplierModels(id: any, data: any = {}, customHeaders?: Function): Observable<any> {
+  public createSupplierModels(id: any, data: SupplierModel = new SupplierModel(), customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/supplierModels";
@@ -2180,7 +2186,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public createManyGlobalConfigModels(id: any, data: any[] = [], customHeaders?: Function): Observable<any> {
+  public createManyGlobalConfigModels(id: any, data: GlobalConfigModel[] = new Array<GlobalConfigModel>(), customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/globalConfigModels";
@@ -2312,7 +2318,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public createManyStoreModels(id: any, data: any[] = [], customHeaders?: Function): Observable<any> {
+  public createManyStoreModels(id: any, data: StoreModel[] = new Array<StoreModel>(), customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/storeModels";
@@ -2345,7 +2351,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public createManyReportModels(id: any, data: any[] = [], customHeaders?: Function): Observable<any> {
+  public createManyReportModels(id: any, data: ReportModel[] = new Array<ReportModel>(), customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/reportModels";
@@ -2378,7 +2384,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public createManyStockOrderLineitemModels(id: any, data: any[] = [], customHeaders?: Function): Observable<any> {
+  public createManyStockOrderLineitemModels(id: any, data: StockOrderLineitemModel[] = new Array<StockOrderLineitemModel>(), customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/stockOrderLineitemModels";
@@ -2411,7 +2417,7 @@ export class UserModelApi extends BaseLoopBackApi {
    * This usually means the response is a `UserModel` object.)
    * </em>
    */
-  public createManySupplierModels(id: any, data: any[] = [], customHeaders?: Function): Observable<any> {
+  public createManySupplierModels(id: any, data: SupplierModel[] = new Array<SupplierModel>(), customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/UserModels/:id/supplierModels";

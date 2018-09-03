@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {Resolve, Router, ActivatedRoute} from '@angular/router';
-import {UserModel} from "../shared/lb-sdk/models/UserModel";
+import {UserModel, AccessToken} from "../shared/lb-sdk";
 import {UserModelApi} from "../shared/lb-sdk/services/custom/UserModel";
 import {LoopBackConfig} from "../shared/lb-sdk/lb.config";
 import {environment} from "../../environments/environment";
@@ -46,12 +46,14 @@ export class SignupComponent implements OnInit {
 
   private signup(): void {
     this.loading = true;
-    this.userModelApi.signup(this.user).subscribe((data:any) => {
-      this.loading = false;
-      console.log('this data', data);
-    }, err => {
-      this.loading = false;
-      console.log('error', err);
-    });
+    this.userModelApi.signup(this.user).flatMap((data: any) => {
+      return this.userModelApi.login(this.user);
+    })
+      .subscribe((token: AccessToken) => {
+        this.loading = false;
+        this._router.navigate(['/stores']);
+      }, err => {
+        this.loading = false;
+      });
   }
 }
