@@ -38,7 +38,8 @@
     "public": false
   },
   "UserModel": {
-    "dataSource": "db"
+    "dataSource": "db",
+    "public": true
   },
   "TeamModel": {
     "dataSource": "db",
@@ -46,31 +47,31 @@
   },
   "GlobalConfigModel": {
     "dataSource": "db",
-    "public": true
+    "public": false
   },
   "StoreConfigModel": {
     "dataSource": "db",
-    "public": true
+    "public": false
   },
   "StoreModel": {
     "dataSource": "db",
-    "public": true
+    "public": false
   },
   "ReportModel": {
     "dataSource": "db",
-    "public": true
+    "public": false
   },
   "StockOrderLineitemModel": {
     "dataSource": "db",
-    "public": true
+    "public": false
   },
   "SupplierModel": {
     "dataSource": "db",
-    "public": true
+    "public": false
   },
   "container": {
     "dataSource": "storage",
-    "public": true
+    "public": false
   },
   "StoreMappingModel": {
     "dataSource": "db",
@@ -78,7 +79,7 @@
   },
   "ProductModel": {
     "dataSource": "db",
-    "public": true
+    "public": false
   },
   "SyncModel": {
     "dataSource": "db",
@@ -86,7 +87,7 @@
   },
   "InventoryModel": {
     "dataSource": "db",
-    "public": true
+    "public": false
   },
   "OrgModel": {
     "dataSource": "db",

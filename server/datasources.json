@@ -1,15 +1,16 @@
 {
-  "db": {
-    "host": "db",
-    "port": 27017,
-    "name": "db",
-    "connector": "mongodb",
-    "debug": false
-  },
-  "storage": {
-    "name": "storage",
-    "connector": "loopback-component-storage",
-    "provider": "filesystem",
-    "root": "./server/storage"
-  }
+    "db": {
+        "host": "db",
+        "port": 27017,
+        "name": "db",
+        "database": "warehouse-local",
+        "connector": "loopback-connector-mongodb",
+        "debug": false
+    },
+    "storage": {
+        "name": "storage",
+        "connector": "loopback-component-storage",
+        "provider": "filesystem",
+        "root": "./server/storage"
+    }
 }

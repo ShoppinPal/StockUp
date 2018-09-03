@@ -45,13 +45,7 @@ import { NgModule, ModuleWithProviders } from '@angular/core';
 import { CookieBrowser } from './storage/cookie.browser';
 import { StorageBrowser } from './storage/storage.browser';
 import { UserModelApi } from './services/custom/UserModel';
-import { GlobalConfigModelApi } from './services/custom/GlobalConfigModel';
-import { StoreConfigModelApi } from './services/custom/StoreConfigModel';
-import { StoreModelApi } from './services/custom/StoreModel';
-import { ReportModelApi } from './services/custom/ReportModel';
-import { StockOrderLineitemModelApi } from './services/custom/StockOrderLineitemModel';
-import { SupplierModelApi } from './services/custom/SupplierModel';
-import { ContainerApi } from './services/custom/Container';
+import { OrgModelApi } from './services/custom/OrgModel';
 /**
 * @module SDKBrowserModule
 * @description
@@ -82,13 +76,7 @@ export class SDKBrowserModule {
         JSONSearchParams,
         SDKModels,
         UserModelApi,
-        GlobalConfigModelApi,
-        StoreConfigModelApi,
-        StoreModelApi,
-        ReportModelApi,
-        StockOrderLineitemModelApi,
-        SupplierModelApi,
-        ContainerApi,
+        OrgModelApi,
         internalStorageProvider,
         { provide: SDKStorage, useClass: StorageBrowser }
       ]

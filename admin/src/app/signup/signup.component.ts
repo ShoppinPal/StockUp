@@ -44,9 +44,14 @@ export class SignupComponent implements OnInit {
     console.log('wioll look for ', orgName);
   }
 
-  private signup(form): void {
-    // this.loading = true;
-    // form.classList.add('was-validated');
-
+  private signup(): void {
+    this.loading = true;
+    this.userModelApi.signup(this.user).subscribe((data:any) => {
+      this.loading = false;
+      console.log('this data', data);
+    }, err => {
+      this.loading = false;
+      console.log('error', err);
+    });
   }
 }
