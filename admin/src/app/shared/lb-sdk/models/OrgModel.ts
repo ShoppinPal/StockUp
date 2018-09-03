@@ -1,6 +1,10 @@
 /* tslint:disable */
 import {
-  UserModel
+  UserModel,
+  StoreModel,
+  SupplierModel,
+  StockOrderLineitemModel,
+  ReportModel
 } from '../index';
 
 declare var Object: any;
@@ -8,10 +12,10 @@ export interface OrgModelInterface {
   "name": string;
   "id"?: any;
   userModels?: UserModel[];
-  storeModels?: any[];
-  supplierModels?: any[];
-  stockOrderLineitemModels?: any[];
-  reportModels?: any[];
+  storeModels?: StoreModel[];
+  supplierModels?: SupplierModel[];
+  stockOrderLineitemModels?: StockOrderLineitemModel[];
+  reportModels?: ReportModel[];
   productModels?: any[];
   inventoryModels?: any[];
 }
@@ -20,10 +24,10 @@ export class OrgModel implements OrgModelInterface {
   "name": string;
   "id": any;
   userModels: UserModel[];
-  storeModels: any[];
-  supplierModels: any[];
-  stockOrderLineitemModels: any[];
-  reportModels: any[];
+  storeModels: StoreModel[];
+  supplierModels: SupplierModel[];
+  stockOrderLineitemModels: StockOrderLineitemModel[];
+  reportModels: ReportModel[];
   productModels: any[];
   inventoryModels: any[];
   constructor(data?: OrgModelInterface) {
@@ -75,23 +79,23 @@ export class OrgModel implements OrgModelInterface {
         },
         storeModels: {
           name: 'storeModels',
-          type: 'any[]',
-          model: ''
+          type: 'StoreModel[]',
+          model: 'StoreModel'
         },
         supplierModels: {
           name: 'supplierModels',
-          type: 'any[]',
-          model: ''
+          type: 'SupplierModel[]',
+          model: 'SupplierModel'
         },
         stockOrderLineitemModels: {
           name: 'stockOrderLineitemModels',
-          type: 'any[]',
-          model: ''
+          type: 'StockOrderLineitemModel[]',
+          model: 'StockOrderLineitemModel'
         },
         reportModels: {
           name: 'reportModels',
-          type: 'any[]',
-          model: ''
+          type: 'ReportModel[]',
+          model: 'ReportModel'
         },
         productModels: {
           name: 'productModels',

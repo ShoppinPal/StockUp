@@ -1,42 +1,42 @@
 {
-  "initial:before": {
-    "loopback#favicon": {},
-    "loopback#context": {},
-    "loopback#token": {
-      "params": [
-        "state"
-      ]
+    "initial:before": {
+        "loopback#favicon": {},
+        "loopback#context": {},
+        "loopback#token": {
+            "params": [
+                "state"
+            ]
+        },
+        "./middleware/userContext": {}
     },
-    "./middleware/userContext": {}
-  },
-  "initial": {
-    "compression": {}
-  },
-  "session": {},
-  "auth": {},
-  "parse": {},
-  "routes:before": {
-    "./middleware/accessLogger": {
-      "paths": "/api/*"
+    "initial": {
+        "compression": {}
+    },
+    "session": {},
+    "auth": {},
+    "parse": {},
+    "routes:before": {
+        "./middleware/accessLogger": {
+            "paths": "/api/*"
+        }
+    },
+    "files": {
+        "loopback#static": [
+            {
+                "params": "$!../.tmp"
+            },
+            {
+                "params": "$!../client/app"
+            },
+            {
+                "params": "$!../client/admin"
+            }
+        ]
+    },
+    "final": {
+        "loopback#urlNotFound": {}
+    },
+    "final:after": {
+        "loopback#errorHandler": {}
     }
-  },
-  "files": {
-    "loopback#static": [
-      {
-        "params": "$!../.tmp"
-      },
-      {
-        "params": "$!../client/app"
-      },
-      {
-        "params": "$!../client/admin"
-      }
-    ]
-  },
-  "final": {
-    "loopback#urlNotFound": {}
-  },
-  "final:after": {
-    "loopback#errorHandler": {}
-  }
 }

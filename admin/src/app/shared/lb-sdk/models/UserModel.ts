@@ -1,5 +1,11 @@
 /* tslint:disable */
 import {
+  GlobalConfigModel,
+  StoreConfigModel,
+  StoreModel,
+  ReportModel,
+  StockOrderLineitemModel,
+  SupplierModel,
   OrgModel
 } from '../index';
 
@@ -23,12 +29,12 @@ export interface UserModelInterface {
   accessTokens?: any[];
   roles?: any[];
   teamModels?: any[];
-  globalConfigModels?: any;
-  storeConfigModel?: any;
-  storeModels?: any[];
-  reportModels?: any[];
-  stockOrderLineitemModels?: any[];
-  supplierModels?: any[];
+  globalConfigModels?: GlobalConfigModel;
+  storeConfigModel?: StoreConfigModel;
+  storeModels?: StoreModel[];
+  reportModels?: ReportModel[];
+  stockOrderLineitemModels?: StockOrderLineitemModel[];
+  supplierModels?: SupplierModel[];
   orgModel?: OrgModel;
   roleMappings?: any[];
 }
@@ -52,12 +58,12 @@ export class UserModel implements UserModelInterface {
   accessTokens: any[];
   roles: any[];
   teamModels: any[];
-  globalConfigModels: any;
-  storeConfigModel: any;
-  storeModels: any[];
-  reportModels: any[];
-  stockOrderLineitemModels: any[];
-  supplierModels: any[];
+  globalConfigModels: GlobalConfigModel;
+  storeConfigModel: StoreConfigModel;
+  storeModels: StoreModel[];
+  reportModels: ReportModel[];
+  stockOrderLineitemModels: StockOrderLineitemModel[];
+  supplierModels: SupplierModel[];
   orgModel: OrgModel;
   roleMappings: any[];
   constructor(data?: UserModelInterface) {
@@ -175,33 +181,33 @@ export class UserModel implements UserModelInterface {
         },
         globalConfigModels: {
           name: 'globalConfigModels',
-          type: 'any',
-          model: ''
+          type: 'GlobalConfigModel',
+          model: 'GlobalConfigModel'
         },
         storeConfigModel: {
           name: 'storeConfigModel',
-          type: 'any',
-          model: ''
+          type: 'StoreConfigModel',
+          model: 'StoreConfigModel'
         },
         storeModels: {
           name: 'storeModels',
-          type: 'any[]',
-          model: ''
+          type: 'StoreModel[]',
+          model: 'StoreModel'
         },
         reportModels: {
           name: 'reportModels',
-          type: 'any[]',
-          model: ''
+          type: 'ReportModel[]',
+          model: 'ReportModel'
         },
         stockOrderLineitemModels: {
           name: 'stockOrderLineitemModels',
-          type: 'any[]',
-          model: ''
+          type: 'StockOrderLineitemModel[]',
+          model: 'StockOrderLineitemModel'
         },
         supplierModels: {
           name: 'supplierModels',
-          type: 'any[]',
-          model: ''
+          type: 'SupplierModel[]',
+          model: 'SupplierModel'
         },
         orgModel: {
           name: 'orgModel',
