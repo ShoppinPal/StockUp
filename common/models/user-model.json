@@ -2,6 +2,9 @@
     "name": "UserModel",
     "base": "User",
     "idInjection": true,
+    "mixins": {
+        "Timestamp": {}
+    },
     "properties": {
         "id": {
             "type": "string",

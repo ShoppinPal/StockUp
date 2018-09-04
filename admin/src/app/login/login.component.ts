@@ -45,7 +45,7 @@ export class LoginComponent implements OnInit {
     this.loading = true;
     this._route.data.subscribe((data: any) => {
         if(data.user.isAuthenticated) {
-          this._router.navigate(['/stores']);
+          this._router.navigate(['/connect']);
         }
         else {
           this.loading = false;

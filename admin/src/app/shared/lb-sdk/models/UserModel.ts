@@ -21,6 +21,8 @@ export interface UserModelInterface {
   "status"?: string;
   "created"?: Date;
   "lastUpdated"?: Date;
+  "createdAt"?: Date;
+  "updatedAt"?: Date;
   "memberId"?: any;
   "storeConfigModelIs"?: any;
   "storeConfigModelId"?: any;
@@ -50,6 +52,8 @@ export class UserModel implements UserModelInterface {
   "status": string;
   "created": Date;
   "lastUpdated": Date;
+  "createdAt": Date;
+  "updatedAt": Date;
   "memberId": any;
   "storeConfigModelIs": any;
   "storeConfigModelId": any;
@@ -141,6 +145,16 @@ export class UserModel implements UserModelInterface {
         "lastUpdated": {
           name: 'lastUpdated',
           type: 'Date'
+        },
+        "createdAt": {
+          name: 'createdAt',
+          type: 'Date',
+          default: new Date(0)
+        },
+        "updatedAt": {
+          name: 'updatedAt',
+          type: 'Date',
+          default: new Date(0)
         },
         "memberId": {
           name: 'memberId',

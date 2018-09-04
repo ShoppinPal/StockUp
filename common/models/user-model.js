@@ -51,7 +51,8 @@ module.exports = function (UserModel) {
                         username: userModelInstance.username,
                         email: userModelInstance.email,
                         roles: roles,
-                        userId: userModelInstance.id
+                        userId: userModelInstance.id,
+                        orgModelId: userModelInstance.orgModelId
                         // storeConfigModelId: userModelInstance.storeConfigModel().id
                     };
                     logger.debug({message: 'Fetching user profile', profile: profileDataAsResponse});
@@ -127,7 +128,7 @@ module.exports = function (UserModel) {
                         functionName: 'signup'
                     });
                     userModelCreated = userModelInstance;
-                    var rolesToAssign = ['storeManager'];
+                    var rolesToAssign = ['storeManager', 'warehouseManager'];
                     return UserModel.assignRoles(userModelCreated.id, rolesToAssign);
                 })
                 .then(function (response) {

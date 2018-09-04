@@ -1,54 +1,70 @@
 {
-  "name": "OrgModel",
-  "base": "PersistedModel",
-  "idInjection": true,
-  "options": {
-    "validateUpsert": true
-  },
-  "properties": {
-    "name": {
-      "type": "string",
-      "required": true
-    }
-  },
-  "validations": [],
-  "relations": {
-    "userModels": {
-      "type": "hasMany",
-      "model": "UserModel",
-      "foreignKey": "orgModelId"
+    "name": "OrgModel",
+    "base": "PersistedModel",
+    "idInjection": true,
+    "options": {
+        "validateUpsert": true
     },
-    "storeModels": {
-      "type": "hasMany",
-      "model": "StoreModel",
-      "foreignKey": "orgModelId"
+    "mixins": {
+        "Timestamp": {}
     },
-    "supplierModels": {
-      "type": "hasMany",
-      "model": "SupplierModel",
-      "foreignKey": "orgModelId"
+    "properties": {
+        "name": {
+            "type": "string",
+            "required": true
+        }
     },
-    "stockOrderLineitemModels": {
-      "type": "hasMany",
-      "model": "StockOrderLineitemModel",
-      "foreignKey": "orgModelId"
+    "validations": [],
+    "relations": {
+        "userModels": {
+            "type": "hasMany",
+            "model": "UserModel",
+            "foreignKey": "orgModelId"
+        },
+        "storeModels": {
+            "type": "hasMany",
+            "model": "StoreModel",
+            "foreignKey": "orgModelId"
+        },
+        "supplierModels": {
+            "type": "hasMany",
+            "model": "SupplierModel",
+            "foreignKey": "orgModelId"
+        },
+        "stockOrderLineitemModels": {
+            "type": "hasMany",
+            "model": "StockOrderLineitemModel",
+            "foreignKey": "orgModelId"
+        },
+        "reportModels": {
+            "type": "hasMany",
+            "model": "ReportModel",
+            "foreignKey": "orgModelId"
+        },
+        "productModels": {
+            "type": "hasMany",
+            "model": "ProductModel",
+            "foreignKey": "orgModelId"
+        },
+        "inventoryModels": {
+            "type": "hasMany",
+            "model": "InventoryModel",
+            "foreignKey": "orgModelId"
+        }
     },
-    "reportModels": {
-      "type": "hasMany",
-      "model": "ReportModel",
-      "foreignKey": "orgModelId"
-    },
-    "productModels": {
-      "type": "hasMany",
-      "model": "ProductModel",
-      "foreignKey": "orgModelId"
-    },
-    "inventoryModels": {
-      "type": "hasMany",
-      "model": "InventoryModel",
-      "foreignKey": "orgModelId"
-    }
-  },
-  "acls": [],
-  "methods": {}
+    "acls": [
+        {
+            "accessType": "*",
+            "principalType": "ROLE",
+            "principalId": "$everyone",
+            "permission": "DENY"
+        },
+        {
+            "principalType": "ROLE",
+            "principalId": "warehouseManager",
+            "permission": "ALLOW",
+            "property": "fetchAuthorizationUrl"
+        }
+    ],
+    "methods": {}
 }

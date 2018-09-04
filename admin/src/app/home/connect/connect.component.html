@@ -1,0 +1,31 @@
+<ngx-loading [show]="loading"></ngx-loading>
+<div class="animated fadeIn">
+  <div class="row">
+    <div class="col-sm-6 col-md-4">
+      <div class="card border-primary">
+        <div class="card-header">
+          MS Dynamics 365
+        </div>
+        <div class="card-body text-center">
+          <div class="connect-logo">
+            <img class="img-responsive" src="./assets/img/msdynamics.png" alt="Connect with MS Dynamics"/>
+          </div>
+          <button type="button" (click)="connect('msdynamics')" class="btn btn-primary">Connect</button>
+        </div>
+      </div>
+    </div><!--/.col-->
+    <div class="col-sm-6 col-md-4">
+      <div class="card border-success">
+        <div class="card-header">
+          Vend POS
+        </div>
+        <div class="card-body text-center">
+          <div class="cconnect-logo">
+            <img class="img-responsive" src="./assets/img/vend.png" alt="Connect with Vend"/>
+          </div>
+          <button type="button" (click)="connect('vend')" class="btn btn-success">Connect</button>
+        </div>
+      </div>
+    </div><!--/.col-->
+  </div><!--/.row-->
+</div>

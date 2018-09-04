@@ -23,17 +23,21 @@ module.exports = function (app) {
 
             if (context.modelName !== 'OrgModel') {
                 // return error if target model is not OrgModel
+                logger.error({
+                    message: 'Target model is not OrgModel, will reject request',
+                    functionName: 'registerResolver'
+                });
                 return reject();
             }
             var currentUserId = context.accessToken.userId;
             var currentOrg = context.modelId;
             if (!currentUserId) {
-                logger.debug({message: 'No user Id present, will reject request'});
+                logger.debug({message: 'No user Id present, will reject request', functionName: 'registerResolver'});
                 // Do not allow unauthenticated users to proceed
                 return reject();
             }
             if (!currentOrg) {
-                logger.debug({message: 'No org Id present, will reject request'});
+                logger.debug({message: 'No org Id present, will reject request', functionName: 'registerResolver'});
                 return reject();
             }
             else {
@@ -47,17 +51,26 @@ module.exports = function (app) {
                 })
                     .then(function (userModelInstance) {
                         if (!userModelInstance.orgModelId) {
-                            logger.debug({message: 'User does not belong to organisation, will reject'});
+                            logger.debug({
+                                message: 'User does not belong to organisation, will reject',
+                                functionName: 'registerResolver'
+                            });
                             return reject();
                         }
                         var isValidUser = _.findWhere(userModelInstance.roles(), {name: eachRole});
                         if (!_.isEqual(userModelInstance.orgModelId.toString(), currentOrg.toString())) {
                             // return if false
-                            logger.debug({message: 'User does not belong to organisation, will reject'});
+                            logger.debug({
+                                message: 'User does not belong to organisation, will reject',
+                                functionName: 'registerResolver'
+                            });
                             return reject();
                         }
                         if (!isValidUser) {
-                            logger.debug({message: 'User is not storeManager, will reject request'});
+                            logger.debug({
+                                message: 'User is not '+eachRole+', will reject request',
+                                functionName: 'registerResolver'
+                            });
                             return reject();
                         }
                         else {

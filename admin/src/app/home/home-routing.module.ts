@@ -12,6 +12,7 @@ import {WorkerSettingsComponent} from "./worker-settings/worker-settings.compone
 import {WorkerSettingsResolverService} from "./worker-settings/services/worker-settings-resolver.service";
 import {SuppliersComponent} from "./suppliers/suppliers.component";
 import {SuppliersResolverService} from "./suppliers/services/suppliers-resolver.service";
+import {ConnectComponent} from "./connect/connect.component";
 
 const routes: Routes = [
   {
@@ -34,6 +35,16 @@ const routes: Routes = [
         },
         resolve: {
           syncModels: SyncWithVendResolverService
+        }
+      },
+      {
+        path: 'connect',
+        component: ConnectComponent,
+        data: {
+          title: 'Home > Connect'
+        },
+        resolve: {
+          user: UserResolverService
         }
       },
       {
