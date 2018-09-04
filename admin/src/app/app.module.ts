@@ -66,8 +66,8 @@ import {LoadingModule, ANIMATION_TYPES} from 'ngx-loading';
 import {SDKBrowserModule} from './shared/lb-sdk/index';
 import {SharedModule} from './shared/shared.module';
 import {TabsModule} from 'ngx-bootstrap/tabs';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ToastrModule } from 'ngx-toastr';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {ToastrModule} from 'ngx-toastr';
 
 @NgModule({
   imports: [

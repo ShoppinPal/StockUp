@@ -20,9 +20,9 @@ export class SyncWithVendResolverService {
     return this.fetchSyncModels();
   }
 
-  fetchSyncModels(){
+  fetchSyncModels() {
     return this.storeConfigModelApi.getSyncModels(this.userProfile.storeConfigModelId)
-      .map((data:any) => {
+      .map((data: any) => {
         return data;
       }, error => {
         console.log(error);

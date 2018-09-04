@@ -1,42 +1,42 @@
 {
-  "name": "SyncModel",
-  "base": "PersistedModel",
-  "idInjection": true,
-  "options": {
-    "validateUpsert": true
-  },
-  "mixins": {
-    "Utils": true
-  },
-  "properties": {
-    "name": {
-      "type": "string",
-      "required": true
+    "name": "SyncModel",
+    "base": "PersistedModel",
+    "idInjection": true,
+    "options": {
+        "validateUpsert": true
     },
-    "syncInProcess": {
-      "type": "boolean",
-      "required": true,
-      "default": false
+    "mixins": {
+        "Utils": true
     },
-    "version": {
-      "type": "number",
-      "required": true
+    "properties": {
+        "name": {
+            "type": "string",
+            "required": true
+        },
+        "syncInProcess": {
+            "type": "boolean",
+            "required": true,
+            "default": false
+        },
+        "version": {
+            "type": "number",
+            "required": true
+        },
+        "lastSyncedAt": {
+            "type": "date"
+        },
+        "workerTaskId": {
+            "type": "string"
+        }
     },
-    "lastSyncedAt": {
-      "type": "date"
+    "validations": [],
+    "relations": {
+        "storeConfigModel": {
+            "type": "belongsTo",
+            "model": "StoreConfigModel",
+            "foreignKey": "storeConfigModelId"
+        }
     },
-    "workerTaskId": {
-      "type": "string"
-    }
-  },
-  "validations": [],
-  "relations": {
-    "storeConfigModel": {
-      "type": "belongsTo",
-      "model": "StoreConfigModel",
-      "foreignKey": "storeConfigModelId"
-    }
-  },
-  "acls": [],
-  "methods": {}
+    "acls": [],
+    "methods": {}
 }

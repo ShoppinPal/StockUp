@@ -1,106 +1,106 @@
 {
-  "name": "ReportModel",
-  "base": "PersistedModel",
-  "idInjection": true,
-  "mixins": {
-    "Utils": true
-  },
-  "properties": {
-    "id": {
-      "type": "string",
-      "id": true,
-      "generated": true
+    "name": "ReportModel",
+    "base": "PersistedModel",
+    "idInjection": true,
+    "mixins": {
+        "Utils": true
     },
-    "name": {
-      "type": "string",
-      "required": false
+    "properties": {
+        "id": {
+            "type": "string",
+            "id": true,
+            "generated": true
+        },
+        "name": {
+            "type": "string",
+            "required": false
+        },
+        "created": {
+            "type": "date",
+            "required": true,
+            "defaultFn": "now"
+        },
+        "state": {
+            "type": "string",
+            "required": true
+        },
+        "supplier": {
+            "type": "object",
+            "required": false
+        },
+        "outlet": {
+            "type": "object",
+            "required": true
+        },
+        "totalRows": {
+            "type": "number",
+            "required": false
+        },
+        "workerTaskId": {
+            "type": "string",
+            "required": false
+        },
+        "workerStatus": {
+            "type": "string",
+            "required": false
+        },
+        "vendConsignmentId": {
+            "type": "string",
+            "required": false
+        },
+        "vendConsignment": {
+            "type": "object",
+            "required": false
+        }
     },
-    "created": {
-      "type": "date",
-      "required": true,
-      "defaultFn": "now"
+    "validations": [],
+    "relations": {
+        "userModel": {
+            "type": "belongsTo",
+            "model": "UserModel",
+            "foreignKey": "userModelToReportModelId"
+        },
+        "stockOrderLineitemModels": {
+            "type": "hasMany",
+            "model": "StockOrderLineitemModel",
+            "foreignKey": "reportId"
+        },
+        "storeConfigModel": {
+            "type": "belongsTo",
+            "model": "StoreConfigModel",
+            "foreignKey": "storeConfigModelId"
+        },
+        "orgModel": {
+            "type": "belongsTo",
+            "model": "OrgModel",
+            "foreignKey": ""
+        }
     },
-    "state": {
-      "type": "string",
-      "required": true
-    },
-    "supplier": {
-      "type": "object",
-      "required": false
-    },
-    "outlet": {
-      "type": "object",
-      "required": true
-    },
-    "totalRows": {
-      "type": "number",
-      "required": false
-    },
-    "workerTaskId": {
-      "type": "string",
-      "required": false
-    },
-    "workerStatus": {
-      "type": "string",
-      "required": false
-    },
-    "vendConsignmentId": {
-      "type": "string",
-      "required": false
-    },
-    "vendConsignment": {
-      "type": "object",
-      "required": false
-    }
-  },
-  "validations": [],
-  "relations": {
-    "userModel": {
-      "type": "belongsTo",
-      "model": "UserModel",
-      "foreignKey": "userModelToReportModelId"
-    },
-    "stockOrderLineitemModels": {
-      "type": "hasMany",
-      "model": "StockOrderLineitemModel",
-      "foreignKey": "reportId"
-    },
-    "storeConfigModel": {
-      "type": "belongsTo",
-      "model": "StoreConfigModel",
-      "foreignKey": "storeConfigModelId"
-    },
-    "orgModel": {
-      "type": "belongsTo",
-      "model": "OrgModel",
-      "foreignKey": ""
-    }
-  },
-  "acls": [
-    {
-      "accessType": "*",
-      "principalType": "ROLE",
-      "principalId": "$everyone",
-      "permission": "DENY"
-    },
-    {
-      "principalType": "ROLE",
-      "principalId": "$authenticated",
-      "permission": "ALLOW",
-      "property": "create"
-    },
-    {
-      "accessType": "*",
-      "principalType": "ROLE",
-      "principalId": "$owner",
-      "permission": "ALLOW"
-    },
-    {
-      "accessType": "*",
-      "principalType": "ROLE",
-      "principalId": "admin",
-      "permission": "ALLOW"
-    }
-  ],
-  "methods": {}
+    "acls": [
+        {
+            "accessType": "*",
+            "principalType": "ROLE",
+            "principalId": "$everyone",
+            "permission": "DENY"
+        },
+        {
+            "principalType": "ROLE",
+            "principalId": "$authenticated",
+            "permission": "ALLOW",
+            "property": "create"
+        },
+        {
+            "accessType": "*",
+            "principalType": "ROLE",
+            "principalId": "$owner",
+            "permission": "ALLOW"
+        },
+        {
+            "accessType": "*",
+            "principalType": "ROLE",
+            "principalId": "admin",
+            "permission": "ALLOW"
+        }
+    ],
+    "methods": {}
 }

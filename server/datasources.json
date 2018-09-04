@@ -1,9 +1,9 @@
 {
     "db": {
-        "host": "db",
-        "port": 27017,
-        "name": "db",
+        "host": "kamalazure.shoppinpal.com",
+        "port": 27020,
         "database": "warehouse-local",
+        "name": "db",
         "connector": "loopback-connector-mongodb",
         "debug": false
     },

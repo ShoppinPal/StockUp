@@ -38,17 +38,17 @@ var getQustions = function getQustions() {
                 filter: function (val) {
                     return val.toUpperCase();
                 },
-                default:function () {
+                default: function () {
                     return 'inworker';
                 }
             }
         ],
-        workersqs:[
+        workersqs: [
             {
                 type: 'input',
                 name: 'GENERATE_STOCK_ORDER_WORKER',
                 message: 'enter the name for GENERATE_STOCK_ORDER_WORKER worker',
-                default:function(){
+                default: function () {
                     return 'generateStockOrderSeriallyWithPaging';
                 }
             },
@@ -56,7 +56,7 @@ var getQustions = function getQustions() {
                 type: 'input',
                 name: 'IMPORT_STOCK_ORDER_TO_POS',
                 message: 'enter the name for IMPORT_STOCK_ORDER_TO_POS worker',
-                default:function(){
+                default: function () {
                     return 'addProductsToVendConsignment';
                 }
             },
@@ -64,7 +64,7 @@ var getQustions = function getQustions() {
                 type: 'input',
                 name: 'IMPORT_STOCK_ORDER_TO_WAREHOUSE_WITHOUT_SUPPLIER',
                 message: 'enter the name for IMPORT_STOCK_ORDER_TO_WAREHOUSE_WITHOUT_SUPPLIER worker',
-                default:function(){
+                default: function () {
                     return 'wh.order.import.cached.excel.without.supplier';
                 }
             },
@@ -72,7 +72,7 @@ var getQustions = function getQustions() {
                 type: 'input',
                 name: 'IMPORT_STOCK_ORDER_TO_WAREHOUSE',
                 message: 'enter the name for IMPORT_STOCK_ORDER_TO_WAREHOUSE worker',
-                default:function(){
+                default: function () {
                     return 'wh.order.import.cached';
                 }
             },
@@ -80,7 +80,7 @@ var getQustions = function getQustions() {
                 type: 'input',
                 name: 'REMOVE_UNFULFILLED_PRODUCTS_WORKER',
                 message: 'enter the name for REMOVE_UNFULFILLED_PRODUCTS_WORKER worker',
-                default:function(){
+                default: function () {
                     return 'removeUnfulfilledProductsFromStockOrder';
                 }
             },
@@ -88,7 +88,7 @@ var getQustions = function getQustions() {
                 type: 'input',
                 name: 'REMOVE_UNRECEIVED_PRODUCTS_WORKER',
                 message: 'enter the name for REMOVE_UNRECEIVED_PRODUCTS_WORKER worker',
-                default:function(){
+                default: function () {
                     return 'removeUnreceivedProductsFromStockOrder';
                 }
             },
@@ -96,7 +96,7 @@ var getQustions = function getQustions() {
                 type: 'input',
                 name: 'STOCK_ORDER_WORKER',
                 message: 'enter the name for STOCK_ORDER_WORKER worker',
-                default:function(){
+                default: function () {
                     return 'generateStockOrder';
                 }
             }
@@ -232,7 +232,7 @@ var getQustions = function getQustions() {
                 type: 'input',
                 name: 'db_url',
                 message: 'enter the DB URL for the worker',
-                default:function () {
+                default: function () {
                     return 'mongodb://warehouse_db_1:27020/warehouse-local';
                 }
             },

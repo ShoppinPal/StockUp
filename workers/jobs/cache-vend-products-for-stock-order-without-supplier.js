@@ -14,12 +14,12 @@ const logger = require('sp-json-logger');
 var commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 
 var validateOutlet = function (outletId, connectionInfo) {
-  if (outletId) {
-    return Promise.resolve(outletId);
-  }
-  else {
-    throw new Error('--outletId should be set');
-  }
+    if (outletId) {
+        return Promise.resolve(outletId);
+    }
+    else {
+        throw new Error('--outletId should be set');
+    }
 };
 
 /*var myCacheStrategy = function myCacheStrategy (pagedData, previousData) {
@@ -39,144 +39,148 @@ var validateOutlet = function (outletId, connectionInfo) {
  };*/
 
 var runMe = function (connectionInfo, userId, reportId, outletId, cache, cachePostfix, messageId) {
-  return vendSdk.products.fetchAll(connectionInfo, function myCacheStrategy(pagedData) {
-    //console.log('[MessageId : '+messageId+']'+'myCacheStrategy > inside...');
-    logger.debug({ messageId: messageId, message: 'myCacheStrategy > inside...' });
+    return vendSdk.products.fetchAll(connectionInfo, function myCacheStrategy(pagedData) {
+        //console.log('[MessageId : '+messageId+']'+'myCacheStrategy > inside...');
+        logger.debug({messageId: messageId, message: 'myCacheStrategy > inside...'});
 
-    //console.log('[MessageId : '+messageId+']'+commandName, '> myCacheStrategy', '> original products.length: ', pagedData.products.length);
-    logger.debug({
-      messageId: messageId,
-      commandName: commandName,
-      message: `original products.length: ${pagedData.products.length}`
-    });
-    var products = pagedData.products;
-
-    // keep only the products that have an inventory field
-    // and belong to the store/outlet of interest to us
-    // and belong to the supplier of interest to us
-    //console.log('[MessageId : '+messageId+']'+commandName, '> myCacheStrategy',/* '> filtering for supplier ' + resolvedSupplierName + */' and outlet ' + outletId);
-    logger.debug({
-      messageId: messageId,
-      commandName: commandName,
-      message: `filtering for outlet ${outletId}`
-    });
-    var filteredProducts = _.filter(products, function (product) {
-      return ( product.inventory &&
-        _.contains(_.pluck(product.inventory, 'outlet_id'), outletId)/* &&
-         resolvedSupplierName === product.supplier_name*/
-      );
-    });
-    //console.log('[MessageId : '+messageId+']'+commandName, '> myCacheStrategy', '> filtered products.length: ' + filteredProducts.length);
-    logger.debug({
-      messageId: messageId,
-      commandName: commandName,
-      message: `myCacheStrategy', '> filtered products.length: ${filteredProducts.length}`
-    });
-
-    // let's dilute the product data even further
-    //console.log(commandName + ' > filtered products:\n', JSON.stringify(filteredProducts,null,2));
-    var dilutedProducts = _.map(filteredProducts, function (product) {
-      var neoProduct = _.pick(product, 'name', 'supply_price', 'id', 'sku', 'type');
-      neoProduct.inventory = _.find(product.inventory, function (inv) {
-        return inv.outlet_id === outletId;
-      });
-      return neoProduct;
-    });
-
-    logger.debug({
-      messageId: messageId,
-      commandName: commandName,
-      message: `myCacheStrategy', '> diluted products.length: ${dilutedProducts.length}`,
-      dilutedProducts: dilutedProducts
-    });
-
-    //console.log('[MessageId : '+messageId+']'+commandName, '> myCacheStrategy', '> diluted products: ' + dilutedProducts);
-    return Promise.map(
-      dilutedProducts,
-      function (product) {
-        //var key = product.sku + ':' + resolvedSupplierName + ':' + outletId; // the side performing `get from cache` does not have the supplier or outlet info
-        var key = product.sku + ':' + cachePostfix;
-        //console.log('[MessageId : '+messageId+']'+commandName, '> myCacheStrategy', '> caching w/ key:', key);
+        //console.log('[MessageId : '+messageId+']'+commandName, '> myCacheStrategy', '> original products.length: ', pagedData.products.length);
         logger.debug({
-          messageId: messageId,
-          commandName: commandName,
-          message: `myCacheStrategy', '> caching w/ key: ${key}`
+            messageId: messageId,
+            commandName: commandName,
+            message: `original products.length: ${pagedData.products.length}`
         });
-        return cache.setAsync(key, JSON.stringify(product, null, 0), 60 * 20) // expires in 20 minutes
-          .then(function () {
-            //console.log('[MessageId : '+messageId+']'+commandName, '> myCacheStrategy', '> after putAsync:', arguments);
-            logger.debug({
-              messageId: messageId,
-              commandName: commandName,
-              message: 'after putAsync',
-              arguments: arguments
+        var products = pagedData.products;
+
+        // keep only the products that have an inventory field
+        // and belong to the store/outlet of interest to us
+        // and belong to the supplier of interest to us
+        //console.log('[MessageId : '+messageId+']'+commandName, '> myCacheStrategy',/* '> filtering for supplier ' + resolvedSupplierName + */' and outlet ' + outletId);
+        logger.debug({
+            messageId: messageId,
+            commandName: commandName,
+            message: `filtering for outlet ${outletId}`
+        });
+        var filteredProducts = _.filter(products, function (product) {
+            return ( product.inventory &&
+                _.contains(_.pluck(product.inventory, 'outlet_id'), outletId)/* &&
+                 resolvedSupplierName === product.supplier_name*/
+            );
+        });
+        //console.log('[MessageId : '+messageId+']'+commandName, '> myCacheStrategy', '> filtered products.length: ' + filteredProducts.length);
+        logger.debug({
+            messageId: messageId,
+            commandName: commandName,
+            message: `myCacheStrategy', '> filtered products.length: ${filteredProducts.length}`
+        });
+
+        // let's dilute the product data even further
+        //console.log(commandName + ' > filtered products:\n', JSON.stringify(filteredProducts,null,2));
+        var dilutedProducts = _.map(filteredProducts, function (product) {
+            var neoProduct = _.pick(product, 'name', 'supply_price', 'id', 'sku', 'type');
+            neoProduct.inventory = _.find(product.inventory, function (inv) {
+                return inv.outlet_id === outletId;
             });
-            return Promise.resolve();
-          });
-      },
-      {concurrency: 1}
-    )
-      .then(function () {
-        logger.debug({
-          messageId: messageId,
-          commandName: commandName,
-          message: 'myCacheStrategy, > cached all entries for this page'
+            return neoProduct;
         });
-        return Promise.resolve();
-      });
-  })
-    .catch(function (e) {
-      //console.error('[MessageId : '+messageId+']'+commandName, '> myCacheStrategy', '> An unexpected error occurred: ', e);
-      logger.tag('myCacheStrategy').error({err: e, messageId: messageId, message: 'An unexpected error occurred'});
-      return Promise.reject(e);
-    });
+
+        logger.debug({
+            messageId: messageId,
+            commandName: commandName,
+            message: `myCacheStrategy', '> diluted products.length: ${dilutedProducts.length}`,
+            dilutedProducts: dilutedProducts
+        });
+
+        //console.log('[MessageId : '+messageId+']'+commandName, '> myCacheStrategy', '> diluted products: ' + dilutedProducts);
+        return Promise.map(
+            dilutedProducts,
+            function (product) {
+                //var key = product.sku + ':' + resolvedSupplierName + ':' + outletId; // the side performing `get from cache` does not have the supplier or outlet info
+                var key = product.sku + ':' + cachePostfix;
+                //console.log('[MessageId : '+messageId+']'+commandName, '> myCacheStrategy', '> caching w/ key:', key);
+                logger.debug({
+                    messageId: messageId,
+                    commandName: commandName,
+                    message: `myCacheStrategy', '> caching w/ key: ${key}`
+                });
+                return cache.setAsync(key, JSON.stringify(product, null, 0), 60 * 20) // expires in 20 minutes
+                    .then(function () {
+                        //console.log('[MessageId : '+messageId+']'+commandName, '> myCacheStrategy', '> after putAsync:', arguments);
+                        logger.debug({
+                            messageId: messageId,
+                            commandName: commandName,
+                            message: 'after putAsync',
+                            arguments: arguments
+                        });
+                        return Promise.resolve();
+                    });
+            },
+            {concurrency: 1}
+        )
+            .then(function () {
+                logger.debug({
+                    messageId: messageId,
+                    commandName: commandName,
+                    message: 'myCacheStrategy, > cached all entries for this page'
+                });
+                return Promise.resolve();
+            });
+    })
+        .catch(function (e) {
+            //console.error('[MessageId : '+messageId+']'+commandName, '> myCacheStrategy', '> An unexpected error occurred: ', e);
+            logger.tag('myCacheStrategy').error({
+                err: e,
+                messageId: messageId,
+                message: 'An unexpected error occurred'
+            });
+            return Promise.reject(e);
+        });
 };
 
 var FetchVendProductsForStockOrder = {
-  desc: 'Fetch vend products for preparing on a stock order',
+    desc: 'Fetch vend products for preparing on a stock order',
 
-  options: { // must not clash with global aliases: -t -d -f
-    reportId: {
-      type: 'string',
-      aliases: ['r'] // TODO: once Ronin is fixed to accept 2 characters as an alias, use 'ri' alias
+    options: { // must not clash with global aliases: -t -d -f
+        reportId: {
+            type: 'string',
+            aliases: ['r'] // TODO: once Ronin is fixed to accept 2 characters as an alias, use 'ri' alias
+        },
+        outletId: {
+            type: 'string',
+            aliases: ['o'] // TODO: once Ronin is fixed to accept 2 characters as an alias, use 'oi' alias
+        }/*,
+         supplierId: {
+         type: 'string',
+         aliases: ['s'] // TODO: once Ronin is fixed to accept 2 characters as an alias, use 'si' alias
+         }*/
     },
-    outletId: {
-      type: 'string',
-      aliases: ['o'] // TODO: once Ronin is fixed to accept 2 characters as an alias, use 'oi' alias
-    }/*,
-     supplierId: {
-     type: 'string',
-     aliases: ['s'] // TODO: once Ronin is fixed to accept 2 characters as an alias, use 'si' alias
-     }*/
-  },
 
-  run: function (reportId, outletId/*, supplierId*/, userId, cache, cachePostfix, messageId) {
-    logger.debug({
-      reportId: reportId,
-      outletId: outletId,
-      // supplierId: supplierId,
-      userId: userId,
-      cache: cache,
-      messageId: messageId
-    });
+    run: function (reportId, outletId/*, supplierId*/, userId, cache, cachePostfix, messageId) {
+        logger.debug({
+            reportId: reportId,
+            outletId: outletId,
+            // supplierId: supplierId,
+            userId: userId,
+            cache: cache,
+            messageId: messageId
+        });
 
-    var connectionInfo = utils.loadOauthTokens();
-    commandName = commandName + '-' + connectionInfo.domainPrefix;
+        var connectionInfo = utils.loadOauthTokens();
+        commandName = commandName + '-' + connectionInfo.domainPrefix;
 
-    /*return validateSupplier(supplierId, connectionInfo)
-     .tap(function(resolvedSupplierName) {
-     //console.log(commandName + ' > 1st tap block');
-     return utils.updateOauthTokens(connectionInfo);
-     })
-     .then(function(resolvedSupplierName){
-     */
-    return validateOutlet(outletId, connectionInfo)
-      .then(function (resolvedOutletId) {
-        outletId = resolvedOutletId;
-        return runMe(connectionInfo, userId, reportId, outletId/*, resolvedSupplierName,*/, cache, cachePostfix, messageId);
-      });
-    //});
-  }
+        /*return validateSupplier(supplierId, connectionInfo)
+         .tap(function(resolvedSupplierName) {
+         //console.log(commandName + ' > 1st tap block');
+         return utils.updateOauthTokens(connectionInfo);
+         })
+         .then(function(resolvedSupplierName){
+         */
+        return validateOutlet(outletId, connectionInfo)
+            .then(function (resolvedOutletId) {
+                outletId = resolvedOutletId;
+                return runMe(connectionInfo, userId, reportId, outletId/*, resolvedSupplierName,*/, cache, cachePostfix, messageId);
+            });
+        //});
+    }
 };
 
 module.exports = FetchVendProductsForStockOrder;
