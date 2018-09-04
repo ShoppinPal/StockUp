@@ -11,6 +11,8 @@ declare var Object: any;
 export interface OrgModelInterface {
   "name": string;
   "id"?: any;
+  "createdAt"?: Date;
+  "updatedAt"?: Date;
   userModels?: UserModel[];
   storeModels?: StoreModel[];
   supplierModels?: SupplierModel[];
@@ -23,6 +25,8 @@ export interface OrgModelInterface {
 export class OrgModel implements OrgModelInterface {
   "name": string;
   "id": any;
+  "createdAt": Date;
+  "updatedAt": Date;
   userModels: UserModel[];
   storeModels: StoreModel[];
   supplierModels: SupplierModel[];
@@ -69,6 +73,16 @@ export class OrgModel implements OrgModelInterface {
         "id": {
           name: 'id',
           type: 'any'
+        },
+        "createdAt": {
+          name: 'createdAt',
+          type: 'Date',
+          default: new Date(0)
+        },
+        "updatedAt": {
+          name: 'updatedAt',
+          type: 'Date',
+          default: new Date(0)
         },
       },
       relations: {

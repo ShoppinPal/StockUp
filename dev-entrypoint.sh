@@ -16,12 +16,19 @@ for arg; do
         esac
 done
 
+_config_setup() {
+  ENVIRONMENT=$1
+  ./node_modules/grunt-cli/bin/grunt configsetup:${ENVIRONMENT} --force
+}
+
 _deploy_setup() {
   ENVIRONMENT=$1
   ./node_modules/grunt-cli/bin/grunt deploy:${ENVIRONMENT} --force
 }
 
+
   if [ "$2" = 'server/server.js' ]; then
+        _config_setup ${NODE_ENV}
         _deploy_setup ${NODE_ENV}
   fi
 
