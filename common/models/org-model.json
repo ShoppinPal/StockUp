@@ -73,7 +73,7 @@
     {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
-      "principalId": "warehouseManager",
+      "principalId": "orgAdmin",
       "permission": "ALLOW",
       "property": "fetchAuthorizationUrl"
     },
@@ -93,13 +93,13 @@
     },
     {
       "principalType": "ROLE",
-      "principalId": "warehouseManager",
+      "principalId": "orgAdmin",
       "permission": "ALLOW",
       "property": "__get__integrationModels"
     },
     {
       "principalType": "ROLE",
-      "principalId": "warehouseManager",
+      "principalId": "orgAdmin",
       "permission": "ALLOW",
       "property": "__get__syncModels"
     },
@@ -130,7 +130,7 @@
     {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
-      "principalId": "warehouseManager",
+      "principalId": "orgAdmin",
       "permission": "ALLOW",
       "property": "initiateVendSync"
     },
