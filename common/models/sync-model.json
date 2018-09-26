@@ -31,10 +31,10 @@
   },
   "validations": [],
   "relations": {
-    "storeConfigModel": {
+    "orgModel": {
       "type": "belongsTo",
-      "model": "StoreConfigModel",
-      "foreignKey": "storeConfigModelId"
+      "model": "OrgModel",
+      "foreignKey": "orgModelId"
     }
   },
   "acls": [],

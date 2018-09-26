@@ -4,7 +4,8 @@ import {
   StoreModel,
   SupplierModel,
   StockOrderLineitemModel,
-  ReportModel
+  ReportModel,
+  IntegrationModel
 } from '../index';
 
 declare var Object: any;
@@ -20,6 +21,8 @@ export interface OrgModelInterface {
   reportModels?: ReportModel[];
   productModels?: any[];
   inventoryModels?: any[];
+  syncModels?: any[];
+  integrationModels?: IntegrationModel[];
 }
 
 export class OrgModel implements OrgModelInterface {
@@ -34,6 +37,8 @@ export class OrgModel implements OrgModelInterface {
   reportModels: ReportModel[];
   productModels: any[];
   inventoryModels: any[];
+  syncModels: any[];
+  integrationModels: IntegrationModel[];
   constructor(data?: OrgModelInterface) {
     Object.assign(this, data);
   }
@@ -120,6 +125,16 @@ export class OrgModel implements OrgModelInterface {
           name: 'inventoryModels',
           type: 'any[]',
           model: ''
+        },
+        syncModels: {
+          name: 'syncModels',
+          type: 'any[]',
+          model: ''
+        },
+        integrationModels: {
+          name: 'integrationModels',
+          type: 'IntegrationModel[]',
+          model: 'IntegrationModel'
         },
       }
     }

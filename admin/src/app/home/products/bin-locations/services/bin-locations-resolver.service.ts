@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
-import {StoreConfigModelApi} from '../../../../shared/lb-sdk';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {Observable} from 'rxjs';
 import {UserProfileService} from '../../../../shared/services/user-profile.service';
+import {OrgModelApi} from "../../../../shared/lb-sdk/services/custom/OrgModel";
 
 @Injectable()
 export class BinLocationsResolverService {
@@ -11,8 +11,9 @@ export class BinLocationsResolverService {
   private count: number;
   private userProfile: any = this._userProfileService.getProfileData();
 
-  constructor(private storeConfigModelApi: StoreConfigModelApi,
+  constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
+              private _router: Router,
               private _userProfileService: UserProfileService) {
   }
 
@@ -26,20 +27,21 @@ export class BinLocationsResolverService {
       skip: skip || 0
     };
     let fetchProducts = Observable.combineLatest(
-      this.storeConfigModelApi.getProductModels(this.userProfile.storeConfigModelId, filter),
-      this.storeConfigModelApi.countProductModels(this.userProfile.storeConfigModelId));
+      this.orgModelApi.getProductModels(this.userProfile.orgModelId, filter),
+      this.orgModelApi.countProductModels(this.userProfile.orgModelId)
+    );
     return fetchProducts.map((data: any) => {
-        // this.loading = false;
-        this.products = data[0];
-        this.count = data[1].count;
-        return {
-          products: this.products,
-          count: this.count
-        }
-      },
-      err => {
-        console.log('Couldn\'t load products', err);
+      // this.loading = false;
+      this.products = data[0];
+      this.count = data[1].count;
+      return {
+        products: this.products,
+        count: this.count
+      }
+    })
+      .catch((err: any) => {
+        this._router.navigate(['/stores']); //TODO: make a 404 page
+        return Observable.of({err: err});
       });
   };
-
 }

@@ -27,10 +27,10 @@
     "serve-favicon": "2.3.0",
     "shoppinpal-warehouse-mongo": "1.0.10",
     "supertest": "^3.0.0",
-    "sp-json-logger": "2.0.1",
+    "sp-json-logger": "2.1.3",
     "tracer": "0.8.7",
     "underscore": "1.8.3",
-    "vend-nodejs-sdk": "1.1.1"
+    "vend-nodejs-sdk": "git+https://github.com/ShoppinPal/vend-nodejs-sdk.git#feature/kamal/v2-versions-and-suppliers-api"
   },
   "devDependencies": {
     "nodemon": "1.18.3"

@@ -11,7 +11,7 @@ module.exports = function (app) {
      * Dynamic role resolvers for storeManagers and warehouseManagers
      */
     logger.debug({message: 'Defining role resolvers'});
-    var roles = ['storeManager', 'warehouseManager'];
+    var roles = ['orgAdmin', 'storeManager', 'warehouseManager'];
     _.each(roles, function (eachRole) {
         Role.registerResolver(eachRole, function (role, context, cb) {
             function reject(err) {

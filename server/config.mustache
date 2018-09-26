@@ -1,43 +1,43 @@
 module.exports = {
-'site': {
-'baseUrl': {{SCHEME}} + '://' + {{VM_EXTERNAL_IP}},
-'proxyUrl': ''
-},
-'logging': {
-'console': true,
-'file': false
-},
-'prestashop': {
-'apiKey': ''
-},
-'integrations': {
-'vend':{
-'auth_endpoint': {{VEND_AUTHORIZATION_URL}},
-'token_service': '.vendhq.com/api/1.0/token',
-'client_id': {{VEND_CLIENT_ID}},
-'client_secret': {{VEND_CLIENT_SECRET}}
-},
-'msDynamics':{
-'auth_endpoint': {{MSDYNAMICS_AUTHORIZATION_URL}},
-'client_id': {{MSDYNAMICS_CLIENT_ID}}
-},
-},
-'ironWorkersProjectId': {{IW_PROJECT_ID}},
-'ironWorkersUrl': {{IW_URL}},
-'ironWorkersOauthToken': {{IW_OAUTH_TOKEN}},
-'awsQueueRegion': {{AWS_SQS_REGION}},
-'awsQueueAccessKeyId': {{AWS_SQS_ACCESS_KEY_ID}},
-'awsQueueSecretAccessKey': {{AWS_SQS_SECRET_ACCESS_KEY}},
-'awsQueueUrl': {{AWS_SQS_URL}},
-'awsQueueUrl2': {{AWS_SQS_URL_2}},
-'generateSales': {{GENERATE_SALES}},
-'importStockOrderToWarehouse': {{IMPORT_STOCK_ORDER_TO_WAREHOUSE}},
-'importStockOrderToWarehouseWithoutSupplier': {{IMPORT_STOCK_ORDER_TO_WAREHOUSE_WITHOUT_SUPPLIER}},
-'importStockOrderToPos': {{IMPORT_STOCK_ORDER_TO_POS}},
-'findDifferentialVendData': {{FIND_DIFFERENTIAL_VEND_DATA_WORKER}},
-'generateStockOrderWorker': {{GENERATE_STOCK_ORDER_WORKER}},
-'removeUnfulfilledProducts': {{REMOVE_UNFULFILLED_PRODUCTS_WORKER}},
-'removeUnreceivedProducts': {{REMOVE_UNRECEIVED_PRODUCTS_WORKER}},
-'stockOrderWorker': {{STOCK_ORDER_WORKER}},
-'workerType': {{WORKER_TYPE}}
+    'site': {
+        'baseUrl': {{SCHEME}} + '://' + {{VM_EXTERNAL_IP}},
+        'proxyUrl': ''
+    },
+    'logging': {
+        'console': true,
+        'file': false
+    },
+    'prestashop': {
+        'apiKey': ''
+    },
+    'integrations': {
+        'vend':{
+            'auth_endpoint': {{VEND_AUTHORIZATION_URL}},
+            'token_service': '.vendhq.com/api/1.0/token',
+            'client_id': {{VEND_CLIENT_ID}},
+            'client_secret': {{VEND_CLIENT_SECRET}}
+        },
+        'msDynamics':{
+            'auth_endpoint': {{MSDYNAMICS_AUTHORIZATION_URL}},
+            'client_id': {{MSDYNAMICS_CLIENT_ID}}
+        },
+    },
+    'ironWorkersProjectId': {{IW_PROJECT_ID}},
+    'ironWorkersUrl': {{IW_URL}},
+    'ironWorkersOauthToken': {{IW_OAUTH_TOKEN}},
+    'awsQueueRegion': {{AWS_SQS_REGION}},
+    'awsQueueAccessKeyId': {{AWS_SQS_ACCESS_KEY_ID}},
+    'awsQueueSecretAccessKey': {{AWS_SQS_SECRET_ACCESS_KEY}},
+    'awsQueueUrl': {{AWS_SQS_URL}},
+    'awsQueueUrl2': {{AWS_SQS_URL_2}},
+    'generateSales': {{GENERATE_SALES}},
+    'importStockOrderToWarehouse': {{IMPORT_STOCK_ORDER_TO_WAREHOUSE}},
+    'importStockOrderToWarehouseWithoutSupplier': {{IMPORT_STOCK_ORDER_TO_WAREHOUSE_WITHOUT_SUPPLIER}},
+    'importStockOrderToPos': {{IMPORT_STOCK_ORDER_TO_POS}},
+    'findDifferentialVendData': {{FIND_DIFFERENTIAL_VEND_DATA_WORKER}},
+    'generateStockOrderWorker': {{GENERATE_STOCK_ORDER_WORKER}},
+    'removeUnfulfilledProducts': {{REMOVE_UNFULFILLED_PRODUCTS_WORKER}},
+    'removeUnreceivedProducts': {{REMOVE_UNRECEIVED_PRODUCTS_WORKER}},
+    'stockOrderWorker': {{STOCK_ORDER_WORKER}},
+    'workerType': {{WORKER_TYPE}}
 };

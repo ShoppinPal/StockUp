@@ -35,7 +35,7 @@ export class SupplierModelApi extends BaseLoopBackApi {
   /**
    * Fetches belongsTo relation userModel.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id SupplierModel id
    *
    * @param {boolean} refresh 
    *
@@ -65,7 +65,7 @@ export class SupplierModelApi extends BaseLoopBackApi {
   /**
    * Fetches belongsTo relation storeConfigModel.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id SupplierModel id
    *
    * @param {boolean} refresh 
    *
@@ -95,7 +95,7 @@ export class SupplierModelApi extends BaseLoopBackApi {
   /**
    * Find a related item by id for productModels.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id SupplierModel id
    *
    * @param {any} fk Foreign key for productModels
    *
@@ -125,7 +125,7 @@ export class SupplierModelApi extends BaseLoopBackApi {
   /**
    * Delete a related item by id for productModels.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id SupplierModel id
    *
    * @param {any} fk Foreign key for productModels
    *
@@ -152,7 +152,7 @@ export class SupplierModelApi extends BaseLoopBackApi {
   /**
    * Update a related item by id for productModels.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id SupplierModel id
    *
    * @param {any} fk Foreign key for productModels
    *
@@ -188,7 +188,7 @@ export class SupplierModelApi extends BaseLoopBackApi {
   /**
    * Fetches belongsTo relation orgModel.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id SupplierModel id
    *
    * @param {boolean} refresh 
    *
@@ -218,7 +218,7 @@ export class SupplierModelApi extends BaseLoopBackApi {
   /**
    * Queries productModels of SupplierModel.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id SupplierModel id
    *
    * @param {object} filter 
    *
@@ -248,7 +248,7 @@ export class SupplierModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in productModels of this model.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id SupplierModel id
    *
    * @param {object} data Request data.
    *
@@ -281,7 +281,7 @@ export class SupplierModelApi extends BaseLoopBackApi {
   /**
    * Deletes all productModels of this model.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id SupplierModel id
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -305,7 +305,7 @@ export class SupplierModelApi extends BaseLoopBackApi {
   /**
    * Counts productModels of SupplierModel.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id SupplierModel id
    *
    * @param {object} where Criteria to match model instances
    *
@@ -363,7 +363,7 @@ export class SupplierModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in productModels of this model.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id SupplierModel id
    *
    * @param {object} data Request data.
    *

@@ -17,7 +17,6 @@ export interface UserModelInterface {
   "challenges"?: any;
   "email": string;
   "emailVerified"?: boolean;
-  "verificationToken"?: string;
   "status"?: string;
   "created"?: Date;
   "lastUpdated"?: Date;
@@ -48,7 +47,6 @@ export class UserModel implements UserModelInterface {
   "challenges": any;
   "email": string;
   "emailVerified": boolean;
-  "verificationToken": string;
   "status": string;
   "created": Date;
   "lastUpdated": Date;
@@ -129,10 +127,6 @@ export class UserModel implements UserModelInterface {
         "emailVerified": {
           name: 'emailVerified',
           type: 'boolean'
-        },
-        "verificationToken": {
-          name: 'verificationToken',
-          type: 'string'
         },
         "status": {
           name: 'status',

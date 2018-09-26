@@ -13,6 +13,7 @@ import {SharedModule} from './../shared/shared.module';
 import {OrdersModule} from "./orders/orders.module";
 import {SuppliersModule} from "./suppliers/suppliers.module";
 import {ConnectModule} from "./connect/connect.module";
+import {UsersModule} from "./users/users.module";
 
 
 @NgModule({
@@ -27,6 +28,7 @@ import {ConnectModule} from "./connect/connect.module";
     PaymentsModule,
     ProductsModule,
     OrdersModule,
+    UsersModule,
     WorkerSettingsModule
   ],
   declarations: [HomeComponent],
