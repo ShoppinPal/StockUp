@@ -1,4 +1,4 @@
-version: "2.1"
+version: "3.2"
 services:
   admin:
     image: node:6.10
@@ -7,15 +7,21 @@ services:
     ports:
       - "4200:4200"
     volumes:
-      - .:/apps/warehouse
+      - type: bind
+        source: .
+        target: /apps/warehouse
 
   lb:
     image: nginx:stable
     ports:
       - "80:80"
     volumes:
-      - ./nginx.warehouse.conf:/etc/nginx/conf.d/default.conf
-      - ./wait-for:/wait/wait-for
+      - type: bind
+        source: ./nginx.warehouse.conf
+        target: /etc/nginx/conf.d/default.conf
+      - type: bind
+        source: ./wait-for
+        target: /wait/wait-for
     depends_on:
       - web
 
@@ -30,7 +36,9 @@ services:
     env_file: .env
     command: ./node_modules/nodemon/bin/nodemon.js server/server.js
     volumes:
-      - .:/apps/warehouse
+      - type: bind
+        source: .
+        target: /apps/warehouse
     depends_on:
       - db
 
@@ -43,7 +51,9 @@ services:
     entrypoint: ./docker-entrypoint.sh
     command: ./node_modules/nodemon/bin/nodemon.js server/server.js
     volumes:
-      - .:/apps/warehouse
+      - type: bind
+        source: .
+        target: /apps/warehouse
     depends_on:
       - web
       - db
@@ -53,7 +63,9 @@ services:
     working_dir: /apps/workers
     command: ./node_modules/nodemon/bin/nodemon.js sqsWorker.js
     volumes:
-      - ./workers:/apps/workers
+      - type: bind
+        source: ./workers
+        target: /apps/workers
     restart: always
     env_file: worker.env
     depends_on:
@@ -64,7 +76,9 @@ services:
     working_dir: /apps/workers
     command: ./node_modules/nodemon/bin/nodemon.js sqsWorker.js
     volumes:
-      - ./workers:/apps/workers
+      - type: bind
+        source: ./workers
+        target: /apps/workers
     restart: always
     env_file: worker2.env
     depends_on:
@@ -75,6 +89,8 @@ services:
     ports:
       - "27020:27017"
     volumes:
-      - ./docker/volumes/mongo:/data/db
+      - type: bind
+        source: ./docker/volumes/mongo
+        target: /data/db
   memcache:
     image: memcached:latest
