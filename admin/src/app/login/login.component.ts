@@ -30,7 +30,7 @@ export class LoginComponent implements OnInit {
     this.loading = true;
     this.userModelApi.login(this.user).subscribe((token: AccessToken) => {
       this.loading = false;
-      this._router.navigate(['/stores']);
+      this._router.navigate(['/connect']);
     }, err => {
       this.loading = false;
       console.log('Couldn\'t redirect to stores, something went wrong', err);

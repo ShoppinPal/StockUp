@@ -10,15 +10,19 @@ import { JSONSearchParams } from '../core/search.params';
 import { ErrorHandler } from '../core/error.service';
 import { Subject } from 'rxjs/Subject';
 import { Observable } from 'rxjs/Rx';
-import { GlobalConfigModel } from '../../models/GlobalConfigModel';
-import { UserModel } from '../../models/UserModel';
+import { IntegrationModel } from '../../models/IntegrationModel';
+import { OrgModel } from '../../models/OrgModel';
 
 
 /**
- * Api services for the `GlobalConfigModel` model.
+ * Api services for the `IntegrationModel` model.
+ *
+ * **Details**
+ *
+ * Organisation hasMany integrationModel only because it throws an error with hasOne relation in case of org.integrationModels()
  */
 @Injectable()
-export class GlobalConfigModelApi extends BaseLoopBackApi {
+export class IntegrationModelApi extends BaseLoopBackApi {
 
   constructor(
     @Inject(Http) protected http: Http,
@@ -31,9 +35,9 @@ export class GlobalConfigModelApi extends BaseLoopBackApi {
   }
 
   /**
-   * Fetches belongsTo relation userModel.
+   * Fetches belongsTo relation orgModel.
    *
-   * @param {any} id GlobalConfigModel id
+   * @param {any} id IntegrationModel id
    *
    * @param {boolean} refresh 
    *
@@ -43,13 +47,13 @@ export class GlobalConfigModelApi extends BaseLoopBackApi {
    *
    * <em>
    * (The remote method definition does not provide any description.
-   * This usually means the response is a `GlobalConfigModel` object.)
+   * This usually means the response is a `IntegrationModel` object.)
    * </em>
    */
-  public getUserModel(id: any, refresh: any = {}, customHeaders?: Function): Observable<any> {
+  public getOrgModel(id: any, refresh: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
-    "/GlobalConfigModels/:id/userModel";
+    "/IntegrationModels/:id/orgModel";
     let _routeParams: any = {
       id: id
     };
@@ -62,9 +66,9 @@ export class GlobalConfigModelApi extends BaseLoopBackApi {
 
   /**
    * The name of the model represented by this $resource,
-   * i.e. `GlobalConfigModel`.
+   * i.e. `IntegrationModel`.
    */
   public getModelName() {
-    return "GlobalConfigModel";
+    return "IntegrationModel";
   }
 }

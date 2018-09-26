@@ -1,133 +1,133 @@
 {
-    "name": "StockOrderLineitemModel",
-    "base": "PersistedModel",
-    "idInjection": true,
-    "mixins": {
-        "Utils": true
+  "name": "StockOrderLineitemModel",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "mixins": {
+    "Utils": true
+  },
+  "properties": {
+    "id": {
+      "type": "string",
+      "id": true,
+      "generated": true
     },
-    "properties": {
-        "id": {
-            "type": "string",
-            "id": true,
-            "generated": true
-        },
-        "productId": {
-            "type": "string",
-            "required": false
-        },
-        "sku": {
-            "type": "string",
-            "required": true
-        },
-        "name": {
-            "type": "string",
-            "required": false
-        },
-        "quantityOnHand": {
-            "type": "number",
-            "required": false
-        },
-        "caseQuantity": {
-            "type": "number",
-            "required": false
-        },
-        "desiredStockLevel": {
-            "type": "number",
-            "required": false
-        },
-        "orderQuantity": {
-            "type": "number",
-            "required": false
-        },
-        "fulfilledQuantity": {
-            "type": "number",
-            "required": false
-        },
-        "receivedQuantity": {
-            "type": "number",
-            "required": false
-        },
-        "boxNumber": {
-            "type": "number",
-            "required": false
-        },
-        "type": {
-            "type": "string",
-            "required": false
-        },
-        "comments": {
-            "type": "object",
-            "required": false
-        },
-        "state": {
-            "type": "string",
-            "required": false
-        },
-        "updatedAt": {
-            "type": "date",
-            "required": false
-        },
-        "vendConsignmentProductId": {
-            "type": "string",
-            "required": false
-        },
-        "vendConsignmentProduct": {
-            "type": "object",
-            "required": false
-        },
-        "supplyPrice": {
-            "type": "number",
-            "required": false
-        }
+    "productId": {
+      "type": "string",
+      "required": false
     },
-    "validations": [],
-    "relations": {
-        "userModel": {
-            "type": "belongsTo",
-            "model": "UserModel",
-            "foreignKey": "userId"
-        },
-        "reportModel": {
-            "type": "belongsTo",
-            "model": "ReportModel",
-            "foreignKey": "reportId"
-        },
-        "productModel": {
-            "type": "belongsTo",
-            "model": "ProductModel",
-            "foreignKey": "productModelId"
-        },
-        "orgModel": {
-            "type": "belongsTo",
-            "model": "OrgModel",
-            "foreignKey": ""
-        }
+    "sku": {
+      "type": "string",
+      "required": true
     },
-    "acls": [
-        {
-            "accessType": "*",
-            "principalType": "ROLE",
-            "principalId": "$everyone",
-            "permission": "DENY"
-        },
-        {
-            "principalType": "ROLE",
-            "principalId": "$authenticated",
-            "permission": "ALLOW",
-            "property": "create"
-        },
-        {
-            "accessType": "*",
-            "principalType": "ROLE",
-            "principalId": "$owner",
-            "permission": "ALLOW"
-        },
-        {
-            "accessType": "*",
-            "principalType": "ROLE",
-            "principalId": "admin",
-            "permission": "ALLOW"
-        }
-    ],
-    "methods": {}
+    "name": {
+      "type": "string",
+      "required": false
+    },
+    "quantityOnHand": {
+      "type": "number",
+      "required": false
+    },
+    "caseQuantity": {
+      "type": "number",
+      "required": false
+    },
+    "desiredStockLevel": {
+      "type": "number",
+      "required": false
+    },
+    "orderQuantity": {
+      "type": "number",
+      "required": false
+    },
+    "fulfilledQuantity": {
+      "type": "number",
+      "required": false
+    },
+    "receivedQuantity": {
+      "type": "number",
+      "required": false
+    },
+    "boxNumber": {
+      "type": "number",
+      "required": false
+    },
+    "type": {
+      "type": "string",
+      "required": false
+    },
+    "comments": {
+      "type": "object",
+      "required": false
+    },
+    "state": {
+      "type": "string",
+      "required": false
+    },
+    "updatedAt": {
+      "type": "date",
+      "required": false
+    },
+    "vendConsignmentProductId": {
+      "type": "string",
+      "required": false
+    },
+    "vendConsignmentProduct": {
+      "type": "object",
+      "required": false
+    },
+    "supplyPrice": {
+      "type": "number",
+      "required": false
+    }
+  },
+  "validations": [],
+  "relations": {
+    "userModel": {
+      "type": "belongsTo",
+      "model": "UserModel",
+      "foreignKey": "userId"
+    },
+    "reportModel": {
+      "type": "belongsTo",
+      "model": "ReportModel",
+      "foreignKey": "reportId"
+    },
+    "productModel": {
+      "type": "belongsTo",
+      "model": "ProductModel",
+      "foreignKey": "productModelId"
+    },
+    "orgModel": {
+      "type": "belongsTo",
+      "model": "OrgModel",
+      "foreignKey": ""
+    }
+  },
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "create"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "admin",
+      "permission": "ALLOW"
+    }
+  ],
+  "methods": {}
 }

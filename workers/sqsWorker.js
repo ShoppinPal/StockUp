@@ -1,7 +1,7 @@
 var http = require('http');
 
 //var logger = require('tracer').console(); //var logger = console;
-var logger = require('sp-json-logger');
+var logger = require('sp-json-logger')();
 
 var AWS = require('aws-sdk');
 var Promise = require('bluebird');

@@ -221,49 +221,6 @@ module.exports = function (StoreConfigModel) {
         ctx.res.redirect(301, remoteMethodResponse.redirectUrl);
     });
 
-    StoreConfigModel.remoteMethod('updateBinLocation', {
-        accepts: [
-            {arg: 'id', type: 'string', required: true},
-            {arg: 'productId', type: 'string', required: true},
-            {arg: 'binLocation', type: 'string', required: true}
-        ],
-        http: {path: '/:id/updateBinLocation', verb: 'post'},
-        returns: {arg: 'product', type: 'object'}
-    });
-    /**
-     * @description Updates bin location of a product
-     * @param id
-     * @param productId
-     * @param binLocation
-     * @return {Promise.<TResult>}
-     */
-    StoreConfigModel.updateBinLocation = function (id, productId, binLocation) {
-        // log('updateBinLocation').debug('Received \nid: ', id, '\n ProductId: ', productId, '\nBinLocation: ', binLocation);
-        logger.tag('updateBinLocation').debug({
-            log: {
-                message: 'Received params',
-                id: id,
-                productId: productId,
-                binLocation: binLocation
-            }
-        });
-        return StoreConfigModel.app.models.ProductModel.updateBinLocation(id, productId, binLocation)
-            .then(function (response) {
-                // log('updateBinLocation').debug('Updated bin location successfully');
-                logger.tag('updateBinLocation').debug({
-                    log: {message: 'Updated bin location successfully'}
-                });
-                return Promise.resolve(response);
-            })
-            .catch(function (error) {
-                // log('updateBinLocation').error('Bin location update failed', error);
-                logger.tag('updateBinLocation').error({
-                    error: error
-                });
-                return Promise.reject(error);
-            });
-    };
-
     // TODO: Create a StoreConfigModel for UserModel (identify the owner via token)
     //       if this is exposed via remote method then there is no need to validate token as ACLs would have done it
     //       also the calling remote method wrapper can provide the UserModel instance

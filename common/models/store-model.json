@@ -1,121 +1,121 @@
 {
-    "name": "StoreModel",
-    "base": "PersistedModel",
-    "idInjection": false,
-    "mixins": {
-        "Utils": true
+  "name": "StoreModel",
+  "base": "PersistedModel",
+  "idInjection": false,
+  "mixins": {
+    "Utils": true
+  },
+  "properties": {
+    "objectId": {
+      "type": "number",
+      "id": true,
+      "generated": true
     },
-    "properties": {
-        "objectId": {
-            "type": "number",
-            "id": true,
-            "generated": true
-        },
-        "name": {
-            "type": "string",
-            "required": true
-        },
-        "isWarehouse": {
-            "type": "boolean",
-            "required": true,
-            "default": false
-        },
-        "phone": {
-            "type": "string"
-        },
-        "addressLine1": {
-            "type": "string"
-        },
-        "addressLine2": {
-            "type": "string"
-        },
-        "city": {
-            "type": "string"
-        },
-        "state": {
-            "type": "string"
-        },
-        "postalCode": {
-            "type": "string"
-        },
-        "country": {
-            "type": "string",
-            "required": true
-        },
-        "location": {
-            "type": "GeoPoint"
-        },
-        "hours": {
-            "type": [
-                "object"
-            ]
-        },
-        "api_id": {
-            "type": "string",
-            "required": true
-        },
-        "registerId": {
-            "type": "string"
-        },
-        "tax_rate": {
-            "type": "number"
-        },
-        "hideOutOfStockProducts": {
-            "type": "boolean"
-        },
-        "defaultPaymentType": {
-            "type": "object"
-        }
+    "name": {
+      "type": "string",
+      "required": true
     },
-    "validations": [],
-    "relations": {
-        "userModel": {
-            "type": "belongsTo",
-            "model": "UserModel",
-            "foreignKey": "userModelToStoreModelId"
-        },
-        "storeConfigModel": {
-            "type": "belongsTo",
-            "model": "StoreConfigModel",
-            "foreignKey": "storeConfigModelToStoreModelId"
-        },
-        "orgModel": {
-            "type": "belongsTo",
-            "model": "OrgModel",
-            "foreignKey": ""
-        }
+    "isWarehouse": {
+      "type": "boolean",
+      "required": true,
+      "default": false
     },
-    "acls": [
-        {
-            "accessType": "*",
-            "principalType": "ROLE",
-            "principalId": "$everyone",
-            "permission": "DENY"
-        },
-        {
-            "accessType": "READ",
-            "principalType": "ROLE",
-            "principalId": "$everyone",
-            "permission": "ALLOW"
-        },
-        {
-            "principalType": "ROLE",
-            "principalId": "$authenticated",
-            "permission": "ALLOW",
-            "property": "create"
-        },
-        {
-            "accessType": "*",
-            "principalType": "ROLE",
-            "principalId": "$owner",
-            "permission": "ALLOW"
-        },
-        {
-            "accessType": "*",
-            "principalType": "ROLE",
-            "principalId": "admin",
-            "permission": "ALLOW"
-        }
-    ],
-    "methods": {}
+    "phone": {
+      "type": "string"
+    },
+    "addressLine1": {
+      "type": "string"
+    },
+    "addressLine2": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string"
+    },
+    "postalCode": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string",
+      "required": true
+    },
+    "location": {
+      "type": "GeoPoint"
+    },
+    "hours": {
+      "type": [
+        "object"
+      ]
+    },
+    "api_id": {
+      "type": "string",
+      "required": true
+    },
+    "registerId": {
+      "type": "string"
+    },
+    "tax_rate": {
+      "type": "number"
+    },
+    "hideOutOfStockProducts": {
+      "type": "boolean"
+    },
+    "defaultPaymentType": {
+      "type": "object"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "userModel": {
+      "type": "belongsTo",
+      "model": "UserModel",
+      "foreignKey": "userModelToStoreModelId"
+    },
+    "storeConfigModel": {
+      "type": "belongsTo",
+      "model": "StoreConfigModel",
+      "foreignKey": "storeConfigModelToStoreModelId"
+    },
+    "orgModel": {
+      "type": "belongsTo",
+      "model": "OrgModel",
+      "foreignKey": ""
+    }
+  },
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "create"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "admin",
+      "permission": "ALLOW"
+    }
+  ],
+  "methods": {}
 }

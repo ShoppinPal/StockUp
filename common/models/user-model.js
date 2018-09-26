@@ -24,24 +24,28 @@ module.exports = function (UserModel) {
 
         UserModel.remoteMethod('profile', {
             accepts: [
-                {arg: 'id', type: 'string', required: true}
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
             ],
             http: {path: '/:id/profile', verb: 'get'},
             returns: {arg: 'profileData', type: 'object'}
         });
 
-        UserModel.profile = function (id, cb) {
+        UserModel.profile = function (id, options, cb) {
             logger.debug({
                 message: 'Profile method was called',
-                functionName: 'profile'
+                functionName: 'profile',
+                options
             });
             UserModel.findById(id, {
-                include: ['roles', 'storeConfigModel']
+                include: ['roles', 'orgModel']
             })
                 .then(function (userModelInstance) {
                     logger.debug({
-                        message: 'Found this user', user: userModelInstance,
-                        functionName: 'profile'
+                        message: 'Found this user',
+                        user: userModelInstance,
+                        functionName: 'profile',
+                        options
                     });
                     var roles = [];
                     userModelInstance.roles().forEach(function (role) {
@@ -53,13 +57,22 @@ module.exports = function (UserModel) {
                         roles: roles,
                         userId: userModelInstance.id,
                         orgModelId: userModelInstance.orgModelId
-                        // storeConfigModelId: userModelInstance.storeConfigModel().id
                     };
-                    logger.debug({message: 'Fetching user profile', profile: profileDataAsResponse});
+                    logger.debug({
+                        message: 'Fetching user profile',
+                        profile: profileDataAsResponse,
+                        functionName: 'profile',
+                        options
+                    });
                     cb(null, profileDataAsResponse);
                 })
                 .catch(function (err) {
-                    logger.error({error: 'Unable to fetch profile', err: err});
+                    logger.error({
+                        error: 'Unable to fetch profile',
+                        err: err,
+                        functionName: 'profile',
+                        options
+                    });
                     cb('Unable to fetch profile', err);
                 });
         };
@@ -128,7 +141,7 @@ module.exports = function (UserModel) {
                         functionName: 'signup'
                     });
                     userModelCreated = userModelInstance;
-                    var rolesToAssign = ['storeManager', 'warehouseManager'];
+                    var rolesToAssign = ['orgAdmin'];
                     return UserModel.assignRoles(userModelCreated.id, rolesToAssign);
                 })
                 .then(function (response) {

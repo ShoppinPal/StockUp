@@ -1,103 +1,103 @@
 {
-    "_meta": {
-        "sources": [
-            "loopback/common/models",
-            "loopback/server/models",
-            "../common/models",
-            "./models"
-        ],
-        "mixins": [
-            "loopback/common/mixins",
-            "loopback/server/mixins",
-            "../common/mixins",
-            "./mixins"
-        ]
-    },
-    "User": {
-        "dataSource": "db",
-        "public": false,
-        "options": {
-            "realmRequired": true
-        }
-    },
-    "AccessToken": {
-        "dataSource": "db",
-        "public": false
-    },
-    "ACL": {
-        "dataSource": "db",
-        "public": false
-    },
-    "RoleMapping": {
-        "dataSource": "db",
-        "public": false
-    },
-    "Role": {
-        "dataSource": "db",
-        "public": false
-    },
-    "Application": {
-        "dataSource": "db",
-        "public": false
-    },
-    "UserModel": {
-        "dataSource": "db",
-        "public": true
-    },
-    "TeamModel": {
-        "dataSource": "db",
-        "public": false
-    },
-    "GlobalConfigModel": {
-        "dataSource": "db",
-        "public": true
-    },
-    "StoreConfigModel": {
-        "dataSource": "db",
-        "public": true
-    },
-    "StoreModel": {
-        "dataSource": "db",
-        "public": true
-    },
-    "ReportModel": {
-        "dataSource": "db",
-        "public": true
-    },
-    "StockOrderLineitemModel": {
-        "dataSource": "db",
-        "public": true
-    },
-    "SupplierModel": {
-        "dataSource": "db",
-        "public": true
-    },
-    "container": {
-        "dataSource": "storage",
-        "public": true
-    },
-    "StoreMappingModel": {
-        "dataSource": "db",
-        "public": false
-    },
-    "ProductModel": {
-        "dataSource": "db",
-        "public": false
-    },
-    "SyncModel": {
-        "dataSource": "db",
-        "public": false
-    },
-    "InventoryModel": {
-        "dataSource": "db",
-        "public": false
-    },
-    "OrgModel": {
-        "dataSource": "db",
-        "public": true
-    },
-    "IntegrationModel": {
-        "dataSource": false,
-        "public": false
+  "_meta": {
+    "sources": [
+      "loopback/common/models",
+      "loopback/server/models",
+      "../common/models",
+      "./models"
+    ],
+    "mixins": [
+      "loopback/common/mixins",
+      "loopback/server/mixins",
+      "../common/mixins",
+      "./mixins"
+    ]
+  },
+  "User": {
+    "dataSource": "db",
+    "public": false,
+    "options": {
+      "realmRequired": true
     }
+  },
+  "AccessToken": {
+    "dataSource": "db",
+    "public": false
+  },
+  "ACL": {
+    "dataSource": "db",
+    "public": false
+  },
+  "RoleMapping": {
+    "dataSource": "db",
+    "public": false
+  },
+  "Role": {
+    "dataSource": "db",
+    "public": false
+  },
+  "Application": {
+    "dataSource": "db",
+    "public": false
+  },
+  "UserModel": {
+    "dataSource": "db",
+    "public": true
+  },
+  "TeamModel": {
+    "dataSource": "db",
+    "public": false
+  },
+  "GlobalConfigModel": {
+    "dataSource": "db",
+    "public": true
+  },
+  "StoreConfigModel": {
+    "dataSource": "db",
+    "public": true
+  },
+  "StoreModel": {
+    "dataSource": "db",
+    "public": true
+  },
+  "ReportModel": {
+    "dataSource": "db",
+    "public": true
+  },
+  "StockOrderLineitemModel": {
+    "dataSource": "db",
+    "public": true
+  },
+  "SupplierModel": {
+    "dataSource": "db",
+    "public": true
+  },
+  "container": {
+    "dataSource": "storage",
+    "public": true
+  },
+  "StoreMappingModel": {
+    "dataSource": "db",
+    "public": false
+  },
+  "ProductModel": {
+    "dataSource": "db",
+    "public": false
+  },
+  "SyncModel": {
+    "dataSource": "db",
+    "public": false
+  },
+  "InventoryModel": {
+    "dataSource": "db",
+    "public": false
+  },
+  "OrgModel": {
+    "dataSource": "db",
+    "public": true
+  },
+  "IntegrationModel": {
+    "dataSource": "db",
+    "public": true
+  }
 }

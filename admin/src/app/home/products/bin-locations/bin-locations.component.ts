@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {StoreConfigModelApi} from '../../../shared/lb-sdk';
+import {OrgModelApi} from '../../../shared/lb-sdk';
 import {ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs';
 import {ToastrService} from 'ngx-toastr';
@@ -28,7 +28,7 @@ export class BinLocationsComponent implements OnInit {
   public enableBarcode: boolean = true;
   public searchSKUText: string;
 
-  constructor(private storeConfigModelApi: StoreConfigModelApi,
+  constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
               private toastr: ToastrService,
               private _userProfileService: UserProfileService) {
@@ -41,6 +41,7 @@ export class BinLocationsComponent implements OnInit {
   ngOnInit() {
     this.userProfile = this._userProfileService.getProfileData();
     this._route.data.subscribe((data: any) => {
+      console.log(data);
         this.products = data.products.products;
         this.totalProducts = data.products.count;
         this.totalPages = this.totalProducts / this.productsLimitPerPage;
@@ -113,8 +114,8 @@ export class BinLocationsComponent implements OnInit {
       skip: skip || 0
     };
     let fetchProducts = Observable.combineLatest(
-      this.storeConfigModelApi.getProductModels(this.userProfile.storeConfigModelId, filter),
-      this.storeConfigModelApi.countProductModels(this.userProfile.storeConfigModelId));
+      this.orgModelApi.getProductModels(this.userProfile.orgModelId, filter),
+      this.orgModelApi.countProductModels(this.userProfile.orgModelId));
     fetchProducts.subscribe((data: any) => {
         this.loading = false;
         this.products = data[0];
@@ -144,7 +145,7 @@ export class BinLocationsComponent implements OnInit {
       product.error = 'Please enter bin location';
     }
     else {
-      this.storeConfigModelApi.updateBinLocation(this.userProfile.storeConfigModelId, product.id, product.binLocation.toLowerCase())
+      this.orgModelApi.updateBinLocation(this.userProfile.orgModelId, product.id, product.binLocation.toLowerCase())
         .subscribe((data: any) => {
             this.toastr.success('Updated bin location successfully');
             this.loading = false;
@@ -175,7 +176,7 @@ export class BinLocationsComponent implements OnInit {
         sku: this.searchSKUText
       }
     };
-    this.storeConfigModelApi.getProductModels(this.userProfile.storeConfigModelId, filter)
+    this.orgModelApi.getProductModels(this.userProfile.orgModelId, filter)
       .subscribe((data: Array<any>) => {
           this.loading = false;
           if (data.length === 1) {

@@ -1,211 +1,211 @@
 {
-    "name": "StoreConfigModel",
-    "base": "PersistedModel",
-    "idInjection": false,
-    "mixins": {
-        "Utils": true
+  "name": "StoreConfigModel",
+  "base": "PersistedModel",
+  "idInjection": false,
+  "mixins": {
+    "Utils": true
+  },
+  "properties": {
+    "objectId": {
+      "type": "number",
+      "id": true,
+      "generated": true
     },
-    "properties": {
-        "objectId": {
-            "type": "number",
-            "id": true,
-            "generated": true
-        },
-        "name": {
-            "type": "string"
-        },
-        "owner_email": {
-            "type": "string"
-        },
-        "posVendor": {
-            "type": "string",
-            "required": true
-        },
-        "posUrl": {
-            "type": "string"
-        },
-        "username": {
-            "type": "string"
-        },
-        "password": {
-            "type": "string"
-        },
-        "productImportRules": {
-            "type": "object",
-            "required": true
-        },
-        "transactionFee": {
-            "type": "number"
-        },
-        "customPayerEmailMessage": {
-            "type": "string"
-        },
-        "promos": {
-            "type": [
-                "object"
-            ]
-        },
-        "categoryMapping": {
-            "type": "string"
-        },
-        "showCategories": {
-            "type": "object"
-        },
-        "tagToCategoryMappingPrefix": {
-            "type": "string"
-        },
-        "refreshToken": {
-            "type": "string"
-        },
-        "wepayAccessToken": {
-            "type": "string"
-        },
-        "wepayAccountId": {
-            "type": "string"
-        },
-        "wepayAccountState": {
-            "type": "object"
-        },
-        "suppliers": {
-            "type": [
-                "object"
-            ]
-        },
-        "usesWorkersV2": {
-            "type": "object"
-        }
+    "name": {
+      "type": "string"
     },
-    "validations": [],
-    "relations": {
-        "userModels": {
-            "type": "hasMany",
-            "model": "UserModel",
-            "foreignKey": "storeConfigModelIs"
-        },
-        "storeModels": {
-            "type": "hasMany",
-            "model": "StoreModel",
-            "foreignKey": "storeConfigModelToStoreModelId"
-        },
-        "productModels": {
-            "type": "hasMany",
-            "model": "ProductModel",
-            "foreignKey": "storeConfigModelId"
-        },
-        "syncModels": {
-            "type": "hasMany",
-            "model": "SyncModel",
-            "foreignKey": "storeConfigModelId"
-        },
-        "inventoryModels": {
-            "type": "hasMany",
-            "model": "InventoryModel",
-            "foreignKey": "storeConfigModelId"
-        },
-        "supplierModels": {
-            "type": "hasMany",
-            "model": "SupplierModel",
-            "foreignKey": "storeConfigModelId"
-        },
-        "reportModels": {
-            "type": "hasMany",
-            "model": "ReportModel",
-            "foreignKey": "storeConfigModelId"
-        }
+    "owner_email": {
+      "type": "string"
     },
-    "acls": [
-        {
-            "accessType": "*",
-            "principalType": "ROLE",
-            "principalId": "$everyone",
-            "permission": "DENY"
-        },
-        {
-            "accessType": "READ",
-            "principalType": "ROLE",
-            "principalId": "teamMember",
-            "permission": "ALLOW"
-        },
-        {
-            "accessType": "EXECUTE",
-            "principalType": "ROLE",
-            "principalId": "teamMember",
-            "permission": "ALLOW"
-        },
-        {
-            "principalType": "ROLE",
-            "principalId": "$authenticated",
-            "permission": "ALLOW",
-            "property": "create"
-        },
-        {
-            "accessType": "*",
-            "principalType": "ROLE",
-            "principalId": "$owner",
-            "permission": "ALLOW"
-        },
-        {
-            "accessType": "*",
-            "principalType": "ROLE",
-            "principalId": "admin",
-            "permission": "ALLOW"
-        },
-        {
-            "accessType": "EXECUTE",
-            "principalType": "ROLE",
-            "principalId": "$authenticated",
-            "permission": "ALLOW",
-            "property": "getVendAccessToken"
-        },
-        {
-            "accessType": "EXECUTE",
-            "principalType": "ROLE",
-            "principalId": "teamMember",
-            "permission": "ALLOW",
-            "property": "updateBinLocation"
-        },
-        {
-            "accessType": "EXECUTE",
-            "principalType": "ROLE",
-            "principalId": "teamMember",
-            "permission": "ALLOW",
-            "property": "__get__products"
-        },
-        {
-            "accessType": "EXECUTE",
-            "principalType": "ROLE",
-            "principalId": "teamMember",
-            "permission": "ALLOW",
-            "property": "initiateSync"
-        },
-        {
-            "accessType": "EXECUTE",
-            "principalType": "ROLE",
-            "principalId": "teamMember",
-            "permission": "ALLOW",
-            "property": "getWorkerSettings"
-        },
-        {
-            "accessType": "EXECUTE",
-            "principalType": "ROLE",
-            "principalId": "teamMember",
-            "permission": "ALLOW",
-            "property": "updateWorkerSettings"
-        },
-        {
-            "accessType": "EXECUTE",
-            "principalType": "ROLE",
-            "principalId": "teamMember",
-            "permission": "ALLOW",
-            "property": "getStuckOrders"
-        },
-        {
-            "accessType": "EXECUTE",
-            "principalType": "ROLE",
-            "principalId": "teamMember",
-            "permission": "ALLOW",
-            "property": "removeStuckOrders"
-        }
-    ],
-    "methods": {}
+    "posVendor": {
+      "type": "string",
+      "required": true
+    },
+    "posUrl": {
+      "type": "string"
+    },
+    "username": {
+      "type": "string"
+    },
+    "password": {
+      "type": "string"
+    },
+    "productImportRules": {
+      "type": "object",
+      "required": true
+    },
+    "transactionFee": {
+      "type": "number"
+    },
+    "customPayerEmailMessage": {
+      "type": "string"
+    },
+    "promos": {
+      "type": [
+        "object"
+      ]
+    },
+    "categoryMapping": {
+      "type": "string"
+    },
+    "showCategories": {
+      "type": "object"
+    },
+    "tagToCategoryMappingPrefix": {
+      "type": "string"
+    },
+    "refreshToken": {
+      "type": "string"
+    },
+    "wepayAccessToken": {
+      "type": "string"
+    },
+    "wepayAccountId": {
+      "type": "string"
+    },
+    "wepayAccountState": {
+      "type": "object"
+    },
+    "suppliers": {
+      "type": [
+        "object"
+      ]
+    },
+    "usesWorkersV2": {
+      "type": "object"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "userModels": {
+      "type": "hasMany",
+      "model": "UserModel",
+      "foreignKey": "storeConfigModelIs"
+    },
+    "storeModels": {
+      "type": "hasMany",
+      "model": "StoreModel",
+      "foreignKey": "storeConfigModelToStoreModelId"
+    },
+    "productModels": {
+      "type": "hasMany",
+      "model": "ProductModel",
+      "foreignKey": "storeConfigModelId"
+    },
+    "syncModels": {
+      "type": "hasMany",
+      "model": "SyncModel",
+      "foreignKey": "storeConfigModelId"
+    },
+    "inventoryModels": {
+      "type": "hasMany",
+      "model": "InventoryModel",
+      "foreignKey": "storeConfigModelId"
+    },
+    "supplierModels": {
+      "type": "hasMany",
+      "model": "SupplierModel",
+      "foreignKey": "storeConfigModelId"
+    },
+    "reportModels": {
+      "type": "hasMany",
+      "model": "ReportModel",
+      "foreignKey": "storeConfigModelId"
+    }
+  },
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "teamMember",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teamMember",
+      "permission": "ALLOW"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "create"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "admin",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "getVendAccessToken"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teamMember",
+      "permission": "ALLOW",
+      "property": "updateBinLocation"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teamMember",
+      "permission": "ALLOW",
+      "property": "__get__products"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teamMember",
+      "permission": "ALLOW",
+      "property": "initiateSync"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teamMember",
+      "permission": "ALLOW",
+      "property": "getWorkerSettings"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teamMember",
+      "permission": "ALLOW",
+      "property": "updateWorkerSettings"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teamMember",
+      "permission": "ALLOW",
+      "property": "getStuckOrders"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "teamMember",
+      "permission": "ALLOW",
+      "property": "removeStuckOrders"
+    }
+  ],
+  "methods": {}
 }

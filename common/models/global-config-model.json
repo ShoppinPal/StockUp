@@ -1,50 +1,50 @@
 {
-    "name": "GlobalConfigModel",
-    "base": "PersistedModel",
-    "idInjection": false,
-    "properties": {
-        "objectId": {
-            "type": "number",
-            "id": true,
-            "generated": true
-        },
-        "vendClientId": {
-            "type": "string"
-        },
-        "vendClientSecret": {
-            "type": "string"
-        },
-        "vendTokenService": {
-            "type": "string"
-        }
+  "name": "GlobalConfigModel",
+  "base": "PersistedModel",
+  "idInjection": false,
+  "properties": {
+    "objectId": {
+      "type": "number",
+      "id": true,
+      "generated": true
     },
-    "validations": [],
-    "relations": {
-        "userModel": {
-            "type": "belongsTo",
-            "model": "UserModel",
-            "foreignKey": "userModelToGlobalConfigModelId"
-        }
+    "vendClientId": {
+      "type": "string"
     },
-    "acls": [
-        {
-            "accessType": "*",
-            "principalType": "ROLE",
-            "principalId": "$everyone",
-            "permission": "DENY"
-        },
-        {
-            "accessType": "*",
-            "principalType": "ROLE",
-            "principalId": "$owner",
-            "permission": "ALLOW"
-        },
-        {
-            "accessType": "*",
-            "principalType": "ROLE",
-            "principalId": "admin",
-            "permission": "ALLOW"
-        }
-    ],
-    "methods": {}
+    "vendClientSecret": {
+      "type": "string"
+    },
+    "vendTokenService": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "userModel": {
+      "type": "belongsTo",
+      "model": "UserModel",
+      "foreignKey": "userModelToGlobalConfigModelId"
+    }
+  },
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "admin",
+      "permission": "ALLOW"
+    }
+  ],
+  "methods": {}
 }

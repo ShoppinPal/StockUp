@@ -1,50 +1,50 @@
 {
-    "name": "ProductModel",
-    "base": "PersistedModel",
-    "idInjection": true,
-    "options": {
-        "validateUpsert": true
+  "name": "ProductModel",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "name": {
+      "type": "string",
+      "required": true
     },
-    "properties": {
-        "name": {
-            "type": "string",
-            "required": true
-        },
-        "sku": {
-            "type": "string",
-            "required": true
-        },
-        "api_id": {
-            "type": "string",
-            "required": true
-        },
-        "binLocation": {
-            "type": "string"
-        }
+    "sku": {
+      "type": "string",
+      "required": true
     },
-    "validations": [],
-    "relations": {
-        "supplierModel": {
-            "type": "belongsTo",
-            "model": "SupplierModel",
-            "foreignKey": "supplierModelId"
-        },
-        "storeConfigModel": {
-            "type": "belongsTo",
-            "model": "StoreConfigModel",
-            "foreignKey": "storeConfigModelId"
-        },
-        "inventoryModel": {
-            "type": "hasOne",
-            "model": "InventoryModel",
-            "foreignKey": "productModelId"
-        },
-        "orgModel": {
-            "type": "belongsTo",
-            "model": "OrgModel",
-            "foreignKey": ""
-        }
+    "api_id": {
+      "type": "string",
+      "required": true
     },
-    "acls": [],
-    "methods": {}
+    "binLocation": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "supplierModel": {
+      "type": "belongsTo",
+      "model": "SupplierModel",
+      "foreignKey": "supplierModelId"
+    },
+    "storeConfigModel": {
+      "type": "belongsTo",
+      "model": "StoreConfigModel",
+      "foreignKey": "storeConfigModelId"
+    },
+    "inventoryModel": {
+      "type": "hasOne",
+      "model": "InventoryModel",
+      "foreignKey": "productModelId"
+    },
+    "orgModel": {
+      "type": "belongsTo",
+      "model": "OrgModel",
+      "foreignKey": ""
+    }
+  },
+  "acls": [],
+  "methods": {}
 }

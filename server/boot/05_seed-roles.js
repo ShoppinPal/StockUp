@@ -8,6 +8,13 @@ module.exports = function (app, cb) {
     var Role = app.models.Role;
     Promise.resolve()
         .then(function () {
+            logger.debug({message: 'Creating/finding orgAdmin role'});
+            return Role.findOrCreate(
+                {where: {name: 'orgAdmin'}}, // find
+                {name: 'orgAdmin', description: 'Org Admin'}
+            );
+        })
+        .then(function () {
             logger.debug({message: 'Creating/finding storeManager role'});
             return Role.findOrCreate(
                 {where: {name: 'storeManager'}}, // find

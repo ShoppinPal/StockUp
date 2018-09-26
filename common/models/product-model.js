@@ -1,8 +1,8 @@
 'use strict';
 var Promise = require('bluebird');
-var path = require('path');
-var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
-var log = require('./../lib/debug-extension')('common:models:' + fileName);
+const path = require('path');
+const fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
+const logger = require('sp-json-logger')({fileName: 'common:models:' + fileName});
 
 module.exports = function (ProductModel) {
 
@@ -13,33 +13,68 @@ module.exports = function (ProductModel) {
      * @param binLocation
      * @return {Promise.<TResult>}
      */
-    ProductModel.updateBinLocation = function (id, productId, binLocation) {
-        log('updateBinLocation').debug('Will update bin location for product', productId);
-        return ProductModel.app.models.StoreConfigModel.findById(id)
-            .then(function (storeConfigModelInstance) {
-                if (!storeConfigModelInstance) {
-                    log('updateBinLocation').error('Couldn\'t find the store config model with this id', id);
+    ProductModel.updateBinLocation = function (id, productId, binLocation, options) {
+        logger.debug({
+            message: 'Will update bin location for product',
+            productId,
+            options,
+            functionName: 'updateBinLocation'
+        });
+        return ProductModel.app.models.OrgModel.findById(id)
+            .then(function (orgModelInstance) {
+                if (!orgModelInstance) {
+                    logger.error({
+                        message: 'Couldn\'t find the orgModel with this id',
+                        id,
+                        options,
+                        functionName: 'updateBinLocation'
+                    });
                     return Promise.reject('Couldn\'t find the organisation');
                 }
-                log('updateBinLocation').debug('Found the store config model', storeConfigModelInstance);
+                logger.debug({
+                    message: 'Found the orgmodel',
+                    orgModelInstance,
+                    options,
+                    functionName: 'updateBinLocation'
+                });
                 return ProductModel.findById(productId);
             })
             .then(function (productInstance) {
                 if (!productInstance) {
-                    log('updateBinLocation').error('Couldn\'t find the product with this id', productId);
+                    logger.error({
+                        message: 'Couldn\'t find the product with this id',
+                        productId,
+                        options,
+                        functionName: 'updateBinLocation'
+                    });
                     return Promise.reject('Couldn\'t find the product');
                 }
-                log('updateBinLocation').debug('Found this product instance', productInstance);
+                logger.debug({
+                    message: 'Found this product instance',
+                    productInstance,
+                    options,
+                    functionName: 'updateBinLocation'
+                });
                 return productInstance.updateAttribute('binLocation', binLocation);
             })
             .then(function (response) {
-                log('updateBinLocation').debug('Updated bin location for product', response);
+                logger.debug({
+                    message: 'Updated bin location for product',
+                    response,
+                    options,
+                    functionName: 'updateBinLocation'
+                });
                 return Promise.resolve(response);
             })
             .catch(function (error) {
-                log('updateBinLocation').error('Error in updating bin location', error);
+                logger.error({
+                    message: 'Error in updating bin location',
+                    error,
+                    options,
+                    functionName: 'updateBinLocation'
+                });
                 return Promise.reject(error);
             });
-    }
+    };
 
 };

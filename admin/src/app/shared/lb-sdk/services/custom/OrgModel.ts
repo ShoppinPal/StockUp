@@ -16,6 +16,7 @@ import { StoreModel } from '../../models/StoreModel';
 import { SupplierModel } from '../../models/SupplierModel';
 import { StockOrderLineitemModel } from '../../models/StockOrderLineitemModel';
 import { ReportModel } from '../../models/ReportModel';
+import { IntegrationModel } from '../../models/IntegrationModel';
 
 
 /**
@@ -37,7 +38,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Find a related item by id for userModels.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {any} fk Foreign key for userModels
    *
@@ -67,7 +68,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Delete a related item by id for userModels.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {any} fk Foreign key for userModels
    *
@@ -94,7 +95,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Update a related item by id for userModels.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {any} fk Foreign key for userModels
    *
@@ -111,7 +112,7 @@ export class OrgModelApi extends BaseLoopBackApi {
    * This usually means the response is a `OrgModel` object.)
    * </em>
    */
-  public updateByIdUserModels(id: any, fk: any, data: UserModel = new UserModel(), customHeaders?: Function): Observable<any> {
+  public updateByIdUserModels(id: any, fk: any, data: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "PUT";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/OrgModels/:id/userModels/:fk";
@@ -130,7 +131,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Find a related item by id for storeModels.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {any} fk Foreign key for storeModels
    *
@@ -160,7 +161,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Delete a related item by id for storeModels.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {any} fk Foreign key for storeModels
    *
@@ -187,7 +188,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Update a related item by id for storeModels.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {any} fk Foreign key for storeModels
    *
@@ -204,7 +205,7 @@ export class OrgModelApi extends BaseLoopBackApi {
    * This usually means the response is a `OrgModel` object.)
    * </em>
    */
-  public updateByIdStoreModels(id: any, fk: any, data: StoreModel = new StoreModel(), customHeaders?: Function): Observable<any> {
+  public updateByIdStoreModels(id: any, fk: any, data: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "PUT";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/OrgModels/:id/storeModels/:fk";
@@ -223,7 +224,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Find a related item by id for supplierModels.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {any} fk Foreign key for supplierModels
    *
@@ -253,7 +254,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Delete a related item by id for supplierModels.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {any} fk Foreign key for supplierModels
    *
@@ -280,7 +281,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Update a related item by id for supplierModels.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {any} fk Foreign key for supplierModels
    *
@@ -297,7 +298,7 @@ export class OrgModelApi extends BaseLoopBackApi {
    * This usually means the response is a `OrgModel` object.)
    * </em>
    */
-  public updateByIdSupplierModels(id: any, fk: any, data: SupplierModel = new SupplierModel(), customHeaders?: Function): Observable<any> {
+  public updateByIdSupplierModels(id: any, fk: any, data: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "PUT";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/OrgModels/:id/supplierModels/:fk";
@@ -316,7 +317,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Find a related item by id for stockOrderLineitemModels.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {any} fk Foreign key for stockOrderLineitemModels
    *
@@ -346,7 +347,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Delete a related item by id for stockOrderLineitemModels.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {any} fk Foreign key for stockOrderLineitemModels
    *
@@ -373,7 +374,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Update a related item by id for stockOrderLineitemModels.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {any} fk Foreign key for stockOrderLineitemModels
    *
@@ -390,7 +391,7 @@ export class OrgModelApi extends BaseLoopBackApi {
    * This usually means the response is a `OrgModel` object.)
    * </em>
    */
-  public updateByIdStockOrderLineitemModels(id: any, fk: any, data: StockOrderLineitemModel = new StockOrderLineitemModel(), customHeaders?: Function): Observable<any> {
+  public updateByIdStockOrderLineitemModels(id: any, fk: any, data: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "PUT";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/OrgModels/:id/stockOrderLineitemModels/:fk";
@@ -409,7 +410,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Find a related item by id for reportModels.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {any} fk Foreign key for reportModels
    *
@@ -439,7 +440,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Delete a related item by id for reportModels.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {any} fk Foreign key for reportModels
    *
@@ -466,7 +467,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Update a related item by id for reportModels.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {any} fk Foreign key for reportModels
    *
@@ -483,7 +484,7 @@ export class OrgModelApi extends BaseLoopBackApi {
    * This usually means the response is a `OrgModel` object.)
    * </em>
    */
-  public updateByIdReportModels(id: any, fk: any, data: ReportModel = new ReportModel(), customHeaders?: Function): Observable<any> {
+  public updateByIdReportModels(id: any, fk: any, data: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "PUT";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/OrgModels/:id/reportModels/:fk";
@@ -502,7 +503,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Find a related item by id for productModels.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {any} fk Foreign key for productModels
    *
@@ -532,7 +533,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Delete a related item by id for productModels.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {any} fk Foreign key for productModels
    *
@@ -559,7 +560,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Update a related item by id for productModels.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {any} fk Foreign key for productModels
    *
@@ -595,7 +596,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Find a related item by id for inventoryModels.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {any} fk Foreign key for inventoryModels
    *
@@ -625,7 +626,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Delete a related item by id for inventoryModels.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {any} fk Foreign key for inventoryModels
    *
@@ -652,7 +653,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Update a related item by id for inventoryModels.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {any} fk Foreign key for inventoryModels
    *
@@ -686,9 +687,195 @@ export class OrgModelApi extends BaseLoopBackApi {
   }
 
   /**
+   * Find a related item by id for syncModels.
+   *
+   * @param {any} id OrgModel id
+   *
+   * @param {any} fk Foreign key for syncModels
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * <em>
+   * (The remote method definition does not provide any description.
+   * This usually means the response is a `OrgModel` object.)
+   * </em>
+   */
+  public findByIdSyncModels(id: any, fk: any, customHeaders?: Function): Observable<any> {
+    let _method: string = "GET";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/:id/syncModels/:fk";
+    let _routeParams: any = {
+      id: id,
+      fk: fk
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * Delete a related item by id for syncModels.
+   *
+   * @param {any} id OrgModel id
+   *
+   * @param {any} fk Foreign key for syncModels
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * This method returns no data.
+   */
+  public destroyByIdSyncModels(id: any, fk: any, customHeaders?: Function): Observable<any> {
+    let _method: string = "DELETE";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/:id/syncModels/:fk";
+    let _routeParams: any = {
+      id: id,
+      fk: fk
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * Update a related item by id for syncModels.
+   *
+   * @param {any} id OrgModel id
+   *
+   * @param {any} fk Foreign key for syncModels
+   *
+   * @param {object} data Request data.
+   *
+   * This method expects a subset of model properties as request parameters.
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * <em>
+   * (The remote method definition does not provide any description.
+   * This usually means the response is a `OrgModel` object.)
+   * </em>
+   */
+  public updateByIdSyncModels(id: any, fk: any, data: any = {}, customHeaders?: Function): Observable<any> {
+    let _method: string = "PUT";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/:id/syncModels/:fk";
+    let _routeParams: any = {
+      id: id,
+      fk: fk
+    };
+    let _postBody: any = {
+      data: data
+    };
+    let _urlParams: any = {};
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * Find a related item by id for integrationModels.
+   *
+   * @param {any} id OrgModel id
+   *
+   * @param {any} fk Foreign key for integrationModels
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * <em>
+   * (The remote method definition does not provide any description.
+   * This usually means the response is a `OrgModel` object.)
+   * </em>
+   */
+  public findByIdIntegrationModels(id: any, fk: any, customHeaders?: Function): Observable<any> {
+    let _method: string = "GET";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/:id/integrationModels/:fk";
+    let _routeParams: any = {
+      id: id,
+      fk: fk
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * Delete a related item by id for integrationModels.
+   *
+   * @param {any} id OrgModel id
+   *
+   * @param {any} fk Foreign key for integrationModels
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * This method returns no data.
+   */
+  public destroyByIdIntegrationModels(id: any, fk: any, customHeaders?: Function): Observable<any> {
+    let _method: string = "DELETE";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/:id/integrationModels/:fk";
+    let _routeParams: any = {
+      id: id,
+      fk: fk
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * Update a related item by id for integrationModels.
+   *
+   * @param {any} id OrgModel id
+   *
+   * @param {any} fk Foreign key for integrationModels
+   *
+   * @param {object} data Request data.
+   *
+   * This method expects a subset of model properties as request parameters.
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * <em>
+   * (The remote method definition does not provide any description.
+   * This usually means the response is a `OrgModel` object.)
+   * </em>
+   */
+  public updateByIdIntegrationModels(id: any, fk: any, data: any = {}, customHeaders?: Function): Observable<any> {
+    let _method: string = "PUT";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/:id/integrationModels/:fk";
+    let _routeParams: any = {
+      id: id,
+      fk: fk
+    };
+    let _postBody: any = {
+      data: data
+    };
+    let _urlParams: any = {};
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
    * Queries userModels of OrgModel.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {object} filter 
    *
@@ -718,7 +905,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in userModels of this model.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {object} data Request data.
    *
@@ -733,7 +920,7 @@ export class OrgModelApi extends BaseLoopBackApi {
    * This usually means the response is a `OrgModel` object.)
    * </em>
    */
-  public createUserModels(id: any, data: UserModel = new UserModel(), customHeaders?: Function): Observable<any> {
+  public createUserModels(id: any, data: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/OrgModels/:id/userModels";
@@ -751,7 +938,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Deletes all userModels of this model.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -775,7 +962,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Counts userModels of OrgModel.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {object} where Criteria to match model instances
    *
@@ -804,7 +991,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Queries storeModels of OrgModel.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {object} filter 
    *
@@ -834,7 +1021,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in storeModels of this model.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {object} data Request data.
    *
@@ -849,7 +1036,7 @@ export class OrgModelApi extends BaseLoopBackApi {
    * This usually means the response is a `OrgModel` object.)
    * </em>
    */
-  public createStoreModels(id: any, data: StoreModel = new StoreModel(), customHeaders?: Function): Observable<any> {
+  public createStoreModels(id: any, data: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/OrgModels/:id/storeModels";
@@ -867,7 +1054,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Deletes all storeModels of this model.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -891,7 +1078,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Counts storeModels of OrgModel.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {object} where Criteria to match model instances
    *
@@ -920,7 +1107,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Queries supplierModels of OrgModel.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {object} filter 
    *
@@ -950,7 +1137,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in supplierModels of this model.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {object} data Request data.
    *
@@ -965,7 +1152,7 @@ export class OrgModelApi extends BaseLoopBackApi {
    * This usually means the response is a `OrgModel` object.)
    * </em>
    */
-  public createSupplierModels(id: any, data: SupplierModel = new SupplierModel(), customHeaders?: Function): Observable<any> {
+  public createSupplierModels(id: any, data: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/OrgModels/:id/supplierModels";
@@ -983,7 +1170,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Deletes all supplierModels of this model.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1007,7 +1194,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Counts supplierModels of OrgModel.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {object} where Criteria to match model instances
    *
@@ -1036,7 +1223,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Queries stockOrderLineitemModels of OrgModel.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {object} filter 
    *
@@ -1066,7 +1253,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in stockOrderLineitemModels of this model.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {object} data Request data.
    *
@@ -1081,7 +1268,7 @@ export class OrgModelApi extends BaseLoopBackApi {
    * This usually means the response is a `OrgModel` object.)
    * </em>
    */
-  public createStockOrderLineitemModels(id: any, data: StockOrderLineitemModel = new StockOrderLineitemModel(), customHeaders?: Function): Observable<any> {
+  public createStockOrderLineitemModels(id: any, data: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/OrgModels/:id/stockOrderLineitemModels";
@@ -1099,7 +1286,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Deletes all stockOrderLineitemModels of this model.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1123,7 +1310,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Counts stockOrderLineitemModels of OrgModel.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {object} where Criteria to match model instances
    *
@@ -1152,7 +1339,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Queries reportModels of OrgModel.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {object} filter 
    *
@@ -1182,7 +1369,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in reportModels of this model.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {object} data Request data.
    *
@@ -1197,7 +1384,7 @@ export class OrgModelApi extends BaseLoopBackApi {
    * This usually means the response is a `OrgModel` object.)
    * </em>
    */
-  public createReportModels(id: any, data: ReportModel = new ReportModel(), customHeaders?: Function): Observable<any> {
+  public createReportModels(id: any, data: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/OrgModels/:id/reportModels";
@@ -1215,7 +1402,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Deletes all reportModels of this model.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1239,7 +1426,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Counts reportModels of OrgModel.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {object} where Criteria to match model instances
    *
@@ -1268,7 +1455,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Queries productModels of OrgModel.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {object} filter 
    *
@@ -1298,7 +1485,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in productModels of this model.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {object} data Request data.
    *
@@ -1331,7 +1518,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Deletes all productModels of this model.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1355,7 +1542,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Counts productModels of OrgModel.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {object} where Criteria to match model instances
    *
@@ -1384,7 +1571,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Queries inventoryModels of OrgModel.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {object} filter 
    *
@@ -1414,7 +1601,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in inventoryModels of this model.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {object} data Request data.
    *
@@ -1447,7 +1634,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Deletes all inventoryModels of this model.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1471,7 +1658,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Counts inventoryModels of OrgModel.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {object} where Criteria to match model instances
    *
@@ -1498,6 +1685,238 @@ export class OrgModelApi extends BaseLoopBackApi {
   }
 
   /**
+   * Queries syncModels of OrgModel.
+   *
+   * @param {any} id OrgModel id
+   *
+   * @param {object} filter 
+   *
+   * @returns {object[]} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * <em>
+   * (The remote method definition does not provide any description.
+   * This usually means the response is a `OrgModel` object.)
+   * </em>
+   */
+  public getSyncModels(id: any, filter: LoopBackFilter = {}, customHeaders?: Function): Observable<any> {
+    let _method: string = "GET";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/:id/syncModels";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    if (typeof filter !== 'undefined' && filter !== null) _urlParams.filter = filter;
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * Creates a new instance in syncModels of this model.
+   *
+   * @param {any} id OrgModel id
+   *
+   * @param {object} data Request data.
+   *
+   * This method expects a subset of model properties as request parameters.
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * <em>
+   * (The remote method definition does not provide any description.
+   * This usually means the response is a `OrgModel` object.)
+   * </em>
+   */
+  public createSyncModels(id: any, data: any = {}, customHeaders?: Function): Observable<any> {
+    let _method: string = "POST";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/:id/syncModels";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {
+      data: data
+    };
+    let _urlParams: any = {};
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * Deletes all syncModels of this model.
+   *
+   * @param {any} id OrgModel id
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * This method returns no data.
+   */
+  public deleteSyncModels(id: any, customHeaders?: Function): Observable<any> {
+    let _method: string = "DELETE";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/:id/syncModels";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * Counts syncModels of OrgModel.
+   *
+   * @param {any} id OrgModel id
+   *
+   * @param {object} where Criteria to match model instances
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * Data properties:
+   *
+   *  - `count` – `{number}` - 
+   */
+  public countSyncModels(id: any, where: any = {}, customHeaders?: Function): Observable<any> {
+    let _method: string = "GET";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/:id/syncModels/count";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    if (typeof where !== 'undefined' && where !== null) _urlParams.where = where;
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * Queries integrationModels of OrgModel.
+   *
+   * @param {any} id OrgModel id
+   *
+   * @param {object} filter 
+   *
+   * @returns {object[]} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * <em>
+   * (The remote method definition does not provide any description.
+   * This usually means the response is a `OrgModel` object.)
+   * </em>
+   */
+  public getIntegrationModels(id: any, filter: LoopBackFilter = {}, customHeaders?: Function): Observable<any> {
+    let _method: string = "GET";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/:id/integrationModels";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    if (typeof filter !== 'undefined' && filter !== null) _urlParams.filter = filter;
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * Creates a new instance in integrationModels of this model.
+   *
+   * @param {any} id OrgModel id
+   *
+   * @param {object} data Request data.
+   *
+   * This method expects a subset of model properties as request parameters.
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * <em>
+   * (The remote method definition does not provide any description.
+   * This usually means the response is a `OrgModel` object.)
+   * </em>
+   */
+  public createIntegrationModels(id: any, data: any = {}, customHeaders?: Function): Observable<any> {
+    let _method: string = "POST";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/:id/integrationModels";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {
+      data: data
+    };
+    let _urlParams: any = {};
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * Deletes all integrationModels of this model.
+   *
+   * @param {any} id OrgModel id
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * This method returns no data.
+   */
+  public deleteIntegrationModels(id: any, customHeaders?: Function): Observable<any> {
+    let _method: string = "DELETE";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/:id/integrationModels";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * Counts integrationModels of OrgModel.
+   *
+   * @param {any} id OrgModel id
+   *
+   * @param {object} where Criteria to match model instances
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * Data properties:
+   *
+   *  - `count` – `{number}` - 
+   */
+  public countIntegrationModels(id: any, where: any = {}, customHeaders?: Function): Observable<any> {
+    let _method: string = "GET";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/:id/integrationModels/count";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    if (typeof where !== 'undefined' && where !== null) _urlParams.where = where;
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
    * <em>
          * (The remote method definition does not provide any description.)
          * </em>
@@ -1505,6 +1924,8 @@ export class OrgModelApi extends BaseLoopBackApi {
    * @param {string} id 
    *
    * @param {string} integrationType 
+   *
+   * @param {object} options 
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -1529,9 +1950,150 @@ export class OrgModelApi extends BaseLoopBackApi {
   }
 
   /**
+   * <em>
+         * (The remote method definition does not provide any description.)
+         * </em>
+   *
+   * @param {string} code 
+   *
+   * @param {string} domain_prefix 
+   *
+   * @param {string} state 
+   *
+   * @param {string} error 
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * Data properties:
+   *
+   *  - `token` – `{string}` - 
+   */
+  public handleVendToken(code: any, domain_prefix: any = {}, state: any, error: any = {}, customHeaders?: Function): Observable<any> {
+    let _method: string = "GET";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/handleVendToken";
+    let _routeParams: any = {};
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    if (typeof code !== 'undefined' && code !== null) _urlParams.code = code;
+    if (typeof domain_prefix !== 'undefined' && domain_prefix !== null) _urlParams.domain_prefix = domain_prefix;
+    if (typeof state !== 'undefined' && state !== null) _urlParams.state = state;
+    if (typeof error !== 'undefined' && error !== null) _urlParams.error = error;
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * <em>
+         * (The remote method definition does not provide any description.)
+         * </em>
+   *
+   * @param {string} code 
+   *
+   * @param {string} session_state 
+   *
+   * @param {string} state 
+   *
+   * @param {string} error 
+   *
+   * @param {string} error_description 
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * Data properties:
+   *
+   *  - `token` – `{string}` - 
+   */
+  public handleMSDToken(code: any = {}, session_state: any = {}, state: any = {}, error: any = {}, error_description: any = {}, customHeaders?: Function): Observable<any> {
+    let _method: string = "GET";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/handleMSDToken";
+    let _routeParams: any = {};
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    if (typeof code !== 'undefined' && code !== null) _urlParams.code = code;
+    if (typeof session_state !== 'undefined' && session_state !== null) _urlParams.session_state = session_state;
+    if (typeof state !== 'undefined' && state !== null) _urlParams.state = state;
+    if (typeof error !== 'undefined' && error !== null) _urlParams.error = error;
+    if (typeof error_description !== 'undefined' && error_description !== null) _urlParams.error_description = error_description;
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * <em>
+         * (The remote method definition does not provide any description.)
+         * </em>
+   *
+   * @param {string} id 
+   *
+   * @param {object} options 
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * Data properties:
+   *
+   *  - `syncStatus` – `{boolean}` - 
+   */
+  public initiateVendSync(id: any, customHeaders?: Function): Observable<any> {
+    let _method: string = "GET";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/:id/initiateVendSync";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * <em>
+         * (The remote method definition does not provide any description.)
+         * </em>
+   *
+   * @param {object} data Request data.
+   *
+   *  - `id` – `{string}` - 
+   *
+   *  - `productId` – `{string}` - 
+   *
+   *  - `binLocation` – `{string}` - 
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * Data properties:
+   *
+   *  - `product` – `{object}` - 
+   */
+  public updateBinLocation(id: any, productId: any, binLocation: any, customHeaders?: Function): Observable<any> {
+    let _method: string = "POST";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/:id/updateBinLocation";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    if (typeof productId !== 'undefined' && productId !== null) _urlParams.productId = productId;
+    if (typeof binLocation !== 'undefined' && binLocation !== null) _urlParams.binLocation = binLocation;
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
    * Creates a new instance in userModels of this model.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {object} data Request data.
    *
@@ -1546,7 +2108,7 @@ export class OrgModelApi extends BaseLoopBackApi {
    * This usually means the response is a `OrgModel` object.)
    * </em>
    */
-  public createManyUserModels(id: any, data: UserModel[] = new Array<UserModel>(), customHeaders?: Function): Observable<any> {
+  public createManyUserModels(id: any, data: any[] = [], customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/OrgModels/:id/userModels";
@@ -1564,7 +2126,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in storeModels of this model.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {object} data Request data.
    *
@@ -1579,7 +2141,7 @@ export class OrgModelApi extends BaseLoopBackApi {
    * This usually means the response is a `OrgModel` object.)
    * </em>
    */
-  public createManyStoreModels(id: any, data: StoreModel[] = new Array<StoreModel>(), customHeaders?: Function): Observable<any> {
+  public createManyStoreModels(id: any, data: any[] = [], customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/OrgModels/:id/storeModels";
@@ -1597,7 +2159,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in supplierModels of this model.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {object} data Request data.
    *
@@ -1612,7 +2174,7 @@ export class OrgModelApi extends BaseLoopBackApi {
    * This usually means the response is a `OrgModel` object.)
    * </em>
    */
-  public createManySupplierModels(id: any, data: SupplierModel[] = new Array<SupplierModel>(), customHeaders?: Function): Observable<any> {
+  public createManySupplierModels(id: any, data: any[] = [], customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/OrgModels/:id/supplierModels";
@@ -1630,7 +2192,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in stockOrderLineitemModels of this model.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {object} data Request data.
    *
@@ -1645,7 +2207,7 @@ export class OrgModelApi extends BaseLoopBackApi {
    * This usually means the response is a `OrgModel` object.)
    * </em>
    */
-  public createManyStockOrderLineitemModels(id: any, data: StockOrderLineitemModel[] = new Array<StockOrderLineitemModel>(), customHeaders?: Function): Observable<any> {
+  public createManyStockOrderLineitemModels(id: any, data: any[] = [], customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/OrgModels/:id/stockOrderLineitemModels";
@@ -1663,7 +2225,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in reportModels of this model.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {object} data Request data.
    *
@@ -1678,7 +2240,7 @@ export class OrgModelApi extends BaseLoopBackApi {
    * This usually means the response is a `OrgModel` object.)
    * </em>
    */
-  public createManyReportModels(id: any, data: ReportModel[] = new Array<ReportModel>(), customHeaders?: Function): Observable<any> {
+  public createManyReportModels(id: any, data: any[] = [], customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/OrgModels/:id/reportModels";
@@ -1696,7 +2258,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in productModels of this model.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {object} data Request data.
    *
@@ -1729,7 +2291,7 @@ export class OrgModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in inventoryModels of this model.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id OrgModel id
    *
    * @param {object} data Request data.
    *
@@ -1748,6 +2310,72 @@ export class OrgModelApi extends BaseLoopBackApi {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/OrgModels/:id/inventoryModels";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {
+      data: data
+    };
+    let _urlParams: any = {};
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * Creates a new instance in syncModels of this model.
+   *
+   * @param {any} id OrgModel id
+   *
+   * @param {object} data Request data.
+   *
+   * This method expects a subset of model properties as request parameters.
+   *
+   * @returns {object[]} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * <em>
+   * (The remote method definition does not provide any description.
+   * This usually means the response is a `OrgModel` object.)
+   * </em>
+   */
+  public createManySyncModels(id: any, data: any[] = [], customHeaders?: Function): Observable<any> {
+    let _method: string = "POST";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/:id/syncModels";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {
+      data: data
+    };
+    let _urlParams: any = {};
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * Creates a new instance in integrationModels of this model.
+   *
+   * @param {any} id OrgModel id
+   *
+   * @param {object} data Request data.
+   *
+   * This method expects a subset of model properties as request parameters.
+   *
+   * @returns {object[]} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * <em>
+   * (The remote method definition does not provide any description.
+   * This usually means the response is a `OrgModel` object.)
+   * </em>
+   */
+  public createManyIntegrationModels(id: any, data: any[] = [], customHeaders?: Function): Observable<any> {
+    let _method: string = "POST";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/:id/integrationModels";
     let _routeParams: any = {
       id: id
     };
