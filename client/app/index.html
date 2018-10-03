@@ -1,106 +1,111 @@
 <!doctype html>
-    <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-    <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-    <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-    <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>ShoppinPal</title>
-        <meta name="description" content="">
-        <!--meta name="viewport" content="width=device-width"-->
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
-        <link rel="shortcut icon" href="/favicon.ico">
-        <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
-        <link href="//netdna.bootstrapcdn.com/bootswatch/3.1.1/yeti/bootstrap.min.css" rel="stylesheet">
-        <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css" rel="stylesheet">
-        <link href="bower_components/angular-busy/dist/angular-busy.min.css" rel="stylesheet">
-        <link href="bower_components/ngDialog/css/ngDialog.css" rel="stylesheet">
-        <link href="bower_components/ngDialog/css/ngDialog-theme-default.css" rel="stylesheet">
-        <link href="bower_components/ngDialog/css/ngDialog-theme-plain.css" rel="stylesheet">
-        <!-- build:css(.tmp) styles/main.css -->
-        <!-- <link rel="stylesheet" href="styles/main.css"> -->
+<!--[if lt IE 7]>
+<html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>
+<html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>
+<html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js"> <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>ShoppinPal</title>
+    <meta name="description" content="">
+    <!--meta name="viewport" content="width=device-width"-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="//netdna.bootstrapcdn.com/bootswatch/3.1.1/yeti/bootstrap.min.css" rel="stylesheet">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css" rel="stylesheet">
+    <link href="bower_components/angular-busy/dist/angular-busy.min.css" rel="stylesheet">
+    <link href="bower_components/ngDialog/css/ngDialog.css" rel="stylesheet">
+    <link href="bower_components/ngDialog/css/ngDialog-theme-default.css" rel="stylesheet">
+    <link href="bower_components/ngDialog/css/ngDialog-theme-plain.css" rel="stylesheet">
+    <!-- build:css(.tmp) styles/main.css -->
+    <!-- <link rel="stylesheet" href="styles/main.css"> -->
 
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
-        <link rel="stylesheet" href="styles/style.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="styles/style.css">
 
-        <!-- endbuild -->
-    </head>
-    <body ng-app="ShoppinPalApp">
-        <!--[if lt IE 7]>
-        <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-        <![endif]-->
-        <!--[if lt IE 9]>
-        <script src="bower_components/es5-shim/es5-shim.js"></script>
-        <script src="bower_components/json3/lib/json3.min.js"></script>
-        <![endif]-->
-        <!-- Add your site or application content here -->
-        <div class="shoppinPal-warehouse" ui-view></div>
+    <!-- endbuild -->
+</head>
+<body ng-app="ShoppinPalApp">
+<!--[if lt IE 7]>
+<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
+    your browser</a> to improve your experience.</p>
+<![endif]-->
+<!--[if lt IE 9]>
+<script src="bower_components/es5-shim/es5-shim.js"></script>
+<script src="bower_components/json3/lib/json3.min.js"></script>
+<![endif]-->
+<!-- Add your site or application content here -->
+<div class="shoppinPal-warehouse" ui-view></div>
 
-        <!-- Google Analytics: refer to the following link when you are ready to add it -->
-        <!--http://www.arnaldocapo.com/blog/post/google-analytics-and-angularjs-with-ui-router/72-->
+<!-- Google Analytics: refer to the following link when you are ready to add it -->
+<!--http://www.arnaldocapo.com/blog/post/google-analytics-and-angularjs-with-ui-router/72-->
 
-        <!-- This is useful for our custom geocoder (angular-geocode.js) implementation-->
-        <script src='//maps.googleapis.com/maps/api/js?sensor=false'></script>
-        <!--
-         The angular-geocode.js file's implementation was probably sourced from:
-           https://gist.github.com/benmj/6380466
-         but we later fixed it a bit to address a bug.
+<!-- This is useful for our custom geocoder (angular-geocode.js) implementation-->
+<script src='//maps.googleapis.com/maps/api/js?sensor=false'></script>
+<!--
+ The angular-geocode.js file's implementation was probably sourced from:
+   https://gist.github.com/benmj/6380466
+ but we later fixed it a bit to address a bug.
 
-         Others noticed the same bug and probably fixed that one and a few more,
-         so we might want to at some point evaluate their source too:
-           https://gist.github.com/avaliani/10214857
-        -->
+ Others noticed the same bug and probably fixed that one and a few more,
+ so we might want to at some point evaluate their source too:
+   https://gist.github.com/avaliani/10214857
+-->
 
-        <script src="bower_components/angular/angular.js"></script>
-        <script src="//www.parsecdn.com/js/parse-1.2.13.min.js"></script>
+<script src="bower_components/angular/angular.js"></script>
+<script src="//www.parsecdn.com/js/parse-1.2.13.min.js"></script>
 
-        <!-- build:js scripts/modules.js -->
-        <script src="bower_components/angular-resource/angular-resource.js"></script>
-        <script src="bower_components/angular-cookies/angular-cookies.js"></script>
-        <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
-        <script src="bower_components/angular-touch/angular-touch.js"></script>
-        <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
-        <script src="bower_components/angular-ui-utils/ui-utils.js"></script>
-        <!--script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script-->
-        <script src="bower_components/underscore/underscore.js"></script>
-        <script src="bower_components/ngstorage/ngStorage.js"></script>
-        <script src="bower_components/angular-busy/dist/angular-busy.js"></script>
-        <script src="bower_components/angular-animate/angular-animate.js"></script>
-        <script src="bower_components/angular-strap/dist/angular-strap.min.js"></script>
-        <script src="bower_components/angular-strap/dist/angular-strap.tpl.min.js"></script>
-        <script src="bower_components/ngDialog/js/ngDialog.js"></script>
-        <script src="bower_components/re-tree/re-tree.js"></script> <!-- re-tree is a sub-dependency of ng-device-detector -->
-        <script src="bower_components/ng-device-detector/ng-device-detector.js"></script>
-        <script src="bower_components/angular-file-upload/dist/angular-file-upload.min.js"></script>
-        <!-- endbuild -->
-        <!-- build:js({.tmp,app}) scripts/scripts.js -->
-        <script src="scripts/angular-geocode.js"></script>
-        <script src="scripts/shoppinpal-constants.js"></script>
-        <script src="scripts/shoppinpal-loopback.js"></script>
-        <script src="scripts/shoppinpal-utils.js"></script>
-        <script src="scripts/shoppinpal-vend.js"></script>
-        <script src="scripts/shoppinpal-prestashop.js"></script>
-        <script src="scripts/sp-alerts.js"></script>
-        <script src="scripts/app.js"></script>
-        <script src="scripts/phoneformat.js"></script> <!-- this script is NOT angular or bower friendly -->
-        <script src="scripts/filters/groupby.js"></script>
-        <script src="scripts/filters/sp-formatters.js"></script>
-        <script src="scripts/controllers/signup.js"></script>
-        <script src="scripts/controllers/mystores.js"></script>
-        <script src="scripts/controllers/onboarding.js"></script>
-        <script src="scripts/controllers/logout.js"></script>
-        <script src="scripts/controllers/login.js"></script>
-        <script src="scripts/controllers/store-landing.js"></script>
-        <script src="scripts/controllers/warehouse-landing.js"></script>
-        <script src="scripts/controllers/store-report-manager.js"></script>
-        <script src="scripts/controllers/warehouse-report.js"></script>
-        <script src="scripts/controllers/create-manual-order.js"></script>
-        <script src="scripts/controllers/store-receiver-report.js"></script>
-        <script src="scripts/services/login-service.js"></script>
-        <script src="scripts/services/ui-utils.js"></script>
-        <script src="scripts/directives/back-button.js"></script>
-        <script src="scripts/directives/shoppin-pal-header.js"></script>
-    </body>
+<!-- build:js scripts/modules.js -->
+<script src="bower_components/angular-resource/angular-resource.js"></script>
+<script src="bower_components/angular-cookies/angular-cookies.js"></script>
+<script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+<script src="bower_components/angular-touch/angular-touch.js"></script>
+<script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+<script src="bower_components/angular-ui-utils/ui-utils.js"></script>
+<!--script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script-->
+<script src="bower_components/underscore/underscore.js"></script>
+<script src="bower_components/ngstorage/ngStorage.js"></script>
+<script src="bower_components/angular-busy/dist/angular-busy.js"></script>
+<script src="bower_components/angular-animate/angular-animate.js"></script>
+<script src="bower_components/angular-strap/dist/angular-strap.min.js"></script>
+<script src="bower_components/angular-strap/dist/angular-strap.tpl.min.js"></script>
+<script src="bower_components/ngDialog/js/ngDialog.js"></script>
+<script src="bower_components/re-tree/re-tree.js"></script> <!-- re-tree is a sub-dependency of ng-device-detector -->
+<script src="bower_components/ng-device-detector/ng-device-detector.js"></script>
+<script src="bower_components/angular-file-upload/dist/angular-file-upload.min.js"></script>
+<!-- endbuild -->
+<!-- build:js({.tmp,app}) scripts/scripts.js -->
+<script src="scripts/angular-geocode.js"></script>
+<script src="scripts/shoppinpal-constants.js"></script>
+<script src="scripts/shoppinpal-loopback.js"></script>
+<script src="scripts/shoppinpal-utils.js"></script>
+<script src="scripts/shoppinpal-vend.js"></script>
+<script src="scripts/shoppinpal-prestashop.js"></script>
+<script src="scripts/sp-alerts.js"></script>
+<script src="scripts/app.js"></script>
+<script src="scripts/phoneformat.js"></script> <!-- this script is NOT angular or bower friendly -->
+<script src="scripts/filters/groupby.js"></script>
+<script src="scripts/filters/sp-formatters.js"></script>
+<script src="scripts/controllers/signup.js"></script>
+<script src="scripts/controllers/mystores.js"></script>
+<script src="scripts/controllers/onboarding.js"></script>
+<script src="scripts/controllers/logout.js"></script>
+<script src="scripts/controllers/login.js"></script>
+<script src="scripts/controllers/store-landing.js"></script>
+<script src="scripts/controllers/warehouse-landing.js"></script>
+<script src="scripts/controllers/store-report-manager.js"></script>
+<script src="scripts/controllers/warehouse-report.js"></script>
+<script src="scripts/controllers/create-manual-order.js"></script>
+<script src="scripts/controllers/store-receiver-report.js"></script>
+<script src="scripts/services/login-service.js"></script>
+<script src="scripts/services/ui-utils.js"></script>
+<script src="scripts/directives/back-button.js"></script>
+<script src="scripts/directives/shoppin-pal-header.js"></script>
+</body>
 </html>

@@ -11,6 +11,8 @@ import {PaymentsModule} from './payments/payments.module';
 import {ProductsModule} from './products/products.module';
 import {SharedModule} from './../shared/shared.module';
 import {OrdersModule} from "./orders/orders.module";
+import {ConnectModule} from "./connect/connect.module";
+import {UsersModule} from "./users/users.module";
 
 
 @NgModule({
@@ -18,11 +20,13 @@ import {OrdersModule} from "./orders/orders.module";
     CommonModule,
     HomeRoutingModule,
     SyncWithVendModule,
+    ConnectModule,
     SharedModule,
     StoresModule,
     PaymentsModule,
     ProductsModule,
     OrdersModule,
+    UsersModule,
     WorkerSettingsModule
   ],
   declarations: [HomeComponent],

@@ -13,6 +13,7 @@ import { Observable } from 'rxjs/Rx';
 import { StockOrderLineitemModel } from '../../models/StockOrderLineitemModel';
 import { UserModel } from '../../models/UserModel';
 import { ReportModel } from '../../models/ReportModel';
+import { OrgModel } from '../../models/OrgModel';
 
 
 /**
@@ -34,7 +35,7 @@ export class StockOrderLineitemModelApi extends BaseLoopBackApi {
   /**
    * Fetches belongsTo relation userModel.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id StockOrderLineitemModel id
    *
    * @param {boolean} refresh 
    *
@@ -64,7 +65,7 @@ export class StockOrderLineitemModelApi extends BaseLoopBackApi {
   /**
    * Fetches belongsTo relation reportModel.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id StockOrderLineitemModel id
    *
    * @param {boolean} refresh 
    *
@@ -94,7 +95,7 @@ export class StockOrderLineitemModelApi extends BaseLoopBackApi {
   /**
    * Fetches belongsTo relation productModel.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id StockOrderLineitemModel id
    *
    * @param {boolean} refresh 
    *
@@ -111,6 +112,36 @@ export class StockOrderLineitemModelApi extends BaseLoopBackApi {
     let _method: string = "GET";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/StockOrderLineitemModels/:id/productModel";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    if (typeof refresh !== 'undefined' && refresh !== null) _urlParams.refresh = refresh;
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * Fetches belongsTo relation orgModel.
+   *
+   * @param {any} id StockOrderLineitemModel id
+   *
+   * @param {boolean} refresh 
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * <em>
+   * (The remote method definition does not provide any description.
+   * This usually means the response is a `StockOrderLineitemModel` object.)
+   * </em>
+   */
+  public getOrgModel(id: any, refresh: any = {}, customHeaders?: Function): Observable<any> {
+    let _method: string = "GET";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/StockOrderLineitemModels/:id/orgModel";
     let _routeParams: any = {
       id: id
     };

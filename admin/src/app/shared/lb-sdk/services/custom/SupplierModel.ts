@@ -13,6 +13,7 @@ import { Observable } from 'rxjs/Rx';
 import { SupplierModel } from '../../models/SupplierModel';
 import { UserModel } from '../../models/UserModel';
 import { StoreConfigModel } from '../../models/StoreConfigModel';
+import { OrgModel } from '../../models/OrgModel';
 
 
 /**
@@ -34,7 +35,7 @@ export class SupplierModelApi extends BaseLoopBackApi {
   /**
    * Fetches belongsTo relation userModel.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id SupplierModel id
    *
    * @param {boolean} refresh 
    *
@@ -64,7 +65,7 @@ export class SupplierModelApi extends BaseLoopBackApi {
   /**
    * Fetches belongsTo relation storeConfigModel.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id SupplierModel id
    *
    * @param {boolean} refresh 
    *
@@ -94,7 +95,7 @@ export class SupplierModelApi extends BaseLoopBackApi {
   /**
    * Find a related item by id for productModels.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id SupplierModel id
    *
    * @param {any} fk Foreign key for productModels
    *
@@ -124,7 +125,7 @@ export class SupplierModelApi extends BaseLoopBackApi {
   /**
    * Delete a related item by id for productModels.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id SupplierModel id
    *
    * @param {any} fk Foreign key for productModels
    *
@@ -151,7 +152,7 @@ export class SupplierModelApi extends BaseLoopBackApi {
   /**
    * Update a related item by id for productModels.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id SupplierModel id
    *
    * @param {any} fk Foreign key for productModels
    *
@@ -185,9 +186,39 @@ export class SupplierModelApi extends BaseLoopBackApi {
   }
 
   /**
+   * Fetches belongsTo relation orgModel.
+   *
+   * @param {any} id SupplierModel id
+   *
+   * @param {boolean} refresh 
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * <em>
+   * (The remote method definition does not provide any description.
+   * This usually means the response is a `SupplierModel` object.)
+   * </em>
+   */
+  public getOrgModel(id: any, refresh: any = {}, customHeaders?: Function): Observable<any> {
+    let _method: string = "GET";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/SupplierModels/:id/orgModel";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    if (typeof refresh !== 'undefined' && refresh !== null) _urlParams.refresh = refresh;
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
    * Queries productModels of SupplierModel.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id SupplierModel id
    *
    * @param {object} filter 
    *
@@ -217,7 +248,7 @@ export class SupplierModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in productModels of this model.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id SupplierModel id
    *
    * @param {object} data Request data.
    *
@@ -250,7 +281,7 @@ export class SupplierModelApi extends BaseLoopBackApi {
   /**
    * Deletes all productModels of this model.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id SupplierModel id
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -274,7 +305,7 @@ export class SupplierModelApi extends BaseLoopBackApi {
   /**
    * Counts productModels of SupplierModel.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id SupplierModel id
    *
    * @param {object} where Criteria to match model instances
    *
@@ -332,7 +363,7 @@ export class SupplierModelApi extends BaseLoopBackApi {
   /**
    * Creates a new instance in productModels of this model.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id SupplierModel id
    *
    * @param {object} data Request data.
    *

@@ -29,7 +29,7 @@ function getSqsVariables() {
     var sqsVals;
     try {
         sqsVals = require('./terraform.json');
-    } catch (e) {
+    }catch (e) {
         console.log('------------------------------------');
         console.log('Oops ! Seems like you haven\'t generated the SQS configuration yet. Do that & try again.');
         console.log('------------------------------------');

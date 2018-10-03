@@ -1,8 +1,10 @@
 {
   "db": {
-    "port": 27020,
+    "host": "db",
+    "port": 27017,
+    "database": "warehouse-local",
     "name": "db",
-    "connector": "mongodb",
+    "connector": "loopback-connector-mongodb",
     "debug": false
   },
   "storage": {

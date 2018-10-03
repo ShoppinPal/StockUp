@@ -1,3 +1,3 @@
-module.exports = function(TeamModel) {
+module.exports = function (TeamModel) {
 
 };

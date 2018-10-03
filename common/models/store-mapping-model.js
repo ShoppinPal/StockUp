@@ -1,3 +1,3 @@
-module.exports = function(StoreMappingModel) {
+module.exports = function (StoreMappingModel) {
 
 };
