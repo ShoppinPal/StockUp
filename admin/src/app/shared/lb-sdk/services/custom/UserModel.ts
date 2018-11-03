@@ -2117,6 +2117,8 @@ export class UserModelApi extends BaseLoopBackApi {
    *
    * @param {string} id 
    *
+   * @param {object} options 
+   *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
    *   from the server.

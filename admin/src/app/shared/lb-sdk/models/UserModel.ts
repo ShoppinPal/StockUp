@@ -12,11 +12,11 @@ import {
 declare var Object: any;
 export interface UserModelInterface {
   "id"?: any;
+  "emailVerified"?: boolean;
   "realm"?: string;
   "username"?: string;
   "challenges"?: any;
   "email": string;
-  "emailVerified"?: boolean;
   "status"?: string;
   "created"?: Date;
   "lastUpdated"?: Date;
@@ -42,11 +42,11 @@ export interface UserModelInterface {
 
 export class UserModel implements UserModelInterface {
   "id": any;
+  "emailVerified": boolean;
   "realm": string;
   "username": string;
   "challenges": any;
   "email": string;
-  "emailVerified": boolean;
   "status": string;
   "created": Date;
   "lastUpdated": Date;
@@ -104,6 +104,11 @@ export class UserModel implements UserModelInterface {
           name: 'id',
           type: 'any'
         },
+        "emailVerified": {
+          name: 'emailVerified',
+          type: 'boolean',
+          default: false
+        },
         "realm": {
           name: 'realm',
           type: 'string'
@@ -123,10 +128,6 @@ export class UserModel implements UserModelInterface {
         "email": {
           name: 'email',
           type: 'string'
-        },
-        "emailVerified": {
-          name: 'emailVerified',
-          type: 'boolean'
         },
         "status": {
           name: 'status',

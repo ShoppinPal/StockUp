@@ -16,15 +16,20 @@
           <button type="button" [disabled]="integration.length && integration[0].type === 'msdynamics'"
                   *ngIf="integration.length && integration[0].type === 'msdynamics'" class="btn btn-primary">Connected
           </button>
-          <button type="button" *ngIf="integration.length && integration[0].type === 'msdynamics'"
-                  class="btn btn-success">Start Sync
+          <button type="button"
+                  *ngIf="integration.length && integration[0].type === 'msdynamics' && !syncModels"
+                  class="btn btn-success"
+                  (click)="initiateMSDSync()">Start Sync
+          </button>
+          <button type="button"
+                  *ngIf="integration.length && integration[0].type === 'msdynamics' && syncModels"
+                  class="btn btn-success"
+                  (click)="stopMSDSync()">Stop Sync
           </button>
         </div>
       </div>
     </div><!--/.col-->
-    <div [ngClass]="{'col-sm-6 col-md-4': !integration.length, 'col-sm-12': integration.length && integration[0].type==='vend'}" class=""
-         *ngIf="!integration.length || integration[0].type==='vend'">
-
+    <div class="col-sm-6 col-md-4" *ngIf="!integration.length || integration[0].type==='vend'">
       <div class="card border-success">
         <div class="card-header">
           Vend POS
@@ -38,55 +43,83 @@
           <button type="button" [disabled]="integration.length && integration[0].type === 'vend'"
                   *ngIf="integration.length && integration[0].type === 'vend'" class="btn btn-success">Connected
           </button>
-          <button type="button" *ngIf="integration.length && integration[0].type === 'vend'" class="btn btn-primary" (click)="initiateVendSync()">
+          <button type="button" *ngIf="integration.length && integration[0].type === 'vend' && !syncModels" class="btn btn-primary"
+                  (click)="initiateVendSync()">
             Start Sync
           </button>
+          <button type="button" *ngIf="integration.length && integration[0].type === 'vend' && syncModels" class="btn btn-primary"
+                  (click)="initiateVendSync()">
+            Stop Sync
+          </button>
         </div>
-        <table class="table table-hover table-striped table-align-middle mb-0" *ngIf="integration.length && integration[0].type === 'vend'">
-          <thead>
-          <th>Data object</th>
-          <th>Sync Status</th>
-          </thead>
-          <tbody>
-          <tr>
-            <td>
-              Products
-            </td>
-            <td>
-              <label class="switch switch-3d switch-primary">
-                <input type="checkbox" class="switch-input" [ngModel]="checkSync('products')" disabled>
-                <span class="switch-label"></span>
-                <span class="switch-handle"></span>
-              </label>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Inventory
-            </td>
-            <td>
-              <label class="switch switch-3d switch-primary">
-                <input type="checkbox" class="switch-input" [ngModel]="checkSync('inventory')" disabled>
-                <span class="switch-label"></span>
-                <span class="switch-handle"></span>
-              </label>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Suppliers
-            </td>
-            <td>
-              <label class="switch switch-3d switch-primary">
-                <input type="checkbox" class="switch-input" [ngModel]="checkSync('suppliers')" disabled>
-                <span class="switch-label"></span>
-                <span class="switch-handle"></span>
-              </label>
-            </td>
-          </tr>
-          </tbody>
-        </table>
       </div>
-    </div><!--/.col-->
+    </div>
   </div><!--/.row-->
+  <div class="row">
+    <div class="col-sm-12" *ngIf="integration.length">
+      <div class="card">
+        <div class="card-header">
+          Sync Data
+        </div>
+        <div class="card-body text-center">
+          <table class="table table-hover table-striped table-align-middle mb-0" *ngIf="integration.length">
+            <thead>
+            <th>Data object</th>
+            <th>Sync Status</th>
+            </thead>
+            <tbody>
+            <tr>
+              <td>
+                Users
+              </td>
+              <td>
+                <label class="switch switch-3d switch-primary">
+                  <input type="checkbox" class="switch-input" [ngModel]="checkSync('products')" disabled>
+                  <span class="switch-label"></span>
+                  <span class="switch-handle"></span>
+                </label>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Products
+              </td>
+              <td>
+                <label class="switch switch-3d switch-primary">
+                  <input type="checkbox" class="switch-input" [ngModel]="checkSync('products')" disabled>
+                  <span class="switch-label"></span>
+                  <span class="switch-handle"></span>
+                </label>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Inventory
+              </td>
+              <td>
+                <label class="switch switch-3d switch-primary">
+                  <input type="checkbox" class="switch-input" [ngModel]="checkSync('inventory')" disabled>
+                  <span class="switch-label"></span>
+                  <span class="switch-handle"></span>
+                </label>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Suppliers
+              </td>
+              <td>
+                <label class="switch switch-3d switch-primary">
+                  <input type="checkbox" class="switch-input" [ngModel]="checkSync('suppliers')" disabled>
+                  <span class="switch-label"></span>
+                  <span class="switch-handle"></span>
+                </label>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

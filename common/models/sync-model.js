@@ -214,7 +214,7 @@ module.exports = function (SyncModel) {
                     });
                     var usersToCreate = [];
                     for (var i = 0; i<users.value.length; i++) {
-                        if (users.value[i].Email.length) {
+                        if(users.value[i].Email.length) {
                             usersToCreate.push({
                                 email: users.value[i].Email,
                                 name: users.value[i].UserName,
@@ -286,7 +286,7 @@ module.exports = function (SyncModel) {
                     });
                     var storesToCreate = [];
                     for (var i = 0; i<stores.value.length; i++) {
-                        if (stores.value[i].Name.length) {
+                        if(stores.value[i].Name.length) {
                             storesToCreate.push({
                                 name: stores.value[i].Name,
                                 currency: stores.value[i].Currency,

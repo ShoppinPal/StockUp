@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ChangeDetectorRef} from '@angular/core';
 import {OrgModelApi} from "../../shared/lb-sdk/services/custom/OrgModel";
 import {ActivatedRoute} from '@angular/router';
 import {UserProfileService} from "../../shared/services/user-profile.service";
@@ -12,18 +12,19 @@ export class ConnectComponent implements OnInit {
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
-              private _userProfileService: UserProfileService) {
+              private _userProfileService: UserProfileService,
+              private cd: ChangeDetectorRef) {
   }
 
   public userProfile: any = this._userProfileService.getProfileData();
   public integration: any;
+  public syncModels: number;
   public loading: boolean = false;
 
   ngOnInit() {
     this._route.data.subscribe((data: any) => {
-        this.integration = data.integration;
-        console.log('data.user', this.userProfile);
-        console.log('data.integration', this.integration);
+        this.integration = data.integration.integration;
+        this.syncModels = data.integration.syncModels;
       },
       error => {
         console.log('error', error)
@@ -54,7 +55,37 @@ export class ConnectComponent implements OnInit {
         this.loading = false;
         console.log('err', err);
       });
+  }
 
+  private initiateMSDSync() {
+    console.log('msd syync');
+    this.loading = true;
+    this.orgModelApi.initiateMSDSync(this.userProfile.orgModelId)
+      .subscribe((data: any) => {
+      console.log('msd sync', data);
+        this.syncModels = data.syncStatus;
+        this.loading = false;
+        this.cd.markForCheck();
+      },
+      err => {
+        this.loading = false;
+        console.log('err', err);
+      });
+  }
+
+  private stopMSDSync() {
+    this.loading = true;
+    this.orgModelApi.stopMSDSync(this.userProfile.orgModelId)
+      .subscribe((data: any) => {
+      console.log(' stopped msd sync', data);
+        this.loading = false;
+        this.syncModels = 0;
+        this.cd.markForCheck();
+      },
+      err => {
+        this.loading = false;
+        console.log('err', err);
+      });
   }
 
   checkSync(dataObject) {

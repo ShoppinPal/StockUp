@@ -105,6 +105,12 @@
     },
     {
       "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__count__syncModels"
+    },
+    {
+      "principalType": "ROLE",
       "principalId": "warehouseManager",
       "permission": "ALLOW",
       "property": "__get__productModels"
@@ -133,6 +139,20 @@
       "principalId": "orgAdmin",
       "permission": "ALLOW",
       "property": "initiateVendSync"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "initiateMSDSync"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "stopMSDSync"
     },
     {
       "accessType": "EXECUTE",

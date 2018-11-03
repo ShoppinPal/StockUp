@@ -61,7 +61,7 @@ services:
   worker:
     image: shoppinpal/node:6.10
     working_dir: /apps/workers
-    command: ./node_modules/nodemon/bin/nodemon.js sqsWorker.js
+    command: node sqsWorker.js
     volumes:
       - type: bind
         source: ./workers
@@ -74,7 +74,7 @@ services:
   worker2:
     image: shoppinpal/node:6.10
     working_dir: /apps/workers
-    command: ./node_modules/nodemon/bin/nodemon.js sqsWorker.js
+    command: node sqsWorker.js
     volumes:
       - type: bind
         source: ./workers
@@ -83,6 +83,17 @@ services:
     env_file: worker2.env
     depends_on:
       - memcache
+
+  sync-engine:
+    image: shoppinpal/node:6.10
+    working_dir: /apps/workers
+    command: node syncWorker.js
+    volumes:
+      - type: bind
+        source: ./workers
+        target: /apps/workers
+    restart: always
+    env_file: syncWorker.env
 
   db:
     image: mongo:3.2

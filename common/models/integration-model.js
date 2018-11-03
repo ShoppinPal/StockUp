@@ -34,7 +34,7 @@ module.exports = function (IntegrationModel) {
                 authUrl += IntegrationModel.app.get('integrations').msDynamics.auth_endpoint;
                 authUrl += '?client_id=' + IntegrationModel.app.get('integrations').msDynamics.client_id;
                 authUrl += '&redirect_uri=' + IntegrationModel.app.get('site').baseUrl + '/api/OrgModels/handleMSDToken';
-                authUrl += '&resource=https://d365try-201.trial.operations.dynamics.com/';
+                authUrl += '&resource=https://lmmyuat.sandbox.operations.dynamics.com'; //TODO: bring this from orgModel
             }
             else {
                 return Promise.reject('Integration type is not supported');

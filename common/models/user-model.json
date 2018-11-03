@@ -11,6 +11,10 @@
       "type": "string",
       "id": true,
       "generated": true
+    },
+    "emailVerified": {
+      "type": "boolean",
+      "default": false
     }
   },
   "validations": [],

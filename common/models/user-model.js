@@ -5,6 +5,8 @@ const logger = require('sp-json-logger')({fileName: 'common:models:' + fileName}
 var _ = require('underscore');
 var Joi = Promise.promisifyAll(require('joi'));
 var validate = Promise.promisify(require('joi').validate);
+const aws = require('aws-sdk');
+const nodemailer = require('nodemailer');
 
 module.exports = function (UserModel) {
 
@@ -135,21 +137,16 @@ module.exports = function (UserModel) {
                     });
                 })
                 .then(function (userModelInstance) {
+                    var rolesToAssign = ['orgAdmin'];
+                            return UserModel.assignRoles(userModelInstance.id, rolesToAssign);
+                })
+                .then(function (userModelInstance) {
                     logger.debug({
                         userModelInstance: userModelInstance,
                         message: 'Created this user for the organisation',
                         functionName: 'signup'
                     });
                     userModelCreated = userModelInstance;
-                    var rolesToAssign = ['orgAdmin'];
-                    return UserModel.assignRoles(userModelCreated.id, rolesToAssign);
-                })
-                .then(function (response) {
-                    logger.debug({
-                        message: 'Created roles for user',
-                        response,
-                        functionName: 'signup'
-                    });
                     cb(null, userModelCreated);
                 })
                 .catch(function (error) {
@@ -210,6 +207,77 @@ module.exports = function (UserModel) {
                     }
                 });
         };
+
+        // UserModel.observe('after save', function (ctx, next) {
+        //     try {
+        //         if (ctx.isNewInstance) {
+        //             aws.config.region = UserModel.app.get('awsSesRegion') || process.env.AWS_SES_REGION;
+        //             var transporter = nodemailer.createTransport({
+        //                 SES: new aws.SES({
+        //                     apiVersion: '2010-12-01'
+        //                 })
+        //             });
+        //
+        //             //cloning because userInstance.verify accepts a mailer which has .send() function by default
+        //             transporter.send = transporter.sendMail;
+        //             var verifyOptions = {
+        //                 type: 'email',
+        //                 to: 'kamal@shoppinpal.com',
+        //                 // to: ctx.instance.email,
+        //                 subject: 'Thank you for registering.',
+        //                 from: UserModel.app.get('verificationEmail') || process.env.VERIFICATION_EMAIL,
+        //                 // from: 'kamal@shoppinpal.com',
+        //                 redirect: '/',
+        //                 user: ctx.instance,
+        //                 mailer: transporter
+        //             };
+        //             ctx.instance.verify(verifyOptions, function (err, obj) {
+        //                 if (err) {
+        //                     logger.error({
+        //                         err,
+        //                         message: 'Error from the mailer',
+        //                         functionName: 'UserModel:after save'
+        //                     });
+        //                     next(err);
+        //                 }
+        //                 else {
+        //                     logger.debug({
+        //                         message: 'Verification email sent',
+        //                         functionName: 'UserModel:after save'
+        //                     });
+        //                     var rolesToAssign = ['orgAdmin'];
+        //                     UserModel.assignRoles(ctx.instance.id, rolesToAssign)
+        //                         .then(function (roles) {
+        //                             logger.debug({
+        //                                 message: 'Created roles for user',
+        //                                 roles,
+        //                                 functionName: 'UserModel:after save'
+        //                             });
+        //                             next();
+        //                         })
+        //                         .catch(function (error) {
+        //                             logger.error({
+        //                                 message: 'Error creating roles for user',
+        //                                 functionName: 'UserModel:after save'
+        //                             });
+        //                             next(error);
+        //                         });
+        //                 }
+        //             });
+        //         }
+        //         else {
+        //             next();
+        //         }
+        //     }
+        //     catch (e) {
+        //         logger.error({
+        //             e,
+        //             message: 'Error from the mailer',
+        //             functionName: 'UserModel:after save'
+        //         });
+        //         next(e);
+        //     }
+        // });
 
         UserModel.assignRoles = function (userId, rolesToAssign) {
             logger.debug({
@@ -278,5 +346,4 @@ module.exports = function (UserModel) {
 
 
     });
-
 };
