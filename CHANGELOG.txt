@@ -1,3 +1,6 @@
+v1.5.5 - Nov 06, 2018
+- make worker open source
+
 v1.5.4 - Feb 13, 2018
 - released with json logger
 

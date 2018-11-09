@@ -1,4 +1,4 @@
-# warehouse
+# Warehouse
 
 Replenishing stock is one of the most important repetitive tasks performed by a retailer, yet for majority of the retail world this process is highly inefficient and time consuming. We've created a (first of its kind) open-source and free iPad application that makes the stock ordering process fast and fun, and frees up a whole lot of time for store managers and warehouse folks. To top it off, this app works beautifully with your inventory and POS! Just let us know which system(s) you use and we can add the integration.
 
@@ -8,6 +8,27 @@ Replenishing stock is one of the most important repetitive tasks performed by a 
 
 - Install [Docker for Mac](https://download.docker.com/mac/stable/Docker.dmg) Or [Windows](https://download.docker.com/win/stable/InstallDocker.msi)
 - Install [Docker Compose](https://docs.docker.com/compose/install/)
+
+# Deployment Architecture
+The deployment consists of the following key components (few aspects have been left out for the the sake of brevity).
+
+![alt text](https://raw.githubusercontent.com/ShoppinPal/warehouse/feature/kamal/update-readme-with-architecture/client/app/images/Screen%20Shot%202018-07-12%20at%202.51.04%20PM.png)
+
+### LoopBack (LB) Node Cluster
+- LoopBack Node cluster is the frontend (responsive web app) for Warehouse used by the store and fulfillment center staff.
+- This module only accept inputs and displays the results to the end user, while the heavy lifting is performed by the **worker cluster**.
+- The LB cluster will be deployed in a fashion so that it will scale based on resources utilized on server as traffic increases towards the application. Auto-scaling can also help in mitigating some low scale attacks that happen on web applications generally.
+
+### Worker Node Cluster
+- Worker Node Cluster will perform all heavy operations such as communicating with POS/ERP APIs and updating the database. As this is the backend cluster and has to communicate with POS/ERP APIs as well as the Database, it will be hidden and within a secure environment.
+Standard measures for security like IP whitelisting will be used to allow access from specific nodes.
+
+### Database
+- Warehouse uses MongoDB as the database. This will be deployed in a private cluster where only the Worker and LoopBack nodes can communicate with it. Here you have the option of using a hosted service such as MongoLab or setting up Mongo within your environment.
+
+### Security measures
+- User traffic can be filtered with Firewalls such as Apigee or CloudFlare (or any others currently being used in your environment) to prevent malicious traffic.
+- All traffic exclusively over HTTPS.
 
 # Deploy
 
