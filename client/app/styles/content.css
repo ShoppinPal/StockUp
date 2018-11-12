@@ -1332,3 +1332,15 @@ background-color: #E0E0E0;
 .clickable-table-column {
   cursor: pointer;
 }
+
+.emailFields input{
+  width: 100%;
+}
+
+.emailFields .validEmailCounters {
+  color: green;
+}
+
+.emailFields .invalidEmailCounters {
+  color: orangered;
+}

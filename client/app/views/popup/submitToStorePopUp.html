@@ -1,6 +1,36 @@
 <div class="dialog-contents" id="store-report-modal">
     <h1>Store report Manager</h1>
     <p>Your order will be submitted to the warehouse for fulfillment.</p>
+    <p><input type="checkbox" ng-model="showEmail" id="sendEmail"/>&nbsp;<label for="sendEmail"> Send Email? </label></p>
+    <div class="emailFields" ng-show="showEmail">
+        <p>
+            To:
+            <input type="text" ng-model="toEmail" ng-change="toEmailValidation()"
+                   placeholder="Enter comma separated emails"/>
+            <span class="validEmailCounters" ng-if="validEmailCounter > 0">{{validEmailCounter}} valid email(s)</span>
+            <span ng-if="validEmailCounter > 0 && invalidEmailCounter > 0"> | </span>
+            <span class="invalidEmailCounters"
+                  ng-if="invalidEmailCounter > 0">{{invalidEmailCounter}} invalid email(s)</span>
+        </p>
+
+        <p>Cc: <input type="text" ng-model="ccEmail" ng-change="ccEmailValidation()"
+                      placeholder="Enter comma separated emails"/>
+            <span class="validEmailCounters"
+                  ng-if="ccValidEmailCounter > 0">{{ccValidEmailCounter}} valid email(s)</span>
+            <span ng-if="ccValidEmailCounter > 0 && ccInvalidEmailCounter > 0"> | </span>
+            <span class="invalidEmailCounters" ng-if="ccInvalidEmailCounter > 0">{{ccInvalidEmailCounter}} invalid email(s)</span>
+        </p>
+        <p>
+            Bcc: <input type="text" ng-model="bccEmail" ng-change="bccEmailValidation()"
+                        placeholder="Enter comma separated emails"/>
+            <span class="validEmailCounters"
+                  ng-if="bccValidEmailCounter > 0">{{bccValidEmailCounter}} valid email(s)</span>
+            <span ng-if="bccValidEmailCounter > 0 && bccInvalidEmailCounter > 0"> | </span>
+            <span class="invalidEmailCounters" ng-if="bccInvalidEmailCounter > 0">{{bccInvalidEmailCounter}} invalid email(s)</span>
+        </p>
+    </div>
     <button ng-click="closeThisDialog(false)">Cancel</button>
-    <button ng-click="closeThisDialog(true)">OK</button>
+    <button ng-click="submitOrder()"
+            ng-disabled="showEmail && (invalidEmailCounter > 0 || ccInvalidEmailCounter > 0 || bccInvalidEmailCounter > 0)">OK
+    </button>
 </div>
