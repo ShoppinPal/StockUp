@@ -8,8 +8,7 @@
  */
 angular.module('ShoppinPalApp')
   .controller('StoreManagerCtrl',
-    [
-      '$scope', '$anchorScroll', '$location', '$state', '$stateParams', '$filter', '$sessionStorage', '$q', /* angular's modules/services/factories etc. */
+    ['$scope', '$anchorScroll', '$location', '$state', '$stateParams', '$filter', '$sessionStorage', '$q', /* angular's modules/services/factories etc. */
       '$spAlerts', 'loginService', 'uiUtils', 'StockOrderLineitemModel', 'ReportModel', 'StoreModel', /* shoppinpal's custom modules/services/factories etc. */
       'ngDialog', 'deviceDetector', '$timeout', /* 3rd party modules/services/factories etc. */
       'ReportModelStates', /* constants */
@@ -421,6 +420,9 @@ angular.module('ShoppinPalApp')
               })
                 .$promise.then(function (updatedReportModelInstance) {
                   console.log('updatedReportModelInstance', updatedReportModelInstance);
+                  return ReportModel.sendReportAsEmail({id: $stateParams.reportId, toEmailArray: proceed.toEmailArray}).$promise;
+                })
+                .then(function () {
                   return $state.go('store-landing'); // TODO: based on the role this may point at 'warehouse-landing' instead!
                 });
             }

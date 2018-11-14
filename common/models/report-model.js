@@ -1,9 +1,10 @@
 'use strict';
-
+var nodemailer = require('nodemailer');
+var aws = require('aws-sdk');
 var Promise = require('bluebird');
 var request = require('request-promise');
 var _ = require('underscore');
-
+const papaparse = require('papaparse');
 var path = require('path');
 var modulePath = require('mongodb');
 var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
@@ -104,6 +105,17 @@ module.exports = function (ReportModel) {
     ],
     http: {path: '/:id/setReportStatus', verb: 'put'},
     returns: {arg: 'updatedReportModelInstance', type: 'object', root: true}
+  });
+
+  ReportModel.remoteMethod('sendReportAsEmail', {
+    accepts: [
+      {arg: 'id', type: 'string', required: true},
+      {arg: 'toEmailArray', type: 'array', required: true},
+      {arg: 'ccEmailArray', type: 'array'},
+      {arg: 'bccEmailArray', type: 'array'}
+    ],
+    http: {path: '/:id/sendReportAsEmail', verb: 'post'},
+    returns: {arg: 'emailStatus', type: 'boolean', root: true}
   });
 
   var ClientError = function ClientError(e) {
@@ -1363,6 +1375,90 @@ module.exports = function (ReportModel) {
         return Promise.reject('Could not remove stuck orders', error);
       });
 
+  }
+
+  ReportModel.sendReportAsEmail = function (id, toEmailArray, ccEmailArray, bccEmailArray, cb) {
+    toEmailArray.forEach(function (eachEmail) {
+      if (!validateEmail(eachEmail)) {
+        cb('Invalid Primary Email: ' + eachEmail);
+      }
+    });
+    ccEmailArray.forEach(function (eachEmail) {
+      if (!validateEmail(eachEmail)) {
+        cb('Invalid Cc Email: ' + eachEmail);
+      }
+    });
+    bccEmailArray.forEach(function (eachEmail) {
+      if (!validateEmail(eachEmail)) {
+        cb('Invalid Bcc Email: ' + eachEmail);
+      }
+    });
+    aws.config.region = 'us-west-2';
+    var transporter = nodemailer.createTransport({
+      SES: new aws.SES({
+        apiVersion: '2010-12-01'
+      })
+    });
+    var report, csvArray = [];
+    ReportModel.findById(id)
+      .then(function (reportModelInstance) {
+        report = reportModelInstance;
+        logger.debug({log: {message: 'Found this report model', report: reportModelInstance}});
+        logger.debug({log: {message: 'Will look for stock line items for the report'}});
+        return ReportModel.app.models.StockOrderLineitemModel.find({
+          where: {
+            reportId: id
+          }
+        });
+      })
+      .then(function (lineItems) {
+        logger.debug({log: {message: 'Found ' + lineItems.length + ' line items for the report, will convert to csv'}});
+        for (var i = 0; i<lineItems.length; i++) {
+          csvArray.push({
+            'Product': lineItems[i].name,
+            'SKU': lineItems[i].sku,
+            'Supplier Code': report.supplier.id,
+            'Ordered': lineItems[i].orderQuantity,
+            'Supply cost': lineItems[i].supplyPrice,
+            'Total supply cost': lineItems[i].supplyPrice * lineItems[i].orderQuantity,
+            'Comments': lineItems[i].comments? lineItems[i].comments.manager_in_process : ''
+          });
+        }
+        var csvReport = papaparse.unparse(csvArray);
+        var emailOptions = {
+          type: 'email',
+          to: toEmailArray.toString(),
+          subject: 'Order for ' + report.outlet.name,
+          from: report.outlet.name + '\<kamal@shoppinpal.com>',
+          mailer: transporter,
+          attachments: [
+            {
+              filename: report.name + '.csv',
+              content: csvReport,
+              contentType: 'text/comma-separated-values'
+            }
+          ]
+        };
+        transporter.sendMail(emailOptions, function (err, success) {
+          if (err) {
+            logger.error({log: {error: err}});
+            cb(err);
+          }
+          else {
+            logger.debug({log: {message: 'Sent email successfully', response: success.messageId}});
+            cb(null, true);
+          }
+        });
+      })
+      .catch(function (error) {
+        logger.error({log: {error: error}});
+        cb(error);
+      });
+  };
+
+  function validateEmail(email) {
+    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
   }
 
 };
