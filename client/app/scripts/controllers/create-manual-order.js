@@ -185,7 +185,8 @@ angular.module('ShoppinPalApp').controller(
             },
             supplier: {
               id: self.selectedSupplier.api_id,  // jshint ignore:line
-              name: self.selectedSupplier.name
+              name: self.selectedSupplier.name,
+              email: self.selectedSupplier.description //description contains email because Vend apis don't give all attrs
             },
             storeConfigModelId: self.selectedSupplier.storeConfigModelId
           }

@@ -1400,7 +1400,12 @@ module.exports = function (ReportModel) {
       })
     });
     var report, csvArray = [];
-    ReportModel.findById(id)
+    ReportModel.findById(id, {
+      include: {
+        relation: 'userModel',
+        fields: ['email']
+      }
+    })
       .then(function (reportModelInstance) {
         report = reportModelInstance;
         logger.debug({log: {message: 'Found this report model', report: reportModelInstance}});
@@ -1421,15 +1426,17 @@ module.exports = function (ReportModel) {
             'Ordered': lineItems[i].orderQuantity,
             'Supply cost': lineItems[i].supplyPrice,
             'Total supply cost': lineItems[i].supplyPrice * lineItems[i].orderQuantity,
-            'Comments': lineItems[i].comments? lineItems[i].comments.manager_in_process : ''
+            'Comments': lineItems[i].comments ? lineItems[i].comments.manager_in_process : ''
           });
         }
         var csvReport = papaparse.unparse(csvArray);
         var emailOptions = {
           type: 'email',
           to: toEmailArray.toString(),
+          cc: ccEmailArray.toString(),
+          bcc: bccEmailArray.toString(),
           subject: 'Order for ' + report.outlet.name,
-          from: report.outlet.name + '\<kamal@shoppinpal.com>',
+          from: report.outlet.name + '\<'+report.userModel().email+'>',
           mailer: transporter,
           attachments: [
             {
