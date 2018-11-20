@@ -1399,16 +1399,38 @@ module.exports = function (ReportModel) {
         apiVersion: '2010-12-01'
       })
     });
-    var report, csvArray = [];
+    var report, csvArray = [], supplier, emailSubject;
     ReportModel.findById(id, {
-      include: {
-        relation: 'userModel',
-        fields: ['email']
-      }
+      include: ['userModel', 'storeConfigModel']
     })
       .then(function (reportModelInstance) {
         report = reportModelInstance;
         logger.debug({log: {message: 'Found this report model', report: reportModelInstance}});
+        if (reportModelInstance.supplier) {
+          logger.debug({log: {message: 'Will look for supplier for the report'}});
+          return ReportModel.app.models.SupplierModel.find({
+            where: {
+              api_id: reportModelInstance.supplier.id
+            }
+          });
+        }
+        else {
+          logger.debug({log: {message: 'Report is not specific to a supplier, need generate email? Don\'t know what to do MAN!!!'}});
+          return Promise.resolve('noSupplier');
+        }
+      })
+      .then(function (supplierInstance) {
+        if (supplierInstance === 'noSupplier') {
+          emailSubject = 'Order #' + report.outlet.name + ' from '+report.storeConfigModel().name;
+        }
+        else {
+          if (supplierInstance.storeIds && supplierInstance.storeIds[report.outlet.outletId]) {
+            emailSubject = 'Order #' + report.outlet.name + '-' + supplierInstance.storeIds[report.outlet.outletId] + ' from'+report.storeConfigModel().name;
+          }
+          else {
+            emailSubject = 'Order #' + report.outlet.name + ' from '+report.storeConfigModel().name;
+          }
+        }
         logger.debug({log: {message: 'Will look for stock line items for the report'}});
         return ReportModel.app.models.StockOrderLineitemModel.find({
           where: {
@@ -1435,8 +1457,8 @@ module.exports = function (ReportModel) {
           to: toEmailArray.toString(),
           cc: ccEmailArray.toString(),
           bcc: bccEmailArray.toString(),
-          subject: 'Order for ' + report.outlet.name,
-          from: report.outlet.name + '\<'+report.userModel().email+'>',
+          subject: emailSubject,
+          from: report.outlet.name + '\<' + report.userModel().email + '>',
           mailer: transporter,
           attachments: [
             {

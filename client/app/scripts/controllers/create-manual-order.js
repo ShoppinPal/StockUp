@@ -181,12 +181,13 @@ angular.module('ShoppinPalApp').controller(
             state: ReportModelStates.REPORT_EMPTY,
             outlet: {
               id: self.selectedStore.api_id, // jshint ignore:line
-              name: self.selectedStore.name
+              name: self.selectedStore.name,
+              outletId: self.selectedStore.id
             },
             supplier: {
               id: self.selectedSupplier.api_id,  // jshint ignore:line
               name: self.selectedSupplier.name,
-              email: self.selectedSupplier.description //description contains email because Vend apis don't give all attrs
+              email: self.selectedSupplier.email
             },
             storeConfigModelId: self.selectedSupplier.storeConfigModelId
           }
