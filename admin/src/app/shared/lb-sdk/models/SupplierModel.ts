@@ -7,7 +7,9 @@ import {
 declare var Object: any;
 export interface SupplierModelInterface {
   "name": string;
-  "apiId": string;
+  "api_id": string;
+  "email"?: string;
+  "storeIds"?: any;
   "id"?: any;
   "userId"?: any;
   "storeConfigModelToSupplierModelId"?: any;
@@ -19,7 +21,9 @@ export interface SupplierModelInterface {
 
 export class SupplierModel implements SupplierModelInterface {
   "name": string;
-  "apiId": string;
+  "api_id": string;
+  "email": string;
+  "storeIds": any;
   "id": any;
   "userId": any;
   "storeConfigModelToSupplierModelId": any;
@@ -63,9 +67,17 @@ export class SupplierModel implements SupplierModelInterface {
           name: 'name',
           type: 'string'
         },
-        "apiId": {
-          name: 'apiId',
+        "api_id": {
+          name: 'api_id',
           type: 'string'
+        },
+        "email": {
+          name: 'email',
+          type: 'string'
+        },
+        "storeIds": {
+          name: 'storeIds',
+          type: 'any'
         },
         "id": {
           name: 'id',

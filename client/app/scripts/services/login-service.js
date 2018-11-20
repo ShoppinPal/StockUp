@@ -77,6 +77,7 @@ angular.module('ShoppinPalApp')
                 //console.log('data.stockOrderLineitemModels:\n' + JSON.stringify(data.stockOrderLineitemModels, null, 2));
                 return {
                   storeName: data.outlet.name,
+                  supplier: data.supplier,
                   stockOrderLineitemModels: data.stockOrderLineitemModels
                 };
               },

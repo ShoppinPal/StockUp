@@ -11,6 +11,19 @@ export const navigation = [
   ,
   {
     title: true,
+    name: 'Suppliers'
+  },
+  {
+    name: 'Suppliers',
+    url: '/suppliers',
+    icon: 'icon-close',
+    badge: {
+      variant: 'success',
+      text: 'new'
+    }
+  },
+  {
+    title: true,
     name: 'Orders'
   },
   {

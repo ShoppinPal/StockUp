@@ -10,9 +10,16 @@
       "type": "string",
       "required": true
     },
-    "apiId": {
+    "api_id": {
+      "type": "string"
+    },
+    "email": {
       "type": "string",
-      "required": true
+      "required": false
+    },
+    "storeIds": {
+      "type": "object",
+      "required": false
     }
   },
   "validations": [],

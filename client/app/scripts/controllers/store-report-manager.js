@@ -22,7 +22,7 @@ angular.module('ShoppinPalApp')
         var ROW_STATE_NOT_COMPLETE = '!complete';
         var ROW_STATE_PENDING = 'pending';
 
-        var originalReportDataSet; // no need to put everything in the $scope, only what's needed
+        var originalReportDataSet, supplierEmail; // no need to put everything in the $scope, only what's needed
 
         $scope.storeName = ($sessionStorage.currentStore) ? $sessionStorage.currentStore.name : null;
 
@@ -342,10 +342,11 @@ angular.module('ShoppinPalApp')
             template: 'views/popup/submitToStorePopUp.html',
             className: 'ngdialog-theme-plain',
             scope: $scope,
+            data: supplierEmail,
             closeByDocument: false,
             controller: ['$scope', function ($scope) {
               $scope.showEmail = true;
-
+              $scope.toEmail = $scope.ngDialogData;
               $scope.toEmailValidation = function () {
                 $scope.validEmailCounter = 0;
                 $scope.invalidEmailCounter = 0;
@@ -395,12 +396,23 @@ angular.module('ShoppinPalApp')
               };
 
               $scope.submitOrder = function () {
-                $scope.returnObject = {
-                  toEmailArray: $scope.toEmailArray,
-                  ccEmailArray: $scope.ccEmailArray,
-                  bccEmailArray: $scope.bccEmailArray
-                };
-                $scope.closeThisDialog($scope.returnObject);
+                if ($scope.toEmail) {
+                  $scope.toEmailValidation();
+                }
+                if ($scope.ccEmail) {
+                  $scope.ccEmailValidation();
+                }
+                if ($scope.bccEmail) {
+                  $scope.bccEmailValidation();
+                }
+                if (!$scope.invalidEmailCounter && !$scope.ccInvalidEmailCounter && !$scope.bccInvalidEmailCounter) {
+                  $scope.returnObject = {
+                    toEmailArray: $scope.toEmailArray,
+                    ccEmailArray: $scope.ccEmailArray,
+                    bccEmailArray: $scope.bccEmailArray
+                  };
+                  $scope.closeThisDialog($scope.returnObject);
+                }
               };
 
               function validateEmail(email) {
@@ -420,7 +432,10 @@ angular.module('ShoppinPalApp')
               })
                 .$promise.then(function (updatedReportModelInstance) {
                   console.log('updatedReportModelInstance', updatedReportModelInstance);
-                  return ReportModel.sendReportAsEmail({id: $stateParams.reportId, toEmailArray: proceed.toEmailArray}).$promise;
+                  return ReportModel.sendReportAsEmail({
+                    id: $stateParams.reportId,
+                    toEmailArray: proceed.toEmailArray
+                  }).$promise;
                 })
                 .then(function () {
                   return $state.go('store-landing'); // TODO: based on the role this may point at 'warehouse-landing' instead!
@@ -511,6 +526,7 @@ angular.module('ShoppinPalApp')
         if ($stateParams.reportId) {
           $scope.waitOnPromise = loginService.getReport($stateParams.reportId)
             .then(function (response) {
+              supplierEmail = response.supplier.email;
               originalReportDataSet = response.stockOrderLineitemModels;
               setup();
             });

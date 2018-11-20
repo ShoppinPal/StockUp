@@ -11,6 +11,7 @@ import {PaymentsModule} from './payments/payments.module';
 import {ProductsModule} from './products/products.module';
 import {SharedModule} from './../shared/shared.module';
 import {OrdersModule} from "./orders/orders.module";
+import {SuppliersModule} from "./suppliers/suppliers.module";
 
 
 @NgModule({
@@ -20,6 +21,7 @@ import {OrdersModule} from "./orders/orders.module";
     SyncWithVendModule,
     SharedModule,
     StoresModule,
+    SuppliersModule,
     PaymentsModule,
     ProductsModule,
     OrdersModule,
