@@ -37,7 +37,6 @@ export class SuppliersComponent implements OnInit {
   ngOnInit() {
     this.userProfile = this._userProfileService.getProfileData();
     this._route.data.subscribe((data: any) => {
-      console.log('data', data);
         this.suppliers = data.suppliers.suppliers;
         this.totalSuppliers = data.suppliers.count;
         this.totalPages = this.totalSuppliers / this.suppliersLimitPerPage;
@@ -103,7 +102,7 @@ export class SuppliersComponent implements OnInit {
             this.foundSupplier = true;
           }
           else {
-            this.toastr.error('Couldn\'t find Supplier ' + this.searchSupplierText+ ' in database, try syncing suppliers', 'Supplier not found');
+            this.toastr.error('Couldn\'t find Supplier ' + this.searchSupplierText + ' in database, try syncing suppliers', 'Supplier not found');
             this.searchSupplierText = '';
           }
         },
