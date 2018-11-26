@@ -434,7 +434,9 @@ angular.module('ShoppinPalApp')
                   console.log('updatedReportModelInstance', updatedReportModelInstance);
                   return ReportModel.sendReportAsEmail({
                     id: $stateParams.reportId,
-                    toEmailArray: proceed.toEmailArray
+                    toEmailArray: proceed.toEmailArray,
+                    ccEmailArray: proceed.ccEmailArray,
+                    bccEmailArray: proceed.bccEmailArray
                   }).$promise;
                 })
                 .then(function () {

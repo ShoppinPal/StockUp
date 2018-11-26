@@ -1420,15 +1420,16 @@ module.exports = function (ReportModel) {
         }
       })
       .then(function (supplierInstance) {
+        logger.debug({log: {message: 'Found this supplier', supplier: supplierInstance}});
         if (supplierInstance === 'noSupplier') {
-          emailSubject = 'Order #' + report.outlet.name + ' from '+report.storeConfigModel().name;
+          emailSubject = 'Order #' + report.outlet.name + ' from ' + report.storeConfigModel().name;
         }
         else {
           if (supplierInstance.storeIds && supplierInstance.storeIds[report.outlet.outletId]) {
-            emailSubject = 'Order #' + report.outlet.name + '-' + supplierInstance.storeIds[report.outlet.outletId] + ' from'+report.storeConfigModel().name;
+            emailSubject = 'Order #' + report.outlet.name + '-' + supplierInstance.storeIds[report.outlet.outletId] + ' from' + report.storeConfigModel().name;
           }
           else {
-            emailSubject = 'Order #' + report.outlet.name + ' from '+report.storeConfigModel().name;
+            emailSubject = 'Order #' + report.outlet.name + ' from ' + report.storeConfigModel().name;
           }
         }
         logger.debug({log: {message: 'Will look for stock line items for the report'}});
@@ -1444,7 +1445,7 @@ module.exports = function (ReportModel) {
           csvArray.push({
             'Product': lineItems[i].name,
             'SKU': lineItems[i].sku,
-            'Supplier Code': report.supplier.id,
+            'Supplier Code': report.supplier ? report.supplier.name : '',
             'Ordered': lineItems[i].orderQuantity,
             'Supply cost': lineItems[i].supplyPrice,
             'Total supply cost': lineItems[i].supplyPrice * lineItems[i].orderQuantity,
