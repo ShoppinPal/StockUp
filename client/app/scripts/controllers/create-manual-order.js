@@ -182,7 +182,7 @@ angular.module('ShoppinPalApp').controller(
             outlet: {
               id: self.selectedStore.api_id, // jshint ignore:line
               name: self.selectedStore.name,
-              outletId: self.selectedStore.id
+              outletId: self.selectedStore.objectId
             },
             supplier: {
               id: self.selectedSupplier.api_id,  // jshint ignore:line

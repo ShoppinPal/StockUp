@@ -1445,8 +1445,8 @@ module.exports = function (ReportModel) {
           csvArray.push({
             'Product': lineItems[i].name,
             'SKU': lineItems[i].sku,
-            'Supplier Code': report.supplier ? report.supplier.name : '',
             'Ordered': lineItems[i].orderQuantity,
+            'Supplier Code': report.supplier ? report.supplier.name : '',
             'Supply cost': lineItems[i].supplyPrice,
             'Total supply cost': lineItems[i].supplyPrice * lineItems[i].orderQuantity,
             'Comments': lineItems[i].comments ? lineItems[i].comments.manager_in_process : ''
