@@ -1420,13 +1420,13 @@ module.exports = function (ReportModel) {
         }
       })
       .then(function (supplierInstance) {
-        logger.debug({log: {message: 'Found this supplier', supplier: supplierInstance}});
+        logger.debug({log: {message: 'Found this supplier', supplier: supplierInstance[0]}});
         if (supplierInstance === 'noSupplier') {
           emailSubject = 'Order #' + report.outlet.name + ' from ' + report.storeConfigModel().name;
         }
         else {
-          if (supplierInstance.storeIds && supplierInstance.storeIds[report.outlet.outletId]) {
-            emailSubject = 'Order #' + report.outlet.name + '-' + supplierInstance.storeIds[report.outlet.outletId] + ' from' + report.storeConfigModel().name;
+          if (supplierInstance[0].storeIds && supplierInstance[0].storeIds[report.outlet.outletId]) {
+            emailSubject = 'Order #' + report.outlet.name + '-' + supplierInstance[0].storeIds[report.outlet.outletId] + ' from' + report.storeConfigModel().name;
           }
           else {
             emailSubject = 'Order #' + report.outlet.name + ' from ' + report.storeConfigModel().name;
