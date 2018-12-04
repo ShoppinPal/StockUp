@@ -19,8 +19,7 @@
       "default": false
     },
     "version": {
-      "type": "number",
-      "required": true
+      "type": "number"
     },
     "lastSyncedAt": {
       "type": "date"

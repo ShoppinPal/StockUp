@@ -37,7 +37,7 @@ export class IntegrationModelApi extends BaseLoopBackApi {
   /**
    * Fetches belongsTo relation orgModel.
    *
-   * @param {any} id IntegrationModel id
+   * @param {any} id PersistedModel id
    *
    * @param {boolean} refresh 
    *

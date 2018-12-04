@@ -35,7 +35,7 @@ export class StoreModelApi extends BaseLoopBackApi {
   /**
    * Fetches belongsTo relation userModel.
    *
-   * @param {any} id StoreModel id
+   * @param {any} id PersistedModel id
    *
    * @param {boolean} refresh 
    *
@@ -65,7 +65,7 @@ export class StoreModelApi extends BaseLoopBackApi {
   /**
    * Fetches belongsTo relation storeConfigModel.
    *
-   * @param {any} id StoreModel id
+   * @param {any} id PersistedModel id
    *
    * @param {boolean} refresh 
    *
@@ -95,7 +95,7 @@ export class StoreModelApi extends BaseLoopBackApi {
   /**
    * Fetches belongsTo relation orgModel.
    *
-   * @param {any} id StoreModel id
+   * @param {any} id PersistedModel id
    *
    * @param {boolean} refresh 
    *

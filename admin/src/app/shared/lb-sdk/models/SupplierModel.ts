@@ -1,22 +1,25 @@
 /* tslint:disable */
 import {
   UserModel,
-  StoreConfigModel
+  StoreConfigModel,
+  OrgModel
 } from '../index';
 
 declare var Object: any;
 export interface SupplierModelInterface {
   "name": string;
-  "api_id": string;
+  "api_id"?: string;
   "email"?: string;
   "storeIds"?: any;
   "id"?: any;
   "userId"?: any;
   "storeConfigModelToSupplierModelId"?: any;
   "storeConfigModelId"?: any;
+  "orgModelId"?: any;
   userModel?: UserModel;
   storeConfigModel?: StoreConfigModel;
   productModels?: any[];
+  orgModel?: OrgModel;
 }
 
 export class SupplierModel implements SupplierModelInterface {
@@ -28,9 +31,11 @@ export class SupplierModel implements SupplierModelInterface {
   "userId": any;
   "storeConfigModelToSupplierModelId": any;
   "storeConfigModelId": any;
+  "orgModelId": any;
   userModel: UserModel;
   storeConfigModel: StoreConfigModel;
   productModels: any[];
+  orgModel: OrgModel;
   constructor(data?: SupplierModelInterface) {
     Object.assign(this, data);
   }
@@ -95,6 +100,10 @@ export class SupplierModel implements SupplierModelInterface {
           name: 'storeConfigModelId',
           type: 'any'
         },
+        "orgModelId": {
+          name: 'orgModelId',
+          type: 'any'
+        },
       },
       relations: {
         userModel: {
@@ -111,6 +120,11 @@ export class SupplierModel implements SupplierModelInterface {
           name: 'productModels',
           type: 'any[]',
           model: ''
+        },
+        orgModel: {
+          name: 'orgModel',
+          type: 'OrgModel',
+          model: 'OrgModel'
         },
       }
     }

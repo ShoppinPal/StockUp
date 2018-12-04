@@ -10,6 +10,7 @@ var db = null;
 const _ = require('underscore');
 const SUCCESS = 0;
 const FAILURE = 1;
+const syncInterval = 300;
 
 logger.debug({
     message: '************ Sync Worker Initiated ************'
@@ -19,12 +20,14 @@ return MongoClient.connect(dbUrl, {promiseLibrary: Promise})
     .catch(function (error) {
         logger.error({
             error,
+            fileName,
             message: 'Could not connect to Mongo DB'
         });
         return Promise.reject(error);
     })
     .then(function (dbInstance) {
         logger.debug({
+            fileName,
             message: 'Connected to mongodb database, will look for sync models to sync'
         });
         db = dbInstance;
@@ -32,6 +35,7 @@ return MongoClient.connect(dbUrl, {promiseLibrary: Promise})
     })
     .then(function (response) {
         logger.debug({
+            fileName,
             message: 'Sync job limit reached, will exit',
             response
         });
@@ -40,6 +44,7 @@ return MongoClient.connect(dbUrl, {promiseLibrary: Promise})
     .catch(function (error) {
         logger.error({
             error,
+            fileName,
             message: 'Error in running sync jobs'
         });
         process.exit(FAILURE);
@@ -48,10 +53,11 @@ return MongoClient.connect(dbUrl, {promiseLibrary: Promise})
 function runSyncJobs() {
     if (retryCount>0) {
         return db.collection('SyncModel').find({
-            $where: "(Date.now() - Date.parse(this.lastSyncedAt))/1000 >= this.syncIntervalInSeconds"
+            $where: "function(){return ((Date.now() - Date.parse(this.lastSyncedAt))/1000 >= "+syncInterval+")}"
         }).toArray()
             .catch(function (error) {
                 logger.error({
+                    fileName,
                     message: 'Could not fetch sync models from db',
                     error,
                     retryCount
@@ -59,24 +65,31 @@ function runSyncJobs() {
                 return Promise.reject(error);
             })
             .then(function (syncModelInstances) {
-                if (syncModelInstances.length) {
+                if (syncModelInstances) {
                     logger.debug({
+                        fileName,
                         message: 'Found these syncModels',
                         syncModelInstances,
                         retryCount
                     });
-                    var batch = db.collection('SyncModel').initializeUnorderedBulkOp();
-                    _.each(syncModelInstances, function (eachSyncModel) {
-                        batch.find(eachSyncModel).updateOne({
-                            $set: {
-                                lastSyncedAt: new Date()
-                            }
-                        });
-                    });
-                    return batch.execute();
+                    return routeToWorker(syncModelInstances);
+                    //
+                    //
+                    //
+                    //
+                    // var batch = db.collection('SyncModel').initializeUnorderedBulkOp();
+                    // _.each(syncModelInstances, function (eachSyncModel) {
+                    //     batch.find(eachSyncModel).updateOne({
+                    //         $set: {
+                    //             lastSyncedAt: new Date()
+                    //         }
+                    //     });
+                    // });
+                    // return batch.execute();
                 }
                 else {
                     logger.debug({
+                        fileName,
                         message: 'Found no sync models to run, will retry in some time',
                         retryInterval,
                         retryCount
@@ -86,6 +99,7 @@ function runSyncJobs() {
             })
             .then(function (response) {
                 logger.debug({
+                    fileName,
                     message: 'Sync models updated, will run again after some time',
                     response,
                     retryInterval,
@@ -99,6 +113,7 @@ function runSyncJobs() {
             })
             .catch(function (error) {
                 logger.error({
+                    fileName,
                     message: 'Some error',
                     error,
                     retryCount
@@ -107,9 +122,40 @@ function runSyncJobs() {
     }
     else {
         logger.debug({
+            fileName,
             message: 'Max worker retries reached, will shut down and restart',
             retryCount
         });
         return Promise.resolve('Max worker retries reached, will shut down and restart');
     }
+}
+
+function routeToWorker(syncModels) {
+    var orgSyncModels = _.groupBy(syncModels, function (eachSyncModel) {
+        return eachSyncModel.orgModelId;
+    });
+    logger.debug({
+        fileName,
+        message: 'Sync models grouped by organisation',
+        orgSyncModels
+    });
+    return Promise.map(Object.keys(orgSyncModels), function (eachOrg) {
+        if(orgSyncModels[eachOrg][0].syncType === 'msd') {
+            logger.debug({
+                fileName,
+                message: 'Will find differential msd data for this org',
+                organisation: eachOrg
+            });
+            var findDifferentialMSDData = require('./workers-v2/find-differential-data/find-differential-msd-data');
+            return findDifferentialMSDData.run(eachOrg, orgSyncModels[eachOrg]);
+        }
+        else if(orgSyncModels[eachOrg].type === 'vend') {
+            logger.debug({
+                fileName,
+                message: 'Vend ka baad me dekhenge',
+                organisation: eachOrg
+            });
+            return Promise.resolve('Vend ka baad me');
+        }
+    });
 }
