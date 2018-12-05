@@ -402,4 +402,75 @@ module.exports = function (SyncModel) {
             });
     };
 
+    SyncModel.syncMSDStores = function (id, options) {
+        logger.debug({
+            message: 'Will sync stores for MSD',
+            orgModelId: id,
+            options,
+            functionName: 'syncMSDStores'
+        });
+        var MSDUtil = require('./../utils/msd')({GlobalOrgModel: SyncModel.app.models.OrgModel});
+        return MSDUtil.fetchMSDData(id, 'RetailChannels')
+            .catch(function (error) {
+                logger.error({
+                    error,
+                    message: 'Could not fetch MSD Data',
+                    orgModelId: id,
+                    functionName: 'syncMSDStores'
+                });
+                return Promise.reject('Could not fetch MSD Data');
+            })
+            .then(function (stores) {
+                if (stores.value && stores.value.length) {
+                    logger.debug({
+                        message: 'Found stores from MSD, will save to DB',
+                        numberOfUsers: stores.value.length,
+                        functionName: 'syncMSDStores'
+                    });
+                    var storesToCreate = [];
+                    for (var i = 0; i<stores.value.length; i++) {
+                        if(stores.value[i].Name.length) {
+                            storesToCreate.push({
+                                name: stores.value[i].Name,
+                                currency: stores.value[i].Currency,
+                                storeNumber: stores.value[i].StoreNumber,
+                                orgModelId: id
+                            });
+                        }
+                    }
+                    return Promise.map(storesToCreate, function (eachStore) {
+                        return SyncModel.app.models.StoreModel.findOrCreate({
+                            where: {
+                                storeNumber: eachStore.storeNumber
+                            }
+                        }, eachStore);
+                    });
+                }
+                else {
+                    logger.debug({
+                        message: 'No stores found in MSD',
+                        functionName: 'syncMSDStores'
+                    });
+                    return Promise.reject('No users found in MSD');
+                }
+            })
+            .then(function (result) {
+                logger.debug({
+                    message: 'Saved stores to DB',
+                    result: result,
+                    functionName: 'syncMSDStores'
+                });
+                return Promise.resolve(true);
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not create stores',
+                    orgModelId: id,
+                    error,
+                    functionName: 'syncMSDStores'
+                });
+                return Promise.reject('Could not create stores for org');
+            });
+    };
+
 };

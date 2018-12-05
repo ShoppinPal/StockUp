@@ -92,17 +92,26 @@ export class ConnectComponent implements OnInit {
     this.loading = true;
     this.orgModelApi.syncMSDUsers(this.userProfile.orgModelId)
       .subscribe((data: any) => {
-        console.log('synced msd usres', data);
-        this.loading = false;
-      },
-      err => {
-        this.loading = false;
-        console.log('err', err);
-      });
+          console.log('synced msd usres', data);
+          this.loading = false;
+        },
+        err => {
+          this.loading = false;
+          console.log('err', err);
+        });
   }
 
   private syncMSDStores() {
-
+    this.loading = true;
+    this.orgModelApi.syncMSDStores(this.userProfile.orgModelId)
+      .subscribe((data: any) => {
+          console.log('synced msd stores', data);
+          this.loading = false;
+        },
+        err => {
+          this.loading = false;
+          console.log('err', err);
+        });
   }
 
   checkSync(dataObject) {
