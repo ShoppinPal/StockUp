@@ -1426,7 +1426,7 @@ module.exports = function (ReportModel) {
         }
         else {
           if (supplierInstance[0].storeIds && supplierInstance[0].storeIds[report.outlet.outletId]) {
-            emailSubject = 'Order #' + report.outlet.name + '-' + supplierInstance[0].storeIds[report.outlet.outletId] + ' from' + report.storeConfigModel().name;
+            emailSubject = 'Order #' + report.outlet.name + '-' + supplierInstance[0].storeIds[report.outlet.outletId] + ' from ' + report.storeConfigModel().name;
           }
           else {
             emailSubject = 'Order #' + report.outlet.name + ' from ' + report.storeConfigModel().name;
@@ -1446,7 +1446,7 @@ module.exports = function (ReportModel) {
             'Product': lineItems[i].name,
             'SKU': lineItems[i].sku,
             'Ordered': lineItems[i].orderQuantity,
-            'Supplier Code': report.supplier ? report.supplier.name : '',
+            'Supplier Code': lineItems[i].supplierCode,
             'Supply cost': lineItems[i].supplyPrice,
             'Total supply cost': lineItems[i].supplyPrice * lineItems[i].orderQuantity,
             'Comments': lineItems[i].comments ? lineItems[i].comments.manager_in_process : ''
