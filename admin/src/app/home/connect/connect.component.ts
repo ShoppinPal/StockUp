@@ -48,13 +48,13 @@ export class ConnectComponent implements OnInit {
     this.loading = true;
     this.orgModelApi.initiateVendSync(this.userProfile.orgModelId)
       .subscribe((data: any) => {
-        console.log('vend sync', data);
-        this.loading = false;
-      },
-      err => {
-        this.loading = false;
-        console.log('err', err);
-      });
+          console.log('vend sync', data);
+          this.loading = false;
+        },
+        err => {
+          this.loading = false;
+          console.log('err', err);
+        });
   }
 
   private initiateMSDSync() {
@@ -62,10 +62,38 @@ export class ConnectComponent implements OnInit {
     this.loading = true;
     this.orgModelApi.initiateMSDSync(this.userProfile.orgModelId)
       .subscribe((data: any) => {
-      console.log('msd sync', data);
-        this.syncModels = data.syncStatus;
+          console.log('msd sync', data);
+          this.syncModels = data.syncStatus;
+          this.loading = false;
+          this.cd.markForCheck();
+        },
+        err => {
+          this.loading = false;
+          console.log('err', err);
+        });
+  }
+
+  private stopMSDSync() {
+    this.loading = true;
+    this.orgModelApi.stopMSDSync(this.userProfile.orgModelId)
+      .subscribe((data: any) => {
+          console.log(' stopped msd sync', data);
+          this.loading = false;
+          this.syncModels = 0;
+          this.cd.markForCheck();
+        },
+        err => {
+          this.loading = false;
+          console.log('err', err);
+        });
+  }
+
+  private syncMSDUsers() {
+    this.loading = true;
+    this.orgModelApi.syncMSDUsers(this.userProfile.orgModelId)
+      .subscribe((data: any) => {
+        console.log('synced msd usres', data);
         this.loading = false;
-        this.cd.markForCheck();
       },
       err => {
         this.loading = false;
@@ -73,19 +101,8 @@ export class ConnectComponent implements OnInit {
       });
   }
 
-  private stopMSDSync() {
-    this.loading = true;
-    this.orgModelApi.stopMSDSync(this.userProfile.orgModelId)
-      .subscribe((data: any) => {
-      console.log(' stopped msd sync', data);
-        this.loading = false;
-        this.syncModels = 0;
-        this.cd.markForCheck();
-      },
-      err => {
-        this.loading = false;
-        console.log('err', err);
-      });
+  private syncMSDStores() {
+
   }
 
   checkSync(dataObject) {
@@ -123,7 +140,7 @@ export class ConnectComponent implements OnInit {
     //     console.log('error', error);
     //     this.loading = false;
     //   })
-    }
-
-
   }
+
+
+}

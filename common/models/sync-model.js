@@ -330,4 +330,76 @@ module.exports = function (SyncModel) {
             });
     };
 
+    SyncModel.syncMSDUsers = function (id, options) {
+        logger.debug({
+            message: 'Will sync users for MSD',
+            orgModelId: id,
+            options,
+            functionName: 'syncMSDUsers'
+        });
+        var MSDUtil = require('./../utils/msd')({GlobalOrgModel: SyncModel.app.models.OrgModel});
+        return MSDUtil.fetchMSDData(id, 'SystemUsers')
+            .catch(function (error) {
+                logger.error({
+                    error,
+                    message: 'Could not fetch MSD Data',
+                    orgModelId: id,
+                    functionName: 'syncMSDUsers'
+                });
+                return Promise.reject('Could not fetch MSD Data');
+            })
+            .then(function (users) {
+                if (users.value && users.value.length) {
+                    logger.debug({
+                        message: 'Found users from MSD, will save to DB',
+                        numberOfUsers: users.value.length,
+                        functionName: 'syncMSDUsers'
+                    });
+                    var usersToCreate = [];
+                    for (var i = 0; i<users.value.length; i++) {
+                        if(users.value[i].Email.length) {
+                            usersToCreate.push({
+                                email: users.value[i].Email,
+                                name: users.value[i].UserName,
+                                userId: users.value[i].UserID,
+                                password: Math.random().toString(36).slice(-8),
+                                orgModelId: id
+                            });
+                        }
+                    }
+                    return Promise.map(usersToCreate, function (eachUser) {
+                        return SyncModel.app.models.UserModel.findOrCreate({
+                            where: {
+                                email: eachUser.email
+                            }
+                        }, eachUser);
+                    });
+                }
+                else {
+                    logger.debug({
+                        message: 'No users found in MSD',
+                        functionName: 'syncMSDUsers'
+                    });
+                    return Promise.reject('No users found in MSD');
+                }
+            })
+            .then(function (result) {
+                logger.debug({
+                    message: 'Saved users to DB',
+                    result: result,
+                    functionName: 'syncMSDUsers'
+                });
+                return Promise.resolve(true);
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not create users',
+                    orgModelId: id,
+                    error,
+                    functionName: 'syncMSDUsers'
+                });
+                return Promise.reject('Could not create users for org');
+            });
+    };
+
 };

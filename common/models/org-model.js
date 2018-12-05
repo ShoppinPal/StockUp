@@ -360,6 +360,56 @@ module.exports = function (OrgModel) {
                 });
         };
 
+        OrgModel.remoteMethod('syncMSDUsers', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/syncMSDUsers', verb: 'get'},
+            returns: {arg: 'status', type: 'boolean'}
+        });
+
+        OrgModel.syncMSDUsers = function (id, options, cb) {
+            logger.debug({
+                message: 'Will sync MSD users',
+                options,
+                functionName: 'syncMSDUsers'
+            });
+            return OrgModel.app.models.SyncModel.syncMSDUsers(id, options)
+                .catch(function (error) {
+                    logger.error({
+                        message: 'Could not sync MSD users',
+                        error
+                    });
+                    return Promise.reject('Could not sync MSD users');
+                });
+        };
+
+        OrgModel.remoteMethod('syncMSDStores', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/syncMSDStores', verb: 'get'},
+            returns: {arg: 'status', type: 'boolean'}
+        });
+
+        OrgModel.syncMSDStores = function (id, options, cb) {
+            logger.debug({
+                message: 'Will sync MSD stores',
+                options,
+                functionName: 'syncMSDStores'
+            });
+            return OrgModel.app.models.SyncModel.syncMSDStores(id, options)
+                .catch(function (error) {
+                    logger.error({
+                        message: 'Could not sync MSD stores',
+                        error
+                    });
+                    return Promise.reject('Could not sync MSD stores');
+                });
+        };
+
 
         OrgModel.remoteMethod('updateBinLocation', {
             accepts: [

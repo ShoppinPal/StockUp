@@ -33,7 +33,7 @@ export class GlobalConfigModelApi extends BaseLoopBackApi {
   /**
    * Fetches belongsTo relation userModel.
    *
-   * @param {any} id PersistedModel id
+   * @param {any} id GlobalConfigModel id
    *
    * @param {boolean} refresh 
    *

@@ -43,11 +43,13 @@
           <button type="button" [disabled]="integration.length && integration[0].type === 'vend'"
                   *ngIf="integration.length && integration[0].type === 'vend'" class="btn btn-success">Connected
           </button>
-          <button type="button" *ngIf="integration.length && integration[0].type === 'vend' && !syncModels" class="btn btn-primary"
+          <button type="button" *ngIf="integration.length && integration[0].type === 'vend' && !syncModels"
+                  class="btn btn-primary"
                   (click)="initiateVendSync()">
             Start Sync
           </button>
-          <button type="button" *ngIf="integration.length && integration[0].type === 'vend' && syncModels" class="btn btn-primary"
+          <button type="button" *ngIf="integration.length && integration[0].type === 'vend' && syncModels"
+                  class="btn btn-primary"
                   (click)="initiateVendSync()">
             Stop Sync
           </button>
@@ -59,7 +61,50 @@
     <div class="col-sm-12" *ngIf="integration.length">
       <div class="card">
         <div class="card-header">
-          Sync Data
+          Sync Data - One time
+        </div>
+        <div class="card-body text-center">
+          <table class="table table-hover table-striped table-align-middle mb-0" *ngIf="integration.length">
+            <thead>
+            <th>Data object</th>
+            <th>Fetch</th>
+            </thead>
+            <tbody>
+            <tr>
+              <td>
+                Users
+              </td>
+              <td>
+                  <button type="button"
+                          *ngIf="integration.length && integration[0].type === 'msdynamics'"
+                          class="btn btn-primary"
+                          (click)="syncMSDUsers()">Sync Users
+                  </button>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Stores
+              </td>
+              <td>
+                  <button type="button"
+                          *ngIf="integration.length && integration[0].type === 'msdynamics'"
+                          class="btn btn-primary"
+                          (click)="syncMSDStores()">Sync Stores
+                  </button>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-12" *ngIf="integration.length">
+      <div class="card">
+        <div class="card-header">
+          Sync Data - Auto sync
         </div>
         <div class="card-body text-center">
           <table class="table table-hover table-striped table-align-middle mb-0" *ngIf="integration.length">
@@ -68,18 +113,6 @@
             <th>Sync Status</th>
             </thead>
             <tbody>
-            <tr>
-              <td>
-                Users
-              </td>
-              <td>
-                <label class="switch switch-3d switch-primary">
-                  <input type="checkbox" class="switch-input" [ngModel]="checkSync('products')" disabled>
-                  <span class="switch-label"></span>
-                  <span class="switch-handle"></span>
-                </label>
-              </td>
-            </tr>
             <tr>
               <td>
                 Products
