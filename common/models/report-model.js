@@ -1443,9 +1443,9 @@ module.exports = function (ReportModel) {
         logger.debug({log: {message: 'Found ' + lineItems.length + ' line items for the report, will convert to csv'}});
         for (var i = 0; i<lineItems.length; i++) {
           csvArray.push({
-            'Product': lineItems[i].name,
             'SKU': lineItems[i].sku,
             'Ordered': lineItems[i].orderQuantity,
+            'Product': lineItems[i].name,
             'Supplier Code': lineItems[i].supplierCode,
             'Supply cost': lineItems[i].supplyPrice,
             'Total supply cost': lineItems[i].supplyPrice * lineItems[i].orderQuantity,
