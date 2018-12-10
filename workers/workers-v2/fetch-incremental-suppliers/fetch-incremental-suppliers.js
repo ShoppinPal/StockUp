@@ -70,6 +70,7 @@ var runMe = function (payload, config, taskId, messageId) {
               $set: {
                 name: eachSupplier.name,
                 api_id: eachSupplier.id,
+                description: eachSupplier.description,
                 storeConfigModelId: ObjectId(payload.storeConfigModelId)
               }
             });

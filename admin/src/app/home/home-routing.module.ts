@@ -10,6 +10,8 @@ import {SyncWithVendResolverService} from "./sync-with-vend/services/sync-with-v
 import {OrdersComponent} from "./orders/orders.component";
 import {WorkerSettingsComponent} from "./worker-settings/worker-settings.component";
 import {WorkerSettingsResolverService} from "./worker-settings/services/worker-settings-resolver.service";
+import {SuppliersComponent} from "./suppliers/suppliers.component";
+import {SuppliersResolverService} from "./suppliers/services/suppliers-resolver.service";
 
 const routes: Routes = [
   {
@@ -71,6 +73,16 @@ const routes: Routes = [
         data: {
           title: 'Home > Orders'
         }
+      },
+      {
+        path: 'suppliers',
+        component: SuppliersComponent,
+        data: {
+          title: 'Home > Suppliers'
+        },
+        resolve: {
+          suppliers: SuppliersResolverService
+        }
       }
     ]
   }
@@ -79,7 +91,7 @@ const routes: Routes = [
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
-  providers: [SyncWithVendResolverService]
+  providers: [SyncWithVendResolverService, SuppliersResolverService, WorkerSettingsResolverService]
 })
 export class HomeRoutingModule {
 }

@@ -1,3 +1,6 @@
+v1.5.6 - Nov 14, 2018
+- provide email feature to orders
+
 v1.5.5 - Nov 06, 2018
 - make worker open source
 

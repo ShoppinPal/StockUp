@@ -125,6 +125,7 @@ var runMe = function (payload, config, taskId, messageId) {
                 name: eachProduct.name,
                 supplierId: supplierModelToAttach ? supplierModelToAttach._id : null,
                 supplierVendId: supplierModelToAttach ? supplierModelToAttach.api_id : null,
+                supplierCode: eachProduct.supplier_code,
                 sku: eachProduct.sku,
                 type: eachProduct.type ? eachProduct.type.name : null,
                 supply_price: eachProduct.supply_price,

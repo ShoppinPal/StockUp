@@ -56,3 +56,4 @@ seeds
 /docker/
 client/app/scripts/shoppinpal-loopback.js
 client/admin/
+workers/config
