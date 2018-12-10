@@ -1420,15 +1420,16 @@ module.exports = function (ReportModel) {
         }
       })
       .then(function (supplierInstance) {
+        logger.debug({log: {message: 'Found this supplier', supplier: supplierInstance[0]}});
         if (supplierInstance === 'noSupplier') {
-          emailSubject = 'Order #' + report.outlet.name + ' from '+report.storeConfigModel().name;
+          emailSubject = 'Order #' + report.outlet.name + ' from ' + report.storeConfigModel().name;
         }
         else {
-          if (supplierInstance.storeIds && supplierInstance.storeIds[report.outlet.outletId]) {
-            emailSubject = 'Order #' + report.outlet.name + '-' + supplierInstance.storeIds[report.outlet.outletId] + ' from'+report.storeConfigModel().name;
+          if (supplierInstance[0].storeIds && supplierInstance[0].storeIds[report.outlet.outletId]) {
+            emailSubject = 'Order #' + report.outlet.name + '-' + supplierInstance[0].storeIds[report.outlet.outletId] + ' from ' + report.storeConfigModel().name;
           }
           else {
-            emailSubject = 'Order #' + report.outlet.name + ' from '+report.storeConfigModel().name;
+            emailSubject = 'Order #' + report.outlet.name + ' from ' + report.storeConfigModel().name;
           }
         }
         logger.debug({log: {message: 'Will look for stock line items for the report'}});
@@ -1442,10 +1443,10 @@ module.exports = function (ReportModel) {
         logger.debug({log: {message: 'Found ' + lineItems.length + ' line items for the report, will convert to csv'}});
         for (var i = 0; i<lineItems.length; i++) {
           csvArray.push({
-            'Product': lineItems[i].name,
             'SKU': lineItems[i].sku,
-            'Supplier Code': report.supplier.id,
             'Ordered': lineItems[i].orderQuantity,
+            'Product': lineItems[i].name,
+            'Supplier Code': lineItems[i].supplierCode,
             'Supply cost': lineItems[i].supplyPrice,
             'Total supply cost': lineItems[i].supplyPrice * lineItems[i].orderQuantity,
             'Comments': lineItems[i].comments ? lineItems[i].comments.manager_in_process : ''

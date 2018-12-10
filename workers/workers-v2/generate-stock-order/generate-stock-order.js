@@ -196,6 +196,7 @@ var runMe = function (payload, config, taskId, messageId) {
               orderQuantity: orderQuantity,
               caseQuantity: caseQuantity,
               supplyPrice: eachProduct.supply_price,
+              supplierCode: eachProduct.supplierCode,
               type: eachProduct.type,
               reportId: ObjectId(payload.reportId),
               userId: payload.loopbackAccessToken.userId

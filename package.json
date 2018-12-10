@@ -41,6 +41,7 @@
     "matchdep": "~0.3.0",
     "moment": "~2.19.3",
     "mongodb": "2.2.31",
+    "nodemailer": "4.7.0",
     "nconf": "^0.7.1",
     "newrelic": "1.30.3",
     "papaparse": "4.5.0",
