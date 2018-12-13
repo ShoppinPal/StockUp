@@ -255,7 +255,7 @@ var callFetchDataObjectsWorker = function (sqlPool, orgModelId, syncModels) {
                         message: 'Calling fetch inventory worker'
                     });
                     var fetchIncrementalInventory = require('./../fetch-incremental-inventory/fetch-incremental-inventory-msd');
-                    return fetchIncrementalInventory.run(orgModelId, syncModels[dataObjectIndices.inventory]);
+                    return fetchIncrementalInventory.run(sqlPool, orgModelId, syncModels[dataObjectIndices.inventory]);
                 }
                 else {
                     return Promise.resolve();

@@ -21,6 +21,7 @@
     "loopback-datasource-juggler": "2.31.0",
     "memcached": "2.2.2",
     "moment": "2.19.3",
+    "mongodb": "2.2.31",
     "mssql": "^4.2.3",
     "nconf": "0.7.1",
     "q-io": "1.13.4",

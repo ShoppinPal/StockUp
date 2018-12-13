@@ -98,31 +98,6 @@ var runMe = function (sqlPool, orgModelId, productSyncModel) {
                     return Promise.resolve();
                 })
                 .catch(function (error) {
-                    if (error === 'noIncrementalProducts') {
-                        logger.error({
-                            commandName: commandName,
-                            message: 'No new products found, will exit worker'
-                        });
-                        if (db) {
-                            return db.collection('SyncModel').updateOne({
-                                    $and: [
-                                        {
-                                            'orgModelId': ObjectId(orgModelId)
-                                        },
-                                        {
-                                            'name': 'products'
-                                        }
-                                    ],
-                                },
-                                {
-                                    $set: {
-                                        'syncInProcess': false,
-                                        'workerTaskId': '',
-                                        'lastSyncedAt': new Date()
-                                    }
-                                });
-                        }
-                    }
                     logger.error({
                         commandName: commandName,
                         message: 'Could not fetch and save products',
