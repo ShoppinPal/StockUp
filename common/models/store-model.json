@@ -81,6 +81,16 @@
       "type": "belongsTo",
       "model": "OrgModel",
       "foreignKey": ""
+    },
+    "salesModels": {
+      "type": "hasMany",
+      "model": "SalesModel",
+      "foreignKey": "storeModelId"
+    },
+    "salesLineItemsModels": {
+      "type": "hasMany",
+      "model": "SalesLineItemsModel",
+      "foreignKey": "storeModelId"
     }
   },
   "acls": [

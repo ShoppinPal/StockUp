@@ -99,5 +99,13 @@
   "IntegrationModel": {
     "dataSource": "db",
     "public": true
+  },
+  "SalesModel": {
+    "dataSource": "db",
+    "public": false
+  },
+  "SalesLineItemsModel": {
+    "dataSource": "db",
+    "public": false
   }
 }

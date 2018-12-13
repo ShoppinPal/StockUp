@@ -61,6 +61,16 @@
       "type": "hasMany",
       "model": "IntegrationModel",
       "foreignKey": "orgModelId"
+    },
+    "salesModels": {
+      "type": "hasMany",
+      "model": "SalesModel",
+      "foreignKey": "orgModelId"
+    },
+    "salesLineItemsModels": {
+      "type": "hasMany",
+      "model": "SalesLineItemsModel",
+      "foreignKey": "orgModelId"
     }
   },
   "acls": [

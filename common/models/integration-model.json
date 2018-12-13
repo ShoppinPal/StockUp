@@ -1,7 +1,7 @@
 {
   "name": "IntegrationModel",
-  "base": "PersistedModel",
   "description": "Organisation hasMany integrationModel only because it throws an error with hasOne relation in case of org.integrationModels()",
+  "base": "PersistedModel",
   "idInjection": true,
   "options": {
     "validateUpsert": true
@@ -10,6 +10,10 @@
     "Timestamp": {},
     "Context": {}
   },
+  "hidden": [
+    "access_token",
+    "refresh_token"
+  ],
   "properties": {
     "type": {
       "type": "string",
@@ -31,10 +35,6 @@
       "default": "Bearer"
     }
   },
-  "hidden": [
-    "access_token",
-    "refresh_token"
-  ],
   "validations": [],
   "relations": {
     "orgModel": {
