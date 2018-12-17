@@ -1,3 +1,6 @@
+v1.5.7 - Dec 17, 2018
+- PDF included in emails
+
 v1.5.6 - Nov 14, 2018
 - provide email feature to orders
 
