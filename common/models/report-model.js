@@ -1,10 +1,8 @@
 'use strict';
-var nodemailer = require('nodemailer');
 var aws = require('aws-sdk');
 var Promise = require('bluebird');
 var request = require('request-promise');
 var _ = require('underscore');
-const papaparse = require('papaparse');
 var path = require('path');
 var modulePath = require('mongodb');
 var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
@@ -1375,9 +1373,19 @@ module.exports = function (ReportModel) {
         return Promise.reject('Could not remove stuck orders', error);
       });
 
-  }
+  };
 
   ReportModel.sendReportAsEmail = function (id, toEmailArray, ccEmailArray, bccEmailArray, cb) {
+    var nodemailer = require('nodemailer');
+    const papaparse = require('papaparse');
+
+    logger.debug({
+      message: 'Received these email IDs',
+      toEmailArray,
+      ccEmailArray,
+      bccEmailArray,
+      functionName: 'sendReportAsEmail'
+    });
     toEmailArray.forEach(function (eachEmail) {
       if (!validateEmail(eachEmail)) {
         cb('Invalid Primary Email: ' + eachEmail);
@@ -1399,7 +1407,7 @@ module.exports = function (ReportModel) {
         apiVersion: '2010-12-01'
       })
     });
-    var report, csvArray = [], supplier, emailSubject;
+    var report, csvArray = [], supplier, emailSubject, totalOrderQuantity = 0, totalSupplyCost = 0, htmlForPdf, csvReport;
     ReportModel.findById(id, {
       include: ['userModel', 'storeConfigModel']
     })
@@ -1440,8 +1448,38 @@ module.exports = function (ReportModel) {
         });
       })
       .then(function (lineItems) {
+        htmlForPdf = '<html>' +
+          '<head>' +
+          '<style>' +
+          'table {' +
+          '  font-family: arial, sans-serif;' +
+          '  border-collapse: collapse;' +
+          ' font-size: 8px;' +
+          '}' +
+          'td, th {' +
+          '  border: 1px solid #dddddd;' +
+          '  text-align: left;' +
+          '  padding: 8px;' +
+          '}' +
+          '</style>' +
+          '</head>' +
+          '<body>';
+        htmlForPdf += '<table>' +
+          '<tr>' +
+          '<th>SKU</th>' +
+          '<th>Ordered</th>' +
+          '<th>Product</th>' +
+          '<th>SupplierCode</th>' +
+          '<th>Supply Cost</th>' +
+          '<th>Total Supply Cost</th>' +
+          '<th>Comments</th>' +
+          '</tr>';
+        htmlForPdf += '<h5>' + emailSubject + '</h5>';
         logger.debug({log: {message: 'Found ' + lineItems.length + ' line items for the report, will convert to csv'}});
+
         for (var i = 0; i<lineItems.length; i++) {
+          totalOrderQuantity += lineItems[i].orderQuantity;
+          totalSupplyCost += lineItems[i].supplyPrice * lineItems[i].orderQuantity;
           csvArray.push({
             'SKU': lineItems[i].sku,
             'Ordered': lineItems[i].orderQuantity,
@@ -1451,8 +1489,28 @@ module.exports = function (ReportModel) {
             'Total supply cost': lineItems[i].supplyPrice * lineItems[i].orderQuantity,
             'Comments': lineItems[i].comments ? lineItems[i].comments.manager_in_process : ''
           });
+          htmlForPdf += '<tr>' +
+            '<td>' + lineItems[i].sku + '</td>' +
+            '<td>' + lineItems[i].orderQuantity + '</td>' +
+            '<td>' + lineItems[i].name + '</td>' +
+            '<td>' + lineItems[i].supplierCode + '</td>' +
+            '<td>' + lineItems[i].supplyPrice + '</td>' +
+            '<td>' + (lineItems[i].supplyPrice * lineItems[i].orderQuantity) + '</td>' +
+            '<td>' + (lineItems[i].comments ? lineItems[i].comments.manager_in_process : '') + '</td>' +
+            '</tr>';
         }
-        var csvReport = papaparse.unparse(csvArray);
+        htmlForPdf += '</table>';
+        htmlForPdf += '<div><h5>Total Ordered: ' + totalOrderQuantity + '</h5>' +
+          '<h5>Total Supply Cost: ' + totalSupplyCost + '</h5></div>';
+        htmlForPdf += '</body></html>';
+        csvArray.push({
+          'Total Order Quantity': totalOrderQuantity,
+          'Total Supply Cost': totalSupplyCost
+        });
+        csvReport = papaparse.unparse(csvArray);
+        return createPDFFromHTML(htmlForPdf);
+      })
+      .then(function (pdfAttachment) {
         var emailOptions = {
           type: 'email',
           to: toEmailArray.toString(),
@@ -1461,11 +1519,17 @@ module.exports = function (ReportModel) {
           subject: emailSubject,
           from: report.outlet.name + '\<' + report.userModel().email + '>',
           mailer: transporter,
+          text: 'Total Order Quantity: ' + totalOrderQuantity + '\n Total Supply Cost: ' + totalSupplyCost,
           attachments: [
             {
               filename: report.name + '.csv',
               content: csvReport,
               contentType: 'text/comma-separated-values'
+            },
+            {
+              filename: report.name + '.pdf',
+              content: pdfAttachment,
+              contentType: 'application/pdf'
             }
           ]
         };
@@ -1479,6 +1543,7 @@ module.exports = function (ReportModel) {
             cb(null, true);
           }
         });
+
       })
       .catch(function (error) {
         logger.error({log: {error: error}});
@@ -1489,6 +1554,34 @@ module.exports = function (ReportModel) {
   function validateEmail(email) {
     var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(String(email).toLowerCase());
+  }
+
+  function createPDFFromHTML(htmlForPdf) {
+    const pdf = require('html-pdf');
+    return new Promise(function (resolve, reject) {
+      var pdfOptions = {
+        border: '1cm'
+      };
+
+      pdf.create(htmlForPdf, pdfOptions).toBuffer(function (err, res) {
+        if (err) {
+          logger.error({
+            message: 'Could not create PDF buffer',
+            err,
+            functionName: 'sendReportAsEmail'
+          });
+          reject('Could not convert pdf');
+        }
+        else {
+          logger.debug({
+            message: 'Created PDF, will attach to email',
+            functionName: 'sendReportAsEmail',
+            isBuffer: Buffer.isBuffer(res)
+          });
+          resolve(res);
+        }
+      });
+    });
   }
 
 };

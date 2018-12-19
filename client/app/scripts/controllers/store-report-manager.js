@@ -396,22 +396,27 @@ angular.module('ShoppinPalApp')
               };
 
               $scope.submitOrder = function () {
-                if ($scope.toEmail) {
-                  $scope.toEmailValidation();
+                if($scope.showEmail) {
+                  if ($scope.toEmail) {
+                    $scope.toEmailValidation();
+                  }
+                  if ($scope.ccEmail) {
+                    $scope.ccEmailValidation();
+                  }
+                  if ($scope.bccEmail) {
+                    $scope.bccEmailValidation();
+                  }
+                  if (!$scope.invalidEmailCounter && !$scope.ccInvalidEmailCounter && !$scope.bccInvalidEmailCounter) {
+                    $scope.returnObject = {
+                      toEmailArray: $scope.toEmailArray,
+                      ccEmailArray: $scope.ccEmailArray,
+                      bccEmailArray: $scope.bccEmailArray
+                    };
+                    $scope.closeThisDialog($scope.returnObject);
+                  }
                 }
-                if ($scope.ccEmail) {
-                  $scope.ccEmailValidation();
-                }
-                if ($scope.bccEmail) {
-                  $scope.bccEmailValidation();
-                }
-                if (!$scope.invalidEmailCounter && !$scope.ccInvalidEmailCounter && !$scope.bccInvalidEmailCounter) {
-                  $scope.returnObject = {
-                    toEmailArray: $scope.toEmailArray,
-                    ccEmailArray: $scope.ccEmailArray,
-                    bccEmailArray: $scope.bccEmailArray
-                  };
-                  $scope.closeThisDialog($scope.returnObject);
+                else {
+                  $scope.closeThisDialog(true);
                 }
               };
 
@@ -432,12 +437,17 @@ angular.module('ShoppinPalApp')
               })
                 .$promise.then(function (updatedReportModelInstance) {
                   console.log('updatedReportModelInstance', updatedReportModelInstance);
-                  return ReportModel.sendReportAsEmail({
-                    id: $stateParams.reportId,
-                    toEmailArray: proceed.toEmailArray,
-                    ccEmailArray: proceed.ccEmailArray,
-                    bccEmailArray: proceed.bccEmailArray
-                  }).$promise;
+                  if(proceed.toEmailArray && proceed.toEmailArray.length) {
+                    return ReportModel.sendReportAsEmail({
+                      id: $stateParams.reportId,
+                      toEmailArray: proceed.toEmailArray,
+                      ccEmailArray: proceed.ccEmailArray,
+                      bccEmailArray: proceed.bccEmailArray
+                    }).$promise;
+                  }
+                  else {
+                    return $q.when([]);
+                  }
                 })
                 .then(function () {
                   return $state.go('store-landing'); // TODO: based on the role this may point at 'warehouse-landing' instead!

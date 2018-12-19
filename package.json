@@ -1,6 +1,6 @@
 {
   "name": "shoppinpal-warehouse-mongo",
-  "version": "1.5.6",
+  "version": "1.5.7",
   "dependencies": {
     "@mean-expert/loopback-component-realtime": "1.0.0-rc.9.6",
     "@mean-expert/loopback-sdk-builder": "2.1.0-rc.14",
@@ -28,6 +28,7 @@
     "grunt-replace": "^0.7.9",
     "grunt-rev": "^0.1.0",
     "grunt-usemin": "^2.0.2",
+    "html-pdf": "2.2.0",
     "inquirer": "^4.0.1",
     "iron_worker": "0.1.4",
     "jshint-stylish": "~0.1.5",
