@@ -212,7 +212,7 @@ function fetchPaginatedSalesLines(sqlPool, orgModelId, pagesToFetch) {
                 _.each(incrementalSalesLines, function (eachSalesLine, iteratee) {
                     var salesModelToAttach = _.findWhere(salesModelInstances, {transactionNumber: eachSalesLine.TRANSACTIONNUMBER});
                     var productModelToAttach = _.findWhere(productModelInstances, {api_id: eachSalesLine.ITEMID});
-                    if (salesModelToAttach) {
+                    if (salesModelToAttach && eachSalesLine.TRANSACTIONSTATUS === 'Posted') {
                         batch.find({
                             $and: [{
                                 transactionNumber: eachSalesLine.TRANSACTIONNUMBER
