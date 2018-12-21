@@ -9,7 +9,7 @@
     "quantity": {
       "type": "number"
     },
-    "isReturnSales": {
+    "isReturnSale": {
       "type": "boolean",
       "default": false
     },

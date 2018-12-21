@@ -122,6 +122,12 @@ module.exports = function (SyncModel) {
         }, {
             name: 'inventory',
             tableName: 'HSInventDimStaging'
+        }, {
+            name: 'sales',
+            tableName: 'RetailTransactionStaging'
+        }, {
+            name: 'salesLines',
+            tableName: 'RetailTransactionSalesLineStaging'
         }];
         return Promise.map(syncModels, function (eachSyncModel) {
             return SyncModel.findOrCreate({

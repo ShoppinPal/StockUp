@@ -160,6 +160,7 @@ function fetchPaginatedProducts(sqlPool, orgModelId, pagesToFetch) {
                         api_id: eachProduct.PRODUCTMASTERNUMBER
                     }).upsert().updateOne({
                         $set: {
+                            api_id: eachProduct.PRODUCTMASTERNUMBER,
                             name: eachProduct.PRODUCTNAME,
                             sizeId: eachProduct.PRODUCTSIZEID,
                             colorId: eachProduct.PRODUCTCOLORID,

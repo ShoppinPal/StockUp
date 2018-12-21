@@ -213,13 +213,16 @@ var callFetchDataObjectsWorker = function (sqlPool, orgModelId, syncModels) {
         var dataObjectIndices = {
             suppliers: dataObjectNames.indexOf('suppliers'),
             products: dataObjectNames.indexOf('products'),
-            inventory: dataObjectNames.indexOf('inventory')
+            inventory: dataObjectNames.indexOf('inventory'),
+            sales: dataObjectNames.indexOf('sales'),
+            salesLines: dataObjectNames.indexOf('salesLines')
         };
         /**
          * Do not hamper the order here, it has been put in this way because:
          * 1) Supplier is not dependent on anything, so it goes first
          * 2) Product is dependent on suppliers, so it needs suppliers
          * 3) Inventory is dependent on products, so it needs products
+         * 4) Sales is dependent on products, so it needs inventory
          */
         return Promise.resolve()
             .then(function () {
@@ -256,6 +259,32 @@ var callFetchDataObjectsWorker = function (sqlPool, orgModelId, syncModels) {
                     });
                     var fetchIncrementalInventory = require('./../fetch-incremental-inventory/fetch-incremental-inventory-msd');
                     return fetchIncrementalInventory.run(sqlPool, orgModelId, syncModels[dataObjectIndices.inventory]);
+                }
+                else {
+                    return Promise.resolve();
+                }
+            })
+            .then(function () {
+                if (dataObjectIndices.sales !== -1) {
+                    logger.debug({
+                        commandName: commandName,
+                        message: 'Calling fetch sales worker'
+                    });
+                    var fetchIncrementalSales = require('./../fetch-incremental-sales/fetch-incremental-sales-msd');
+                    return fetchIncrementalSales.run(sqlPool, orgModelId, syncModels[dataObjectIndices.sales]);
+                }
+                else {
+                    return Promise.resolve();
+                }
+            })
+            .then(function () {
+                if (dataObjectIndices.salesLines !== -1) {
+                    logger.debug({
+                        commandName: commandName,
+                        message: 'Calling fetch sales lines worker'
+                    });
+                    var fetchIncrementalSales = require('./../fetch-incremental-sales/fetch-incremental-sales-lines-msd');
+                    return fetchIncrementalSales.run(sqlPool, orgModelId, syncModels[dataObjectIndices.salesLines]);
                 }
                 else {
                     return Promise.resolve();

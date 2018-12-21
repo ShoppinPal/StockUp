@@ -9,13 +9,11 @@ const path = require('path');
 sql.Promise = require('bluebird');
 const _ = require('underscore');
 const Promise = require('bluebird');
-const INVENTORY_DIM_TABLE = 'HSInventDimStaging';
-const INVENTORY_SUM_TABLE = 'HSInventSumStaging';
-const INVENTORY_PER_PAGE = 1000;
+const SALES_LINES_TABLE = 'RetailTransactionSalesLineStaging';
+const SALES_LINES_PER_PAGE = 1000;
 const commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
-const maxBatchSize = 1000;
 
-var runMe = function (sqlPool, orgModelId, inventorySyncModel) {
+var runMe = function (sqlPool, orgModelId, salesLineSyncModel) {
     try {
         // Global variable for logging
 
@@ -24,16 +22,16 @@ var runMe = function (sqlPool, orgModelId, inventorySyncModel) {
             argv: process.argv,
             env: process.env,
             orgModelId,
-            inventorySyncModel
+            salesLineSyncModel
         });
 
         try {
             logger.debug({
                 commandName: commandName,
-                message: 'This worker will fetch and save incremental inventory from MSD to warehouse'
+                message: 'This worker will fetch and save incremental sales lines from MSD to warehouse'
             });
             return Promise.resolve()
-                .then(function (pool) {
+                .then(function () {
                     logger.debug({
                         message: 'Will connect to Mongo DB',
                         commandName
@@ -51,16 +49,34 @@ var runMe = function (sqlPool, orgModelId, inventorySyncModel) {
                 .then(function (dbInstance) {
                     db = dbInstance;
                     logger.debug({
-                        message: 'Connected to Mongo DB',
+                        message: 'Connected to Mongo DB, will set the sync process as true',
                         commandName
                     });
-                    var pagesToFetch = Math.ceil(inventorySyncModel.rowCount / INVENTORY_PER_PAGE);
+                    return db.collection('SyncModel').updateOne({
+                            $and: [
+                                {
+                                    'orgModelId': ObjectId(orgModelId)
+                                },
+                                {
+                                    'name': 'salesLines'
+                                }
+                            ],
+                        },
+                        {
+                            $set: {
+                                'syncInProcess': true,
+                            }
+                        });
+                })
+                .then(function (result) {
+                    var pagesToFetch = Math.ceil(salesLineSyncModel.rowCount / SALES_LINES_PER_PAGE);
                     logger.debug({
-                        message: 'Found the count of total inventory to insert/update',
-                        count: inventorySyncModel.rowCount,
-                        pagesToFetch
+                        message: 'Found the count of total sales lines to insert/update',
+                        count: salesLineSyncModel.rowCount,
+                        pagesToFetch,
+                        commandName
                     });
-                    return fetchPaginatedInventory(sqlPool, orgModelId, pagesToFetch, commandName);
+                    return fetchPaginatedSalesLines(sqlPool, orgModelId, pagesToFetch);
                 })
                 .then(function (result) {
                     logger.debug({
@@ -78,7 +94,7 @@ var runMe = function (sqlPool, orgModelId, inventorySyncModel) {
                                     'orgModelId': ObjectId(orgModelId)
                                 },
                                 {
-                                    'name': 'inventory'
+                                    'name': 'salesLines'
                                 }
                             ],
                         },
@@ -93,7 +109,7 @@ var runMe = function (sqlPool, orgModelId, inventorySyncModel) {
                 .then(function (response) {
                     logger.debug({
                         commandName: commandName,
-                        message: 'Updated inventory sync model in DB',
+                        message: 'Updated sales lines sync model in DB',
                         result: response ? response.result || response : ''
                     });
                     return Promise.resolve();
@@ -101,7 +117,7 @@ var runMe = function (sqlPool, orgModelId, inventorySyncModel) {
                 .catch(function (error) {
                     logger.error({
                         commandName: commandName,
-                        message: 'Could not fetch and save inventory',
+                        message: 'Could not fetch and save sales lines',
                         err: error
                     });
                     return Promise.reject(error);
@@ -142,22 +158,23 @@ module.exports = {
     run: runMe
 };
 
-function fetchPaginatedInventory(sqlPool, orgModelId, pagesToFetch) {
-    var incrementalInventory;
+function fetchPaginatedSalesLines(sqlPool, orgModelId, pagesToFetch) {
+    var incrementalSalesLines;
     if (pagesToFetch>0) {
         return sqlPool.request()
-            .input('inventory_per_page', sql.Int, INVENTORY_PER_PAGE)
-            .query('SELECT TOP (@inventory_per_page) * FROM ' + INVENTORY_DIM_TABLE + ' as InDIM JOIN ' + INVENTORY_SUM_TABLE + ' as InSum on InDim.InventDimId = InSum.InventDimId')
+            .input('sales_lines_per_page', sql.Int, SALES_LINES_PER_PAGE)
+            .query('SELECT TOP (@sales_lines_per_page) * FROM ' + SALES_LINES_TABLE)
             .then(function (result) {
-                incrementalInventory = result.recordset;
+                incrementalSalesLines = result.recordset;
                 logger.debug({
-                    message: 'Fetched inventory',
+                    message: 'Fetched sales lines',
                     pagesToFetch,
-                    numberOfInventory: incrementalInventory.length,
+                    numberOfSales: incrementalSalesLines.length,
                     commandName
                 });
-                var incrementalItemIDs = _.pluck(incrementalInventory, 'ITEMID');
-                //Fetch all productModels and storeModels for this inventory
+                var incrementalItemIDs = _.pluck(incrementalSalesLines, 'ITEMID');
+                var incrementalTransactionNumbers = _.pluck(incrementalSalesLines, 'TRANSACTIONNUMBER');
+                //Fetch all storeModels for this sales
                 return Promise.all([
                     db.collection('ProductModel').find({
                         "orgModelId": ObjectId(orgModelId),
@@ -165,88 +182,96 @@ function fetchPaginatedInventory(sqlPool, orgModelId, pagesToFetch) {
                             $in: incrementalItemIDs
                         }
                     }).toArray(),
-                    db.collection('StoreModel').find({
-                        "orgModelId": ObjectId(orgModelId)
+                    db.collection('SalesModel').find({
+                        "orgModelId": ObjectId(orgModelId),
+                        "transactionNumber": {
+                            $in: incrementalTransactionNumbers
+                        }
                     }).toArray()
                 ]);
             })
             .then(function (result) {
                 var productModelInstances = result[0];
-                var storeModelInstances = result[1];
+                var salesModelInstances = result[1];
                 logger.debug({
                     commandName: commandName,
                     message: `Found ${productModelInstances.length} product model instances`
                 });
                 logger.debug({
                     commandName: commandName,
-                    message: `Found ${storeModelInstances.length} store model instances`
+                    message: `Found ${salesModelInstances.length} sales model instances`
                 });
                 logger.debug({
                     commandName: commandName,
-                    message: 'Will attach stores and products to inventory'
+                    message: 'Will attach stores, products and sales model to sales lines'
                 });
                 //Initialize the array of unordered batches
-                var batch = db.collection('InventoryModel').initializeUnorderedBulkOp();
-                var batchCounter = 0, inventoryCounter = 0;
+                var batch = db.collection('SalesLineItemsModel').initializeUnorderedBulkOp();
+                var batchCounter = 0;
                 //Add some operations to be executed
-                _.each(incrementalInventory, function (eachInventory, iteratee) {
-                    var productModelToAttach = _.findWhere(productModelInstances, {api_id: eachInventory.ITEMID});
-                    var storeModelToAttach = _.findWhere(storeModelInstances, {storeNumber: eachInventory.INVENTSITEID});
-                    batch.find({
-                        inventoryDimId: eachInventory.INVENTDIMID
-                    }).upsert().updateOne({
-                        $set: {
-                            inventoryDimId: eachInventory.INVENTDIMID,
-                            productModelId: productModelToAttach ? productModelToAttach._id : null,
-                            storeModelId: storeModelToAttach ? storeModelToAttach._id : null,
-                            product_id: eachInventory.ITEMID,
-                            outlet_id: eachInventory.INVENTSITEID,
-                            inventory_level: eachInventory.AVAILPHYSICAL,
-                            orgModelId: ObjectId(orgModelId)
-                        }
-                    });
+                _.each(incrementalSalesLines, function (eachSalesLine, iteratee) {
+                    var salesModelToAttach = _.findWhere(salesModelInstances, {transactionNumber: eachSalesLine.TRANSACTIONNUMBER});
+                    var productModelToAttach = _.findWhere(productModelInstances, {api_id: eachSalesLine.ITEMID});
+                    if (salesModelToAttach) {
+                        batch.find({
+                            $and: [{
+                                transactionNumber: eachSalesLine.TRANSACTIONNUMBER
+                            }, {
+                                lineNumber: eachSalesLine.LINENUMBER
+                            }]
+                        }).upsert().updateOne({
+                            $set: {
+                                transactionNumber: eachSalesLine.TRANSACTIONNUMBER,
+                                lineNumber: eachSalesLine.LINENUMBER,
+                                isReturnSale: eachSalesLine.ISRETURNNOSALE,
+                                currency: eachSalesLine.CURRENCY,
+                                netAmount: eachSalesLine.NETAMOUNT,
+                                discountAmount: eachSalesLine.TOTALDISCOUNT,
+                                taxAmount: eachSalesLine.SALESTAXAMOUNT,
+                                costPrice: eachSalesLine.COSTAMOUNT,
+                                salesModelId: salesModelToAttach ? salesModelToAttach._id : null,
+                                productModelId: productModelToAttach ? productModelToAttach._id : null,
+                                storeModelId: salesModelToAttach ? salesModelToAttach.storeModelId : null,
+                                orgModelId: ObjectId(orgModelId)
+                            }
+                        });
+                        batchCounter++;
+                    }
                     process.stdout.write('\033[0G');
-                    process.stdout.write('Percentage completed: ' + Math.round((iteratee++ / incrementalInventory.length) * 100) + '%');
-                    inventoryCounter++;
+                    process.stdout.write('Percentage completed: ' + Math.round((iteratee++ / incrementalSalesLines.length) * 100) + '%');
                 });
                 logger.debug({
                     commandName: commandName,
-                    message: `Batch of inventory ready`,
+                    message: `Batch of sales lines ready`,
                     pagesToFetch
                 });
-                if (incrementalInventory.length) {
+                // if (batchCounter) {
                     return batch.execute();
-                }
-                else {
-                    return Promise.resolve('noIncrementalInventory');
-                }
+                // }
+                // else {
+                //     return Promise.resolve('Empty batch');
+                // }
             })
             .then(function (bulkInsertResponse) {
                 logger.debug({
                     commandName: commandName,
-                    message: 'Bulk insert operation complete',
-                    bulkInsertResponse
+                    message: 'Bulk insert operation complete'
                 });
-                if(bulkInsertResponse !== 'noIncrementalInventory') {
-                    logger.debug({
-                        message: 'Will delete the inserted/updated inventory from Azure SQL'
-                    });
-                    return Promise.all([
-                        sqlPool.request()
-                            .input('inventory_per_page', sql.Int, INVENTORY_PER_PAGE)
-                            .query('DELETE TOP (@inventory_per_page) ' + INVENTORY_DIM_TABLE + ' FROM ' + INVENTORY_DIM_TABLE + ' as InDIM JOIN ' + INVENTORY_SUM_TABLE + ' as InSum on InDim.InventDimId = InSum.InventDimId'),
-                        sqlPool.request()
-                            .input('inventory_per_page', sql.Int, INVENTORY_PER_PAGE)
-                            .query('DELETE TOP (@inventory_per_page) ' + INVENTORY_SUM_TABLE + ' FROM ' + INVENTORY_DIM_TABLE + ' as InDIM JOIN ' + INVENTORY_SUM_TABLE + ' as InSum on InDim.InventDimId = InSum.InventDimId')
-                    ]);
-                }
-                else {
-                    return Promise.resolve('noIncrementalInventory');
-                }
+                logger.debug({
+                    commandName,
+                    nUpserted: bulkInsertResponse.nUpserted,
+                    nInserted: bulkInsertResponse.nInserted,
+                });
+                logger.debug({
+                    message: 'Will delete the inserted/updated sales lines from Azure SQL'
+                });
+                return sqlPool.request()
+                    .input('sales_lines_per_page', sql.Int, SALES_LINES_PER_PAGE)
+                    .query('DELETE TOP (@sales_lines_per_page) FROM ' + SALES_LINES_TABLE)
             })
             .then(function (result) {
                 logger.debug({
-                    message: 'Deleted selected inventory from Azure SQL',
+                    message: 'Deleted selected sales from Azure SQL',
                     result
                 });
                 logger.debug({
@@ -254,7 +279,7 @@ function fetchPaginatedInventory(sqlPool, orgModelId, pagesToFetch) {
                     pagesToFetch
                 });
                 pagesToFetch--;
-                return fetchPaginatedInventory(sqlPool, orgModelId, pagesToFetch);
+                return fetchPaginatedSalesLines(sqlPool, orgModelId, pagesToFetch);
             });
     }
     else {
