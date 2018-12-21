@@ -1478,26 +1478,28 @@ module.exports = function (ReportModel) {
         logger.debug({log: {message: 'Found ' + lineItems.length + ' line items for the report, will convert to csv'}});
 
         for (var i = 0; i<lineItems.length; i++) {
-          totalOrderQuantity += lineItems[i].orderQuantity;
-          totalSupplyCost += lineItems[i].supplyPrice * lineItems[i].orderQuantity;
-          csvArray.push({
-            'SKU': lineItems[i].sku,
-            'Ordered': lineItems[i].orderQuantity,
-            'Product': lineItems[i].name,
-            'Supplier Code': lineItems[i].supplierCode,
-            'Supply cost': lineItems[i].supplyPrice,
-            'Total supply cost': lineItems[i].supplyPrice * lineItems[i].orderQuantity,
-            'Comments': lineItems[i].comments ? lineItems[i].comments.manager_in_process : ''
-          });
-          htmlForPdf += '<tr>' +
-            '<td>' + lineItems[i].sku + '</td>' +
-            '<td>' + lineItems[i].orderQuantity + '</td>' +
-            '<td>' + lineItems[i].name + '</td>' +
-            '<td>' + lineItems[i].supplierCode + '</td>' +
-            '<td>' + lineItems[i].supplyPrice + '</td>' +
-            '<td>' + (lineItems[i].supplyPrice * lineItems[i].orderQuantity) + '</td>' +
-            '<td>' + (lineItems[i].comments ? lineItems[i].comments.manager_in_process : '') + '</td>' +
-            '</tr>';
+          if(lineItems[i].orderQuantity > 0) {
+            totalOrderQuantity += lineItems[i].orderQuantity;
+            totalSupplyCost += lineItems[i].supplyPrice * lineItems[i].orderQuantity;
+            csvArray.push({
+              'SKU': lineItems[i].sku,
+              'Ordered': lineItems[i].orderQuantity,
+              'Product': lineItems[i].name,
+              'Supplier Code': lineItems[i].supplierCode,
+              'Supply cost': lineItems[i].supplyPrice,
+              'Total supply cost': lineItems[i].supplyPrice * lineItems[i].orderQuantity,
+              'Comments': lineItems[i].comments ? lineItems[i].comments.manager_in_process : ''
+            });
+            htmlForPdf += '<tr>' +
+              '<td>' + lineItems[i].sku + '</td>' +
+              '<td>' + lineItems[i].orderQuantity + '</td>' +
+              '<td>' + lineItems[i].name + '</td>' +
+              '<td>' + lineItems[i].supplierCode + '</td>' +
+              '<td>' + lineItems[i].supplyPrice + '</td>' +
+              '<td>' + (lineItems[i].supplyPrice * lineItems[i].orderQuantity) + '</td>' +
+              '<td>' + (lineItems[i].comments ? lineItems[i].comments.manager_in_process : '') + '</td>' +
+              '</tr>';
+          }
         }
         htmlForPdf += '</table>';
         htmlForPdf += '<div><h5>Total Ordered: ' + totalOrderQuantity + '</h5>' +
