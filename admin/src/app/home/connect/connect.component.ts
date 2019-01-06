@@ -114,6 +114,19 @@ export class ConnectComponent implements OnInit {
         });
   }
 
+  private syncMSDCategories() {
+    this.loading = true;
+    this.orgModelApi.syncMSDCategories(this.userProfile.orgModelId)
+      .subscribe((data: any) => {
+          console.log('synced msd categories', data);
+          this.loading = false;
+        },
+        err => {
+          this.loading = false;
+          console.log('err', err);
+        });
+  }
+
   checkSync(dataObject) {
     // return this.syncModels.find(function (eachSyncModel) {
     //   return eachSyncModel.name === dataObject;

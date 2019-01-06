@@ -410,12 +410,38 @@ module.exports = function (OrgModel) {
                 });
         };
 
+        OrgModel.remoteMethod('syncMSDCategories', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/syncMSDCategories', verb: 'get'},
+            returns: {arg: 'status', type: 'boolean'}
+        });
+
+        OrgModel.syncMSDCategories = function (id, options, cb) {
+            logger.debug({
+                message: 'Will sync MSD categories',
+                options,
+                functionName: 'syncMSDCategories'
+            });
+            return OrgModel.app.models.SyncModel.syncMSDCategories(id, options)
+                .catch(function (error) {
+                    logger.error({
+                        message: 'Could not sync MSD categories',
+                        error
+                    });
+                    return Promise.reject('Could not sync MSD categories');
+                });
+        };
+
 
         OrgModel.remoteMethod('updateBinLocation', {
             accepts: [
                 {arg: 'id', type: 'string', required: true},
                 {arg: 'productId', type: 'string', required: true},
-                {arg: 'binLocation', type: 'string', required: true}
+                {arg: 'binLocation', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
             ],
             http: {path: '/:id/updateBinLocation', verb: 'post'},
             returns: {arg: 'product', type: 'object'}
@@ -430,6 +456,34 @@ module.exports = function (OrgModel) {
                     });
                     return Promise.reject('Could not update bin location');
                 });
+        };
+
+        OrgModel.remoteMethod('uploadMinMaxFile', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'req', type: 'object', 'http': {source: 'req'}},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/uploadMinMaxFile', verb: 'post'},
+            returns: {arg: 'result', type: 'string'}
+        });
+
+        OrgModel.uploadMinMaxFile = function (id, req, options, cb) {
+            logger.debug({
+                message: 'Will upload min max file for categories',
+                functionName: 'uploadMinMaxFile',
+                options
+            });
+            return OrgModel.app.models.CategoryModel.uploadMinMaxFile(id, req, options)
+                .catch(function (error) {
+                    logger.debug({
+                        message: 'Error processing min max file',
+                        error,
+                        functionName: 'uploadMinMaxFile',
+                        options
+                    });
+                    return Promise.reject(false);
+                })
         }
 
     });

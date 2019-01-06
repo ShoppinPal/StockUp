@@ -71,6 +71,11 @@
       "type": "hasMany",
       "model": "SalesLineItemsModel",
       "foreignKey": "orgModelId"
+    },
+    "categoryModels": {
+      "type": "hasMany",
+      "model": "CategoryModel",
+      "foreignKey": "orgModelId"
     }
   },
   "acls": [
@@ -144,6 +149,18 @@
       "property": "__count__userModels"
     },
     {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__get__categoryModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__count__categoryModels"
+    },
+    {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
       "principalId": "orgAdmin",
@@ -176,7 +193,21 @@
       "principalType": "ROLE",
       "principalId": "orgAdmin",
       "permission": "ALLOW",
+      "property": "syncMSDCategories"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
       "property": "stopMSDSync"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "uploadMinMaxFile"
     },
     {
       "accessType": "EXECUTE",

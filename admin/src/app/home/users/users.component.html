@@ -42,7 +42,7 @@
             </li>
           </ul>
           <pagination-controls
-            (pageChange)="fetchUsers(usersLimitPerPage, currentPage); currentPage=$event"></pagination-controls>
+            (pageChange)="fetchUsers(usersLimitPerPage, currentPage*usersLimitPerPage); currentPage=$event"></pagination-controls>
         </div>
       </div>
     </div>

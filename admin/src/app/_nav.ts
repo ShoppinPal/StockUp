@@ -2,13 +2,19 @@ export const navigation = [
   {
     title: true,
     name: 'Products',
-    roles: ['warehouseManager']
+    roles: ['orgAdmin']
   },
   {
     name: 'Bin Locations',
     url: '/products/bin-locations',
     icon: 'icon-location-pin',
-    roles: ['warehouseManager']
+    roles: ['orgAdmin']
+  },
+  {
+    name: 'Categories',
+    url: '/products/categories',
+    icon: 'icon-location-pin',
+    roles: ['orgAdmin']
   },
   /*
   {

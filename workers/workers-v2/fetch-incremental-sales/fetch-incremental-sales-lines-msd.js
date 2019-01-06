@@ -229,6 +229,8 @@ function fetchPaginatedSalesLines(sqlPool, orgModelId, pagesToFetch) {
                                 discountAmount: eachSalesLine.TOTALDISCOUNT,
                                 taxAmount: eachSalesLine.SALESTAXAMOUNT,
                                 costPrice: eachSalesLine.COSTAMOUNT,
+                                quantity: -(eachSalesLine.QUANTITY),
+                                salesDate: salesModelToAttach.salesDate,
                                 salesModelId: salesModelToAttach ? salesModelToAttach._id : null,
                                 productModelId: productModelToAttach ? productModelToAttach._id : null,
                                 storeModelId: salesModelToAttach ? salesModelToAttach.storeModelId : null,

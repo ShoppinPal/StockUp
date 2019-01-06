@@ -107,5 +107,9 @@
   "SalesLineItemsModel": {
     "dataSource": "db",
     "public": false
+  },
+  "CategoryModel": {
+    "dataSource": "db",
+    "public": false
   }
 }

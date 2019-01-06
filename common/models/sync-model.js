@@ -265,6 +265,76 @@ module.exports = function (SyncModel) {
             });
     };
 
+    SyncModel.syncMSDCategories = function (id, options) {
+        logger.debug({
+            message: 'Will sync categories for MSD',
+            orgModelId: id,
+            options,
+            functionName: 'syncMSDCategories'
+        });
+        var MSDUtil = require('./../utils/msd')({GlobalOrgModel: SyncModel.app.models.OrgModel});
+        return MSDUtil.fetchMSDData(id, 'ProductCategories')
+            .catch(function (error) {
+                logger.error({
+                    error,
+                    message: 'Could not fetch MSD Data',
+                    orgModelId: id,
+                    functionName: 'syncMSDCategories'
+                });
+                return Promise.reject('Could not fetch MSD Data');
+            })
+            .then(function (categories) {
+                if (categories.value && categories.value.length) {
+                    logger.debug({
+                        message: 'Found categories from MSD, will save to DB',
+                        numberOfUsers: categories.value.length,
+                        functionName: 'syncMSDCategories'
+                    });
+                    var categoriesToCreate = [];
+                    for (var i = 0; i<categories.value.length; i++) {
+                        if(categories.value[i].CategoryName.length) {
+                            categoriesToCreate.push({
+                                name: categories.value[i].CategoryName,
+                                orgModelId: id
+                            });
+                        }
+                    }
+                    return Promise.map(categoriesToCreate, function (eachCategory) {
+                        return SyncModel.app.models.CategoryModel.findOrCreate({
+                            where: {
+                                name: eachCategory.CategoryName
+                            }
+                        }, eachCategory);
+                    });
+                }
+                else {
+                    logger.debug({
+                        message: 'No categories found in MSD',
+                        orgModelId: id,
+                        functionName: 'syncMSDCategories'
+                    });
+                    return Promise.reject('No categories found in MSD');
+                }
+            })
+            .then(function (result) {
+                logger.debug({
+                    message: 'Saved categories to DB',
+                    result: result,
+                    functionName: 'syncMSDCategories'
+                });
+                return Promise.resolve(true);
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not create categories',
+                    orgModelId: id,
+                    error,
+                    functionName: 'syncMSDCategories'
+                });
+                return Promise.reject('Could not create categories for org');
+            });
+    };
+
     SyncModel.syncMSDStores = function (id, options) {
         logger.debug({
             message: 'Will sync stores for MSD',

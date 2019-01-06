@@ -17,10 +17,10 @@ export interface StoreModelInterface {
   "city"?: string;
   "state"?: string;
   "postalCode"?: string;
-  "country": string;
+  "country"?: string;
   "location"?: GeoPoint;
   "hours"?: Array<any>;
-  "api_id": string;
+  "api_id"?: string;
   "registerId"?: string;
   "tax_rate"?: number;
   "hideOutOfStockProducts"?: boolean;
@@ -31,6 +31,8 @@ export interface StoreModelInterface {
   userModel?: UserModel;
   storeConfigModel?: StoreConfigModel;
   orgModel?: OrgModel;
+  salesModels?: any[];
+  salesLineItemsModels?: any[];
 }
 
 export class StoreModel implements StoreModelInterface {
@@ -57,6 +59,8 @@ export class StoreModel implements StoreModelInterface {
   userModel: UserModel;
   storeConfigModel: StoreConfigModel;
   orgModel: OrgModel;
+  salesModels: any[];
+  salesLineItemsModels: any[];
   constructor(data?: StoreModelInterface) {
     Object.assign(this, data);
   }
@@ -186,6 +190,16 @@ export class StoreModel implements StoreModelInterface {
           name: 'orgModel',
           type: 'OrgModel',
           model: 'OrgModel'
+        },
+        salesModels: {
+          name: 'salesModels',
+          type: 'any[]',
+          model: ''
+        },
+        salesLineItemsModels: {
+          name: 'salesLineItemsModels',
+          type: 'any[]',
+          model: ''
         },
       }
     }

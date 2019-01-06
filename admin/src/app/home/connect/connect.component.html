@@ -94,6 +94,18 @@
                   </button>
               </td>
             </tr>
+            <tr>
+              <td>
+                Product Categories
+              </td>
+              <td>
+                  <button type="button"
+                          *ngIf="integration.length && integration[0].type === 'msdynamics'"
+                          class="btn btn-primary"
+                          (click)="syncMSDCategories()">Sync Product Categories
+                  </button>
+              </td>
+            </tr>
             </tbody>
           </table>
         </div>

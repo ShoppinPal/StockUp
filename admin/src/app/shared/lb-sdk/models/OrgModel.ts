@@ -23,6 +23,9 @@ export interface OrgModelInterface {
   inventoryModels?: any[];
   syncModels?: any[];
   integrationModels?: IntegrationModel[];
+  salesModels?: any[];
+  salesLineItemsModels?: any[];
+  categoryModels?: any[];
 }
 
 export class OrgModel implements OrgModelInterface {
@@ -39,6 +42,9 @@ export class OrgModel implements OrgModelInterface {
   inventoryModels: any[];
   syncModels: any[];
   integrationModels: IntegrationModel[];
+  salesModels: any[];
+  salesLineItemsModels: any[];
+  categoryModels: any[];
   constructor(data?: OrgModelInterface) {
     Object.assign(this, data);
   }
@@ -135,6 +141,21 @@ export class OrgModel implements OrgModelInterface {
           name: 'integrationModels',
           type: 'IntegrationModel[]',
           model: 'IntegrationModel'
+        },
+        salesModels: {
+          name: 'salesModels',
+          type: 'any[]',
+          model: ''
+        },
+        salesLineItemsModels: {
+          name: 'salesLineItemsModels',
+          type: 'any[]',
+          model: ''
+        },
+        categoryModels: {
+          name: 'categoryModels',
+          type: 'any[]',
+          model: ''
         },
       }
     }
