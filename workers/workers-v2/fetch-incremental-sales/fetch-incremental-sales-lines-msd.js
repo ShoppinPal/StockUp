@@ -247,12 +247,12 @@ function fetchPaginatedSalesLines(sqlPool, orgModelId, pagesToFetch) {
                     message: `Batch of sales lines ready`,
                     pagesToFetch
                 });
-                // if (batchCounter) {
+                if (batchCounter) {
                     return batch.execute();
-                // }
-                // else {
-                //     return Promise.resolve('Empty batch');
-                // }
+                }
+                else {
+                    return Promise.resolve('Empty batch');
+                }
             })
             .then(function (bulkInsertResponse) {
                 logger.debug({

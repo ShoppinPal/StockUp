@@ -116,19 +116,27 @@ module.exports = function (SyncModel) {
             options,
             functionName: 'initiateMSDSync'
         });
-        var syncModels = [{
-            name: 'products',
-            tableName: 'EcoResProductVariantStaging'
-        }, {
-            name: 'inventory',
-            tableName: 'HSInventDimStaging'
-        }, {
-            name: 'sales',
-            tableName: 'RetailTransactionStaging'
-        }, {
-            name: 'salesLines',
-            tableName: 'RetailTransactionSalesLineStaging'
-        }];
+        var syncModels = [
+            {
+                name: 'products',
+                tableName: 'EcoResProductVariantStaging'
+            },
+            {
+                name: 'productCategories',
+                tableName: 'EcoResProductV2Staging'
+            },
+            {
+                name: 'inventory',
+                tableName: 'HSInventDimStaging'
+            },
+            {
+                name: 'sales',
+                tableName: 'RetailTransactionStaging'
+            },
+            {
+                name: 'salesLines',
+                tableName: 'RetailTransactionSalesLineStaging'
+            }];
         return Promise.map(syncModels, function (eachSyncModel) {
             return SyncModel.findOrCreate({
                 where: {
@@ -220,7 +228,7 @@ module.exports = function (SyncModel) {
                     });
                     var usersToCreate = [];
                     for (var i = 0; i<users.value.length; i++) {
-                        if(users.value[i].Email.length) {
+                        if (users.value[i].Email.length) {
                             usersToCreate.push({
                                 email: users.value[i].Email,
                                 name: users.value[i].UserName,
@@ -292,7 +300,7 @@ module.exports = function (SyncModel) {
                     });
                     var categoriesToCreate = [];
                     for (var i = 0; i<categories.value.length; i++) {
-                        if(categories.value[i].CategoryName.length) {
+                        if (categories.value[i].CategoryName.length) {
                             categoriesToCreate.push({
                                 name: categories.value[i].CategoryName,
                                 orgModelId: id
@@ -362,7 +370,7 @@ module.exports = function (SyncModel) {
                     });
                     var storesToCreate = [];
                     for (var i = 0; i<stores.value.length; i++) {
-                        if(stores.value[i].Name.length) {
+                        if (stores.value[i].Name.length) {
                             storesToCreate.push({
                                 name: stores.value[i].Name,
                                 currency: stores.value[i].Currency,
@@ -433,7 +441,7 @@ module.exports = function (SyncModel) {
                     });
                     var usersToCreate = [];
                     for (var i = 0; i<users.value.length; i++) {
-                        if(users.value[i].Email.length) {
+                        if (users.value[i].Email.length) {
                             usersToCreate.push({
                                 email: users.value[i].Email,
                                 name: users.value[i].UserName,
@@ -505,7 +513,7 @@ module.exports = function (SyncModel) {
                     });
                     var storesToCreate = [];
                     for (var i = 0; i<stores.value.length; i++) {
-                        if(stores.value[i].Name.length) {
+                        if (stores.value[i].Name.length) {
                             storesToCreate.push({
                                 name: stores.value[i].Name,
                                 currency: stores.value[i].Currency,

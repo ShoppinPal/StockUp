@@ -213,6 +213,7 @@ var callFetchDataObjectsWorker = function (sqlPool, orgModelId, syncModels) {
         var dataObjectIndices = {
             suppliers: dataObjectNames.indexOf('suppliers'),
             products: dataObjectNames.indexOf('products'),
+            productCategories: dataObjectNames.indexOf('productCategories'),
             inventory: dataObjectNames.indexOf('inventory'),
             sales: dataObjectNames.indexOf('sales'),
             salesLines: dataObjectNames.indexOf('salesLines')
@@ -246,6 +247,19 @@ var callFetchDataObjectsWorker = function (sqlPool, orgModelId, syncModels) {
                     });
                     var fetchIncrementalProducts = require('./../fetch-incremental-products/fetch-incremental-products-msd');
                     return fetchIncrementalProducts.run(sqlPool, orgModelId, syncModels[dataObjectIndices.products]);
+                }
+                else {
+                    return Promise.resolve();
+                }
+            })
+            .then(function () {
+                if (dataObjectIndices.productCategories !== -1) {
+                    logger.debug({
+                        commandName: commandName,
+                        message: 'Calling fetch product categories worker'
+                    });
+                    var fetchIncrementalProducts = require('./../fetch-incremental-products/fetch-incremental-products-category-msd');
+                    return fetchIncrementalProducts.run(sqlPool, orgModelId, syncModels[dataObjectIndices.productCategories]);
                 }
                 else {
                     return Promise.resolve();
@@ -290,6 +304,7 @@ var callFetchDataObjectsWorker = function (sqlPool, orgModelId, syncModels) {
                     return Promise.resolve();
                 }
             })
+
             .then(function () {
                 logger.debug({
                     commandName: commandName,

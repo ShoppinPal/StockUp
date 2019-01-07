@@ -17,6 +17,11 @@
       "type": "belongsTo",
       "model": "OrgModel",
       "foreignKey": "orgModelId"
+    },
+    "productModels": {
+      "type": "hasMany",
+      "model": "ProductModel",
+      "foreignKey": "categoryModelId"
     }
   },
   "acls": [],
