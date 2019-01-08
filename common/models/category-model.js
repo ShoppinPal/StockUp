@@ -95,10 +95,10 @@ module.exports = function (CategoryModel) {
                             var storeMinColumnPosition = csvStoreColumnPositions[storeModelInstances[j].shortName].min;
                             var storeMaxColumnPosition = csvStoreColumnPositions[storeModelInstances[j].shortName].max;
                             if (storeMinColumnPosition) {
-                                categoryMinMaxObject[categoryName].min[storeModelInstances[j].id] = csvData.data[i][storeMinColumnPosition];
+                                categoryMinMaxObject[categoryName].min[storeModelInstances[j].id] = Number.parseInt(csvData.data[i][storeMinColumnPosition]);
                             }
                             if (storeMaxColumnPosition) {
-                                categoryMinMaxObject[categoryName].max[storeModelInstances[j].id] = csvData.data[i][storeMaxColumnPosition];
+                                categoryMinMaxObject[categoryName].max[storeModelInstances[j].id] = Number.parseInt(csvData.data[i][storeMaxColumnPosition]);
                             }
                         }
                     }
