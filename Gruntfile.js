@@ -321,8 +321,8 @@ module.exports = function (grunt) {
                                 baseUrl: '<%= buildProperties.site.baseUrl %>',
                                 loopbackApiRoot: '<%= buildProperties.restApiRoot %>',
                                 proxyUrl: '<%= buildProperties.site.proxyUrl %>',
-                                vendAuthEndpoint: '<%= buildProperties.vend.auth_endpoint %>',
-                                vendClientId: '<%= buildProperties.vend.client_id %>'
+                                vendAuthEndpoint: '<%= buildProperties.integrations.vend.auth_endpoint %>',
+                                vendClientId: '<%= buildProperties.integrations.vend.client_id %>'
                             }
                         }
                     ]
