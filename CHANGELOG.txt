@@ -1,3 +1,10 @@
+v1.6.0 - Jan 11, 2019
+- Multi-tenant support
+- Signup feature
+- MSD sync
+- Min/max algorithm to generate reorder points
+- Revised app with Angular 4
+
 v1.5.8 - Dec 21, 2018
 - PDF, CSV shouldn't contain items with 0 order quantity
 
