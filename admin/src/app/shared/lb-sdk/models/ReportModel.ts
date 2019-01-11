@@ -2,7 +2,8 @@
 import {
   UserModel,
   StoreConfigModel,
-  StockOrderLineitemModel
+  StockOrderLineitemModel,
+  OrgModel
 } from '../index';
 
 declare var Object: any;
@@ -20,9 +21,11 @@ export interface ReportModelInterface {
   "vendConsignment"?: any;
   "userModelToReportModelId"?: any;
   "storeConfigModelId"?: any;
+  "orgModelId"?: any;
   userModel?: UserModel;
   storeConfigModel?: StoreConfigModel;
   stockOrderLineitemModels?: StockOrderLineitemModel[];
+  orgModel?: OrgModel;
 }
 
 export class ReportModel implements ReportModelInterface {
@@ -39,9 +42,11 @@ export class ReportModel implements ReportModelInterface {
   "vendConsignment": any;
   "userModelToReportModelId": any;
   "storeConfigModelId": any;
+  "orgModelId": any;
   userModel: UserModel;
   storeConfigModel: StoreConfigModel;
   stockOrderLineitemModels: StockOrderLineitemModel[];
+  orgModel: OrgModel;
   constructor(data?: ReportModelInterface) {
     Object.assign(this, data);
   }
@@ -126,6 +131,10 @@ export class ReportModel implements ReportModelInterface {
           name: 'storeConfigModelId',
           type: 'any'
         },
+        "orgModelId": {
+          name: 'orgModelId',
+          type: 'any'
+        },
       },
       relations: {
         userModel: {
@@ -142,6 +151,11 @@ export class ReportModel implements ReportModelInterface {
           name: 'stockOrderLineitemModels',
           type: 'StockOrderLineitemModel[]',
           model: 'StockOrderLineitemModel'
+        },
+        orgModel: {
+          name: 'orgModel',
+          type: 'OrgModel',
+          model: 'OrgModel'
         },
       }
     }

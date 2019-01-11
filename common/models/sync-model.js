@@ -1,143 +1,560 @@
 'use strict';
 var Promise = require('bluebird');
-var path = require('path');
-var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
-var log = require('./../lib/debug-extension')('common:models:' + fileName);
+const path = require('path');
+const fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
+const logger = require('sp-json-logger')({fileName: 'common:models:' + fileName});
 var workers = require('./../utils/workers');
-var logger = require('sp-json-logger');
+const rp = require('request-promise');
 
 module.exports = function (SyncModel) {
 
-  SyncModel.initiateSync = function (id, names, cb) {
-    var currentUser = SyncModel.getCurrentUserModel(cb); // returns  immediately if no currentUser
-    // log('initiateSync').debug('Initiating sync for ', names);
-    logger.tag('initiateSync').debug({
-      log: {
-        message: 'Initiating sync for',
-        names: names
-      }
-    });
-    var filter = {
-      include: 'syncModels',
-      scope: {
-        where: {
-          name: {
-            inq: names
-          }
-        }
-      }
-    };
-    var storeConfigInstance, syncModels, syncInProgressNames;
-
-    return SyncModel.app.models.StoreConfigModel.findById(id, filter)
-      .then(function (storeConfigModelInstance) {
-        storeConfigInstance = storeConfigModelInstance;
-        if (!storeConfigModelInstance) {
-          // log('initiateSync').error('Could not find the organisation', id);
-          logger.tag('initiateSync').debug({
-            log: {
-              message: 'Could not find the organisation',
-              id: id
-            }
-          });
-          return Promise.reject('Could not find your organisation');
-        }
-        else {
-          // log('initiateSync').debug('Found this storeConfigModel', JSON.stringify(storeConfigModelInstance, null, 2));
-          // log('initiateSync').debug('Found these sync models', storeConfigModelInstance.syncModels());
-          logger.tag('initiateSync').debug({log: {
-            message: 'Found following storeConfigModel and sync models',
-            storeConfigModel: storeConfigModelInstance,
-            syncModels: storeConfigModelInstance.syncModels()
-          }});
-          if (!storeConfigModelInstance.syncModels() || !storeConfigModelInstance.syncModels().length) {
-            // log('initiateSync').debug('No sync models found for current org, will initiate sync models first');
-            logger.tag('initiateSync').debug({log: {
-              message: 'No sync models found for current org, will initiate sync models first'
-            }});
-            return Promise.map(names, function (eachName) {
-              return SyncModel.create({
-                name: eachName,
+    SyncModel.initiateVendSync = function (id, options) {
+        logger.debug({
+            message: 'Will initiate vend sync',
+            options,
+            functionName: 'initiateVendSync'
+        });
+        var syncModels = ['products', 'suppliers', 'inventory'];
+        return Promise.map(syncModels, function (eachSyncModel) {
+            return SyncModel.findOrCreate({
+                name: eachSyncModel,
+                orgModelId: id
+            }, {
+                name: eachSyncModel,
                 version: 0,
+                orgModelId: id,
                 syncInProcess: false,
-                storeConfigModelId: id
-              });
+                lastSyncedAt: new Date()
+            });
+        })
+            .then(function (syncModels) {
+                logger.debug({
+                    message: 'Sync models created, will initiate their sync through workers now',
+                    options,
+                    syncModels,
+                    functionName: 'initiateVendSync'
+                });
+                logger.debug({
+                    message: 'Will find organisation\'s vend integration details',
+                    functionName: 'initiateVendSync',
+                    options
+                });
+                return SyncModel.app.models.IntegrationModel.find({
+                    where: {
+                        orgModelId: id
+                    }
+                });
             })
-          }
-          else {
-            //TODO: reject the ones whose syncs are already in progress
-            return Promise.resolve(storeConfigModelInstance.syncModels());
-          }
-        }
-      })
-      .then(function (response) {
-        syncModels = response;
-        // log('initiateSync').debug('Found the following sync versions', syncModels);
-        logger.tag('initiateSync').debug({log: {
-          message: 'Found the following sync versions',
-          syncModels: syncModels
-        }});
-        var posUrl = storeConfigInstance.posUrl;
-        var regexp = /^https?:\/\/(.*)\.vendhq\.com$/i;
-        var matches = posUrl.match(regexp);
-        var domainPrefix = matches[1];
-        // log('initiateSync').debug('Creating new access token for workers');
-        logger.tag('initiateSync').debug({log: {
-          message: 'Creating new access token for workers'
-        }});
-        return Promise.all([currentUser.createAccessTokenAsync(1209600), domainPrefix]);// can't be empty ... time to live (in seconds) 1209600 is 2 weeks (default of loopback)
-      })
-      .then(function (response) {
-        var newAccessToken = response[0];
-        var domainPrefix = response[1];
-        var payload = {
-          op: SyncModel.app.get('findDifferentialVendData'),
-          tokenService: 'https://{DOMAIN_PREFIX}.vendhq.com/api/1.0/token', //TODO: fetch from global-config or config.*.json
-          clientId: SyncModel.app.get('vend').client_id,
-          clientSecret: SyncModel.app.get('vend').client_secret,
-          tokenType: 'Bearer',
-          accessToken: storeConfigInstance.vendAccessToken,
-          refreshToken: storeConfigInstance.vendRefreshToken,
-          domainPrefix: domainPrefix, //'fermiyontest',
-          loopbackServerUrl: process.env['site:baseUrl'] || SyncModel.app.get('site').baseUrl,
-          loopbackAccessToken: newAccessToken, // let it be the full json object
-          name: domainPrefix,
-          vendDataObjects: names,
-          storeConfigModelId: storeConfigInstance.id
-        };
-        return workers.sendPayLoad(payload);
-      })
-      .then(function (response) {
-        // log('initiateSync').debug('Sent payload to worker to initiate sync, will update sync models with status');
-        logger.tag('initiateSync').debug({log: {
-          message: 'Sent payload to worker to initiate sync, will update sync models with status'
-        }});
-        return Promise.map(syncModels, function (eachModel) {
-          return SyncModel.updateAll({
-            name: eachModel.name
-          }, {
-            syncInProcess: true,
-            workerTaskId: response.MessageId
-          });
+            .then(function (integrationModels) {
+                if (!integrationModels.length) {
+                    logger.error({
+                        message: 'Organisation is not integrated with vend',
+                        functionName: 'initiateVendSync',
+                        options
+                    });
+                    return Promise.reject('Organisation is not integrated with vend');
+                }
+                else {
+                    var vendConfig = SyncModel.app.get('integrations').vend;
+                    var payload = {
+                        op: SyncModel.app.get('findDifferentialVendData'),
+                        tokenService: 'https://' + integrationModels[0].domain_prefix + vendConfig.token_service,
+                        clientId: vendConfig.client_id,
+                        clientSecret: vendConfig.client_secret,
+                        tokenType: integrationModels[0].token_type,
+                        accessToken: integrationModels[0].access_token,
+                        refreshToken: integrationModels[0].refresh_token,
+                        domainPrefix: integrationModels[0].domain_prefix,
+                        loopbackServerUrl: SyncModel.app.get('site').baseUrl || process.env['site:baseUrl'],
+                        loopbackAccessToken: options.accessToken, // let it be the full json object
+                        name: integrationModels[0].domain_prefix,
+                        vendDataObjects: syncModels,
+                        orgModelId: id
+                    };
+                    return workers.sendPayLoad(payload);
+                }
+            })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Sent payload to worker to initiate sync, will update sync models with status',
+                    response,
+                    functionName: 'initiateVendSync',
+                    options
+                });
+                return Promise.map(syncModels, function (eachModel) {
+                    return SyncModel.updateAll({
+                        name: eachModel
+                    }, {
+                        syncInProcess: true,
+                        workerTaskId: response.MessageId
+                    });
+                });
+            })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Updated syncInProgress for:',
+                    functionName: 'initiateVendSync',
+                    options,
+                    response
+                });
+                return Promise.resolve();
+            })
+            .catch(function (error) {
+                // log('initiateSync').error('ERROR', error);
+                logger.error({
+                    error,
+                    options,
+                    functionName: 'initiateVendSync'
+                });
+                return Promise.reject(error);
+            });
+    };
+
+    SyncModel.initiateMSDSync = function (id, options) {
+        logger.debug({
+            message: 'Will initiate msd sync',
+            options,
+            functionName: 'initiateMSDSync'
         });
-      })
-      .then(function (response) {
-        // log('initiateSync').debug('Updated syncInProgress for ', names);
-        logger.tag('initiateSync').debug({
-          log: {
-            message: 'Updated syncInProgress for:',
-            name: names
-          }
+        var syncModels = [
+            {
+                name: 'products',
+                tableName: 'EcoResProductVariantStaging'
+            },
+            {
+                name: 'productCategories',
+                tableName: 'EcoResProductV2Staging'
+            },
+            {
+                name: 'inventory',
+                tableName: 'HSInventDimStaging'
+            },
+            {
+                name: 'sales',
+                tableName: 'RetailTransactionStaging'
+            },
+            {
+                name: 'salesLines',
+                tableName: 'RetailTransactionSalesLineStaging'
+            }];
+        return Promise.map(syncModels, function (eachSyncModel) {
+            return SyncModel.findOrCreate({
+                where: {
+                    name: eachSyncModel.name,
+                    orgModelId: id
+                }
+            }, {
+                name: eachSyncModel.name,
+                tableName: eachSyncModel.tableName,
+                syncType: 'msd',
+                orgModelId: id,
+                syncInProcess: false,
+                lastSyncedAt: new Date(1970), //some old date so that sync worker picks it up immediately
+            });
+        })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Created sync models for org',
+                    orgModelId: id,
+                    options,
+                    functionName: 'initiateMSDSync'
+                });
+                return Promise.resolve(syncModels.length);
+            })
+            .catch(function (error) {
+                logger.error({
+                    error,
+                    options,
+                    functionName: 'initiateMSDSync'
+                });
+                return Promise.reject(error);
+            });
+    };
+
+    SyncModel.stopMSDSync = function (id, options) {
+        logger.debug({
+            message: 'Will delete sync models for this organisation',
+            orgModelId: id,
+            options,
+            functionName: 'stopMSDSync'
         });
-        return Promise.resolve();
-      })
-      .catch(function (error) {
-        // log('initiateSync').error('ERROR', error);
-        logger.tag('initiateSync').error({
-          error: error
+        return SyncModel.destroyAll({
+            orgModelId: id
+        })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Deleted all sync models for this organisation',
+                    orgModelId: id,
+                    response,
+                    options,
+                    functionName: 'stopMSDSync'
+                });
+                return Promise.resolve(true);
+            })
+            .catch(function (error) {
+                logger.error({
+                    error,
+                    options,
+                    functionName: 'stopMSDSync'
+                });
+                return Promise.reject(error);
+            });
+    };
+
+    SyncModel.syncMSDUsers = function (id, options) {
+        logger.debug({
+            message: 'Will sync users for MSD',
+            orgModelId: id,
+            options,
+            functionName: 'syncMSDUsers'
         });
-        return Promise.reject(error);
-      });
-  };
+        var MSDUtil = require('./../utils/msd')({GlobalOrgModel: SyncModel.app.models.OrgModel});
+        return MSDUtil.fetchMSDData(id, 'SystemUsers')
+            .catch(function (error) {
+                logger.error({
+                    error,
+                    message: 'Could not fetch MSD Data',
+                    orgModelId: id,
+                    functionName: 'syncMSDUsers'
+                });
+                return Promise.reject('Could not fetch MSD Data');
+            })
+            .then(function (users) {
+                if (users.value && users.value.length) {
+                    logger.debug({
+                        message: 'Found users from MSD, will save to DB',
+                        numberOfUsers: users.value.length,
+                        functionName: 'syncMSDUsers'
+                    });
+                    var usersToCreate = [];
+                    for (var i = 0; i<users.value.length; i++) {
+                        if (users.value[i].Email.length) {
+                            usersToCreate.push({
+                                email: users.value[i].Email,
+                                name: users.value[i].UserName,
+                                userId: users.value[i].UserID,
+                                password: Math.random().toString(36).slice(-8),
+                                orgModelId: id
+                            });
+                        }
+                    }
+                    return Promise.map(usersToCreate, function (eachUser) {
+                        return SyncModel.app.models.UserModel.findOrCreate({
+                            where: {
+                                email: eachUser.email
+                            }
+                        }, eachUser);
+                    });
+                }
+                else {
+                    logger.debug({
+                        message: 'No users found in MSD',
+                        functionName: 'syncMSDUsers'
+                    });
+                    return Promise.reject('No users found in MSD');
+                }
+            })
+            .then(function (result) {
+                logger.debug({
+                    message: 'Saved users to DB',
+                    result: result,
+                    functionName: 'syncMSDUsers'
+                });
+                return Promise.resolve(true);
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not create users',
+                    orgModelId: id,
+                    error,
+                    functionName: 'syncMSDUsers'
+                });
+                return Promise.reject('Could not create users for org');
+            });
+    };
+
+    SyncModel.syncMSDCategories = function (id, options) {
+        logger.debug({
+            message: 'Will sync categories for MSD',
+            orgModelId: id,
+            options,
+            functionName: 'syncMSDCategories'
+        });
+        var MSDUtil = require('./../utils/msd')({GlobalOrgModel: SyncModel.app.models.OrgModel});
+        return MSDUtil.fetchMSDData(id, 'ProductCategories')
+            .catch(function (error) {
+                logger.error({
+                    error,
+                    message: 'Could not fetch MSD Data',
+                    orgModelId: id,
+                    functionName: 'syncMSDCategories'
+                });
+                return Promise.reject('Could not fetch MSD Data');
+            })
+            .then(function (categories) {
+                if (categories.value && categories.value.length) {
+                    logger.debug({
+                        message: 'Found categories from MSD, will save to DB',
+                        numberOfUsers: categories.value.length,
+                        functionName: 'syncMSDCategories'
+                    });
+                    var categoriesToCreate = [];
+                    for (var i = 0; i<categories.value.length; i++) {
+                        if (categories.value[i].CategoryName.length) {
+                            categoriesToCreate.push({
+                                name: categories.value[i].CategoryName,
+                                orgModelId: id
+                            });
+                        }
+                    }
+                    return Promise.map(categoriesToCreate, function (eachCategory) {
+                        return SyncModel.app.models.CategoryModel.findOrCreate({
+                            where: {
+                                name: eachCategory.CategoryName
+                            }
+                        }, eachCategory);
+                    });
+                }
+                else {
+                    logger.debug({
+                        message: 'No categories found in MSD',
+                        orgModelId: id,
+                        functionName: 'syncMSDCategories'
+                    });
+                    return Promise.reject('No categories found in MSD');
+                }
+            })
+            .then(function (result) {
+                logger.debug({
+                    message: 'Saved categories to DB',
+                    result: result,
+                    functionName: 'syncMSDCategories'
+                });
+                return Promise.resolve(true);
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not create categories',
+                    orgModelId: id,
+                    error,
+                    functionName: 'syncMSDCategories'
+                });
+                return Promise.reject('Could not create categories for org');
+            });
+    };
+
+    SyncModel.syncMSDStores = function (id, options) {
+        logger.debug({
+            message: 'Will sync stores for MSD',
+            orgModelId: id,
+            options,
+            functionName: 'syncMSDStores'
+        });
+        var MSDUtil = require('./../utils/msd')({GlobalOrgModel: SyncModel.app.models.OrgModel});
+        return MSDUtil.fetchMSDData(id, 'RetailChannels')
+            .catch(function (error) {
+                logger.error({
+                    error,
+                    message: 'Could not fetch MSD Data',
+                    orgModelId: id,
+                    functionName: 'syncMSDStores'
+                });
+                return Promise.reject('Could not fetch MSD Data');
+            })
+            .then(function (stores) {
+                if (stores.value && stores.value.length) {
+                    logger.debug({
+                        message: 'Found stores from MSD, will save to DB',
+                        numberOfUsers: stores.value.length,
+                        functionName: 'syncMSDStores'
+                    });
+                    var storesToCreate = [];
+                    for (var i = 0; i<stores.value.length; i++) {
+                        if (stores.value[i].Name.length) {
+                            storesToCreate.push({
+                                name: stores.value[i].Name,
+                                currency: stores.value[i].Currency,
+                                storeNumber: stores.value[i].StoreNumber,
+                                orgModelId: id
+                            });
+                        }
+                    }
+                    return Promise.map(storesToCreate, function (eachStore) {
+                        return SyncModel.app.models.StoreModel.findOrCreate({
+                            where: {
+                                storeNumber: eachStore.storeNumber
+                            }
+                        }, eachStore);
+                    });
+                }
+                else {
+                    logger.debug({
+                        message: 'No stores found in MSD',
+                        functionName: 'syncMSDStores'
+                    });
+                    return Promise.reject('No users found in MSD');
+                }
+            })
+            .then(function (result) {
+                logger.debug({
+                    message: 'Saved stores to DB',
+                    result: result,
+                    functionName: 'syncMSDStores'
+                });
+                return Promise.resolve(true);
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not create stores',
+                    orgModelId: id,
+                    error,
+                    functionName: 'syncMSDStores'
+                });
+                return Promise.reject('Could not create stores for org');
+            });
+    };
+
+    SyncModel.syncMSDUsers = function (id, options) {
+        logger.debug({
+            message: 'Will sync users for MSD',
+            orgModelId: id,
+            options,
+            functionName: 'syncMSDUsers'
+        });
+        var MSDUtil = require('./../utils/msd')({GlobalOrgModel: SyncModel.app.models.OrgModel});
+        return MSDUtil.fetchMSDData(id, 'SystemUsers')
+            .catch(function (error) {
+                logger.error({
+                    error,
+                    message: 'Could not fetch MSD Data',
+                    orgModelId: id,
+                    functionName: 'syncMSDUsers'
+                });
+                return Promise.reject('Could not fetch MSD Data');
+            })
+            .then(function (users) {
+                if (users.value && users.value.length) {
+                    logger.debug({
+                        message: 'Found users from MSD, will save to DB',
+                        numberOfUsers: users.value.length,
+                        functionName: 'syncMSDUsers'
+                    });
+                    var usersToCreate = [];
+                    for (var i = 0; i<users.value.length; i++) {
+                        if (users.value[i].Email.length) {
+                            usersToCreate.push({
+                                email: users.value[i].Email,
+                                name: users.value[i].UserName,
+                                userId: users.value[i].UserID,
+                                password: Math.random().toString(36).slice(-8),
+                                orgModelId: id
+                            });
+                        }
+                    }
+                    return Promise.map(usersToCreate, function (eachUser) {
+                        return SyncModel.app.models.UserModel.findOrCreate({
+                            where: {
+                                email: eachUser.email
+                            }
+                        }, eachUser);
+                    });
+                }
+                else {
+                    logger.debug({
+                        message: 'No users found in MSD',
+                        functionName: 'syncMSDUsers'
+                    });
+                    return Promise.reject('No users found in MSD');
+                }
+            })
+            .then(function (result) {
+                logger.debug({
+                    message: 'Saved users to DB',
+                    result: result,
+                    functionName: 'syncMSDUsers'
+                });
+                return Promise.resolve(true);
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not create users',
+                    orgModelId: id,
+                    error,
+                    functionName: 'syncMSDUsers'
+                });
+                return Promise.reject('Could not create users for org');
+            });
+    };
+
+    SyncModel.syncMSDStores = function (id, options) {
+        logger.debug({
+            message: 'Will sync stores for MSD',
+            orgModelId: id,
+            options,
+            functionName: 'syncMSDStores'
+        });
+        var MSDUtil = require('./../utils/msd')({GlobalOrgModel: SyncModel.app.models.OrgModel});
+        return MSDUtil.fetchMSDData(id, 'RetailChannels')
+            .catch(function (error) {
+                logger.error({
+                    error,
+                    message: 'Could not fetch MSD Data',
+                    orgModelId: id,
+                    functionName: 'syncMSDStores'
+                });
+                return Promise.reject('Could not fetch MSD Data');
+            })
+            .then(function (stores) {
+                if (stores.value && stores.value.length) {
+                    logger.debug({
+                        message: 'Found stores from MSD, will save to DB',
+                        numberOfUsers: stores.value.length,
+                        functionName: 'syncMSDStores'
+                    });
+                    var storesToCreate = [];
+                    for (var i = 0; i<stores.value.length; i++) {
+                        if (stores.value[i].Name.length) {
+                            storesToCreate.push({
+                                name: stores.value[i].Name,
+                                currency: stores.value[i].Currency,
+                                storeNumber: stores.value[i].StoreNumber,
+                                orgModelId: id
+                            });
+                        }
+                    }
+                    return Promise.map(storesToCreate, function (eachStore) {
+                        return SyncModel.app.models.StoreModel.findOrCreate({
+                            where: {
+                                storeNumber: eachStore.storeNumber
+                            }
+                        }, eachStore);
+                    });
+                }
+                else {
+                    logger.debug({
+                        message: 'No stores found in MSD',
+                        functionName: 'syncMSDStores'
+                    });
+                    return Promise.reject('No users found in MSD');
+                }
+            })
+            .then(function (result) {
+                logger.debug({
+                    message: 'Saved stores to DB',
+                    result: result,
+                    functionName: 'syncMSDStores'
+                });
+                return Promise.resolve(true);
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not create stores',
+                    orgModelId: id,
+                    error,
+                    functionName: 'syncMSDStores'
+                });
+                return Promise.reject('Could not create stores for org');
+            });
+    };
 
 };

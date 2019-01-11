@@ -1,7 +1,8 @@
 /* tslint:disable */
 import {
   UserModel,
-  ReportModel
+  ReportModel,
+  OrgModel
 } from '../index';
 
 declare var Object: any;
@@ -27,9 +28,11 @@ export interface StockOrderLineitemModelInterface {
   "userId"?: any;
   "reportId"?: any;
   "productModelId"?: any;
+  "orgModelId"?: any;
   userModel?: UserModel;
   reportModel?: ReportModel;
   productModel?: any;
+  orgModel?: OrgModel;
 }
 
 export class StockOrderLineitemModel implements StockOrderLineitemModelInterface {
@@ -54,9 +57,11 @@ export class StockOrderLineitemModel implements StockOrderLineitemModelInterface
   "userId": any;
   "reportId": any;
   "productModelId": any;
+  "orgModelId": any;
   userModel: UserModel;
   reportModel: ReportModel;
   productModel: any;
+  orgModel: OrgModel;
   constructor(data?: StockOrderLineitemModelInterface) {
     Object.assign(this, data);
   }
@@ -173,6 +178,10 @@ export class StockOrderLineitemModel implements StockOrderLineitemModelInterface
           name: 'productModelId',
           type: 'any'
         },
+        "orgModelId": {
+          name: 'orgModelId',
+          type: 'any'
+        },
       },
       relations: {
         userModel: {
@@ -189,6 +198,11 @@ export class StockOrderLineitemModel implements StockOrderLineitemModelInterface
           name: 'productModel',
           type: 'any',
           model: ''
+        },
+        orgModel: {
+          name: 'orgModel',
+          type: 'OrgModel',
+          model: 'OrgModel'
         },
       }
     }

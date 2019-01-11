@@ -14,7 +14,13 @@
   },
   "session": {},
   "auth": {},
-  "parse": {},
+  "parse": {
+    "body-parser#raw": {
+      "params": {
+        "limit": "50mb"
+      }
+    }
+  },
   "routes:before": {
     "./middleware/accessLogger": {
       "paths": "/api/*"

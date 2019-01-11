@@ -4,13 +4,12 @@ if (process.env.NEW_RELIC_ENABLED && process.env.NEW_RELIC_ENABLED.toLowerCase()
     process.env.NEW_RELIC_NO_CONFIG_FILE &&
     process.env.NEW_RELIC_LICENSE_KEY &&
     process.env.NEW_RELIC_APP_NAME &&
-    process.env.NEW_RELIC_LOG_LEVEL)
-{
-  console.log('starting newrelic agent');
-  require('newrelic');
+    process.env.NEW_RELIC_LOG_LEVEL) {
+    console.log('starting newrelic agent');
+    require('newrelic');
 }
 else {
-  console.log('skipped newrelic agent');
+    console.log('skipped newrelic agent');
 }
 
 global.Promise = require('bluebird');
@@ -26,24 +25,30 @@ var path = require('path');
 // boot scripts mount components like REST API
 boot(app, __dirname);
 
-app.start = function() {
-  // start the web server
-  return app.listen(function() {
-    app.emit('started');
-    console.log('Web server listening at: %s', app.get('url'));
+app.start = function () {
+    // start the web server
+    return app.listen(function () {
+        app.emit('started');
+        console.log('Web server listening at: %s', app.get('url'));
 
-    app.use('/v2', app.loopback.static(path.resolve(__dirname, './../client/admin')));
+        app.use('/v1', app.loopback.static(path.resolve(__dirname, './../client/app')));
 
-    app.get('/v2*', function (req, res, next) {
-        res.sendFile('index.html', {root: path.resolve(__dirname, './../client/admin')});
+        app.get('/v1*', function (req, res, next) {
+            res.sendFile('index.html', {root: path.resolve(__dirname, './../client/app')});
+        });
+
+        app.use('/v2', app.loopback.static(path.resolve(__dirname, './../client/admin')));
+
+        app.get('/v2*', function (req, res, next) {
+            res.sendFile('index.html', {root: path.resolve(__dirname, './../client/admin')});
+        });
+
     });
-
-  });
 };
 
 // start the server if `$ node server.js`
 if (require.main === module) {
-  app.start();
+    app.start();
 }
 
 /**
@@ -60,19 +65,20 @@ if (require.main === module) {
  * @type {{handler: Function, disableStackTrace: boolean}}
  */
 app.get('remoting').errorHandler = {
-  handler: function(error, req, res, next) {
-    /* Other options for namespace?
-     > 'strong-remoting:rest-adapter'
-     > 'server:middleware:errorHandler' */
-    var log = require('debug')('server:rest:errorHandler');
-    if (error instanceof Error) {
-      log('Error in %s %s: errorName=%s errorMessage=%s \n errorStack=%s',
-        req.method, req.url, error.name, error.message, error.stack);
-    }
-    else {
-      log(req.method, req.originalUrl, res.statusCode, error);
-    }
-    next(); /* let the default error handler (RestAdapter.errorHandler) run next */
-  },
-  disableStackTrace: true
+    handler: function (error, req, res, next) {
+        /* Other options for namespace?
+         > 'strong-remoting:rest-adapter'
+         > 'server:middleware:errorHandler' */
+        var log = require('debug')('server:rest:errorHandler');
+        if (error instanceof Error) {
+            log('Error in %s %s: errorName=%s errorMessage=%s \n errorStack=%s',
+                req.method, req.url, error.name, error.message, error.stack);
+        }
+        else {
+            log(req.method, req.originalUrl, res.statusCode, error);
+        }
+        next();
+        /* let the default error handler (RestAdapter.errorHandler) run next */
+    },
+    disableStackTrace: true
 };

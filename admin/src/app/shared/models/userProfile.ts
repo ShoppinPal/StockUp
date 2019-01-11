@@ -10,7 +10,7 @@ export class UserProfile {
   private roles: Array<any>;
   private userId: string;
   private isAuthenticated: boolean;
-  private storeConfigModelId: string;
+  private orgModelId: string;
 
   /**
    * Creates an instance of UserProfile.
@@ -23,7 +23,7 @@ export class UserProfile {
     this.name = profile.name || null;
     this.roles = profile.roles || [];
     this.userId = profile.userId || null;
-    this.storeConfigModelId = profile.storeConfigModelId || null;
+    this.orgModelId = profile.orgModelId || null;
   }
 
   public isUserAuthenticated(): boolean {

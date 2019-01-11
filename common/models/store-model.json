@@ -39,8 +39,7 @@
       "type": "string"
     },
     "country": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "location": {
       "type": "GeoPoint"
@@ -51,8 +50,7 @@
       ]
     },
     "api_id": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "registerId": {
       "type": "string"
@@ -78,6 +76,21 @@
       "type": "belongsTo",
       "model": "StoreConfigModel",
       "foreignKey": "storeConfigModelToStoreModelId"
+    },
+    "orgModel": {
+      "type": "belongsTo",
+      "model": "OrgModel",
+      "foreignKey": ""
+    },
+    "salesModels": {
+      "type": "hasMany",
+      "model": "SalesModel",
+      "foreignKey": "storeModelId"
+    },
+    "salesLineItemsModels": {
+      "type": "hasMany",
+      "model": "SalesLineItemsModel",
+      "foreignKey": "storeModelId"
     }
   },
   "acls": [

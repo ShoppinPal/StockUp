@@ -6,7 +6,7 @@ var _ = require('underscore');
 var path = require('path');
 var vendSdk = require('vend-nodejs-sdk')({});
 var requestPromise = require('request-promise');
-const logger = require('sp-json-logger');
+const logger = require('sp-json-logger')();
 
 var savePayloadConfigToFiles = function (payload) {
   logger.tag('inside savePayloadConfigToFiles()').debug({ message: 'inside savePayloadConfigToFiles()' });
@@ -167,3 +167,4 @@ exports.loadOauthTokens = loadOauthTokens;
 exports.updateOauthTokens = updateOauthTokens;
 exports.exportToJsonFileFormat = exportToJsonFileFormat;
 exports.notifyClient = notifyClient;
+

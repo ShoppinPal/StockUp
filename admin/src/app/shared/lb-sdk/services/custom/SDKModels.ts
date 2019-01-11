@@ -8,6 +8,8 @@ import { ReportModel } from '../../models/ReportModel';
 import { StockOrderLineitemModel } from '../../models/StockOrderLineitemModel';
 import { SupplierModel } from '../../models/SupplierModel';
 import { Container } from '../../models/Container';
+import { OrgModel } from '../../models/OrgModel';
+import { IntegrationModel } from '../../models/IntegrationModel';
 
 export interface Models { [name: string]: any }
 
@@ -23,6 +25,8 @@ export class SDKModels {
     StockOrderLineitemModel: StockOrderLineitemModel,
     SupplierModel: SupplierModel,
     Container: Container,
+    OrgModel: OrgModel,
+    IntegrationModel: IntegrationModel,
     
   };
 

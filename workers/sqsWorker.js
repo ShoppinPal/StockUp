@@ -1,7 +1,7 @@
 var http = require('http');
 
 //var logger = require('tracer').console(); //var logger = console;
-var logger = require('sp-json-logger');
+var logger = require('sp-json-logger')();
 
 var AWS = require('aws-sdk');
 var Promise = require('bluebird');
@@ -23,6 +23,11 @@ var sqs = new AWS.SQS({
 var receiveMessage = Promise.promisify(sqs.receiveMessage, sqs);
 var deleteMessage = Promise.promisify(sqs.deleteMessage, sqs);
 
+logger.debug({
+    message: 'Looking for jobs from SQS Queue',
+    queueUrl: process.env.AWS_SQS_URL
+});
+
 return receiveMessage({
   MaxNumberOfMessages: 1,
   WaitTimeSeconds: 20
@@ -33,7 +38,7 @@ return receiveMessage({
         return;
       }
       //logger.debug("\n\n\n\n\n\nFETCHED "+data.Messages.length+" MESSAGES FROM SQS QUEUE.\n\n\n\n\n\n");
-      logger.tag('SQS Message Received').debug({ message: `FETCHED ${data.Messages.length} MESSAGES FROM SQS QUEUE` });
+      logger.tag('SQS Message Received').debug({ message: `FETCHED ${data.Messages.length} MESSAGES FROM SQS QUEUE`, data });
       var taskId = Date.now();
       return handlePayload(JSON.parse(data.Messages[0].Body), data.Messages[0].MessageId, data.Messages[0].ReceiptHandle, taskId)
         .then(function (response) {
@@ -493,6 +498,22 @@ function routeToWorker(payload, config, taskId, messageId, receiptHandle) {
       return generateStockOrder.run(payload, config, taskId, messageId)
         .then(function () {
           logger.debug({ messageId: messageId, message: 'generated stock order successfully' });
+          return Promise.resolve(receiptHandle);
+        })
+        .catch(function (error) {
+          logger.error({err: error, messageId: messageId});
+          return Promise.reject('Internal Server Error');
+        });
+    }
+    else if (payload.op === 'generateReorderPointsMSD') {
+      logger.tag('Routed').info({
+        messageId: messageId,
+        message: 'routed to generateReorderPointsMSD'
+      });
+      var generateStockOrder = require('./workers-v2/generate-reorder-points/generate-reorder-points-msd');
+      return generateStockOrder.run(payload, config, taskId, messageId)
+        .then(function () {
+          logger.debug({ messageId: messageId, message: 'generated reorder points successfully' });
           return Promise.resolve(receiptHandle);
         })
         .catch(function (error) {

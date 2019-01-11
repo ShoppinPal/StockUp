@@ -38,6 +38,21 @@
       "type": "hasOne",
       "model": "InventoryModel",
       "foreignKey": "productModelId"
+    },
+    "orgModel": {
+      "type": "belongsTo",
+      "model": "OrgModel",
+      "foreignKey": ""
+    },
+    "salesLineItemsModels": {
+      "type": "hasMany",
+      "model": "SalesLineItemsModel",
+      "foreignKey": "productModelId"
+    },
+    "categoryModel": {
+      "type": "belongsTo",
+      "model": "CategoryModel",
+      "foreignKey": "categoryModelId"
     }
   },
   "acls": [],

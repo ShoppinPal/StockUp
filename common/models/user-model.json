@@ -2,11 +2,19 @@
   "name": "UserModel",
   "base": "User",
   "idInjection": true,
+  "mixins": {
+    "Timestamp": {},
+    "Context": {}
+  },
   "properties": {
     "id": {
       "type": "string",
       "id": true,
       "generated": true
+    },
+    "emailVerified": {
+      "type": "boolean",
+      "default": false
     }
   },
   "validations": [],
@@ -51,27 +59,33 @@
       "model": "Role",
       "foreignKey": "principalId",
       "through": "RoleMapping"
+    },
+    "orgModel": {
+      "type": "belongsTo",
+      "model": "OrgModel",
+      "foreignKey": ""
     }
   },
   "acls": [
     {
       "accessType": "*",
       "principalType": "ROLE",
-      "principalId": "$owner",
-      "permission": "ALLOW"
-    },
-    {
-      "accessType": "*",
-      "principalType": "ROLE",
-      "principalId": "admin",
-      "permission": "ALLOW"
+      "principalId": "$everyone",
+      "permission": "DENY"
     },
     {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
-      "principalId": "teamMember",
+      "principalId": "$authenticated",
       "permission": "ALLOW",
       "property": "profile"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "signup"
     }
   ],
   "methods": {}

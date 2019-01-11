@@ -1,0 +1,55 @@
+{
+  "name": "SalesModel",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "transactionNumber": {
+      "type": "string"
+    },
+    "currency": {
+      "type": "string"
+    },
+    "isReturnSale": {
+      "type": "boolean",
+      "default": false
+    },
+    "netAmount": {
+      "type": "number"
+    },
+    "grossAmount": {
+      "type": "number"
+    },
+    "discountAmount": {
+      "type": "number"
+    },
+    "taxAmount": {
+      "type": "number"
+    },
+    "salesDate": {
+      "type": "date"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "salesLineItemsModels": {
+      "type": "hasMany",
+      "model": "SalesLineItemsModel",
+      "foreignKey": "salesModelId"
+    },
+    "orgModel": {
+      "type": "belongsTo",
+      "model": "OrgModel",
+      "foreignKey": "orgModelId"
+    },
+    "storeModel": {
+      "type": "belongsTo",
+      "model": "StoreModel",
+      "foreignKey": "storeModelId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

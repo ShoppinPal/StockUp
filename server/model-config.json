@@ -7,7 +7,10 @@
       "./models"
     ],
     "mixins": [
-      "../common/mixins"
+      "loopback/common/mixins",
+      "loopback/server/mixins",
+      "../common/mixins",
+      "./mixins"
     ]
   },
   "User": {
@@ -38,7 +41,8 @@
     "public": false
   },
   "UserModel": {
-    "dataSource": "db"
+    "dataSource": "db",
+    "public": true
   },
   "TeamModel": {
     "dataSource": "db",
@@ -85,6 +89,26 @@
     "public": false
   },
   "InventoryModel": {
+    "dataSource": "db",
+    "public": false
+  },
+  "OrgModel": {
+    "dataSource": "db",
+    "public": true
+  },
+  "IntegrationModel": {
+    "dataSource": "db",
+    "public": true
+  },
+  "SalesModel": {
+    "dataSource": "db",
+    "public": false
+  },
+  "SalesLineItemsModel": {
+    "dataSource": "db",
+    "public": false
+  },
+  "CategoryModel": {
     "dataSource": "db",
     "public": false
   }

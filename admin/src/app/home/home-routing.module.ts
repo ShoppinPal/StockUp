@@ -12,13 +12,17 @@ import {WorkerSettingsComponent} from "./worker-settings/worker-settings.compone
 import {WorkerSettingsResolverService} from "./worker-settings/services/worker-settings-resolver.service";
 import {SuppliersComponent} from "./suppliers/suppliers.component";
 import {SuppliersResolverService} from "./suppliers/services/suppliers-resolver.service";
+import {ConnectComponent} from "./connect/connect.component";
+import {ConnectResolverService} from "./connect/services/connect-resolver.service";
+import {UsersComponent} from "./users/users.component";
+import {UserManagementResolverService} from "./users/services/user-management-resolver.service";
 
 const routes: Routes = [
   {
     path: '',
     resolve: {
-      user: UserResolverService,
-      access: AccessService
+      access: AccessService,
+      user: UserResolverService
     },
     children: [
       {
@@ -34,6 +38,26 @@ const routes: Routes = [
         },
         resolve: {
           syncModels: SyncWithVendResolverService
+        }
+      },
+      {
+        path: 'connect',
+        component: ConnectComponent,
+        data: {
+          title: 'Home > Connect'
+        },
+        resolve: {
+          integration: ConnectResolverService
+        }
+      },
+      {
+        path: 'users',
+        component: UsersComponent,
+        data: {
+          title: 'Home > Users',
+        },
+        resolve: {
+          users: UserManagementResolverService,
         }
       },
       {
@@ -91,7 +115,13 @@ const routes: Routes = [
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
-  providers: [SyncWithVendResolverService, SuppliersResolverService, WorkerSettingsResolverService]
+  providers: [
+    SyncWithVendResolverService,
+    ConnectResolverService,
+    SuppliersResolverService,
+    UserManagementResolverService,
+    WorkerSettingsResolverService
+  ]
 })
 export class HomeRoutingModule {
 }

@@ -1,0 +1,69 @@
+<div class="app flex-row align-items-center">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <h1 align="center">StockUp</h1>
+        <div class="card-group">
+          <div class="card p-4">
+            <div class="card-body">
+              <ngx-loading [show]="loading"></ngx-loading>
+              <h1>Sign Up</h1>
+              <p class="text-muted">Create a new account</p>
+              <form novalidate (ngSubmit)="signup()" name="signupForm"
+                    class="needs-validation">
+                <div class="input-group mb-3">
+                  <span class="input-group-addon"><i class="icon-basket-loaded"></i></span>
+                  <input type="text"
+                         [(ngModel)]="user.orgName"
+                         class="form-control"
+                         placeholder="Organisation name"
+                         name="orgName"
+                         (blur)="findExistingOrganisation(user.orgName)"
+                         required>
+                  <span class="org-suffix">.shoppinpal.com</span> <!--todo: make it come from env variable -->
+                </div>
+                <div class="input-group mb-3">
+                  <span class="input-group-addon"><i class="icon-user"></i></span>
+                  <input type="text"
+                         [(ngModel)]="user.email"
+                         class="form-control"
+                         placeholder="Email address"
+                         name="email"
+                         required>
+                </div>
+                <div class="input-group mb-4">
+                  <span class="input-group-addon"><i class="icon-lock"></i></span>
+                  <input type="password"
+                         [(ngModel)]="user.password"
+                         class="form-control"
+                         placeholder="Create New Password"
+                         name="password"
+                         required>
+                </div>
+                <div class="input-group mb-4">
+                  <span class="input-group-addon"><i class="icon-lock"></i></span>
+                  <input type="password"
+                         [(ngModel)]="confirmPassword"
+                         class="form-control"
+                         placeholder="Confirm New Password"
+                         name="confirmPassword"
+                         required>
+                </div>
+                <div class="row">
+                  <div class="col-6">
+                    <button type="submit" class="btn btn-primary px-4">Signup</button>
+                  </div>
+                </div>
+                <div class="row text-center">
+                  <div class="col-12">
+                    <a routerLink="/login" routerLinkActive="active" (click)="loading=true">Already a user? Login</a>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -5,24 +5,27 @@ import {
   StoreModel,
   ReportModel,
   StockOrderLineitemModel,
-  SupplierModel
+  SupplierModel,
+  OrgModel
 } from '../index';
 
 declare var Object: any;
 export interface UserModelInterface {
   "id"?: any;
+  "emailVerified"?: boolean;
   "realm"?: string;
   "username"?: string;
   "challenges"?: any;
   "email": string;
-  "emailVerified"?: boolean;
-  "verificationToken"?: string;
   "status"?: string;
   "created"?: Date;
   "lastUpdated"?: Date;
+  "createdAt"?: Date;
+  "updatedAt"?: Date;
   "memberId"?: any;
   "storeConfigModelIs"?: any;
   "storeConfigModelId"?: any;
+  "orgModelId"?: any;
   "password"?: string;
   accessTokens?: any[];
   roles?: any[];
@@ -33,22 +36,26 @@ export interface UserModelInterface {
   reportModels?: ReportModel[];
   stockOrderLineitemModels?: StockOrderLineitemModel[];
   supplierModels?: SupplierModel[];
+  orgModel?: OrgModel;
+  roleMappings?: any[];
 }
 
 export class UserModel implements UserModelInterface {
   "id": any;
+  "emailVerified": boolean;
   "realm": string;
   "username": string;
   "challenges": any;
   "email": string;
-  "emailVerified": boolean;
-  "verificationToken": string;
   "status": string;
   "created": Date;
   "lastUpdated": Date;
+  "createdAt": Date;
+  "updatedAt": Date;
   "memberId": any;
   "storeConfigModelIs": any;
   "storeConfigModelId": any;
+  "orgModelId": any;
   "password": string;
   accessTokens: any[];
   roles: any[];
@@ -59,6 +66,8 @@ export class UserModel implements UserModelInterface {
   reportModels: ReportModel[];
   stockOrderLineitemModels: StockOrderLineitemModel[];
   supplierModels: SupplierModel[];
+  orgModel: OrgModel;
+  roleMappings: any[];
   constructor(data?: UserModelInterface) {
     Object.assign(this, data);
   }
@@ -95,6 +104,11 @@ export class UserModel implements UserModelInterface {
           name: 'id',
           type: 'any'
         },
+        "emailVerified": {
+          name: 'emailVerified',
+          type: 'boolean',
+          default: false
+        },
         "realm": {
           name: 'realm',
           type: 'string'
@@ -115,14 +129,6 @@ export class UserModel implements UserModelInterface {
           name: 'email',
           type: 'string'
         },
-        "emailVerified": {
-          name: 'emailVerified',
-          type: 'boolean'
-        },
-        "verificationToken": {
-          name: 'verificationToken',
-          type: 'string'
-        },
         "status": {
           name: 'status',
           type: 'string'
@@ -135,6 +141,16 @@ export class UserModel implements UserModelInterface {
           name: 'lastUpdated',
           type: 'Date'
         },
+        "createdAt": {
+          name: 'createdAt',
+          type: 'Date',
+          default: new Date(0)
+        },
+        "updatedAt": {
+          name: 'updatedAt',
+          type: 'Date',
+          default: new Date(0)
+        },
         "memberId": {
           name: 'memberId',
           type: 'any'
@@ -145,6 +161,10 @@ export class UserModel implements UserModelInterface {
         },
         "storeConfigModelId": {
           name: 'storeConfigModelId',
+          type: 'any'
+        },
+        "orgModelId": {
+          name: 'orgModelId',
           type: 'any'
         },
         "password": {
@@ -197,6 +217,16 @@ export class UserModel implements UserModelInterface {
           name: 'supplierModels',
           type: 'SupplierModel[]',
           model: 'SupplierModel'
+        },
+        orgModel: {
+          name: 'orgModel',
+          type: 'OrgModel',
+          model: 'OrgModel'
+        },
+        roleMappings: {
+          name: 'roleMappings',
+          type: 'any[]',
+          model: ''
         },
       }
     }

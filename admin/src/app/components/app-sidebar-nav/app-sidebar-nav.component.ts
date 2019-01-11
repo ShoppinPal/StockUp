@@ -1,7 +1,7 @@
-import { Component, ElementRef, Input, OnInit, Renderer2 } from '@angular/core';
+import {Component, ElementRef, Input, OnInit, Renderer2} from '@angular/core';
 
 // Import navigation elements
-import { navigation } from './../../_nav';
+import {navigation} from './../../_nav';
 
 @Component({
   selector: 'app-sidebar-nav',
@@ -9,11 +9,11 @@ import { navigation } from './../../_nav';
     <nav class="sidebar-nav">
       <ul class="nav">
         <ng-template ngFor let-navitem [ngForOf]="navigation">
-          <li *ngIf="isDivider(navitem)" class="nav-divider"></li>
-          <ng-template [ngIf]="isTitle(navitem)">
+          <li *ngIf="isDivider(navitem) && navitem.display" class="nav-divider"></li>
+          <ng-template [ngIf]="isTitle(navitem) && navitem.display">
             <app-sidebar-nav-title [title]='navitem'></app-sidebar-nav-title>
           </ng-template>
-          <ng-template [ngIf]="!isDivider(navitem)&&!isTitle(navitem)">
+          <ng-template [ngIf]="!isDivider(navitem)&&!isTitle(navitem) && navitem.display">
             <app-sidebar-nav-item [item]='navitem'></app-sidebar-nav-item>
           </ng-template>
         </ng-template>
@@ -22,7 +22,8 @@ import { navigation } from './../../_nav';
 })
 export class AppSidebarNavComponent {
 
-  public navigation = navigation;
+  public navigation: any = navigation;
+  public userProfile: any = this._userProfileService.getProfileData();
 
   public isDivider(item) {
     return item.divider ? true : false
@@ -32,10 +33,21 @@ export class AppSidebarNavComponent {
     return item.title ? true : false
   }
 
-  constructor() { }
+  ngOnInit() {
+    //display only those items that have the user roles assigned in nav.ts
+    for (var i = 0; i < this.navigation.length; i++) {
+      this.navigation[i].display = this.navigation[i].roles.some((role) => {
+        return this.userProfile.roles.indexOf(role) !== -1;
+      });
+    }
+  }
+
+  constructor(private _userProfileService: UserProfileService) {
+  }
 }
 
-import { Router } from '@angular/router';
+import {Router} from '@angular/router';
+import {UserProfileService} from "../../shared/services/user-profile.service";
 
 @Component({
   selector: 'app-sidebar-nav-item',
@@ -72,7 +84,8 @@ export class AppSidebarNavItemComponent {
     return this.router.isActive(this.thisUrl(), false)
   }
 
-  constructor( private router: Router )  { }
+  constructor(private router: Router) {
+  }
 
 }
 
@@ -115,7 +128,8 @@ export class AppSidebarNavLinkComponent {
     return this.link.icon ? true : false
   }
 
-  constructor() { }
+  constructor() {
+  }
 }
 
 @Component({
@@ -144,7 +158,8 @@ export class AppSidebarNavDropdownComponent {
     return this.link.icon ? true : false
   }
 
-  constructor() { }
+  constructor() {
+  }
 }
 
 @Component({
@@ -154,7 +169,8 @@ export class AppSidebarNavDropdownComponent {
 export class AppSidebarNavTitleComponent implements OnInit {
   @Input() title: any;
 
-  constructor(private el: ElementRef, private renderer: Renderer2) { }
+  constructor(private el: ElementRef, private renderer: Renderer2) {
+  }
 
   ngOnInit() {
     const nativeElement: HTMLElement = this.el.nativeElement;
@@ -163,12 +179,12 @@ export class AppSidebarNavTitleComponent implements OnInit {
 
     this.renderer.addClass(li, 'nav-title');
 
-    if ( this.title.class ) {
+    if (this.title.class) {
       const classes = this.title.class;
       this.renderer.addClass(li, classes);
     }
 
-    if ( this.title.wrapper ) {
+    if (this.title.wrapper) {
       const wrapper = this.renderer.createElement(this.title.wrapper.element);
 
       this.renderer.appendChild(wrapper, name);

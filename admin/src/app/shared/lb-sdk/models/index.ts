@@ -7,5 +7,7 @@ export * from './ReportModel';
 export * from './StockOrderLineitemModel';
 export * from './SupplierModel';
 export * from './Container';
+export * from './OrgModel';
+export * from './IntegrationModel';
 export * from './BaseModels';
 

@@ -19,8 +19,7 @@
       "default": false
     },
     "version": {
-      "type": "number",
-      "required": true
+      "type": "number"
     },
     "lastSyncedAt": {
       "type": "date"
@@ -31,10 +30,10 @@
   },
   "validations": [],
   "relations": {
-    "storeConfigModel": {
+    "orgModel": {
       "type": "belongsTo",
-      "model": "StoreConfigModel",
-      "foreignKey": "storeConfigModelId"
+      "model": "OrgModel",
+      "foreignKey": "orgModelId"
     }
   },
   "acls": [],

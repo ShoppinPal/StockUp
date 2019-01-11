@@ -52,6 +52,8 @@ import { ReportModelApi } from './services/custom/ReportModel';
 import { StockOrderLineitemModelApi } from './services/custom/StockOrderLineitemModel';
 import { SupplierModelApi } from './services/custom/SupplierModel';
 import { ContainerApi } from './services/custom/Container';
+import { OrgModelApi } from './services/custom/OrgModel';
+import { IntegrationModelApi } from './services/custom/IntegrationModel';
 /**
 * @module SDKBrowserModule
 * @description
@@ -89,6 +91,8 @@ export class SDKBrowserModule {
         StockOrderLineitemModelApi,
         SupplierModelApi,
         ContainerApi,
+        OrgModelApi,
+        IntegrationModelApi,
         internalStorageProvider,
         { provide: SDKStorage, useClass: StorageBrowser }
       ]
