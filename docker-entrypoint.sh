@@ -65,7 +65,7 @@ if [ "$1" = 'node' -a -z "$wantHelp" ]; then
     groupmod -g $gid node 2> /dev/null || usermod -a -G $gid node
   }
   chown -R node:node .
-  exec gosu node "$@"
+#  exec gosu node "$@"
 
 fi
 exec "$@"
