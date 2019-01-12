@@ -24,11 +24,11 @@ done
 #}
 _setup_config() {
   ENVIRONMENT=$1
-  ./node_modules/grunt-cli/bin/grunt configsetup:${ENVIRONMENT}
+  ./node_modules/grunt-cli/bin/grunt configsetup:${ENVIRONMENT} --force
 }
 _deploy_setup() {
   ENVIRONMENT=$1
-  ./node_modules/grunt-cli/bin/grunt deploy:${ENVIRONMENT}
+  ./node_modules/grunt-cli/bin/grunt deploy:${ENVIRONMENT} --force
 }
 
 if [ "$1" = 'node' -a -z "$wantHelp" ]; then
