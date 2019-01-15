@@ -91,6 +91,11 @@
       "type": "hasMany",
       "model": "SalesLineItemsModel",
       "foreignKey": "storeModelId"
+    },
+    "reportModels": {
+      "type": "hasMany",
+      "model": "ReportModel",
+      "foreignKey": "storeModelId"
     }
   },
   "acls": [

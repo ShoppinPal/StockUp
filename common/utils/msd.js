@@ -7,7 +7,7 @@ const logger = require('sp-json-logger')({fileName: 'common:models:' + fileName}
 const rp = require('request-promise');
 var GlobalOrgModel = null;
 
-var refreshMSDToken = function (orgModelId) {
+var refreshMSDToken = function (orgModelId, options) {
     logger.debug({
         message: 'Will refresh MSD token',
         orgModelId: orgModelId,
@@ -101,7 +101,7 @@ var refreshMSDToken = function (orgModelId) {
         });
 };
 
-var fetchMSDData = function (orgModelId, dataTable) {
+var fetchMSDData = function (orgModelId, dataTable, options) {
     logger.debug({
         message: 'Will fetch the following data from msd',
         orgModelId,
@@ -163,7 +163,7 @@ var fetchMSDData = function (orgModelId, dataTable) {
             return Promise.reject('Access token could not be refreshed');
         })
         .then(function (token) {
-            if(token !== 'tokenNotExpired') {
+            if (token !== 'tokenNotExpired') {
                 logger.debug({
                     message: 'Will use the new token to fetch data from MSD',
                     token,
@@ -176,7 +176,7 @@ var fetchMSDData = function (orgModelId, dataTable) {
             }
             var options = {
                 method: 'GET',
-                uri: orgModelInstance.integrationModels()[0].resource+'data/' + dataTable,
+                uri: orgModelInstance.integrationModels()[0].resource + 'data/' + dataTable,
                 json: true,
                 headers: {
                     'OData-MaxVersion': '4.0',
@@ -184,8 +184,8 @@ var fetchMSDData = function (orgModelId, dataTable) {
                     'Content-Type': 'application/json;odata.metadata=minimal',
                     'Accept': 'application/json;odata.metadata=minimal',
                     'Accept-Charset': 'UTF-8',
-                    'Authorization': orgModelInstance.integrationModels()[0].token_type + ' ' +token,
-                    'Host': orgModelInstance.integrationModels()[0].resource.replace('https://', '').replace('http://','').replace('/','')
+                    'Authorization': orgModelInstance.integrationModels()[0].token_type + ' ' + token,
+                    'Host': orgModelInstance.integrationModels()[0].resource.replace('https://', '').replace('http://', '').replace('/', '')
                 }
             };
             logger.debug({
@@ -215,12 +215,134 @@ var fetchMSDData = function (orgModelId, dataTable) {
         });
 };
 
+var pushMSDData = function (orgModelId, dataTable, data, options) {
+    logger.debug({
+        message: 'Will push the following data to msd',
+        options,
+        dataTable,
+        data,
+        functionName: 'pushMSDData'
+    });
+    var orgModelInstance;
+
+    return GlobalOrgModel.findById(orgModelId, {
+        include: 'integrationModels'
+    })
+        .catch(function (error) {
+            logger.error({
+                message: 'Could not find orgModel',
+                options,
+                error,
+                functionName: 'pushMSDData'
+            });
+            return Promise.reject('Could not find orgModel');
+        })
+        .then(function (result) {
+            orgModelInstance = result;
+            logger.debug({
+                message: 'Found this orgModel',
+                orgModelInstance,
+                functionName: 'pushMSDData',
+                options
+            });
+
+            if (orgModelInstance.integrationModels().length) {
+                if (orgModelInstance.integrationModels()[0].expires_on<(Date.now() / 1000)) {
+                    logger.debug({
+                        message: 'Will refresh token first',
+                        tokenExpiredOn: orgModelInstance.integrationModels()[0].expires_on,
+                        functionName: 'fetchMSDData',
+                        options
+                    });
+                    return refreshMSDToken(orgModelId);
+                }
+                else {
+                    return Promise.resolve('tokenNotExpired');
+                }
+            }
+            else {
+                logger.error({
+                    message: 'Could not find any integrations for the org',
+                    orgModelId: id,
+                    functionName: 'pushMSDData',
+                    options
+                });
+                return Promise.reject('Could not find any integrations for the org');
+            }
+
+        })
+        .catch(function (error) {
+            logger.error({
+                error,
+                message: 'Access token could not be refreshed',
+                functionName: 'pushMSDData',
+                options
+            });
+            return Promise.reject('Access token could not be refreshed');
+        })
+        .then(function (token) {
+            if (token !== 'tokenNotExpired') {
+                logger.debug({
+                    message: 'Will use the new token to fetch data from MSD',
+                    token,
+                    options,
+                    functionName: 'pushMSDData'
+                });
+            }
+            else {
+                token = orgModelInstance.integrationModels()[0].access_token;
+            }
+            var requestOptions = {
+                method: 'POST',
+                uri: orgModelInstance.integrationModels()[0].resource + 'data/' + dataTable,
+                json: true,
+                headers: {
+                    'OData-MaxVersion': '4.0',
+                    'OData-Version': '4.0',
+                    'Content-Type': 'application/json;odata.metadata=minimal',
+                    'Accept': 'application/json;odata.metadata=minimal',
+                    'Accept-Charset': 'UTF-8',
+                    'Authorization': orgModelInstance.integrationModels()[0].token_type + ' ' + token,
+                    'Host': orgModelInstance.integrationModels()[0].resource.replace('https://', '').replace('http://', '').replace('/', '')
+                },
+                body: data
+            };
+            logger.debug({
+                message: 'Sending the following request to MSD',
+                requestOptions,
+                options,
+                functionName: 'pushMSDData'
+            });
+            return rp(requestOptions);
+        })
+        .catch(function (error) {
+            logger.error({
+                requestError: error,
+                message: 'Could not push the data to MSD',
+                options,
+                dataTable,
+                functionName: 'pushMSDData'
+            });
+            return Promise.reject('Could not fetch the data from MSD');
+        })
+        .then(function (response) {
+            logger.debug({
+                message: 'Fetched data from MSD',
+                response,
+                functionName: 'pushMSDData',
+                options
+            });
+            return Promise.resolve(response);
+        });
+};
+
 module.exports = function (dependencies) {
     if (dependencies) {
         GlobalOrgModel = dependencies.GlobalOrgModel
     }
     return {
         refreshMSDToken: refreshMSDToken,
-        fetchMSDData: fetchMSDData
+        fetchMSDData: fetchMSDData,
+        pushMSDData: pushMSDData
     };
 };

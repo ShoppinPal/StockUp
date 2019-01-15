@@ -29,20 +29,24 @@ export const navigation = [
       variant: 'success',
       text: 'new'
     }
-  },
+  },*/
   {
     title: true,
-    name: 'Orders'
+    name: 'Orders',
+    roles: ['orgAdmin']
   },
   {
-    name: 'Stuck Orders',
-    url: '/orders/stuck-orders',
+    name: 'Stock Orders',
+    url: '/orders/stock-orders',
     icon: 'icon-close',
-    badge: {
-      variant: 'success',
-      text: 'new'
-    }
-  },*/
+    roles: ['orgAdmin']
+  },
+  // {
+  //   name: 'Stuck Orders',
+  //   url: '/orders/stuck-orders',
+  //   icon: 'icon-close',
+  //   roles: ['orgAdmin']
+  // },
   {
     title: true,
     name: 'Settings',

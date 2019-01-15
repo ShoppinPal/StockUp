@@ -1,0 +1,129 @@
+<ngx-loading [show]="loading"></ngx-loading>
+<div class="animated fadeIn">
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="card">
+        <div class="card-header">
+          <strong>Stock order details</strong>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="form-group col-sm-6">
+              <p>Name: <strong>{{order.name}}</strong></p>
+              <p>Total Items: <strong>{{totalApprovedLineItems+totalNotApprovedLineItems}}</strong></p>
+              <p>Created At: <strong>{{order.created}}</strong></p>
+            </div>
+            <!--<div class="form-group col-sm-12">-->
+            <!--<div class="input-group">-->
+            <!--<span>(Upload Min Display Quantities and Shelf Capacities) &nbsp;&nbsp; </span>-->
+            <!--<input type="file" ng2FileSelect [uploader]="uploader"/>-->
+            <!--</div>-->
+            <!--</div>-->
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="row">
+            <div class="col-sm-3">
+              <span class="input-group-btn">
+                <button class="btn btn-primary" type="button" (click)="updateLineItems([], {approved: true})">Approve all</button>
+              </span>
+            </div>
+            <div class="col-sm-3">
+              <span class="input-group-btn">
+                <button class="btn btn-success" type="button"
+                        (click)="createTransferOrder()">Create Transfer Order</button>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!--/.col-->
+  </div><!--/.row-->
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="card-header">
+          <i class="fa fa-cubes"></i> Stock order items
+          <button type="button" class="btn btn-link float-right">
+            <i class="fa fa-filter fa-2x"></i>
+          </button>
+        </div>
+        <div class="card-body">
+          <tabset>
+            <tab heading="Not Approved ({{totalNotApprovedLineItems}})">
+              <table class="table table-striped table-hover">
+                <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Order Quantity</th>
+                  <th>Fulfilled Quantity</th>
+                  <th>Approve</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let lineItem of notApprovedLineItems">
+                  <td>{{lineItem.productModel.name}}</td>
+                  <td>
+                    {{lineItem.orderQuantity}}
+                  </td>
+                  <td>{{lineItem.fulfilledQuantity}}</td>
+                  <td>
+                    <button class="btn btn-danger" type="submit" (click)="updateLineItems(lineItem, {approved: true})">
+                      <i class="fa fa-save"></i> Approve
+                    </button>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+              <ul class="pagination">
+                <li class="page-item" *ngFor="let lineItem of notApprovedLineItems | paginate: {itemsPerPage: lineItemsLimitPerPage,
+                                                                 currentPage: currentPageApproved,
+                                                                 totalItems: totalNotApprovedLineItems}">
+                </li>
+              </ul>
+              <pagination-controls
+                (pageChange)="getNotApprovedStockOrderLineItems(lineItemsLimitPerPage, currentPageNotApproved*lineItemsLimitPerPage); currentPage=$event"></pagination-controls>
+            </tab>
+
+            <tab heading="Approved ({{totalApprovedLineItems}})">
+              <table class="table table-striped table-hover">
+                <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Order Quantity</th>
+                  <th>Fulfilled Quantity</th>
+                  <th>Approve</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let lineItem of approvedLineItems">
+                  <td>{{lineItem.productModel.name}}</td>
+                  <td>
+                    {{lineItem.orderQuantity}}
+                  </td>
+                  <td>{{lineItem.fulfilledQuantity}}</td>
+                  <td>
+                    <button class="btn btn-danger" type="submit" (click)="updateLineItems(lineItem, {approved: false})">
+                      <i class="fa fa-save"></i> Remove
+                    </button>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+              <ul class="pagination">
+                <li class="page-item" *ngFor="let lineItem of approvedLineItems | paginate: {itemsPerPage: lineItemsLimitPerPage,
+                                                                 currentPage: currentPageNotApproved,
+                                                                 totalItems: totalApprovedLineItems}">
+                </li>
+              </ul>
+              <pagination-controls
+                (pageChange)="getApprovedStockOrderLineItems(lineItemsLimitPerPage, currentPageApproved*lineItemsLimitPerPage); currentPage=$event"></pagination-controls>
+            </tab>
+          </tabset>
+        </div>
+      </div>
+    </div>
+    <!--/.col-->
+  </div>
+</div>

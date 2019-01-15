@@ -9,6 +9,8 @@ var Joi = Promise.promisifyAll(require('joi'));
 var validate = Promise.promisify(require('joi').validate);
 var vendSdk = require('vend-nodejs-sdk')({});
 const rp = require('request-promise');
+var SSE = require('express-sse');
+var sseMap = {};
 
 module.exports = function (OrgModel) {
 
@@ -452,7 +454,9 @@ module.exports = function (OrgModel) {
                 .catch(function (error) {
                     logger.error({
                         error,
-                        message: 'Could not update bin location'
+                        message: 'Could not update bin location',
+                        functionName: 'updateBinLocation',
+                        options
                     });
                     return Promise.reject('Could not update bin location');
                 });
@@ -484,6 +488,190 @@ module.exports = function (OrgModel) {
                     });
                     return Promise.reject(false);
                 })
+        };
+
+        OrgModel.remoteMethod('generateStockOrderMSD', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'storeModelId', type: 'string', required: true},
+                {arg: 'req', type: 'object', 'http': {source: 'req'}},
+                {arg: 'res', type: 'object', 'http': {source: 'res'}},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/generateStockOrderMSD', verb: 'get'},
+            returns: {arg: 'data', type: 'ReadableStream', root: true}
+        });
+
+        OrgModel.generateStockOrderMSD = function (id, storeModelId, req, res, options) {
+            try {
+                res.connection.setTimeout(0);
+                if (!sseMap[options.accessToken.userId]) {
+                    var sse = new SSE(0);
+                    sse.init(req, res);
+                    sseMap[options.accessToken.userId] = sse;
+                    logger.debug({
+                        options,
+                        message: 'Created sse for user',
+                        functionName: 'generateStockOrderMSD'
+                    });
+                }
+                else {
+                    sseMap[options.accessToken.userId].init(req, res);
+                    logger.debug({
+                        options,
+                        message: 'SSE exists for this user, will move on',
+                        functionName: 'generateStockOrderMSD'
+                    });
+                }
+            }
+            catch (e) {
+                logger.error({
+                    e,
+                    options,
+                    message: 'Error creating SSE',
+                    functionName: 'generateStockOrderMSD'
+                });
+            }
+            OrgModel.app.models.ReportModel.generateStockOrderMSD(id, storeModelId, options)
+                .catch(function (error) {
+                    logger.error({
+                        error,
+                        message: 'Could not initiate stock order generation',
+                        functionName: 'generateStockOrderMSD',
+                        options
+                    });
+                    return Promise.reject('Could not initiate stock order generation');
+                });
+        };
+
+        OrgModel.remoteMethod('sendWorkerStatus', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'userId', type: 'string', required: true},
+                {arg: 'data', type: 'object'},
+                {arg: 'messageId', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/sendWorkerStatus', verb: 'post'},
+            returns: {arg: 'data', type: 'ReadableStream', root: true}
+        });
+
+        OrgModel.sendWorkerStatus = function (id, userId, data, messageId, options, cb) {
+            try {
+                logger.debug({
+                    options,
+                    message: 'This is called by worker',
+                    userId,
+                    data,
+                    messageId,
+                    functionName: 'sendWorkerStatus'
+                });
+                var sse = sseMap[userId];
+                sse.send(data, '', messageId);
+                cb(null, true);
+            }
+            catch (e) {
+                logger.error({
+                    options,
+                    err: e,
+                    message: 'Could not send data to client',
+                    functionName: 'sendReports'
+                });
+                cb(e);
+            }
+        };
+
+        OrgModel.remoteMethod('createTransferOrderMSD', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'reportModelId', type: 'string', required: true},
+                {arg: 'req', type: 'object', 'http': {source: 'req'}},
+                {arg: 'res', type: 'object', 'http': {source: 'res'}},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/createTransferOrderMSD', verb: 'GET'},
+            returns: {arg: 'data', type: 'ReadableStream', root: true}
+        });
+
+        OrgModel.createTransferOrderMSD = function (id, reportModelId, req, res, options, cb) {
+            logger.debug({
+                message: 'Will create transfer order in MSD',
+                reportModelId,
+                options,
+                functionName: 'createTransferOrderMSD'
+            });
+            res.connection.setTimeout(0);
+            if (!sseMap[options.accessToken.userId]) {
+                var sse = new SSE(0);
+                sse.init(req, res);
+                sseMap[options.accessToken.userId] = sse;
+                logger.debug({
+                    options,
+                    message: 'Created sse for user',
+                    functionName: 'generateStockOrderMSD'
+                });
+            }
+            else {
+                sseMap[options.accessToken.userId].init(req, res);
+                logger.debug({
+                    options,
+                    message: 'SSE exists for this user, will move on',
+                    functionName: 'generateStockOrderMSD'
+                });
+            }
+            OrgModel.app.models.ReportModel.createTransferOrderMSD(id, reportModelId, options)
+                .catch(function (error) {
+                    logger.error({
+                        message: 'Could not create transfer order in MSD',
+                        reportModelId,
+                        options,
+                        functionName: 'createTransferOrderMSD',
+                        error
+                    });
+                    return Promise.reject('Could not create transfer order in MSD');
+                });
+        };
+
+        OrgModel.remoteMethod('updateAllStockOrderLineItemModels', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'reportModelId', type: 'string', required: true},
+                {arg: 'lineItemIds', type: 'array', required: true},
+                {arg: 'data', type: 'object', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/updateAllStockOrderLineItemModels', verb: 'POST'},
+            returns: {arg: 'status', type: 'object', root: true}
+        });
+
+        OrgModel.updateAllStockOrderLineItemModels = function (id, reportModelId, lineItemIds, data, options, cb) {
+            logger.debug({
+                message: 'Will update these line items for order',
+                data,
+                lineItemIds,
+                options,
+                functionName: 'updateAllStockOrderLineItemModels'
+            });
+            var filter = {
+                orgModelId: id,
+                reportModelId: reportModelId
+            };
+            if (lineItemIds.length) {
+                filter.id = {
+                    inq: lineItemIds
+                };
+            }
+            return OrgModel.app.models.StockOrderLineitemModel.updateAll(filter, data)
+                .catch(function (error) {
+                    logger.error({
+                        message: 'Could not update these line items',
+                        lineItemIds,
+                        options,
+                        functionName: 'updateAllStockOrderLineItemModels',
+                        error
+                    });
+                    return Promise.reject('Could not update stock order line items');
+                });
         }
 
     });

@@ -2,6 +2,7 @@
 import {
   UserModel,
   StoreConfigModel,
+  ReportModel,
   OrgModel,
   GeoPoint
 } from '../index';
@@ -30,6 +31,7 @@ export interface StoreModelInterface {
   "orgModelId"?: any;
   userModel?: UserModel;
   storeConfigModel?: StoreConfigModel;
+  reportModels?: ReportModel[];
   orgModel?: OrgModel;
   salesModels?: any[];
   salesLineItemsModels?: any[];
@@ -58,6 +60,7 @@ export class StoreModel implements StoreModelInterface {
   "orgModelId": any;
   userModel: UserModel;
   storeConfigModel: StoreConfigModel;
+  reportModels: ReportModel[];
   orgModel: OrgModel;
   salesModels: any[];
   salesLineItemsModels: any[];
@@ -185,6 +188,11 @@ export class StoreModel implements StoreModelInterface {
           name: 'storeConfigModel',
           type: 'StoreConfigModel',
           model: 'StoreConfigModel'
+        },
+        reportModels: {
+          name: 'reportModels',
+          type: 'ReportModel[]',
+          model: 'ReportModel'
         },
         orgModel: {
           name: 'orgModel',

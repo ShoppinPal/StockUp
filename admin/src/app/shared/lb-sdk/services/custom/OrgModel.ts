@@ -11,6 +11,7 @@ import { ErrorHandler } from '../core/error.service';
 import { Subject } from 'rxjs/Subject';
 import { Observable } from 'rxjs/Rx';
 import { OrgModel } from '../../models/OrgModel';
+import { SocketConnection } from '../../sockets/socket.connections';
 import { UserModel } from '../../models/UserModel';
 import { StoreModel } from '../../models/StoreModel';
 import { SupplierModel } from '../../models/SupplierModel';
@@ -27,12 +28,13 @@ export class OrgModelApi extends BaseLoopBackApi {
 
   constructor(
     @Inject(Http) protected http: Http,
+    @Inject(SocketConnection) protected connection: SocketConnection,
     @Inject(SDKModels) protected models: SDKModels,
     @Inject(LoopBackAuth) protected auth: LoopBackAuth,
     @Inject(JSONSearchParams) protected searchParams: JSONSearchParams,
     @Optional() @Inject(ErrorHandler) protected errorHandler: ErrorHandler
   ) {
-    super(http,  models, auth, searchParams, errorHandler);
+    super(http,  connection,  models, auth, searchParams, errorHandler);
   }
 
   /**
@@ -2876,7 +2878,7 @@ export class OrgModelApi extends BaseLoopBackApi {
    *
    *  - `id` – `{string}` - 
    *
-   *  - `minMaxFile` – `{file}` - 
+   *  - `req` – `{object}` - 
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -2884,9 +2886,9 @@ export class OrgModelApi extends BaseLoopBackApi {
    *
    * Data properties:
    *
-   *  - `status` – `{boolean}` - 
+   *  - `result` – `{string}` - 
    */
-  public uploadMinMaxFile(id: any, minMaxFile: any, customHeaders?: Function): Observable<any> {
+  public uploadMinMaxFile(id: any, req: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/OrgModels/:id/uploadMinMaxFile";
@@ -2895,7 +2897,162 @@ export class OrgModelApi extends BaseLoopBackApi {
     };
     let _postBody: any = {};
     let _urlParams: any = {};
-    if (typeof minMaxFile !== 'undefined' && minMaxFile !== null) _urlParams.minMaxFile = minMaxFile;
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * <em>
+         * (The remote method definition does not provide any description.)
+         * </em>
+   *
+   * @param {string} id 
+   *
+   * @param {string} storeModelId 
+   *
+   * @param {object} req 
+   *
+   * @param {object} res 
+   *
+   * @param {object} options 
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * <em>
+   * (The remote method definition does not provide any description.
+   * This usually means the response is a `OrgModel` object.)
+   * </em>
+   */
+  public generateStockOrderMSD(id: any, storeModelId: any, req: any = {}, res: any = {}, customHeaders?: Function): Observable<any> {
+    let _method: string = "GET";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/:id/generateStockOrderMSD";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    if (typeof storeModelId !== 'undefined' && storeModelId !== null) _urlParams.storeModelId = storeModelId;
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * <em>
+         * (The remote method definition does not provide any description.)
+         * </em>
+   *
+   * @param {object} data Request data.
+   *
+   *  - `id` – `{string}` - 
+   *
+   *  - `userId` – `{string}` - 
+   *
+   *  - `data` – `{object}` - 
+   *
+   *  - `messageId` – `{string}` - 
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * <em>
+   * (The remote method definition does not provide any description.
+   * This usually means the response is a `OrgModel` object.)
+   * </em>
+   */
+  public sendWorkerStatus(id: any, userId: any, data: any = {}, messageId: any, customHeaders?: Function): Observable<any> {
+    let _method: string = "POST";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/:id/sendWorkerStatus";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    if (typeof userId !== 'undefined' && userId !== null) _urlParams.userId = userId;
+    if (typeof data !== 'undefined' && data !== null) _urlParams.data = data;
+    if (typeof messageId !== 'undefined' && messageId !== null) _urlParams.messageId = messageId;
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * <em>
+         * (The remote method definition does not provide any description.)
+         * </em>
+   *
+   * @param {string} id 
+   *
+   * @param {string} reportModelId 
+   *
+   * @param {object} req 
+   *
+   * @param {object} res 
+   *
+   * @param {object} options 
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * <em>
+   * (The remote method definition does not provide any description.
+   * This usually means the response is a `OrgModel` object.)
+   * </em>
+   */
+  public createTransferOrderMSD(id: any, reportModelId: any, req: any = {}, res: any = {}, customHeaders?: Function): Observable<any> {
+    let _method: string = "GET";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/:id/createTransferOrderMSD";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    if (typeof reportModelId !== 'undefined' && reportModelId !== null) _urlParams.reportModelId = reportModelId;
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * <em>
+         * (The remote method definition does not provide any description.)
+         * </em>
+   *
+   * @param {object} data Request data.
+   *
+   *  - `id` – `{string}` - 
+   *
+   *  - `reportModelId` – `{string}` - 
+   *
+   *  - `lineItemIds` – `{any}` - 
+   *
+   *  - `data` – `{object}` - 
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * <em>
+   * (The remote method definition does not provide any description.
+   * This usually means the response is a `OrgModel` object.)
+   * </em>
+   */
+  public updateAllStockOrderLineItemModels(id: any, reportModelId: any, lineItemIds: any, data: any, customHeaders?: Function): Observable<any> {
+    let _method: string = "POST";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/:id/updateAllStockOrderLineItemModels";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    if (typeof reportModelId !== 'undefined' && reportModelId !== null) _urlParams.reportModelId = reportModelId;
+    if (typeof lineItemIds !== 'undefined' && lineItemIds !== null) _urlParams.lineItemIds = lineItemIds;
+    if (typeof data !== 'undefined' && data !== null) _urlParams.data = data;
     let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
     return result;
   }

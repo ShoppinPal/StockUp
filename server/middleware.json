@@ -6,11 +6,12 @@
       "params": [
         "state"
       ]
-    },
-    "./middleware/userContext": {}
+    }
   },
   "initial": {
-    "compression": {}
+    "compression": {
+      "enabled": false
+    }
   },
   "session": {},
   "auth": {},

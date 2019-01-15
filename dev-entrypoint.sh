@@ -18,12 +18,14 @@ done
 
 _config_setup() {
   ENVIRONMENT=$1
-  ./node_modules/grunt-cli/bin/grunt configsetup:${ENVIRONMENT} --force
+  echo "Setting up config for environment: "${ENVIRONMENT}
+  ./node_modules/grunt-cli/bin/grunt configsetup:${ENVIRONMENT}
 }
 
 _deploy_setup() {
   ENVIRONMENT=$1
-  ./node_modules/grunt-cli/bin/grunt deploy:${ENVIRONMENT} --force
+  echo "Deploying settings for environment: "${ENVIRONMENT}
+  ./node_modules/grunt-cli/bin/grunt deploy:${ENVIRONMENT}
 }
 
 

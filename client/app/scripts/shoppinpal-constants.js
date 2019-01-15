@@ -7,9 +7,9 @@ angular.module('shoppinpal-constants', [])
     'MANAGER_RECEIVE': 'manager_receive',
     'REPORT_COMPLETE': 'report_complete'
   })
-  .constant('proxyUrl', '@@proxyUrl')
-  .constant('vendClientId','@@vendClientId')
-  .constant('vendAuthEndpoint', '@@vendAuthEndpoint')
-  .constant('apiKey', '@@apiKey')
-  .constant('loopbackApiRoot','@@loopbackApiRoot')
-  .constant('baseUrl', '@@baseUrl');
+  .constant('proxyUrl', '')
+  .constant('vendClientId','RoubjVS8fXxAYrJiG7prueMN8rMZeZY8')
+  .constant('vendAuthEndpoint', 'https://secure.vendhq.com/connect')
+  .constant('apiKey', '')
+  .constant('loopbackApiRoot','/api')
+  .constant('baseUrl', 'http://kamalazure.shoppinpal.com');

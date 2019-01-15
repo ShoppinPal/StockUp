@@ -5,6 +5,7 @@ import {StuckOrdersResolverService} from "./services/stuck-orders-resolver.servi
 import {LoadingModule} from 'ngx-loading';
 import {NgxPaginationModule} from 'ngx-pagination';
 import {FormsModule} from '@angular/forms';
+import {StockOrdersResolverService} from "../stock-orders/services/stock-orders-resolver.service";
 
 @NgModule({
   imports: [
@@ -14,6 +15,6 @@ import {FormsModule} from '@angular/forms';
     FormsModule
   ],
   declarations: [StuckOrdersComponent],
-  providers: [StuckOrdersResolverService]
+  providers: [StuckOrdersResolverService, StockOrdersResolverService]
 })
 export class StuckOrdersModule { }

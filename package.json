@@ -13,6 +13,7 @@
     "errorhandler": "^1.1.1",
     "excel-stream": "~1.1.1",
     "exec-buffer": "^0.1.1",
+    "express-sse": "0.5.0",
     "form-data": "~0.1.4",
     "grunt": "~0.4.2",
     "grunt-cli": "1.2.0",
@@ -103,7 +104,7 @@
   "scripts": {
     "postinstall": "echo -n $NODE_ENV | grep -v 'production' && ./node_modules/protractor/bin/webdriver-manager update || echo 'will NOT run webdriver install or update'",
     "angular1-sdk": "../node_modules/grunt-cli/bin/grunt loopback_sdk_angular",
-    "angular2-sdk": "DEBUG=boot:*,common:models:*,server:* SKIP_SEEDING=true ./node_modules/.bin/lb-sdk server/server.js admin/src/app/shared/lb-sdk -i disabled",
+    "angular2-sdk": "DEBUG=boot:*,common:models:*,server:* SKIP_SEEDING=true ./node_modules/.bin/lb-sdk server/server.js admin/src/app/shared/lb-sdk -i enabled",
     "generate-env": "node getenv.js"
   },
   "main": "server/server.js"

@@ -63,7 +63,7 @@
     "stockOrderLineitemModels": {
       "type": "hasMany",
       "model": "StockOrderLineitemModel",
-      "foreignKey": "reportId"
+      "foreignKey": "reportModelId"
     },
     "storeConfigModel": {
       "type": "belongsTo",
@@ -74,6 +74,11 @@
       "type": "belongsTo",
       "model": "OrgModel",
       "foreignKey": ""
+    },
+    "storeModel": {
+      "type": "belongsTo",
+      "model": "StoreModel",
+      "foreignKey": "storeModelId"
     }
   },
   "acls": [

@@ -27,6 +27,7 @@ export interface StockOrderLineitemModelInterface {
   "supplyPrice"?: number;
   "userId"?: any;
   "reportId"?: any;
+  "reportModelId"?: any;
   "productModelId"?: any;
   "orgModelId"?: any;
   userModel?: UserModel;
@@ -56,6 +57,7 @@ export class StockOrderLineitemModel implements StockOrderLineitemModelInterface
   "supplyPrice": number;
   "userId": any;
   "reportId": any;
+  "reportModelId": any;
   "productModelId": any;
   "orgModelId": any;
   userModel: UserModel;
@@ -172,6 +174,10 @@ export class StockOrderLineitemModel implements StockOrderLineitemModelInterface
         },
         "reportId": {
           name: 'reportId',
+          type: 'any'
+        },
+        "reportModelId": {
+          name: 'reportModelId',
           type: 'any'
         },
         "productModelId": {

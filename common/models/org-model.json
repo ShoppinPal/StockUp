@@ -140,6 +140,36 @@
       "principalType": "ROLE",
       "principalId": "orgAdmin",
       "permission": "ALLOW",
+      "property": "__get__storeModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__count__storeModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__get__stockOrderLineitemModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__count__stockOrderLineitemModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__updateById__stockOrderLineitemModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
       "property": "__get__userModels"
     },
     {
@@ -147,6 +177,18 @@
       "principalId": "orgAdmin",
       "permission": "ALLOW",
       "property": "__count__userModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__get__reportModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__count__reportModels"
     },
     {
       "principalType": "ROLE",
@@ -212,9 +254,37 @@
     {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
-      "principalId": "warehouseManager",
+      "principalId": "orgAdmin",
       "permission": "ALLOW",
       "property": "updateBinLocation"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "generateStockOrderMSD"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "sendWorkerStatus"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "createTransferOrderMSD"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "updateAllStockOrderLineItemModels"
     }
   ],
   "methods": {}

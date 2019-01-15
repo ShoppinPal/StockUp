@@ -34,6 +34,7 @@ angular.module('ShoppinPalApp')
         $scope.waitOnPromise = UserModel.login({rememberMe: true}, {
           realm: 'portal',
           username: username,
+          email: username,
           password: password
         })
           .$promise.then(function (accessToken) {
