@@ -9,7 +9,6 @@ const path = require('path');
 sql.Promise = require('bluebird');
 const _ = require('underscore');
 const Promise = require('bluebird');
-const INVENTORY_DIM_TABLE = 'HSInventDimStaging';
 const INVENTORY_SUM_TABLE = 'HSInventSumStaging';
 const INVENTORY_PER_PAGE = 1000;
 const commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
@@ -60,12 +59,12 @@ var runMe = function (sqlPool, orgModelId, inventorySyncModel) {
                         count: inventorySyncModel.rowCount,
                         pagesToFetch
                     });
-                    return fetchPaginatedInventory(sqlPool, orgModelId, pagesToFetch, commandName);
+                    return fetchPaginatedInventorySums(sqlPool, orgModelId, pagesToFetch, commandName);
                 })
                 .then(function (result) {
                     logger.debug({
                         commandName: commandName,
-                        message: 'Downloaded inventory to the DB',
+                        message: 'Downloaded inventory dims to the DB',
                         result
                     });
                     logger.debug({
@@ -78,7 +77,7 @@ var runMe = function (sqlPool, orgModelId, inventorySyncModel) {
                                     'orgModelId': ObjectId(orgModelId)
                                 },
                                 {
-                                    'name': 'inventory'
+                                    'name': 'inventorySums'
                                 }
                             ],
                         },
@@ -142,12 +141,12 @@ module.exports = {
     run: runMe
 };
 
-function fetchPaginatedInventory(sqlPool, orgModelId, pagesToFetch) {
+function fetchPaginatedInventorySums(sqlPool, orgModelId, pagesToFetch) {
     var incrementalInventory;
     if (pagesToFetch>0) {
         return sqlPool.request()
             .input('inventory_per_page', sql.Int, INVENTORY_PER_PAGE)
-            .query('SELECT TOP (@inventory_per_page) * FROM ' + INVENTORY_DIM_TABLE + ' as InDIM JOIN ' + INVENTORY_SUM_TABLE + ' as InSum on InDim.InventDimId = InSum.InventDimId')
+            .query('SELECT TOP (@inventory_per_page) * FROM ' + INVENTORY_SUM_TABLE)
             .then(function (result) {
                 incrementalInventory = result.recordset;
                 logger.debug({
@@ -158,32 +157,22 @@ function fetchPaginatedInventory(sqlPool, orgModelId, pagesToFetch) {
                 });
                 var incrementalItemIDs = _.pluck(incrementalInventory, 'ITEMID');
                 //Fetch all productModels and storeModels for this inventory
-                return Promise.all([
-                    db.collection('ProductModel').find({
-                        "orgModelId": ObjectId(orgModelId),
-                        "api_id": {
-                            $in: incrementalItemIDs
-                        }
-                    }).toArray(),
-                    db.collection('StoreModel').find({
-                        "orgModelId": ObjectId(orgModelId)
-                    }).toArray()
-                ]);
+                return db.collection('ProductModel').find({
+                    "orgModelId": ObjectId(orgModelId),
+                    "api_id": {
+                        $in: incrementalItemIDs
+                    }
+                }).toArray()
             })
             .then(function (result) {
-                var productModelInstances = result[0];
-                var storeModelInstances = result[1];
+                var productModelInstances = result;
                 logger.debug({
                     commandName: commandName,
                     message: `Found ${productModelInstances.length} product model instances`
                 });
                 logger.debug({
                     commandName: commandName,
-                    message: `Found ${storeModelInstances.length} store model instances`
-                });
-                logger.debug({
-                    commandName: commandName,
-                    message: 'Will attach stores and products to inventory'
+                    message: 'Will attach products to inventory'
                 });
                 //Initialize the array of unordered batches
                 var batch = db.collection('InventoryModel').initializeUnorderedBulkOp();
@@ -191,16 +180,13 @@ function fetchPaginatedInventory(sqlPool, orgModelId, pagesToFetch) {
                 //Add some operations to be executed
                 _.each(incrementalInventory, function (eachInventory, iteratee) {
                     var productModelToAttach = _.findWhere(productModelInstances, {api_id: eachInventory.ITEMID});
-                    var storeModelToAttach = _.findWhere(storeModelInstances, {storeNumber: eachInventory.INVENTSITEID});
                     batch.find({
                         inventoryDimId: eachInventory.INVENTDIMID
                     }).upsert().updateOne({
                         $set: {
                             inventoryDimId: eachInventory.INVENTDIMID,
                             productModelId: productModelToAttach ? productModelToAttach._id : null,
-                            storeModelId: storeModelToAttach ? storeModelToAttach._id : null,
                             product_id: eachInventory.ITEMID,
-                            outlet_id: eachInventory.INVENTSITEID,
                             inventory_level: eachInventory.AVAILPHYSICAL,
                             orgModelId: ObjectId(orgModelId)
                         }
@@ -225,20 +211,16 @@ function fetchPaginatedInventory(sqlPool, orgModelId, pagesToFetch) {
                 logger.debug({
                     commandName: commandName,
                     message: 'Bulk insert operation complete',
-                    bulkInsertResponse
+                    nInserted: bulkInsertResponse.nInserted,
+                    nUpserted: bulkInsertResponse.nUpserted
                 });
-                if(bulkInsertResponse !== 'noIncrementalInventory') {
+                if (bulkInsertResponse !== 'noIncrementalInventory') {
                     logger.debug({
                         message: 'Will delete the inserted/updated inventory from Azure SQL'
                     });
-                    return Promise.all([
-                        sqlPool.request()
-                            .input('inventory_per_page', sql.Int, INVENTORY_PER_PAGE)
-                            .query('DELETE TOP (@inventory_per_page) ' + INVENTORY_DIM_TABLE + ' FROM ' + INVENTORY_DIM_TABLE + ' as InDIM JOIN ' + INVENTORY_SUM_TABLE + ' as InSum on InDim.InventDimId = InSum.InventDimId'),
-                        sqlPool.request()
-                            .input('inventory_per_page', sql.Int, INVENTORY_PER_PAGE)
-                            .query('DELETE TOP (@inventory_per_page) ' + INVENTORY_SUM_TABLE + ' FROM ' + INVENTORY_DIM_TABLE + ' as InDIM JOIN ' + INVENTORY_SUM_TABLE + ' as InSum on InDim.InventDimId = InSum.InventDimId')
-                    ]);
+                    return sqlPool.request()
+                        .input('inventory_per_page', sql.Int, INVENTORY_PER_PAGE)
+                        .query('DELETE TOP (@inventory_per_page) FROM ' + INVENTORY_SUM_TABLE)
                 }
                 else {
                     return Promise.resolve('noIncrementalInventory');
@@ -254,7 +236,7 @@ function fetchPaginatedInventory(sqlPool, orgModelId, pagesToFetch) {
                     pagesToFetch
                 });
                 pagesToFetch--;
-                return fetchPaginatedInventory(sqlPool, orgModelId, pagesToFetch);
+                return fetchPaginatedInventorySums(sqlPool, orgModelId, pagesToFetch);
             });
     }
     else {

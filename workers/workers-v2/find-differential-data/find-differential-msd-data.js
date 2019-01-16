@@ -214,7 +214,8 @@ var callFetchDataObjectsWorker = function (sqlPool, orgModelId, syncModels) {
             suppliers: dataObjectNames.indexOf('suppliers'),
             products: dataObjectNames.indexOf('products'),
             productCategories: dataObjectNames.indexOf('productCategories'),
-            inventory: dataObjectNames.indexOf('inventory'),
+            inventoryDims: dataObjectNames.indexOf('inventoryDims'),
+            inventorySums: dataObjectNames.indexOf('inventorySums'),
             sales: dataObjectNames.indexOf('sales'),
             salesLines: dataObjectNames.indexOf('salesLines')
         };
@@ -266,13 +267,26 @@ var callFetchDataObjectsWorker = function (sqlPool, orgModelId, syncModels) {
                 }
             })
             .then(function () {
-                if (dataObjectIndices.inventory !== -1) {
+                if (dataObjectIndices.inventoryDims !== -1) {
                     logger.debug({
                         commandName: commandName,
                         message: 'Calling fetch inventory worker'
                     });
-                    var fetchIncrementalInventory = require('./../fetch-incremental-inventory/fetch-incremental-inventory-msd');
-                    return fetchIncrementalInventory.run(sqlPool, orgModelId, syncModels[dataObjectIndices.inventory]);
+                    var fetchIncrementalInventory = require('./../fetch-incremental-inventory/fetch-incremental-inventoryDims-msd');
+                    return fetchIncrementalInventory.run(sqlPool, orgModelId, syncModels[dataObjectIndices.inventoryDims]);
+                }
+                else {
+                    return Promise.resolve();
+                }
+            })
+            .then(function () {
+                if (dataObjectIndices.inventorySums !== -1) {
+                    logger.debug({
+                        commandName: commandName,
+                        message: 'Calling fetch inventory worker'
+                    });
+                    var fetchIncrementalInventory = require('./../fetch-incremental-inventory/fetch-incremental-inventorySums-msd');
+                    return fetchIncrementalInventory.run(sqlPool, orgModelId, syncModels[dataObjectIndices.inventorySums]);
                 }
                 else {
                     return Promise.resolve();

@@ -126,8 +126,12 @@ module.exports = function (SyncModel) {
                 tableName: 'EcoResProductV2Staging'
             },
             {
-                name: 'inventory',
+                name: 'inventoryDims',
                 tableName: 'HSInventDimStaging'
+            },
+            {
+                name: 'inventorySums',
+                tableName: 'HSInventSumStaging'
             },
             {
                 name: 'sales',
