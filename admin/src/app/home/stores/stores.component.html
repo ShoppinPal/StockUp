@@ -1,50 +1,58 @@
-<div class="card">
-  <h4 class="card-header">Warehouses</h4>
-  <div class="card-body">
-    <form>
-      <div class="form-check">
-        <p>Q) Which of these stores are warehouses?</p>
-        <label class="custom-control custom-checkbox">
-          <input type="checkbox" class="custom-control-input">
-          <span class="custom-control-indicator"></span>
-          <span class="custom-control-description">Store 1</span>
-        </label>
-        <label class="custom-control custom-checkbox">
-          <input type="checkbox" class="custom-control-input">
-          <span class="custom-control-indicator"></span>
-          <span class="custom-control-description">Store 2</span>
-        </label>
-        <label class="custom-control custom-checkbox">
-          <input type="checkbox" class="custom-control-input">
-          <span class="custom-control-indicator"></span>
-          <span class="custom-control-description">Store 3</span>
-        </label>
-        <label class="custom-control custom-checkbox">
-          <input type="checkbox" class="custom-control-input">
-          <span class="custom-control-indicator"></span>
-          <span class="custom-control-description">Store 4</span>
-        </label>
-        <label class="custom-control custom-checkbox">
-          <input type="checkbox" class="custom-control-input">
-          <span class="custom-control-indicator"></span>
-          <span class="custom-control-description">Store 5</span>
-        </label>
+<ngx-loading [show]="loading"></ngx-loading>
+<div class="animated fadeIn">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="card-header">
+          <i class="fa fa-cubes"></i> Stores
+          <button type="button" class="btn btn-link float-right" appAsideMenuToggler>
+            <i class="fa fa-filter fa-2x"></i>
+          </button>
+        </div>
+        <div class="card-body">
+          <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+              <th>Name</th>
+              <th>Short Name</th>
+              <th>Store Number</th>
+              <th>Is Warehouse?</th>
+              <th>Save</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let store of stores">
+              <td>{{store.name}}</td>
+              <td>
+                <input type="text"
+                       class="form-control-sm"
+                       placeholder="Enter store short name"
+                       [(ngModel)]="store.shortName"
+                       required/>
+              </td>
+              <td>{{store.storeNumber}}</td>
+              <td>
+                <div class="input-group">
+                  <label class="switch switch-3d switch-primary">
+                    <input type="checkbox"
+                           [(ngModel)]="store.isWarehouse"
+                           class="switch-input">
+                    <span class="switch-label"></span>
+                    <span class="switch-handle"></span>
+                  </label>
+                </div>
+              </td>
+              <td>
+                <button class="btn btn-primary" type="submit" (click)="updateStore(store)">
+                  <i class="fa fa-save"></i> Save
+                </button>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-      <div class="form-group">
-        <p>Q) Which is the default warehouse?</p>
-        <label class="custom-control custom-radio">
-          <input id="radio1" name="radio" type="radio" class="custom-control-input">
-          <span class="custom-control-indicator"></span>
-          <span class="custom-control-description">Store 1</span>
-        </label>
-        <label class="custom-control custom-radio">
-          <input id="radio2" name="radio" type="radio" class="custom-control-input">
-          <span class="custom-control-indicator"></span>
-          <span class="custom-control-description">Store 2</span>
-        </label>
-      </div>
-      <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
+    </div>
+    <!--/.col-->
   </div>
 </div>
-

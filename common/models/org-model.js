@@ -494,6 +494,7 @@ module.exports = function (OrgModel) {
             accepts: [
                 {arg: 'id', type: 'string', required: true},
                 {arg: 'storeModelId', type: 'string', required: true},
+                {arg: 'warehouseModelId', type: 'string', required: true},
                 {arg: 'req', type: 'object', 'http': {source: 'req'}},
                 {arg: 'res', type: 'object', 'http': {source: 'res'}},
                 {arg: 'options', type: 'object', http: 'optionsFromRequest'}
@@ -502,7 +503,7 @@ module.exports = function (OrgModel) {
             returns: {arg: 'data', type: 'ReadableStream', root: true}
         });
 
-        OrgModel.generateStockOrderMSD = function (id, storeModelId, req, res, options) {
+        OrgModel.generateStockOrderMSD = function (id, storeModelId, warehouseModelId, req, res, options) {
             try {
                 res.connection.setTimeout(0);
                 if (!sseMap[options.accessToken.userId]) {
@@ -532,7 +533,7 @@ module.exports = function (OrgModel) {
                     functionName: 'generateStockOrderMSD'
                 });
             }
-            OrgModel.app.models.ReportModel.generateStockOrderMSD(id, storeModelId, options)
+            OrgModel.app.models.ReportModel.generateStockOrderMSD(id, storeModelId, warehouseModelId, options)
                 .catch(function (error) {
                     logger.error({
                         error,

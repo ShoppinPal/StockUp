@@ -58,7 +58,7 @@ var runMe = function (payload, config, taskId, messageId) {
                         message: 'Connected to Mongo DB',
                         commandName
                     });
-                    return calculateMinMax(orgModelId, storeModelId);
+                    return calculateMinMax(orgModelId, storeModelId, messageId);
                 })
                 .then(function (result) {
                     logger.debug({
@@ -112,7 +112,7 @@ module.exports = {
     run: runMe
 };
 
-function calculateMinMax(orgModelId, storeModelId) {
+function calculateMinMax(orgModelId, storeModelId, messageId) {
     logger.debug({
         message: 'Will calculate min/max for the following store',
         storeModelId,
@@ -167,29 +167,54 @@ function calculateMinMax(orgModelId, storeModelId) {
                         return Promise.reject('Skipping inventory ID ' + eachInventoryModelInstance._id);
                     })
                     .then(function (productModelInstance) {
-                        product = productModelInstance;
-                        logger.debug({
-                            message: 'Found product model instance for inventory, will look for its category model',
-                            productModelInstance,
-                            commandName
-                        });
-                        return db.collection('CategoryModel').findOne({
-                            _id: ObjectId(productModelInstance.categoryModelId)
-                        });
+                        if(productModelInstance){
+                            product = productModelInstance;
+                            logger.debug({
+                                message: 'Found product model instance for inventory, will look for its category model',
+                                productModelInstance,
+                                commandName
+                            });
+                            return db.collection('CategoryModel').findOne({
+                                _id: ObjectId(productModelInstance.categoryModelId)
+                            });
+                        }
+                        else {
+                            return Promise.reject('Could not find product model for the inventory, will skip the product');
+                        }
                     })
                     .catch(function (error) {
                         logger.error({
                             message: 'Could not find a category for the product, will skip MDQ and shelf capacities',
                             error,
-                            commandName
+                            commandName,
+                            product,
+                            inventoryId: eachInventoryModelInstance._id
                         });
+                        return Promise.resolve();
                     })
                     .then(function (categoryModelInstance) {
-                        category = categoryModelInstance;
+                        if(categoryModelInstance) {
+                            category = categoryModelInstance;
+                            logger.debug({
+                                message: 'Found category model instance for product',
+                                product,
+                                categoryModelInstance,
+                                commandName
+                            });
+                        }
+                        else {
+                            logger.debug({
+                                message: 'Found no category model for product',
+                                inventoryId: eachInventoryModelInstance._id,
+                                commandName,
+                                messageId
+                            });
+                        }
                         logger.debug({
-                            message: 'Found category model instance for product',
-                            categoryModelInstance,
-                            commandName
+                            message: 'Will look for all sales data of the inventory',
+                                inventoryId: eachInventoryModelInstance._id,
+                                commandName,
+                                messageId
                         });
                         return db.collection('SalesLineItemsModel').find({
                             $and: [
@@ -264,6 +289,10 @@ function calculateMinMax(orgModelId, storeModelId) {
                                     MIN = category.min[storeModelId]>tempMin ? category.min[storeModelId] : tempMin;
                                     MAX = (tempMax + category.min[storeModelId])<category.max[storeModelId] ? (tempMax + category.min[storeModelId]) : category.max[storeModelId];
                                 }
+                                else {
+                                    MIN = tempMin;
+                                    MAX = tempMax;
+                                }
                                 logger.debug({
                                     totalQuantitiesSoldPerDate,
                                     arrayOfDatesOfSales,
@@ -336,6 +365,8 @@ function calculateMinMax(orgModelId, storeModelId) {
                     });
 
 
+            }, {
+                concurrency: 10
             });
 
         })

@@ -244,9 +244,10 @@ var runMe = function (payload, config, taskId, messageId) {
                         messageId,
                         commandName
                     });
-                    var lineItemsToPush = [], correspondingProduct;
+                    var lineItemsToPush = [];
                     for (var i = 0; i<stockOrderLineItemModels.length; i++) {
                         for (var j = 0; j<productModelInstances.length; j++) {
+                            var correspondingProduct = null;
                             if (productModelInstances[j]._id.toString() === stockOrderLineItemModels[i].productModelId.toString()) {
                                 correspondingProduct = productModelInstances[j];
                             }

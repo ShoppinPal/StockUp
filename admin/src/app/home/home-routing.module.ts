@@ -16,6 +16,7 @@ import {ConnectComponent} from "./connect/connect.component";
 import {ConnectResolverService} from "./connect/services/connect-resolver.service";
 import {UsersComponent} from "./users/users.component";
 import {UserManagementResolverService} from "./users/services/user-management-resolver.service";
+import {StoresResolverService} from "./stores/services/stores-resolver.service";
 
 const routes: Routes = [
   {
@@ -75,6 +76,9 @@ const routes: Routes = [
         component: StoresComponent,
         data: {
           title: 'Home > Stores'
+        },
+        resolve: {
+          stores: StoresResolverService
         }
       },
       {
@@ -119,6 +123,7 @@ const routes: Routes = [
     SyncWithVendResolverService,
     ConnectResolverService,
     SuppliersResolverService,
+    StoresResolverService,
     UserManagementResolverService,
     WorkerSettingsResolverService
   ]

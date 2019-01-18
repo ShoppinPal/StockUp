@@ -17,19 +17,19 @@ export const navigation = [
     roles: ['orgAdmin']
   },
   /*
-  {
-    title: true,
-    name: 'Suppliers'
-  },
-  {
-    name: 'Suppliers',
-    url: '/suppliers',
-    icon: 'icon-close',
-    badge: {
-      variant: 'success',
-      text: 'new'
-    }
-  },*/
+   {
+   title: true,
+   name: 'Suppliers'
+   },
+   {
+   name: 'Suppliers',
+   url: '/suppliers',
+   icon: 'icon-close',
+   badge: {
+   variant: 'success',
+   text: 'new'
+   }
+   },*/
   {
     title: true,
     name: 'Orders',
@@ -53,10 +53,10 @@ export const navigation = [
     roles: ['orgAdmin']
   },
   /*{
-    name: 'Syncing with Vend',
-    url: '/sync-with-vend',
-    icon: 'icon-refresh'
-  },*/
+   name: 'Syncing with Vend',
+   url: '/sync-with-vend',
+   icon: 'icon-refresh'
+   },*/
   {
     name: 'Connect ERP/POS',
     url: '/connect',
@@ -70,17 +70,19 @@ export const navigation = [
     roles: ['orgAdmin']
   }
   /*,
-  {
-    name: 'Worker Settings',
-    url: '/worker-settings',
-    icon: 'icon-settings'
-  }*/
-  /*,
    {
-   name: 'Stores',
-   url: '/stores',
+   name: 'Worker Settings',
+   url: '/worker-settings',
    icon: 'icon-settings'
-   },
+   }*/
+  ,
+  {
+    name: 'Stores',
+    url: '/stores',
+    icon: 'icon-settings',
+    roles: ['orgAdmin']
+  }
+  /*,
    {
    name: 'Payments',
    url: '/payments',

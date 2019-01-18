@@ -19,6 +19,7 @@ var runMe = function (payload, config, taskId, messageId) {
 
     var orgModelId = payload.orgModelId;
     var storeModelId = payload.storeModelId;
+    var warehouseModelId = payload.warehouseModelId;
     try {
         // Global variable for logging
 
@@ -190,6 +191,8 @@ module.exports = {
 function generateStockOrder(payload, config, taskId, messageId) {
     var orgModelId = payload.orgModelId;
     var storeModelId = payload.storeModelId;
+    var warehouseModelId = payload.warehouseModelId;
+    var storeInventory;
     logger.debug({
         message: 'Will generate stock order for the following store',
         storeModelId,
@@ -271,7 +274,7 @@ function generateStockOrder(payload, config, taskId, messageId) {
                         $where: 'this.inventory_level <= this.reorder_threshold'
                     }
                 ]
-            }).toArray()
+            }).toArray();
         })
         .catch(function (error) {
             logger.error({
@@ -286,33 +289,85 @@ function generateStockOrder(payload, config, taskId, messageId) {
         })
         .then(function (inventoryModelInstances) {
             logger.debug({
-                message: 'Found inventory model instances with inventory level less than reorder threshold',
+                message: 'Found inventory model instances with inventory level less than reorder threshold, will look for warehouse inventories',
                 count: inventoryModelInstances.length,
                 commandName,
                 storeModelId,
+                warehouseModelId,
                 orgModelId,
                 messageId
             });
+            storeInventory = inventoryModelInstances;
+            var productModelIds = _.pluck(inventoryModelInstances, 'productModelId');
+            return db.collection('InventoryModel').find({
+                $and: [
+                    {
+                        storeModelId: ObjectId(warehouseModelId)
+                    },
+                    {
+                        _id: {
+                            $in: productModelIds
+                        }
+                    }
+                ]
+            }).toArray();
+        })
+        .catch(function (error) {
+            logger.error({
+                message: 'Could not find the inventory model instances of the warehouse, will exit',
+                error,
+                commandName,
+                orgModelId,
+                storeModelId,
+                messageId
+            });
+            return Promise.reject(error);
+        })
+        .then(function (inventoryModelInstances) {
+            logger.debug({
+                message: 'Found inventory model instances of products in warehouse',
+                count: inventoryModelInstances,
+                commandName,
+                messageId,
+                payload
+            });
+            var warehouseInventory = inventoryModelInstances;
             var lineItemsToOrder = [];
-            for (var i = 0; i<inventoryModelInstances.length; i++) {
-                lineItemsToOrder.push({
-                    reportModelId: ObjectId(reportModel._id),
-                    productModelId: ObjectId(inventoryModelInstances[i].productModelId),
-                    storeModelId: ObjectId(storeModelId),
-                    orgModelId: ObjectId(orgModelId),
-                    orderQuantity: inventoryModelInstances[i].reorder_point - inventoryModelInstances[i].inventory_level,
-                    fulfilledQuantity: inventoryModelInstances[i].reorder_point - inventoryModelInstances[i].inventory_level,
-                    state: 'unboxed',
-                    approved: false
-                });
+            for (var i = 0; i<storeInventory.length; i++) {
+                var correspondingWarehouseInventory = null;
+                for (var j = 0; j<warehouseInventory.length; j++) {
+                    if (warehouseInventory[j].productModelId.toString() === storeInventory[i].productModelId.toString()) {
+                        correspondingWarehouseInventory = warehouseInventory[j];
+                    }
+                }
+                if (!correspondingWarehouseInventory) {
+                    logger.debug({
+                        message: 'Could not find a corresponding inventory for product in warehouse, will skip the item',
+                        productModelId: storeInventory[i].productModelId,
+                        commandName,
+                        payload
+                    });
+                }
+                else {
+                    lineItemsToOrder.push({
+                        reportModelId: ObjectId(reportModel._id),
+                        productModelId: ObjectId(storeInventory[i].productModelId),
+                        storeModelId: ObjectId(storeModelId),
+                        orgModelId: ObjectId(orgModelId),
+                        orderQuantity: storeInventory[i].reorder_point - storeInventory[i].inventory_level,
+                        fulfilledQuantity: storeInventory[i].reorder_point - storeInventory[i].inventory_level,
+                        state: 'unboxed',
+                        approved: false
+                    });
+                }
             }
-            totalRows = lineItemsToOrder.length;
             logger.debug({
                 message: 'Prepared to push these items to stock order',
                 lineItemsToOrder,
                 commandName,
                 messageId
             });
+            totalRows = lineItemsToOrder.length;
             return db.collection('StockOrderLineitemModel').insertMany(lineItemsToOrder);
         })
         .catch(function (error) {
@@ -328,7 +383,7 @@ function generateStockOrder(payload, config, taskId, messageId) {
             if (result === 'ERROR_REPORT') {
                 logger.debug({
                     message: 'Will update report model with error',
-                    error,
+                    result,
                     commandName,
                     messageId
                 });

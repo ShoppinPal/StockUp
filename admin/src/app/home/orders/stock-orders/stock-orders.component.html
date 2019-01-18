@@ -8,11 +8,18 @@
         </div>
         <div class="card-body">
           <div class="row">
-            <div class="form-group col-sm-6">
+            <div class="form-group col-sm-12">
               <span>Select store: &nbsp;&nbsp;</span>
               <select class="form-control" [(ngModel)]="selectedStoreId" id="storeName">
                 <option disabled="disabled" value="Select...">Select..</option>
                 <option *ngFor="let store of stores" [value]="store.objectId">{{store.name}} </option>
+              </select>
+            </div>
+            <div class="form-group col-sm-12">
+              <span>Select Warehouse: &nbsp;&nbsp;</span>
+              <select class="form-control" [(ngModel)]="selectedWarehouseId" id="warehouseName">
+                <option disabled="disabled" value="Select...">Select..</option>
+                <option *ngFor="let warehouse of warehouses" ng-if="" [value]="warehouse.objectId">{{warehouse.name}} </option>
               </select>
             </div>
             <!--<div class="form-group col-sm-12">-->

@@ -17,7 +17,8 @@ export class StockOrdersComponent implements OnInit {
   public loading = false;
   public filter: any = {};
   public orders: Array<any>;
-  public stores: Array<any>;
+  public stores: Array<any> = [];
+  public warehouses: Array<any> = [];
   public totalOrders: number;
   public totalPages: number;
   public currentPage: number = 1;
@@ -28,6 +29,7 @@ export class StockOrdersComponent implements OnInit {
   // public searchedCategory: Array<any>;
   // public uploader: FileUploader;
   public selectedStoreId: string = "Select...";
+  public selectedWarehouseId: string = "Select...";
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -42,7 +44,14 @@ export class StockOrdersComponent implements OnInit {
     this._route.data.subscribe((data: any) => {
         console.log(data);
         this.orders = data.stockOrders.orders;
-        this.stores = data.stockOrders.stores;
+        for (var i = 0; i < data.stockOrders.stores.length; i++) {
+          if (data.stockOrders.stores[i].isWarehouse) {
+            this.warehouses.push(data.stockOrders.stores[i]);
+          }
+          else {
+            this.stores.push(data.stockOrders.stores[i])
+          }
+        }
         this.totalOrders = data.stockOrders.count;
         this.totalPages = this.totalOrders / this.ordersLimitPerPage;
       },
@@ -96,7 +105,7 @@ export class StockOrdersComponent implements OnInit {
 
   generateStockOrder() {
     let EventSource = window['EventSource'];
-    let es = new EventSource('/api/OrgModels/' + this.userProfile.orgModelId + '/generateStockOrderMSD?access_token=' + this.auth.getAccessTokenId() + '&storeModelId=' + this.selectedStoreId + '&type=json');
+    let es = new EventSource('/api/OrgModels/' + this.userProfile.orgModelId + '/generateStockOrderMSD?access_token=' + this.auth.getAccessTokenId() + '&storeModelId=' + this.selectedStoreId + '&warehouseModelId=' + this.selectedWarehouseId + '&type=json');
     let toastr = this.toastr;
     toastr.info('Generating stock order...');
     es.onmessage = function (event) {
@@ -109,5 +118,8 @@ export class StockOrdersComponent implements OnInit {
         toastr.error('Error in generating order');
       }
     };
+    es.onerror = function (event) {
+      toastr.error('Error in generating order');
+    }
   };
 }
