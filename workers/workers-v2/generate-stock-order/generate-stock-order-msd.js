@@ -332,6 +332,7 @@ function generateStockOrder(payload, config, taskId, messageId) {
                 payload
             });
             warehouseInventory = inventoryModelInstances;
+            var skippedLineItems = [];
             for (var i = 0; i<storeInventory.length; i++) {
                 var correspondingWarehouseInventory = null;
                 for (var j = 0; j<warehouseInventory.length; j++) {
@@ -340,40 +341,44 @@ function generateStockOrder(payload, config, taskId, messageId) {
                     }
                 }
                 if (!correspondingWarehouseInventory) {
-                    logger.debug({
-                        message: 'Could not find a corresponding inventory for product in warehouse, will skip the item',
-                        productModelId: storeInventory[i].productModelId,
-                        commandName,
-                        payload
-                    });
+                    skippedLineItems.push(storeInventory[i].productModelId);
                 }
                 else {
                     var orderQuantity = storeInventory[i].reorder_point - storeInventory[i].inventory_level;
                     orderQuantity = correspondingWarehouseInventory.inventory_level>orderQuantity ? orderQuantity : correspondingWarehouseInventory.inventory_level;
                     if (orderQuantity) {
-                    lineItemsToOrder.push({
-                        reportModelId: ObjectId(reportModel._id),
-                        productModelId: ObjectId(storeInventory[i].productModelId),
-                        storeModelId: ObjectId(storeModelId),
-                        orgModelId: ObjectId(orgModelId),
+                        lineItemsToOrder.push({
+                            reportModelId: ObjectId(reportModel._id),
+                            productModelId: ObjectId(storeInventory[i].productModelId),
+                            storeModelId: ObjectId(storeModelId),
+                            orgModelId: ObjectId(orgModelId),
                             orderQuantity: orderQuantity,
                             originalOrderQuantity: orderQuantity,
                             fulfilledQuantity: 0,
-                        state: 'unboxed',
+                            state: 'unboxed',
                             approved: false,
                             createdAt: new Date(),
                             updatedAt: new Date()
-                    });
+                        });
+                    }
                 }
             }
-            }
+            logger.debug({
+                message: 'Could not find a corresponding inventory for product in warehouse, will skip the item',
+                productModelIds: skippedLineItems,
+                count: skippedLineItems.length,
+                commandName,
+                payload
+            });
             logger.debug({
                 message: 'Prepared to push these items to stock order',
                 lineItemsToOrder,
+                count: lineItemsToOrder.length,
                 commandName,
                 messageId
             });
             totalRows = lineItemsToOrder.length;
+            // return db.collection('StockOrderLineitemModel').insertMany(lineItemsToOrder);
             return optimiseQuantitiesByStorePriority(lineItemsToOrder, warehouseInventory, storeModelId, orgModelId, messageId);
         })
         .catch(function (error) {
@@ -466,7 +471,6 @@ function optimiseQuantitiesByStorePriority(lineItemsToOrder, warehouseInventory,
                 stores: _.pluck(alreadyOrderedLineItems, 'storeModelId'),
                 productIds: _.pluck(alreadyOrderedLineItems, 'productModelId'),
                 commandName,
-                warehouseInventory,
                 messageId
             });
             alreadyOrderedLineItems = _.union(alreadyOrderedLineItems, lineItemsToOrder);
@@ -477,24 +481,31 @@ function optimiseQuantitiesByStorePriority(lineItemsToOrder, warehouseInventory,
             for (var i = 0; i<groupedProductModelIDs.length; i++) {
                 var warehouseInventoryQuantity = _.filter(warehouseInventory, function (eachInventory) {
                     return eachInventory.productModelId.toString() === groupedProductModelIDs[i].toString()
-                })[0].inventory_level;
+                });
+                //find the one with the max quantities, because there are multiple references to same inventory in MSD's UAT data
+                var maxWarehouseInventoryQuantity = _.max(warehouseInventoryQuantity, function (eachInventory) {
+                    return eachInventory.inventory_level;
+                }).inventory_level;
 
                 var totalQuantitiesOrderedByAllStores = _.reduce(sameSKUsGrouped[groupedProductModelIDs[i]], function (memo, num) {
                     return memo + num.originalOrderQuantity;
                 }, 0);
                 logger.debug({
                     totalQuantitiesOrderedByAllStores,
-                    warehouseInventoryQuantity
+                    maxWarehouseInventoryQuantity,
+                    messageId,
+                    commandName
                 });
-                if (totalQuantitiesOrderedByAllStores>warehouseInventoryQuantity) {
+                if (totalQuantitiesOrderedByAllStores>maxWarehouseInventoryQuantity) {
                     _.each(sameSKUsGrouped[groupedProductModelIDs[i]], function (eachSKU) {
-                        var orderQuantity = (eachSKU.originalOrderQuantity / totalQuantitiesOrderedByAllStores) * warehouseInventoryQuantity;
+                        newTotalQuantitiesOrderedByAllStores = 0;
+                        var orderQuantity = (eachSKU.originalOrderQuantity / totalQuantitiesOrderedByAllStores) * maxWarehouseInventoryQuantity;
                         eachSKU.orderQuantity = Math.round(orderQuantity);
                         eachSKU.roundedBy = eachSKU.orderQuantity - orderQuantity;
                         newTotalQuantitiesOrderedByAllStores += eachSKU.orderQuantity;
                     });
-                    if (newTotalQuantitiesOrderedByAllStores>warehouseInventoryQuantity) {
-                        var extraQuantities = newTotalQuantitiesOrderedByAllStores - warehouseInventoryQuantity;
+                    if (newTotalQuantitiesOrderedByAllStores>maxWarehouseInventoryQuantity) {
+                        var extraQuantities = newTotalQuantitiesOrderedByAllStores - maxWarehouseInventoryQuantity;
                         sameSKUsGrouped[groupedProductModelIDs[i]] = _.sortBy(sameSKUsGrouped[groupedProductModelIDs[i]], 'roundedBy');
                         for (var j = sameSKUsGrouped[groupedProductModelIDs[i]].length - 1; j>sameSKUsGrouped[groupedProductModelIDs[i]].length - extraQuantities - 1; j--) {
                             sameSKUsGrouped[groupedProductModelIDs[i]][j].orderQuantity--;
@@ -526,5 +537,14 @@ function optimiseQuantitiesByStorePriority(lineItemsToOrder, warehouseInventory,
                 }
             });
             return batch.execute();
+        })
+        .catch(function (error) {
+            logger.error({
+                message: 'Could not optimise order quantities',
+                error,
+                commandName,
+                messageId
+            });
+            return Promise.reject('Could not optimise order quantities');
         });
 }

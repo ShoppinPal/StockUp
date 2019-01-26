@@ -25,7 +25,7 @@ export class StockOrderDetailsComponent implements OnInit {
   // public totalPages: number;
   public currentPageApproved: number = 1;
   public currentPageNotApproved: number = 1;
-  public lineItemsLimitPerPage: number = 10;
+  public lineItemsLimitPerPage: number = 100;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -38,8 +38,8 @@ export class StockOrderDetailsComponent implements OnInit {
     this.userProfile = this._userProfileService.getProfileData();
     this._route.data.subscribe((data: any) => {
         this.order = data.stockOrderDetails[0];
-        this.getApprovedStockOrderLineItems();
         this.getNotApprovedStockOrderLineItems();
+        // this.getApprovedStockOrderLineItems();
       },
       error => {
         console.log('error', error)
@@ -48,7 +48,7 @@ export class StockOrderDetailsComponent implements OnInit {
 
   getApprovedStockOrderLineItems(limit?: number, skip?: number) {
     if (!(limit && skip)) {
-      limit = 10;
+      limit = 100;
       skip = 0;
     }
     let filter = {
@@ -81,7 +81,7 @@ export class StockOrderDetailsComponent implements OnInit {
 
   getNotApprovedStockOrderLineItems(limit?: number, skip?: number) {
     if (!(limit && skip)) {
-      limit = 10;
+      limit = 100;
       skip = 0;
     }
     console.log('this', this.order);
@@ -105,7 +105,7 @@ export class StockOrderDetailsComponent implements OnInit {
         this.loading = false;
         this.notApprovedLineItems = data[0];
         this.totalNotApprovedLineItems = data[1].count;
-        console.log('not approved', this.notApprovedLineItems);
+        console.log('not approved', this.totalNotApprovedLineItems);
       },
       err => {
         this.loading = false;

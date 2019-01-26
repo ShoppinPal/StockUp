@@ -65,23 +65,18 @@ export class StockOrdersComponent implements OnInit {
       limit = 10;
       skip = 0;
     }
-    // this.searchCategoryFocused = true;
-    // this.foundCategory = false;
-    // this.searchedCategory = null;
     this.loading = true;
     let filter = {
       limit: limit,
       skip: skip,
       order: 'created DESC',
-      include: 'storeModel'
+      include: 'storeModel',
+      where: {
+        transferOrderNumber: {
+          exists: false
+        }
+      }
     };
-    // if (searchText) {
-    //   filter.where = {
-    //     name: {
-    //       like: searchText
-    //     }
-    //   }
-    // }
     let fetchOrders = Observable.combineLatest(
       this.orgModelApi.getReportModels(this.userProfile.orgModelId, filter),
       this.orgModelApi.countReportModels(this.userProfile.orgModelId));

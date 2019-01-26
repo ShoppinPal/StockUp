@@ -362,7 +362,7 @@ var pushMSDDataInBatches = function (db, orgModelId, dataTable, data, options) {
                 functionName: 'pushMSDDataInBatches',
                 options
             });
-            return Promise.resolve();
+            return Promise.resolve(count);
         });
 };
 

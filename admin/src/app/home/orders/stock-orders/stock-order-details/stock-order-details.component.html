@@ -78,7 +78,7 @@
               </table>
               <ul class="pagination">
                 <li class="page-item" *ngFor="let lineItem of notApprovedLineItems | paginate: {itemsPerPage: lineItemsLimitPerPage,
-                                                                 currentPage: currentPageApproved,
+                                                                 currentPage: currentPageNotApproved,
                                                                  totalItems: totalNotApprovedLineItems}">
                 </li>
               </ul>
@@ -113,7 +113,7 @@
               </table>
               <ul class="pagination">
                 <li class="page-item" *ngFor="let lineItem of approvedLineItems | paginate: {itemsPerPage: lineItemsLimitPerPage,
-                                                                 currentPage: currentPageNotApproved,
+                                                                 currentPage: currentPageApproved,
                                                                  totalItems: totalApprovedLineItems}">
                 </li>
               </ul>
