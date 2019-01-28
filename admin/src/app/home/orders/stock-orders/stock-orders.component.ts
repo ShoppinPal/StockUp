@@ -11,6 +11,8 @@ import {LoopBackAuth} from "../../../shared/lb-sdk/services/core/auth.service";
   templateUrl: './stock-orders.component.html',
   styleUrls: ['./stock-orders.component.scss']
 })
+
+
 export class StockOrdersComponent implements OnInit {
 
   public userProfile: any;
@@ -23,11 +25,6 @@ export class StockOrdersComponent implements OnInit {
   public totalPages: number;
   public currentPage: number = 1;
   public ordersLimitPerPage: number = 10;
-  // public searchCategoryText: string;
-  // public searchCategoryFocused: boolean;
-  // public foundCategory: boolean;
-  // public searchedCategory: Array<any>;
-  // public uploader: FileUploader;
   public selectedStoreId: string = "Select...";
   public selectedWarehouseId: string = "Select...";
 
@@ -108,6 +105,7 @@ export class StockOrdersComponent implements OnInit {
       let response = JSON.parse(event.data);
       if (response.success) {
         toastr.success('Order generated');
+
       }
       else {
         toastr.error('Error in generating order');

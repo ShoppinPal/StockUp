@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {OrgModelApi} from "../../../../shared/lb-sdk/services/custom/OrgModel";
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {Observable} from 'rxjs';
 import {ToastrService} from 'ngx-toastr';
 import {UserProfileService} from "../../../../shared/services/user-profile.service";
@@ -29,6 +29,7 @@ export class StockOrderDetailsComponent implements OnInit {
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
+              private _router: Router,
               private toastr: ToastrService,
               private _userProfileService: UserProfileService,
               private auth: LoopBackAuth) {
@@ -39,7 +40,7 @@ export class StockOrderDetailsComponent implements OnInit {
     this._route.data.subscribe((data: any) => {
         this.order = data.stockOrderDetails[0];
         this.getNotApprovedStockOrderLineItems();
-        // this.getApprovedStockOrderLineItems();
+        this.getApprovedStockOrderLineItems();
       },
       error => {
         console.log('error', error)
@@ -115,20 +116,28 @@ export class StockOrderDetailsComponent implements OnInit {
 
   createTransferOrder() {
     console.log('submitting');
-    let EventSource = window['EventSource'];
-    let es = new EventSource('/api/OrgModels/' + this.userProfile.orgModelId + '/createTransferOrderMSD?access_token=' + this.auth.getAccessTokenId() + '&reportModelId=' + this.order.id + '&type=json');
     let toastr = this.toastr;
-    toastr.info('Generating transfer order...');
-    es.onmessage = function (event) {
-      es.close();
-      let response = JSON.parse(event.data);
-      if (response.success) {
-        toastr.success('Created transfer order in MSD');
-      }
-      else {
-        toastr.error('Error in creating transfer order in MSD');
-      }
-    };
+    if (!this.totalApprovedLineItems) {
+      toastr.error('Please approve at least one item to create Transfer Order in MSD');
+    }
+    else {
+      let EventSource = window['EventSource'];
+      let es = new EventSource('/api/OrgModels/' + this.userProfile.orgModelId + '/createTransferOrderMSD?access_token=' + this.auth.getAccessTokenId() + '&reportModelId=' + this.order.id + '&type=json');
+      toastr.info('Generating transfer order...');
+      let _router = this._router;
+      es.onmessage = function (event) {
+        let response = JSON.parse(event.data);
+        console.log(response);
+        if (response.success) {
+          toastr.success('Created transfer order in MSD');
+          _router.navigate(['/orders/stock-orders']);
+        }
+        else {
+          toastr.error('Error in creating transfer order in MSD');
+        }
+        es.close();
+      };
+    }
   }
 
   updateLineItems(lineItems, data: any) {

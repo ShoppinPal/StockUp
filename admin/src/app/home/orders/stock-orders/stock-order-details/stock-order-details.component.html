@@ -56,20 +56,28 @@
                 <thead>
                 <tr>
                   <th>Name</th>
-                  <th>Order Quantity</th>
+                  <th>SKU</th>
+                  <th width="140">Order Quantity</th>
                   <th>Fulfilled Quantity</th>
                   <th>Approve</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr *ngFor="let lineItem of notApprovedLineItems">
-                  <td>{{lineItem.productModel.name}}</td>
                   <td>
-                    {{lineItem.orderQuantity}}
+                    {{lineItem.productModel.name}}
+                    <br/>
+                    <small>({{lineItem.productModel.sizeId}} : {{lineItem.productModel.colorId}} : {{lineItem.productModel.styleId}} : {{lineItem.productModel.configurationId}})</small>
+                  </td>
+                  <td>{{lineItem.productModel.api_id}}</td>
+                  <td>
+                    <i class="fa fa-minus-circle quantity-icon text-danger" (click)="lineItem.orderQuantity = lineItem.orderQuantity - 1"></i>
+                    <input type="number" class="input-order-quantity" [(ngModel)]="lineItem.orderQuantity"/>
+                    <i class="fa fa-plus-circle quantity-icon text-success" (click)="lineItem.orderQuantity = lineItem.orderQuantity + 1"></i>
                   </td>
                   <td>{{lineItem.fulfilledQuantity}}</td>
                   <td>
-                    <button class="btn btn-danger" type="submit" (click)="updateLineItems(lineItem, {approved: true})">
+                    <button class="btn btn-danger" type="submit" (click)="updateLineItems(lineItem, {approved: true, orderQuantity: lineItem.orderQuantity})">
                       <i class="fa fa-save"></i> Approve
                     </button>
                   </td>
@@ -91,6 +99,7 @@
                 <thead>
                 <tr>
                   <th>Name</th>
+                  <th>SKU</th>
                   <th>Order Quantity</th>
                   <th>Fulfilled Quantity</th>
                   <th>Approve</th>
@@ -98,7 +107,12 @@
                 </thead>
                 <tbody>
                 <tr *ngFor="let lineItem of approvedLineItems">
-                  <td>{{lineItem.productModel.name}}</td>
+                  <td>
+                    {{lineItem.productModel.name}}
+                    <br/>
+                    <small>({{lineItem.productModel.sizeId}} : {{lineItem.productModel.colorId}} : {{lineItem.productModel.styleId}} : {{lineItem.productModel.configurationId}})</small>
+                  </td>
+                  <td>{{lineItem.productModel.api_id}}</td>
                   <td>
                     {{lineItem.orderQuantity}}
                   </td>
