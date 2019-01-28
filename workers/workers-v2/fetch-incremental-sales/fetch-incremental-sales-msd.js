@@ -131,7 +131,7 @@ var runMe = function (sqlPool, orgModelId, salesSyncModel) {
         }
     }
     catch (e) {
-        logger.error({message: 'last catch block', err: e});
+        logger.error({message: 'last catch block', err: e, commandName});
         throw e;
     }
 };
@@ -214,10 +214,12 @@ function fetchPaginatedSales(sqlPool, orgModelId, pagesToFetch) {
                     result: {
                         upserted: bulkInsertResponse.nUpserted,
                         inserted: bulkInsertResponse.nInserted
-                    }
+                    },
+                    commandName
                 });
                 logger.debug({
-                    message: 'Will delete the inserted/updated inventory from Azure SQL'
+                    message: 'Will delete the inserted/updated inventory from Azure SQL',
+                    commandName
                 });
                 return sqlPool.request()
                     .input('sales_per_page', sql.Int, SALES_PER_PAGE)
@@ -226,11 +228,13 @@ function fetchPaginatedSales(sqlPool, orgModelId, pagesToFetch) {
             .then(function (result) {
                 logger.debug({
                     message: 'Deleted selected sales from Azure SQL',
-                    result
+                    result,
+                    commandName
                 });
                 logger.debug({
                     message: 'Will go on to fetch the next page',
-                    pagesToFetch
+                    pagesToFetch,
+                    commandName
                 });
                 pagesToFetch--;
                 return fetchPaginatedSales(sqlPool, orgModelId, pagesToFetch);
@@ -239,7 +243,8 @@ function fetchPaginatedSales(sqlPool, orgModelId, pagesToFetch) {
     else {
         logger.debug({
             message: 'Executed all pages',
-            pagesToFetch
+            pagesToFetch,
+            commandName
         });
         return Promise.resolve('Executed all pages: ' + pagesToFetch);
     }

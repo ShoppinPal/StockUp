@@ -57,7 +57,8 @@ var runMe = function (sqlPool, orgModelId, inventorySyncModel) {
                     logger.debug({
                         message: 'Found the count of total inventory to insert/update',
                         count: inventorySyncModel.rowCount,
-                        pagesToFetch
+                        pagesToFetch,
+                        commandName
                     });
                     return fetchPaginatedInventorySums(sqlPool, orgModelId, pagesToFetch, commandName);
                 })
@@ -131,7 +132,7 @@ var runMe = function (sqlPool, orgModelId, inventorySyncModel) {
         }
     }
     catch (e) {
-        logger.error({message: 'last catch block', err: e});
+        logger.error({message: 'last catch block', err: e, commandName});
         throw e;
     }
 };
@@ -229,11 +230,13 @@ function fetchPaginatedInventorySums(sqlPool, orgModelId, pagesToFetch) {
             .then(function (result) {
                 logger.debug({
                     message: 'Deleted selected inventory from Azure SQL',
-                    result
+                    result,
+                    commandName
                 });
                 logger.debug({
                     message: 'Will go on to fetch the next page',
-                    pagesToFetch
+                    pagesToFetch,
+                    commandName
                 });
                 pagesToFetch--;
                 return fetchPaginatedInventorySums(sqlPool, orgModelId, pagesToFetch);
@@ -242,7 +245,8 @@ function fetchPaginatedInventorySums(sqlPool, orgModelId, pagesToFetch) {
     else {
         logger.debug({
             message: 'Executed all pages',
-            pagesToFetch
+            pagesToFetch,
+            commandName
         });
         return Promise.resolve('Executed all pages: ' + pagesToFetch);
     }

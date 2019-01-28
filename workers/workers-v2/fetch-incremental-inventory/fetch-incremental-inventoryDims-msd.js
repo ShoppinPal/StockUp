@@ -57,7 +57,8 @@ var runMe = function (sqlPool, orgModelId, inventorySyncModel) {
                     logger.debug({
                         message: 'Found the count of total inventory to insert/update',
                         count: inventorySyncModel.rowCount,
-                        pagesToFetch
+                        pagesToFetch,
+                        commandName
                     });
                     return fetchPaginatedInventoryDims(sqlPool, orgModelId, pagesToFetch, commandName);
                 })
@@ -131,7 +132,7 @@ var runMe = function (sqlPool, orgModelId, inventorySyncModel) {
         }
     }
     catch (e) {
-        logger.error({message: 'last catch block', err: e});
+        logger.error({message: 'last catch block', err: e, commandName});
         throw e;
     }
 };
@@ -211,7 +212,8 @@ function fetchPaginatedInventoryDims(sqlPool, orgModelId, pagesToFetch) {
                 });
                 if (bulkInsertResponse !== 'noIncrementalInventory') {
                     logger.debug({
-                        message: 'Will delete the inserted/updated inventory from Azure SQL'
+                        message: 'Will delete the inserted/updated inventory from Azure SQL',
+                        commandName
                     });
                     return sqlPool.request()
                         .input('inventory_per_page', sql.Int, INVENTORY_PER_PAGE)
@@ -224,11 +226,13 @@ function fetchPaginatedInventoryDims(sqlPool, orgModelId, pagesToFetch) {
             .then(function (result) {
                 logger.debug({
                     message: 'Deleted selected inventory from Azure SQL',
-                    result
+                    result,
+                    commandName
                 });
                 logger.debug({
                     message: 'Will go on to fetch the next page',
-                    pagesToFetch
+                    pagesToFetch,
+                    commandName
                 });
                 pagesToFetch--;
                 return fetchPaginatedInventoryDims(sqlPool, orgModelId, pagesToFetch);
@@ -237,7 +241,8 @@ function fetchPaginatedInventoryDims(sqlPool, orgModelId, pagesToFetch) {
     else {
         logger.debug({
             message: 'Executed all pages',
-            pagesToFetch
+            pagesToFetch,
+            commandName
         });
         return Promise.resolve('Executed all pages: ' + pagesToFetch);
     }

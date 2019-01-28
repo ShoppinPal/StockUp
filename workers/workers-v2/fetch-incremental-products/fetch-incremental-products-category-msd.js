@@ -11,12 +11,12 @@ const _ = require('underscore');
 const Promise = require('bluebird');
 const PRODUCT_TABLE = 'EcoResProductV2Staging';
 const PRODUCTS_PER_PAGE = 1000;
+var commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 
 var runMe = function (sqlPool, orgModelId, productCategorySyncModel) {
     try {
         var incrementalProducts, productsToDelete;
         // Global variable for logging
-        var commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 
         logger.debug({
             commandName: commandName,
@@ -57,7 +57,8 @@ var runMe = function (sqlPool, orgModelId, productCategorySyncModel) {
                     logger.debug({
                         message: 'Found the count of total products to insert/update',
                         count: productCategorySyncModel.rowCount,
-                        pagesToFetch
+                        pagesToFetch,
+                        commandName
                     });
                     return fetchPaginatedProducts(sqlPool, orgModelId, pagesToFetch);
                 })
@@ -131,7 +132,7 @@ var runMe = function (sqlPool, orgModelId, productCategorySyncModel) {
         }
     }
     catch (e) {
-        logger.error({messageId: messageId, message: 'last catch block', err: e});
+        logger.error({message: 'last catch block', err: e, commandName});
         throw e;
     }
 };
@@ -152,13 +153,15 @@ function fetchPaginatedProducts(sqlPool, orgModelId, pagesToFetch) {
                 logger.debug({
                     message: 'Fetched products',
                     pagesToFetch,
-                    numberOfProducts: incrementalProducts.length
+                    numberOfProducts: incrementalProducts.length,
+                    commandName
                 });
                 var productCategories = _.pluck(incrementalProducts, 'RETAILPRODUCTCATEGORYNAME');
                 logger.debug({
                     message: 'Will look for their categories in database',
                     numberOfCategories: productCategories.length,
-                    functionName: 'fetchPaginatedProducts'
+                    functionName: 'fetchPaginatedProducts',
+                    commandName
                 });
                 return db.collection('CategoryModel').find({
                     name: {
@@ -170,7 +173,8 @@ function fetchPaginatedProducts(sqlPool, orgModelId, pagesToFetch) {
                 logger.error({
                     message: 'Could not find category model instances',
                     error,
-                    functionName: 'fetchPaginatedProducts'
+                    functionName: 'fetchPaginatedProducts',
+                    commandName
                 });
                 return Promise.reject('Could not find category model instances');
             })
@@ -178,7 +182,8 @@ function fetchPaginatedProducts(sqlPool, orgModelId, pagesToFetch) {
                 logger.debug({
                     message: 'Found category model instances',
                     numberOfCategoriesFound: categoryModelInstances.length,
-                    functionName: 'fetchPaginatedProducts'
+                    functionName: 'fetchPaginatedProducts',
+                    commandName
                 });
                 var batch = db.collection('ProductModel').initializeUnorderedBulkOp();
                 _.each(incrementalProducts, function (eachProduct) {
@@ -200,10 +205,12 @@ function fetchPaginatedProducts(sqlPool, orgModelId, pagesToFetch) {
                     result: {
                         upserted: result.nUpserted,
                         inserted: result.nInserted
-                    }
+                    },
+                    commandName
                 });
                 logger.debug({
-                    message: 'Will delete the inserted/updated products from Azure SQL'
+                    message: 'Will delete the inserted/updated products from Azure SQL',
+                    commandName
                 });
                 return sqlPool.request()
                     .input('products_per_page', sql.Int, PRODUCTS_PER_PAGE)
@@ -212,11 +219,13 @@ function fetchPaginatedProducts(sqlPool, orgModelId, pagesToFetch) {
             .then(function (result) {
                 logger.debug({
                     message: 'Deleted selected products from Azure SQL',
-                    result
+                    result,
+                    commandName
                 });
                 logger.debug({
                     message: 'Will go on to fetch the next page',
-                    pagesToFetch
+                    pagesToFetch,
+                    commandName
                 });
                 pagesToFetch--;
                 return fetchPaginatedProducts(sqlPool, orgModelId, pagesToFetch);
@@ -225,7 +234,8 @@ function fetchPaginatedProducts(sqlPool, orgModelId, pagesToFetch) {
     else {
         logger.debug({
             message: 'Executed all pages',
-            pagesToFetch
+            pagesToFetch,
+            commandName
         });
         return Promise.resolve('Executed all pages: ' + pagesToFetch);
     }

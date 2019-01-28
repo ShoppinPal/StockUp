@@ -148,7 +148,7 @@ var runMe = function (sqlPool, orgModelId, salesLineSyncModel) {
         }
     }
     catch (e) {
-        logger.error({message: 'last catch block', err: e});
+        logger.error({message: 'last catch block', err: e, commandName});
         throw e;
     }
 };
@@ -274,11 +274,13 @@ function fetchPaginatedSalesLines(sqlPool, orgModelId, pagesToFetch) {
             .then(function (result) {
                 logger.debug({
                     message: 'Deleted selected sales from Azure SQL',
-                    result
+                    result,
+                    commandName
                 });
                 logger.debug({
                     message: 'Will go on to fetch the next page',
-                    pagesToFetch
+                    pagesToFetch,
+                    commandName
                 });
                 pagesToFetch--;
                 return fetchPaginatedSalesLines(sqlPool, orgModelId, pagesToFetch);
@@ -287,7 +289,8 @@ function fetchPaginatedSalesLines(sqlPool, orgModelId, pagesToFetch) {
     else {
         logger.debug({
             message: 'Executed all pages',
-            pagesToFetch
+            pagesToFetch,
+            commandName
         });
         return Promise.resolve('Executed all pages: ' + pagesToFetch);
     }

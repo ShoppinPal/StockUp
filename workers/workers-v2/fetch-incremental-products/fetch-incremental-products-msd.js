@@ -11,12 +11,12 @@ const _ = require('underscore');
 const Promise = require('bluebird');
 const PRODUCT_TABLE = 'EcoResProductVariantStaging';
 const PRODUCTS_PER_PAGE = 1000;
+// Global variable for logging
+var commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 
 var runMe = function (sqlPool, orgModelId, productSyncModel) {
     try {
         var incrementalProducts, productsToDelete;
-        // Global variable for logging
-        var commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 
         logger.debug({
             commandName: commandName,
@@ -57,7 +57,8 @@ var runMe = function (sqlPool, orgModelId, productSyncModel) {
                     logger.debug({
                         message: 'Found the count of total products to insert/update',
                         count: productSyncModel.rowCount,
-                        pagesToFetch
+                        pagesToFetch,
+                        commandName
                     });
                     return fetchPaginatedProducts(sqlPool, orgModelId, pagesToFetch);
                 })
@@ -131,7 +132,7 @@ var runMe = function (sqlPool, orgModelId, productSyncModel) {
         }
     }
     catch (e) {
-        logger.error({messageId: messageId, message: 'last catch block', err: e});
+        logger.error({commandName, message: 'last catch block', err: e});
         throw e;
     }
 };
@@ -183,7 +184,8 @@ function fetchPaginatedProducts(sqlPool, orgModelId, pagesToFetch) {
                     }
                 });
                 logger.debug({
-                    message: 'Will delete the inserted/updated products from Azure SQL'
+                    message: 'Will delete the inserted/updated products from Azure SQL',
+                    commandName
                 });
                 return sqlPool.request()
                     .input('products_per_page', sql.Int, PRODUCTS_PER_PAGE)
@@ -192,11 +194,13 @@ function fetchPaginatedProducts(sqlPool, orgModelId, pagesToFetch) {
             .then(function (result) {
                 logger.debug({
                     message: 'Deleted selected products from Azure SQL',
-                    result
+                    result,
+                    commandName
                 });
                 logger.debug({
                     message: 'Will go on to fetch the next page',
-                    pagesToFetch
+                    pagesToFetch,
+                    commandName
                 });
                 pagesToFetch--;
                 return fetchPaginatedProducts(sqlPool, orgModelId, pagesToFetch);
@@ -205,7 +209,8 @@ function fetchPaginatedProducts(sqlPool, orgModelId, pagesToFetch) {
     else {
         logger.debug({
             message: 'Executed all pages',
-            pagesToFetch
+            pagesToFetch,
+            commandName
         });
         return Promise.resolve('Executed all pages: ' + pagesToFetch);
     }
