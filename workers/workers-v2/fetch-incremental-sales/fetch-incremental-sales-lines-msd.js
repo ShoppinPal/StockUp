@@ -190,6 +190,14 @@ function fetchPaginatedSalesLines(sqlPool, orgModelId, pagesToFetch) {
                     }).toArray()
                 ]);
             })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not fetch product and sales model instances',
+                    error,
+                    commandName
+                });
+                return Promise.reject('Could not fetch product and sales model instances');
+            })
             .then(function (result) {
                 var productModelInstances = result[0];
                 var salesModelInstances = result[1];
@@ -254,22 +262,43 @@ function fetchPaginatedSalesLines(sqlPool, orgModelId, pagesToFetch) {
                     return Promise.resolve('Empty batch');
                 }
             })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not execute the batch, will move on to the next batch',
+                    error,
+                    commandName
+                });
+                return Promise.resolve('ERROR_BATCH');
+            })
             .then(function (bulkInsertResponse) {
-                logger.debug({
-                    commandName: commandName,
-                    message: 'Bulk insert operation complete'
+                if(bulkInsertResponse === 'ERROR_BATCH') {
+                    return Promise.resolve();
+                }
+                else {
+                    logger.debug({
+                        commandName: commandName,
+                        message: 'Bulk insert operation complete'
+                    });
+                    logger.debug({
+                        commandName,
+                        nUpserted: bulkInsertResponse.nUpserted,
+                        nInserted: bulkInsertResponse.nInserted,
+                    });
+                    logger.debug({
+                        message: 'Will delete the inserted/updated sales lines from Azure SQL'
+                    });
+                    return sqlPool.request()
+                        .input('sales_lines_per_page', sql.Int, SALES_LINES_PER_PAGE)
+                        .query('DELETE TOP (@sales_lines_per_page) FROM ' + SALES_LINES_TABLE)
+                }
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not delete sales lines from MSSQL, will go on to fetch next batch',
+                    error,
+                    commandName
                 });
-                logger.debug({
-                    commandName,
-                    nUpserted: bulkInsertResponse.nUpserted,
-                    nInserted: bulkInsertResponse.nInserted,
-                });
-                logger.debug({
-                    message: 'Will delete the inserted/updated sales lines from Azure SQL'
-                });
-                return sqlPool.request()
-                    .input('sales_lines_per_page', sql.Int, SALES_LINES_PER_PAGE)
-                    .query('DELETE TOP (@sales_lines_per_page) FROM ' + SALES_LINES_TABLE)
+                return Promise.resolve('Could not delete sales lines from MSSQL, will go on to fetch next batch');
             })
             .then(function (result) {
                 logger.debug({
