@@ -1601,11 +1601,12 @@ module.exports = function (ReportModel) {
     }
 
 
-    ReportModel.generateStockOrderMSD = function (orgModelId, storeModelId, warehouseModelId, options) {
+    ReportModel.generateStockOrderMSD = function (orgModelId, storeModelId, warehouseModelId, categoryModelId, options) {
         logger.debug({
             message: 'Will initiate worker to generate stock order for MSD',
             storeModelId,
             warehouseModelId,
+            categoryModelId,
             functionName: 'generateStockOrderMSD',
             options,
         });
@@ -1613,6 +1614,7 @@ module.exports = function (ReportModel) {
             orgModelId: orgModelId,
             storeModelId: storeModelId,
             warehouseModelId: warehouseModelId,
+            categoryModelId: categoryModelId,
             loopbackAccessToken: options.accessToken,
             op: 'generateStockOrderMSD'
         };

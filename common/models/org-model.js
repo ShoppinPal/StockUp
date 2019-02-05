@@ -495,6 +495,7 @@ module.exports = function (OrgModel) {
                 {arg: 'id', type: 'string', required: true},
                 {arg: 'storeModelId', type: 'string', required: true},
                 {arg: 'warehouseModelId', type: 'string', required: true},
+                {arg: 'categoryModelId', type: 'string'},
                 {arg: 'req', type: 'object', 'http': {source: 'req'}},
                 {arg: 'res', type: 'object', 'http': {source: 'res'}},
                 {arg: 'options', type: 'object', http: 'optionsFromRequest'}
@@ -503,7 +504,7 @@ module.exports = function (OrgModel) {
             returns: {arg: 'data', type: 'ReadableStream', root: true}
         });
 
-        OrgModel.generateStockOrderMSD = function (id, storeModelId, warehouseModelId, req, res, options) {
+        OrgModel.generateStockOrderMSD = function (id, storeModelId, warehouseModelId, categoryModelId, req, res, options) {
             try {
                 res.connection.setTimeout(0);
                 if (!sseMap[options.accessToken.userId]) {
@@ -533,7 +534,7 @@ module.exports = function (OrgModel) {
                     functionName: 'generateStockOrderMSD'
                 });
             }
-            OrgModel.app.models.ReportModel.generateStockOrderMSD(id, storeModelId, warehouseModelId, options)
+            OrgModel.app.models.ReportModel.generateStockOrderMSD(id, storeModelId, warehouseModelId, categoryModelId, options)
                 .catch(function (error) {
                     logger.error({
                         error,
@@ -609,7 +610,7 @@ module.exports = function (OrgModel) {
                 logger.debug({
                     options,
                     message: 'Created sse for user',
-                    functionName: 'generateStockOrderMSD'
+                    functionName: 'createTransferOrderMSD'
                 });
             }
             else {
@@ -617,7 +618,7 @@ module.exports = function (OrgModel) {
                 logger.debug({
                     options,
                     message: 'SSE exists for this user, will move on',
-                    functionName: 'generateStockOrderMSD'
+                    functionName: 'createTransferOrderMSD'
                 });
             }
             OrgModel.app.models.ReportModel.createTransferOrderMSD(id, reportModelId, options)

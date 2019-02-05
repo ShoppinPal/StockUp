@@ -3,16 +3,17 @@ import {ModuleWithProviders, NgModule} from '@angular/core';
 import {UserProfileService} from './services/user-profile.service';
 import {AccessService} from './services/access.service';
 import {UserResolverService} from './services/user-resolver.service';
-
+import {TypeaheadModule} from 'ngx-bootstrap';
 import {AsideToggleDirective} from '../directives';
 
 @NgModule({
   imports: [
-    CommonModule
+    CommonModule,
   ],
   declarations: [AsideToggleDirective],
   exports: [
-    AsideToggleDirective
+    AsideToggleDirective,
+    TypeaheadModule
   ]
 })
 

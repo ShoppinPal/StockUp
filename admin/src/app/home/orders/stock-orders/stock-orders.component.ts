@@ -5,6 +5,7 @@ import {Observable} from 'rxjs';
 import {ToastrService} from 'ngx-toastr';
 import {UserProfileService} from "../../../shared/services/user-profile.service";
 import {LoopBackAuth} from "../../../shared/lb-sdk/services/core/auth.service";
+import {TypeaheadMatch} from 'ngx-bootstrap';
 
 @Component({
   selector: 'app-stock-orders',
@@ -27,6 +28,12 @@ export class StockOrdersComponent implements OnInit {
   public ordersLimitPerPage: number = 10;
   public selectedStoreId: string = "Select...";
   public selectedWarehouseId: string = "Select...";
+  public searchCategoryText: string;
+  public typeaheadLoading: boolean;
+  public typeaheadNoResults: boolean;
+  public categoriesList: Observable<any>;
+  public categoriesListLimit: number = 7;
+  public selectedCategoryId: string;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -39,7 +46,6 @@ export class StockOrdersComponent implements OnInit {
   ngOnInit() {
     this.userProfile = this._userProfileService.getProfileData();
     this._route.data.subscribe((data: any) => {
-        console.log(data);
         this.orders = data.stockOrders.orders;
         for (var i = 0; i < data.stockOrders.stores.length; i++) {
           if (data.stockOrders.stores[i].isWarehouse) {
@@ -55,6 +61,12 @@ export class StockOrdersComponent implements OnInit {
       error => {
         console.log('error', error)
       });
+
+    this.categoriesList = Observable.create((observer: any) => {
+      // Runs on every search
+      observer.next(this.searchCategoryText);
+    })
+      .mergeMap((token: string) => this.searchCategory(token));
   }
 
   fetchOrders(limit?: number, skip?: number, searchText?: string) {
@@ -97,7 +109,14 @@ export class StockOrdersComponent implements OnInit {
 
   generateStockOrder() {
     let EventSource = window['EventSource'];
-    let es = new EventSource('/api/OrgModels/' + this.userProfile.orgModelId + '/generateStockOrderMSD?access_token=' + this.auth.getAccessTokenId() + '&storeModelId=' + this.selectedStoreId + '&warehouseModelId=' + this.selectedWarehouseId + '&type=json');
+    let url = '/api/OrgModels/' + this.userProfile.orgModelId + '/generateStockOrderMSD?access_token=' + this.auth.getAccessTokenId() + '&type=json';
+    if (this.selectedStoreId)
+      url += '&storeModelId=' + this.selectedStoreId;
+    if (this.selectedWarehouseId)
+      url += '&warehouseModelId=' + this.selectedWarehouseId;
+    if (this.selectedCategoryId)
+      url += '&categoryModelId=' + this.selectedCategoryId;
+    let es = new EventSource(url);
     let toastr = this.toastr;
     toastr.info('Generating stock order...');
     es.onmessage = function (event) {
@@ -115,4 +134,27 @@ export class StockOrdersComponent implements OnInit {
       toastr.error('Error in generating order');
     }
   };
+
+  searchCategory(searchToken) {
+    return this.orgModelApi.getCategoryModels(this.userProfile.orgModelId, {
+      where: {
+        name: {
+          regexp: '/.*' + searchToken + '.*/i'
+        }
+      },
+      limit: this.categoriesListLimit,
+      fields: ['name', 'id']
+    })
+      .map((data: any) => {
+          return data;
+        },
+        err => {
+          console.log('err', err);
+        });
+  }
+
+  public typeaheadOnSelect(e: TypeaheadMatch): void {
+    this.selectedCategoryId = e.item.id;
+  }
+
 }

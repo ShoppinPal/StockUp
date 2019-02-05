@@ -60,6 +60,7 @@ import {AppRoutingModule} from './app.routing';
 
 // Import 3rd party components
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
+import {TypeaheadModule} from 'ngx-bootstrap';
 import {ChartsModule} from 'ng2-charts/ng2-charts';
 import {FormsModule} from '@angular/forms';
 import {LoadingModule, ANIMATION_TYPES} from 'ngx-loading';
@@ -89,7 +90,8 @@ import { ToastrModule } from 'ngx-toastr';
     SDKBrowserModule.forRoot(),
     SharedModule.forRoot(),
     TabsModule.forRoot(),
-    ToastrModule.forRoot()
+    ToastrModule.forRoot(),
+    TypeaheadModule.forRoot()
   ],
   declarations: [
     AppComponent,

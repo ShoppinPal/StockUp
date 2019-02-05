@@ -19,7 +19,6 @@ var runMe = function (payload, config, taskId, messageId) {
 
     var orgModelId = payload.orgModelId;
     var storeModelId = payload.storeModelId;
-    var warehouseModelId = payload.warehouseModelId;
     try {
         // Global variable for logging
 
@@ -192,6 +191,7 @@ function generateStockOrder(payload, config, taskId, messageId) {
     var orgModelId = payload.orgModelId;
     var storeModelId = payload.storeModelId;
     var warehouseModelId = payload.warehouseModelId;
+    var categoryModelId = payload.categoryModelId;
     var storeInventory;
     logger.debug({
         message: 'Will generate stock order for the following store',
@@ -255,6 +255,7 @@ function generateStockOrder(payload, config, taskId, messageId) {
                 commandName,
                 messageId
             });
+            return Promise.resolve();
             var generateReorderPointsMSD = require('./../generate-reorder-points/generate-reorder-points-msd');
             return generateReorderPointsMSD.run(payload, config, taskId, messageId);
         })
@@ -265,7 +266,23 @@ function generateStockOrder(payload, config, taskId, messageId) {
                 commandName,
                 messageId
             });
-            return db.collection('InventoryModel').find({
+            if (categoryModelId) {
+                return db.collection('ProductModel').find({
+                    categoryModelId: ObjectId(categoryModelId)
+                }).toArray();
+            }
+            else {
+                return Promise.resolve([]);
+            }
+        })
+        .then(function (result) {
+            logger.debug({
+                message: 'Found products by category model',
+                count: result.length || 'No category selected',
+                commandName,
+                messageId
+            });
+            var filter = {
                 $and: [
                     {
                         storeModelId: ObjectId(storeModelId)
@@ -274,7 +291,15 @@ function generateStockOrder(payload, config, taskId, messageId) {
                         $where: 'this.inventory_level <= this.reorder_threshold'
                     }
                 ]
-            }).toArray();
+            };
+            if (result.length) {
+                filter.$and.push({
+                    productModelId: {
+                        $in: _.pluck(result, '_id')
+                    }
+                });
+            }
+            return db.collection('InventoryModel').find(filter).toArray();
         })
         .catch(function (error) {
             logger.error({
@@ -344,7 +369,11 @@ function generateStockOrder(payload, config, taskId, messageId) {
                     skippedLineItems.push(storeInventory[i].productModelId);
                 }
                 else {
-                    var orderQuantity = storeInventory[i].reorder_point - storeInventory[i].inventory_level;
+                    var orderQuantity;
+                    if (storeInventory[i].inventory_level>0)
+                        orderQuantity = storeInventory[i].reorder_point - storeInventory[i].inventory_level;
+                    else
+                        orderQuantity = storeInventory[i].reorder_point;
                     orderQuantity = correspondingWarehouseInventory.inventory_level>orderQuantity ? orderQuantity : correspondingWarehouseInventory.inventory_level;
                     if (orderQuantity) {
                         lineItemsToOrder.push({
@@ -353,6 +382,7 @@ function generateStockOrder(payload, config, taskId, messageId) {
                             storeModelId: ObjectId(storeModelId),
                             orgModelId: ObjectId(orgModelId),
                             orderQuantity: orderQuantity,
+                            storeInventory: storeInventory[i].inventory_level,
                             originalOrderQuantity: orderQuantity,
                             fulfilledQuantity: 0,
                             state: 'unboxed',
@@ -360,6 +390,9 @@ function generateStockOrder(payload, config, taskId, messageId) {
                             createdAt: new Date(),
                             updatedAt: new Date()
                         });
+                    }
+                    else {
+                        skippedLineItems.push(storeInventory[i].productModelId);
                     }
                 }
             }

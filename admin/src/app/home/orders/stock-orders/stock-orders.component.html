@@ -12,29 +12,39 @@
               <span>Select store: &nbsp;&nbsp;</span>
               <select class="form-control" [(ngModel)]="selectedStoreId" id="storeName">
                 <option disabled="disabled" value="Select...">Select..</option>
-                <option *ngFor="let store of stores" [value]="store.objectId">{{store.name}} </option>
+                <option *ngFor="let store of stores" [value]="store.objectId">{{store.name}}</option>
               </select>
             </div>
             <div class="form-group col-sm-12">
               <span>Select Warehouse: &nbsp;&nbsp;</span>
               <select class="form-control" [(ngModel)]="selectedWarehouseId" id="warehouseName">
                 <option disabled="disabled" value="Select...">Select..</option>
-                <option *ngFor="let warehouse of warehouses" ng-if="" [value]="warehouse.objectId">{{warehouse.name}} </option>
+                <option *ngFor="let warehouse of warehouses" ng-if="" [value]="warehouse.objectId">{{warehouse.name}}
+                </option>
               </select>
             </div>
-            <!--<div class="form-group col-sm-12">-->
-              <!--<div class="input-group">-->
-                <!--<span>(Upload Min Display Quantities and Shelf Capacities) &nbsp;&nbsp; </span>-->
-                <!--<input type="file" ng2FileSelect [uploader]="uploader"/>-->
-              <!--</div>-->
-            <!--</div>-->
+            <div class="form-group col-sm-12">
+              <span>Select category: </span>
+              <input type="text"
+                     class="form-control"
+                     [(ngModel)]="searchCategoryText"
+                     [typeahead]="categoriesList"
+                     [typeaheadAsync]="true"
+                     (typeaheadOnSelect)="typeaheadOnSelect($event)"
+                     typeaheadOptionsLimit="{{categoriesListLimit}}"
+                     typeaheadOptionField="name"
+                     typeaheadMinLength="3"
+                     placeholder="Start typing to search for category"
+              />
+            </div>
           </div>
         </div>
         <div class="card-footer">
           <div class="row">
             <div class="col-sm-12">
               <span class="input-group-btn">
-                <button class="btn btn-primary" type="button" (click)="generateStockOrder()">Generate stock order</button>
+                <button class="btn btn-primary" type="button"
+                        (click)="generateStockOrder()">Generate stock order</button>
               </span>
             </div>
           </div>
@@ -42,35 +52,6 @@
       </div>
     </div><!--/.col-->
   </div><!--/.row-->
-  <!--<div class="row">-->
-    <!--<div class="col-sm-12">-->
-      <!--<div class="card">-->
-        <!--<div class="card-header">-->
-          <!--<strong>Search Category</strong>-->
-        <!--</div>-->
-        <!--<div class="card-body">-->
-          <!--<div class="row">-->
-            <!--<div class="col-sm-12">-->
-              <!--<div class="form-group">-->
-                <!--<div class="input-group">-->
-                  <!--<input type="text"-->
-                         <!--class="form-control"-->
-                         <!--id="searchCategory"-->
-                         <!--[(ngModel)]="searchCategoryText"-->
-                         <!--placeholder="Enter category to search">-->
-                  <!--<span class="input-group-btn">-->
-                    <!--<button class="btn btn-primary" type="button" (click)="fetchCategories(10, 0, searchCategoryText)">-->
-                      <!--<i class="fa fa-search"></i> Search-->
-                    <!--</button>-->
-                  <!--</span>-->
-                <!--</div>-->
-              <!--</div>-->
-            <!--</div>-->
-          <!--</div>&lt;!&ndash;/.row&ndash;&gt;-->
-        <!--</div>-->
-      <!--</div>-->
-    <!--</div>&lt;!&ndash;/.col&ndash;&gt;-->
-  <!--</div>&lt;!&ndash;/.row&ndash;&gt;-->
   <div class="row">
     <div class="col-lg-12">
       <div class="card">
@@ -80,7 +61,7 @@
             Refresh
           </button>
           <!--<button type="button" class="btn btn-link float-right">-->
-            <!--<i class="fa fa-filter fa-2x"></i>-->
+          <!--<i class="fa fa-filter fa-2x"></i>-->
           <!--</button>-->
         </div>
         <div class="card-body">

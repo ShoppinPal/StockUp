@@ -4,13 +4,15 @@ import { StockOrdersComponent } from './stock-orders.component';
 import {LoadingModule} from 'ngx-loading';
 import {NgxPaginationModule} from 'ngx-pagination';
 import {FormsModule} from '@angular/forms';
+import {SharedModule} from '../../../shared/shared.module';
 
 @NgModule({
   imports: [
     CommonModule,
     LoadingModule,
     FormsModule,
-    NgxPaginationModule
+    NgxPaginationModule,
+    SharedModule
   ],
   declarations: [StockOrdersComponent]
 })

@@ -58,7 +58,7 @@
                   <th>Name</th>
                   <th>SKU</th>
                   <th width="140">Order Quantity</th>
-                  <th>Fulfilled Quantity</th>
+                  <th>Store Inventory</th>
                   <th>Approve</th>
                 </tr>
                 </thead>
@@ -75,7 +75,7 @@
                     <input type="number" class="input-order-quantity" [(ngModel)]="lineItem.orderQuantity"/>
                     <i class="fa fa-plus-circle quantity-icon text-success" (click)="lineItem.orderQuantity = lineItem.orderQuantity + 1"></i>
                   </td>
-                  <td>{{lineItem.fulfilledQuantity}}</td>
+                  <td>{{lineItem.storeInventory}}</td>
                   <td>
                     <button class="btn btn-danger" type="submit" (click)="updateLineItems(lineItem, {approved: true, orderQuantity: lineItem.orderQuantity})">
                       <i class="fa fa-save"></i> Approve
