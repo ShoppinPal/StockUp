@@ -42,7 +42,9 @@ var runMe = function (orgModelId, syncModels) {
                         user: process.env.AZURE_SQL_USER,
                         password: process.env.AZURE_SQL_PASSWORD,
                         server: process.env.AZURE_SQL_SERVER, // You can use 'localhost\\instance' to connect to named instance
-                        database: process.env.AZURE_SQL_DB,
+                        database: integrationModel.databaseName,
+                        connectionTimeout: 120000,
+                        requestTimeout: 120000,
                         options: {
                             encrypt: true // Use this if you're on Windows Azure
                         }
