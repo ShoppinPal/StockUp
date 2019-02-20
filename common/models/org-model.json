@@ -333,13 +333,31 @@
       "principalType": "ROLE",
       "principalId": "orgAdmin",
       "permission": "ALLOW",
+      "property": "__get__salesLineItemsModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
       "property": "__create__salesModels"
     },
     {
       "principalType": "ROLE",
       "principalId": "orgAdmin",
       "permission": "ALLOW",
+      "property": "__get__salesModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
       "property": "__create__inventoryModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__get__inventoryModels"
     },
     {
       "principalType": "ROLE",
