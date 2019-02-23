@@ -2720,6 +2720,40 @@ export class OrgModelApi extends BaseLoopBackApi {
    *
    * @param {string} id 
    *
+   * @param {string} databaseName 
+   *
+   * @param {object} options 
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * <em>
+   * (The remote method definition does not provide any description.
+   * This usually means the response is a `OrgModel` object.)
+   * </em>
+   */
+  public validateMSSQLDatabase(id: any, databaseName: any, customHeaders?: Function): Observable<any> {
+    let _method: string = "GET";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/:id/validateMSSQLDatabase";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    if (typeof databaseName !== 'undefined' && databaseName !== null) _urlParams.databaseName = databaseName;
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * <em>
+         * (The remote method definition does not provide any description.)
+         * </em>
+   *
+   * @param {string} id 
+   *
    * @param {object} options 
    *
    * @returns {object} An empty reference that will be
@@ -2910,6 +2944,10 @@ export class OrgModelApi extends BaseLoopBackApi {
    *
    * @param {string} storeModelId 
    *
+   * @param {string} warehouseModelId 
+   *
+   * @param {string} categoryModelId 
+   *
    * @param {object} req 
    *
    * @param {object} res 
@@ -2925,7 +2963,7 @@ export class OrgModelApi extends BaseLoopBackApi {
    * This usually means the response is a `OrgModel` object.)
    * </em>
    */
-  public generateStockOrderMSD(id: any, storeModelId: any, req: any = {}, res: any = {}, customHeaders?: Function): Observable<any> {
+  public generateStockOrderMSD(id: any, storeModelId: any, warehouseModelId: any, categoryModelId: any = {}, req: any = {}, res: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/OrgModels/:id/generateStockOrderMSD";
@@ -2935,6 +2973,8 @@ export class OrgModelApi extends BaseLoopBackApi {
     let _postBody: any = {};
     let _urlParams: any = {};
     if (typeof storeModelId !== 'undefined' && storeModelId !== null) _urlParams.storeModelId = storeModelId;
+    if (typeof warehouseModelId !== 'undefined' && warehouseModelId !== null) _urlParams.warehouseModelId = warehouseModelId;
+    if (typeof categoryModelId !== 'undefined' && categoryModelId !== null) _urlParams.categoryModelId = categoryModelId;
     let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
     return result;
   }

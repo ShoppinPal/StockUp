@@ -35,9 +35,47 @@ var runMe = function (orgModelId, syncModels) {
             return Promise.resolve()
                 .then(function () {
                     logger.debug({
-                        message: 'Connecting to MS SQL on Azure',
-                        commandName
+                        message: 'Will connect to Mongo DB',
+                        commandName,
+                        orgModelId
                     });
+                    return MongoClient.connect(dbUrl, {promiseLibrary: Promise});
+                })
+                .catch(function (error) {
+                    logger.error({
+                        message: 'Could not connect to Mongo DB',
+                        error,
+                        orgModelId
+                    });
+                    return Promise.reject('Could not connect to Mongo DB');
+                })
+                .then(function (dbInstance) {
+                    db = dbInstance;
+                    logger.debug({
+                        message: 'Connected to Mongo DB, will look for organisations\'s integration model for MSSQL DB',
+                        orgModelId
+                    });
+                    return db.collection('IntegrationModel').findOne({
+                        orgModelId: ObjectId(orgModelId)
+                    });
+                })
+                .catch(function (error) {
+                    logger.error({
+                        message: 'Could not find organisation\'s integration model',
+                        error,
+                        orgModelId
+                    });
+                    return Promise.reject('Could not find organisation\'s integration model');
+                })
+                .then(function (integrationModel) {
+                    if(!integrationModel || !integrationModel.databaseName || !integrationModel.databaseValid) {
+                        logger.error({
+                            message: 'Could not fetch SQL server details for org',
+                            orgModelId,
+                            integrationModel
+                        });
+                        return Promise.reject('Could not fetch SQL server details for org');
+                    }
                     const sqlConfig = {
                         user: process.env.AZURE_SQL_USER,
                         password: process.env.AZURE_SQL_PASSWORD,
@@ -49,33 +87,34 @@ var runMe = function (orgModelId, syncModels) {
                             encrypt: true // Use this if you're on Windows Azure
                         }
                     };
+                    logger.debug({
+                        message: 'Found Organisation\'s integration details, Connecting to MS SQL on Azure',
+                        commandName,
+                        orgModelId,
+                        integrationModel
+                    });
                     return sql.connect(sqlConfig);
                 })
                 .catch(function (error) {
                     logger.error({
                         message: 'Could not connect to MS SQL on Azure',
                         error,
-                        commandName
+                        commandName,
+                        orgModelId
                     });
-                    return sql.close();
+                    return Promise.reject('Could not connect to MS SQL on Azure');
                 })
                 .then(function (pool) {
                     logger.debug({
                         message: 'Connected to MS SQL on Azure',
-                        commandName
+                        commandName,
+                        orgModelId
                     });
                     sqlPool = pool;
                     logger.debug({
-                        message: 'Will connect to Mongo DB',
-                        commandName
-                    });
-                    return MongoClient.connect(dbUrl, {promiseLibrary: Promise});
-                })
-                .then(function (dbInstance) {
-                    db = dbInstance;
-                    logger.debug({
                         message: 'Will look for tables with their row counts',
-                        commandName
+                        commandName,
+                        orgModelId
                     });
                     return sqlPool.request()
                         .query('SELECT SCHEMA_NAME(schema_id) AS [SchemaName], ' +
@@ -91,7 +130,8 @@ var runMe = function (orgModelId, syncModels) {
                     logger.debug({
                         message: 'Found the following tables with their row counts',
                         tableRows,
-                        commandName
+                        commandName,
+                        orgModelId
                     });
                     tableRows = tableRows.recordsets[0];
 
@@ -114,7 +154,8 @@ var runMe = function (orgModelId, syncModels) {
                     logger.debug({
                         commandName: commandName,
                         message: 'Some data objects differ in versions, will go on to fetch the required ones',
-                        incrementalSyncModels
+                        incrementalSyncModels,
+                        orgModelId
                     });
 
                     if (incrementalSyncModels.length>0) {
@@ -131,7 +172,8 @@ var runMe = function (orgModelId, syncModels) {
                 .then(function (response) {
                     logger.debug({
                         commandName: commandName,
-                        message: 'Finished calling the required worker, will exit now'
+                        message: 'Finished calling the required worker, will exit now',
+                        orgModelId
                     });
                     return Promise.resolve();
                 })
@@ -154,7 +196,8 @@ var runMe = function (orgModelId, syncModels) {
                         logger.error({
                             commandName: commandName,
                             message: 'Could not fetch data',
-                            err: error
+                            err: error,
+                            orgModelId
                         });
                         return Promise.reject(error);
                     }
@@ -163,14 +206,16 @@ var runMe = function (orgModelId, syncModels) {
                     logger.debug({
                         commandName: commandName,
                         message: 'Everything is already in sync, updated sync models info',
-                        result: response ? response.result || response : ''
+                        result: response ? response.result || response : '',
+                        orgModelId
                     });
                     return Promise.resolve()
                 })
                 .finally(function () {
                     logger.debug({
                         commandName: commandName,
-                        message: 'Closing Mongo database connection'
+                        message: 'Closing Mongo database connection',
+                        orgModelId
                     });
                     if (db) {
                         return db.close();
@@ -180,10 +225,11 @@ var runMe = function (orgModelId, syncModels) {
                 .finally(function () {
                     logger.debug({
                         commandName: commandName,
-                        message: 'Closing SQL database connection'
+                        message: 'Closing SQL database connection',
+                        orgModelId
                     });
                     if (sql) {
-                        return sql.close();
+                        return sqlPool.close();
                     }
                     return Promise.resolve();
                 })
@@ -191,25 +237,26 @@ var runMe = function (orgModelId, syncModels) {
                     logger.error({
                         commandName: commandName,
                         message: 'Could not close db connection',
-                        err: error
+                        error,
+                        orgModelId
                     });
                     return Promise.resolve();
                     //TODO: set a timeout, after which close all listeners
                 });
         }
         catch (e) {
-            logger.error({commandName: commandName, message: '2nd last catch block', err: e});
+            logger.error({commandName: commandName, message: '2nd last catch block', err: e, orgModelId});
             throw e;
         }
     }
     catch (e) {
-        logger.error({commandName: commandName, message: 'last catch block', err: e});
+        logger.error({commandName: commandName, message: 'last catch block', err: e, orgModelId});
         throw e;
     }
 };
 
 var callFetchDataObjectsWorker = function (sqlPool, orgModelId, syncModels) {
-    logger.debug({commandName: commandName, message: 'inside callFetchDataObjectsWorker()'});
+    logger.debug({commandName: commandName, message: 'inside callFetchDataObjectsWorker()', orgModelId});
     if (syncModels instanceof Array && syncModels.length>0) {
         var dataObjectNames = _.pluck(syncModels, 'name');
         var dataObjectIndices = {
@@ -226,14 +273,15 @@ var callFetchDataObjectsWorker = function (sqlPool, orgModelId, syncModels) {
          * 1) Supplier is not dependent on anything, so it goes first
          * 2) Product is dependent on suppliers, so it needs suppliers
          * 3) Inventory is dependent on products, so it needs products
-         * 4) Sales is dependent on products, so it needs inventory
+         * 4) Sales is dependent on inventory, so it needs inventory
          */
         return Promise.resolve()
             .then(function () {
                 if (dataObjectIndices.suppliers !== -1) {
                     logger.debug({
                         commandName: commandName,
-                        message: 'Calling fetch suppliers worker'
+                        message: 'Calling fetch suppliers worker',
+                        orgModelId
                     });
                     var fetchIncrementalSuppliers = require('./../fetch-incremental-suppliers/fetch-incremental-suppliers-msd');
                     return fetchIncrementalSuppliers.run(orgModelId, syncModels[dataObjectIndices.suppliers]);
@@ -246,7 +294,8 @@ var callFetchDataObjectsWorker = function (sqlPool, orgModelId, syncModels) {
                 if (dataObjectIndices.products !== -1) {
                     logger.debug({
                         commandName: commandName,
-                        message: 'Calling fetch products worker'
+                        message: 'Calling fetch products worker',
+                        orgModelId
                     });
                     var fetchIncrementalProducts = require('./../fetch-incremental-products/fetch-incremental-products-msd');
                     return fetchIncrementalProducts.run(sqlPool, orgModelId, syncModels[dataObjectIndices.products]);
@@ -259,7 +308,8 @@ var callFetchDataObjectsWorker = function (sqlPool, orgModelId, syncModels) {
                 if (dataObjectIndices.productCategories !== -1) {
                     logger.debug({
                         commandName: commandName,
-                        message: 'Calling fetch product categories worker'
+                        message: 'Calling fetch product categories worker',
+                        orgModelId
                     });
                     var fetchIncrementalProducts = require('./../fetch-incremental-products/fetch-incremental-products-category-msd');
                     return fetchIncrementalProducts.run(sqlPool, orgModelId, syncModels[dataObjectIndices.productCategories]);
@@ -269,23 +319,11 @@ var callFetchDataObjectsWorker = function (sqlPool, orgModelId, syncModels) {
                 }
             })
             .then(function () {
-                if (dataObjectIndices.inventoryDims !== -1) {
-                    logger.debug({
-                        commandName: commandName,
-                        message: 'Calling fetch inventory worker'
-                    });
-                    var fetchIncrementalInventory = require('./../fetch-incremental-inventory/fetch-incremental-inventoryDims-msd');
-                    return fetchIncrementalInventory.run(sqlPool, orgModelId, syncModels[dataObjectIndices.inventoryDims]);
-                }
-                else {
-                    return Promise.resolve();
-                }
-            })
-            .then(function () {
                 if (dataObjectIndices.inventorySums !== -1) {
                     logger.debug({
                         commandName: commandName,
-                        message: 'Calling fetch inventory worker'
+                        message: 'Calling fetch inventory worker',
+                        orgModelId
                     });
                     var fetchIncrementalInventory = require('./../fetch-incremental-inventory/fetch-incremental-inventorySums-msd');
                     return fetchIncrementalInventory.run(sqlPool, orgModelId, syncModels[dataObjectIndices.inventorySums]);
@@ -295,10 +333,25 @@ var callFetchDataObjectsWorker = function (sqlPool, orgModelId, syncModels) {
                 }
             })
             .then(function () {
+                if (dataObjectIndices.inventoryDims !== -1) {
+                    logger.debug({
+                        commandName: commandName,
+                        message: 'Calling fetch inventory worker',
+                        orgModelId
+                    });
+                    var fetchIncrementalInventory = require('./../fetch-incremental-inventory/fetch-incremental-inventoryDims-msd');
+                    return fetchIncrementalInventory.run(sqlPool, orgModelId, syncModels[dataObjectIndices.inventoryDims]);
+                }
+                else {
+                    return Promise.resolve();
+                }
+            })
+            .then(function () {
                 if (dataObjectIndices.sales !== -1) {
                     logger.debug({
                         commandName: commandName,
-                        message: 'Calling fetch sales worker'
+                        message: 'Calling fetch sales worker',
+                        orgModelId
                     });
                     var fetchIncrementalSales = require('./../fetch-incremental-sales/fetch-incremental-sales-msd');
                     return fetchIncrementalSales.run(sqlPool, orgModelId, syncModels[dataObjectIndices.sales]);
@@ -311,7 +364,8 @@ var callFetchDataObjectsWorker = function (sqlPool, orgModelId, syncModels) {
                 if (dataObjectIndices.salesLines !== -1) {
                     logger.debug({
                         commandName: commandName,
-                        message: 'Calling fetch sales lines worker'
+                        message: 'Calling fetch sales lines worker',
+                        orgModelId
                     });
                     var fetchIncrementalSales = require('./../fetch-incremental-sales/fetch-incremental-sales-lines-msd');
                     return fetchIncrementalSales.run(sqlPool, orgModelId, syncModels[dataObjectIndices.salesLines]);
@@ -324,13 +378,15 @@ var callFetchDataObjectsWorker = function (sqlPool, orgModelId, syncModels) {
             .then(function () {
                 logger.debug({
                     commandName: commandName,
-                    message: 'Will remove the sync models from database that aren\'t supported yet'
+                    message: 'Will remove the sync models from database that aren\'t supported yet',
+                    orgModelId
                 });
                 return Promise.map(syncModels, function (eachSyncModel) {
                     if (_.keys(dataObjectIndices).indexOf(eachSyncModel.name) === -1) {
                         logger.debug({
                             commandName: commandName,
-                            message: `Removing ${eachSyncModel.name}`
+                            message: `Removing ${eachSyncModel.name}`,
+                            orgModelId
                         });
                         return db.collection('SyncModel').deleteOne({
                             $and: [
@@ -352,7 +408,8 @@ var callFetchDataObjectsWorker = function (sqlPool, orgModelId, syncModels) {
                 logger.debug({
                     commandName: commandName,
                     message: 'Deleted the sync models that are not supported yet',
-                    result: response.result
+                    result: response.result,
+                    orgModelId
                 });
                 return Promise.resolve();
             })
@@ -360,7 +417,8 @@ var callFetchDataObjectsWorker = function (sqlPool, orgModelId, syncModels) {
                 logger.error({
                     commandName: commandName,
                     message: 'Something went wrong while calling workers',
-                    err: error
+                    err: error,
+                    orgModelId
                 });
                 return Promise.reject(error);
             });

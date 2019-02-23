@@ -45,6 +45,7 @@
     "matchdep": "~0.3.0",
     "moment": "~2.19.3",
     "mongodb": "2.2.31",
+    "mssql": "^4.2.3",
     "multiparty": "4.2.1",
     "nodemailer": "^4.7.0",
     "nconf": "^0.7.1",

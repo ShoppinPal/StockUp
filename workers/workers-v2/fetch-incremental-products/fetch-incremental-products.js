@@ -116,24 +116,24 @@ var runMe = function (payload, config, taskId, messageId) {
                      var batch = [];
                      Add some operations to be executed
                      _.each(incrementalProducts, function (eachProduct) {
-            batch.push({
-              updateOne: {
-                filter: {
-                  api_id: eachProduct.id
-                },
-                update: {
-                  $set: {
-                    name: eachProduct.name,
-                    sku: eachProduct.sku,
-                    supplier: eachProduct.supplier,
-                    api_id: eachProduct.id,
-                    storeConfigModelId: ObjectId(payload.storeConfigModelId)
-                  }
-                },
-                upsert: true
-              }
-            });
-          });
+                        batch.push({
+                          updateOne: {
+                            filter: {
+                              api_id: eachProduct.id
+                            },
+                            update: {
+                              $set: {
+                                name: eachProduct.name,
+                                sku: eachProduct.sku,
+                                supplier: eachProduct.supplier,
+                                api_id: eachProduct.id,
+                                storeConfigModelId: ObjectId(payload.storeConfigModelId)
+                              }
+                            },
+                            upsert: true
+                          }
+                        });
+                      });
                      Execute the operations
                      return db.collection('ProductModel').bulkWrite(batch);
                      */

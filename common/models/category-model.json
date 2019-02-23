@@ -22,6 +22,11 @@
       "type": "hasMany",
       "model": "ProductModel",
       "foreignKey": "categoryModelId"
+    },
+    "reportModels": {
+      "type": "hasMany",
+      "model": "ReportModel",
+      "foreignKey": "categoryModelId"
     }
   },
   "acls": [],

@@ -105,3 +105,15 @@ services:
         target: /data/db
   memcache:
     image: memcached:latest
+
+  mssql:
+    image: microsoft/mssql-server-linux
+    volumes:
+      - type: bind
+        source: ./docker/volumes/mssql
+        target: /var/opt/mssql
+    env_file: mssql.env
+    ports:
+     - "1433:1433"
+
+

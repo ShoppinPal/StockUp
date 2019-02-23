@@ -101,10 +101,10 @@ var refreshMSDToken = function (orgModelId, options) {
         });
 };
 
-var fetchMSDData = function (orgModelId, dataTable, options) {
+var fetchMSDData = function (orgModelId, dataTable, companyIdentifierKey, options) {
     logger.debug({
         message: 'Will fetch the following data from msd',
-        orgModelId,
+        options,
         dataTable,
         functionName: 'fetchMSDData'
     });
@@ -116,7 +116,7 @@ var fetchMSDData = function (orgModelId, dataTable, options) {
         .catch(function (error) {
             logger.error({
                 message: 'Could not find orgModel',
-                orgModelId,
+                options,
                 error,
                 functionName: 'fetchMSDData'
             });
@@ -127,7 +127,8 @@ var fetchMSDData = function (orgModelId, dataTable, options) {
             logger.debug({
                 message: 'Found this orgModel',
                 orgModelInstance,
-                functionName: 'fetchMSDData'
+                functionName: 'fetchMSDData',
+                options
             });
 
             if (orgModelInstance.integrationModels().length) {
@@ -135,7 +136,8 @@ var fetchMSDData = function (orgModelId, dataTable, options) {
                     logger.debug({
                         message: 'Will refresh token first',
                         tokenExpiredOn: orgModelInstance.integrationModels()[0].expires_on,
-                        functionName: 'fetchMSDData'
+                        functionName: 'fetchMSDData',
+                        options
                     });
                     return refreshMSDToken(orgModelId);
                 }
@@ -146,7 +148,7 @@ var fetchMSDData = function (orgModelId, dataTable, options) {
             else {
                 logger.error({
                     message: 'Could not find any integrations for the org',
-                    orgModelId: id,
+                    options,
                     functionName: 'fetchMSDData'
                 });
                 return Promise.reject('Could not find any integrations for the org');
@@ -158,7 +160,7 @@ var fetchMSDData = function (orgModelId, dataTable, options) {
                 error,
                 message: 'Access token could not be refreshed',
                 functionName: 'fetchMSDData',
-                orgModelId
+                options
             });
             return Promise.reject('Access token could not be refreshed');
         })
@@ -167,16 +169,20 @@ var fetchMSDData = function (orgModelId, dataTable, options) {
                 logger.debug({
                     message: 'Will use the new token to fetch data from MSD',
                     token,
-                    orgModelId,
+                    options,
                     functionName: 'fetchMSDData'
                 });
             }
             else {
                 token = orgModelInstance.integrationModels()[0].access_token;
             }
-            var options = {
+            let uri = orgModelInstance.integrationModels()[0].resource + 'data/' + dataTable;
+            uri += '?cross-company=true';
+            if (companyIdentifierKey)
+                uri += '&$filter=' + companyIdentifierKey + ' eq \'' + orgModelInstance.integrationModels()[0].dataAreaId + '\'';
+            var reqOptions = {
                 method: 'GET',
-                uri: orgModelInstance.integrationModels()[0].resource + 'data/' + dataTable,
+                uri: uri,
                 json: true,
                 headers: {
                     'OData-MaxVersion': '4.0',
@@ -190,10 +196,11 @@ var fetchMSDData = function (orgModelId, dataTable, options) {
             };
             logger.debug({
                 message: 'Sending the following request to MSD',
+                reqOptions,
                 options,
                 functionName: 'fetchMSDData'
             });
-            return rp(options);
+            return rp(reqOptions);
         })
         .catch(function (error) {
             logger.error({

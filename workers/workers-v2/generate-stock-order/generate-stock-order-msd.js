@@ -232,6 +232,7 @@ function generateStockOrder(payload, config, taskId, messageId) {
                 name: storeModelInstance.name + ' - ' + TODAYS_DATE.getFullYear() + '-' + (TODAYS_DATE.getMonth() + 1) + '-' + TODAYS_DATE.getDate(),
                 orgModelId: ObjectId(orgModelId),
                 storeModelId: ObjectId(storeModelId),
+                categoryModelId: ObjectId(categoryModelId),
                 created: new Date(),
                 updated: new Date(),
                 state: REPORT_EMPTY
@@ -255,7 +256,7 @@ function generateStockOrder(payload, config, taskId, messageId) {
                 commandName,
                 messageId
             });
-            return Promise.resolve();
+            // return Promise.resolve();
             var generateReorderPointsMSD = require('./../generate-reorder-points/generate-reorder-points-msd');
             return generateReorderPointsMSD.run(payload, config, taskId, messageId);
         })

@@ -179,7 +179,7 @@ function fetchPaginatedInventoryDims(sqlPool, orgModelId, pagesToFetch) {
                     var storeModelToAttach = _.findWhere(storeModelInstances, {storeNumber: eachInventory.INVENTSITEID || eachInventory.INVENTLOCATIONID || eachInventory.WMSLOCATIONID});
                     batch.find({
                         inventoryDimId: eachInventory.INVENTDIMID
-                    }).upsert().updateOne({
+                    }).update({
                         $set: {
                             inventoryDimId: eachInventory.INVENTDIMID,
                             storeModelId: storeModelToAttach ? storeModelToAttach._id : null,
@@ -207,8 +207,7 @@ function fetchPaginatedInventoryDims(sqlPool, orgModelId, pagesToFetch) {
                 logger.debug({
                     commandName: commandName,
                     message: 'Bulk insert operation complete',
-                    inserted: bulkInsertResponse.nInserted,
-                    upserted: bulkInsertResponse.nUpserted
+                    bulkInsertResponse
                 });
                 if (bulkInsertResponse !== 'noIncrementalInventory') {
                     logger.debug({

@@ -50,7 +50,7 @@ export class SignupComponent implements OnInit {
       return this.userModelApi.login(this.user);
     })
       .subscribe((token: AccessToken) => {
-        this._router.navigate(['/stores']);
+        this._router.navigate(['/connect']);
       }, err => {
         this.loading = false;
       });

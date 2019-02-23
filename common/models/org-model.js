@@ -11,6 +11,7 @@ var vendSdk = require('vend-nodejs-sdk')({});
 const rp = require('request-promise');
 var SSE = require('express-sse');
 var sseMap = {};
+const sql = require('mssql');
 
 module.exports = function (OrgModel) {
 
@@ -274,6 +275,7 @@ module.exports = function (OrgModel) {
                             functionName: 'handleMSDToken'
                         });
                         msdToken.orgModelId = userModelInstance.orgModelId;
+                        msdToken.expires_on = 0;
                         return OrgModel.app.models.IntegrationModel.create(msdToken);
                     })
                     .catch(function (error) {
@@ -283,6 +285,49 @@ module.exports = function (OrgModel) {
                             functionName: 'handleMSDToken'
                         });
                         return Promise.reject(error);
+                    })
+                    .then(function (result) {
+                        logger.debug({
+                            message: 'Created integration model, will look for companies in MSD',
+                            result,
+                            functionName: 'handleMSDToken'
+                        });
+                        var MSDUtil = require('./../utils/msd')({GlobalOrgModel: OrgModel});
+                        return MSDUtil.fetchMSDData(msdToken.orgModelId, 'DimAttributeCompanyInfos');
+                    })
+                    .catch(function (error) {
+                        logger.error({
+                            error,
+                            message: 'Could not fetch companies from MSD',
+                            functionName: 'handleMSDToken'
+                        });
+                        return Promise.reject('Could not fetch companies from MSD');
+                    })
+                    .then(function (companyData) {
+                        logger.debug({
+                            message: 'Found company data',
+                            companyData,
+                            functionName: 'handleMSDToken'
+                        });
+                        for (var i = 0; i<companyData.value.length; i++) {
+                            companyData.value[i] = {
+                                name: companyData.value[i].Name,
+                                value: companyData.value[i].Value
+                            }
+                        }
+                        return OrgModel.app.models.IntegrationModel.updateAll({
+                            orgModelId: msdToken.orgModelId
+                        }, {
+                            companies: companyData.value
+                        });
+                    })
+                    .catch(function (error) {
+                        logger.error({
+                            message: 'Could not save company data into DB',
+                            error,
+                            functionName: 'handleMSDToken'
+                        });
+                        return Promise.reject('Could not save company data into DB');
                     });
             }
         };
@@ -334,6 +379,82 @@ module.exports = function (OrgModel) {
                         error
                     });
                     return Promise.reject('Could not initiate msd sync');
+                });
+        };
+
+        OrgModel.remoteMethod('validateMSSQLDatabase', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'databaseName', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/validateMSSQLDatabase', verb: 'get'},
+            returns: {arg: 'success', type: 'object', root: true}
+        });
+
+        OrgModel.validateMSSQLDatabase = function (id, databaseName, options) {
+            logger.debug({
+                message: 'Will close any existing sql connections',
+                functionName: 'validateMSSQLDatabase',
+                options
+            });
+            const sqlConfig = {
+                user: OrgModel.app.get('sql').user,
+                password: OrgModel.app.get('sql').password,
+                server: OrgModel.app.get('sql').server, // You can use 'localhost\\instance' to connect to named instance
+                database: databaseName,
+                options: {
+                    encrypt: true // Use this if you're on Windows Azure
+                }
+            };
+            return Promise.resolve()
+                .then(function () {
+                    if (sql) {
+                        return sql.close();
+                    }
+                    else
+                        return Promise.resolve();
+                })
+                .then(function (res) {
+                    logger.debug({
+                        databaseName,
+                        message: 'Closed present sql connections, will try connecting to given database',
+                        options,
+                        sqlConfig,
+                        functionName: 'validateMSSQLDatabase'
+                    });
+                    return sql.connect(sqlConfig);
+                })
+                .then(function (res) {
+                    logger.debug({
+                        message: 'Database connected successfully, will update in Integration Model',
+                        functionName: 'validateMSSQLDatabase',
+                        options
+                    });
+                    return OrgModel.app.models.IntegrationModel.updateAll({
+                        orgModelId: id
+                    }, {
+                        databaseValid: true,
+                        databaseName: databaseName
+                    });
+                })
+                .then(function (res) {
+                    logger.debug({
+                        message: 'Database valid flag updated in Integration Model',
+                        res,
+                        functionName: 'validateMSSQLDatabase',
+                        options
+                    });
+                    return Promise.resolve({success: true});
+                })
+                .catch(function (err) {
+                    logger.error({
+                        message: 'Database not found',
+                        err,
+                        functionName: 'validateMSSQLDatabase',
+                        options
+                    });
+                    return Promise.reject({success: false});
                 });
         };
 
@@ -495,16 +616,16 @@ module.exports = function (OrgModel) {
                 {arg: 'id', type: 'string', required: true},
                 {arg: 'storeModelId', type: 'string', required: true},
                 {arg: 'warehouseModelId', type: 'string', required: true},
-                {arg: 'categoryModelId', type: 'string'},
                 {arg: 'req', type: 'object', 'http': {source: 'req'}},
                 {arg: 'res', type: 'object', 'http': {source: 'res'}},
+                {arg: 'categoryModelId', type: 'string'},
                 {arg: 'options', type: 'object', http: 'optionsFromRequest'}
             ],
             http: {path: '/:id/generateStockOrderMSD', verb: 'get'},
             returns: {arg: 'data', type: 'ReadableStream', root: true}
         });
 
-        OrgModel.generateStockOrderMSD = function (id, storeModelId, warehouseModelId, categoryModelId, req, res, options) {
+        OrgModel.generateStockOrderMSD = function (id, storeModelId, warehouseModelId, req, res, categoryModelId, options) {
             try {
                 res.connection.setTimeout(0);
                 if (!sseMap[options.accessToken.userId]) {

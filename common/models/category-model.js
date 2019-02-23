@@ -117,7 +117,8 @@ module.exports = function (CategoryModel) {
                     return CategoryModel.updateAll({
                         name: {
                             like: regexPattern
-                        }
+                        },
+                        orgModelId: id
                     }, eachCategoryMinMaxValue[Object.keys(eachCategoryMinMaxValue)[0]])
                         .then(function (result) {
                             if (result && !result.count) {

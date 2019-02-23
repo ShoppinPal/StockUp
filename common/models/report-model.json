@@ -79,6 +79,11 @@
       "type": "belongsTo",
       "model": "StoreModel",
       "foreignKey": "storeModelId"
+    },
+    "categoryModel": {
+      "type": "belongsTo",
+      "model": "CategoryModel",
+      "foreignKey": "categoryModelId"
     }
   },
   "acls": [

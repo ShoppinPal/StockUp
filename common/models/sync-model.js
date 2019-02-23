@@ -111,59 +111,69 @@ module.exports = function (SyncModel) {
     };
 
     SyncModel.initiateMSDSync = function (id, options) {
+
         logger.debug({
-            message: 'Will initiate msd sync',
-            options,
-            functionName: 'initiateMSDSync'
+            message: 'Will look for org\'s integration model for database details',
+            functionName: 'initiateMSDSync',
+            options
         });
-        var syncModels = [
-            {
-                name: 'products',
-                tableName: 'EcoResProductVariantStaging'
-            },
-            {
-                name: 'productCategories',
-                tableName: 'EcoResProductV2Staging'
-            },
-            {
-                name: 'inventoryDims',
-                tableName: 'HSInventDimStaging'
-            },
-            {
-                name: 'inventorySums',
-                tableName: 'HSInventSumStaging'
-            },
-            {
-                name: 'sales',
-                tableName: 'RetailTransactionStaging'
-            },
-            {
-                name: 'salesLines',
-                tableName: 'RetailTransactionSalesLineStaging'
-            }];
-        return Promise.map(syncModels, function (eachSyncModel) {
-            return SyncModel.findOrCreate({
-                where: {
-                    name: eachSyncModel.name,
-                    orgModelId: id
-                }
-            }, {
-                name: eachSyncModel.name,
-                tableName: eachSyncModel.tableName,
-                syncType: 'msd',
-                orgModelId: id,
-                syncInProcess: false,
-                lastSyncedAt: new Date(1970), //some old date so that sync worker picks it up immediately
-            });
-        })
+        return Promise.resolve()
+            .then(function () {
+                logger.debug({
+                    message: 'Will initiate msd sync',
+                    options,
+                    functionName: 'initiateMSDSync'
+                });
+                var syncModels = [
+                    {
+                        name: 'products',
+                        tableName: 'EcoResProductVariantStaging'
+                    },
+                    {
+                        name: 'productCategories',
+                        tableName: 'EcoResProductV2Staging'
+                    },
+                    {
+                        name: 'inventoryDims',
+                        tableName: 'HSInventDimStaging'
+                    },
+                    {
+                        name: 'inventorySums',
+                        tableName: 'HSInventSumStaging'
+                    },
+                    {
+                        name: 'sales',
+                        tableName: 'RetailTransactionStaging'
+                    },
+                    {
+                        name: 'salesLines',
+                        tableName: 'RetailTransactionSalesLineStaging'
+                    }];
+                return Promise.map(syncModels, function (eachSyncModel) {
+                    return SyncModel.findOrCreate({
+                        where: {
+                            name: eachSyncModel.name,
+                            orgModelId: id
+                        }
+                    }, {
+                        name: eachSyncModel.name,
+                        tableName: eachSyncModel.tableName,
+                        syncType: 'msd',
+                        orgModelId: id,
+                        syncInProcess: false,
+                        lastSyncedAt: new Date(1970), //some old date so that sync worker picks it up immediately
+                    });
+                });
+            })
             .then(function (response) {
                 logger.debug({
                     message: 'Created sync models for org',
                     orgModelId: id,
                     options,
+                    response,
                     functionName: 'initiateMSDSync'
                 });
-                return Promise.resolve(syncModels.length);
+                return Promise.resolve(response.length);
             })
             .catch(function (error) {
                 logger.error({
@@ -245,7 +255,8 @@ module.exports = function (SyncModel) {
                     return Promise.map(usersToCreate, function (eachUser) {
                         return SyncModel.app.models.UserModel.findOrCreate({
                             where: {
-                                email: eachUser.email
+                                email: eachUser.email,
+                                orgModelId: id
                             }
                         }, eachUser);
                     });
@@ -314,6 +325,7 @@ module.exports = function (SyncModel) {
                     return Promise.map(categoriesToCreate, function (eachCategory) {
                         return SyncModel.app.models.CategoryModel.findOrCreate({
                             where: {
+                                orgModelId: id,
                                 name: eachCategory.CategoryName
                             }
                         }, eachCategory);
@@ -355,7 +367,7 @@ module.exports = function (SyncModel) {
             functionName: 'syncMSDStores'
         });
         var MSDUtil = require('./../utils/msd')({GlobalOrgModel: SyncModel.app.models.OrgModel});
-        return MSDUtil.fetchMSDData(id, 'RetailChannels')
+        return MSDUtil.fetchMSDData(id, 'OperationalSites', 'dataAreaId')
             .catch(function (error) {
                 logger.error({
                     error,
@@ -374,11 +386,12 @@ module.exports = function (SyncModel) {
                     });
                     var storesToCreate = [];
                     for (var i = 0; i<stores.value.length; i++) {
-                        if (stores.value[i].Name.length) {
+                        if (stores.value[i].SiteName.length) {
                             storesToCreate.push({
-                                name: stores.value[i].Name,
-                                currency: stores.value[i].Currency,
-                                storeNumber: stores.value[i].StoreNumber,
+                                name: stores.value[i].SiteName,
+                                timeZone: stores.value[i].SiteTimezone,
+                                storeNumber: stores.value[i].SiteId,
+                                city: stores.value[i].PrimaryAddressCity,
                                 orgModelId: id
                             });
                         }
@@ -386,7 +399,8 @@ module.exports = function (SyncModel) {
                     return Promise.map(storesToCreate, function (eachStore) {
                         return SyncModel.app.models.StoreModel.findOrCreate({
                             where: {
-                                storeNumber: eachStore.storeNumber
+                                storeNumber: eachStore.storeNumber,
+                                orgModelId: id
                             }
                         }, eachStore);
                     });
@@ -417,148 +431,4 @@ module.exports = function (SyncModel) {
                 return Promise.reject('Could not create stores for org');
             });
     };
-
-    SyncModel.syncMSDUsers = function (id, options) {
-        logger.debug({
-            message: 'Will sync users for MSD',
-            orgModelId: id,
-            options,
-            functionName: 'syncMSDUsers'
-        });
-        var MSDUtil = require('./../utils/msd')({GlobalOrgModel: SyncModel.app.models.OrgModel});
-        return MSDUtil.fetchMSDData(id, 'SystemUsers')
-            .catch(function (error) {
-                logger.error({
-                    error,
-                    message: 'Could not fetch MSD Data',
-                    orgModelId: id,
-                    functionName: 'syncMSDUsers'
-                });
-                return Promise.reject('Could not fetch MSD Data');
-            })
-            .then(function (users) {
-                if (users.value && users.value.length) {
-                    logger.debug({
-                        message: 'Found users from MSD, will save to DB',
-                        numberOfUsers: users.value.length,
-                        functionName: 'syncMSDUsers'
-                    });
-                    var usersToCreate = [];
-                    for (var i = 0; i<users.value.length; i++) {
-                        if (users.value[i].Email.length) {
-                            usersToCreate.push({
-                                email: users.value[i].Email,
-                                name: users.value[i].UserName,
-                                userId: users.value[i].UserID,
-                                password: Math.random().toString(36).slice(-8),
-                                orgModelId: id
-                            });
-                        }
-                    }
-                    return Promise.map(usersToCreate, function (eachUser) {
-                        return SyncModel.app.models.UserModel.findOrCreate({
-                            where: {
-                                email: eachUser.email
-                            }
-                        }, eachUser);
-                    });
-                }
-                else {
-                    logger.debug({
-                        message: 'No users found in MSD',
-                        functionName: 'syncMSDUsers'
-                    });
-                    return Promise.reject('No users found in MSD');
-                }
-            })
-            .then(function (result) {
-                logger.debug({
-                    message: 'Saved users to DB',
-                    result: result,
-                    functionName: 'syncMSDUsers'
-                });
-                return Promise.resolve(true);
-            })
-            .catch(function (error) {
-                logger.error({
-                    message: 'Could not create users',
-                    orgModelId: id,
-                    error,
-                    functionName: 'syncMSDUsers'
-                });
-                return Promise.reject('Could not create users for org');
-            });
-    };
-
-    SyncModel.syncMSDStores = function (id, options) {
-        logger.debug({
-            message: 'Will sync stores for MSD',
-            orgModelId: id,
-            options,
-            functionName: 'syncMSDStores'
-        });
-        var MSDUtil = require('./../utils/msd')({GlobalOrgModel: SyncModel.app.models.OrgModel});
-        return MSDUtil.fetchMSDData(id, 'RetailChannels')
-            .catch(function (error) {
-                logger.error({
-                    error,
-                    message: 'Could not fetch MSD Data',
-                    orgModelId: id,
-                    functionName: 'syncMSDStores'
-                });
-                return Promise.reject('Could not fetch MSD Data');
-            })
-            .then(function (stores) {
-                if (stores.value && stores.value.length) {
-                    logger.debug({
-                        message: 'Found stores from MSD, will save to DB',
-                        numberOfUsers: stores.value.length,
-                        functionName: 'syncMSDStores'
-                    });
-                    var storesToCreate = [];
-                    for (var i = 0; i<stores.value.length; i++) {
-                        if (stores.value[i].Name.length) {
-                            storesToCreate.push({
-                                name: stores.value[i].Name,
-                                currency: stores.value[i].Currency,
-                                storeNumber: stores.value[i].StoreNumber,
-                                orgModelId: id
-                            });
-                        }
-                    }
-                    return Promise.map(storesToCreate, function (eachStore) {
-                        return SyncModel.app.models.StoreModel.findOrCreate({
-                            where: {
-                                storeNumber: eachStore.storeNumber
-                            }
-                        }, eachStore);
-                    });
-                }
-                else {
-                    logger.debug({
-                        message: 'No stores found in MSD',
-                        functionName: 'syncMSDStores'
-                    });
-                    return Promise.reject('No users found in MSD');
-                }
-            })
-            .then(function (result) {
-                logger.debug({
-                    message: 'Saved stores to DB',
-                    result: result,
-                    functionName: 'syncMSDStores'
-                });
-                return Promise.resolve(true);
-            })
-            .catch(function (error) {
-                logger.error({
-                    message: 'Could not create stores',
-                    orgModelId: id,
-                    error,
-                    functionName: 'syncMSDStores'
-                });
-                return Promise.reject('Could not create stores for org');
-            });
-    };
-
 };
