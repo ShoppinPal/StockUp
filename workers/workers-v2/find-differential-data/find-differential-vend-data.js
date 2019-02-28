@@ -1,144 +1,189 @@
-var logger;
-try {
-    logger = require('sp-json-logger')();
-    var Promise = require('bluebird');
-    var db = null; //database connected
-    var ObjectId = require('mongodb').ObjectID;
-    var _ = require('underscore');
-    var utils = require('./../../jobs/utils/utils.js');
-    var path = require('path');
-    var MongoClient = require('mongodb').MongoClient;
-    var vendSdk = require('vend-nodejs-sdk')({}); //why the {}?
-    // Global variable for logging
-    var commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
-    var dbUrl = process.env.DB_URL;
-}
-catch (e) {
-    logger.error({message: 'Something went wrong while importing modules in fetch-differential-vend-data.js'});
-    throw e;
-}
+const path = require('path');
+const commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
+const logger = require('sp-json-logger')({fileName: 'workers:workers-v2:' + commandName});
+var Promise = require('bluebird');
+var db = null; //database connected
+var ObjectId = require('mongodb').ObjectID;
+var _ = require('underscore');
+var utils = require('./../../jobs/utils/utils.js');
+var MongoClient = require('mongodb').MongoClient;
+var vendSdk = require('vend-nodejs-sdk')({}); //why the {}?
+// Global variable for logging
+var dbUrl = process.env.DB_URL;
+var vendConnectionInfo;
 
-var runMe = function (payload, config, taskId, messageId) {
+var runMe = function (orgModelId, syncModels) {
 
     try {
-        var vendConnectionInfo;
         var vendNewDataObjectVersions;
 
-
-        logger.debug({
-            messageId: messageId,
-            commandName: commandName,
-            payload: payload,
-            config: config,
-            taskId: taskId,
-            argv: process.argv
-        });
-
         try {
-            process.env['User-Agent'] = taskId + ':' + messageId + ':' + commandName + ':' + payload.domainPrefix;
+            // process.env['User-Agent'] = taskId + ':' + messageId + ':' + commandName + ':' + payload.domainPrefix;
             logger.debug({
-                messageId: messageId,
-                commandName: commandName,
-                message: 'This worker will look for any change in the versions of following vendDataObjects',
-                vendDataObjects: payload.vendDataObjects
+                orgModelId,
+                message: 'This worker will look for any incremental Vend data',
             });
-            return utils.savePayloadConfigToFiles(payload)
+            return Promise.resolve()
                 .then(function () {
-                    //TODO: remove these relative paths
-                    var nconf = require('./../../node_modules/nconf/lib/nconf');
-                    nconf.file('client', {file: 'config/client.json'})
-                    //.file('settings', { file: 'config/settings.json' }) // NOTE: useful for quicker testing
-                        .file('oauth', {file: 'config/oauth.json'});
-                    logger.debug({messageId: messageId, commandName: commandName, nconf: nconf.get()});
-                    vendConnectionInfo = utils.loadOauthTokens();
-                    return vendSdk.versions.fetchAll(vendConnectionInfo);
-                })
-                .then(function (versions) {
                     logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
-                        message: 'Found latest data object versions from vend',
-                        data: versions.data
+                        orgModelId,
+                        message: 'Will connect to Mongo DB'
                     });
-                    logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
-                        message: 'Will connect to the mongo database'
-                    });
-                    vendNewDataObjectVersions = versions.data;
                     return MongoClient.connect(dbUrl, {promiseLibrary: Promise});
+                })
+                // return utils.savePayloadConfigToFiles(payload)
+                //     .then(function () {
+                //         TODO: remove these relative paths
+                // var nconf = require('./../../node_modules/nconf/lib/nconf');
+                // nconf.file('client', {file: 'config/client.json'})
+                // .file('settings', {file: 'config/settings.json'}) // NOTE: useful for quicker testing
+                // .file('oauth', {file: 'config/oauth.json'});
+                // logger.debug({orgModelId,messageId: messageId, commandName: commandName, nconf: nconf.get()});
+                // vendConnectionInfo = utils.loadOauthTokens();
+                // return vendSdk.versions.fetchAll(vendConnectionInfo);
+                // })
+                // .then(function (versions) {
+                //     logger.debug({orgModelId,
+                //         messageId: messageId,
+                //         commandName: commandName,
+                //         message: 'Found latest data object versions from vend',
+                //         data: versions.data
+                //     });
+                //     logger.debug({orgModelId,
+                //         messageId: messageId,
+                //         commandName: commandName,
+                //         message: 'Will connect to the mongo database'
+                //     });
+                //     vendNewDataObjectVersions = versions.data;
+                //     return MongoClient.connect(dbUrl, {promiseLibrary: Promise});
+                // })
+                .catch(function (error) {
+                    logger.error({
+                        orgModelId,
+                        message: 'Could not connect to Mongo DB',
+                        error
+                    });
+                    return Promise.reject('Could not connect to Mongo DB');
                 })
                 .then(function (dbInstance) {
                     db = dbInstance;
+
                     logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
-                        message: 'Will look for properties which are set to sync in database'
+                        orgModelId,
+                        message: 'Connected to Mongo DB, will look for organisations\'s integration model Vend config',
+                    });
+                    return db.collection('IntegrationModel').findOne({
+                        orgModelId: ObjectId(orgModelId)
+                    });
+                })
+                .catch(function (error) {
+                    logger.error({
+                        orgModelId,
+                        message: 'Could not find organisation\'s integration model',
+                        error,
+                    });
+                    return Promise.reject('Could not find organisation\'s integration model');
+                })
+                .then(function (integrationModelInstance) {
+                    if (!integrationModelInstance || !integrationModelInstance.domain_prefix) {
+                        logger.error({
+                            orgModelId,
+                            message: 'Could not fetch Vend config for org',
+                            integrationModelInstance
+                        });
+                        return Promise.reject('Could not fetch Vend config for org');
+                    }
+                    logger.debug({
+                        orgModelId,
+                        message: 'Found integration model, Will fetch versions of entities from Vend',
+                        integrationModelInstance
+                    });
+                    vendConnectionInfo = {
+                        accessToken: integrationModelInstance.access_token,
+                        tokenType: integrationModelInstance.token_type,
+                        refreshToken: integrationModelInstance.refresh_token,
+                        domainPrefix: integrationModelInstance.domain_prefix
+                    };
+                    return vendSdk.versions.fetchAll(vendConnectionInfo);
+                })
+                .catch(function (error) {
+                    logger.error({
+                        orgModelId,
+                        message: 'Could not fetch entity versions from Vend',
+                        error
+                    });
+                    return Promise.reject('Could not fetch entity versions from Vend');
+                })
+                .then(function (versions) {
+                    logger.debug({
+                        orgModelId,
+                        message: 'Found latest data object versions from vend',
+                        versions
+                    });
+                    vendNewDataObjectVersions = versions.data;
+                    logger.debug({
+                        orgModelId,
+                        message: 'Will look for properties which are set to sync in database',
                     });
                     return db.collection('SyncModel').find({
                         $and: [{
-                            orgModelId: ObjectId(payload.orgModelId),
+                            orgModelId: ObjectId(orgModelId),
 
                         },
                             {
                                 name: {
-                                    $in: payload.vendDataObjects
+                                    $in: _.pluck(syncModels, 'name')
                                 }
                             }],
                     }).toArray();
                 })
                 .then(function (syncModelInstances) {
                     logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
+                        orgModelId,
                         message: 'Found following syncModels',
                         syncModelInstances: syncModelInstances
                     });
-                    payload.vendDataObjects = _.intersection(payload.vendDataObjects, _.pluck(syncModelInstances, 'name'));
-                    logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
-                        message: 'Not all properties are set to sync yet, will try to sync only',
-                        vendDataObjects: payload.vendDataObjects
-                    });
-                    if (!payload.vendDataObjects.length || !syncModelInstances.length) {
-                        logger.debug({
-                            messageId: messageId,
-                            commandName: commandName,
-                            message: 'Nothing to sync, will exit'
-                        });
-                        return Promise.reject('syncStatusSetToFalse');
-                    }
+                    // payload.vendDataObjects = _.intersection(payload.vendDataObjects, _.pluck(syncModelInstances, 'name'));
+                    // logger.debug({orgModelId,
+                    //     messageId: messageId,
+                    //     commandName: commandName,
+                    //     message: 'Not all properties are set to sync yet, will try to sync only',
+                    //     vendDataObjects: payload.vendDataObjects
+                    // });
+                    // if (!payload.vendDataObjects.length || !syncModelInstances.length) {
+                    //     logger.debug({orgModelId,
+                    //         messageId: messageId,
+                    //         commandName: commandName,
+                    //         message: 'Nothing to sync, will exit'
+                    //     });
+                    //     return Promise.reject('syncStatusSetToFalse');
+                    // }
                     /**
                      * Logic to find which data object versions have changed since
                      * the last sync, only those data objects will be fetched by
                      * calling their corresponding fetch-workers
                      */
                     var differentialDataObjects = [];
-                    _.each(payload.vendDataObjects, function (eachVendDataObject) {
-                        var correspondingSyncModelInstance = _.find(syncModelInstances, function (eachSyncModel) {
-                            return eachSyncModel.name === eachVendDataObject;
-                        });
-                        if (correspondingSyncModelInstance.version !== undefined && vendNewDataObjectVersions[eachVendDataObject] !== correspondingSyncModelInstance.version) {
+                    _.each(syncModelInstances, function (eachSyncModel) {
+                        if (eachSyncModel.version !== undefined && vendNewDataObjectVersions[eachSyncModel.name] !== eachSyncModel.version) {
                             differentialDataObjects.push({
-                                name: eachVendDataObject,
-                                versionsAfter: correspondingSyncModelInstance.version,
-                                versionsBefore: vendNewDataObjectVersions[eachVendDataObject]
+                                name: eachSyncModel.name,
+                                versionsAfter: eachSyncModel.version,
+                                versionsBefore: vendNewDataObjectVersions[eachSyncModel.name]
                             });
                         }
                     });
                     logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
+                        orgModelId,
                         message: 'Some data objects differ in versions, will go on to fetch the required ones',
                         differentialDataObjects: differentialDataObjects
                     });
                     if (differentialDataObjects.length>0) {
-                        return callFetchDataObjectsWorker(differentialDataObjects, payload, config, taskId, messageId);
+                        return callFetchDataObjectsWorker(differentialDataObjects, orgModelId);
                     }
                     else {
                         logger.debug({
-                            messageId: messageId,
+                            orgModelId,
                             commandName: commandName,
                             message: 'Vend data objects are up-to-date in warehouse, ending worker'
                         });
@@ -147,7 +192,7 @@ var runMe = function (payload, config, taskId, messageId) {
                 })
                 .then(function (response) {
                     logger.debug({
-                        messageId: messageId,
+                        orgModelId,
                         commandName: commandName,
                         message: 'Finished calling the required worker, will exit now'
                     });
@@ -156,16 +201,7 @@ var runMe = function (payload, config, taskId, messageId) {
                 .catch(function (error) {
                     if (error === 'noDifferenceInDataVersions') {
                         return db.collection('SyncModel').updateMany({
-                            $and: [
-                                {
-                                    orgModelId: ObjectId(payload.orgModelId),
-                                },
-                                {
-                                    name: {
-                                        $in: payload.vendDataObjects
-                                    }
-                                }
-                            ],
+                            orgModelId: ObjectId(orgModelId),
                         }, {
                             $set: {
                                 syncInProcess: false,
@@ -174,13 +210,12 @@ var runMe = function (payload, config, taskId, messageId) {
                             }
                         });
                     }
-                    else if (error === 'syncStatusSetToFalse') {
-                        return Promise.resolve();
-                    }
+                    // else if (error === 'syncStatusSetToFalse') {
+                    //     return Promise.resolve();
+                    // }
                     else {
                         logger.error({
-                            messageId: messageId,
-                            commandName: commandName,
+                            orgModelId,
                             message: 'Could not fetch data',
                             err: error
                         });
@@ -189,8 +224,7 @@ var runMe = function (payload, config, taskId, messageId) {
                 })
                 .then(function (response) {
                     logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
+                        orgModelId,
                         message: 'Everything is already in sync, updated sync models info',
                         result: response ? response.result || response : ''
                     });
@@ -198,7 +232,7 @@ var runMe = function (payload, config, taskId, messageId) {
                 })
                 .finally(function () {
                     logger.debug({
-                        messageId: messageId,
+                        orgModelId,
                         commandName: commandName,
                         message: 'Closing database connection'
                     });
@@ -209,7 +243,7 @@ var runMe = function (payload, config, taskId, messageId) {
                 })
                 .catch(function (error) {
                     logger.error({
-                        messageId: messageId,
+                        orgModelId,
                         commandName: commandName,
                         message: 'Could not close db connection',
                         err: error
@@ -219,18 +253,18 @@ var runMe = function (payload, config, taskId, messageId) {
                 });
         }
         catch (e) {
-            logger.error({messageId: messageId, commandName: commandName, message: '2nd last catch block', err: e});
+            logger.error({orgModelId, message: '2nd last catch block', err: e});
             throw e;
         }
     }
     catch (e) {
-        logger.error({messageId: messageId, commandName: commandName, message: 'last catch block', err: e});
+        logger.error({orgModelId, message: 'last catch block', err: e});
         throw e;
     }
 };
 
-var callFetchDataObjectsWorker = function (dataObjects, payload, config, taskId, messageId) {
-    logger.debug({messageId: messageId, commandName: commandName, message: 'inside callFetchDataObjectsWorker()'});
+var callFetchDataObjectsWorker = function (dataObjects, orgModelId) {
+    logger.debug({orgModelId, message: 'inside callFetchDataObjectsWorker()'});
     if (dataObjects instanceof Array && dataObjects.length>0) {
         var dataObjectNames = _.pluck(dataObjects, 'name');
         var dataObjectIndices = {
@@ -248,13 +282,12 @@ var callFetchDataObjectsWorker = function (dataObjects, payload, config, taskId,
             .then(function () {
                 if (dataObjectIndices.suppliers !== -1) {
                     logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
+                        orgModelId,
                         message: 'Calling fetch suppliers worker'
                     });
-                    var refinedPayload = preparePayloadForWorker(dataObjects[dataObjectIndices.suppliers], payload, messageId);
+                    // var refinedPayload = preparePayloadForWorker(dataObjects[dataObjectIndices.suppliers], payload, messageId);
                     var fetchIncrementalSuppliers = require('./../fetch-incremental-suppliers/fetch-incremental-suppliers');
-                    return fetchIncrementalSuppliers.run(refinedPayload, config, taskId, messageId);
+                    return fetchIncrementalSuppliers.run(vendConnectionInfo, orgModelId, dataObjects[dataObjectIndices.suppliers]);
                 }
                 else {
                     return Promise.resolve();
@@ -263,13 +296,11 @@ var callFetchDataObjectsWorker = function (dataObjects, payload, config, taskId,
             .then(function () {
                 if (dataObjectIndices.products !== -1) {
                     logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
+                        orgModelId,
                         message: 'Calling fetch products worker'
                     });
-                    var refinedPayload = preparePayloadForWorker(dataObjects[dataObjectIndices.products], payload, messageId);
                     var fetchIncrementalProducts = require('./../fetch-incremental-products/fetch-incremental-products');
-                    return fetchIncrementalProducts.run(refinedPayload, config, taskId, messageId);
+                    return fetchIncrementalProducts.run(vendConnectionInfo, orgModelId, dataObjects[dataObjectIndices.products]);
                 }
                 else {
                     return Promise.resolve();
@@ -278,13 +309,12 @@ var callFetchDataObjectsWorker = function (dataObjects, payload, config, taskId,
             .then(function () {
                 if (dataObjectIndices.inventory !== -1) {
                     logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
+                        orgModelId,
                         message: 'Calling fetch inventory worker'
                     });
-                    var refinedPayload = preparePayloadForWorker(dataObjects[dataObjectIndices.inventory], payload, messageId);
+                    // var refinedPayload = preparePayloadForWorker(dataObjects[dataObjectIndices.inventory], payload, messageId);
                     var fetchIncrementalSuppliers = require('./../fetch-incremental-inventory/fetch-incremental-inventory');
-                    return fetchIncrementalSuppliers.run(refinedPayload, config, taskId, messageId);
+                    return fetchIncrementalSuppliers.run(vendConnectionInfo, orgModelId, dataObjects[dataObjectIndices.inventory]);
                 }
                 else {
                     return Promise.resolve();
@@ -292,15 +322,14 @@ var callFetchDataObjectsWorker = function (dataObjects, payload, config, taskId,
             })
             .then(function () {
                 logger.debug({
-                    messageId: messageId,
+                    orgModelId,
                     commandName: commandName,
                     message: 'Will remove the sync models from database that aren\'t supported yet'
                 });
                 return Promise.map(dataObjects, function (eachDataObject) {
                     if (_.keys(dataObjectIndices).indexOf(eachDataObject.name) === -1) {
                         logger.debug({
-                            messageId: messageId,
-                            commandName: commandName,
+                            orgModelId,
                             message: `Removing ${eachDataObject.name}`
                         });
                         return db.collection('SyncModel').deleteOne({
@@ -309,7 +338,7 @@ var callFetchDataObjectsWorker = function (dataObjects, payload, config, taskId,
                                     name: eachDataObject.name,
                                 },
                                 {
-                                    orgModelId: ObjectId(payload.orgModelId)
+                                    orgModelId: ObjectId(orgModelId)
                                 }
                             ],
                         });
@@ -321,8 +350,7 @@ var callFetchDataObjectsWorker = function (dataObjects, payload, config, taskId,
             })
             .then(function (response) {
                 logger.debug({
-                    messageId: messageId,
-                    commandName: commandName,
+                    orgModelId,
                     message: 'Deleted the sync models that are not supported yet',
                     result: response.result
                 });
@@ -330,8 +358,7 @@ var callFetchDataObjectsWorker = function (dataObjects, payload, config, taskId,
             })
             .catch(function (error) {
                 logger.error({
-                    messageId: messageId,
-                    commandName: commandName,
+                    orgModelId,
                     message: 'Something went wrong while calling workers',
                     err: error
                 });
@@ -340,28 +367,28 @@ var callFetchDataObjectsWorker = function (dataObjects, payload, config, taskId,
     }
 };
 
-var preparePayloadForWorker = function (eachDataObject, payload, messageId) {
-    logger.debug({
-        messageId: messageId,
-        commandName: commandName,
-        message: 'inside preparePayloadForWorker()',
-        eachDataObject: eachDataObject
-    });
-    return {
-        tokenService: payload.tokenService,
-        clientId: payload.clientId,
-        clientSecret: payload.clientSecret,
-        tokenType: payload.tokenType,
-        accessToken: payload.accessToken,
-        refreshToken: payload.refreshToken,
-        domainPrefix: payload.domainPrefix,
-        loopbackServerUrl: payload.loopbackServerUrl,
-        loopbackAccessToken: payload.loopbackAccessToken,
-        versionsAfter: eachDataObject.versionsAfter,
-        versionsBefore: eachDataObject.versionsBefore,
-        orgModelId: payload.orgModelId
-    };
-};
+// var preparePayloadForWorker = function (eachDataObject, payload, messageId) {
+//     logger.debug({orgModelId,
+//         messageId: messageId,
+//         commandName: commandName,
+//         message: 'inside preparePayloadForWorker()',
+//         eachDataObject: eachDataObject
+//     });
+//     return {
+//         tokenService: payload.tokenService,
+//         clientId: payload.clientId,
+//         clientSecret: payload.clientSecret,
+//         tokenType: payload.tokenType,
+//         accessToken: payload.accessToken,
+//         refreshToken: payload.refreshToken,
+//         domainPrefix: payload.domainPrefix,
+//         loopbackServerUrl: payload.loopbackServerUrl,
+//         loopbackAccessToken: payload.loopbackAccessToken,
+//         versionsAfter: eachDataObject.versionsAfter,
+//         versionsBefore: eachDataObject.versionsBefore,
+//         orgModelId: payload.orgModelId
+//     };
+// };
 
 module.exports = {
     run: runMe

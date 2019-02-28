@@ -1,50 +1,39 @@
-var runMe = function (payload, config, taskId, messageId) {
+var runMe = function (vendConnectionInfo, orgModelId, dataObject) {
 
-    const logger = require('sp-json-logger');
+    const path = require('path');
+    const commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
+    const logger = require('sp-json-logger')({fileName: 'workers:workers-v2:' + commandName, orgModelId});
     var dbUrl = process.env.DB_URL;
-
     try {
         var utils = require('./../../jobs/utils/utils.js');
-        var path = require('path');
         var MongoClient = require('mongodb').MongoClient;
         var ObjectId = require('mongodb').ObjectID;
         var _ = require('underscore');
         var Promise = require('bluebird');
         var vendSdk = require('vend-nodejs-sdk')({}); // why the {}?
-        var vendConnectionInfo;
         var db = null; //database connected
         var incrementalProducts, productsToDelete, vendTags;
 
-        // Global variable for logging
-        var commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
-
-        logger.debug({
-            messageId: messageId,
-            commandName: commandName,
-            payload: payload,
-            config: config,
-            taskId: taskId,
-            argv: process.argv
-        });
-
         try {
-            process.env['User-Agent'] = taskId + ':' + messageId + ':' + commandName + ':' + payload.domainPrefix;
+            // process.env['User-Agent'] = taskId + ':' + messageId + ':' + commandName + ':' + payload.domainPrefix;
             logger.debug({
-                messageId: messageId,
-                commandName: commandName,
+                orgModelId,
                 message: 'This worker will fetch and save incremental products from vend to warehouse'
             });
-            return utils.savePayloadConfigToFiles(payload)
+            // return utils.savePayloadConfigToFiles(payload)
+            return Promise.resolve()
                 .then(function () {
-                    //TODO: remove these relative paths
-                    var nconf = require('./../../node_modules/nconf/lib/nconf');
-                    nconf.file('client', {file: 'config/client.json'})
-                    //.file('settings', { file: 'config/settings.json' }) // NOTE: useful for quicker testing
-                        .file('oauth', {file: 'config/oauth.json'});
-                    logger.debug({messageId: messageId, commandName: commandName, nconf: nconf.get()});
-                    vendConnectionInfo = utils.loadOauthTokens();
+                    /**
+                     //TODO: remove these relative paths
+                     var nconf = require('./../../node_modules/nconf/lib/nconf');
+                     nconf.file('client', {file: 'config/client.json'})
+                     //.file('settings', { file: 'config/settings.json' }) // NOTE: useful for quicker testing
+                     .file('oauth', {file: 'config/oauth.json'});
+                     logger.debug({orgModelId,messageId: messageId, commandName: commandName, nconf: nconf.get()});
+                     vendConnectionInfo = utils.loadOauthTokens();
+                     */
                     var argsForProducts = vendSdk.args.products.fetchAll();
-                    argsForProducts.after.value = payload.versionsAfter;
+                    argsForProducts.after.value = dataObject.versionsAfter;
                     argsForProducts.deleted.value = 1; //fetch all deleted products also
                     return vendSdk.products.fetchAll(argsForProducts, vendConnectionInfo);
                 })
@@ -57,18 +46,15 @@ var runMe = function (payload, config, taskId, messageId) {
                     });
                     incrementalProducts = _.difference(fetchedProducts, productsToDelete);
                     logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
+                        orgModelId,
                         message: `Found ${incrementalProducts.length} new products, will filter only required data from them`
                     });
                     logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
+                        orgModelId,
                         message: `Found ${productsToDelete.length} deleted products, will delete them from the database`
                     });
                     logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
+                        orgModelId,
                         message: 'Will go on to look for vend tags'
                     });
                     var argsForTags = vendSdk.args.tags.fetch();
@@ -76,8 +62,7 @@ var runMe = function (payload, config, taskId, messageId) {
                 })
                 .then(function (tags) {
                     logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
+                        orgModelId,
                         message: `Found ${tags.length} tags, will attach them to their products`
                     });
                     vendTags = tags;
@@ -85,24 +70,21 @@ var runMe = function (payload, config, taskId, messageId) {
                 })
                 .then(function (dbInstance) {
                     logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
+                        orgModelId,
                         message: 'Connected to mongodb database'
                     });
                     db = dbInstance;
                     logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
+                        orgModelId,
                         message: 'Will look for suppliers to attach to products'
                     });
                     return db.collection('SupplierModel').find({
-                        storeConfigModelId: ObjectId(payload.storeConfigModelId)
+                        orgModelId: ObjectId(orgModelId)
                     }).toArray();
                 })
                 .then(function (supplierModelInstances) {
                     logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
+                        orgModelId,
                         message: `Found ${supplierModelInstances.length} suppliers, will attach them to products`
                     });
 
@@ -150,11 +132,12 @@ var runMe = function (payload, config, taskId, messageId) {
                             tagsToAttach = tagsToAttach.substr(1, tagsToAttach.length);
                         }
                         batch.find({
+                            orgModelId: ObjectId(orgModelId),
                             api_id: eachProduct.id
                         }).upsert().updateOne({
                             $set: {
                                 name: eachProduct.name,
-                                supplierId: supplierModelToAttach ? supplierModelToAttach._id : null,
+                                supplierModelId: supplierModelToAttach ? supplierModelToAttach._id : null,
                                 supplierVendId: supplierModelToAttach ? supplierModelToAttach.api_id : null,
                                 supplierCode: eachProduct.supplier_code,
                                 sku: eachProduct.sku,
@@ -162,20 +145,21 @@ var runMe = function (payload, config, taskId, messageId) {
                                 supply_price: eachProduct.supply_price,
                                 api_id: eachProduct.id,
                                 tags: tagsToAttach,
-                                storeConfigModelId: ObjectId(payload.storeConfigModelId)
+                                orgModelId: ObjectId(orgModelId),
+                                updatedAt: new Date()
                             }
                         })
                     });
                     _.each(productsToDelete, function (eachProduct) {
                         batch.find({
+                            orgModelId: ObjectId(orgModelId),
                             api_id: eachProduct.id
                         }).remove({
                             api_id: eachProduct.id
                         })
                     });
                     logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
+                        orgModelId,
                         message: 'Attached suppliers and filtered product objects, will download them into database'
                     });
                     return batch.execute()
@@ -190,20 +174,18 @@ var runMe = function (payload, config, taskId, messageId) {
                         nRemoved: bulkInsertResponse.nRemoved
                     };
                     logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
+                        orgModelId,
                         message: 'Bulk insert operation complete',
                         result: result
                     });
                     logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
+                        orgModelId,
                         message: 'Will go on to update version no. in warehouse'
                     });
                     return db.collection('SyncModel').updateOne({
                             $and: [
                                 {
-                                    'storeConfigModelId': ObjectId(payload.storeConfigModelId)
+                                    'storeConfigModelId': ObjectId(orgModelId)
                                 },
                                 {
                                     'name': 'products'
@@ -212,8 +194,8 @@ var runMe = function (payload, config, taskId, messageId) {
                         },
                         {
                             $set: {
-                                'version': payload.versionsBefore,
-                                'syncInProcess': false,
+                                'version': dataObject.versionsBefore,
+                                // 'syncInProcess': false,
                                 'workerTaskId': '',
                                 'lastSyncedAt': new Date()
                             }
@@ -221,8 +203,7 @@ var runMe = function (payload, config, taskId, messageId) {
                 })
                 .then(function (response) {
                     logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
+                        orgModelId,
                         message: 'Saved new version number for products',
                         result: response ? response.result || response : ''
                     });
@@ -231,33 +212,32 @@ var runMe = function (payload, config, taskId, messageId) {
                 .catch(function (error) {
                     if (error === 'noIncrementalProducts') {
                         logger.error({
-                            messageId: messageId,
-                            commandName: commandName,
+                            orgModelId,
                             message: 'No new products found, will exit worker'
                         });
-                        if (db) {
-                            return db.collection('SyncModel').updateOne({
-                                    $and: [
-                                        {
-                                            'storeConfigModelId': ObjectId(payload.storeConfigModelId)
-                                        },
-                                        {
-                                            'name': 'products'
-                                        }
-                                    ],
-                                },
-                                {
-                                    $set: {
-                                        'syncInProcess': false,
-                                        'workerTaskId': '',
-                                        'lastSyncedAt': new Date()
-                                    }
-                                });
-                        }
+                        // if (db) {
+                        //     return db.collection('SyncModel').updateOne({
+                        //             $and: [
+                        //                 {
+                        //                     'storeConfigModelId': ObjectId(payload.storeConfigModelId)
+                        //                 },
+                        //                 {
+                        //                     'name': 'products'
+                        //                 }
+                        //             ],
+                        //         },
+                        //         {
+                        //             $set: {
+                        //                 'syncInProcess': false,
+                        //                 'workerTaskId': '',
+                        //                 'lastSyncedAt': new Date()
+                        //             }
+                        //         });
+                        // }
+                        return Promise.resolve();
                     }
                     logger.error({
-                        messageId: messageId,
-                        commandName: commandName,
+                        orgModelId,
                         message: 'Could not fetch and save products',
                         err: error
                     });
@@ -265,8 +245,7 @@ var runMe = function (payload, config, taskId, messageId) {
                 })
                 .then(function (response) {
                     logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
+                        orgModelId,
                         message: 'Updated sync model for products',
                         result: response ? response.result || response : ''
                     });
@@ -274,8 +253,7 @@ var runMe = function (payload, config, taskId, messageId) {
                 })
                 .finally(function () {
                     logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
+                        orgModelId,
                         message: 'Closing database connection'
                     });
                     if (db) {
@@ -285,8 +263,7 @@ var runMe = function (payload, config, taskId, messageId) {
                 })
                 .catch(function (error) {
                     logger.error({
-                        messageId: messageId,
-                        commandName: commandName,
+                        orgModelId,
                         message: 'Could not close db connection',
                         err: error
                     });
@@ -295,12 +272,12 @@ var runMe = function (payload, config, taskId, messageId) {
                 });
         }
         catch (e) {
-            logger.error({messageId: messageId, commandName: commandName, message: '2nd last catch block', err: e});
+            logger.error({orgModelId, message: '2nd last catch block', err: e});
             throw e;
         }
     }
     catch (e) {
-        logger.error({messageId: messageId, message: 'last catch block', err: e});
+        logger.error({orgModelId, message: 'last catch block', err: e});
         throw e;
     }
 };

@@ -459,24 +459,24 @@ function routeToWorker(payload, config, taskId, messageId, receiptHandle) {
                     return Promise.reject('Internal Server Error');
                 });
         }
-        else if (payload.op === 'findDifferentialVendData') {
-            logger.info({messageId: messageId, message: 'routed to findDifferentialVendData'});
-            var findDifferentialVendData = require('./workers-v2/find-differential-vend-data/find-differential-vend-data');
-            // return findDifferentialVendData.run(payload, config, taskId, messageId)
-            return findDifferentialVendData.run(payload, config, taskId, messageId)
-                .then(function () {
-                    logger.info({
-                        messageId: messageId,
-                        message: 'successfully finished fetching differential vend data'
-                    });
-                    return Promise.resolve(receiptHandle);
-                })
-                .catch(function (error) {
-                    // logger.error('[MessageId : ' + messageId + ']' + error);
-                    logger.error({err: error, messageId: messageId});
-                    return Promise.reject('Internal Server Error');
-                });
-        }
+        // else if (payload.op === 'findDifferentialVendData') {
+        //     logger.info({messageId: messageId, message: 'routed to findDifferentialVendData'});
+        //     var findDifferentialVendData = require('./workers-v2/find-differential-vend-data/find-differential-vend-data');
+        //     // return findDifferentialVendData.run(payload, config, taskId, messageId)
+        //     return findDifferentialVendData.run(payload, config, taskId, messageId)
+        //         .then(function () {
+        //             logger.info({
+        //                 messageId: messageId,
+        //                 message: 'successfully finished fetching differential vend data'
+        //             });
+        //             return Promise.resolve(receiptHandle);
+        //         })
+        //         .catch(function (error) {
+        //             // logger.error('[MessageId : ' + messageId + ']' + error);
+        //             logger.error({err: error, messageId: messageId});
+        //             return Promise.reject('Internal Server Error');
+        //         });
+        // }
         else if (payload.op === 'generateStockOrder') {
             //logger.info('[MessageId : '+messageId+']'+'routed to generateStockOrder');
             logger.tag('Routed').info({messageId: messageId, message: 'routed to generateStockOrder'});

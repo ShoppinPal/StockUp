@@ -68,33 +68,6 @@ module.exports = function (StoreConfigModel) {
         }
     };
 
-    StoreConfigModel.remoteMethod('getVendOutlets', {
-        accepts: [
-            {arg: 'id', type: 'string', required: true}
-        ],
-        http: {path: '/:id/vend/outlets', verb: 'get'},
-        returns: {arg: 'outlets', type: 'array', root: true}
-    });
-    StoreConfigModel.getVendOutlets = function (id, cb) {
-        var currentUser = StoreConfigModel.getCurrentUserModel(cb); // returns immediately if no currentUser
-
-        if (currentUser) {
-            var oauthVendUtil = require('./../../common/utils/vend')({
-                'GlobalConfigModel': StoreConfigModel.app.models.GlobalConfigModel,
-                'StoreConfigModel': StoreConfigModel,
-                'currentUser': currentUser
-            });
-            // TODO: use it for something real!
-            oauthVendUtil.getVendOutlets(id)
-                .then(function (outlets) {
-                        cb(null, outlets);
-                    },
-                    function (error) {
-                        cb(error);
-                    });
-        }
-    };
-
     StoreConfigModel.remoteMethod('getVendTaxes', {
         accepts: [
             {arg: 'id', type: 'string', required: true}

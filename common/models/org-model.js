@@ -797,6 +797,33 @@ module.exports = function (OrgModel) {
                 });
         };
 
+        OrgModel.remoteMethod('syncVendStores', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/syncVendStores', verb: 'get'},
+            returns: {arg: 'outlets', type: 'array', root: true}
+        });
+
+        OrgModel.syncVendStores = function (id, options, cb) {
+            logger.debug({
+                message: 'Will sync Vend stores',
+                options,
+                functionName: 'syncVendStores'
+            });
+            return OrgModel.app.models.SyncModel.syncVendStores(id, options)
+                .catch(function (error) {
+                    logger.error({
+                        message: 'Could not sync vend outlets',
+                        error,
+                        functionName: 'syncVendStores',
+                        options
+                    });
+                    return Promise.reject('Could not sync vend outlets');
+                });
+        };
+
         OrgModel.remoteMethod('fetchOrderRowCounts', {
             accepts: [
                 {arg: 'id', type: 'string', required: true},
@@ -806,7 +833,6 @@ module.exports = function (OrgModel) {
             http: {path: '/:id/fetchOrderRowCounts', verb: 'GET'},
             returns: {arg: 'rowCounts', type: 'object', root: true}
         });
-
         OrgModel.fetchOrderRowCounts = function (id, orderIds, options) {
             return OrgModel.app.models.ReportModel.fetchOrderRowCounts(orderIds, options)
                 .catch(function (error) {

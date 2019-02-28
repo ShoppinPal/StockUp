@@ -84,6 +84,11 @@
                         class="btn btn-primary"
                         (click)="syncMSDUsers()">Sync Users
                 </button>
+                <button type="button"
+                        *ngIf="integration.length && integration[0].type === 'vend'"
+                        class="btn btn-primary"
+                        (click)="syncVendUsers()">Sync Users
+                </button>
               </td>
             </tr>
             <tr>
@@ -96,6 +101,11 @@
                         [disabled]="!integration[0].dataAreaId"
                         class="btn btn-primary"
                         (click)="syncMSDStores()">Sync Stores
+                </button>
+                <button type="button"
+                        *ngIf="integration.length && integration[0].type === 'vend'"
+                        class="btn btn-primary"
+                        (click)="syncVendStores()">Sync Stores
                 </button>
               </td>
             </tr>
@@ -125,7 +135,7 @@
           Sync Data - Auto sync
         </div>
         <div class="card-body text-center">
-          <div class="form-group">
+          <div class="form-group" *ngIf="integration && integration[0].type=='msdynamics'">
             <div class="input-group">
               <input type="text"
                      class="form-control"
@@ -134,10 +144,10 @@
                      [(ngModel)]="integration[0].databaseName"
                      placeholder="Enter the database name">
               <span class="input-group-btn">
-                <button type="button"
-                        *ngIf="integration.length && integration[0].type === 'msdynamics' && !syncModels && integration[0].dataAreaId && !integration[0].databaseValid"
-                        class="btn btn-success"
-                        (click)="validateMSSQLDatabase()"> <i class="fa fa-refresh"></i> Validate Database
+                     <button type="button"
+                             *ngIf="integration.length && integration[0].type === 'msdynamics' && !syncModels && integration[0].dataAreaId && !integration[0].databaseValid"
+                             class="btn btn-success"
+                             (click)="validateMSSQLDatabase()"> <i class="fa fa-refresh"></i> Validate Database
                      </button>
                      <button type="button"
                              *ngIf="integration.length && integration[0].type === 'msdynamics' && !syncModels && integration[0].dataAreaId"

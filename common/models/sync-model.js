@@ -10,98 +10,103 @@ module.exports = function (SyncModel) {
 
     SyncModel.initiateVendSync = function (id, options) {
         logger.debug({
-            message: 'Will initiate vend sync',
+            message: 'Will initiate vend sync for org',
             options,
             functionName: 'initiateVendSync'
         });
         var syncModels = ['products', 'suppliers', 'inventory'];
         return Promise.map(syncModels, function (eachSyncModel) {
             return SyncModel.findOrCreate({
-                name: eachSyncModel,
-                orgModelId: id
+                where: {
+                    name: eachSyncModel,
+                    orgModelId: id
+                }
             }, {
                 name: eachSyncModel,
                 version: 0,
+                syncType: 'vend',
                 orgModelId: id,
                 syncInProcess: false,
-                lastSyncedAt: new Date()
+                lastSyncedAt: new Date(1970) // some old date so that sync-engine picks it up immediately
             });
         })
             .then(function (syncModels) {
                 logger.debug({
-                    message: 'Sync models created, will initiate their sync through workers now',
+                    message: 'Sync models created',
                     options,
                     syncModels,
                     functionName: 'initiateVendSync'
                 });
-                logger.debug({
-                    message: 'Will find organisation\'s vend integration details',
-                    functionName: 'initiateVendSync',
-                    options
-                });
-                return SyncModel.app.models.IntegrationModel.find({
-                    where: {
-                        orgModelId: id
-                    }
-                });
-            })
-            .then(function (integrationModels) {
-                if (!integrationModels.length) {
-                    logger.error({
-                        message: 'Organisation is not integrated with vend',
-                        functionName: 'initiateVendSync',
-                        options
-                    });
-                    return Promise.reject('Organisation is not integrated with vend');
-                }
-                else {
-                    var vendConfig = SyncModel.app.get('integrations').vend;
-                    var payload = {
-                        op: SyncModel.app.get('findDifferentialVendData'),
-                        tokenService: 'https://' + integrationModels[0].domain_prefix + vendConfig.token_service,
-                        clientId: vendConfig.client_id,
-                        clientSecret: vendConfig.client_secret,
-                        tokenType: integrationModels[0].token_type,
-                        accessToken: integrationModels[0].access_token,
-                        refreshToken: integrationModels[0].refresh_token,
-                        domainPrefix: integrationModels[0].domain_prefix,
-                        loopbackServerUrl: SyncModel.app.get('site').baseUrl || process.env['site:baseUrl'],
-                        loopbackAccessToken: options.accessToken, // let it be the full json object
-                        name: integrationModels[0].domain_prefix,
-                        vendDataObjects: syncModels,
-                        orgModelId: id
-                    };
-                    return workers.sendPayLoad(payload);
-                }
-            })
-            .then(function (response) {
-                logger.debug({
-                    message: 'Sent payload to worker to initiate sync, will update sync models with status',
-                    response,
-                    functionName: 'initiateVendSync',
-                    options
-                });
-                return Promise.map(syncModels, function (eachModel) {
-                    return SyncModel.updateAll({
-                        name: eachModel
-                    }, {
-                        syncInProcess: true,
-                        workerTaskId: response.MessageId
-                    });
-                });
-            })
-            .then(function (response) {
-                logger.debug({
-                    message: 'Updated syncInProgress for:',
-                    functionName: 'initiateVendSync',
-                    options,
-                    response
-                });
+                // logger.debug({
+                //     message: 'Will find organisation\'s vend integration details',
+                //     functionName: 'initiateVendSync',
+                //     options
+                // });
+                // return SyncModel.app.models.IntegrationModel.find({
+                //     where: {
+                //         orgModelId: id
+                //     }
+                // });
+            // })
+            // .then(function (integrationModels) {
+            //     if (!integrationModels.length) {
+            //         logger.error({
+            //             message: 'Organisation is not integrated with vend',
+            //             functionName: 'initiateVendSync',
+            //             options
+            //         });
+            //         return Promise.reject('Organisation is not integrated with vend');
+            //     }
+            //     else {
+            //         var vendConfig = SyncModel.app.get('integrations').vend;
+            //         var payload = {
+            //             op: SyncModel.app.get('findDifferentialVendData'),
+            //             tokenService: 'https://' + integrationModels[0].domain_prefix + vendConfig.token_service,
+            //             clientId: vendConfig.client_id,
+            //             clientSecret: vendConfig.client_secret,
+            //             tokenType: integrationModels[0].token_type,
+            //             accessToken: integrationModels[0].access_token,
+            //             refreshToken: integrationModels[0].refresh_token,
+            //             domainPrefix: integrationModels[0].domain_prefix,
+            //             loopbackServerUrl: SyncModel.app.get('site').baseUrl || process.env['site:baseUrl'],
+            //             loopbackAccessToken: options.accessToken, // let it be the full json object
+            //             name: integrationModels[0].domain_prefix,
+            //             vendDataObjects: syncModels,
+            //             orgModelId: id
+            //         };
+            //         return workers.sendPayLoad(payload);
+            //     }
+            // })
+            // .then(function (response) {
+            //     logger.debug({
+            //         message: 'Sent payload to worker to initiate sync, will update sync models with status',
+            //         response,
+            //         functionName: 'initiateVendSync',
+            //         options
+            //     });
+            //     return Promise.map(syncModels, function (eachModel) {
+            //         return SyncModel.updateAll({
+            //             name: eachModel
+            //         }, {
+            //             syncInProcess: true,
+            //             workerTaskId: response.MessageId
+            //         });
+            //     });
+            // })
+            // .then(function (response) {
+            //     logger.debug({
+            //         message: 'Updated syncInProgress for:',
+            //         functionName: 'initiateVendSync',
+            //         options,
+            //         response
+            //     });
+
                 return Promise.resolve();
             })
             .catch(function (error) {
                 // log('initiateSync').error('ERROR', error);
                 logger.error({
+                    message: 'Could not create sync models for Vend',
                     error,
                     options,
                     functionName: 'initiateVendSync'
@@ -431,4 +436,127 @@ module.exports = function (SyncModel) {
                 return Promise.reject('Could not create stores for org');
             });
     };
+
+    SyncModel.syncVendStores = function (id, options) {
+        logger.debug({
+            message: 'Will sync vend stores',
+            functionName: 'syncVendStores',
+            options
+        });
+        var vendUtils = require('./../../common/utils/vend')({OrgModel: SyncModel.app.models.OrgModel});
+        return vendUtils.getVendOutlets(id, options)
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not fetch vend stores',
+                    error,
+                    functionName: 'getVendOutlets',
+                    options
+                });
+            })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Fetched vend stores, will save to db',
+                    response,
+                    functionName: 'getVendOutlets',
+                    options
+                });
+                if (response && response.length) {
+                    return Promise.map(response, function (eachStore) {
+                        if(eachStore.email) {
+                            return SyncModel.app.models.StoreModel.findOrCreate({
+                                where: {
+                                    storeNumber: eachStore.id,
+                                    orgModelId: id
+                                }
+                            }, {
+                                name: eachStore.name,
+                                currency: eachStore.currency,
+                                storeNumber: eachStore.id,
+                                email: eachStore.email,
+                                orgModelId: id
+                            });
+                        }
+                    });
+                }
+                else {
+                    logger.error({
+                        message: 'Could not fetch any stores from vend',
+                        options,
+                        functionName: 'syncVendStores'
+                    });
+                    return Promise.reject('Could not fetch any stores from vend');
+                }
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not save stores to db',
+                    error,
+                    options,
+                    functionName: 'syncVendStores'
+                });
+                return Promise.reject('Could not save stores to db');
+            })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Saved stores to db, will create users for them',
+                    response,
+                    options,
+                    functionName: 'syncVendStores'
+                });
+                var usersToCreate = [];
+                for(var i = 0; i<response.length; i++) {
+                    if(response[i] && response[i][0].email) {
+                        usersToCreate.push({
+                            name: response[i][0].name,
+                            email: response[i][0].email,
+                            password: Math.random().toString(36).slice(-8),
+                            orgModelId: id,
+                            userId: response[i][0].email,
+                            storeModelId: response[i][0].objectId
+                        });
+                    }
+                }
+                logger.debug({
+                    message: 'Will create following users',
+                    usersToCreate,
+                    options,
+                    functionName: 'syncVendStores'
+                });
+                return Promise.map(usersToCreate, function (eachUser) {
+                    return SyncModel.app.models.UserModel.findOrCreate({
+                        where: {
+                            orgModelId: id,
+                            email: eachUser.email
+                        }
+                    }, eachUser);
+                });
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not save users to DB',
+                    error,
+                    options,
+                    functionName: 'syncVendStores'
+                });
+                return Promise.reject('Could not save users to DB');
+            })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Saved users to db',
+                    response,
+                    options,
+                    functionName: 'syncVendStores'
+                });
+                return Promise.resolve('Synced stores and created users');
+            });
+    };
+
+    SyncModel.syncVendSuppliers = function (id, options) {
+        logger.debug({
+            message: 'Will fetch suppliers from Vend',
+
+        })
+    };
+
+
 };
