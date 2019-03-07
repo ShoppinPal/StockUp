@@ -373,6 +373,12 @@
       "property": "fetchOrderRowCounts"
     },
     {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__get__supplierModels"
+    },
+    {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
       "principalId": "orgAdmin",
@@ -399,6 +405,20 @@
       "principalId": "orgAdmin",
       "permission": "ALLOW",
       "property": "updateOrgSettings"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "generateStockOrderVend"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "generateStockOrderVend"
     }
   ],
   "methods": {}

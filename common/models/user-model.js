@@ -40,7 +40,15 @@ module.exports = function (UserModel) {
                 options
             });
             UserModel.findById(id, {
-                include: ['roles', 'orgModel']
+                include: [
+                    'roles',
+                    {
+                        relation: 'orgModel',
+                        scope: {
+                            include: 'integrationModels'
+                        }
+                    }
+                ]
             })
                 .then(function (userModelInstance) {
                     logger.debug({
@@ -58,6 +66,7 @@ module.exports = function (UserModel) {
                         email: userModelInstance.email,
                         roles: roles,
                         userId: userModelInstance.id,
+                        integrationType: userModelInstance.orgModel().integrationModels().length ? userModelInstance.orgModel().integrationModels()[0].type : null,
                         orgModelId: userModelInstance.orgModelId
                     };
                     logger.debug({
@@ -138,7 +147,7 @@ module.exports = function (UserModel) {
                 })
                 .then(function (userModelInstance) {
                     var rolesToAssign = ['orgAdmin'];
-                            return UserModel.assignRoles(userModelInstance.id, rolesToAssign);
+                    return UserModel.assignRoles(userModelInstance.id, rolesToAssign);
                 })
                 .then(function (userModelInstance) {
                     logger.debug({

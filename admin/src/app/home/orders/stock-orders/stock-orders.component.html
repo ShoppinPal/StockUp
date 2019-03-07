@@ -9,13 +9,13 @@
         <div class="card-body">
           <div class="row">
             <div class="form-group col-sm-12">
-              <span>Select store: &nbsp;&nbsp;</span>
+              <span>Deliver To: &nbsp;&nbsp;</span>
               <select class="form-control" [(ngModel)]="selectedStoreId" id="storeName">
-                <option disabled="disabled" value="Select...">Select..</option>
+                <option disabled="disabled" value="">Select..</option>
                 <option *ngFor="let store of stores" [value]="store.objectId">{{store.name}}</option>
               </select>
             </div>
-            <div class="form-group col-sm-12">
+            <div class="form-group col-sm-12" *ngIf="userProfile.integrationType === 'msdynamics'">
               <span>Select Warehouse: &nbsp;&nbsp;</span>
               <select class="form-control" [(ngModel)]="selectedWarehouseId" id="warehouseName">
                 <option disabled="disabled" value="Select...">Select..</option>
@@ -23,8 +23,8 @@
                 </option>
               </select>
             </div>
-            <div class="form-group col-sm-12">
-              <span>Select category: </span>
+            <div class="form-group col-sm-12" *ngIf="userProfile.integrationType === 'msdynamics'">
+              <span>Select category (Optional) : </span>
               <input type="text"
                      class="form-control"
                      [(ngModel)]="searchCategoryText"
@@ -37,14 +37,49 @@
                      placeholder="Start typing to search for category"
               />
             </div>
+            <div class="form-group col-sm-12" *ngIf="userProfile.integrationType === 'vend'">
+              <span>Select Supplier (Optional) : </span>
+              <select class="form-control" [(ngModel)]="selectedSupplierId" id="supplierName" [disabled]="uploader.queue.length">
+                <option disabled="disabled" value="">Select..</option>
+                <option *ngFor="let supplier of suppliers" ng-if="" [value]="supplier.id">{{supplier.name}}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group col-sm-12" *ngIf="userProfile.integrationType === 'vend'">
+              <div class="input-group">
+                <span>Import from file: &nbsp;&nbsp;&nbsp;</span>
+                <input type="file" ng2FileSelect [uploader]="uploader" [disabled]="selectedSupplierId"/>
+              </div>
+            </div>
+            <div class="form-group col-sm-12" *ngIf="userProfile.integrationType === 'vend'">
+              <div class="input-group">
+                Create Sales for File Imports?
+                &nbsp;&nbsp;&nbsp;
+                <span>No</span>
+                &nbsp;&nbsp;&nbsp;
+                <label class="switch switch-3d switch-primary">
+                  <input type="checkbox"
+                         [(ngModel)]="createSales"
+                         class="switch-input">
+                  <span class="switch-label"></span>
+                  <span class="switch-handle"></span>
+                </label>
+                &nbsp;&nbsp;&nbsp;
+                <span>Yes</span>
+              </div>
+            </div>
+
           </div>
         </div>
         <div class="card-footer">
           <div class="row">
             <div class="col-sm-12">
               <span class="input-group-btn">
-                <button class="btn btn-primary" type="button"
+                <button class="btn btn-primary" type="button" *ngIf="userProfile.integrationType === 'msdynamics'"
                         (click)="generateStockOrder()">Generate stock order</button>
+                <button class="btn btn-primary" type="button" *ngIf="userProfile.integrationType === 'vend'"
+                        (click)="generateStockOrderVend()">Generate stock order</button>
               </span>
             </div>
           </div>

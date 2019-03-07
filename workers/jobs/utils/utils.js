@@ -3,10 +3,13 @@ var fs = require('fs');
 var Promise = require('bluebird');
 var moment = require('moment');
 var _ = require('underscore');
-var path = require('path');
 var vendSdk = require('vend-nodejs-sdk')({});
 var requestPromise = require('request-promise');
-const logger = require('sp-json-logger')();
+var ObjectId = require('mongodb').ObjectID;
+const path = require('path');
+const commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
+const logger = require('sp-json-logger')({fileName: 'workers:jobs:utils:' + commandName});
+
 const Slack = require('slack-node');
 
 var savePayloadConfigToFiles = function (payload) {
@@ -162,6 +165,126 @@ var notifyClient = function (taskPayload, taskConfig, notificationPayload) {
     }
 };
 
+var fetchVendToken = function (db, orgModelId, messageId) {
+    logger.debug({
+        message: 'Will refresh Vend token',
+        functionName: 'fetchVendToken',
+        messageId
+    });
+    var integrationModelInstance = null, token = null;
+    return db.collection('IntegrationModel').findOne({
+        orgModelId: ObjectId(orgModelId)
+    })
+        .catch(function (error) {
+            logger.error({
+                message: 'Could not find integrationModel for org',
+                error,
+                messageId,
+                orgModelId,
+                functionName: 'fetchVendToken'
+            });
+            return Promise.reject('Could not find integrationModel for org');
+        })
+        .then(function (response) {
+            integrationModelInstance = response;
+            logger.debug({
+                message: 'Found this integrationModel',
+                integrationModelInstance,
+                functionName: 'fetchVendToken'
+            });
+            if (integrationModelInstance) {
+                if (integrationModelInstance.expires<(Date.now() / 1000)) {
+                    logger.debug({
+                        message: 'Token expired, will refresh',
+                        tokenExpiredOn: integrationModelInstance.expires,
+                        functionName: 'fetchVendToken',
+                        messageId
+                    });
+                    let vendConfig = {
+                        token_service: process.env.VEND_TOKEN_SERVICE,
+                        client_id: process.env.VEND_CLIENT_ID,
+                        client_secret: process.env.VEND_CLIENT_SECRET
+                    };
+                    let tokenService = 'https://' + integrationModelInstance.domain_prefix + vendConfig.token_service;
+                    console.log('here', tokenService, vendConfig.client_id, vendConfig.client_secret, integrationModelInstance.refresh_token, integrationModelInstance.domain_prefix);
+                    return vendSdk.refreshAccessToken(tokenService, vendConfig.client_id, vendConfig.client_secret, integrationModelInstance.refresh_token, integrationModelInstance.domain_prefix);
+                }
+                else {
+                    logger.debug({
+                        message: 'Token not expired, will return the existing token',
+                        functionName: 'fetchVendToken',
+                        messageId
+                    });
+                    return Promise.resolve('tokenNotExpired');
+                }
+            }
+            else {
+                logger.error({
+                    message: 'Could not find any integrations for org',
+                    messageId,
+                    functionName: 'fetchVendToken'
+                });
+                return Promise.reject('Could not find any integrations for org');
+            }
+        })
+        .catch(function (error) {
+            logger.error({
+                errs: error,
+                message: 'Access token could not be refreshed',
+                functionName: 'fetchVendToken',
+                messageId
+            });
+            return Promise.reject('Access token could not be refreshed');
+        })
+        .then(function (res) {
+            if (res !== 'tokenNotExpired') {
+                token = res.access_token;
+                logger.debug({
+                    message: 'Will save the new access token to db',
+                    functionName: 'fetchVendToken',
+                    messageId
+                });
+                return db.collection('IntegrationModel').updateOne({
+                    orgModelId: ObjectId(orgModelId)
+                }, {
+                    $set: {
+                        access_token: res.access_token,
+                        refresh_token: res.refresh_token,
+                        expires: res.expires,
+                        expires_in: res.expires_in
+                    }
+                });
+            }
+            else {
+                return Promise.resolve('tokenNotExpired');
+            }
+        })
+        .catch(function (error) {
+            logger.error({
+                message: 'Could not update new access token to the db',
+                error,
+                functionName: 'fetchVendToken',
+                messageId
+            });
+            return Promise.reject('Could not update new access token to the db');
+        })
+        .then(function (response) {
+            if (response !== 'tokenNotExpired') {
+                logger.debug({
+                    message: 'Updated new token to db',
+                    response,
+                    functionName: 'fetchVendToken',
+                    messageId
+                });
+                return Promise.resolve(token);
+            }
+            else {
+                return integrationModelInstance.access_token;
+            }
+        });
+};
+
+
 function sendSlackMessage(title, message, success) {
     var color = 'good';
     var webhookUri = process.env.SLACK_NOTIFICATION_URL;
@@ -206,6 +329,7 @@ exports.savePayloadConfigToFiles = savePayloadConfigToFiles;
 exports.getAbsoluteFilename = getAbsoluteFilename;
 exports.loadOauthTokens = loadOauthTokens;
 exports.updateOauthTokens = updateOauthTokens;
+exports.fetchVendToken = fetchVendToken;
 exports.exportToJsonFileFormat = exportToJsonFileFormat;
 exports.notifyClient = notifyClient;
 exports.sendSlackMessage = sendSlackMessage;

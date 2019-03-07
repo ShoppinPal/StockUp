@@ -4,9 +4,10 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {Observable} from 'rxjs';
 import {ToastrService} from 'ngx-toastr';
 import {UserProfileService} from "../../../shared/services/user-profile.service";
-import {LoopBackAuth} from "../../../shared/lb-sdk/services/core/auth.service";
 import {TypeaheadMatch} from 'ngx-bootstrap';
 import {DatePipe} from '@angular/common';
+import {FileUploader} from 'ng2-file-upload';
+import {LoopBackConfig, LoopBackAuth} from "../../../shared/lb-sdk";
 
 @Component({
   selector: 'app-stock-orders',
@@ -23,12 +24,14 @@ export class StockOrdersComponent implements OnInit {
   public orders: Array<any>;
   public stores: Array<any> = [];
   public warehouses: Array<any> = [];
+  public suppliers: Array<any> = [];
   public totalOrders: number;
   public totalPages: number;
   public currentPage: number = 1;
   public ordersLimitPerPage: number = 10;
-  public selectedStoreId: string = "Select...";
+  public selectedStoreId: string = "";
   public selectedWarehouseId: string = "Select...";
+  public selectedSupplierId: string = "";
   public searchCategoryText: string;
   public typeaheadLoading: boolean;
   public typeaheadNoResults: boolean;
@@ -36,6 +39,8 @@ export class StockOrdersComponent implements OnInit {
   public categoriesListLimit: number = 7;
   public selectedCategoryId: string;
   public maxPageDisplay: number = 7;
+  public uploader: FileUploader;
+  public createSales: boolean = true;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -59,11 +64,21 @@ export class StockOrdersComponent implements OnInit {
           }
         }
         this.totalOrders = data.stockOrders.count;
+        this.suppliers = data.stockOrders.suppliers;
         this.totalPages = this.totalOrders / this.ordersLimitPerPage;
       },
       error => {
         console.log('error', error)
       });
+
+    let orderUploadUrl: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+      "/OrgModels/" + this.userProfile.orgModelId + "/importVendOrderFromFile";
+    this.uploader = new FileUploader({
+      url: orderUploadUrl,
+      autoUpload: false,
+      authToken: this.auth.getAccessTokenId(),
+      removeAfterUpload: true
+    });
 
     this.categoriesList = Observable.create((observer: any) => {
       // Runs on every search
@@ -150,6 +165,57 @@ export class StockOrdersComponent implements OnInit {
     };
     es.onerror = function (event) {
       toastr.error('Error in generating order');
+    }
+  };
+
+  generateStockOrderVend() {
+    if (!this.selectedStoreId) {
+      this.toastr.error('Select a store to deliver to');
+      return;
+    }
+    if (this.uploader.queue.length) {
+      console.log('uploading file...', this.uploader);
+      this.uploader.onBuildItemForm = (fileItem: any, form: any)=> {
+        form.append('storeModelId', this.selectedStoreId);
+      };
+      this.uploader.uploadAll();
+      this.uploader.onSuccessItem = (item: any, response: any, status: number, headers: any): any => {
+        this.loading = false;
+        this.toastr.info('Importing stock order from file...');
+      };
+      this.uploader.onErrorItem = (item: any, response: any, status: number, headers: any): any => {
+        this.loading = false;
+        console.log('Error uploading file');
+        console.log('response', response);
+        console.log('status', status);
+        this.toastr.error('Error importing stock order from file');
+      };
+    }
+    else if (this.selectedSupplierId) {
+      let url = '/api/OrgModels/' + this.userProfile.orgModelId + '/generateStockOrderVend?access_token=' + this.auth.getAccessTokenId() + '&type=json';
+      url += '&supplierModelId='+this.selectedSupplierId;
+      url += '&storeModelId='+this.selectedStoreId;
+      let EventSource = window['EventSource'];
+      let es = new EventSource(url);
+      let toastr = this.toastr;
+      toastr.info('Generating stock order...');
+      es.onmessage = function (event) {
+        es.close();
+        let response = JSON.parse(event.data);
+        if (response.success) {
+          toastr.success('Order generated');
+        }
+        else {
+          toastr.error('Error in generating order');
+        }
+      };
+      es.onerror = function (event) {
+        toastr.error('Error in generating order');
+      }
+    }
+    else {
+      this.toastr.error('Select a supplier or upload a file to generate order from');
+      return;
     }
   };
 

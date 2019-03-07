@@ -50,27 +50,27 @@
   },
   "GlobalConfigModel": {
     "dataSource": "db",
-    "public": true
+    "public": false
   },
   "StoreConfigModel": {
     "dataSource": "db",
-    "public": true
+    "public": false
   },
   "StoreModel": {
     "dataSource": "db",
-    "public": true
+    "public": false
   },
   "ReportModel": {
     "dataSource": "db",
-    "public": true
+    "public": false
   },
   "StockOrderLineitemModel": {
     "dataSource": "db",
-    "public": true
+    "public": false
   },
   "SupplierModel": {
     "dataSource": "db",
-    "public": true
+    "public": false
   },
   "container": {
     "dataSource": "storage",
@@ -98,7 +98,7 @@
   },
   "IntegrationModel": {
     "dataSource": "db",
-    "public": true
+    "public": false
   },
   "SalesModel": {
     "dataSource": "db",

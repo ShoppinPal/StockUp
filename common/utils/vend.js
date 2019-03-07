@@ -13,7 +13,7 @@ var fetchVendToken = function (orgModelId, options) {
     logger.debug({
         message: 'Will refresh Vend token',
         options,
-        functionName: 'refreshVendToken'
+        functionName: 'fetchVendToken'
     });
     var orgModelInstance = null, token = null;
     return OrgModel.findById(orgModelId, {
@@ -24,7 +24,7 @@ var fetchVendToken = function (orgModelId, options) {
                 message: 'Could not find orgModel',
                 options,
                 error,
-                functionName: 'refreshVendToken'
+                functionName: 'fetchVendToken'
             });
             return Promise.reject('Could not find orgModel');
         })
@@ -34,7 +34,7 @@ var fetchVendToken = function (orgModelId, options) {
                 message: 'Found this orgModel',
                 orgModelInstance,
                 options,
-                functionName: 'refreshVendToken'
+                functionName: 'fetchVendToken'
             });
             if (orgModelInstance.integrationModels().length) {
                 if (orgModelInstance.integrationModels()[0].expires<(Date.now() / 1000)) {
@@ -106,7 +106,7 @@ var fetchVendToken = function (orgModelId, options) {
                 logger.debug({
                     message: 'Updated new token to db',
                     response,
-                    functionName: 'refreshVendToken',
+                    functionName: 'fetchVendToken',
                     options
                 });
                 return Promise.resolve(token);

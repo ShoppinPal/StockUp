@@ -148,13 +148,58 @@
                 </tbody>
               </table>
 
-              <pagination [totalItems]="totalNotApprovedLineItems"
-                          [(ngModel)]="currentPageNotApproved"
-                          [maxSize]="maxPageDisplay"
-                          [rotate]="false"
-                          [boundaryLinks]="true"
-                          (pageChanged)="getNotApprovedStockOrderLineItems(lineItemsLimitPerPage, ($event.page - 1) * lineItemsLimitPerPage)"
-                          [itemsPerPage]="lineItemsLimitPerPage"></pagination>
+                <pagination [totalItems]="totalNotApprovedLineItems"
+                            [(ngModel)]="currentPageNotApproved"
+                            [maxSize]="maxPageDisplay"
+                            [rotate]="false"
+                            [boundaryLinks]="true"
+                            (pageChanged)="getNotApprovedStockOrderLineItems(lineItemsLimitPerPage, ($event.page - 1) * lineItemsLimitPerPage)"
+                            [itemsPerPage]="lineItemsLimitPerPage"></pagination>
+              </div>
+              <div class="col-sm-2">
+                <div class="selected-box">
+                  <div class="main-box" *ngIf="selectedBox">
+                    <div class="dropbox-qty">{{selectedBox.totalItems}}</div>
+                    <div *ngIf="!selectedBox.isOpen">
+                      <img src="./assets/img/img_closed_folder.png"
+                           class="box-closed"
+                           [ngClass]="{'box-disabled' : !selectedBox.isOpen}">
+                    </div>
+                    <div *ngIf="selectedBox.isOpen && selectedBox.totalItems > 0">
+                      <img src="./assets/img/img_open_folder.png">
+                    </div>
+                    <div *ngIf="selectedBox.isOpen && selectedBox.totalItems === 0"
+                         class="box-disabled">
+                      <img src="./assets/img/img_open_folder.png">
+                    </div>
+                    <div class="dropbox-name">{{selectedBox.boxName}}</div>
+                  </div>
+                </div>
+                <div class="add-box">
+                  <button class="btn btn-primary add-btn"
+                          (click)="addNewBox()" [disabled]="selectedBox || allProcessed">
+                    Add Box
+                  </button>
+                </div>
+                <!--<div class="main-box" ng-repeat="box in boxes" *ngIf="box !== selectedBox">
+                  <div class="dropbox-qty">{{box.totalItems}}</div>
+                  <div *ngIf="!box.isOpen">
+                    <img src="./assets/img/img_closed_folder.png"
+                         class="box-closed"
+                         [ngClass]="{'box-disabled' : !box.isOpen}">
+                  </div>
+                  <div *ngIf="box.isOpen && box.totalItems > 0" >
+                    <img src="./assets/img/img_open_folder.png">
+                  </div>
+                  <div *ngIf="box.isOpen && box.totalItems === 0"
+                       class="box-disabled">
+                    <img src="./assets/img/img_open_folder.png">
+                  </div>
+                  <div class="dropbox-name">{{box.boxName}}</div>
+                </div>-->
+
+
+              </div>
             </tab>
 
             <tab heading="Approved ({{totalApprovedLineItems}})">

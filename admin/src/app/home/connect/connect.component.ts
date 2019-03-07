@@ -55,7 +55,9 @@ export class ConnectComponent implements OnInit {
     this.orgModelApi.initiateVendSync(this.userProfile.orgModelId)
       .subscribe((data: any) => {
           console.log('vend sync', data);
+          this.syncModels = data.syncStatus;
           this.loading = false;
+          this.cd.markForCheck();
         },
         err => {
           this.loading = false;
@@ -150,14 +152,14 @@ export class ConnectComponent implements OnInit {
     this.loading = true;
     this.orgModelApi.syncVendStores(this.userProfile.orgModelId)
       .subscribe((data: any) => {
-        this.loading = false;
-        this.toastr.success('Synced stores successfully');
-      },
-      err => {
-        this.loading = false;
-        console.log('err', err);
-        this.toastr.error('Error in syncing stores');
-      });
+          this.loading = false;
+          this.toastr.success('Synced stores successfully');
+        },
+        err => {
+          this.loading = false;
+          console.log('err', err);
+          this.toastr.error('Error in syncing stores');
+        });
   }
 
   private saveCompany() {

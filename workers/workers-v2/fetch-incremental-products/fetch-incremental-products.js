@@ -2,7 +2,7 @@ var runMe = function (vendConnectionInfo, orgModelId, dataObject) {
 
     const path = require('path');
     const commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
-    const logger = require('sp-json-logger')({fileName: 'workers:workers-v2:' + commandName, orgModelId});
+    const logger = require('sp-json-logger')({fileName: 'workers:workers-v2:' + commandName});
     var dbUrl = process.env.DB_URL;
     try {
         var utils = require('./../../jobs/utils/utils.js');
@@ -185,7 +185,7 @@ var runMe = function (vendConnectionInfo, orgModelId, dataObject) {
                     return db.collection('SyncModel').updateOne({
                             $and: [
                                 {
-                                    'storeConfigModelId': ObjectId(orgModelId)
+                                    'orgModelId': ObjectId(orgModelId)
                                 },
                                 {
                                     'name': 'products'

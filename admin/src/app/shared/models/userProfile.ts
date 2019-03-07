@@ -11,6 +11,7 @@ export class UserProfile {
   private userId: string;
   private isAuthenticated: boolean;
   private orgModelId: string;
+  private integrationType: string;
 
   /**
    * Creates an instance of UserProfile.
@@ -24,6 +25,7 @@ export class UserProfile {
     this.roles = profile.roles || [];
     this.userId = profile.userId || null;
     this.orgModelId = profile.orgModelId || null;
+    this.integrationType = profile.integrationType || null;
   }
 
   public isUserAuthenticated(): boolean {

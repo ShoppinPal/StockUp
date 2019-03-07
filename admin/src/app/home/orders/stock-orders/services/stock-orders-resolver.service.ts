@@ -28,13 +28,15 @@ export class StockOrdersResolverService {
     let fetchOrders = Observable.combineLatest(
       this.orgModelApi.getReportModels(this.userProfile.orgModelId, filter),
       this.orgModelApi.countReportModels(this.userProfile.orgModelId),
-      this.orgModelApi.getStoreModels(this.userProfile.orgModelId)
+      this.orgModelApi.getStoreModels(this.userProfile.orgModelId),
+      this.orgModelApi.getSupplierModels(this.userProfile.orgModelId)
     );
     return fetchOrders.map((data: any) => {
         return {
           orders: data[0],
           count: data[1].count,
-          stores: data[2]
+          stores: data[2],
+          suppliers: data[3]
         };
       },
       err => {

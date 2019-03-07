@@ -477,18 +477,15 @@ function routeToWorker(payload, config, taskId, messageId, receiptHandle) {
         //             return Promise.reject('Internal Server Error');
         //         });
         // }
-        else if (payload.op === 'generateStockOrder') {
-            //logger.info('[MessageId : '+messageId+']'+'routed to generateStockOrder');
-            logger.tag('Routed').info({messageId: messageId, message: 'routed to generateStockOrder'});
-            var generateStockOrder = require('./workers-v2/generate-stock-order/generate-stock-order');
-            return generateStockOrder.run(payload, config, taskId, messageId)
+        else if (payload.op === 'generateStockOrderVend') {
+            logger.tag('Routed').info({messageId: messageId, message: 'routed to generateStockOrderVend'});
+            var generateStockOrderVend = require('./workers-v2/generate-stock-order/generate-stock-order-vend');
+            return generateStockOrderVend.run(payload, config, taskId, messageId)
                 .then(function () {
-                    //logger.debug('[MessageId : '+messageId+']'+'generated stock order successfully');
                     logger.debug({messageId: messageId, message: 'generated stock order successfully'});
                     return Promise.resolve(receiptHandle);
                 })
                 .catch(function (error) {
-                    //logger.error('[MessageId : '+messageId+']'+error);
                     logger.error({err: error, messageId: messageId});
                     return Promise.reject('Internal Server Error');
 

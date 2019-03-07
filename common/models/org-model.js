@@ -667,6 +667,62 @@ module.exports = function (OrgModel) {
                 });
         };
 
+        OrgModel.remoteMethod('generateStockOrderVend', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'storeModelId', type: 'string', required: true},
+                {arg: 'supplierModelId', type: 'string', required: true},
+                {arg: 'req', type: 'object', 'http': {source: 'req'}},
+                {arg: 'res', type: 'object', 'http': {source: 'res'}},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/generateStockOrderVend', verb: 'get'},
+            returns: {arg: 'data', type: 'ReadableStream', root: true}
+        });
+
+        OrgModel.generateStockOrderVend = function (id, storeModelId, supplierModelId, req, res, options) {
+            try {
+                res.connection.setTimeout(0);
+                if (!sseMap[options.accessToken.userId]) {
+                    var sse = new SSE(0);
+                    sse.init(req, res);
+                    sseMap[options.accessToken.userId] = sse;
+                    logger.debug({
+                        options,
+                        message: 'Created sse for user',
+                        functionName: 'generateStockOrderVend'
+                    });
+                }
+                else {
+                    sseMap[options.accessToken.userId].init(req, res);
+                    logger.debug({
+                        options,
+                        message: 'SSE exists for this user, will move on',
+                        functionName: 'generateStockOrderVend'
+                    });
+                }
+            }
+            catch (e) {
+                logger.error({
+                    e,
+                    options,
+                    message: 'Error creating SSE',
+                    functionName: 'generateStockOrderVend'
+                });
+            }
+            OrgModel.app.models.ReportModel.generateStockOrderVend(id, storeModelId, supplierModelId, options)
+                .catch(function (error) {
+                    logger.error({
+                        error,
+                        message: 'Could not initiate stock order generation',
+                        functionName: 'generateStockOrderVend',
+                        options
+                    });
+                    return Promise.reject('Could not initiate stock order generation');
+                });
+        };
+
+
         OrgModel.remoteMethod('sendWorkerStatus', {
             accepts: [
                 {arg: 'id', type: 'string', required: true},

@@ -70,7 +70,22 @@ var runMe = function (orgModelId, syncModels) {
 
                     logger.debug({
                         orgModelId,
-                        message: 'Connected to Mongo DB, will look for organisations\'s integration model Vend config',
+                        message: 'Connected to Mongo DB, will look fetch access token to connect to Vend',
+                    });
+                    return utils.fetchVendToken(db, orgModelId);
+                })
+                .catch(function (error) {
+                    logger.error({
+                        message: 'Could not fetch vend token',
+                        error,
+                        orgModelId
+                    });
+                    return Promise.reject('Could not fetch vend token');
+                })
+                .then(function(token) {
+                    logger.debug({
+                        message: 'Fetched new vend token, will look for organisation\'s integration model',
+                        orgModelId
                     });
                     return db.collection('IntegrationModel').findOne({
                         orgModelId: ObjectId(orgModelId)

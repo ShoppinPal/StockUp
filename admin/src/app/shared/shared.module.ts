@@ -7,19 +7,24 @@ import {TypeaheadModule} from 'ngx-bootstrap';
 import {AsideToggleDirective} from '../directives';
 import {LoadingModule} from 'ngx-loading';
 import {FormsModule} from '@angular/forms';
+import {FileUploadModule} from 'ng2-file-upload';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
-    LoadingModule
+    LoadingModule,
+    FileUploadModule,
+    TypeaheadModule
   ],
   declarations: [AsideToggleDirective],
   exports: [
     AsideToggleDirective,
     FormsModule,
     TypeaheadModule,
-    LoadingModule
+    LoadingModule,
+    TypeaheadModule,
+    FileUploadModule
   ]
 })
 

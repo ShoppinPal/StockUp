@@ -31,6 +31,9 @@ export class StockOrderDetailsComponent implements OnInit {
   public lineItemsLimitPerPage: number = 100;
   public creatingTransferOrder: boolean = false;
   public reportStates: any = constants.REPORT_STATES;
+  public isWarehouser: boolean = false;
+  public boxes: Array<any> = [];
+  public selectedBox = null;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -42,6 +45,23 @@ export class StockOrderDetailsComponent implements OnInit {
 
   ngOnInit() {
     this.userProfile = this._userProfileService.getProfileData();
+    // this.toastr.info('Add Box', 'Boxes', {
+    //   timeOut: 0,
+    //   extendedTimeOut: 0,
+    //   enableHtml: true,
+    //   tapToDismiss: false,
+    //   onActivateTick: true
+    // }).onTap.subscribe(() => {
+    //   this.addBox();
+    // });
+    this._userProfileService.hasAnyRole(['orgAdmin', 'warehouseManager'])
+      .subscribe((data: boolean)=> {
+          this.isWarehouser = true;
+          console.log('isWarehouser', data);
+        },
+        err => {
+          console.log('isWarehouser', err);
+        });
     this._route.data.subscribe((data: any) => {
         this.order = data.stockOrderDetails[0];
         this.getNotApprovedStockOrderLineItems();
@@ -52,7 +72,73 @@ export class StockOrderDetailsComponent implements OnInit {
       });
   }
 
+  /*addBox() {
+   this.toastr.clear();
+   this.toastr.success('Added box', '', {
+   timeOut: 0,
+   extendedTimeOut: 0,
+   enableHtml: true,
+   tapToDismiss: false
+   });
+
+
+   this.toastr.info('<span (click)="addBox()"><b>Add Box</b></span>', 'Boxes', {
+   timeOut: 0,
+   extendedTimeOut: 0,
+   enableHtml: true,
+   tapToDismiss: false,
+   onActivateTick: true
+   }).onTap.subscribe(() => {
+   this.addBox();
+   });
+   }*/
+
+  addNewBox() {
+    console.log('boxes', this.boxes);
+    let box = {
+      'boxNumber': this.boxes.length + 1,
+      'boxName': 'Box' + String(this.boxes.length + 1),
+      'totalItems': 0,
+      'isOpen': true
+    };
+    this.boxes.push(box);
+    this.selectedBox = this.boxes[this.boxes.length - 1];
+    console.log('selected', this.selectedBox);
+  }
+
+  closeBox() {
+    //box.isOpen = false;
+    this.selectedBox.isOpen = false;
+    this.selectedBox = null;
+    // this.toggleActiveBoxContents(false); // make sure that we go back to viewing unboxed products
+  };
+
+  // private displayBoxedContents = false;
+
+  /*toggleActiveBoxContents(beSpecific) {
+   if (beSpecific === true || beSpecific === false) {
+   this.displayBoxedContents = beSpecific;
+   }
+   else {
+   this.displayBoxedContents = !this.displayBoxedContents;
+   }
+
+   // TODO: update the JUMP-TO sidebar or completely delete it?
+   if (this.displayBoxedContents) {
+   var filterData1 = {'boxNumber': this.selectedBox.boxNumber};
+   this.itemsBeingViewed = $filter('filter')(this.allOrderedItems, filterData1);
+   this.itemsBeingViewed = $filter('orderBy')(this.itemsBeingViewed, ['binLocation', 'sku']);
+   }
+   else {
+   var filterData2 = {'state': '!boxed'};
+   this.itemsBeingViewed = $filter('filter')(this.orderedItems, filterData2);
+   this.itemsBeingViewed = $filter('orderBy')(this.itemsBeingViewed, ['binLocation', 'sku']);
+   }
+   };*/
+
+
   getApprovedStockOrderLineItems(limit?: number, skip?: number, productModelId?: string) {
+
     if (!(limit && skip)) {
       limit = 100;
       skip = 0;

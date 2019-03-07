@@ -101,7 +101,7 @@ module.exports = function (SyncModel) {
             //         response
             //     });
 
-                return Promise.resolve();
+                return Promise.resolve(syncModels.length);
             })
             .catch(function (error) {
                 // log('initiateSync').error('ERROR', error);

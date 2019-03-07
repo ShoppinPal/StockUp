@@ -1641,6 +1641,44 @@ module.exports = function (ReportModel) {
             });
     };
 
+    ReportModel.generateStockOrderVend = function (orgModelId, storeModelId, supplierModelId, options) {
+        logger.debug({
+            message: 'Will initiate worker to generate stock order for Vend',
+            storeModelId,
+            supplierModelId,
+            functionName: 'generateStockOrderVend',
+            options,
+        });
+        var payload = {
+            orgModelId: orgModelId,
+            storeModelId: storeModelId,
+            supplierModelId: supplierModelId,
+            loopbackAccessToken: options.accessToken,
+            op: 'generateStockOrderVend'
+        };
+        return workerUtils.sendPayLoad(payload)
+            .then(function (response) {
+                logger.debug({
+                    message: 'Sent generateStockOrderVend to worker',
+                    options,
+                    response,
+                    functionName: 'generateStockOrderVend'
+                });
+                return Promise.resolve('Stock order generation initiated');
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not send generateStockOrderVend to worker',
+                    options,
+                    error,
+                    functionName: 'generateStockOrderVend'
+                });
+                return Promise.reject('Error in creating stock order');
+            });
+    };
+
+
+
     ReportModel.createTransferOrderMSD = function (orgModelId, reportModelId, options) {
         logger.debug({
             message: 'Will initiate worker to create transfer order in MSD',
