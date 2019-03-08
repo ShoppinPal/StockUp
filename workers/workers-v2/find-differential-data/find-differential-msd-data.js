@@ -76,7 +76,7 @@ var runMe = function (orgModelId, syncModels) {
                         });
                         return Promise.reject('Could not fetch SQL server details for org');
                     }
-                    const sqlConfig = {
+                    const sqlConfig = new sql.ConnectionPool({
                         user: process.env.AZURE_SQL_USER,
                         password: process.env.AZURE_SQL_PASSWORD,
                         server: process.env.AZURE_SQL_SERVER, // You can use 'localhost\\instance' to connect to named instance
@@ -86,14 +86,15 @@ var runMe = function (orgModelId, syncModels) {
                         options: {
                             encrypt: true // Use this if you're on Windows Azure
                         }
-                    };
+                    });
                     logger.debug({
                         message: 'Found Organisation\'s integration details, Connecting to MS SQL on Azure',
                         commandName,
                         orgModelId,
                         integrationModel
                     });
-                    return sql.connect(sqlConfig);
+
+                    return sqlConfig.connect(sqlConfig);
                 })
                 .catch(function (error) {
                     logger.error({

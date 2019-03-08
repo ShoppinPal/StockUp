@@ -181,12 +181,16 @@ function fetchPaginatedInventorySums(sqlPool, orgModelId, pagesToFetch) {
                 //Add some operations to be executed
                 _.each(incrementalInventory, function (eachInventory, iteratee) {
                     var productModelToAttach = _.findWhere(productModelInstances, {api_id: eachInventory.ITEMID});
-                    batch.insert({
-                        inventoryDimId: eachInventory.INVENTDIMID,
-                        productModelId: productModelToAttach ? productModelToAttach._id : null,
-                        product_id: eachInventory.ITEMID,
-                        inventory_level: eachInventory.AVAILPHYSICAL,
-                        orgModelId: ObjectId(orgModelId)
+                    batch.find({
+                        inventoryDimId: eachInventory.INVENTDIMID
+                    }).upsert().updateOne({
+                        $set: {
+                            inventoryDimId: eachInventory.INVENTDIMID,
+                            productModelId: productModelToAttach ? productModelToAttach._id : null,
+                            product_id: eachInventory.ITEMID,
+                            inventory_level: eachInventory.PHYSICALINVENT,
+                            orgModelId: ObjectId(orgModelId)
+                        }
                     });
                     process.stdout.write('\033[0G');
                     process.stdout.write('Percentage completed: ' + Math.round((iteratee++ / incrementalInventory.length) * 100) + '%');

@@ -176,7 +176,7 @@ function fetchPaginatedInventoryDims(sqlPool, orgModelId, pagesToFetch) {
                 var batchCounter = 0, inventoryCounter = 0;
                 //Add some operations to be executed
                 _.each(incrementalInventory, function (eachInventory, iteratee) {
-                    var storeModelToAttach = _.findWhere(storeModelInstances, {storeNumber: eachInventory.INVENTSITEID || eachInventory.INVENTLOCATIONID || eachInventory.WMSLOCATIONID});
+                    var storeModelToAttach = _.findWhere(storeModelInstances, {storeNumber: eachInventory.INVENTSITEID});
                     batch.find({
                         inventoryDimId: eachInventory.INVENTDIMID
                     }).update({

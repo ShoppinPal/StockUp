@@ -360,13 +360,13 @@ function generateStockOrder(payload, config, taskId, messageId) {
             warehouseInventory = inventoryModelInstances;
             var skippedLineItems = [];
             for (var i = 0; i<storeInventory.length; i++) {
-                var correspondingWarehouseInventory = null;
+                var warehouseQuantityOnHand = null;
                 for (var j = 0; j<warehouseInventory.length; j++) {
                     if (warehouseInventory[j].productModelId.toString() === storeInventory[i].productModelId.toString()) {
-                        correspondingWarehouseInventory = warehouseInventory[j];
+                        warehouseQuantityOnHand += warehouseInventory[j].inventory_level;
                     }
                 }
-                if (!correspondingWarehouseInventory) {
+                if (!warehouseQuantityOnHand) {
                     skippedLineItems.push(storeInventory[i].productModelId);
                 }
                 else {
@@ -375,7 +375,7 @@ function generateStockOrder(payload, config, taskId, messageId) {
                         orderQuantity = storeInventory[i].reorder_point - storeInventory[i].inventory_level;
                     else
                         orderQuantity = storeInventory[i].reorder_point;
-                    orderQuantity = correspondingWarehouseInventory.inventory_level>orderQuantity ? orderQuantity : correspondingWarehouseInventory.inventory_level;
+                    orderQuantity = warehouseQuantityOnHand>orderQuantity ? orderQuantity : warehouseQuantityOnHand;
                     if (orderQuantity) {
                         lineItemsToOrder.push({
                             reportModelId: ObjectId(reportModel._id),
@@ -517,9 +517,9 @@ function optimiseQuantitiesByStorePriority(lineItemsToOrder, warehouseInventory,
                     return eachInventory.productModelId.toString() === groupedProductModelIDs[i].toString()
                 });
                 //find the one with the max quantities, because there are multiple references to same inventory in MSD's UAT data
-                var maxWarehouseInventoryQuantity = _.max(warehouseInventoryQuantity, function (eachInventory) {
-                    return eachInventory.inventory_level;
-                }).inventory_level;
+                var maxWarehouseInventoryQuantity = _.reduce(warehouseInventoryQuantity, function (memo, num) {
+                    return memo + num.inventory_level;
+                }, 0);
 
                 var totalQuantitiesOrderedByAllStores = _.reduce(sameSKUsGrouped[groupedProductModelIDs[i]], function (memo, num) {
                     return memo + num.originalOrderQuantity;

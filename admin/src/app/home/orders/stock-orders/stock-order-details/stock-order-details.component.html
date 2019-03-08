@@ -84,7 +84,7 @@
                 </tr>
                 </tbody>
               </table>
-              <ul class="pagination">
+              <ul class="pagination" *ngIf="notApprovedLineItems">
                 <li class="page-item" *ngFor="let lineItem of notApprovedLineItems | paginate: {itemsPerPage: lineItemsLimitPerPage,
                                                                  currentPage: currentPageNotApproved,
                                                                  totalItems: totalNotApprovedLineItems}">
@@ -125,7 +125,7 @@
                 </tr>
                 </tbody>
               </table>
-              <ul class="pagination">
+              <ul class="pagination" *ngIf="approvedLineItems">
                 <li class="page-item" *ngFor="let lineItem of approvedLineItems | paginate: {itemsPerPage: lineItemsLimitPerPage,
                                                                  currentPage: currentPageApproved,
                                                                  totalItems: totalApprovedLineItems}">
