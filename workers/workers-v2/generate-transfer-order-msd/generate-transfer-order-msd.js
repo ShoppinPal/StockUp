@@ -370,7 +370,10 @@ var runMe = function (payload, config, taskId, messageId) {
                         uri: utils.API_URL + '/api/OrgModels/' + orgModelId + '/sendWorkerStatus',
                         json: true,
                         headers: {
-                            'Authorization': payload.loopbackAccessToken.id
+                            'Authorization': payload.loopbackAccessToken.id,
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'Accept-Charset': 'UTF-8'
                         },
                         body: {
                             messageId: messageId,
@@ -382,7 +385,7 @@ var runMe = function (payload, config, taskId, messageId) {
                     };
                     logger.debug({
                         commandName: commandName,
-                        message: 'Generated stock order, will send the status to worker',
+                        message: 'Generated transfer order, will send the status to worker',
                         result,
                         messageId,
                         options
@@ -393,7 +396,7 @@ var runMe = function (payload, config, taskId, messageId) {
                     logger.error({
                         commandName: commandName,
                         message: 'Could not generate transfer order, will send the following status',
-                        err: error,
+                        reason: error,
                         messageId
                     });
                     var options = {

@@ -229,7 +229,7 @@ var runMe = function (orgModelId, syncModels) {
                         message: 'Closing SQL database connection',
                         orgModelId
                     });
-                    if (sql) {
+                    if (sqlPool) {
                         return sqlPool.close();
                     }
                     return Promise.resolve();

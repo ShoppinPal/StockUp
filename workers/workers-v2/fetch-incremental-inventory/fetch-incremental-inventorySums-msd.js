@@ -181,16 +181,12 @@ function fetchPaginatedInventorySums(sqlPool, orgModelId, pagesToFetch) {
                 //Add some operations to be executed
                 _.each(incrementalInventory, function (eachInventory, iteratee) {
                     var productModelToAttach = _.findWhere(productModelInstances, {api_id: eachInventory.ITEMID});
-                    batch.find({
-                        inventoryDimId: eachInventory.INVENTDIMID
-                    }).upsert().updateOne({
-                        $set: {
-                            inventoryDimId: eachInventory.INVENTDIMID,
-                            productModelId: productModelToAttach ? productModelToAttach._id : null,
-                            product_id: eachInventory.ITEMID,
-                            inventory_level: eachInventory.PHYSICALINVENT,
-                            orgModelId: ObjectId(orgModelId)
-                        }
+                    batch.insert({
+                        inventoryDimId: eachInventory.INVENTDIMID,
+                        productModelId: productModelToAttach ? productModelToAttach._id : null,
+                        product_id: eachInventory.ITEMID,
+                        inventory_level: eachInventory.PHYSICALINVENT,
+                        orgModelId: ObjectId(orgModelId)
                     });
                     process.stdout.write('\033[0G');
                     process.stdout.write('Percentage completed: ' + Math.round((iteratee++ / incrementalInventory.length) * 100) + '%');
@@ -212,8 +208,7 @@ function fetchPaginatedInventorySums(sqlPool, orgModelId, pagesToFetch) {
                 logger.debug({
                     commandName: commandName,
                     message: 'Bulk insert operation complete',
-                    nInserted: bulkInsertResponse.nInserted,
-                    nUpserted: bulkInsertResponse.nUpserted
+                    bulkInsertResponse
                 });
                 if (bulkInsertResponse !== 'noIncrementalInventory') {
                     logger.debug({

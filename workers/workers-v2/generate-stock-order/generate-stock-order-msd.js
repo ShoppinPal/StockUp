@@ -376,7 +376,7 @@ function generateStockOrder(payload, config, taskId, messageId) {
                     else
                         orderQuantity = storeInventory[i].reorder_point;
                     orderQuantity = warehouseQuantityOnHand>orderQuantity ? orderQuantity : warehouseQuantityOnHand;
-                    if (orderQuantity) {
+                    if (orderQuantity>0) {
                         lineItemsToOrder.push({
                             reportModelId: ObjectId(reportModel._id),
                             productModelId: ObjectId(storeInventory[i].productModelId),

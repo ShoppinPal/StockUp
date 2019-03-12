@@ -676,7 +676,7 @@ module.exports = function (OrgModel) {
                 {arg: 'options', type: 'object', http: 'optionsFromRequest'}
             ],
             http: {path: '/:id/sendWorkerStatus', verb: 'post'},
-            returns: {arg: 'data', type: 'ReadableStream', root: true}
+            returns: {arg: 'data', type: 'object', root: true}
         });
 
         OrgModel.sendWorkerStatus = function (id, userId, data, messageId, options, cb) {

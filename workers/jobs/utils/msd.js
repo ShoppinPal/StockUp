@@ -10,6 +10,7 @@ const MongoClient = require('mongodb').MongoClient;
 const ObjectId = require('mongodb').ObjectID;
 const _ = require('underscore');
 var http = require("https");
+const ODATA_MAX_BATCH_COUNT = 1000;
 
 var refreshMSDToken = function (db, orgModelId) {
     logger.debug({
@@ -301,7 +302,7 @@ var pushMSDDataInBatches = function (db, orgModelId, dataTable, data, options) {
                 'Content-Length: ###\n\n';
 
             for (var i = 0; i<data.length; i++) {
-                if (contentIDCounter === 10) {
+                if (contentIDCounter === ODATA_MAX_BATCH_COUNT) {
                     contentIDCounter = 0;
                     postBody += '--batch_1\n' +
                         'Content-Type: multipart/mixed; boundary=changeset_1\n' +
@@ -329,6 +330,7 @@ var pushMSDDataInBatches = function (db, orgModelId, dataTable, data, options) {
                     'OData-MaxVersion': '4.0',
                     'OData-Version': '4.0',
                     'Content-Type': 'multipart/mixed; boundary=batch_1',
+                    'Content-Length': Buffer.byteLength(postBody),
                     'Accept': 'application/json;odata.metadata=minimal',
                     'Accept-Charset': 'UTF-8',
                     'Authorization': integrationModel.token_type + ' ' + token,
@@ -367,45 +369,62 @@ var pushMSDDataInBatches = function (db, orgModelId, dataTable, data, options) {
 };
 
 function httpRequest(params, postData) {
-    return new Promise(function (resolve, reject) {
-        var req = http.request(params, function (res) {
-            // reject on bad status
-            if (res.statusCode<200 || res.statusCode>=300) {
-                console.log('error3', res);
-                return reject(new Error('statusCode=' + res.statusCode));
-            }
-            // cumulate data
-            var chunks = [];
-            res.on('data', function (chunk) {
-                chunks.push(chunk);
-            });
-            // resolve on end
-            res.on('end', function () {
-                try {
-                    var body = Buffer.concat(chunks);
-                }catch (e) {
-                    console.log('error1', e);
-                    reject(e);
+    try {
+        var chunkCounter = 1;
+        return new Promise(function (resolve, reject) {
+            var req = http.request(params, function (res) {
+                // reject on bad status
+                if (res.statusCode<200 || res.statusCode>=300) {
+                    console.log('error3', res);
+                    return reject(new Error('statusCode=' + res.statusCode));
                 }
-                resolve(body.toString());
+                // cumulate data
+                var chunks = [];
+                res.on('data', function (chunk) {
+                    logger.debug({
+                        message: 'Received a chunk',
+                        functionName: 'httpRequest',
+                        chunkCounter
+                    });
+                    chunks.push(chunk);
+                    chunkCounter++;
+                });
+                // resolve on end
+                res.on('end', function () {
+                    logger.debug({
+                        message: 'Batch response ended',
+                        functionName: 'httpRequest'
+                    });
+                    try {
+                        var body = Buffer.concat(chunks);
+                    }catch (e) {
+                        console.log('error1', e);
+                        reject(e);
+                    }
+                    resolve(body.toString());
+                });
             });
+            // reject on request error
+            req.on('error', function (err) {
+                // This is not a "Second reject", just a different sort of failure
+                console.log('error2', err);
+                reject(err);
+            });
+            if (postData) {
+                req.write(postData);
+            }
+            // IMPORTANT
+            req.end();
         });
-        // reject on request error
-        req.on('error', function (err) {
-            // This is not a "Second reject", just a different sort of failure
-            console.log('error2', err);
-            reject(err);
-        });
-        if (postData) {
-            req.write(postData);
-        }
-        // IMPORTANT
-        req.end();
-    });
+    }
+    catch (e) {
+        console.log('err', e);
+        reject(e);
+    }
 }
 
 module.exports = {
     refreshMSDToken: refreshMSDToken,
     pushMSDData: pushMSDData,
     pushMSDDataInBatches: pushMSDDataInBatches
-}
+};
