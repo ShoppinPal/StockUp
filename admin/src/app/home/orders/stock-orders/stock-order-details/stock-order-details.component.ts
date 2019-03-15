@@ -22,6 +22,7 @@ export class StockOrderDetailsComponent implements OnInit {
   public notApprovedLineItems: Array<any>;
   public totalApprovedLineItems: number;
   public totalNotApprovedLineItems: number;
+  public searchSKUText: string;
   // public totalPages: number;
   public currentPageApproved: number = 1;
   public currentPageNotApproved: number = 1;
@@ -80,7 +81,7 @@ export class StockOrderDetailsComponent implements OnInit {
       });
   }
 
-  getNotApprovedStockOrderLineItems(limit?: number, skip?: number) {
+  getNotApprovedStockOrderLineItems(limit?: number, skip?: number, sku?: string) {
     if (!(limit && skip)) {
       limit = 100;
       skip = 0;
@@ -91,7 +92,14 @@ export class StockOrderDetailsComponent implements OnInit {
         reportModelId: this.order.id,
         approved: false
       },
-      include: 'productModel',
+      include: {
+        relation: 'productModel',
+        scope: {
+          where: {
+            api_id: sku
+          }
+        }
+      },
       limit: limit,
       skip: skip
     };

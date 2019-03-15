@@ -41,6 +41,44 @@
   </div><!--/.row-->
 
   <div class="row">
+    <div class="col-sm-12">
+      <div class="card">
+        <div class="card-header">
+          <strong>Search products</strong>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-12">
+              <div class="form-group">
+                <div class="input-group">
+                  <input type="text"
+                         class="form-control"
+                         id="searchSKU"
+                         [(ngModel)]="searchSKUText"
+                         placeholder="Scan SKU barcode here or enter text">
+                  <span class="input-group-btn">
+                    <button class="btn btn-primary" type="button"
+                            (click)="getNotApprovedStockOrderLineItems('','',searchSKUText)">
+                      <i class="fa fa-search"></i> Search
+                    </button>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div><!--/.row-->
+        </div>
+        <div class="card-footer">
+          <div class="row">
+            <div class="col-sm-6">
+              <button type="button" class="btn btn-link" (click)="searchSKUText='';getNotApprovedStockOrderLineItems()">Clear All Searches</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!--/.col-->
+  </div><!--/.row-->
+
+  <div class="row">
     <div class="col-lg-12">
       <div class="card">
         <div class="card-header">
@@ -64,23 +102,30 @@
                 </thead>
                 <tbody>
                 <tr *ngFor="let lineItem of notApprovedLineItems">
-                  <td>
-                    {{lineItem.productModel.name}}
-                    <br/>
-                    <small>({{lineItem.productModel.sizeId}} : {{lineItem.productModel.colorId}} : {{lineItem.productModel.styleId}} : {{lineItem.productModel.configurationId}})</small>
-                  </td>
-                  <td>{{lineItem.productModel.api_id}}</td>
-                  <td>
-                    <i class="fa fa-minus-circle quantity-icon text-danger" (click)="lineItem.orderQuantity = lineItem.orderQuantity - 1"></i>
-                    <input type="number" class="input-order-quantity" [(ngModel)]="lineItem.orderQuantity"/>
-                    <i class="fa fa-plus-circle quantity-icon text-success" (click)="lineItem.orderQuantity = lineItem.orderQuantity + 1"></i>
-                  </td>
-                  <td>{{lineItem.storeInventory}}</td>
-                  <td>
-                    <button class="btn btn-danger" type="submit" (click)="updateLineItems(lineItem, {approved: true, orderQuantity: lineItem.orderQuantity})">
-                      <i class="fa fa-save"></i> Approve
-                    </button>
-                  </td>
+                  <ng-container *ngIf="lineItem.productModel">
+                    <td>
+                      {{lineItem.productModel.name}}
+                      <br/>
+                      <small>({{lineItem.productModel.sizeId}} : {{lineItem.productModel.colorId}} :
+                        {{lineItem.productModel.styleId}} : {{lineItem.productModel.configurationId}})
+                      </small>
+                    </td>
+                    <td>{{lineItem.productModel.api_id}}</td>
+                    <td>
+                      <i class="fa fa-minus-circle quantity-icon text-danger"
+                         (click)="lineItem.orderQuantity = lineItem.orderQuantity - 1"></i>
+                      <input type="number" class="input-order-quantity" [(ngModel)]="lineItem.orderQuantity"/>
+                      <i class="fa fa-plus-circle quantity-icon text-success"
+                         (click)="lineItem.orderQuantity = lineItem.orderQuantity + 1"></i>
+                    </td>
+                    <td>{{lineItem.storeInventory}}</td>
+                    <td>
+                      <button class="btn btn-danger" type="submit"
+                              (click)="updateLineItems(lineItem, {approved: true, orderQuantity: lineItem.orderQuantity})">
+                        <i class="fa fa-save"></i> Approve
+                      </button>
+                    </td>
+                  </ng-container>
                 </tr>
                 </tbody>
               </table>
@@ -110,7 +155,9 @@
                   <td>
                     {{lineItem.productModel.name}}
                     <br/>
-                    <small>({{lineItem.productModel.sizeId}} : {{lineItem.productModel.colorId}} : {{lineItem.productModel.styleId}} : {{lineItem.productModel.configurationId}})</small>
+                    <small>({{lineItem.productModel.sizeId}} : {{lineItem.productModel.colorId}} :
+                      {{lineItem.productModel.styleId}} : {{lineItem.productModel.configurationId}})
+                    </small>
                   </td>
                   <td>{{lineItem.productModel.api_id}}</td>
                   <td>
