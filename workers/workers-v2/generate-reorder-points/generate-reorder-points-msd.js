@@ -113,116 +113,70 @@ module.exports = {
 };
 
 function calculateMinMax(orgModelId, storeModelId, messageId) {
-    logger.debug({
-        message: 'Will calculate min/max for the following store',
-        storeModelId,
-        orgModelId,
-        commandName
-    });
-    logger.debug({
-        message: 'Looking for inventory models of the store',
-        storeModelId,
-        orgModelId,
-        commandName
-    });
-    return db.collection('InventoryModel').find({
-        storeModelId: ObjectId(storeModelId)
-    }).toArray()
-        .catch(function (error) {
-            logger.error({
-                message: 'Could not find the inventory model instances of the store, will exit',
-                error,
-                commandName,
-                orgModelId,
-                storeModelId
-            });
-            return Promise.reject(error);
-        })
-        .then(function (inventoryModelInstances) {
-            logger.debug({
-                message: 'Found inventory model instances, will calculate reorder points for all of them',
-                count: inventoryModelInstances.length,
-                commandName,
-                storeModelId,
-                orgModelId
-            });
-            var averageDailyDemand = {};
-            return Promise.map(inventoryModelInstances, function (eachInventoryModelInstance) {
-                var product, category;
+    try {
 
-                logger.debug({
-                    message: 'Average daily demand does not exist for inventory, will look for product model instances for the inventory',
-                    eachInventoryModelInstance,
-                    commandName
+        var inventoryModelInstancesToCalculate = [], productModels, salesModels;
+        logger.debug({
+            message: 'Will calculate min/max for the following store',
+            storeModelId,
+            orgModelId,
+            commandName
+        });
+        logger.debug({
+            message: 'Looking for inventory models of the store',
+            storeModelId,
+            orgModelId,
+            commandName
+        });
+        return db.collection('InventoryModel').find({
+            storeModelId: ObjectId(storeModelId)
+        }).toArray()
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not find the inventory model instances of the store, will exit',
+                    error,
+                    commandName,
+                    orgModelId,
+                    storeModelId
                 });
-                return db.collection('ProductModel').findOne({
-                    _id: ObjectId(eachInventoryModelInstance.productModelId)
-                })
-                    .catch(function (error) {
-                        logger.error({
-                            message: 'Could not find product model for the inventory, will skip the product',
-                            error,
-                            commandName
-                        });
-                        return Promise.reject('Skipping inventory ID ' + eachInventoryModelInstance._id);
-                    })
-                    .then(function (productModelInstance) {
-                        if(productModelInstance){
-                            product = productModelInstance;
-                            logger.debug({
-                                message: 'Found product model instance for inventory, will look for its category model',
-                                productModelInstance,
-                                commandName
-                            });
-                            return db.collection('CategoryModel').findOne({
-                                _id: ObjectId(productModelInstance.categoryModelId)
-                            });
-                        }
-                        else {
-                            return Promise.reject('Could not find product model for the inventory, will skip the product');
-                        }
-                    })
-                    .catch(function (error) {
-                        logger.error({
-                            message: 'Could not find a category for the product, will skip MDQ and shelf capacities',
-                            error,
-                            commandName,
-                            product,
-                            inventoryId: eachInventoryModelInstance._id
-                        });
-                        return Promise.resolve();
-                    })
-                    .then(function (categoryModelInstance) {
-                        if(categoryModelInstance) {
-                            category = categoryModelInstance;
-                            logger.debug({
-                                message: 'Found category model instance for product',
-                                product,
-                                categoryModelInstance,
-                                commandName
-                            });
-                        }
-                        else {
-                            logger.debug({
-                                message: 'Found no category model for product',
-                                inventoryId: eachInventoryModelInstance._id,
-                                commandName,
-                                messageId
-                            });
-                        }
-                        logger.debug({
-                            message: 'Will look for all sales data of the inventory',
-                                inventoryId: eachInventoryModelInstance._id,
-                                commandName,
-                                messageId
-                        });
-                        return db.collection('SalesLineItemsModel').find({
+                return Promise.reject(error);
+            })
+            .then(function (inventoryModelInstances) {
+                    logger.debug({
+                        message: 'Found inventory model instances, will fetch products and sales history',
+                        count: inventoryModelInstances.length,
+                        commandName,
+                        storeModelId,
+                        orgModelId
+                    });
+                    var productModelIds = [];
+
+
+                    productModelIds = _.pluck(_.find(inventoryModelInstances, function (eachInventory) {
+                        return eachInventory.standardDeviationCalculationDate &&
+                            eachInventory.standardDeviationCalculationDate.getDate() === TODAYS_DATE.getDate() &&
+                            eachInventory.standardDeviationCalculationDate.getMonth() === TODAYS_DATE.getMonth() &&
+                            eachInventory.standardDeviationCalculationDate.getYear() === TODAYS_DATE.getYear();
+                    }), 'productModelId');
+
+                    if (!productModelIds.length) {
+                        return Promise.resolve([0, 0]);
+                    }
+                    return Promise.all([
+                        db.collection('ProductModel').find({
+                            _id: {
+                                $in: productModelIds
+                            }
+                        }).toArray(),
+                        db.collection('SalesLineItemsModel').find({
                             $and: [
                                 {
                                     storeModelId: ObjectId(storeModelId)
                                 },
                                 {
-                                    productModelId: ObjectId(eachInventoryModelInstance.productModelId)
+                                    productModelId: {
+                                        $in: productModelIds
+                                    }
                                 },
                                 {
                                     salesDate: {
@@ -230,144 +184,206 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                                     }
                                 }
                             ]
-                        }).sort({
-                            salesDate: 1
-                        })
-                            .toArray();
-                    })
-                    .catch(function (error) {
-                        logger.error({
-                            message: 'Could not find the sales model instances for this inventory',
-                            error,
-                            eachInventoryModelInstance,
-                            commandName
-                        });
-                        return Promise.resolve('Could not find the sales model instances for this inventory, will move on');
-                    })
-                    .then(function (salesModelInstances) {
-                        logger.debug({
-                            message: 'Found sales models for the inventory',
-                            count: salesModelInstances.length,
-                            eachInventoryModelInstance,
-                            commandName,
-                            firstSale: salesModelInstances[0]
-                        });
+                        }).toArray()
+                    ]);
+                }
+            )
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not find product and sales models',
+                    error,
+                    messageId
+                });
+                return Promise.reject('Could not find product and sales models');
+            })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Found sales and product models, will look for category models',
+                    productCount: response[0].length,
+                    salesCount: response[1].length,
+                    messageId
+                });
+                productModels = response[0];
+                salesModels = response[1];
+                var categoryModelIds = [];
+                for (var i = 0; i<response[0].length; i++) {
+                    categoryModelIds.push(ObjectId(response[0][i].categoryModelId));
+                }
+                categoryModelIds = _.uniq(categoryModelIds);
+                return db.collection('CategoryModel').find({
+                    _id: {
+                        $in: categoryModelIds
+                    }
+                }).toArray();
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not find category models',
+                    error,
+                    messageId
+                });
+                return Promise.reject('Could not find category models');
+            })
+            .then(function (categoryModelInstances) {
+                logger.debug({
+                    message: 'Found category models',
+                    count: categoryModelInstances.length,
+                    messageId
+                });
+                var batch = db.collection('InventoryModel').initializeUnorderedBulkOp();
 
-                        if (salesModelInstances.length) {
-                            // if reorder point for the inventory hasn't been generated yet, then generate it from scratch
-                            // if (!inventoryModelInstances.averageDailyDemand) { //TODO: do this part later
-                                var totalQuantitiesSoldPerDate = {};
-                                var totalQuantitiesSold = 0;
-                                var totalNumberOfDaysSinceFirstSold;
-                                for (var i = 0; i<salesModelInstances.length; i++) {
-                                    totalQuantitiesSold += salesModelInstances[i].quantity || 1;
-                                    if (!totalQuantitiesSoldPerDate[salesModelInstances[i].salesDate]) {
-                                        totalQuantitiesSoldPerDate[salesModelInstances[i].salesDate] = salesModelInstances[i].quantity || 1;
-                                    }
-                                    else {
-                                        totalQuantitiesSoldPerDate[salesModelInstances[i].salesDate] += salesModelInstances[i].quantity || 1;
-                                    }
-                                }
-                                var millisecondsPerDay = 24 * 60 * 60 * 1000;
-                                totalNumberOfDaysSinceFirstSold = Math.round((TODAYS_DATE - new Date(salesModelInstances[0].salesDate)) / millisecondsPerDay);
-                                averageDailyDemand = totalQuantitiesSold / totalNumberOfDaysSinceFirstSold;
-                                var standardDeviation;
-                                var averageMinusValueSquareSummation = 0; //sigma of (x minus x bar)^2
-                                var arrayOfDatesOfSales = Object.keys(totalQuantitiesSoldPerDate);
-                                for (var i = 0; i<arrayOfDatesOfSales.length; i++) {
-                                    averageMinusValueSquareSummation += Math.pow(totalQuantitiesSoldPerDate[arrayOfDatesOfSales[i]] - averageDailyDemand, 2);
-                                }
-                                for (var i = 0; i<totalNumberOfDaysSinceFirstSold - arrayOfDatesOfSales.length; i++) {
-                                    averageMinusValueSquareSummation += Math.pow(0 - averageDailyDemand, 2);
-                                }
-                                standardDeviation = Math.pow(averageMinusValueSquareSummation / totalNumberOfDaysSinceFirstSold, 0.5);
-                                //tempMin is not of much use here, since we are considering a periodic replenishment system of 1 week for each store
-                                var tempMin = LEAD_TIME_IN_DAYS * (averageDailyDemand + standardDeviation) + (CSL_MULTIPLIER * standardDeviation * Math.pow(LEAD_TIME_IN_DAYS, 0.5));
-                                var tempMax = (LEAD_TIME_IN_DAYS + REVIEW_TIME_IN_DAYS) * (averageDailyDemand + standardDeviation) + (CSL_MULTIPLIER * standardDeviation * Math.pow((LEAD_TIME_IN_DAYS + REVIEW_TIME_IN_DAYS), 0.5));
-                                var MIN, MAX;
-                                if (category.min && category.min[storeModelId]>=0 && category.max && category.max[storeModelId]>=0) {
-                                    MIN = category.min[storeModelId]>tempMin ? category.min[storeModelId] : tempMin;
-                                    MAX = (tempMax + category.min[storeModelId])<category.max[storeModelId] ? (tempMax + category.min[storeModelId]) : category.max[storeModelId];
-                                }
-                                else {
-                                    MIN = tempMin;
-                                    MAX = tempMax;
-                                }
-                                logger.debug({
-                                    totalQuantitiesSoldPerDate,
-                                    arrayOfDatesOfSales,
-                                    MDQ: category.min[storeModelId],
-                                    MaxShelfCapacity: category.max[storeModelId],
-                                    averageMinusValueSquareSummation,
-                                    totalQuantitiesSold,
-                                    totalNumberOfDaysSinceFirstSold,
-                                    commandName,
-                                    storeModelId,
-                                    orgModelId,
-                                    averageDailyDemand,
-                                    standardDeviation,
-                                    inventoryModelId: eachInventoryModelInstance._id,
-                                    tempMax,
-                                    tempMin,
-                                    MAX,
-                                    MIN,
-                                    productName: product.name,
-                                    sku: product.sku
-                                });
-                                return db.collection('InventoryModel').updateOne({
-                                    _id: ObjectId(eachInventoryModelInstance._id)
-                                }, {
-                                    $set: {
-                                        averageDailyDemand: averageDailyDemand,
-                                        standardDeviation: standardDeviation,
-                                        averageDailyDemandCalculationDate: new Date(),
-                                        standardDeviationCalculationDate: new Date(),
-                                        reorder_point: MAX ? Math.round(MAX) : Math.round(tempMax), //reorder quantities to this point
-                                        reorder_threshold: MIN ? Math.round(MIN) : Math.round(tempMin), //reorder quantities if product below this level
-                                    }
-                                });
-                            // }
-                            // if reorder point has already been generated, then calculate new reorder point based on previous data
-                            // else {
-                            //     logger.debug({
-                            //         message: 'Standard deviation has already been calculated earlier, will calculate incremental Standard deviation',
-                            //         inventoryModelId: eachInventoryModelInstance._id,
-                            //         commandName
-                            //     });
-                            //
-                            //
-                            // }
-                        }
-                        else {
-                            logger.debug({
-                                message: 'There is no previous sales data available, will move on to next one',
-                                eachInventoryModelInstance
-                            });
-                            return Promise.resolve();
-                        }
-                    })
-                    .catch(function (error) {
-                        logger.error({
-                            message: 'Could not update average daily demand and standard deviation for inventory, will move on to next one',
-                            inventoryModelId: eachInventoryModelInstance._id,
-                            commandName,
-                            error
-                        });
-                        return Promise.resolve('Could not update average daily demand and standard deviation for inventory, will move on to next one');
-                    })
-                    .then(function (result) {
-                        logger.debug({
-                            message: 'Updated Average Daily Demand, Standard Deviation and Reorder points for inventory',
-                            inventoryModelId: eachInventoryModelInstance._id,
-                            commandName
-                        });
-                        return Promise.resolve('Updated reorder point for inventory ' + eachInventoryModelInstance._id);
+                var salesGroupedByProducts = _.groupBy(salesModels, 'productModelId');
+
+                var batchCounter = 0;
+                return Promise.map(productModels, function (eachProductModel, i) {
+
+                    var totalQuantitiesSold = 0;
+                    var totalQuantitiesSoldPerDate = {};
+                    var totalNumberOfDaysSinceFirstSold;
+
+                    var correspondingCategoryModel = categoryModelInstances.find(function (eachCategoryModel) {
+                        return eachCategoryModel._id.toString() == eachProductModel.categoryModelId.toString();
                     });
 
+                    var productSales = salesGroupedByProducts[eachProductModel._id];
 
-            }, {
-                concurrency: 10
+                    if (productSales) {
+                        var firstSale = productSales[0].salesDate;
+
+                        for (var j = 0, jLen = productSales.length; j<jLen; j++) {
+                            firstSale = productSales[j].salesDate<firstSale ? productSales[j].salesDate : firstSale;
+                            totalQuantitiesSold += productSales[j].quantity;
+                            if (!totalQuantitiesSoldPerDate[productSales[j].salesDate]) {
+                                totalQuantitiesSoldPerDate[productSales[j].salesDate] = productSales[j].quantity;
+                            }
+                            else {
+                                totalQuantitiesSoldPerDate[productSales[j].salesDate] += productSales[j].quantity;
+                            }
+                        }
+
+                        var millisecondsPerDay = 24 * 60 * 60 * 1000;
+                        totalNumberOfDaysSinceFirstSold = Math.round((TODAYS_DATE - new Date(firstSale)) / millisecondsPerDay);
+                        var averageDailyDemand = totalQuantitiesSold / totalNumberOfDaysSinceFirstSold;
+                        var standardDeviation;
+                        var averageMinusValueSquareSummation = 0; //sigma of (x minus x bar)^2
+                        var arrayOfDatesOfSales = Object.keys(totalQuantitiesSoldPerDate);
+                        for (var j = 0; j<arrayOfDatesOfSales.length; j++) {
+                            averageMinusValueSquareSummation += Math.pow(totalQuantitiesSoldPerDate[arrayOfDatesOfSales[j]] - averageDailyDemand, 2);
+                        }
+                        for (var j = 0; j<totalNumberOfDaysSinceFirstSold - arrayOfDatesOfSales.length; j++) {
+                            averageMinusValueSquareSummation += Math.pow(0 - averageDailyDemand, 2);
+                        }
+                        standardDeviation = Math.pow(averageMinusValueSquareSummation / totalNumberOfDaysSinceFirstSold, 0.5);
+                        //tempMin is not of much use here, since we are considering a periodic replenishment system of 1 week for each store
+                        var tempMin = LEAD_TIME_IN_DAYS * (averageDailyDemand + standardDeviation) + (CSL_MULTIPLIER * standardDeviation * Math.pow(LEAD_TIME_IN_DAYS, 0.5));
+                        var tempMax = (LEAD_TIME_IN_DAYS + REVIEW_TIME_IN_DAYS) * (averageDailyDemand + standardDeviation) + (CSL_MULTIPLIER * standardDeviation * Math.pow((LEAD_TIME_IN_DAYS + REVIEW_TIME_IN_DAYS), 0.5));
+                        var MIN, MAX, MDQ, maxShelfCapacity;
+                        if (correspondingCategoryModel &&
+                            correspondingCategoryModel.min &&
+                            correspondingCategoryModel.min[storeModelId]>=0 &&
+                            correspondingCategoryModel.max &&
+                            correspondingCategoryModel.max[storeModelId]>=0) {
+                            MDQ = correspondingCategoryModel.min[storeModelId];
+                            maxShelfCapacity = correspondingCategoryModel.max[storeModelId];
+                            MIN = MDQ>tempMin ? MDQ : tempMin;
+                            MAX = (tempMax + MDQ)<correspondingCategoryModel.max[storeModelId] ? (tempMax + MDQ) : maxShelfCapacity;
+                        }
+                        else {
+                            MIN = tempMin;
+                            MAX = tempMax;
+                        }
+                        logger.debug({
+                            totalQuantitiesSoldPerDate,
+                            arrayOfDatesOfSales,
+                            MDQ: MDQ,
+                            MaxShelfCapacity: maxShelfCapacity,
+                            averageMinusValueSquareSummation,
+                            totalQuantitiesSold,
+                            totalNumberOfDaysSinceFirstSold,
+                            commandName,
+                            storeModelId,
+                            orgModelId,
+                            averageDailyDemand,
+                            standardDeviation,
+                            productModelId: eachProductModel._id,
+                            tempMax,
+                            tempMin,
+                            MAX,
+                            MIN,
+                            productNumber: (i + 1) + '/' + productModels.length,
+                            productName: eachProductModel.name,
+                            sku: eachProductModel.sku
+                        });
+
+                        batch.find({
+                            productModelId: ObjectId(eachProductModel._id),
+                            storeModelId: ObjectId(storeModelId)
+                        }).update({
+                            $set: {
+                                averageDailyDemand: averageDailyDemand,
+                                standardDeviation: standardDeviation,
+                                averageDailyDemandCalculationDate: new Date(),
+                                standardDeviationCalculationDate: new Date(),
+                                reorder_point: MAX ? Math.round(MAX) : Math.round(tempMax), //reorder quantities to this point
+                                reorder_threshold: MIN ? Math.round(MIN) : Math.round(tempMin), //reorder quantities if product below this level
+                            }
+                        });
+                        batchCounter++;
+                    }
+                    else {
+                        logger.debug({
+                            message: 'There is no previous sales data available, will move on to next one',
+                            product: eachProductModel._id,
+                            inventoryNumber: (i + 1) + '/' + productModels.length
+                        });
+                        batch.find({
+                            productModelId: ObjectId(eachProductModel._id),
+                            storeModelId: ObjectId(storeModelId)
+                        }).update({
+                            $set: {
+                                averageDailyDemandCalculationDate: new Date(),
+                                standardDeviationCalculationDate: new Date()
+                            }
+                        });
+                    }
+                    if (batchCounter === 1000) {
+                        logger.debug({
+                            message: 'Executing batch of 1000 products',
+                            messageId
+                        });
+                        return batch.execute()
+                            .then(function (result) {
+                                batchCounter = 0;
+                                batch = db.collection('InventoryModel').initializeUnorderedBulkOp();
+                                return Promise.resolve(result);
+                            });
+                    }
+                    else {
+                        return Promise.resolve();
+                    }
+
+                }, {
+                    concurrent: 1000
+                });
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not update reorder points',
+                    error,
+                    messageId
+                });
+                return Promise.reject('Could not update reorder points');
+            })
+            .then(function (result) {
+                logger.debug({
+                    message: 'Calculated reorder points',
+                    messageId,
+                    result
+                });
+                return Promise.resolve('Calculated reorder points');
             });
-
-        })
+    }
+    catch (e) {
+        throw new Error(e);
+    }
 }
