@@ -146,7 +146,8 @@ function fetchPaginatedSales(sqlPool, orgModelId, pagesToFetch) {
     if (pagesToFetch>0) {
         return sqlPool.request()
             .input('sales_per_page', sql.Int, SALES_PER_PAGE)
-            .query('SELECT TOP (@sales_per_page) * FROM ' + SALES_TABLE)
+            .input('transfer_pending_state', sql.Int, 0)
+            .query('SELECT TOP (@sales_per_page) * FROM ' + SALES_TABLE + ' WHERE STOCKUPTRANSFER = @transfer_pending_state')
             .then(function (result) {
                 incrementalSales = result.recordset;
                 logger.debug({
@@ -223,7 +224,9 @@ function fetchPaginatedSales(sqlPool, orgModelId, pagesToFetch) {
                 });
                 return sqlPool.request()
                     .input('sales_per_page', sql.Int, SALES_PER_PAGE)
-                    .query('DELETE TOP (@sales_per_page) FROM ' + SALES_TABLE);
+                    .input('transfer_pending_state', sql.Int, 0)
+                    .input('transfer_success_state', sql.Int, 1)
+                    .query('UPDATE TOP (@sales_per_page) ' + SALES_TABLE + ' SET STOCKUPTRANSFER = @transfer_success_state WHERE STOCKUPTRANSFER = @transfer_pending_state ');
             })
             .then(function (result) {
                 logger.debug({

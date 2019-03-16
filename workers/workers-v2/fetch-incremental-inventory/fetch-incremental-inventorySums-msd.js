@@ -147,7 +147,8 @@ function fetchPaginatedInventorySums(sqlPool, orgModelId, pagesToFetch) {
     if (pagesToFetch>0) {
         return sqlPool.request()
             .input('inventory_per_page', sql.Int, INVENTORY_PER_PAGE)
-            .query('SELECT TOP (@inventory_per_page) * FROM ' + INVENTORY_SUM_TABLE)
+            .input('transfer_pending_state', sql.Int, 0)
+            .query('SELECT TOP (@inventory_per_page) * FROM ' + INVENTORY_SUM_TABLE + ' WHERE STOCKUPTRANSFER = @transfer_pending_state')
             .then(function (result) {
                 incrementalInventory = result.recordset;
                 logger.debug({
@@ -181,13 +182,29 @@ function fetchPaginatedInventorySums(sqlPool, orgModelId, pagesToFetch) {
                 //Add some operations to be executed
                 _.each(incrementalInventory, function (eachInventory, iteratee) {
                     var productModelToAttach = _.findWhere(productModelInstances, {api_id: eachInventory.ITEMID});
-                    batch.insert({
-                        inventoryDimId: eachInventory.INVENTDIMID,
-                        productModelId: productModelToAttach ? productModelToAttach._id : null,
-                        product_id: eachInventory.ITEMID,
-                        inventory_level: eachInventory.PHYSICALINVENT,
-                        orgModelId: ObjectId(orgModelId)
-                    });
+
+                    if(productModelToAttach) {
+                        batch.find({
+                            inventoryDimId: eachInventory.INVENTDIMID,
+                            productModelId: ObjectId(productModelToAttach._id)
+                        }).upsert().update({
+                            $set: {
+                                inventoryDimId: eachInventory.INVENTDIMID,
+                                productModelId: productModelToAttach ? productModelToAttach._id : null,
+                                product_id: eachInventory.ITEMID,
+                                inventory_level: eachInventory.PHYSICALINVENT,
+                                orgModelId: ObjectId(orgModelId)
+                            }
+                        });
+                    }
+                    else {
+                        logger.debug({
+                            message: 'Product model not found for inventory',
+                            eachInventory,
+                            orgModelId
+                        });
+                    }
+
                     process.stdout.write('\033[0G');
                     process.stdout.write('Percentage completed: ' + Math.round((iteratee++ / incrementalInventory.length) * 100) + '%');
                     inventoryCounter++;
@@ -216,7 +233,9 @@ function fetchPaginatedInventorySums(sqlPool, orgModelId, pagesToFetch) {
                     });
                     return sqlPool.request()
                         .input('inventory_per_page', sql.Int, INVENTORY_PER_PAGE)
-                        .query('DELETE TOP (@inventory_per_page) FROM ' + INVENTORY_SUM_TABLE)
+                        .input('transfer_pending_state', sql.Int, 0)
+                        .input('transfer_success_state', sql.Int, 1)
+                        .query('UPDATE TOP (@inventory_per_page) ' + INVENTORY_SUM_TABLE + ' SET STOCKUPTRANSFER = @transfer_success_state WHERE STOCKUPTRANSFER = @transfer_pending_state ');
                 }
                 else {
                     return Promise.resolve('noIncrementalInventory');

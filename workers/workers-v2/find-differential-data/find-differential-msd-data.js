@@ -117,15 +117,13 @@ var runMe = function (orgModelId, syncModels) {
                         commandName,
                         orgModelId
                     });
-                    return sqlPool.request()
-                        .query('SELECT SCHEMA_NAME(schema_id) AS [SchemaName], ' +
-                            '[Tables].name AS [TableName], ' +
-                            'SUM([Partitions].[rows]) AS [TotalRowCount] ' +
-                            'FROM sys.tables AS [Tables] ' +
-                            'JOIN sys.partitions AS [Partitions] ' +
-                            'ON [Tables].[object_id] = [Partitions].[object_id] ' +
-                            'AND [Partitions].index_id IN ( 0, 1 ) ' +
-                            'GROUP BY SCHEMA_NAME(schema_id), [Tables].name;');
+
+                    return Promise.map(syncModels, function (eachSyncModel) {
+                        return sqlPool.request()
+                            .input('transfer_pending_state', sql.Int, 0)
+                            .input('table_name', sql.VarChar, eachSyncModel.tableName)
+                            .query('SELECT @table_name as TableName, COUNT(*) as TotalRowCount FROM ' + eachSyncModel.tableName + ' WHERE STOCKUPTRANSFER = @transfer_pending_state');
+                    });
                 })
                 .then(function (tableRows) {
                     logger.debug({
@@ -134,7 +132,6 @@ var runMe = function (orgModelId, syncModels) {
                         commandName,
                         orgModelId
                     });
-                    tableRows = tableRows.recordsets[0];
 
                     /**
                      * Logic to find which data object versions have changed since
@@ -143,10 +140,10 @@ var runMe = function (orgModelId, syncModels) {
                      */
                     var incrementalSyncModels = [];
                     for (var i = 0; i<tableRows.length; i++) {
-                        if (tableRows[i].TotalRowCount>0) {
+                        if (tableRows[i].recordset[0].TotalRowCount>0) {
                             for (var j = 0; j<syncModels.length; j++) {
-                                if (syncModels[j].tableName === tableRows[i].TableName) {
-                                    syncModels[j].rowCount = tableRows[i].TotalRowCount;
+                                if (syncModels[j].tableName === tableRows[i].recordset[0].TableName) {
+                                    syncModels[j].rowCount = tableRows[i].recordset[0].TotalRowCount;
                                     incrementalSyncModels.push(syncModels[j]);
                                 }
                             }
