@@ -174,22 +174,23 @@ function fetchPaginatedInventoryDims(sqlPool, orgModelId, pagesToFetch) {
                 });
                 //Initialize the array of unordered batches
                 var batch = db.collection('InventoryModel').initializeUnorderedBulkOp();
-                var batchCounter = 0, inventoryCounter = 0;
+                var inventoryCounter = 0;
                 //Add some operations to be executed
                 _.each(incrementalInventory, function (eachInventory, iteratee) {
+
                     var storeModelToAttach = _.findWhere(storeModelInstances, {storeNumber: eachInventory.INVENTSITEID});
-                    if(storeModelToAttach) {
+                    if (storeModelToAttach) {
                         batch.find({
                             inventoryDimId: eachInventory.INVENTDIMID,
-                            storeModelId: ObjectId(storeModelToAttach._id),
-                        }).update({
+                        }).upsert().update({
                             $set: {
                                 inventoryDimId: eachInventory.INVENTDIMID,
-                                storeModelId: storeModelToAttach ? storeModelToAttach._id : null,
+                                storeModelId: storeModelToAttach ? ObjectId(storeModelToAttach._id) : null,
                                 outlet_id: eachInventory.INVENTSITEID,
                                 orgModelId: ObjectId(orgModelId)
                             }
                         });
+                        inventoryCounter++;
                     }
                     else {
                         logger.debug({
@@ -198,16 +199,13 @@ function fetchPaginatedInventoryDims(sqlPool, orgModelId, pagesToFetch) {
                             orgModelId
                         });
                     }
-                    process.stdout.write('\033[0G');
-                    process.stdout.write('Percentage completed: ' + Math.round((iteratee++ / incrementalInventory.length) * 100) + '%');
-                    inventoryCounter++;
                 });
                 logger.debug({
                     commandName: commandName,
                     message: `Batch of inventory ready`,
                     pagesToFetch
                 });
-                if (incrementalInventory.length) {
+                if (inventoryCounter) {
                     return batch.execute();
                 }
                 else {
@@ -220,7 +218,7 @@ function fetchPaginatedInventoryDims(sqlPool, orgModelId, pagesToFetch) {
                     message: 'Bulk insert operation complete',
                     bulkInsertResponse
                 });
-                if (bulkInsertResponse !== 'noIncrementalInventory') {
+                // if (bulkInsertResponse !== 'noIncrementalInventory') {
                     logger.debug({
                         message: 'Will delete the inserted/updated inventory from Azure SQL',
                         commandName
@@ -229,11 +227,11 @@ function fetchPaginatedInventoryDims(sqlPool, orgModelId, pagesToFetch) {
                         .input('inventory_per_page', sql.Int, INVENTORY_PER_PAGE)
                         .input('transfer_pending_state', sql.Int, 0)
                         .input('transfer_success_state', sql.Int, 1)
-                        .query('UPDATE TOP (@inventory_per_page) ' + INVENTORY_DIM_TABLE+' SET STOCKUPTRANSFER = @transfer_success_state WHERE STOCKUPTRANSFER = @transfer_pending_state');
-                }
-                else {
-                    return Promise.resolve('noIncrementalInventory');
-                }
+                        .query('UPDATE TOP (@inventory_per_page) ' + INVENTORY_DIM_TABLE + ' SET STOCKUPTRANSFER = @transfer_success_state WHERE STOCKUPTRANSFER = @transfer_pending_state');
+                // }
+                // else {
+                //     return Promise.resolve('noIncrementalInventory');
+                // }
             })
             .then(function (result) {
                 logger.debug({

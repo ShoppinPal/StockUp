@@ -256,7 +256,6 @@ function generateStockOrder(payload, config, taskId, messageId) {
                 commandName,
                 messageId
             });
-            // return Promise.resolve();
             var generateReorderPointsMSD = require('./../generate-reorder-points/generate-reorder-points-msd');
             return generateReorderPointsMSD.run(payload, config, taskId, messageId);
         })
@@ -360,7 +359,13 @@ function generateStockOrder(payload, config, taskId, messageId) {
             warehouseInventory = inventoryModelInstances;
             var skippedLineItems = [];
             for (var i = 0; i<storeInventory.length; i++) {
-                var warehouseQuantityOnHand = null;
+
+                var warehouseQuantityOnHand = 0;
+                // var warehouseQuantityOnHand = _.reduce(warehouseInventory, function (memo, num) {
+                //     return memo + num.inventory_level;
+                // }, 0);
+
+
                 for (var j = 0; j<warehouseInventory.length; j++) {
                     if (warehouseInventory[j].productModelId.toString() === storeInventory[i].productModelId.toString()) {
                         warehouseQuantityOnHand += warehouseInventory[j].inventory_level;
@@ -499,16 +504,17 @@ function optimiseQuantitiesByStorePriority(lineItemsToOrder, warehouseInventory,
             return Promise.reject('Could not find same SKUs ordered today for other stores');
         })
         .then(function (alreadyOrderedLineItems) {
+            var alreadyOrderedStores = _.uniq(_.pluck(alreadyOrderedLineItems, 'storeModelId'));
+            var alreadyOrderedProductIds = _.uniq(_.pluck(alreadyOrderedLineItems, 'productModelId'));
             logger.debug({
                 message: 'These items already exist on another order generated today',
                 count: alreadyOrderedLineItems.length,
-                stores: _.pluck(alreadyOrderedLineItems, 'storeModelId'),
-                productIds: _.pluck(alreadyOrderedLineItems, 'productModelId'),
+                alreadyOrderedStores,
+                alreadyOrderedProductIds,
                 commandName,
                 messageId
             });
             alreadyOrderedLineItems = _.union(alreadyOrderedLineItems, lineItemsToOrder);
-            debugger;
             var sameSKUsGrouped = _.groupBy(alreadyOrderedLineItems, 'productModelId');
             var groupedProductModelIDs = Object.keys(sameSKUsGrouped);
             var newTotalQuantitiesOrderedByAllStores = 0;

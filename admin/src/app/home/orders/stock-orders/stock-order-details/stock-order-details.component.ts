@@ -48,7 +48,7 @@ export class StockOrderDetailsComponent implements OnInit {
       });
   }
 
-  getApprovedStockOrderLineItems(limit?: number, skip?: number) {
+  getApprovedStockOrderLineItems(limit?: number, skip?: number, sku?: string) {
     if (!(limit && skip)) {
       limit = 100;
       skip = 0;
@@ -58,7 +58,14 @@ export class StockOrderDetailsComponent implements OnInit {
         reportModelId: this.order.id,
         approved: true
       },
-      include: 'productModel',
+      include: {
+        relation: 'productModel',
+        scope: {
+          where: {
+            api_id: sku
+          }
+        }
+      },
       limit: limit,
       skip: skip
     };

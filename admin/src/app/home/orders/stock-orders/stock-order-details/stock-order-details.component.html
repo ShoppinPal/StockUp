@@ -58,7 +58,7 @@
                          placeholder="Scan SKU barcode here or enter text">
                   <span class="input-group-btn">
                     <button class="btn btn-primary" type="button"
-                            (click)="getNotApprovedStockOrderLineItems('','',searchSKUText)">
+                            (click)="getNotApprovedStockOrderLineItems('','',searchSKUText); getApprovedStockOrderLineItems('','',searchSKUText)">
                       <i class="fa fa-search"></i> Search
                     </button>
                   </span>
@@ -70,7 +70,9 @@
         <div class="card-footer">
           <div class="row">
             <div class="col-sm-6">
-              <button type="button" class="btn btn-link" (click)="searchSKUText='';getNotApprovedStockOrderLineItems()">Clear All Searches</button>
+              <button type="button" class="btn btn-link" (click)="searchSKUText='';getNotApprovedStockOrderLineItems();getApprovedStockOrderLineItems()">
+                Clear All Searches
+              </button>
             </div>
           </div>
         </div>
@@ -152,23 +154,26 @@
                 </thead>
                 <tbody>
                 <tr *ngFor="let lineItem of approvedLineItems">
-                  <td>
-                    {{lineItem.productModel.name}}
-                    <br/>
-                    <small>({{lineItem.productModel.sizeId}} : {{lineItem.productModel.colorId}} :
-                      {{lineItem.productModel.styleId}} : {{lineItem.productModel.configurationId}})
-                    </small>
-                  </td>
-                  <td>{{lineItem.productModel.api_id}}</td>
-                  <td>
-                    {{lineItem.orderQuantity}}
-                  </td>
-                  <td>{{lineItem.fulfilledQuantity}}</td>
-                  <td>
-                    <button class="btn btn-danger" type="submit" (click)="updateLineItems(lineItem, {approved: false})">
-                      <i class="fa fa-save"></i> Remove
-                    </button>
-                  </td>
+                  <ng-container *ngIf="lineItem.productModel">
+                    <td>
+                      {{lineItem.productModel.name}}
+                      <br/>
+                      <small>({{lineItem.productModel.sizeId}} : {{lineItem.productModel.colorId}} :
+                        {{lineItem.productModel.styleId}} : {{lineItem.productModel.configurationId}})
+                      </small>
+                    </td>
+                    <td>{{lineItem.productModel.api_id}}</td>
+                    <td>
+                      {{lineItem.orderQuantity}}
+                    </td>
+                    <td>{{lineItem.fulfilledQuantity}}</td>
+                    <td>
+                      <button class="btn btn-danger" type="submit"
+                              (click)="updateLineItems(lineItem, {approved: false})">
+                        <i class="fa fa-save"></i> Remove
+                      </button>
+                    </td>
+                  </ng-container>
                 </tr>
                 </tbody>
               </table>

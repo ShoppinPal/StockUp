@@ -149,15 +149,13 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                         storeModelId,
                         orgModelId
                     });
-                    var productModelIds = [];
 
-
-                    productModelIds = _.pluck(_.find(inventoryModelInstances, function (eachInventory) {
+                    var productModelIds = _.difference(_.pluck(inventoryModelInstances, 'productModelId'), _.pluck(_.find(inventoryModelInstances, function (eachInventory) {
                         return eachInventory.standardDeviationCalculationDate &&
                             eachInventory.standardDeviationCalculationDate.getDate() === TODAYS_DATE.getDate() &&
                             eachInventory.standardDeviationCalculationDate.getMonth() === TODAYS_DATE.getMonth() &&
                             eachInventory.standardDeviationCalculationDate.getYear() === TODAYS_DATE.getYear();
-                    }), 'productModelId');
+                    }), 'productModelId'));
 
                     if (!productModelIds.length) {
                         return Promise.resolve([0, 0]);
@@ -241,9 +239,13 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                     var totalQuantitiesSoldPerDate = {};
                     var totalNumberOfDaysSinceFirstSold;
 
-                    var correspondingCategoryModel = categoryModelInstances.find(function (eachCategoryModel) {
-                        return eachCategoryModel._id.toString() == eachProductModel.categoryModelId.toString();
-                    });
+                    if(eachProductModel.categoryModelId) {
+                        var correspondingCategoryModel = _.find(categoryModelInstances, function (eachCategoryModel) {
+                            return eachCategoryModel._id.toString() === eachProductModel.categoryModelId.toString();
+                        });
+                    }
+
+                    // var correspondingCategoryModel = _.findWhere(categoryModelInstances, {_id: ObjectId(eachProductModel.categoryModelId)});
 
                     var productSales = salesGroupedByProducts[eachProductModel._id];
 
@@ -286,7 +288,7 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                             MDQ = correspondingCategoryModel.min[storeModelId];
                             maxShelfCapacity = correspondingCategoryModel.max[storeModelId];
                             MIN = MDQ>tempMin ? MDQ : tempMin;
-                            MAX = (tempMax + MDQ)<correspondingCategoryModel.max[storeModelId] ? (tempMax + MDQ) : maxShelfCapacity;
+                            MAX = (tempMax + MDQ)<maxShelfCapacity ? (tempMax + MDQ) : maxShelfCapacity;
                         }
                         else {
                             MIN = tempMin;
@@ -303,6 +305,7 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                             commandName,
                             storeModelId,
                             orgModelId,
+                            correspondingCategoryModel,
                             averageDailyDemand,
                             standardDeviation,
                             productModelId: eachProductModel._id,
@@ -362,8 +365,6 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                         return Promise.resolve();
                     }
 
-                }, {
-                    concurrent: 1000
                 });
             })
             .catch(function (error) {
