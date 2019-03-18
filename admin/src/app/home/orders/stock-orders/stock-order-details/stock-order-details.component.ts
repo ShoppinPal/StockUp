@@ -48,7 +48,7 @@ export class StockOrderDetailsComponent implements OnInit {
       });
   }
 
-  getApprovedStockOrderLineItems(limit?: number, skip?: number, sku?: string) {
+  getApprovedStockOrderLineItems(limit?: number, skip?: number, productModelId?: string) {
     if (!(limit && skip)) {
       limit = 100;
       skip = 0;
@@ -56,26 +56,25 @@ export class StockOrderDetailsComponent implements OnInit {
     let filter = {
       where: {
         reportModelId: this.order.id,
-        approved: true
+        approved: true,
+        productModelId: productModelId
       },
       include: {
-        relation: 'productModel',
-        scope: {
-          where: {
-            api_id: sku
-          }
-        }
+        relation: 'productModel'
       },
       limit: limit,
       skip: skip
     };
+    let countFilter = {
+      reportModelId: this.order.id,
+      approved: true
+    };
+    if (productModelId)
+      countFilter['productModelId'] = productModelId;
     this.loading = true;
     let fetchLineItems = Observable.combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
-      this.orgModelApi.countStockOrderLineitemModels(this.userProfile.orgModelId, {
-        reportModelId: this.order.id,
-        approved: true
-      }));
+      this.orgModelApi.countStockOrderLineitemModels(this.userProfile.orgModelId, countFilter));
     fetchLineItems.subscribe((data: any) => {
         this.loading = false;
         this.approvedLineItems = data[0];
@@ -88,7 +87,7 @@ export class StockOrderDetailsComponent implements OnInit {
       });
   }
 
-  getNotApprovedStockOrderLineItems(limit?: number, skip?: number, sku?: string) {
+  getNotApprovedStockOrderLineItems(limit?: number, skip?: number, productModelId?: string) {
     if (!(limit && skip)) {
       limit = 100;
       skip = 0;
@@ -97,26 +96,25 @@ export class StockOrderDetailsComponent implements OnInit {
     let filter = {
       where: {
         reportModelId: this.order.id,
-        approved: false
+        approved: false,
+        productModelId: productModelId
       },
       include: {
         relation: 'productModel',
-        scope: {
-          where: {
-            api_id: sku
-          }
-        }
       },
       limit: limit,
       skip: skip
     };
+    let countFilter = {
+      reportModelId: this.order.id,
+      approved: false
+    };
+    if (productModelId)
+      countFilter['productModelId'] = productModelId;
     this.loading = true;
     let fetchLineItems = Observable.combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
-      this.orgModelApi.countStockOrderLineitemModels(this.userProfile.orgModelId, {
-        reportModelId: this.order.id,
-        approved: false
-      }));
+      this.orgModelApi.countStockOrderLineitemModels(this.userProfile.orgModelId, countFilter));
     fetchLineItems.subscribe((data: any) => {
         this.loading = false;
         this.notApprovedLineItems = data[0];
@@ -127,6 +125,18 @@ export class StockOrderDetailsComponent implements OnInit {
         this.loading = false;
         console.log('error', err);
       });
+  }
+
+  searchProductBySku(sku?: string) {
+    this.loading = true;
+    this.orgModelApi.getProductModels(this.userProfile.orgModelId, {
+      where: {
+        api_id: sku
+      }
+    }).subscribe((data: any) => {
+      this.getApprovedStockOrderLineItems(1, 0, data[0].id);
+      this.getNotApprovedStockOrderLineItems(1, 0, data[0].id);
+    })
   }
 
   createTransferOrder() {

@@ -58,7 +58,7 @@
                          placeholder="Scan SKU barcode here or enter text">
                   <span class="input-group-btn">
                     <button class="btn btn-primary" type="button"
-                            (click)="getNotApprovedStockOrderLineItems('','',searchSKUText); getApprovedStockOrderLineItems('','',searchSKUText)">
+                            (click)="searchProductBySku(searchSKUText)">
                       <i class="fa fa-search"></i> Search
                     </button>
                   </span>
@@ -131,10 +131,11 @@
                 </tr>
                 </tbody>
               </table>
-              <ul class="pagination" *ngIf="notApprovedLineItems">
+              <ul class="pagination">
                 <li class="page-item" *ngFor="let lineItem of notApprovedLineItems | paginate: {itemsPerPage: lineItemsLimitPerPage,
                                                                  currentPage: currentPageNotApproved,
-                                                                 totalItems: totalNotApprovedLineItems}">
+                                                                 totalItems: totalNotApprovedLineItems,
+                                                                 id: 'notApproved'}">
                 </li>
               </ul>
               <pagination-controls
@@ -180,7 +181,8 @@
               <ul class="pagination" *ngIf="approvedLineItems">
                 <li class="page-item" *ngFor="let lineItem of approvedLineItems | paginate: {itemsPerPage: lineItemsLimitPerPage,
                                                                  currentPage: currentPageApproved,
-                                                                 totalItems: totalApprovedLineItems}">
+                                                                 totalItems: totalApprovedLineItems,
+                                                                 id: 'approved'}">
                 </li>
               </ul>
               <pagination-controls

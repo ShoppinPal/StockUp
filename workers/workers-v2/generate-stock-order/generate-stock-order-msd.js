@@ -356,58 +356,68 @@ function generateStockOrder(payload, config, taskId, messageId) {
                 messageId,
                 payload
             });
-            warehouseInventory = inventoryModelInstances;
-            var skippedLineItems = [];
-            for (var i = 0; i<storeInventory.length; i++) {
+            try {
+                warehouseInventory = _.groupBy(inventoryModelInstances, 'productModelId');
+                var skippedLineItems = [];
+                for (var i = 0; i<storeInventory.length; i++) {
 
-                var warehouseQuantityOnHand = 0;
-                // var warehouseQuantityOnHand = _.reduce(warehouseInventory, function (memo, num) {
-                //     return memo + num.inventory_level;
-                // }, 0);
+                    var warehouseQuantityOnHand = 0;
+                    // var warehouseQuantityOnHand = _.reduce(warehouseInventory, function (memo, num) {
+                    //     return memo + num.inventory_level;
+                    // }, 0);
 
 
-                for (var j = 0; j<warehouseInventory.length; j++) {
-                    if (warehouseInventory[j].productModelId.toString() === storeInventory[i].productModelId.toString()) {
-                        warehouseQuantityOnHand += warehouseInventory[j].inventory_level;
+                    if (warehouseInventory[storeInventory[i].productModelId]) {
+                        for (var j = 0; j<warehouseInventory[storeInventory[i].productModelId].length; j++) {
+                            warehouseQuantityOnHand += warehouseInventory[storeInventory[i].productModelId][j].inventory_level;
+                        }
+                        warehouseInventory[storeInventory[i].productModelId] = warehouseQuantityOnHand;
                     }
-                }
-                if (!warehouseQuantityOnHand) {
-                    skippedLineItems.push(storeInventory[i].productModelId);
-                }
-                else {
-                    var orderQuantity;
-                    if (storeInventory[i].inventory_level>0)
-                        orderQuantity = storeInventory[i].reorder_point - storeInventory[i].inventory_level;
-                    else
-                        orderQuantity = storeInventory[i].reorder_point;
-                    orderQuantity = warehouseQuantityOnHand>orderQuantity ? orderQuantity : warehouseQuantityOnHand;
-                    if (orderQuantity>0) {
-                        lineItemsToOrder.push({
-                            reportModelId: ObjectId(reportModel._id),
-                            productModelId: ObjectId(storeInventory[i].productModelId),
-                            storeModelId: ObjectId(storeModelId),
-                            orgModelId: ObjectId(orgModelId),
-                            orderQuantity: orderQuantity,
-                            storeInventory: storeInventory[i].inventory_level,
-                            originalOrderQuantity: orderQuantity,
-                            fulfilledQuantity: 0,
-                            state: 'unboxed',
-                            approved: false,
-                            createdAt: new Date(),
-                            updatedAt: new Date()
-                        });
-                    }
-                    else {
+                    if (!warehouseQuantityOnHand) {
                         skippedLineItems.push(storeInventory[i].productModelId);
                     }
+                    else {
+                        var orderQuantity;
+                        if (storeInventory[i].inventory_level>0)
+                            orderQuantity = storeInventory[i].reorder_point - storeInventory[i].inventory_level;
+                        else
+                            orderQuantity = storeInventory[i].reorder_point;
+                        orderQuantity = warehouseQuantityOnHand>orderQuantity ? orderQuantity : warehouseQuantityOnHand;
+                        if (orderQuantity>0) {
+                            lineItemsToOrder.push({
+                                reportModelId: ObjectId(reportModel._id),
+                                productModelId: ObjectId(storeInventory[i].productModelId),
+                                storeModelId: ObjectId(storeModelId),
+                                orgModelId: ObjectId(orgModelId),
+                                orderQuantity: orderQuantity,
+                                storeInventory: storeInventory[i].inventory_level,
+                                originalOrderQuantity: orderQuantity,
+                                fulfilledQuantity: 0,
+                                state: 'unboxed',
+                                approved: false,
+                                createdAt: new Date(),
+                                updatedAt: new Date()
+                            });
+                        }
+                        else {
+                            skippedLineItems.push(storeInventory[i].productModelId);
+                        }
+                    }
                 }
+            }
+            catch (e) {
+                logger.error({
+                    e,
+                    error: e,
+                    messageId
+                });
             }
             logger.debug({
                 message: 'Could not find a corresponding inventory for product in warehouse, will skip the item',
                 productModelIds: skippedLineItems,
                 count: skippedLineItems.length,
                 commandName,
-                payload
+                messageId
             });
             logger.debug({
                 message: 'Prepared to push these items to stock order',
@@ -424,6 +434,7 @@ function generateStockOrder(payload, config, taskId, messageId) {
             logger.debug({
                 message: 'Could not insert line items to report model',
                 error,
+                reason: error,
                 commandName,
                 messageId
             });
@@ -504,13 +515,9 @@ function optimiseQuantitiesByStorePriority(lineItemsToOrder, warehouseInventory,
             return Promise.reject('Could not find same SKUs ordered today for other stores');
         })
         .then(function (alreadyOrderedLineItems) {
-            var alreadyOrderedStores = _.uniq(_.pluck(alreadyOrderedLineItems, 'storeModelId'));
-            var alreadyOrderedProductIds = _.uniq(_.pluck(alreadyOrderedLineItems, 'productModelId'));
             logger.debug({
                 message: 'These items already exist on another order generated today',
                 count: alreadyOrderedLineItems.length,
-                alreadyOrderedStores,
-                alreadyOrderedProductIds,
                 commandName,
                 messageId
             });
@@ -519,33 +526,27 @@ function optimiseQuantitiesByStorePriority(lineItemsToOrder, warehouseInventory,
             var groupedProductModelIDs = Object.keys(sameSKUsGrouped);
             var newTotalQuantitiesOrderedByAllStores = 0;
             for (var i = 0; i<groupedProductModelIDs.length; i++) {
-                var warehouseInventoryQuantity = _.filter(warehouseInventory, function (eachInventory) {
-                    return eachInventory.productModelId.toString() === groupedProductModelIDs[i].toString()
-                });
-                //find the one with the max quantities, because there are multiple references to same inventory in MSD's UAT data
-                var maxWarehouseInventoryQuantity = _.reduce(warehouseInventoryQuantity, function (memo, num) {
-                    return memo + num.inventory_level;
-                }, 0);
 
                 var totalQuantitiesOrderedByAllStores = _.reduce(sameSKUsGrouped[groupedProductModelIDs[i]], function (memo, num) {
                     return memo + num.originalOrderQuantity;
                 }, 0);
                 logger.debug({
                     totalQuantitiesOrderedByAllStores,
-                    maxWarehouseInventoryQuantity,
+                    warehouseInventory: warehouseInventory[groupedProductModelIDs[i]],
+                    productId: groupedProductModelIDs[i],
                     messageId,
                     commandName
                 });
-                if (totalQuantitiesOrderedByAllStores>maxWarehouseInventoryQuantity) {
+                if (totalQuantitiesOrderedByAllStores>warehouseInventory[groupedProductModelIDs[i]]) {
                     _.each(sameSKUsGrouped[groupedProductModelIDs[i]], function (eachSKU) {
                         newTotalQuantitiesOrderedByAllStores = 0;
-                        var orderQuantity = (eachSKU.originalOrderQuantity / totalQuantitiesOrderedByAllStores) * maxWarehouseInventoryQuantity;
+                        var orderQuantity = (eachSKU.originalOrderQuantity / totalQuantitiesOrderedByAllStores) * warehouseInventory[groupedProductModelIDs[i]];
                         eachSKU.orderQuantity = Math.round(orderQuantity);
                         eachSKU.roundedBy = eachSKU.orderQuantity - orderQuantity;
                         newTotalQuantitiesOrderedByAllStores += eachSKU.orderQuantity;
                     });
-                    if (newTotalQuantitiesOrderedByAllStores>maxWarehouseInventoryQuantity) {
-                        var extraQuantities = newTotalQuantitiesOrderedByAllStores - maxWarehouseInventoryQuantity;
+                    if (newTotalQuantitiesOrderedByAllStores>warehouseInventory[groupedProductModelIDs[i]]) {
+                        var extraQuantities = newTotalQuantitiesOrderedByAllStores - warehouseInventory[groupedProductModelIDs[i]];
                         sameSKUsGrouped[groupedProductModelIDs[i]] = _.sortBy(sameSKUsGrouped[groupedProductModelIDs[i]], 'roundedBy');
                         for (var j = sameSKUsGrouped[groupedProductModelIDs[i]].length - 1; j>sameSKUsGrouped[groupedProductModelIDs[i]].length - extraQuantities - 1; j--) {
                             sameSKUsGrouped[groupedProductModelIDs[i]][j].orderQuantity--;

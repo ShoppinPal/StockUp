@@ -232,8 +232,8 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
 
                 var salesGroupedByProducts = _.groupBy(salesModels, 'productModelId');
 
-                var batchCounter = 0;
-                return Promise.map(productModels, function (eachProductModel, i) {
+                var batchCounter = 0, batches = [];
+                _.each(productModels, function (eachProductModel, i) {
 
                     var totalQuantitiesSold = 0;
                     var totalQuantitiesSoldPerDate = {};
@@ -331,7 +331,6 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                                 reorder_threshold: MIN ? Math.round(MIN) : Math.round(tempMin), //reorder quantities if product below this level
                             }
                         });
-                        batchCounter++;
                     }
                     else {
                         logger.debug({
@@ -354,18 +353,25 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                             message: 'Executing batch of 1000 products',
                             messageId
                         });
-                        return batch.execute()
-                            .then(function (result) {
+                        batches.push(batch);
                                 batchCounter = 0;
                                 batch = db.collection('InventoryModel').initializeUnorderedBulkOp();
-                                return Promise.resolve(result);
-                            });
                     }
                     else {
-                        return Promise.resolve();
+                        batchCounter++;
                     }
-
                 });
+                return Promise.map(batches, function (eachBatch, batchNumber) {
+                    logger.debug({
+                        message: 'Executing batch',
+                        batchNumber,
+                        messageId
+                    });
+                    return Promise.delay(1000)
+                        .then(function () {
+                            return eachBatch.execute();
+                        });
+                })
             })
             .catch(function (error) {
                 logger.error({
