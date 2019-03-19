@@ -25,9 +25,7 @@ var runMe = function (payload, config, taskId, messageId) {
             commandName: commandName,
             payload: payload,
             config: config,
-            taskId: taskId,
-            argv: process.argv,
-            env: process.env
+            taskId: taskId
         });
 
         try {

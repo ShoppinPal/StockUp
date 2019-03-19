@@ -20,8 +20,7 @@ var runMe = function (orgModelId, syncModels) {
             commandName: commandName,
             syncModels,
             orgModelId,
-            argv: process.argv,
-            env: process.env
+            argv: process.argv
         });
 
         try {

@@ -20,7 +20,6 @@ var runMe = function (sqlPool, orgModelId, salesLineSyncModel) {
         logger.debug({
             commandName: commandName,
             argv: process.argv,
-            env: process.env,
             orgModelId,
             salesLineSyncModel
         });

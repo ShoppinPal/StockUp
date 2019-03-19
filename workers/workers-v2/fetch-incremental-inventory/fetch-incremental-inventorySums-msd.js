@@ -21,7 +21,6 @@ var runMe = function (sqlPool, orgModelId, inventorySyncModel) {
         logger.debug({
             commandName: commandName,
             argv: process.argv,
-            env: process.env,
             orgModelId,
             inventorySyncModel
         });

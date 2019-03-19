@@ -24,7 +24,6 @@ var runMe = function (payload, config, taskId, messageId) {
         logger.debug({
             commandName: commandName,
             argv: process.argv,
-            env: process.env,
             orgModelId,
             storeModelId
         });
