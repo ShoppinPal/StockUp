@@ -227,12 +227,15 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                     count: categoryModelInstances.length,
                     messageId
                 });
-                var batch = db.collection('InventoryModel').initializeUnorderedBulkOp();
 
                 var salesGroupedByProducts = _.groupBy(salesModels, 'productModelId');
 
                 var batchCounter = 0, batches = [];
+                batches.push(db.collection('InventoryModel').initializeUnorderedBulkOp());
                 _.each(productModels, function (eachProductModel, i) {
+                    if (i === 999) {
+                        batches.push(db.collection('InventoryModel').initializeUnorderedBulkOp());
+                    }
 
                     var totalQuantitiesSold = 0;
                     var totalQuantitiesSoldPerDate = {};
@@ -317,7 +320,7 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                             sku: eachProductModel.sku
                         });
 
-                        batch.find({
+                        batches[batches.length - 1].find({
                             productModelId: ObjectId(eachProductModel._id),
                             storeModelId: ObjectId(storeModelId)
                         }).update({
@@ -337,7 +340,7 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                             product: eachProductModel._id,
                             inventoryNumber: (i + 1) + '/' + productModels.length
                         });
-                        batch.find({
+                        batches[batches.length - 1].find({
                             productModelId: ObjectId(eachProductModel._id),
                             storeModelId: ObjectId(storeModelId)
                         }).update({
@@ -347,18 +350,6 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                             }
                         });
                     }
-                    if (batchCounter === 1000) {
-                        logger.debug({
-                            message: 'Executing batch of 1000 products',
-                            messageId
-                        });
-                        batches.push(batch);
-                                batchCounter = 0;
-                                batch = db.collection('InventoryModel').initializeUnorderedBulkOp();
-                    }
-                    else {
-                        batchCounter++;
-                    }
                 });
                 return Promise.map(batches, function (eachBatch, batchNumber) {
                     logger.debug({
@@ -366,10 +357,7 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                         batchNumber,
                         messageId
                     });
-                    return Promise.delay(1000)
-                        .then(function () {
                             return eachBatch.execute();
-                        });
                 })
             })
             .catch(function (error) {

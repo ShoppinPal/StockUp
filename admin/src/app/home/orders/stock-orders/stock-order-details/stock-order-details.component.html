@@ -12,6 +12,11 @@
               <p>Name: <strong>{{order.name}}</strong></p>
               <p>Total Items: <strong>{{totalApprovedLineItems+totalNotApprovedLineItems}}</strong></p>
               <p>Created At: <strong>{{order.created}}</strong></p>
+              <p>State: <strong>{{order.state}}</strong>
+                <button type="button" class="btn btn-link" (click)="getOrderDetails()">
+                  <i class="fa fa-refresh"></i>
+                </button>
+              </p>
             </div>
             <!--<div class="form-group col-sm-12">-->
             <!--<div class="input-group">-->
@@ -31,7 +36,7 @@
             <div class="col-sm-3">
               <span class="input-group-btn">
                 <button class="btn btn-success" type="button"
-                        (click)="createTransferOrder()">Create Transfer Order</button>
+                        (click)="createTransferOrder()" *ngIf="order.state === reportStates.GENERATED && !creatingTransferOrder">Create Transfer Order</button>
               </span>
             </div>
           </div>
@@ -70,7 +75,8 @@
         <div class="card-footer">
           <div class="row">
             <div class="col-sm-6">
-              <button type="button" class="btn btn-link" (click)="searchSKUText='';getNotApprovedStockOrderLineItems();getApprovedStockOrderLineItems()">
+              <button type="button" class="btn btn-link"
+                      (click)="searchSKUText='';getNotApprovedStockOrderLineItems();getApprovedStockOrderLineItems()">
                 Clear All Searches
               </button>
             </div>

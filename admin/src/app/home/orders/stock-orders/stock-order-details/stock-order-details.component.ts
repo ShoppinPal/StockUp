@@ -5,6 +5,7 @@ import {Observable} from 'rxjs';
 import {ToastrService} from 'ngx-toastr';
 import {UserProfileService} from "../../../../shared/services/user-profile.service";
 import {LoopBackAuth} from "../../../../shared/lb-sdk/services/core/auth.service";
+import {constants} from "../../../../shared/constants/constants";
 
 
 @Component({
@@ -27,6 +28,8 @@ export class StockOrderDetailsComponent implements OnInit {
   public currentPageApproved: number = 1;
   public currentPageNotApproved: number = 1;
   public lineItemsLimitPerPage: number = 100;
+  public creatingTransferOrder: boolean = false;
+  public reportStates: any = constants.REPORT_STATES;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -141,24 +144,27 @@ export class StockOrderDetailsComponent implements OnInit {
 
   createTransferOrder() {
     console.log('submitting');
-    let toastr = this.toastr;
     if (!this.totalApprovedLineItems) {
-      toastr.error('Please approve at least one item to create Transfer Order in MSD');
+      this.toastr.error('Please approve at least one item to create Transfer Order in MSD');
     }
     else {
+      this.creatingTransferOrder = true;
+      let componentScope = this;
       let EventSource = window['EventSource'];
       let es = new EventSource('/api/OrgModels/' + this.userProfile.orgModelId + '/createTransferOrderMSD?access_token=' + this.auth.getAccessTokenId() + '&reportModelId=' + this.order.id + '&type=json');
-      toastr.info('Generating transfer order...');
+      this.toastr.info('Generating transfer order...');
+      this.getOrderDetails();
       let _router = this._router;
       es.onmessage = function (event) {
         let response = JSON.parse(event.data);
         console.log(response);
         if (response.success) {
-          toastr.success('Created transfer order in MSD');
-          _router.navigate(['/orders/stock-orders']);
+          componentScope.toastr.success('Created transfer order in MSD');
+
         }
         else {
-          toastr.error('Error in creating transfer order in MSD');
+          componentScope.creatingTransferOrder = false;
+          componentScope.toastr.error('Error in creating transfer order in MSD');
         }
         es.close();
       };
@@ -181,12 +187,34 @@ export class StockOrderDetailsComponent implements OnInit {
           this.getApprovedStockOrderLineItems();
           this.getNotApprovedStockOrderLineItems();
           console.log('approved', res);
-          this.loading = false;
         },
         err => {
           console.log('err', err);
           this.loading = false;
         });
   }
+
+  getOrderDetails() {
+    let previousState = this.order.state;
+    this.loading = true;
+    this.orgModelApi.getReportModels(this.userProfile.orgModelId, {
+      where: {
+        id: this.order.id
+      }
+    })
+      .subscribe((data: any) => {
+          this.order = data[0];
+          //fetch line items only if the report status changes from executing to generated
+          if (this.order.state === this.reportStates.GENERATED && previousState !== this.reportStates.GENERATED) {
+            this.getNotApprovedStockOrderLineItems();
+            this.getApprovedStockOrderLineItems();
+          }
+          this.loading = false;
+        },
+        err => {
+          this.loading = false;
+          this.toastr.error('Error updating order state, please refresh');
+        });
+  };
 
 }

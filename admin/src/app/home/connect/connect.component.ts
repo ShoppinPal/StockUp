@@ -30,7 +30,7 @@ export class ConnectComponent implements OnInit {
     this._route.data.subscribe((data: any) => {
         this.integration = data.integration.integration;
         this.syncModels = data.integration.syncModels;
-        this.selectedCompany = this.integration ? this.integration[0].dataAreaId : '';
+        this.selectedCompany = this.integration && this.integration.length ? this.integration[0].dataAreaId : '';
       },
       error => {
         console.log('error', error)

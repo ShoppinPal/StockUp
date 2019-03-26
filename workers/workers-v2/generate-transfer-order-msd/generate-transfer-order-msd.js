@@ -21,6 +21,7 @@ var runMe = function (payload, config, taskId, messageId) {
     var orgModelId = payload.orgModelId;
     var reportModelId = payload.reportModelId;
     var createdTransferOrder, stockOrderLineItemModels;
+    var reportModelInstance;
     try {
         // Global variable for logging
 
@@ -79,11 +80,26 @@ var runMe = function (payload, config, taskId, messageId) {
                     });
                     return Promise.reject('Could not find report model instance');
                 })
-                .then(function (reportModelInstance) {
+                .then(function (response) {
+                    reportModelInstance = response;
                     logger.debug({
-                        message: 'Found report model instance, will look for its store',
+                        message: 'Found report model instance, will update it\'s state',
                         reportModelInstance,
                         commandName,
+                        messageId
+                    });
+                    return db.collection('ReportModel').updateOne({
+                        _id: ObjectId(reportModelId)
+                    }, {
+                        $set: {
+                            state: utils.REPORT_STATES.PUSHING_TO_MSD
+                        }
+                    });
+                })
+                .then(function (response) {
+                    logger.debug({
+                        message: 'Updated report model status, will look for it\'s store model',
+                        response,
                         messageId
                     });
                     return db.collection('StoreModel').findOne({
@@ -339,7 +355,8 @@ var runMe = function (payload, config, taskId, messageId) {
                     }, {
                         $set: {
                             transferOrderNumber: createdTransferOrder.TransferOrderNumber,
-                            transferOrderCount: result
+                            transferOrderCount: result,
+                            state: utils.REPORT_STATES.PUSHED_TO_MSD
                         }
                     });
                 })
@@ -358,7 +375,6 @@ var runMe = function (payload, config, taskId, messageId) {
                         message: 'Updated transfer order status in report model',
                         result,
                         commandName,
-                        result,
                         reportModelId
                     });
                     return Promise.resolve('Updated transfer order status in report model');

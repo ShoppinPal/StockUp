@@ -751,7 +751,7 @@ module.exports = function (OrgModel) {
                         functionName: 'createTransferOrderMSD',
                         error
                     });
-                    return Promise.reject('Could not create transfer order in MSD');
+                    sseMap[options.accessToken.userId].send(false);
                 });
         };
 

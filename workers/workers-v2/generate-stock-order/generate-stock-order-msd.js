@@ -1,6 +1,3 @@
-const REPORT_EMPTY = 'Executing...';
-const REPORT_COMPLETE = 'Complete';
-const REPORT_ERROR = 'Error';
 const logger = require('sp-json-logger')();
 const sql = require('mssql');
 const dbUrl = process.env.DB_URL;
@@ -234,7 +231,7 @@ function generateStockOrder(payload, config, taskId, messageId) {
                 categoryModelId: ObjectId(categoryModelId),
                 created: new Date(),
                 updated: new Date(),
-                state: REPORT_EMPTY
+                state: utils.REPORT_STATES.EXECUTING
             });
         })
         .catch(function (error) {
@@ -451,7 +448,7 @@ function generateStockOrder(payload, config, taskId, messageId) {
                     _id: reportModel._id
                 }, {
                     $set: {
-                        state: REPORT_ERROR,
+                        state: utils.REPORT_STATES.ERROR,
                         totalRows: totalRows
                     }
                 });
@@ -467,7 +464,7 @@ function generateStockOrder(payload, config, taskId, messageId) {
                     _id: reportModel._id
                 }, {
                     $set: {
-                        state: REPORT_COMPLETE,
+                        state: utils.REPORT_STATES.GENERATED,
                         totalRows: totalRows
                     }
                 });
@@ -555,28 +552,49 @@ function optimiseQuantitiesByStorePriority(lineItemsToOrder, warehouseInventory,
             }
             logger.debug({
                 message: 'Will change the order quantities to accommodate deficit in warehouse inventory',
-                newOrderQuantities: sameSKUsGrouped,
                 commandName,
                 messageId
             });
-            var batch = db.collection('StockOrderLineitemModel').initializeUnorderedBulkOp();
-            _.each(_.flatten(_.values(sameSKUsGrouped), true), function (eachLineItem) {
+
+            var batches = [];
+            batches.push(db.collection('StockOrderLineitemModel').initializeUnorderedBulkOp());
+            _.each(_.flatten(_.values(sameSKUsGrouped), true), function (eachLineItem, iterator) {
+                if (iterator === 999) {
+                    batches.push(db.collection('StockOrderLineitemModel').initializeUnorderedBulkOp());
+                }
                 if (eachLineItem._id) {
-                    batch.find({
-                        _id: eachLineItem._id
-                    }).upsert().updateOne({
-                        $set: {
-                            orderQuantity: eachLineItem.orderQuantity,
-                            updatedAt: new Date(),
-                            roundedBy: eachLineItem.roundedBy
-                        }
-                    });
+                    if (eachLineItem.orderQuantity<=0) {
+                        batches[batches.length - 1].find({
+                            _id: eachLineItem._id
+                        }).remove({
+                            _id: eachLineItem._id
+                        });
+                    }
+                    else {
+                        batches[batches.length - 1].find({
+                            _id: eachLineItem._id
+                        }).updateOne({
+                            $set: {
+                                orderQuantity: eachLineItem.orderQuantity,
+                                updatedAt: new Date(),
+                                roundedBy: eachLineItem.roundedBy
+                            }
+                        });
+                    }
                 }
                 else {
-                    batch.insert(eachLineItem);
+                    if (eachLineItem.orderQuantity>0)
+                        batches[batches.length - 1].insert(eachLineItem);
                 }
             });
-            return batch.execute();
+            return Promise.map(batches, function (eachBatch, batchNumber) {
+                logger.debug({
+                    message: 'Executing batch',
+                    batchNumber,
+                    messageId
+                });
+                return eachBatch.execute();
+            });
         })
         .catch(function (error) {
             logger.error({

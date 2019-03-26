@@ -213,3 +213,10 @@ exports.sendSlackMessage = sendSlackMessage;
 var port = process.env.APP_PORT_NUMBER ? ':' + process.env.APP_PORT_NUMBER : '';
 exports.API_URL = process.env.APP_PROTOCOL + '://' + process.env.APP_HOST_NAME + port;
 
+exports.REPORT_STATES = {
+    EXECUTING: 'Executing...',
+    GENERATED: 'Generated',
+    ERROR: 'Error',
+    PUSHING_TO_MSD: 'Pushing to MSD',
+    PUSHED_TO_MSD: 'Pushed to MSD'
+};

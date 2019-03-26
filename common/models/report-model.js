@@ -1652,9 +1652,8 @@ module.exports = function (ReportModel) {
             loopbackAccessToken: options.accessToken,
             op: 'createTransferOrderMSD'
         };
-        return ReportModel.findOne({
-            id: reportModelId
-        })
+        var report;
+        return ReportModel.findById(reportModelId)
             .then(function (reportModelInstance) {
                 logger.debug({
                     message: 'Found this report model',
@@ -1662,6 +1661,7 @@ module.exports = function (ReportModel) {
                     options,
                     functionName: 'createTransferOrderMSD'
                 });
+                report = reportModelInstance;
                 if (reportModelInstance.transferOrderNumber) {
                     logger.debug({
                         message: 'Transfer order is already created for this report',
@@ -1670,22 +1670,39 @@ module.exports = function (ReportModel) {
                     });
                     return Promise.reject('Transfer Order already created for this report');
                 }
+                else if (reportModelInstance.state === ReportModel.app.get('report_states').pushingToMSD) {
+                    logger.debug({
+                        message: 'Transfer order creation in progress',
+                        options,
+                        functionName: 'createTransferOrderMSD'
+                    });
+                    return Promise.reject('Transfer order creation in progress');
+                }
                 else {
                     return workerUtils.sendPayLoad(payload);
                 }
             })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not send generateStockOrderMSD to worker',
+                    options,
+                    error,
+                    functionName: 'createTransferOrderMSD'
+                });
+                return Promise.reject('Error in creating transfer order');
+            })
             .then(function (response) {
                 logger.debug({
-                    message: 'Sent generateStockOrderMSD to worker',
+                    message: 'Sent createTransferOrderMSD to worker',
                     options,
                     response,
                     functionName: 'createTransferOrderMSD'
                 });
-                return Promise.resolve('Stock order generation initiated');
+                return Promise.resolve('Sent createTransferOrderMSD to worker');
             })
             .catch(function (error) {
                 logger.error({
-                    message: 'Could not send generateStockOrderMSD to worker',
+                    message: 'Could not update report state',
                     options,
                     error,
                     functionName: 'createTransferOrderMSD'
