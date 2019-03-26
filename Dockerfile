@@ -7,7 +7,7 @@ RUN npm install
 RUN npm run admin
 
 FROM node:6.11.1
-RUN apt-get -y update && apt-get -y dist-upgrade
+RUN sed -i '2d' /etc/apt/sources.list && apt-get -y update && apt-get -y dist-upgrade
 RUN chown -R node:node /usr/local
 RUN apt-get -y update && apt-get -y dist-upgrade && apt-get install -y python-pip python-dev && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 RUN pip install awscli --upgrade
