@@ -44,8 +44,7 @@ var runMe = function (payload, config, taskId, messageId) {
         payload: payload,
         config: config,
         taskId: taskId,
-        argv: process.argv,
-        env: process.env
+        argv: process.argv
     });
 
     try {
