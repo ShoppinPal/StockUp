@@ -232,7 +232,6 @@ var runMe = function (payload, config, taskId, messageId) {
                         message: 'Found these approved line items, will find their product models',
                         messageId,
                         commandName,
-                        productModelIds,
                         count: stockOrderLineItemModels.length
                     });
                     return db.collection('ProductModel').find({
@@ -261,19 +260,15 @@ var runMe = function (payload, config, taskId, messageId) {
                     });
                     var lineItemsToPush = [];
                     debugger;
+                    var productsGrouped = _.groupBy(productModelInstances, '_id');
                     for (var i = 0; i<stockOrderLineItemModels.length; i++) {
-                        var correspondingProduct = null;
-                        for (var j = 0; j<productModelInstances.length; j++) {
-                            if (productModelInstances[j]._id.toString() === stockOrderLineItemModels[i].productModelId.toString()) {
-                                correspondingProduct = productModelInstances[j];
-                            }
-                        }
-                        if (correspondingProduct) {
+                        if (productsGrouped[stockOrderLineItemModels[i].productModelId]) {
                             lineItemsToPush.push({
                                 "dataAreaId": "1201",
                                 "TransferOrderNumber": createdTransferOrder.TransferOrderNumber,
-                                "ProductConfigurationId": correspondingProduct.configurationId,
+                                "ProductConfigurationId": productsGrouped[stockOrderLineItemModels[i].productModelId][0].configurationId,
                                 "IntrastatCostAmount": 0,
+                                "LineNumber": i+1,
                                 "ATPBackwardDemandTimeFenceDays": 0,
                                 "IsATPIncludingPlannedOrders": false,
                                 "ATPDelayedDemandOffsetDays": 0,
@@ -281,9 +276,9 @@ var runMe = function (payload, config, taskId, messageId) {
                                 "TransferOrderPromisingMethod": "None",
                                 "ATPDelayedSupplyOffsetDays": 0,
                                 "RequestedShippingDate": new Date(),
-                                "ProductSizeId": correspondingProduct.sizeId,
+                                "ProductSizeId": productsGrouped[stockOrderLineItemModels[i].productModelId][0].sizeId,
                                 "RequestedReceiptDate": new Date(),
-                                "ItemNumber": correspondingProduct.api_id,
+                                "ItemNumber": productsGrouped[stockOrderLineItemModels[i].productModelId][0].api_id,
                                 "AllowedUnderdeliveryPercentage": 100,
                                 "IsAutomaticallyReserved": "No",
                                 "IntrastatTransactionCode": "",
@@ -300,7 +295,7 @@ var runMe = function (payload, config, taskId, messageId) {
                                 "ItemBatchNumber": "",
                                 "OverrideFEFODateControl": "No",
                                 "OriginCountyId": "",
-                                "ProductColorId": correspondingProduct.colorId,
+                                "ProductColorId": productsGrouped[stockOrderLineItemModels[i].productModelId][0].colorId,
                                 "WillProductReceivingCrossDockProducts": "No",
                                 "ReceivingLedgerDimensionDisplayValue": "",
                                 "IntrastatCommodityCode": "",
@@ -323,11 +318,10 @@ var runMe = function (payload, config, taskId, messageId) {
                     logger.debug({
                         message: 'Created line items data to push',
                         count: lineItemsToPush.length,
-                        lineItems: _.pick(lineItemsToPush, 'ItemNumber', 'TransferQuantity'),
                         messageId,
                         commandName
                     });
-                    return MSDUtil.pushMSDDataInBatches(db, orgModelId, 'TransferOrderLines', lineItemsToPush, {
+                    return MSDUtil.pushMSDDataInBatches(db, orgModelId, 'TransferOrderLines', lineItemsToPush, 'ReportModel', reportModelId, {
                         messageId,
                         commandName
                     });

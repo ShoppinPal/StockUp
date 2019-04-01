@@ -10,7 +10,7 @@ const MongoClient = require('mongodb').MongoClient;
 const ObjectId = require('mongodb').ObjectID;
 const _ = require('underscore');
 var http = require("https");
-const ODATA_MAX_BATCH_COUNT = 1000;
+const ODATA_MAX_BATCH_COUNT = 100;
 
 var refreshMSDToken = function (db, orgModelId) {
     logger.debug({
@@ -118,7 +118,6 @@ var pushMSDData = function (db, orgModelId, dataTable, data, options) {
         message: 'Will push the following data to msd',
         options,
         dataTable,
-        data,
         functionName: 'pushMSDData'
     });
     var orgModelInstance, integrationModel;
@@ -221,12 +220,11 @@ var pushMSDData = function (db, orgModelId, dataTable, data, options) {
         });
 };
 
-var pushMSDDataInBatches = function (db, orgModelId, dataTable, data, options) {
+var pushMSDDataInBatches = function (db, orgModelId, dataTable, data, statusTable, statusTableUniqueId, options) {
     logger.debug({
         message: 'Will push the following data to msd',
         options,
         dataTable,
-        data,
         functionName: 'pushMSDDataInBatches'
     });
     var integrationModel;
@@ -295,60 +293,59 @@ var pushMSDDataInBatches = function (db, orgModelId, dataTable, data, options) {
                 return Promise.reject('Data should be a valid array');
             }
 
-            var postBody = '', contentIDCounter = 0;
+            var postBody = '', itemsInRequest = 1, batchNumber = 1, iterator = 0;
+            var promisifiedBatches = [];
 
-            postBody += '--batch_1\n' +
-                'Content-Type: multipart/mixed; boundary=changeset_1\n' +
+            postBody += '--batch_' + batchNumber + '\n' +
+                'Content-Type: multipart/mixed; boundary=changeset_' + batchNumber + '\n' +
                 'Content-Length: ###\n\n';
 
-            for (var i = 0; i<data.length; i++) {
-                if (contentIDCounter === ODATA_MAX_BATCH_COUNT) {
-                    contentIDCounter = 0;
-                    postBody += '--batch_1\n' +
-                        'Content-Type: multipart/mixed; boundary=changeset_1\n' +
-                        'Content-Length: ###\n\n';
-                }
-
-                postBody += '--changeset_1\n' +
+            var totalBatches = Math.ceil(data.length / ODATA_MAX_BATCH_COUNT);
+            return Promise.map(data, function (eachData) {
+                postBody += '--changeset_' + batchNumber + '\n' +
                     'Content-Type: application/http\n' +
                     'Content-Transfer-Encoding:binary\n' +
-                    'Content-ID: ' + (contentIDCounter + 1) + '\n\n';
+                    'Content-ID: ' + (iterator + 1) + '\n\n';
 
                 postBody += 'POST ' + integrationModel.resource + 'data/' + dataTable + ' HTTP/1.1\n' +
                     'Host: ' + integrationModel.resource.replace('https://', '').replace('http://', '').replace('/', '') + '\n' +
                     'Content-Type: application/json\n' +
                     'Accept-Charset: UTF-8\n\n';
-                postBody += JSON.stringify(data[i]) + '\n\n';
-                contentIDCounter++;
-            }
-
-            var requestOptions = {
-                method: 'POST',
-                hostname: integrationModel.resource.replace('https://', '').replace('http://', '').replace('/', ''),
-                path: '/data/$batch',
-                headers: {
-                    'OData-MaxVersion': '4.0',
-                    'OData-Version': '4.0',
-                    'Content-Type': 'multipart/mixed; boundary=batch_1',
-                    'Content-Length': Buffer.byteLength(postBody),
-                    'Accept': 'application/json;odata.metadata=minimal',
-                    'Accept-Charset': 'UTF-8',
-                    'Authorization': integrationModel.token_type + ' ' + token,
-                    'Host': integrationModel.resource.replace('https://', '').replace('http://', '').replace('/', '')
+                postBody += JSON.stringify(eachData) + '\n\n';
+                itemsInRequest++;
+                //send last batch
+                if (iterator === data.length - 1) {
+                    logger.debug({
+                        message: 'last batch'
+                    });
+                    iterator++;
+                    return sendBatchRequest(db, integrationModel, token, postBody, batchNumber, statusTable, statusTableUniqueId, totalBatches, options);
                 }
-            };
-
-            logger.debug({
-                message: 'Sending the following request to MSD',
-                requestOptions,
-                options,
-                functionName: 'pushMSDDataInBatches'
+                //this else-if statement will miss the last batch, send it separately,
+                //itemsInRequest - 1 because we started itemsInRequest from 1 instead of 0 for readability
+                else if (itemsInRequest - 1 === ODATA_MAX_BATCH_COUNT) {
+                    itemsInRequest = 1;
+                    var body = postBody;
+                    batchNumber++;
+                    postBody = '--batch_' + batchNumber + '\n' +
+                        'Content-Type: multipart/mixed; boundary=changeset_' + batchNumber + '\n' +
+                        'Content-Length: ###\n\n';
+                    iterator++;
+                    return sendBatchRequest(db, integrationModel, token, body, batchNumber - 1, statusTable, statusTableUniqueId, totalBatches, options);
+                }
+                else {
+                    iterator++;
+                    return Promise.resolve();
+                }
+            }, {
+                concurrency: 5
             });
-            return httpRequest(requestOptions, postBody);
+
         })
         .catch(function (error) {
             logger.error({
                 requestError: error,
+                error,
                 message: 'Could not push the data to MSD',
                 options,
                 dataTable,
@@ -357,18 +354,19 @@ var pushMSDDataInBatches = function (db, orgModelId, dataTable, data, options) {
             return Promise.reject('Could not fetch the data from MSD');
         })
         .then(function (response) {
-            var count = (response.match(/Created/g) || []).length;
+            // var count = (response.match(/Created/g) || []).length;
             logger.debug({
                 message: 'Pushed data to MSD in batches successfully',
-                count: count,
+                // count: count,
+                response,
                 functionName: 'pushMSDDataInBatches',
                 options
             });
-            return Promise.resolve(count);
+            return Promise.resolve();
         });
 };
 
-function httpRequest(params, postData) {
+function httpRequest(params, postData, batchNumber) {
     try {
         var chunkCounter = 1;
         return new Promise(function (resolve, reject) {
@@ -384,7 +382,8 @@ function httpRequest(params, postData) {
                     logger.debug({
                         message: 'Received a chunk',
                         functionName: 'httpRequest',
-                        chunkCounter
+                        chunkCounter,
+                        batchNumber
                     });
                     chunks.push(chunk);
                     chunkCounter++;
@@ -393,7 +392,8 @@ function httpRequest(params, postData) {
                 res.on('end', function () {
                     logger.debug({
                         message: 'Batch response ended',
-                        functionName: 'httpRequest'
+                        functionName: 'httpRequest',
+                        batchNumber
                     });
                     try {
                         var body = Buffer.concat(chunks);
@@ -401,8 +401,17 @@ function httpRequest(params, postData) {
                         console.log('error1', e);
                         reject(e);
                     }
-                    resolve(body.toString());
+                    resolve({body: body.toString(), batchNumber: batchNumber});
                 });
+
+                res.on('timeout', function () {
+                    logger.debug({
+                        message: 'Request timed out',
+                        functionName: 'httpRequest',
+                        batchNumber
+                    });
+                    resolve({batchNumber: batchNumber});
+                })
             });
             // reject on request error
             req.on('error', function (err) {
@@ -421,6 +430,60 @@ function httpRequest(params, postData) {
         console.log('err', e);
         reject(e);
     }
+}
+
+function sendBatchRequest(db, integrationModel, token, postBody, batchNumber, statusTable, statusTableUniqueId, totalBatches, options) {
+    var requestOptions = {
+        method: 'POST',
+        hostname: integrationModel.resource.replace('https://', '').replace('http://', '').replace('/', ''),
+        path: '/data/$batch',
+        headers: {
+            'OData-MaxVersion': '4.0',
+            'OData-Version': '4.0',
+            'Content-Type': 'multipart/mixed; boundary=batch_' + batchNumber,
+            'Content-Length': Buffer.byteLength(postBody),
+            'Accept': 'application/json;odata.metadata=minimal',
+            'Accept-Charset': 'UTF-8',
+            'Authorization': integrationModel.token_type + ' ' + token,
+            'Host': integrationModel.resource.replace('https://', '').replace('http://', '').replace('/', '')
+        }
+    };
+
+    logger.debug({
+        message: 'Sending the following request to MSD',
+        requestOptions,
+        batchNumber,
+        options,
+        functionName: 'sendBatchRequest'
+    });
+    return httpRequest(requestOptions, postBody, batchNumber)
+        .then(function (response) {
+            logger.debug({
+                message: 'Batch response received, will update status',
+                batchNumber: response.batchNumber,
+                totalBatches,
+                statusTable,
+                statusTableUniqueId,
+                functionName: 'sendBatchRequest',
+                options
+            });
+            return db.collection(statusTable).updateOne({
+                _id: ObjectId(statusTableUniqueId)
+            }, {
+                $inc: {
+                    percentagePushedToMSD: (1 / totalBatches) * 100
+                }
+            });
+        })
+        .catch(function (error) {
+            logger.error({
+                message: 'Unable to update batch status to table, will move on',
+                error,
+                functionName: 'sendBatchRequest',
+                options
+            });
+            return Promise.resolve();
+        });
 }
 
 module.exports = {

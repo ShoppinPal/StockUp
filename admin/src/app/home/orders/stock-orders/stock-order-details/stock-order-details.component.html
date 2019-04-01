@@ -12,11 +12,12 @@
               <p>Name: <strong>{{order.name}}</strong></p>
               <p>Total Items: <strong>{{totalApprovedLineItems+totalNotApprovedLineItems}}</strong></p>
               <p>Created At: <strong>{{order.created}}</strong></p>
-              <p>State: <strong>{{order.state}}</strong>
+              <p>State: <strong>{{order.state}} <span *ngIf="order.state === reportStates.PUSHING_TO_MSD">({{order.percentagePushedToMSD || 0 | number : '1.2-2'}})%</span></strong>
                 <button type="button" class="btn btn-link" (click)="getOrderDetails()">
                   <i class="fa fa-refresh"></i>
                 </button>
               </p>
+              <p *ngIf="order.transferOrderNumber">Transfer Order Number: <strong>{{order.transferOrderNumber}}</strong></p>
             </div>
             <!--<div class="form-group col-sm-12">-->
             <!--<div class="input-group">-->

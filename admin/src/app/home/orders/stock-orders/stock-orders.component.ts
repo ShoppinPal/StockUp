@@ -79,12 +79,7 @@ export class StockOrdersComponent implements OnInit {
       limit: limit,
       skip: skip,
       order: 'created DESC',
-      include: 'storeModel',
-      where: {
-        transferOrderNumber: {
-          exists: false
-        }
-      }
+      include: 'storeModel'
     };
     let fetchOrders = Observable.combineLatest(
       this.orgModelApi.getReportModels(this.userProfile.orgModelId, filter),

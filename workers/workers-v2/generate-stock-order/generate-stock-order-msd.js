@@ -231,7 +231,10 @@ function generateStockOrder(payload, config, taskId, messageId) {
                 categoryModelId: ObjectId(categoryModelId),
                 created: new Date(),
                 updated: new Date(),
-                state: utils.REPORT_STATES.EXECUTING
+                state: utils.REPORT_STATES.EXECUTING,
+                percentagePushedToMSD: 0,
+                transferOrderNumber: null,
+                transferOrderCount: 0
             });
         })
         .catch(function (error) {
