@@ -24,11 +24,13 @@ export interface ReportModelInterface {
   "storeConfigModelId"?: any;
   "storeModelId"?: any;
   "orgModelId"?: any;
+  "categoryModelId"?: any;
   userModel?: UserModel;
   storeConfigModel?: StoreConfigModel;
   storeModel?: StoreModel;
   stockOrderLineitemModels?: StockOrderLineitemModel[];
   orgModel?: OrgModel;
+  categoryModel?: any;
 }
 
 export class ReportModel implements ReportModelInterface {
@@ -47,11 +49,13 @@ export class ReportModel implements ReportModelInterface {
   "storeConfigModelId": any;
   "storeModelId": any;
   "orgModelId": any;
+  "categoryModelId": any;
   userModel: UserModel;
   storeConfigModel: StoreConfigModel;
   storeModel: StoreModel;
   stockOrderLineitemModels: StockOrderLineitemModel[];
   orgModel: OrgModel;
+  categoryModel: any;
   constructor(data?: ReportModelInterface) {
     Object.assign(this, data);
   }
@@ -144,6 +148,10 @@ export class ReportModel implements ReportModelInterface {
           name: 'orgModelId',
           type: 'any'
         },
+        "categoryModelId": {
+          name: 'categoryModelId',
+          type: 'any'
+        },
       },
       relations: {
         userModel: {
@@ -170,6 +178,11 @@ export class ReportModel implements ReportModelInterface {
           name: 'orgModel',
           type: 'OrgModel',
           model: 'OrgModel'
+        },
+        categoryModel: {
+          name: 'categoryModel',
+          type: 'any',
+          model: ''
         },
       }
     }

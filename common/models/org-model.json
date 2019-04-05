@@ -364,6 +364,13 @@
       "principalId": "orgAdmin",
       "permission": "ALLOW",
       "property": "__create__storeModels"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "fetchOrderRowCounts"
     }
   ],
   "methods": {}

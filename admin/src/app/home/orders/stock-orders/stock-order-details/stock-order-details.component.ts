@@ -6,7 +6,7 @@ import {ToastrService} from 'ngx-toastr';
 import {UserProfileService} from "../../../../shared/services/user-profile.service";
 import {LoopBackAuth} from "../../../../shared/lb-sdk/services/core/auth.service";
 import {constants} from "../../../../shared/constants/constants";
-
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-stock-order-details',

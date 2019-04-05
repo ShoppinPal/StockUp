@@ -11,7 +11,7 @@
             <div class="form-group col-sm-6">
               <p>Name: <strong>{{order.name}}</strong></p>
               <p>Total Items: <strong>{{totalApprovedLineItems+totalNotApprovedLineItems}}</strong></p>
-              <p>Created At: <strong>{{order.created}}</strong></p>
+              <p>Created At: <strong>{{order.created | date: 'y-MM-dd HH:mm'}}</strong></p>
               <p>State: <strong>{{order.state}} <span *ngIf="order.state === reportStates.PUSHING_TO_MSD">({{order.percentagePushedToMSD || 0 | number : '1.2-2'}})%</span></strong>
                 <button type="button" class="btn btn-link" (click)="getOrderDetails()">
                   <i class="fa fa-refresh"></i>
@@ -104,7 +104,8 @@
                 <tr>
                   <th>Name</th>
                   <th>SKU</th>
-                  <th width="140">Order Quantity</th>
+                  <th width="140"> New Order Quantity</th>
+                  <th>Previous Order Quantity</th>
                   <th>Store Inventory</th>
                   <th>Approve</th>
                 </tr>
@@ -127,6 +128,7 @@
                       <i class="fa fa-plus-circle quantity-icon text-success"
                          (click)="lineItem.orderQuantity = lineItem.orderQuantity + 1"></i>
                     </td>
+                    <td>{{lineItem.originalOrderQuantity}}</td>
                     <td>{{lineItem.storeInventory}}</td>
                     <td>
                       <button class="btn btn-danger" type="submit"
@@ -155,7 +157,8 @@
                 <tr>
                   <th>Name</th>
                   <th>SKU</th>
-                  <th>Order Quantity</th>
+                  <th>New Order Quantity</th>
+                  <th>Previous Order Quantity</th>
                   <th>Fulfilled Quantity</th>
                   <th>Approve</th>
                 </tr>

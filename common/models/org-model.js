@@ -795,7 +795,28 @@ module.exports = function (OrgModel) {
                     });
                     return Promise.reject('Could not update stock order line items');
                 });
-        }
+        };
 
+        OrgModel.remoteMethod('fetchOrderRowCounts', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'orderIds', type: 'array', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/fetchOrderRowCounts', verb: 'GET'},
+            returns: {arg: 'rowCounts', type: 'object', root: true}
+        });
+
+        OrgModel.fetchOrderRowCounts = function (id, orderIds, options) {
+           return OrgModel.app.models.ReportModel.fetchOrderRowCounts(orderIds, options)
+               .catch(function (error) {
+                   logger.error({
+                       error,
+                       options,
+                       functionName: 'fetchOrderRowCounts'
+                   });
+                   return Promise.reject(error);
+               });
+        };
     });
 };

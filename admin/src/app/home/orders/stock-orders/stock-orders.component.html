@@ -84,7 +84,7 @@
               </td>
               <td>{{order.totalRows || 0}}</td>
               <td>{{order.state}}</td>
-              <td>{{order.created}}</td>
+              <td>{{order.created | date: 'y-MM-dd HH:mm'}}</td>
               <td>
                 <button class="btn btn-danger" type="submit" (click)="goToStockOrderDetailsPage(order.id)">
                   <i class="fa fa-save"></i> View

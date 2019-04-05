@@ -149,16 +149,37 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                         orgModelId
                     });
 
-                    var productModelIds = _.difference(_.pluck(inventoryModelInstances, 'productModelId'), _.pluck(_.find(inventoryModelInstances, function (eachInventory) {
-                        return eachInventory.standardDeviationCalculationDate &&
+                    /**
+                     * Do not calculate reorder points for inventory models
+                     * that already have reorder points calculated today
+                     */
+                    var allProductModelIds = _.map(_.filter(_.pluck(inventoryModelInstances, 'productModelId'), function (eachProductModelId) {
+                        return eachProductModelId !== undefined;
+                    }), function (eachProductModelId) {
+                        if (eachProductModelId)
+                            return eachProductModelId.toString();
+                    });
+                    var inventoriesCalculatedToday = _.filter(inventoryModelInstances, function (eachInventory) {
+                        var calculatedToday = eachInventory.standardDeviationCalculationDate &&
                             eachInventory.standardDeviationCalculationDate.getDate() === TODAYS_DATE.getDate() &&
                             eachInventory.standardDeviationCalculationDate.getMonth() === TODAYS_DATE.getMonth() &&
                             eachInventory.standardDeviationCalculationDate.getYear() === TODAYS_DATE.getYear();
-                    }), 'productModelId'));
+                        return calculatedToday;
+                    });
+                    var productModelIdsCalculatedToday = _.map(_.pluck(inventoriesCalculatedToday, 'productModelId'), function (eachProductModelId) {
+                        if (eachProductModelId)
+                            return eachProductModelId.toString();
+                    });
 
-                    if (!productModelIds.length) {
+                    var productModelIdsToCalculate = _.difference(allProductModelIds, productModelIdsCalculatedToday);
+
+                    if (!productModelIdsToCalculate.length) {
                         return Promise.resolve([0, 0]);
                     }
+                    var productModelIds = _.map(productModelIdsToCalculate, function (eachProductModelId) {
+                        if (eachProductModelId)
+                            return ObjectId(eachProductModelId);
+                    });
                     return Promise.all([
                         db.collection('ProductModel').find({
                             _id: {
@@ -230,135 +251,141 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
 
                 var salesGroupedByProducts = _.groupBy(salesModels, 'productModelId');
 
-                var batchCounter = 0, batches = [];
-                batches.push(db.collection('InventoryModel').initializeUnorderedBulkOp());
-                _.each(productModels, function (eachProductModel, i) {
-                    if (i === 999) {
-                        batches.push(db.collection('InventoryModel').initializeUnorderedBulkOp());
-                    }
+                if (productModels && productModels.length) {
 
-                    var totalQuantitiesSold = 0;
-                    var totalQuantitiesSoldPerDate = {};
-                    var totalNumberOfDaysSinceFirstSold;
+                    var batchCounter = 0, batches = [];
+                    batches.push(db.collection('InventoryModel').initializeUnorderedBulkOp());
+                    _.each(productModels, function (eachProductModel, i) {
+                        if (i === 999) {
+                            batches.push(db.collection('InventoryModel').initializeUnorderedBulkOp());
+                        }
 
-                    if(eachProductModel.categoryModelId) {
-                        var correspondingCategoryModel = _.find(categoryModelInstances, function (eachCategoryModel) {
-                            return eachCategoryModel._id.toString() === eachProductModel.categoryModelId.toString();
-                        });
-                    }
+                        var totalQuantitiesSold = 0;
+                        var totalQuantitiesSoldPerDate = {};
+                        var totalNumberOfDaysSinceFirstSold;
 
-                    // var correspondingCategoryModel = _.findWhere(categoryModelInstances, {_id: ObjectId(eachProductModel.categoryModelId)});
+                        if (eachProductModel.categoryModelId) {
+                            var correspondingCategoryModel = _.find(categoryModelInstances, function (eachCategoryModel) {
+                                return eachCategoryModel._id.toString() === eachProductModel.categoryModelId.toString();
+                            });
+                        }
 
-                    var productSales = salesGroupedByProducts[eachProductModel._id];
+                        // var correspondingCategoryModel = _.findWhere(categoryModelInstances, {_id: ObjectId(eachProductModel.categoryModelId)});
 
-                    if (productSales) {
-                        var firstSale = productSales[0].salesDate;
+                        var productSales = salesGroupedByProducts[eachProductModel._id];
 
-                        for (var j = 0, jLen = productSales.length; j<jLen; j++) {
-                            firstSale = productSales[j].salesDate<firstSale ? productSales[j].salesDate : firstSale;
-                            totalQuantitiesSold += productSales[j].quantity;
-                            if (!totalQuantitiesSoldPerDate[productSales[j].salesDate]) {
-                                totalQuantitiesSoldPerDate[productSales[j].salesDate] = productSales[j].quantity;
+                        if (productSales) {
+                            var firstSale = productSales[0].salesDate;
+
+                            for (var j = 0, jLen = productSales.length; j<jLen; j++) {
+                                firstSale = productSales[j].salesDate<firstSale ? productSales[j].salesDate : firstSale;
+                                totalQuantitiesSold += productSales[j].quantity;
+                                if (!totalQuantitiesSoldPerDate[productSales[j].salesDate]) {
+                                    totalQuantitiesSoldPerDate[productSales[j].salesDate] = productSales[j].quantity;
+                                }
+                                else {
+                                    totalQuantitiesSoldPerDate[productSales[j].salesDate] += productSales[j].quantity;
+                                }
+                            }
+
+                            var millisecondsPerDay = 24 * 60 * 60 * 1000;
+                            totalNumberOfDaysSinceFirstSold = Math.round((TODAYS_DATE - new Date(firstSale)) / millisecondsPerDay);
+                            var averageDailyDemand = totalQuantitiesSold / totalNumberOfDaysSinceFirstSold;
+                            var standardDeviation;
+                            var averageMinusValueSquareSummation = 0; //sigma of (x minus x bar)^2
+                            var arrayOfDatesOfSales = Object.keys(totalQuantitiesSoldPerDate);
+                            for (var j = 0; j<arrayOfDatesOfSales.length; j++) {
+                                averageMinusValueSquareSummation += Math.pow(totalQuantitiesSoldPerDate[arrayOfDatesOfSales[j]] - averageDailyDemand, 2);
+                            }
+                            for (var j = 0; j<totalNumberOfDaysSinceFirstSold - arrayOfDatesOfSales.length; j++) {
+                                averageMinusValueSquareSummation += Math.pow(0 - averageDailyDemand, 2);
+                            }
+                            standardDeviation = Math.pow(averageMinusValueSquareSummation / totalNumberOfDaysSinceFirstSold, 0.5);
+                            //tempMin is not of much use here, since we are considering a periodic replenishment system of 1 week for each store
+                            var tempMin = LEAD_TIME_IN_DAYS * (averageDailyDemand + standardDeviation) + (CSL_MULTIPLIER * standardDeviation * Math.pow(LEAD_TIME_IN_DAYS, 0.5));
+                            var tempMax = (LEAD_TIME_IN_DAYS + REVIEW_TIME_IN_DAYS) * (averageDailyDemand + standardDeviation) + (CSL_MULTIPLIER * standardDeviation * Math.pow((LEAD_TIME_IN_DAYS + REVIEW_TIME_IN_DAYS), 0.5));
+                            var MIN, MAX, MDQ, maxShelfCapacity;
+                            if (correspondingCategoryModel &&
+                                correspondingCategoryModel.min &&
+                                correspondingCategoryModel.min[storeModelId]>=0 &&
+                                correspondingCategoryModel.max &&
+                                correspondingCategoryModel.max[storeModelId]>=0) {
+                                MDQ = correspondingCategoryModel.min[storeModelId];
+                                maxShelfCapacity = correspondingCategoryModel.max[storeModelId];
+                                MIN = MDQ>tempMin ? MDQ : tempMin;
+                                MAX = (tempMax + MDQ)<maxShelfCapacity ? (tempMax + MDQ) : maxShelfCapacity;
                             }
                             else {
-                                totalQuantitiesSoldPerDate[productSales[j].salesDate] += productSales[j].quantity;
+                                MIN = tempMin;
+                                MAX = tempMax;
                             }
-                        }
+                            logger.debug({
+                                totalQuantitiesSoldPerDate,
+                                arrayOfDatesOfSales,
+                                MDQ: MDQ,
+                                MaxShelfCapacity: maxShelfCapacity,
+                                averageMinusValueSquareSummation,
+                                totalQuantitiesSold,
+                                totalNumberOfDaysSinceFirstSold,
+                                commandName,
+                                storeModelId,
+                                orgModelId,
+                                correspondingCategoryModel,
+                                averageDailyDemand,
+                                standardDeviation,
+                                productModelId: eachProductModel._id,
+                                tempMax,
+                                tempMin,
+                                MAX,
+                                MIN,
+                                productNumber: (i + 1) + '/' + productModels.length,
+                                productName: eachProductModel.name,
+                                sku: eachProductModel.sku
+                            });
 
-                        var millisecondsPerDay = 24 * 60 * 60 * 1000;
-                        totalNumberOfDaysSinceFirstSold = Math.round((TODAYS_DATE - new Date(firstSale)) / millisecondsPerDay);
-                        var averageDailyDemand = totalQuantitiesSold / totalNumberOfDaysSinceFirstSold;
-                        var standardDeviation;
-                        var averageMinusValueSquareSummation = 0; //sigma of (x minus x bar)^2
-                        var arrayOfDatesOfSales = Object.keys(totalQuantitiesSoldPerDate);
-                        for (var j = 0; j<arrayOfDatesOfSales.length; j++) {
-                            averageMinusValueSquareSummation += Math.pow(totalQuantitiesSoldPerDate[arrayOfDatesOfSales[j]] - averageDailyDemand, 2);
-                        }
-                        for (var j = 0; j<totalNumberOfDaysSinceFirstSold - arrayOfDatesOfSales.length; j++) {
-                            averageMinusValueSquareSummation += Math.pow(0 - averageDailyDemand, 2);
-                        }
-                        standardDeviation = Math.pow(averageMinusValueSquareSummation / totalNumberOfDaysSinceFirstSold, 0.5);
-                        //tempMin is not of much use here, since we are considering a periodic replenishment system of 1 week for each store
-                        var tempMin = LEAD_TIME_IN_DAYS * (averageDailyDemand + standardDeviation) + (CSL_MULTIPLIER * standardDeviation * Math.pow(LEAD_TIME_IN_DAYS, 0.5));
-                        var tempMax = (LEAD_TIME_IN_DAYS + REVIEW_TIME_IN_DAYS) * (averageDailyDemand + standardDeviation) + (CSL_MULTIPLIER * standardDeviation * Math.pow((LEAD_TIME_IN_DAYS + REVIEW_TIME_IN_DAYS), 0.5));
-                        var MIN, MAX, MDQ, maxShelfCapacity;
-                        if (correspondingCategoryModel &&
-                            correspondingCategoryModel.min &&
-                            correspondingCategoryModel.min[storeModelId]>=0 &&
-                            correspondingCategoryModel.max &&
-                            correspondingCategoryModel.max[storeModelId]>=0) {
-                            MDQ = correspondingCategoryModel.min[storeModelId];
-                            maxShelfCapacity = correspondingCategoryModel.max[storeModelId];
-                            MIN = MDQ>tempMin ? MDQ : tempMin;
-                            MAX = (tempMax + MDQ)<maxShelfCapacity ? (tempMax + MDQ) : maxShelfCapacity;
+                            batches[batches.length - 1].find({
+                                productModelId: ObjectId(eachProductModel._id),
+                                storeModelId: ObjectId(storeModelId)
+                            }).update({
+                                $set: {
+                                    averageDailyDemand: averageDailyDemand,
+                                    standardDeviation: standardDeviation,
+                                    averageDailyDemandCalculationDate: new Date(),
+                                    standardDeviationCalculationDate: new Date(),
+                                    reorder_point: MAX ? Math.round(MAX) : Math.round(tempMax), //reorder quantities to this point
+                                    reorder_threshold: MIN ? Math.round(MIN) : Math.round(tempMin), //reorder quantities if product below this level
+                                }
+                            });
                         }
                         else {
-                            MIN = tempMin;
-                            MAX = tempMax;
+                            logger.debug({
+                                message: 'There is no previous sales data available, will move on to next one',
+                                product: eachProductModel._id,
+                                inventoryNumber: (i + 1) + '/' + productModels.length
+                            });
+                            batches[batches.length - 1].find({
+                                productModelId: ObjectId(eachProductModel._id),
+                                storeModelId: ObjectId(storeModelId)
+                            }).update({
+                                $set: {
+                                    averageDailyDemandCalculationDate: new Date(),
+                                    standardDeviationCalculationDate: new Date()
+                                }
+                            });
                         }
-                        logger.debug({
-                            totalQuantitiesSoldPerDate,
-                            arrayOfDatesOfSales,
-                            MDQ: MDQ,
-                            MaxShelfCapacity: maxShelfCapacity,
-                            averageMinusValueSquareSummation,
-                            totalQuantitiesSold,
-                            totalNumberOfDaysSinceFirstSold,
-                            commandName,
-                            storeModelId,
-                            orgModelId,
-                            correspondingCategoryModel,
-                            averageDailyDemand,
-                            standardDeviation,
-                            productModelId: eachProductModel._id,
-                            tempMax,
-                            tempMin,
-                            MAX,
-                            MIN,
-                            productNumber: (i + 1) + '/' + productModels.length,
-                            productName: eachProductModel.name,
-                            sku: eachProductModel.sku
-                        });
-
-                        batches[batches.length - 1].find({
-                            productModelId: ObjectId(eachProductModel._id),
-                            storeModelId: ObjectId(storeModelId)
-                        }).update({
-                            $set: {
-                                averageDailyDemand: averageDailyDemand,
-                                standardDeviation: standardDeviation,
-                                averageDailyDemandCalculationDate: new Date(),
-                                standardDeviationCalculationDate: new Date(),
-                                reorder_point: MAX ? Math.round(MAX) : Math.round(tempMax), //reorder quantities to this point
-                                reorder_threshold: MIN ? Math.round(MIN) : Math.round(tempMin), //reorder quantities if product below this level
-                            }
-                        });
-                    }
-                    else {
-                        logger.debug({
-                            message: 'There is no previous sales data available, will move on to next one',
-                            product: eachProductModel._id,
-                            inventoryNumber: (i + 1) + '/' + productModels.length
-                        });
-                        batches[batches.length - 1].find({
-                            productModelId: ObjectId(eachProductModel._id),
-                            storeModelId: ObjectId(storeModelId)
-                        }).update({
-                            $set: {
-                                averageDailyDemandCalculationDate: new Date(),
-                                standardDeviationCalculationDate: new Date()
-                            }
-                        });
-                    }
-                });
-                return Promise.map(batches, function (eachBatch, batchNumber) {
-                    logger.debug({
-                        message: 'Executing batch',
-                        batchNumber,
-                        messageId
                     });
-                            return eachBatch.execute();
-                })
+                    return Promise.map(batches, function (eachBatch, batchNumber) {
+                        logger.debug({
+                            message: 'Executing batch',
+                            batchNumber,
+                            messageId
+                        });
+                        return eachBatch.execute();
+                    });
+                }
+                else {
+                    return Promise.resolve('No reorder points to update');
+                }
             })
             .catch(function (error) {
                 logger.error({

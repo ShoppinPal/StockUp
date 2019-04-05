@@ -6,6 +6,7 @@ import {ToastrService} from 'ngx-toastr';
 import {UserProfileService} from "../../../shared/services/user-profile.service";
 import {LoopBackAuth} from "../../../shared/lb-sdk/services/core/auth.service";
 import {TypeaheadMatch} from 'ngx-bootstrap';
+import {DatePipe} from '@angular/common';
 
 @Component({
   selector: 'app-stock-orders',
@@ -47,6 +48,7 @@ export class StockOrdersComponent implements OnInit {
     this.userProfile = this._userProfileService.getProfileData();
     this._route.data.subscribe((data: any) => {
         this.orders = data.stockOrders.orders;
+        this.fetchOrderRowCounts();
         for (var i = 0; i < data.stockOrders.stores.length; i++) {
           if (data.stockOrders.stores[i].isWarehouse) {
             this.warehouses.push(data.stockOrders.stores[i]);
@@ -69,6 +71,25 @@ export class StockOrdersComponent implements OnInit {
       .mergeMap((token: string) => this.searchCategory(token));
   }
 
+  fetchOrderRowCounts() {
+    let orderIds = [];
+    for (var i = 0; i < this.orders.length; i++) {
+      orderIds.push(this.orders[i].id);
+    }
+    this.orgModelApi.fetchOrderRowCounts(this.userProfile.orgModelId, orderIds)
+      .subscribe((rowCounts: any) => {
+          for (var i = 0; i < this.orders.length; i++) {
+            let orderRowCount = rowCounts.find(eachRowCount => {
+              return eachRowCount.reportModelId === this.orders[i].id;
+            });
+            this.orders[i].totalRows = orderRowCount ? orderRowCount.totalRows : 0;
+          }
+        },
+        err => {
+          console.log('err row counts', err);
+        });
+  }
+
   fetchOrders(limit?: number, skip?: number, searchText?: string) {
     if (!(limit && skip)) {
       limit = 10;
@@ -88,8 +109,8 @@ export class StockOrdersComponent implements OnInit {
         this.loading = false;
         this.orders = data[0];
         this.totalOrders = data[1].count;
-
         this.totalPages = Math.floor(this.totalOrders / 100);
+        this.fetchOrderRowCounts();
       },
       err => {
         this.loading = false;
@@ -115,7 +136,6 @@ export class StockOrdersComponent implements OnInit {
     let toastr = this.toastr;
     toastr.info('Generating stock order...');
     es.onmessage = function (event) {
-      es.close();
       let response = JSON.parse(event.data);
       if (response.success) {
         toastr.success('Order generated');
@@ -124,6 +144,7 @@ export class StockOrdersComponent implements OnInit {
       else {
         toastr.error('Error in generating order');
       }
+      es.close();
     };
     es.onerror = function (event) {
       toastr.error('Error in generating order');

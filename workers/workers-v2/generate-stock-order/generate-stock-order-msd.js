@@ -365,8 +365,9 @@ function generateStockOrder(payload, config, taskId, messageId) {
                     //     return memo + num.inventory_level;
                     // }, 0);
 
-
-                    if (warehouseInventory[storeInventory[i].productModelId]) {
+                    if (warehouseInventory[storeInventory[i].productModelId] &&
+                        warehouseInventory[storeInventory[i].productModelId] instanceof Array &&
+                        warehouseInventory[storeInventory[i].productModelId].length) {
                         for (var j = 0; j<warehouseInventory[storeInventory[i].productModelId].length; j++) {
                             warehouseQuantityOnHand += warehouseInventory[storeInventory[i].productModelId][j].inventory_level;
                         }
@@ -412,15 +413,13 @@ function generateStockOrder(payload, config, taskId, messageId) {
                 });
             }
             logger.debug({
-                message: 'Could not find a corresponding inventory for product in warehouse, will skip the item',
-                productModelIds: skippedLineItems,
+                message: 'Could not find a corresponding inventory for product in warehouse, will skip these many items',
                 count: skippedLineItems.length,
                 commandName,
                 messageId
             });
             logger.debug({
                 message: 'Prepared to push these items to stock order',
-                lineItemsToOrder,
                 count: lineItemsToOrder.length,
                 commandName,
                 messageId
@@ -467,8 +466,7 @@ function generateStockOrder(payload, config, taskId, messageId) {
                     _id: reportModel._id
                 }, {
                     $set: {
-                        state: utils.REPORT_STATES.GENERATED,
-                        totalRows: totalRows
+                        state: utils.REPORT_STATES.GENERATED
                     }
                 });
             }
@@ -476,136 +474,186 @@ function generateStockOrder(payload, config, taskId, messageId) {
 }
 
 function optimiseQuantitiesByStorePriority(lineItemsToOrder, warehouseInventory, storeModelId, orgModelId, messageId) {
-    logger.debug({
-        message: 'Will look for same SKUs ordered today for other stores',
-        commandName,
-        messageId
-    });
-    var todaysDate = new Date().getFullYear() + '-' + new Date().getMonth() + 1 + '-' + new Date().getDate();
-    return db.collection('StockOrderLineitemModel').find({
-        $and: [
+    try {
+
+        logger.debug({
+            message: 'Will look for same SKUs ordered today for other stores',
+            commandName,
+            messageId
+        });
+        var todaysDate = new Date();
+        todaysDate.setHours(0, 0, 0, 0);
+        debugger;
+        //look for any latest report models from other stores generated today
+        var aggregateQuery = [
             {
-                productModelId: {
-                    $in: _.pluck(lineItemsToOrder, 'productModelId')
+                $match: {
+                    $and: [
+                        {
+                            created: {
+                                $gte: todaysDate
+                            }
+                        },
+                        {
+                            orgModelId: ObjectId(orgModelId)
+                        },
+                        {
+                            storeModelId: {
+                                $ne: ObjectId(storeModelId)
+                            }
+                        }
+                    ]
                 }
             },
             {
-                createdAt: {
-                    $gte: new Date(todaysDate)
+                $sort: {
+                    created: -1
                 }
             },
             {
-                orgModelId: ObjectId(orgModelId)
-            },
-            {
-                storeModelId: {
-                    $ne: ObjectId(storeModelId)
+                $group: {
+                    _id: '$storeModelId',
+                    reportModelId: {$first: '$_id'}
                 }
             }
-        ]
-    }).toArray()
-        .catch(function (error) {
-            logger.error({
-                message: 'Could not find same SKUs ordered today for other stores',
-                commandName,
-                error,
-                messageId
-            });
-            return Promise.reject('Could not find same SKUs ordered today for other stores');
-        })
-        .then(function (alreadyOrderedLineItems) {
-            logger.debug({
-                message: 'These items already exist on another order generated today',
-                count: alreadyOrderedLineItems.length,
-                commandName,
-                messageId
-            });
-            alreadyOrderedLineItems = _.union(alreadyOrderedLineItems, lineItemsToOrder);
-            var sameSKUsGrouped = _.groupBy(alreadyOrderedLineItems, 'productModelId');
-            var groupedProductModelIDs = Object.keys(sameSKUsGrouped);
-            var newTotalQuantitiesOrderedByAllStores = 0;
-            for (var i = 0; i<groupedProductModelIDs.length; i++) {
-
-                var totalQuantitiesOrderedByAllStores = _.reduce(sameSKUsGrouped[groupedProductModelIDs[i]], function (memo, num) {
-                    return memo + num.originalOrderQuantity;
-                }, 0);
-                logger.debug({
-                    totalQuantitiesOrderedByAllStores,
-                    warehouseInventory: warehouseInventory[groupedProductModelIDs[i]],
-                    productId: groupedProductModelIDs[i],
-                    messageId,
-                    commandName
+        ];
+        return db.collection('ReportModel').aggregate(aggregateQuery).toArray()
+            .catch(function (error) {
+                logger.error({
+                    message: 'Error fetching other report models generated today',
+                    error,
+                    messageId
                 });
-                if (totalQuantitiesOrderedByAllStores>warehouseInventory[groupedProductModelIDs[i]]) {
-                    _.each(sameSKUsGrouped[groupedProductModelIDs[i]], function (eachSKU) {
-                        newTotalQuantitiesOrderedByAllStores = 0;
-                        var orderQuantity = (eachSKU.originalOrderQuantity / totalQuantitiesOrderedByAllStores) * warehouseInventory[groupedProductModelIDs[i]];
-                        eachSKU.orderQuantity = Math.round(orderQuantity);
-                        eachSKU.roundedBy = eachSKU.orderQuantity - orderQuantity;
-                        newTotalQuantitiesOrderedByAllStores += eachSKU.orderQuantity;
+                return Promise.reject('Error fetching other report models generated today');
+            })
+            .then(function (reportModelInstances) {
+                logger.debug({
+                    message: 'Found these latest report models generated today, will look for same items ordered in them',
+                    reportModelInstances,
+                    messageId
+                });
+                var reportModelIds = _.pluck(reportModelInstances, 'reportModelId');
+                var filter = {
+                    $and: [
+                        {
+                            productModelId: {
+                                $in: _.pluck(lineItemsToOrder, 'productModelId')
+                            }
+                        },
+                        {
+                            reportModelId: {
+                                $in: reportModelIds
+                            }
+                        }
+                    ]
+                };
+                return db.collection('StockOrderLineitemModel').find(filter).toArray()
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not find same SKUs ordered today for other stores',
+                    commandName,
+                    error,
+                    messageId
+                });
+                return Promise.reject('Could not find same SKUs ordered today for other stores');
+            })
+            .then(function (alreadyOrderedLineItems) {
+                logger.debug({
+                    message: 'These items already exist on another order generated today for another store',
+                    count: alreadyOrderedLineItems.length,
+                    commandName,
+                    messageId
+                });
+
+                var combinedLineItems = _.union(alreadyOrderedLineItems, lineItemsToOrder);
+                var sameSKUsGrouped = _.groupBy(combinedLineItems, 'productModelId');
+                if (alreadyOrderedLineItems.length) {
+                    logger.debug({
+                        message: 'Will change the order quantities to accommodate deficit in warehouse inventory',
+                        commandName,
+                        messageId
                     });
-                    if (newTotalQuantitiesOrderedByAllStores>warehouseInventory[groupedProductModelIDs[i]]) {
-                        var extraQuantities = newTotalQuantitiesOrderedByAllStores - warehouseInventory[groupedProductModelIDs[i]];
-                        sameSKUsGrouped[groupedProductModelIDs[i]] = _.sortBy(sameSKUsGrouped[groupedProductModelIDs[i]], 'roundedBy');
-                        for (var j = sameSKUsGrouped[groupedProductModelIDs[i]].length - 1; j>sameSKUsGrouped[groupedProductModelIDs[i]].length - extraQuantities - 1; j--) {
-                            sameSKUsGrouped[groupedProductModelIDs[i]][j].orderQuantity--;
+
+                    var groupedProductModelIDs = Object.keys(sameSKUsGrouped);
+                    var newTotalQuantitiesOrderedByAllStores = 0;
+                    for (var i = 0; i<groupedProductModelIDs.length; i++) {
+
+                        var totalQuantitiesOrderedByAllStores = _.reduce(sameSKUsGrouped[groupedProductModelIDs[i]], function (memo, num) {
+                            return memo + num.originalOrderQuantity;
+                        }, 0);
+                        logger.debug({
+                            totalQuantitiesOrderedByAllStores,
+                            warehouseInventory: warehouseInventory[groupedProductModelIDs[i]],
+                            productId: groupedProductModelIDs[i],
+                            messageId,
+                            commandName
+                        });
+                        if (totalQuantitiesOrderedByAllStores>warehouseInventory[groupedProductModelIDs[i]]) {
+                            newTotalQuantitiesOrderedByAllStores = 0;
+                            _.each(sameSKUsGrouped[groupedProductModelIDs[i]], function (eachSKU) {
+                                var orderQuantity = (eachSKU.originalOrderQuantity / totalQuantitiesOrderedByAllStores) * warehouseInventory[groupedProductModelIDs[i]];
+                                eachSKU.orderQuantity = Math.round(orderQuantity);
+                                eachSKU.roundedBy = eachSKU.orderQuantity - orderQuantity;
+                                newTotalQuantitiesOrderedByAllStores += eachSKU.orderQuantity;
+                            });
+                            if (newTotalQuantitiesOrderedByAllStores>warehouseInventory[groupedProductModelIDs[i]]) {
+                                var extraQuantities = newTotalQuantitiesOrderedByAllStores - warehouseInventory[groupedProductModelIDs[i]];
+                                sameSKUsGrouped[groupedProductModelIDs[i]] = _.sortBy(sameSKUsGrouped[groupedProductModelIDs[i]], 'roundedBy');
+                                for (var j = sameSKUsGrouped[groupedProductModelIDs[i]].length - 1; j>sameSKUsGrouped[groupedProductModelIDs[i]].length - extraQuantities - 1; j--) {
+                                    sameSKUsGrouped[groupedProductModelIDs[i]][j].orderQuantity--;
+                                }
+                            }
                         }
                     }
                 }
-            }
-            logger.debug({
-                message: 'Will change the order quantities to accommodate deficit in warehouse inventory',
-                commandName,
-                messageId
-            });
 
-            var batches = [];
-            batches.push(db.collection('StockOrderLineitemModel').initializeUnorderedBulkOp());
-            _.each(_.flatten(_.values(sameSKUsGrouped), true), function (eachLineItem, iterator) {
-                if (iterator === 999) {
-                    batches.push(db.collection('StockOrderLineitemModel').initializeUnorderedBulkOp());
-                }
-                if (eachLineItem._id) {
-                    if (eachLineItem.orderQuantity<=0) {
-                        batches[batches.length - 1].find({
-                            _id: eachLineItem._id
-                        }).remove({
-                            _id: eachLineItem._id
-                        });
+                var batch = db.collection('StockOrderLineitemModel').initializeUnorderedBulkOp();
+                _.each(_.flatten(_.values(sameSKUsGrouped), true), function (eachLineItem) {
+                    if (eachLineItem._id) {
+                        if (eachLineItem.orderQuantity) {
+                            batch.find({
+                                _id: eachLineItem._id
+                            }).upsert().updateOne({
+                                $set: {
+                                    orderQuantity: eachLineItem.orderQuantity,
+                                    updatedAt: new Date(),
+                                    roundedBy: eachLineItem.roundedBy
+                                }
+                            });
+                        }
+                        else {
+                            batch.find({
+                                _id: eachLineItem._id
+                            }).remove({
+                                _id: eachLineItem._id
+                            });
+                        }
                     }
                     else {
-                        batches[batches.length - 1].find({
-                            _id: eachLineItem._id
-                        }).updateOne({
-                            $set: {
-                                orderQuantity: eachLineItem.orderQuantity,
-                                updatedAt: new Date(),
-                                roundedBy: eachLineItem.roundedBy
-                            }
-                        });
+                        if (eachLineItem.orderQuantity) {
+                            batch.insert(eachLineItem);
+                        }
                     }
-                }
-                else {
-                    if (eachLineItem.orderQuantity>0)
-                        batches[batches.length - 1].insert(eachLineItem);
-                }
-            });
-            return Promise.map(batches, function (eachBatch, batchNumber) {
-                logger.debug({
-                    message: 'Executing batch',
-                    batchNumber,
+                });
+                return batch.execute();
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not optimise order quantities',
+                    error,
+                    commandName,
                     messageId
                 });
-                return eachBatch.execute();
+                return Promise.reject('Could not optimise order quantities');
             });
-        })
-        .catch(function (error) {
-            logger.error({
-                message: 'Could not optimise order quantities',
-                error,
-                commandName,
-                messageId
-            });
-            return Promise.reject('Could not optimise order quantities');
+    }
+    catch (e) {
+        logger.error({
+            message: 'Error optimising according to store priority',
+            reason: e,
+            e,
+            messageId
         });
+    }
 }

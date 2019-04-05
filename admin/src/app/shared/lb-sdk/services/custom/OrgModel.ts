@@ -2946,11 +2946,11 @@ export class OrgModelApi extends BaseLoopBackApi {
    *
    * @param {string} warehouseModelId 
    *
-   * @param {string} categoryModelId 
-   *
    * @param {object} req 
    *
    * @param {object} res 
+   *
+   * @param {string} categoryModelId 
    *
    * @param {object} options 
    *
@@ -2963,7 +2963,7 @@ export class OrgModelApi extends BaseLoopBackApi {
    * This usually means the response is a `OrgModel` object.)
    * </em>
    */
-  public generateStockOrderMSD(id: any, storeModelId: any, warehouseModelId: any, categoryModelId: any = {}, req: any = {}, res: any = {}, customHeaders?: Function): Observable<any> {
+  public generateStockOrderMSD(id: any, storeModelId: any, warehouseModelId: any, req: any = {}, res: any = {}, categoryModelId: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/OrgModels/:id/generateStockOrderMSD";
@@ -3093,6 +3093,40 @@ export class OrgModelApi extends BaseLoopBackApi {
     if (typeof reportModelId !== 'undefined' && reportModelId !== null) _urlParams.reportModelId = reportModelId;
     if (typeof lineItemIds !== 'undefined' && lineItemIds !== null) _urlParams.lineItemIds = lineItemIds;
     if (typeof data !== 'undefined' && data !== null) _urlParams.data = data;
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * <em>
+         * (The remote method definition does not provide any description.)
+         * </em>
+   *
+   * @param {string} id 
+   *
+   * @param {any} orderIds 
+   *
+   * @param {object} options 
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * <em>
+   * (The remote method definition does not provide any description.
+   * This usually means the response is a `OrgModel` object.)
+   * </em>
+   */
+  public fetchOrderRowCounts(id: any, orderIds: any, customHeaders?: Function): Observable<any> {
+    let _method: string = "GET";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/:id/fetchOrderRowCounts";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    if (typeof orderIds !== 'undefined' && orderIds !== null) _urlParams.orderIds = orderIds;
     let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
     return result;
   }

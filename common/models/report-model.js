@@ -1709,7 +1709,74 @@ module.exports = function (ReportModel) {
                 });
                 return Promise.reject('Error in creating transfer order');
             });
-    }
+    };
+
+    ReportModel.fetchOrderRowCounts = function (orderIds, options) {
+        logger.debug({
+            message: 'Will fetch row counts for these orders',
+            orderIds,
+            options,
+            functionName: 'fetchOrderRowCounts'
+        });
+        if (!(orderIds instanceof Array) || orderIds.length<1 || orderIds.length>100) {
+            logger.debug({
+                message: 'OrderIds should be a valid array of 1 to 100 length',
+                orderIds,
+                options,
+                functionName: 'fetchOrderRowCounts'
+            });
+            return Promise.reject('OrderIds should be a valid array of 1 to 100 length');
+        }
+
+        //https://github.com/strongloop/loopback/issues/890#issuecomment-66581628
+        var db = ReportModel.getDataSource();
+        var orderObjectIDs = _.map(orderIds, function (eachOrderId) {
+            return db.ObjectID(eachOrderId);
+        });
+        return db.connector.collection('StockOrderLineitemModel').aggregate([
+            {
+                $match: {
+                    reportModelId: {
+                        $in: orderObjectIDs
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        reportModelId: "$reportModelId"
+                    },
+                    totalRows: {
+                        $sum: 1
+                    }
+                }
+            }
+        ]).toArray()
+            .catch(function (error) {
+                logger.error({
+                    message: 'Error fetching order row counts',
+                    error,
+                    options,
+                    functionName: 'fetchOrderRowCounts'
+                });
+                return Promise.reject('Error fetching order row counts');
+            })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Found these counts',
+                    response,
+                    options,
+                    functionName: 'fetchOrderRowCounts'
+                });
+                var rowCounts = _.map(response, function (eachResponse) {
+                    return {
+                        reportModelId: eachResponse._id.reportModelId,
+                        totalRows: eachResponse.totalRows
+                    };
+                });
+                return Promise.resolve(rowCounts);
+            });
+    };
 
 };
 
