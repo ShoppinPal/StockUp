@@ -83,7 +83,6 @@ var runMe = function (payload, config, taskId, messageId) {
           var batchCounter = 0, inventoryCounter = 0;
           //Add some operations to be executed
           _.each(incrementalInventory, function (eachInventory, iteratee) {
-            if (eachInventory.reorder_point !== null) {
               var productModelToAttach = _.findWhere(productModelInstances, {api_id: eachInventory.product_id});
               var storeModelToAttach = _.findWhere(storeModelInstances, {api_id: eachInventory.outlet_id});
               batchesArray[batchCounter].find({
@@ -101,7 +100,6 @@ var runMe = function (payload, config, taskId, messageId) {
                   storeConfigModelId: ObjectId(payload.storeConfigModelId)
                 }
               });
-            }
             process.stdout.write('\033[0G');
             process.stdout.write('Percentage completed: ' + Math.round((iteratee / incrementalInventory.length) * 100) + '%');
             iteratee++;
