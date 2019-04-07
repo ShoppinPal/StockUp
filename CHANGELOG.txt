@@ -1,3 +1,6 @@
+v1.5.10 - April 07, 2019
+- Reorder point-vend null value
+
 v1.5.9 - March 27, 2019
 - Removed env variable from logs.
 v1.5.8 - Dec 21, 2018
