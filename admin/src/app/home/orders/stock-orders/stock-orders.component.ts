@@ -35,6 +35,7 @@ export class StockOrdersComponent implements OnInit {
   public categoriesList: Observable<any>;
   public categoriesListLimit: number = 7;
   public selectedCategoryId: string;
+  public maxPageDisplay: number = 7;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -109,6 +110,7 @@ export class StockOrdersComponent implements OnInit {
         this.loading = false;
         this.orders = data[0];
         this.totalOrders = data[1].count;
+        this.currentPage = (skip / this.ordersLimitPerPage) + 1;
         this.totalPages = Math.floor(this.totalOrders / 100);
         this.fetchOrderRowCounts();
       },

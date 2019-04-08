@@ -188,7 +188,7 @@ function generateStockOrder(payload, config, taskId, messageId) {
     var storeModelId = payload.storeModelId;
     var warehouseModelId = payload.warehouseModelId;
     var categoryModelId = payload.categoryModelId;
-    var storeInventory;
+    var storeInventory, productModelIds;
     logger.debug({
         message: 'Will generate stock order for the following store',
         storeModelId,
@@ -281,24 +281,51 @@ function generateStockOrder(payload, config, taskId, messageId) {
                 commandName,
                 messageId
             });
-            var filter = {
-                $and: [
-                    {
+            var aggregationQuery = [
+                {
+                    $match: {
                         storeModelId: ObjectId(storeModelId)
-                    },
-                    {
-                        $where: 'this.inventory_level <= this.reorder_threshold'
                     }
-                ]
-            };
+                },
+                {
+                    $group: {
+                        _id: {productModelId: '$productModelId'},
+                        inventory_level: {
+                            $sum: '$inventory_level'
+                        },
+                        reorder_point: {
+                            $first: '$reorder_point'
+                        },
+                        reorder_threshold: {
+                            $first: '$reorder_threshold'
+                        }
+                    }
+                },
+                {
+                    $project: {
+                        to_replenish: {
+                            $gt: ['$reorder_threshold', '$inventory_level']
+                        },
+                        inventory_level: '$inventory_level',
+                        reorder_point: '$reorder_point',
+                        reorder_threshold: '$reorder_threshold'
+                    }
+                },
+                {
+                    $match: {
+                        to_replenish: true,
+                        '_id.productModelId': {
+                            $ne: null
+                        }
+                    }
+                }
+            ];
             if (result.length) {
-                filter.$and.push({
-                    productModelId: {
-                        $in: _.pluck(result, '_id')
-                    }
-                });
+                aggregationQuery[0].$match.productModelId = {
+                    $in: _.pluck(result, '_id')
+                };
             }
-            return db.collection('InventoryModel').find(filter).toArray();
+            return db.collection('InventoryModel').aggregate(aggregationQuery).toArray();
         })
         .catch(function (error) {
             logger.error({
@@ -318,23 +345,43 @@ function generateStockOrder(payload, config, taskId, messageId) {
                 commandName,
                 storeModelId,
                 warehouseModelId,
+                inventoryModelInstances: _.sample(inventoryModelInstances),
                 orgModelId,
                 messageId
             });
-            storeInventory = inventoryModelInstances;
-            var productModelIds = _.pluck(inventoryModelInstances, 'productModelId');
-            return db.collection('InventoryModel').find({
-                $and: [
-                    {
-                        storeModelId: ObjectId(warehouseModelId)
-                    },
-                    {
+            productModelIds = _.map(inventoryModelInstances, function (eachInventory) {
+                return ObjectId(eachInventory._id.productModelId);
+            });
+            storeInventory = _.indexBy(inventoryModelInstances, function (eachInventory) {
+                return eachInventory._id.productModelId;
+            });
+            var aggregationQuery = [
+                {
+                    $match: {
+                        storeModelId: ObjectId(warehouseModelId),
                         productModelId: {
                             $in: productModelIds
                         }
                     }
-                ]
-            }).toArray();
+                },
+                {
+                    $group: {
+                        _id: {productModelId: '$productModelId'},
+                        inventory_level: {
+                            $sum: '$inventory_level'
+                        }
+                    }
+                },
+                {
+                    $match: {
+                        inventory_level: {
+                            $gt: 0
+                        }
+                    }
+                }
+            ];
+            debugger;
+            return db.collection('InventoryModel').aggregate(aggregationQuery).toArray();
         })
         .catch(function (error) {
             logger.error({
@@ -353,44 +400,36 @@ function generateStockOrder(payload, config, taskId, messageId) {
                 count: inventoryModelInstances.length,
                 commandName,
                 messageId,
-                payload
+                payload,
+                inventoryModelInstances: _.sample(inventoryModelInstances)
             });
             try {
-                warehouseInventory = _.groupBy(inventoryModelInstances, 'productModelId');
+                warehouseInventory = _.indexBy(inventoryModelInstances, function (eachInventory) {
+                    return eachInventory._id.productModelId;
+                });
                 var skippedLineItems = [];
-                for (var i = 0; i<storeInventory.length; i++) {
+                for (var i = 0; i<productModelIds.length; i++) {
 
-                    var warehouseQuantityOnHand = 0;
-                    // var warehouseQuantityOnHand = _.reduce(warehouseInventory, function (memo, num) {
-                    //     return memo + num.inventory_level;
-                    // }, 0);
-
-                    if (warehouseInventory[storeInventory[i].productModelId] &&
-                        warehouseInventory[storeInventory[i].productModelId] instanceof Array &&
-                        warehouseInventory[storeInventory[i].productModelId].length) {
-                        for (var j = 0; j<warehouseInventory[storeInventory[i].productModelId].length; j++) {
-                            warehouseQuantityOnHand += warehouseInventory[storeInventory[i].productModelId][j].inventory_level;
-                        }
-                        warehouseInventory[storeInventory[i].productModelId] = warehouseQuantityOnHand;
-                    }
-                    if (!warehouseQuantityOnHand) {
-                        skippedLineItems.push(storeInventory[i].productModelId);
+                    if (!(warehouseInventory[productModelIds[i]] && warehouseInventory[productModelIds[i]].inventory_level)) {
+                        skippedLineItems.push(productModelIds[i]);
                     }
                     else {
+                        var warehouseQuantityOnHand = warehouseInventory[productModelIds[i]].inventory_level;
+                        var storeQuantityOnHand = storeInventory[productModelIds[i]].inventory_level;
                         var orderQuantity;
-                        if (storeInventory[i].inventory_level>0)
-                            orderQuantity = storeInventory[i].reorder_point - storeInventory[i].inventory_level;
+                        if (storeQuantityOnHand>0)
+                            orderQuantity = storeInventory[productModelIds[i]].reorder_point - storeQuantityOnHand;
                         else
-                            orderQuantity = storeInventory[i].reorder_point;
+                            orderQuantity = storeInventory[productModelIds[i]].reorder_point;
                         orderQuantity = warehouseQuantityOnHand>orderQuantity ? orderQuantity : warehouseQuantityOnHand;
                         if (orderQuantity>0) {
                             lineItemsToOrder.push({
                                 reportModelId: ObjectId(reportModel._id),
-                                productModelId: ObjectId(storeInventory[i].productModelId),
+                                productModelId: ObjectId(productModelIds[i]),
                                 storeModelId: ObjectId(storeModelId),
                                 orgModelId: ObjectId(orgModelId),
                                 orderQuantity: orderQuantity,
-                                storeInventory: storeInventory[i].inventory_level,
+                                storeInventory: storeQuantityOnHand,
                                 originalOrderQuantity: orderQuantity,
                                 fulfilledQuantity: 0,
                                 state: 'unboxed',
@@ -400,7 +439,7 @@ function generateStockOrder(payload, config, taskId, messageId) {
                             });
                         }
                         else {
-                            skippedLineItems.push(storeInventory[i].productModelId);
+                            skippedLineItems.push(productModelIds[i]);
                         }
                     }
                 }
@@ -425,8 +464,12 @@ function generateStockOrder(payload, config, taskId, messageId) {
                 messageId
             });
             totalRows = lineItemsToOrder.length;
-            // return db.collection('StockOrderLineitemModel').insertMany(lineItemsToOrder);
-            return optimiseQuantitiesByStorePriority(lineItemsToOrder, warehouseInventory, storeModelId, orgModelId, messageId);
+            if (totalRows) {
+                return optimiseQuantitiesByStorePriority(lineItemsToOrder, warehouseInventory, storeModelId, orgModelId, messageId);
+            }
+            else {
+                return Promise.resolve('No items to order');
+            }
         })
         .catch(function (error) {
             logger.debug({
@@ -589,16 +632,16 @@ function optimiseQuantitiesByStorePriority(lineItemsToOrder, warehouseInventory,
                             messageId,
                             commandName
                         });
-                        if (totalQuantitiesOrderedByAllStores>warehouseInventory[groupedProductModelIDs[i]]) {
+                        if (totalQuantitiesOrderedByAllStores>warehouseInventory[groupedProductModelIDs[i]].inventory_level) {
                             newTotalQuantitiesOrderedByAllStores = 0;
                             _.each(sameSKUsGrouped[groupedProductModelIDs[i]], function (eachSKU) {
-                                var orderQuantity = (eachSKU.originalOrderQuantity / totalQuantitiesOrderedByAllStores) * warehouseInventory[groupedProductModelIDs[i]];
+                                var orderQuantity = (eachSKU.originalOrderQuantity / totalQuantitiesOrderedByAllStores) * warehouseInventory[groupedProductModelIDs[i]].inventory_level;
                                 eachSKU.orderQuantity = Math.round(orderQuantity);
                                 eachSKU.roundedBy = eachSKU.orderQuantity - orderQuantity;
                                 newTotalQuantitiesOrderedByAllStores += eachSKU.orderQuantity;
                             });
-                            if (newTotalQuantitiesOrderedByAllStores>warehouseInventory[groupedProductModelIDs[i]]) {
-                                var extraQuantities = newTotalQuantitiesOrderedByAllStores - warehouseInventory[groupedProductModelIDs[i]];
+                            if (newTotalQuantitiesOrderedByAllStores>warehouseInventory[groupedProductModelIDs[i]].inventory_level) {
+                                var extraQuantities = newTotalQuantitiesOrderedByAllStores - warehouseInventory[groupedProductModelIDs[i]].inventory_level;
                                 sameSKUsGrouped[groupedProductModelIDs[i]] = _.sortBy(sameSKUsGrouped[groupedProductModelIDs[i]], 'roundedBy');
                                 for (var j = sameSKUsGrouped[groupedProductModelIDs[i]].length - 1; j>sameSKUsGrouped[groupedProductModelIDs[i]].length - extraQuantities - 1; j--) {
                                     sameSKUsGrouped[groupedProductModelIDs[i]][j].orderQuantity--;

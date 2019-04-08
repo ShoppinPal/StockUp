@@ -6,7 +6,7 @@ import {ToastrService} from 'ngx-toastr';
 import {UserProfileService} from "../../../../shared/services/user-profile.service";
 import {LoopBackAuth} from "../../../../shared/lb-sdk/services/core/auth.service";
 import {constants} from "../../../../shared/constants/constants";
-import { DatePipe } from '@angular/common';
+import {DatePipe} from '@angular/common';
 
 @Component({
   selector: 'app-stock-order-details',
@@ -23,6 +23,7 @@ export class StockOrderDetailsComponent implements OnInit {
   public notApprovedLineItems: Array<any>;
   public totalApprovedLineItems: number;
   public totalNotApprovedLineItems: number;
+  public maxPageDisplay:number = 7;
   public searchSKUText: string;
   // public totalPages: number;
   public currentPageApproved: number = 1;
@@ -80,9 +81,9 @@ export class StockOrderDetailsComponent implements OnInit {
       this.orgModelApi.countStockOrderLineitemModels(this.userProfile.orgModelId, countFilter));
     fetchLineItems.subscribe((data: any) => {
         this.loading = false;
-        this.approvedLineItems = data[0];
+        this.currentPageApproved = (skip / this.lineItemsLimitPerPage) + 1;
         this.totalApprovedLineItems = data[1].count;
-        console.log('approved', this.approvedLineItems);
+        this.approvedLineItems = data[0];
       },
       err => {
         this.loading = false;
@@ -120,9 +121,9 @@ export class StockOrderDetailsComponent implements OnInit {
       this.orgModelApi.countStockOrderLineitemModels(this.userProfile.orgModelId, countFilter));
     fetchLineItems.subscribe((data: any) => {
         this.loading = false;
-        this.notApprovedLineItems = data[0];
+        this.currentPageNotApproved = (skip / this.lineItemsLimitPerPage) + 1;
         this.totalNotApprovedLineItems = data[1].count;
-        console.log('not approved', this.totalNotApprovedLineItems);
+        this.notApprovedLineItems = data[0];
       },
       err => {
         this.loading = false;

@@ -17,7 +17,8 @@
                   <i class="fa fa-refresh"></i>
                 </button>
               </p>
-              <p *ngIf="order.transferOrderNumber">Transfer Order Number: <strong>{{order.transferOrderNumber}}</strong></p>
+              <p *ngIf="order.transferOrderNumber">Transfer Order Number: <strong>{{order.transferOrderNumber}}</strong>
+              </p>
             </div>
             <!--<div class="form-group col-sm-12">-->
             <!--<div class="input-group">-->
@@ -37,7 +38,8 @@
             <div class="col-sm-3">
               <span class="input-group-btn">
                 <button class="btn btn-success" type="button"
-                        (click)="createTransferOrder()" *ngIf="order.state === reportStates.GENERATED && !creatingTransferOrder">Create Transfer Order</button>
+                        (click)="createTransferOrder()"
+                        *ngIf="order.state === reportStates.GENERATED && !creatingTransferOrder">Create Transfer Order</button>
               </span>
             </div>
           </div>
@@ -140,15 +142,14 @@
                 </tr>
                 </tbody>
               </table>
-              <ul class="pagination">
-                <li class="page-item" *ngFor="let lineItem of notApprovedLineItems | paginate: {itemsPerPage: lineItemsLimitPerPage,
-                                                                 currentPage: currentPageNotApproved,
-                                                                 totalItems: totalNotApprovedLineItems,
-                                                                 id: 'notApproved'}">
-                </li>
-              </ul>
-              <pagination-controls
-                (pageChange)="getNotApprovedStockOrderLineItems(lineItemsLimitPerPage, currentPageNotApproved*lineItemsLimitPerPage); currentPage=$event"></pagination-controls>
+
+              <pagination [totalItems]="totalNotApprovedLineItems"
+                          [(ngModel)]="currentPageNotApproved"
+                          [maxSize]="maxPageDisplay"
+                          [rotate]="false"
+                          [boundaryLinks]="true"
+                          (pageChanged)="getNotApprovedStockOrderLineItems(lineItemsLimitPerPage, ($event.page - 1) * lineItemsLimitPerPage)"
+                          [itemsPerPage]="lineItemsLimitPerPage"></pagination>
             </tab>
 
             <tab heading="Approved ({{totalApprovedLineItems}})">
@@ -177,6 +178,9 @@
                     <td>
                       {{lineItem.orderQuantity}}
                     </td>
+                    <td>
+                      {{lineItem.originalOrderQuantity}}
+                    </td>
                     <td>{{lineItem.fulfilledQuantity}}</td>
                     <td>
                       <button class="btn btn-danger" type="submit"
@@ -188,15 +192,16 @@
                 </tr>
                 </tbody>
               </table>
-              <ul class="pagination" *ngIf="approvedLineItems">
-                <li class="page-item" *ngFor="let lineItem of approvedLineItems | paginate: {itemsPerPage: lineItemsLimitPerPage,
-                                                                 currentPage: currentPageApproved,
-                                                                 totalItems: totalApprovedLineItems,
-                                                                 id: 'approved'}">
-                </li>
-              </ul>
-              <pagination-controls
-                (pageChange)="getApprovedStockOrderLineItems(lineItemsLimitPerPage, currentPageApproved*lineItemsLimitPerPage); currentPage=$event"></pagination-controls>
+
+              <pagination [totalItems]="totalApprovedLineItems"
+                          [(ngModel)]="currentPageApproved"
+                          [maxSize]="maxPageDisplay"
+                          [rotate]="false"
+                          [boundaryLinks]="true"
+                          (pageChanged)="getApprovedStockOrderLineItems(lineItemsLimitPerPage, ($event.page - 1) * lineItemsLimitPerPage)"
+                          [itemsPerPage]="lineItemsLimitPerPage">
+              </pagination>
+
             </tab>
           </tabset>
         </div>

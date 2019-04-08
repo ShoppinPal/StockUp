@@ -93,14 +93,16 @@
             </tr>
             </tbody>
           </table>
-          <ul class="pagination">
-            <li class="page-item" *ngFor="let order of orders | paginate: {itemsPerPage: ordersLimitPerPage,
-                                                                 currentPage: currentPage,
-                                                                 totalItems: totalOrders}">
-            </li>
-          </ul>
-          <pagination-controls
-            (pageChange)="fetchOrders(ordersLimitPerPage, currentPage*ordersLimitPerPage); currentPage=$event"></pagination-controls>
+
+          <pagination [totalItems]="totalOrders"
+                      [(ngModel)]="currentPage"
+                      [maxSize]="maxPageDisplay"
+                      [rotate]="false"
+                      [boundaryLinks]="true"
+                      (pageChanged)="fetchOrders(ordersLimitPerPage, ($event.page - 1) * ordersLimitPerPage)"
+                      [itemsPerPage]="lineItemsLimitPerPage">
+            
+          </pagination>
         </div>
       </div>
     </div>

@@ -60,7 +60,7 @@ import {AppRoutingModule} from './app.routing';
 
 // Import 3rd party components
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
-import {TypeaheadModule} from 'ngx-bootstrap';
+import {TypeaheadModule, PaginationModule} from 'ngx-bootstrap';
 import {ChartsModule} from 'ng2-charts/ng2-charts';
 import {FormsModule} from '@angular/forms';
 import {LoadingModule, ANIMATION_TYPES} from 'ngx-loading';
@@ -69,6 +69,7 @@ import {SharedModule} from './shared/shared.module';
 import {TabsModule} from 'ngx-bootstrap/tabs';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
+
 
 @NgModule({
   imports: [
@@ -87,6 +88,7 @@ import { ToastrModule } from 'ngx-toastr';
       secondaryColour: '#20a8d89c',
       tertiaryColour: '#ffffff'
     }),
+    PaginationModule.forRoot(),
     SDKBrowserModule.forRoot(),
     SharedModule.forRoot(),
     TabsModule.forRoot(),
