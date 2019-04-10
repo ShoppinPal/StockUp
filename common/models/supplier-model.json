@@ -43,6 +43,11 @@
       "type": "belongsTo",
       "model": "OrgModel",
       "foreignKey": ""
+    },
+    "reportModel": {
+      "type": "hasMany",
+      "model": "ReportModel",
+      "foreignKey": "supplierModelId"
     }
   },
   "acls": [

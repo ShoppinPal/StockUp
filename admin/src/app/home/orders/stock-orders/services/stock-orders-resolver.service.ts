@@ -22,7 +22,7 @@ export class StockOrdersResolverService {
     let filter = {
       limit: limit,
       skip: skip,
-      order: 'created DESC',
+      order: 'createdAt DESC',
       include: 'storeModel'
     };
     let fetchOrders = Observable.combineLatest(

@@ -419,6 +419,27 @@
       "principalId": "storeManager",
       "permission": "ALLOW",
       "property": "generateStockOrderVend"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "warehouseManager",
+      "permission": "ALLOW",
+      "property": "setReportStatus"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "setReportStatus"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "setReportStatus"
     }
   ],
   "methods": {}

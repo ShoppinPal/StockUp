@@ -69,6 +69,7 @@ var fetchVendToken = function (orgModelId, options) {
         .catch(function (error) {
             logger.error({
                 error,
+                reason: error,
                 message: 'Access token could not be refreshed',
                 functionName: 'fetchVendToken',
                 options
@@ -472,81 +473,37 @@ var getGlobalConfigValuesAsMap = function () {
         });
 };
 
-var getVendConnectionInfo = function (orgModelId) {
-    return OrgModel.findOneAsync({
-            where: {
-                id: orgModelId
-            },
-            include: 'integrationModels'
-        }
-    )
+var getVendConnectionInfo = function (orgModelId, options) {
+    return OrgModel.findById(orgModelId, {
+        include: 'integrationModels'
+    })
+        .catch(function (error) {
+            logger.error({
+                message: 'Could not fetch integration details of org',
+                error,
+                functionName: 'getVendConnectionInfo',
+                options
+            });
+            return Promise.reject('Could not fetch integration details of org');
+        })
         .then(function (orgModelInstance) {
-            try {
-                var posUrl = storeConfig.posUrl;
-                var regexp = /^https?:\/\/(.*)\.vendhq\.com$/i;
-                var matches = posUrl.match(regexp);
-                if (matches) {
-                    //console.log('matches: ', matches);
-                    //console.log('domainPrefix: ', matches[1]);
-                    var vendConnectionInfo = {
-                        domainPrefix: matches[1],
-                        accessToken: storeConfig.vendAccessToken,
-                        refreshToken: storeConfig.vendRefreshToken
-                    };
-                    // need additional info to allow for accessToken to be reissues on 401 event
-                    //console.log('vendConnectionInfo BEFORE extending w/ globalConfig: ', vendConnectionInfo);
-                    return getGlobalConfigValuesAsMap('vendClientId', 'vendClientSecret', 'vendTokenService')
-                        .then(function (valuesAsMap) {
-                            vendConnectionInfo = _.extend(vendConnectionInfo, valuesAsMap);
-                            //console.log('vendConnectionInfo AFTER extending w/ globalConfig: ', vendConnectionInfo);
-                            logger.debug({
-                                log: {
-                                    message: 'vendConnectionInfo AFTER extending w/ globalConfig',
-                                    vendConnectionInfo: vendConnectionInfo
-                                }
-                            });
-                            return vendConnectionInfo;
-                        })
-                        .tap(function (connectionInfo) {
-                            // NOTE: the vend-nodejs-sdk will be responsible for updating
-                            //       the parent's token via a callback method
-                            var cachedAccessToken;
-                            cachedAccessToken = connectionInfo.accessToken;
-                            connectionInfo.updateAccessToken = function (currentConnectionInfo) {
-                                //log.debug('inside getVendConnectionInfo > anonymous callback invoked > updateAccessToken()');
-                                logger.info({log: {message: 'inside getVendConnectionInfo > anonymous callback invoked > updateAccessToken()'}});
-                                if (cachedAccessToken !== currentConnectionInfo.accessToken) {
-                                    // log.debug('accessToken has been updated \n\t from: %s \n\t to: %s',
-                                    //   cachedAccessToken, currentConnectionInfo.accessToken);
-                                    logger.info({
-                                        log: {
-                                            message: 'accessToken has been updated',
-                                            cachedAccessToken: cachedAccessToken,
-                                            updatedAccessToken: currentConnectionInfo.accessToken
-                                        }
-                                    });
-                                    return updateTokenDetailsAlt(storeConfigId, currentConnectionInfo.accessToken);
-                                }
-                                else {
-                                    //log.debug('accessToken is still up to date');
-                                    logger.info({log: {message: 'accessToken is still up to date'}});
-                                    return Promise.resolve();
-                                }
-                            };
-                        });
-                }
-                else {
-                    return Promise.resolve({}); // empty
-                }
-            }
-            catch (exception) {
-                // console.log('inside getVendConnectionInfo() - caught an exception');
-                // console.log(exception);
-                logger.error({err: exception, message: 'inside getVendConnectionInfo() - caught an exception'});
-                return Promise.reject(exception);
-            }
+            logger.debug({
+                message: 'Found integration details, will fetch vend outlets',
+                orgModelInstance,
+                functionName: 'getVendConnectionInfo',
+                options
+            });
+            var vendConfig = OrgModel.app.get('integrations').vend;
+            var connectionInfo = {
+                domainPrefix: orgModelInstance.integrationModels()[0].domain_prefix,
+                client_id: vendConfig.client_id,
+                client_secret: vendConfig.client_secret,
+                accessToken: orgModelInstance.integrationModels()[0].access_token
+            };
+            return Promise.resolve(connectionInfo);
         });
 };
+
 
 var getVendRegisters = function (storeConfigId) {
     // log.debug('getVendRegisters()');
@@ -585,9 +542,7 @@ var getVendOutlets = function (orgModelId, options) {
                 functionName: 'getVendOutlets',
                 options
             });
-            return OrgModel.findById(orgModelId, {
-                include: 'integrationModels'
-            });
+            return getVendConnectionInfo(orgModelId, options);
         })
         .catch(function (error) {
             logger.error({
@@ -598,22 +553,13 @@ var getVendOutlets = function (orgModelId, options) {
             });
             return Promise.reject('Could not fetch integration details of org');
         })
-        .then(function (orgModelInstance) {
+        .then(function (connectionInfo) {
             logger.debug({
-                message: 'Found integration details, will fetch vend outlets',
-                orgModelInstance,
+                message: 'Found connection info, will fetch vend outlets',
                 functionName: 'getVendOutlets',
                 options
             });
             var argsForOutlets = vendSdk.args.outlets.fetch();
-            var vendConfig = OrgModel.app.get('integrations').vend;
-            console.log('accesstoken', token);
-            var connectionInfo = {
-                domainPrefix: orgModelInstance.integrationModels()[0].domain_prefix,
-                client_id: vendConfig.client_id,
-                client_secret: vendConfig.client_secret,
-                accessToken: token
-            };
             return vendSdk.outlets.fetchAll(argsForOutlets, connectionInfo);
         })
         .catch(function (error) {
@@ -815,42 +761,57 @@ var lookupBySku = function (sku, storeModelInstance, reportModelInstance) {
         });
 };
 
-var createStockOrderForVend = function (storeModelInstance, reportModelInstance) {
-    var storeConfigId = storeModelInstance.storeConfigModelToStoreModelId;
+var createStockOrderForVend = function (storeModelInstance, reportModelInstance, supplierModelInstance, options) {
+    var orgModelId = storeModelInstance.orgModelId;
     var reportName = reportModelInstance.name;
-    var outletId = storeModelInstance.api_id; // reportModelInstance.outlet.id - same thing
-    var supplierId = null;
-    if (reportModelInstance.supplier.id !== undefined) {
-        var supplierId = reportModelInstance.supplier.id;
-    }
-    //log.debug('createStockOrderForVend()', 'storeConfigId: ' + storeConfigId);
-    logger.debug({log: {message: 'createStockOrderForVend()', storeConfigId: storeConfigId}});
-    return getVendConnectionInfo(storeConfigId)
+    var outletId = storeModelInstance.storeNumber;
+    logger.debug({
+        message: 'Will create stock order in vend',
+        reportModelInstance,
+        options,
+        functionName: 'createStockOrderForVend'
+    });
+    return fetchVendToken(orgModelId, options)
+        .then(function (token) {
+            logger.debug({
+                message: 'Fetched vend token, will fetch connection info',
+                options,
+                functionName: 'createStockOrderForVend'
+            });
+            return getVendConnectionInfo(orgModelId, options);
+        })
         .then(function (connectionInfo) {
             var argsForStockOrder = vendSdk.args.consignments.stockOrders.create();
             argsForStockOrder.name.value = reportName;
             argsForStockOrder.outletId.value = outletId;
-            argsForStockOrder.supplierId.value = supplierId;
-            return vendSdk.consignments.stockOrders.create(argsForStockOrder, connectionInfo)
-                .then(function (newStockOrder) {
-                    //log.debug('newStockOrder', newStockOrder);
-                    logger.debug({log: {newStockOrder: newStockOrder}});
-                    return Promise.resolve(newStockOrder);
-                });
+            argsForStockOrder.supplierId.value = supplierModelInstance ? supplierModelInstance.api_id : null;
+            logger.debug({
+                message: 'Fetched connection info for vend, will create order in vend',
+                options,
+                argsForStockOrder,
+                connectionInfo,
+                functionName: 'createStockOrderForVend'
+            });
+            return vendSdk.consignments.stockOrders.create(argsForStockOrder, connectionInfo);
         })
         .catch(function (error) {
-            if (error instanceof Error) {
-                // log.error('createStockOrderForVend()',
-                //   'Error creating a stock order in Vend:',
-                //   '\n', error.name + ':', error.message,
-                //   '\n', error.stack);
-                logger.error({err: error, message: 'Error creating stock order in Vend'});
-            }
-            else {
-                //log.error('createStockOrderForVend()', 'Error creating a stock order in Vend:\n' + JSON.stringify(error));
-                logger.error({err: error, message: 'createStockOrderForVend(): Error creating a stock order in vend'});
-            }
+            logger.error({
+                reason: error,
+                error,
+                message: 'Error creating stock order in Vend',
+                options,
+                functionName: 'createStockOrderForVend'
+            });
             return Promise.reject('An error occurred while creating a stock order in Vend.\n' + JSON.stringify(error));
+        })
+        .then(function (newStockOrder) {
+            logger.debug({
+                message: 'Created stock order in vend',
+                newStockOrder: newStockOrder,
+                options,
+                functionName: 'createStockOrderForVend'
+            });
+            return Promise.resolve(newStockOrder);
         });
 };
 
@@ -941,11 +902,17 @@ var deleteStockOrder = function (storeModelInstance, reportModelInstance) {
                 //   'Error deleting the stock order in Vend:',
                 //   '\n', error.name + ':', error.message,
                 //   '\n', error.stack);
-                logger.tag('deleteStockOrder()').error({err: error, message: 'Error deleting the stock order in Vend'});
+                logger.tag('deleteStockOrder()').error({
+                    err: error,
+                    message: 'Error deleting the stock order in Vend'
+                });
             }
             else {
                 //log.error('deleteStockOrder()', 'Error deleting the stock order in Vend:\n' + JSON.stringify(error));
-                logger.tag('deleteStockOrder()').error({err: error, message: 'Error deleting the stock order in Vend'});
+                logger.tag('deleteStockOrder()').error({
+                    err: error,
+                    message: 'Error deleting the stock order in Vend'
+                });
             }
             return Promise.reject('An error occurred while deleting a stock order in Vend.\n' + JSON.stringify(error));
         });

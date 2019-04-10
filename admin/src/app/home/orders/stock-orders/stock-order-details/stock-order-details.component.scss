@@ -22,6 +22,16 @@
   }
 }
 
+.main-box {
+  padding: 20px 0px;
+  text-align: center;
+  border-bottom: 1px solid #71aaac;
+  box-shadow: 0 1px 0 #baf0f2;
+  span {
+    display: block;
+  }
+}
+
 .add-box {
   text-align: center;
   border-bottom: 1px solid #71aaac;
@@ -56,3 +66,4 @@
   opacity: 0.4;
   cursor: not-allowed;
 }
+

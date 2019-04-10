@@ -204,7 +204,7 @@ var runMe = function (payload, config, taskId, messageId) {
                             }
                         },
                         {
-                            storeModelId: ObjectId(payload.storeModelId) //TODO: track using payload.storeModelId instead for ids consistency, but this works too
+                            storeModelId: ObjectId(payload.storeModelId)
                         }
                     ]
                 }).toArray();

@@ -923,6 +923,30 @@ module.exports = function (OrgModel) {
                 });
         };
 
+        OrgModel.remoteMethod('setReportStatus', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'reportModelId', type: 'string', required: true},
+                {arg: 'from', type: 'string', required: true},
+                {arg: 'to', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/setReportStatus', verb: 'put'},
+            returns: {arg: 'updatedReportModelInstance', type: 'object', root: true}
+        });
+
+        OrgModel.setReportStatus = function (id, reportModelId, from, to, options) {
+            return OrgModel.app.models.ReportModel.setReportStatus(id, reportModelId, from, to, options)
+                .catch(function (error) {
+                    logger.error({
+                        error,
+                        options,
+                        functionName: 'setReportStatus'
+                    });
+                    return Promise.reject(error);
+                });
+        };
+
         OrgModel.remoteMethod('updateOrgSettings', {
             accepts: [
                 {arg: 'id', type: 'string', required: true},

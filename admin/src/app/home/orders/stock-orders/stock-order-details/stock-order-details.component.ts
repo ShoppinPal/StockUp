@@ -13,6 +13,7 @@ import {DatePipe} from '@angular/common';
   templateUrl: './stock-order-details.component.html',
   styleUrls: ['./stock-order-details.component.scss']
 })
+
 export class StockOrderDetailsComponent implements OnInit {
 
   public userProfile: any;
@@ -45,15 +46,6 @@ export class StockOrderDetailsComponent implements OnInit {
 
   ngOnInit() {
     this.userProfile = this._userProfileService.getProfileData();
-    // this.toastr.info('Add Box', 'Boxes', {
-    //   timeOut: 0,
-    //   extendedTimeOut: 0,
-    //   enableHtml: true,
-    //   tapToDismiss: false,
-    //   onActivateTick: true
-    // }).onTap.subscribe(() => {
-    //   this.addBox();
-    // });
     this._userProfileService.hasAnyRole(['orgAdmin', 'warehouseManager'])
       .subscribe((data: boolean)=> {
           this.isWarehouser = true;
@@ -72,29 +64,7 @@ export class StockOrderDetailsComponent implements OnInit {
       });
   }
 
-  /*addBox() {
-   this.toastr.clear();
-   this.toastr.success('Added box', '', {
-   timeOut: 0,
-   extendedTimeOut: 0,
-   enableHtml: true,
-   tapToDismiss: false
-   });
-
-
-   this.toastr.info('<span (click)="addBox()"><b>Add Box</b></span>', 'Boxes', {
-   timeOut: 0,
-   extendedTimeOut: 0,
-   enableHtml: true,
-   tapToDismiss: false,
-   onActivateTick: true
-   }).onTap.subscribe(() => {
-   this.addBox();
-   });
-   }*/
-
   addNewBox() {
-    console.log('boxes', this.boxes);
     let box = {
       'boxNumber': this.boxes.length + 1,
       'boxName': 'Box' + String(this.boxes.length + 1),
@@ -103,39 +73,12 @@ export class StockOrderDetailsComponent implements OnInit {
     };
     this.boxes.push(box);
     this.selectedBox = this.boxes[this.boxes.length - 1];
-    console.log('selected', this.selectedBox);
   }
 
   closeBox() {
-    //box.isOpen = false;
     this.selectedBox.isOpen = false;
     this.selectedBox = null;
-    // this.toggleActiveBoxContents(false); // make sure that we go back to viewing unboxed products
   };
-
-  // private displayBoxedContents = false;
-
-  /*toggleActiveBoxContents(beSpecific) {
-   if (beSpecific === true || beSpecific === false) {
-   this.displayBoxedContents = beSpecific;
-   }
-   else {
-   this.displayBoxedContents = !this.displayBoxedContents;
-   }
-
-   // TODO: update the JUMP-TO sidebar or completely delete it?
-   if (this.displayBoxedContents) {
-   var filterData1 = {'boxNumber': this.selectedBox.boxNumber};
-   this.itemsBeingViewed = $filter('filter')(this.allOrderedItems, filterData1);
-   this.itemsBeingViewed = $filter('orderBy')(this.itemsBeingViewed, ['binLocation', 'sku']);
-   }
-   else {
-   var filterData2 = {'state': '!boxed'};
-   this.itemsBeingViewed = $filter('filter')(this.orderedItems, filterData2);
-   this.itemsBeingViewed = $filter('orderBy')(this.itemsBeingViewed, ['binLocation', 'sku']);
-   }
-   };*/
-
 
   getApprovedStockOrderLineItems(limit?: number, skip?: number, productModelId?: string) {
 
@@ -170,6 +113,9 @@ export class StockOrderDetailsComponent implements OnInit {
         this.currentPageApproved = (skip / this.lineItemsLimitPerPage) + 1;
         this.totalApprovedLineItems = data[1].count;
         this.approvedLineItems = data[0];
+        if (!this.boxes.length) {
+          this.setupClosedBoxes();
+        }
       },
       err => {
         this.loading = false;
@@ -177,12 +123,30 @@ export class StockOrderDetailsComponent implements OnInit {
       });
   }
 
+  setupClosedBoxes() {
+    for (var i = 0; i < this.approvedLineItems.length; i++) {
+      var boxIndex = this.boxes.findIndex(eachBox => {
+        return eachBox.boxNumber === this.approvedLineItems[i].boxNumber
+      });
+      if (boxIndex === -1) {
+        var newBox = new box();
+        newBox.boxNumber = this.approvedLineItems[i].boxNumber;
+        newBox.boxName = 'Box' + String(newBox.boxNumber);
+        newBox.totalItems = 1;
+        newBox.isOpen = false;
+        this.boxes.push(newBox);
+      }
+      else {
+        this.boxes[boxIndex].totalItems++;
+      }
+    }
+  }
+
   getNotApprovedStockOrderLineItems(limit?: number, skip?: number, productModelId?: string) {
     if (!(limit && skip)) {
       limit = 100;
       skip = 0;
     }
-    console.log('this', this.order);
     let filter = {
       where: {
         reportModelId: this.order.id,
@@ -210,6 +174,9 @@ export class StockOrderDetailsComponent implements OnInit {
         this.currentPageNotApproved = (skip / this.lineItemsLimitPerPage) + 1;
         this.totalNotApprovedLineItems = data[1].count;
         this.notApprovedLineItems = data[0];
+        if (this.selectedBox && !this.notApprovedLineItems.length) {
+          this.closeBox();
+        }
       },
       err => {
         this.loading = false;
@@ -258,6 +225,19 @@ export class StockOrderDetailsComponent implements OnInit {
     }
   }
 
+  setReportStatus() {
+    this.loading = true;
+    this.orgModelApi.setReportStatus(this.userProfile.orgModelId, this.order.id, this.reportStates.WAREHOUSE_FULFILL, this.reportStates.MANAGER_RECEIVE)
+      .subscribe((res: any) => {
+        this.loading = false;
+        console.log('res',res);
+      },
+      err => {
+        this.loading = false;
+        console.log('err', err);
+      });
+  }
+
   updateLineItems(lineItems, data: any) {
     this.loading = true;
     let lineItemsIDs: Array<string> = [];
@@ -279,6 +259,33 @@ export class StockOrderDetailsComponent implements OnInit {
           console.log('err', err);
           this.loading = false;
         });
+  }
+
+  approveItem(lineItem) {
+    if (this.selectedBox) {
+      this.selectedBox.totalItems++;
+      this.updateLineItems(lineItem, {
+        approved: true,
+        orderQuantity: lineItem.orderQuantity,
+        boxNumber: this.selectedBox.boxNumber
+      });
+    }
+    else {
+      this.toastr.error('Please open a box first');
+    }
+  }
+
+  removeItem(lineItem) {
+    var boxIndex = this.boxes.findIndex(eachBox => {
+      return eachBox.boxName === 'Box' + lineItem.boxNumber
+    });
+    if (boxIndex !== -1) {
+      this.boxes[boxIndex].totalItems--;
+      if (this.boxes[boxIndex].totalItems === 0) {
+        this.boxes.splice(boxIndex, 1);
+      }
+    }
+    this.updateLineItems(lineItem, {approved: false});
   }
 
   getOrderDetails() {
@@ -318,4 +325,11 @@ export class StockOrderDetailsComponent implements OnInit {
     })
   }
 
+}
+
+class box {
+  public boxNumber: number;
+  public boxName: string;
+  public totalItems: number;
+  public isOpen: boolean;
 }
