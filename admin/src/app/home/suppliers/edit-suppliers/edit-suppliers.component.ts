@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {StoreConfigModelApi} from "../../../shared/lb-sdk/services/custom/StoreConfigModel";
+import {OrgModelApi} from "../../../shared/lb-sdk/services/custom/OrgModel";
 import {UserProfileService} from "../../../shared/services/user-profile.service";
 import {ToastrService} from 'ngx-toastr';
 
@@ -18,7 +18,7 @@ export class EditSuppliersComponent implements OnInit {
 
   constructor(private _route: ActivatedRoute,
               private toastr: ToastrService,
-              private storeConfigModelApi: StoreConfigModelApi,
+              private orgModelApi: OrgModelApi,
               private _userProfileService: UserProfileService) {
   }
 
@@ -48,7 +48,7 @@ export class EditSuppliersComponent implements OnInit {
       this.toastr.error('Invalid supplier email');
     }
     else {
-      this.storeConfigModelApi.updateByIdSupplierModels(this.userProfile.storeConfigModelId, this.supplier.id, this.supplier)
+      this.orgModelApi.updateByIdSupplierModels(this.userProfile.storeConfigModelId, this.supplier.id, this.supplier)
         .subscribe((data: any)=> {
             this.loading = false;
             this.toastr.success('Updated Supplier Info successfully');

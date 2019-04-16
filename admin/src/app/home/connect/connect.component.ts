@@ -162,6 +162,20 @@ export class ConnectComponent implements OnInit {
         });
   }
 
+  private syncVendUsers() {
+    this.loading = true;
+    this.orgModelApi.syncVendUsers(this.userProfile.orgModelId)
+      .subscribe((data: any) => {
+          this.loading = false;
+          this.toastr.success('Synced users successfully');
+        },
+        err => {
+          this.loading = false;
+          console.log('err', err);
+          this.toastr.error('Error in syncing users');
+        });
+  }
+
   private saveCompany() {
     this.loading = true;
     this.orgModelApi.updateByIdIntegrationModels(this.userProfile.orgModelId, this.integration[0].id, {dataAreaId: this.selectedCompany})

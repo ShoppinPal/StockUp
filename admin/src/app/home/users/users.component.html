@@ -1,6 +1,46 @@
 <ngx-loading [show]="loading"></ngx-loading>
 <div class="animated fadeIn">
   <div class="row">
+    <div class="col-sm-12">
+      <div class="card">
+        <div class="card-header">
+          <strong>Search users</strong>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-12">
+              <div class="form-group">
+                <div class="input-group">
+                  <input type="text"
+                         class="form-control"
+                         id="searchUser"
+                         [(ngModel)]="searchUserText"
+                         placeholder="Search user by name or email">
+                  <span class="input-group-btn">
+                    <button class="btn btn-primary" type="button"
+                            (click)="fetchUsers(null, null, searchUserText)">
+                      <i class="fa fa-search"></i> Search
+                    </button>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div><!--/.row-->
+        </div>
+        <div class="card-footer">
+          <div class="row">
+            <div class="col-sm-6">
+              <button type="button" class="btn btn-link"
+                      (click)="searchUserText='';fetchUsers()">
+                Clear All Searches
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!--/.col-->
+  </div><!--/.row-->
+  <div class="row">
     <div class="col-lg-12">
       <div class="card">
         <div class="card-header">
@@ -16,7 +56,7 @@
               <th>Email</th>
               <th>Name</th>
               <th>Roles</th>
-              <th>Revoke</th>
+              <th>Invite</th>
             </tr>
             </thead>
             <tbody>
@@ -24,28 +64,41 @@
                 [ngClass]="{'table-danger': user.error, 'table-success': user.success, 'table-info': user.info}">
               <td>{{user.email}}</td>
               <td>
-               Name
+                {{user.name}}
               </td>
-              <td>Roles</td>
               <td>
-                <button class="btn btn-danger" type="submit">
-                  <i class="fa fa-save"></i> Revoke
+                <button class="btn btn-primary" type="submit" appAsideMenuToggler>
+                  <i class="fa fa-save"></i> Set Roles
                 </button>
+              </td>
+              <td *ngIf="!user.emailVerified">
+                <button *ngIf="user.id !== userProfile.userId" class="btn btn-danger" type="submit"
+                        (click)="inviteUser(user.id)">
+                  <i class="fa fa-save"></i> Invite user
+                </button>
+              </td>
+              <td *ngIf="user.emailVerified && user.id !== userProfile.userId" class="text-green">
+                Invite accepted
               </td>
             </tr>
             </tbody>
           </table>
-          <ul class="pagination">
-            <li class="page-item" *ngFor="let user of users | paginate: {itemsPerPage: usersLimitPerPage,
-                                                                 currentPage: currentPage,
-                                                                 totalItems: totalUsers}">
-            </li>
-          </ul>
-          <pagination-controls
-            (pageChange)="fetchUsers(usersLimitPerPage, currentPage*usersLimitPerPage); currentPage=$event"></pagination-controls>
+          <pagination [totalItems]="totalUsers"
+                      [(ngModel)]="currentPage"
+                      [maxSize]="maxPageDisplay"
+                      [rotate]="false"
+                      [boundaryLinks]="true"
+                      (pageChanged)="fetchUsers(usersLimitPerPage, ($event.page - 1) * usersLimitPerPage)"
+                      [itemsPerPage]="usersLimitPerPage">
+          </pagination>
+
+
+
+
         </div>
       </div>
     </div>
     <!--/.col-->
   </div>
+
 </div>

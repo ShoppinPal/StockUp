@@ -49,15 +49,8 @@ import { SocketDriver } from './sockets/socket.driver';
 import { SocketConnection } from './sockets/socket.connections';
 import { RealTime } from './services/core/real.time';
 import { UserModelApi } from './services/custom/UserModel';
-import { GlobalConfigModelApi } from './services/custom/GlobalConfigModel';
-import { StoreConfigModelApi } from './services/custom/StoreConfigModel';
-import { StoreModelApi } from './services/custom/StoreModel';
-import { ReportModelApi } from './services/custom/ReportModel';
-import { StockOrderLineitemModelApi } from './services/custom/StockOrderLineitemModel';
-import { SupplierModelApi } from './services/custom/SupplierModel';
 import { ContainerApi } from './services/custom/Container';
 import { OrgModelApi } from './services/custom/OrgModel';
-import { IntegrationModelApi } from './services/custom/IntegrationModel';
 /**
 * @module SDKBrowserModule
 * @description
@@ -90,15 +83,8 @@ export class SDKBrowserModule {
         SDKModels,
         RealTime,
         UserModelApi,
-        GlobalConfigModelApi,
-        StoreConfigModelApi,
-        StoreModelApi,
-        ReportModelApi,
-        StockOrderLineitemModelApi,
-        SupplierModelApi,
         ContainerApi,
         OrgModelApi,
-        IntegrationModelApi,
         internalStorageProvider,
         { provide: SDKStorage, useClass: StorageBrowser },
         { provide: SocketDriver, useClass: SocketBrowser }

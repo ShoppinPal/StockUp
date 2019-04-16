@@ -582,6 +582,63 @@ var getVendOutlets = function (orgModelId, options) {
         });
 };
 
+var getVendUsers = function (orgModelId, options) {
+    logger.debug({
+        message: 'Will fetch all vend users',
+        functionName: 'getVendUsers',
+        options,
+    });
+    var token = null;
+    return fetchVendToken(orgModelId)
+        .then(function (response) {
+            token = response;
+            logger.debug({
+                message: 'Found access token, will fetch integration details for org',
+                functionName: 'getVendUsers',
+                options
+            });
+            return getVendConnectionInfo(orgModelId, options);
+        })
+        .catch(function (error) {
+            logger.error({
+                message: 'Could not fetch integration details of org',
+                error,
+                functionName: 'getVendUsers',
+                options
+            });
+            return Promise.reject('Could not fetch integration details of org');
+        })
+        .then(function (connectionInfo) {
+            logger.debug({
+                message: 'Found connection info, will fetch vend users',
+                functionName: 'getVendUsers',
+                connectionInfo,
+                options
+            });
+            var argsForUsers = vendSdk.args.users.fetchAll();
+            return vendSdk.users.fetchAll(argsForUsers, connectionInfo);
+        })
+        .catch(function (error) {
+            logger.error({
+                message: 'Could not fetch vend users',
+                errMessage: error,
+                error,
+                functionName: 'getVendUsers',
+                options
+            });
+            return Promise.reject('Could not fetch vend users');
+        })
+        .then(function (users) {
+            logger.debug({
+                message: 'Vend users retrieved',
+                users: users,
+                functionName: 'getVendUsers',
+                options
+            });
+            return Promise.resolve(users);
+        });
+};
+
 var getVendSuppliers = function (orgModelId, options) {
     logger.debug({
         message: 'Will fetch all vend suppliers',
@@ -1058,6 +1115,7 @@ module.exports = function (dependencies) {
         token: token,
         getVendRegisters: getVendRegisters,
         getVendOutlets: getVendOutlets,
+        getVendUsers: getVendUsers,
         getVendTaxes: getVendTaxes,
         getVendPaymentTypes: getVendPaymentTypes,
         setDesiredStockLevelForVend: setDesiredStockLevelForVend,

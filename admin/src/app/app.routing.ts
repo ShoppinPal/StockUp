@@ -23,6 +23,14 @@ export const routes: Routes = [
   {
     path: 'signup',
     loadChildren: './signup/signup.module#SignupModule'
+  },
+  {
+    path: 'invite-user',
+    loadChildren: './invite-user/invite-user.module#InviteUserModule'
+  },
+  {
+    path: 'forgot-password',
+    loadChildren: './forgot-password/forgot-password.module#ForgotPasswordModule'
   }
 ];
 

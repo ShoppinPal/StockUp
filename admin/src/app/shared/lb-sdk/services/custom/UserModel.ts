@@ -12,12 +12,6 @@ import { Subject } from 'rxjs/Subject';
 import { Observable } from 'rxjs/Rx';
 import { UserModel } from '../../models/UserModel';
 import { SocketConnection } from '../../sockets/socket.connections';
-import { GlobalConfigModel } from '../../models/GlobalConfigModel';
-import { StoreConfigModel } from '../../models/StoreConfigModel';
-import { StoreModel } from '../../models/StoreModel';
-import { ReportModel } from '../../models/ReportModel';
-import { StockOrderLineitemModel } from '../../models/StockOrderLineitemModel';
-import { SupplierModel } from '../../models/SupplierModel';
 import { OrgModel } from '../../models/OrgModel';
 
 
@@ -2168,6 +2162,38 @@ export class UserModelApi extends BaseLoopBackApi {
       data: data
     };
     let _urlParams: any = {};
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * <em>
+         * (The remote method definition does not provide any description.)
+         * </em>
+   *
+   * @param {object} data Request data.
+   *
+   *  - `password` – `{string}` - 
+   *
+   *  - `accessToken` – `{string}` - 
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * Data properties:
+   *
+   *  - `user` – `{object}` - 
+   */
+  public setPassword(password: any, accessToken: any, customHeaders?: Function): Observable<any> {
+    let _method: string = "POST";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/UserModels/setPassword";
+    let _routeParams: any = {};
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    if (typeof password !== 'undefined' && password !== null) _urlParams.password = password;
+    if (typeof accessToken !== 'undefined' && accessToken !== null) _urlParams.accessToken = accessToken;
     let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
     return result;
   }

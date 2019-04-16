@@ -33,13 +33,13 @@ export const navigation = [
   {
     title: true,
     name: 'Orders',
-    roles: ['orgAdmin']
+    roles: ['orgAdmin', 'storeManager']
   },
   {
     name: 'Stock Orders',
     url: '/orders/stock-orders',
     icon: 'icon-close',
-    roles: ['orgAdmin']
+    roles: ['orgAdmin', 'storeManager']
   },
   // {
   //   name: 'Stuck Orders',

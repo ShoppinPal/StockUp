@@ -880,6 +880,56 @@ module.exports = function (OrgModel) {
                 });
         };
 
+        OrgModel.remoteMethod('syncVendUsers', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/syncVendUsers', verb: 'get'},
+            returns: {arg: 'users', type: 'array', root: true}
+        });
+
+        OrgModel.syncVendUsers = function (id, options, cb) {
+            logger.debug({
+                message: 'Will sync Vend stores',
+                options,
+                functionName: 'syncVendUsers'
+            });
+            return OrgModel.app.models.SyncModel.syncVendUsers(id, options)
+                .catch(function (error) {
+                    logger.error({
+                        message: 'Could not sync vend users',
+                        error,
+                        functionName: 'syncVendUsers',
+                        options
+                    });
+                    return Promise.reject('Could not sync vend users');
+                });
+        };
+
+        OrgModel.remoteMethod('inviteUser', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'userId', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/inviteUser', verb: 'post'},
+            returns: {arg: 'status', type: 'boolean', root: true}
+        });
+
+        OrgModel.inviteUser = function (id, userId, options) {
+            return OrgModel.app.models.UserModel.inviteUser(id, userId, options)
+                .catch(function (error) {
+                    logger.error({
+                        message: 'Could not invite user to StockUp',
+                        error,
+                        functionName: 'inviteUser',
+                        options
+                    });
+                    return Promise.reject('Could not invite user to StockUp');
+                });
+        };
+
         OrgModel.remoteMethod('fetchOrderRowCounts', {
             accepts: [
                 {arg: 'id', type: 'string', required: true},
@@ -968,6 +1018,31 @@ module.exports = function (OrgModel) {
                         functionName: 'updateOrgSettings'
                     });
                     return Promise.reject(error);
+                });
+        };
+
+        OrgModel.remoteMethod('assignRoles', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'userId', type: 'string', required: true},
+                {arg: 'roles', type: 'array', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/assignRoles', verb: 'POST'},
+            returns: {arg: 'roles', type: 'object', root: true}
+        });
+
+        OrgModel.assignRoles = function (id, userId, roles, options) {
+            return OrgModel.app.models.UserModel.assignRoles(userId, roles)
+                .catch(function (error) {
+                    logger.error({
+                        error,
+                        reason: error,
+                        message: 'Could not assign roles to user',
+                        userId,
+                        functionName: 'assignRoles',
+                        options
+                    });
                 });
         };
     });

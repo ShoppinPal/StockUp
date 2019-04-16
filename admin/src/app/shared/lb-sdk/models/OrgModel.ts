@@ -1,11 +1,6 @@
 /* tslint:disable */
 import {
-  UserModel,
-  StoreModel,
-  SupplierModel,
-  StockOrderLineitemModel,
-  ReportModel,
-  IntegrationModel
+  UserModel
 } from '../index';
 
 declare var Object: any;
@@ -15,14 +10,14 @@ export interface OrgModelInterface {
   "createdAt"?: Date;
   "updatedAt"?: Date;
   userModels?: UserModel[];
-  storeModels?: StoreModel[];
-  supplierModels?: SupplierModel[];
-  stockOrderLineitemModels?: StockOrderLineitemModel[];
-  reportModels?: ReportModel[];
+  storeModels?: any[];
+  supplierModels?: any[];
+  stockOrderLineitemModels?: any[];
+  reportModels?: any[];
   productModels?: any[];
   inventoryModels?: any[];
   syncModels?: any[];
-  integrationModels?: IntegrationModel[];
+  integrationModels?: any[];
   salesModels?: any[];
   salesLineItemsModels?: any[];
   categoryModels?: any[];
@@ -34,14 +29,14 @@ export class OrgModel implements OrgModelInterface {
   "createdAt": Date;
   "updatedAt": Date;
   userModels: UserModel[];
-  storeModels: StoreModel[];
-  supplierModels: SupplierModel[];
-  stockOrderLineitemModels: StockOrderLineitemModel[];
-  reportModels: ReportModel[];
+  storeModels: any[];
+  supplierModels: any[];
+  stockOrderLineitemModels: any[];
+  reportModels: any[];
   productModels: any[];
   inventoryModels: any[];
   syncModels: any[];
-  integrationModels: IntegrationModel[];
+  integrationModels: any[];
   salesModels: any[];
   salesLineItemsModels: any[];
   categoryModels: any[];
@@ -104,23 +99,23 @@ export class OrgModel implements OrgModelInterface {
         },
         storeModels: {
           name: 'storeModels',
-          type: 'StoreModel[]',
-          model: 'StoreModel'
+          type: 'any[]',
+          model: ''
         },
         supplierModels: {
           name: 'supplierModels',
-          type: 'SupplierModel[]',
-          model: 'SupplierModel'
+          type: 'any[]',
+          model: ''
         },
         stockOrderLineitemModels: {
           name: 'stockOrderLineitemModels',
-          type: 'StockOrderLineitemModel[]',
-          model: 'StockOrderLineitemModel'
+          type: 'any[]',
+          model: ''
         },
         reportModels: {
           name: 'reportModels',
-          type: 'ReportModel[]',
-          model: 'ReportModel'
+          type: 'any[]',
+          model: ''
         },
         productModels: {
           name: 'productModels',
@@ -139,8 +134,8 @@ export class OrgModel implements OrgModelInterface {
         },
         integrationModels: {
           name: 'integrationModels',
-          type: 'IntegrationModel[]',
-          model: 'IntegrationModel'
+          type: 'any[]',
+          model: ''
         },
         salesModels: {
           name: 'salesModels',

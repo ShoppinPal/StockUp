@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {StoreConfigModelApi} from "../../shared/lb-sdk/services/custom/StoreConfigModel";
+import {OrgModelApi} from "../../shared/lb-sdk/services/custom/OrgModel";
 import {UserProfileService} from "../../shared/services/user-profile.service";
 import {ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs';
@@ -24,7 +24,7 @@ export class SuppliersComponent implements OnInit {
   public suppliersLimitPerPage: number = 10;
   public searchSupplierText: string;
 
-  constructor(private storeConfigModelApi: StoreConfigModelApi,
+  constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
               private toastr: ToastrService,
               private _userProfileService: UserProfileService) {
@@ -65,8 +65,8 @@ export class SuppliersComponent implements OnInit {
       skip: skip || 0
     };
     let fetchSuppliers = Observable.combineLatest(
-      this.storeConfigModelApi.getSupplierModels(this.userProfile.storeConfigModelId, filter),
-      this.storeConfigModelApi.countSupplierModels(this.userProfile.storeConfigModelId));
+      this.orgModelApi.getSupplierModels(this.userProfile.storeConfigModelId, filter),
+      this.orgModelApi.countSupplierModels(this.userProfile.storeConfigModelId));
     fetchSuppliers.subscribe((data: any) => {
         this.loading = false;
         this.suppliers = data[0];
@@ -92,7 +92,7 @@ export class SuppliersComponent implements OnInit {
         }
       }
     };
-    this.storeConfigModelApi.getSupplierModels(this.userProfile.storeConfigModelId, filter)
+    this.orgModelApi.getSupplierModels(this.userProfile.storeConfigModelId, filter)
       .subscribe((data: Array<any>) => {
           this.loading = false;
           if (data.length) {

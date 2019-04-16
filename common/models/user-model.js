@@ -353,6 +353,174 @@ module.exports = function (UserModel) {
                 });
         };
 
+        UserModel.inviteUser = function (id, userId, options) {
+            logger.debug({
+                message: 'Will invite this user to platform',
+                userId,
+                options,
+                functionName: 'inviteUser'
+            });
+            var user;
+            return UserModel.findOne({
+                where: {
+                    id: userId
+                }
+            })
+                .then(function (userModelInstance) {
+                    logger.debug({
+                        message: 'Found this user, will create a short-lived access token',
+                        userModelInstance,
+                        options,
+                        functionName: 'inviteUser'
+                    });
+                    user = userModelInstance;
+                    return userModelInstance.createAccessToken(7200);
+                })
+                .then(function (accessToken) {
+                    logger.debug({
+                        message: 'Created a short lived token for user',
+                        options,
+                        functionName: 'inviteUser'
+                    });
+                    var email = require('../utils/email');
+                    var argsForEmail = email.argsForEmail;
+                    argsForEmail.to = user.email;
+                    argsForEmail.from = 'kamal@shoppinpal.com';
+                    argsForEmail.subject = 'Invitation from StockUp';
+                    user.name = user.name.substr(0, 1).toUpperCase() + user.name.substr(1, user.name.length - 1).toLowerCase();
+                    var inviteUserLink = UserModel.app.get('site').baseUrl + '/#/invite-user?accessToken=' + accessToken.id + '&name=' + user.name;
+                    argsForEmail.html = `<p>Welcome ${user.name}, you have been invited to join your organisation.
+                                        Please click this <a href="${inviteUserLink}">link</a> to sign up on StockUp.</p>`;
+                    argsForEmail.html += `<p>If clicking the above link doesn't work, try copy-pasting the below url on your
+                                            web browser</p>`;
+                    argsForEmail.html += `<p>${inviteUserLink}</p>`;
+                    argsForEmail.html += `<p>This link is only valid for 2 hours. Also, please don't share this email with anybody.</p>`;
+                    argsForEmail.html += `<p>Regards,<br/>- StockUp Team</p>`;
+                    argsForEmail.html += '</html>';
+                    return email.sendEmail(argsForEmail, options);
+                })
+                .then(function (response) {
+                    logger.debug({
+                        message: 'Sent email to user',
+                        options,
+                        functionName: 'inviteUser'
+                    });
+                    return Promise.resolve(true);
+                })
+                .catch(function (error) {
+                    logger.error({
+                        error,
+                        reason: error,
+                        options,
+                        functionName: 'inviteUser'
+                    });
+                    return Promise.reject(error);
+                });
+
+        };
+
+        UserModel.remoteMethod('setPassword', {
+            accepts: [
+                {arg: 'password', type: 'string', required: true},
+                {arg: 'accessToken', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/setPassword', verb: 'post'},
+            returns: {arg: 'user', type: 'object'}
+        });
+
+        UserModel.setPassword = function (password, accessToken, options) {
+            logger.debug({
+                message: 'Will reset password for user',
+                options,
+                functionName: 'resetPassword'
+            });
+            return UserModel.app.models.AccessToken.findOne({
+                where: {
+                    id: accessToken
+                }
+            })
+                .then(function (response) {
+                    logger.debug({
+                        message: 'Found accessToken, will try to find user',
+                        response,
+                        options,
+                        functionName: 'inviteUser'
+                    });
+                    return UserModel.findOne({
+                        where: {
+                            id: response.userId
+                        }
+                    });
+                })
+                .then(function (user) {
+                    logger.debug({
+                        message: 'Found user',
+                        user,
+                        options,
+                        functionName: 'inviteUser'
+                    });
+                    return user.updateAttributes({
+                        password: password,
+                        emailVerified: true
+                    });
+                })
+                .catch(function (error) {
+                    logger.error({
+                        message: 'Could not change user password',
+                        error,
+                        reason: error,
+                        options,
+                        functionName: 'inviteUser'
+                    });
+                    return Promise.reject('Could not change user password');
+                });
+
+        };
+
+        UserModel.on('resetPasswordRequest', function (info) {
+            logger.debug({
+                message: 'Will send email to user with reset password instructions',
+                userEmail: info.email,
+                info,
+                functionName: 'resetPasswordRequest'
+            });
+            var email = require('../utils/email');
+            var argsForEmail = email.argsForEmail;
+            argsForEmail.to = info.email;
+            argsForEmail.from = 'kamal@shoppinpal.com';
+            argsForEmail.subject = 'Password reset instructions';
+            var userName = info.user.name.substr(0, 1).toUpperCase() + info.user.name.substr(1, info.user.name.length - 1).toLowerCase();
+            var passwordResetLink = UserModel.app.get('site').baseUrl + '/#/invite-user?accessToken=' + info.accessToken.id + '&name=' + userName;
+            argsForEmail.html = `<html>
+                                    <p>Hello ${userName},</p>
+                                    <p>Please follow this <a href="${passwordResetLink}">link</a> to reset your password.</p>
+                                    <p>If the above link doesn't work, try copy-pasting the below link in your web browser.</p>
+                                    <p>${passwordResetLink}</p>
+                                    <p>This link is only valid for 2 hours. Also, please don't share this email with anybody.</p>
+                                    <p>Regards,<br/>- StockUp Team</p>
+                                 </html>`;
+            return email.sendEmail(argsForEmail)
+                .catch(function (error) {
+                    logger.error({
+                        message: 'Error sending password reset email',
+                        userEmail: info.email,
+                        error,
+                        reason: error,
+                        functionName: 'resetPasswordRequest'
+                    });
+                    return Promise.reject('Error sending password reset email');
+                })
+                .then(function (response) {
+                    logger.debug({
+                        message: 'Sent reset password email to user',
+                        userEmail: info.email,
+                        functionName: 'resetPasswordRequest'
+                    });
+                    return Promise.resolve(true);
+                });
+        });
+
 
     });
 };

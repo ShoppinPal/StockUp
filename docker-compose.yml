@@ -39,6 +39,9 @@ services:
       - type: bind
         source: .
         target: /apps/warehouse
+      - type: bind
+        source: ../vend-nodejs-sdk
+        target: /apps/warehouse/node_modules/vend-nodejs-sdk
     depends_on:
       - db
 

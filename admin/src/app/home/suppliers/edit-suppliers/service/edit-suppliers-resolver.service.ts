@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {StoreConfigModelApi} from "../../../../shared/lb-sdk/services/custom/StoreConfigModel";
+import {OrgModelApi} from "../../../../shared/lb-sdk/services/custom/OrgModel";
 import {ActivatedRouteSnapshot} from '@angular/router';
 import {Observable} from 'rxjs';
 import {UserProfileService} from "../../../../shared/services/user-profile.service";
@@ -9,7 +9,7 @@ export class EditSuppliersResolverService {
 
   private userProfile: any = this._userProfileService.getProfileData();
 
-  constructor(private storeConfigModelApi: StoreConfigModelApi,
+  constructor(private orgModelApi: OrgModelApi,
               private _userProfileService: UserProfileService) {
   }
 
@@ -25,8 +25,8 @@ export class EditSuppliersResolverService {
     };
 
     let fetchSupplier = Observable.combineLatest(
-      this.storeConfigModelApi.getSupplierModels(this.userProfile.storeConfigModelId, filter),
-      this.storeConfigModelApi.getStoreModels(this.userProfile.storeConfigModelId)
+      this.orgModelApi.getSupplierModels(this.userProfile.storeConfigModelId, filter),
+      this.orgModelApi.getStoreModels(this.userProfile.storeConfigModelId)
     );
     return fetchSupplier.map((data: any) => {
         return {

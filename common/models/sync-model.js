@@ -551,6 +551,76 @@ module.exports = function (SyncModel) {
             });
     };
 
+    SyncModel.syncVendUsers = function (id, options) {
+        logger.debug({
+            message: 'Will sync vend users',
+            functionName: 'syncVendUsers',
+            options
+        });
+        var vendUtils = require('./../../common/utils/vend')({OrgModel: SyncModel.app.models.OrgModel});
+        return vendUtils.getVendUsers(id, options)
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not fetch vend users',
+                    error,
+                    functionName: 'getVendUsers',
+                    options
+                });
+            })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Fetched users, will save to DB',
+                    response,
+                    options,
+                    functionName: 'syncVendUsers'
+                });
+                var usersToCreate = [];
+                for(var i = 0; i<response.length; i++) {
+                    if(response[i].email) {
+                        usersToCreate.push({
+                            api_id: response[i].id,
+                            name: response[i].username,
+                            email: response[i].email,
+                            password: Math.random().toString(36).slice(-8),
+                            orgModelId: id
+                        });
+                    }
+                }
+                logger.debug({
+                    message: 'Will create following users',
+                    usersToCreate,
+                    options,
+                    functionName: 'syncVendUsers'
+                });
+                return Promise.map(usersToCreate, function (eachUser) {
+                    return SyncModel.app.models.UserModel.findOrCreate({
+                        where: {
+                            orgModelId: id,
+                            api_id: eachUser.api_id
+                        }
+                    }, eachUser);
+                });
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not save users to DB',
+                    error,
+                    options,
+                    functionName: 'syncVendUsers'
+                });
+                return Promise.reject('Could not save users to DB');
+            })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Saved users to db',
+                    response,
+                    options,
+                    functionName: 'syncVendUsers'
+                });
+                return Promise.resolve('Synced users and created users');
+            });
+    };
+
     SyncModel.syncVendSuppliers = function (id, options) {
         logger.debug({
             message: 'Will fetch suppliers from Vend',
