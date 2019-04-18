@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
+import {Observable, of} from 'rxjs';
 import {UserProfileService} from '../../../shared/services/user-profile.service';
 // import {StoreConfigModelApi} from '../../../shared/lb-sdk';
 
@@ -18,7 +18,7 @@ export class WorkerSettingsResolverService {
   }
 
   fetchWorkerSettings(): Observable<any> {
-    return Observable.of(true);
+    return of(true);
     // return this._storeConfigModelApi.getWorkerSettings(this.userProfile.storeConfigModelId)
     //   .map((data: any)=> {
     //       return data;

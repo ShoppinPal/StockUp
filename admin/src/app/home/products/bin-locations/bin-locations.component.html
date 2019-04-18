@@ -40,15 +40,16 @@
                            [(ngModel)]="enableBarcode"
                            (ngModelChange)="changeScanMode()"
                            class="switch-input">
-                    <span class="switch-label"></span>
-                    <span class="switch-handle"></span>
+                    <span class="switch-slider"></span>
                   </label>
                   <span> &nbsp;&nbsp; Barcode Scanning</span>
                 </div>
               </div>
             </div>
             <div class="col-sm-6">
-              <button type="button" class="btn btn-link float-right" (click)="searchSKUText='';fetchProducts(0,0)">Clear All Searches</button>
+              <button type="button" class="btn btn-link float-right" (click)="searchSKUText='';fetchProducts(0,0)">Clear
+                All Searches
+              </button>
             </div>
           </div>
         </div>
@@ -98,14 +99,14 @@
             </tr>
             </tbody>
           </table>
-          <ul class="pagination">
-            <li class="page-item" *ngFor="let page of products | paginate: {itemsPerPage: 10,
-                                                                 currentPage: currentPage,
-                                                                 totalItems: totalProducts}">
-            </li>
-          </ul>
-          <pagination-controls
-            (pageChange)="fetchProducts(productsLimitPerPage, currentPage*productsLimitPerPage); currentPage=$event"></pagination-controls>
+          <!--<ul class="pagination">-->
+          <!--<li class="page-item" *ngFor="let page of products | paginate: {itemsPerPage: 10,-->
+          <!--currentPage: currentPage,-->
+          <!--totalItems: totalProducts}">-->
+          <!--</li>-->
+          <!--</ul>-->
+          <!--<pagination-controls-->
+          <!--(pageChange)="fetchProducts(productsLimitPerPage, currentPage*productsLimitPerPage); currentPage=$event"></pagination-controls>-->
         </div>
       </div>
     </div>

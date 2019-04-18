@@ -4,6 +4,7 @@ import {UserModel, AccessToken} from "../shared/lb-sdk";
 import {UserModelApi} from "../shared/lb-sdk/services/custom/UserModel";
 import {LoopBackConfig} from "../shared/lb-sdk/lb.config";
 import {environment} from "../../environments/environment";
+import {flatMap} from "rxjs/operators";
 
 @Component({
   selector: 'app-signup',
@@ -46,9 +47,9 @@ export class SignupComponent implements OnInit {
 
   private signup(): void {
     this.loading = true;
-    this.userModelApi.signup(this.user).flatMap((data: any) => {
+    this.userModelApi.signup(this.user).pipe(flatMap((data: any) => {
       return this.userModelApi.login(this.user);
-    })
+    }))
       .subscribe((token: AccessToken) => {
         this._router.navigate(['/connect']);
       }, err => {

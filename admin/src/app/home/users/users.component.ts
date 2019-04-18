@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {OrgModelApi} from "../../shared/lb-sdk/services/custom/OrgModel";
 import {ToastrService} from 'ngx-toastr';
-import {Observable} from 'rxjs';
+import {Observable, combineLatest} from 'rxjs';
 import {UserProfileService} from "../../shared/services/user-profile.service";
 
 @Component({
@@ -71,7 +71,7 @@ export class UsersComponent implements OnInit {
       }
 
     }
-    let fetchUsers = Observable.combineLatest(
+    let fetchUsers = combineLatest(
       this.orgModelApi.getUserModels(this.userProfile.orgModelId, filter),
       this.orgModelApi.countUserModels(this.userProfile.orgModelId, countFilter));
     fetchUsers.subscribe((data: any) => {

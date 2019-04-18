@@ -5,6 +5,7 @@ import {LoopBackConfig} from "../shared/lb-sdk/lb.config";
 import {environment} from "../../environments/environment";
 import {SDKToken} from "../shared/lb-sdk/models/BaseModels";
 import {ToastrService} from 'ngx-toastr';
+import {flatMap} from 'rxjs/operators';
 
 @Component({
   selector: 'app-invite-user',
@@ -53,13 +54,13 @@ export class InviteUserComponent implements OnInit {
   setPassword() {
     this.loading = true;
     this.userModelApi.setPassword(this.password, this.accessToken)
-      .flatMap((data: any) => {
+      .pipe(flatMap((data: any) => {
         console.log('data', data);
         return this.userModelApi.login({
           email: data.user.email,
           password: this.password
         });
-      })
+      }))
       .subscribe((data: any) => {
           this.toastr.success('Password set successfully, let\'s log you in');
           this._router.navigate(['/orders/stock-orders']);

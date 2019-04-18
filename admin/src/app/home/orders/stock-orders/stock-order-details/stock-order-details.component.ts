@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {OrgModelApi} from "../../../../shared/lb-sdk/services/custom/OrgModel";
 import {ActivatedRoute, Router} from '@angular/router';
-import {Observable} from 'rxjs';
+import {Observable, combineLatest} from 'rxjs';
 import {ToastrService} from 'ngx-toastr';
 import {UserProfileService} from "../../../../shared/services/user-profile.service";
 import {LoopBackAuth} from "../../../../shared/lb-sdk/services/core/auth.service";
@@ -105,7 +105,7 @@ export class StockOrderDetailsComponent implements OnInit {
     if (productModelId)
       countFilter['productModelId'] = productModelId;
     this.loading = true;
-    let fetchLineItems = Observable.combineLatest(
+    let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
       this.orgModelApi.countStockOrderLineitemModels(this.userProfile.orgModelId, countFilter));
     fetchLineItems.subscribe((data: any) => {
@@ -166,7 +166,7 @@ export class StockOrderDetailsComponent implements OnInit {
     if (productModelId)
       countFilter['productModelId'] = productModelId;
     this.loading = true;
-    let fetchLineItems = Observable.combineLatest(
+    let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
       this.orgModelApi.countStockOrderLineitemModels(this.userProfile.orgModelId, countFilter));
     fetchLineItems.subscribe((data: any) => {

@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {OrgModelApi} from '../../../shared/lb-sdk';
 import {ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs';
+import {Observable, combineLatest} from 'rxjs';
 import {ToastrService} from 'ngx-toastr';
 import {UserProfileService} from '../../../shared/services/user-profile.service';
 
@@ -113,7 +113,7 @@ export class BinLocationsComponent implements OnInit {
       limit: limit || 10,
       skip: skip || 0
     };
-    let fetchProducts = Observable.combineLatest(
+    let fetchProducts = combineLatest(
       this.orgModelApi.getProductModels(this.userProfile.orgModelId, filter),
       this.orgModelApi.countProductModels(this.userProfile.orgModelId));
     fetchProducts.subscribe((data: any) => {

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { CategoriesComponent } from './categories.component';
 import {SharedModule} from '../../../shared/shared.module';
 import {LoadingModule} from 'ngx-loading';
-import {NgxPaginationModule} from 'ngx-pagination';
+// import {NgxPaginationModule} from 'ngx-pagination';
 import {FormsModule} from '@angular/forms';
 
 @NgModule({
@@ -12,7 +12,7 @@ import {FormsModule} from '@angular/forms';
     FormsModule,
     SharedModule,
     LoadingModule,
-    NgxPaginationModule
+    // NgxPaginationModule
   ],
   declarations: [CategoriesComponent]
 })

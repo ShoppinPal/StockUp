@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
+import {Observable, of} from 'rxjs';
 // import {StoreConfigModelApi} from '../../../../shared/lb-sdk';
 import {UserProfileService} from '../../../../shared/services/user-profile.service';
 
@@ -20,7 +20,7 @@ export class StuckOrdersResolverService {
   fetchStuckOrders(limit?: number, skip?: number): Observable<any> {
     limit = limit || 10;
     skip = skip || 0;
-    return Observable.of('af');
+    return of('af');
     // return this.storeConfigModelApi.getStuckOrders(this.userProfile.storeConfigModelId, limit, skip)
     //   .map((data: any) => {
     //       return data;

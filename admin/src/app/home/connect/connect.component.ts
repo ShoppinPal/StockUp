@@ -3,7 +3,8 @@ import {OrgModelApi} from "../../shared/lb-sdk/services/custom/OrgModel";
 import {ActivatedRoute} from '@angular/router';
 import {UserProfileService} from "../../shared/services/user-profile.service";
 import {ToastrService} from 'ngx-toastr';
-import {Observable} from 'rxjs';
+import {Observable, empty} from 'rxjs';
+import {mergeMap} from 'rxjs/operators';
 
 @Component({
   selector: 'app-connect',
@@ -197,7 +198,7 @@ export class ConnectComponent implements OnInit {
     }
     else {
       this.orgModelApi.validateMSSQLDatabase(this.userProfile.orgModelId, this.integration[0].databaseName)
-        .flatMap((data: any) => {
+        .pipe(mergeMap((data: any) => {
           if (data && data.success) {
             this.toastr.success('Database validated successfully');
             return this.orgModelApi.getIntegrationModels(this.userProfile.orgModelId);
@@ -205,14 +206,8 @@ export class ConnectComponent implements OnInit {
           else {
             this.toastr.error('Error validating database');
             console.log(data);
-            return Observable.empty();
           }
-        })
-        .catch(err=> {
-          this.toastr.error('Error validating database');
-          console.log('err', err);
-          return Observable.empty();
-        })
+        }))
         .subscribe((data) => {
             if (data.length) {
               this.integration = data;

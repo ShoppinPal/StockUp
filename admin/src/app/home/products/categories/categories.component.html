@@ -100,14 +100,14 @@
             </tr>
             </tbody>
           </table>
-          <ul class="pagination">
-            <li class="page-item" *ngFor="let category of categories | paginate: {itemsPerPage: categoriesLimitPerPage,
-                                                                 currentPage: currentPage,
-                                                                 totalItems: totalCategories}">
-            </li>
-          </ul>
-          <pagination-controls
-            (pageChange)="fetchCategories(categoriesLimitPerPage, currentPage*categoriesLimitPerPage); currentPage=$event"></pagination-controls>
+          <!--<ul class="pagination">-->
+            <!--<li class="page-item" *ngFor="let category of categories | paginate: {itemsPerPage: categoriesLimitPerPage,-->
+                                                                 <!--currentPage: currentPage,-->
+                                                                 <!--totalItems: totalCategories}">-->
+            <!--</li>-->
+          <!--</ul>-->
+          <!--<pagination-controls-->
+            <!--(pageChange)="fetchCategories(categoriesLimitPerPage, currentPage*categoriesLimitPerPage); currentPage=$event"></pagination-controls>-->
         </div>
       </div>
     </div>

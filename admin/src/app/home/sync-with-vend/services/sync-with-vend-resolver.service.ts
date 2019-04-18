@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
 import {UserProfileService} from '../../../shared/services/user-profile.service';
 import {OrgModelApi} from "../../../shared/lb-sdk/services/custom/OrgModel";
 
@@ -22,11 +23,11 @@ export class SyncWithVendResolverService {
 
   fetchSyncModels() {
     return this.orgModelApi.getSyncModels(this.userProfile.orgModelId)
-      .map((data: any) => {
+      .pipe(map((data: any) => {
         return data;
       }, error => {
         console.log(error);
-      });
+      }));
   }
 
 }

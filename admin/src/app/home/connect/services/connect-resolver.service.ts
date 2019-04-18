@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
+import {Observable, of, combineLatest} from 'rxjs';
+import {map} from 'rxjs/operators';
 import {UserProfileService} from "../../../shared/services/user-profile.service";
 import {OrgModelApi} from "../../../shared/lb-sdk/services/custom/OrgModel";
 import {Router} from '@angular/router';
@@ -15,22 +16,21 @@ export class ConnectResolverService {
   }
 
   resolve(): Observable<any> {
-    let fetchData = Observable.combineLatest(
+    let fetchData = combineLatest(
       this.orgModelApi.getIntegrationModels(this.userProfile.orgModelId),
       this.orgModelApi.countSyncModels(this.userProfile.orgModelId)
     );
-    return fetchData.map((data: any) => {
+    return fetchData.pipe(map((data: any) => {
       console.log('data', data);
       return {
         integration: data[0],
         syncModels: data[1].count
       }
-    })
-      .catch((err: any) => {
-        console.log('err', err);
-        this._router.navigate(['/']); //TODO: make a 404 page
-        return Observable.of({err: err});
-      });
+    }, (err: any) => {
+      console.log('err', err);
+      this._router.navigate(['/']); //TODO: make a 404 page
+      return of({err: err});
+    }));
 
 
   }

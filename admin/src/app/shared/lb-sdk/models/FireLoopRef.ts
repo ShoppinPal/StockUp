@@ -1,5 +1,6 @@
-import { Subject } from 'rxjs/Subject';
-import { Observable } from 'rxjs/Rx';
+/* tslint:disable */
+import { merge, Observable, Subject } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { LoopBackFilter, StatFilter } from './index';
 import { SocketConnection } from '../sockets/socket.connections';
 /**
@@ -154,7 +155,7 @@ export class FireLoopRef<T> {
       request = { filter, parent: this.parent.instance };
     }
     if (event.match(/(value|change|stats)/)) {
-      return Observable.merge(
+      return merge(
         this.pull(event, request),
         this.broadcasts(event, request)
       );
@@ -307,7 +308,7 @@ export class FireLoopRef<T> {
     }
     // This event listener will be wiped within socket.connections
     this.socket.sharedObservables.sharedOnDisconnect.subscribe(() => subject.complete());
-    return subject.asObservable().catch((error: any) => Observable.throw(error));
+    return subject.asObservable().pipe(catchError((error: any) => Observable.throw(error)));
   }
   /**
   * @method buildId

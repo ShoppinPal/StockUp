@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {OrgModelApi} from "../../../shared/lb-sdk/services/custom/OrgModel";
 import {ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs';
+import {Observable, combineLatest} from 'rxjs';
 import {ToastrService} from 'ngx-toastr';
 import {UserProfileService} from '../../../shared/services/user-profile.service';
 import {ContainerApi} from "../../../shared/lb-sdk/services/custom/Container";
@@ -80,7 +80,7 @@ export class CategoriesComponent implements OnInit {
         }
       }
     }
-    let fetchCategories = Observable.combineLatest(
+    let fetchCategories = combineLatest(
       this.orgModelApi.getCategoryModels(this.userProfile.orgModelId, filter),
       this.orgModelApi.countCategoryModels(this.userProfile.orgModelId));
     fetchCategories.subscribe((data: any) => {

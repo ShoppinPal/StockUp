@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
+import {Observable, combineLatest} from 'rxjs';
+import {map} from 'rxjs/operators';
 import {UserProfileService} from '../../../../shared/services/user-profile.service';
 import {OrgModelApi} from "../../../../shared/lb-sdk/services/custom/OrgModel";
 
@@ -25,13 +26,13 @@ export class StockOrdersResolverService {
       order: 'createdAt DESC',
       include: 'storeModel'
     };
-    let fetchOrders = Observable.combineLatest(
+    let fetchOrders = combineLatest(
       this.orgModelApi.getReportModels(this.userProfile.orgModelId, filter),
       this.orgModelApi.countReportModels(this.userProfile.orgModelId),
       this.orgModelApi.getStoreModels(this.userProfile.orgModelId),
       this.orgModelApi.getSupplierModels(this.userProfile.orgModelId)
     );
-    return fetchOrders.map((data: any) => {
+    return fetchOrders.pipe(map((data: any) => {
         return {
           orders: data[0],
           count: data[1].count,
@@ -42,7 +43,7 @@ export class StockOrdersResolverService {
       err => {
         console.log('Could not fetch stock orders', err);
         return err;
-      });
+      }));
 
   };
 

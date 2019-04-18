@@ -4,25 +4,26 @@ import {UserProfileService} from './services/user-profile.service';
 import {AccessService} from './services/access.service';
 import {UserResolverService} from './services/user-resolver.service';
 import {TypeaheadModule} from 'ngx-bootstrap';
-import {AsideToggleDirective} from '../directives';
 import {LoadingModule} from 'ngx-loading';
 import {FormsModule} from '@angular/forms';
+import {AppAsideModule} from '@coreui/angular';
 import {FileUploadModule} from 'ng2-file-upload';
 
 @NgModule({
   imports: [
+    AppAsideModule,
     CommonModule,
     FormsModule,
     LoadingModule,
     FileUploadModule,
     TypeaheadModule
   ],
-  declarations: [AsideToggleDirective],
+  declarations: [],
   exports: [
-    AsideToggleDirective,
     FormsModule,
     TypeaheadModule,
     LoadingModule,
+    AppAsideModule,
     TypeaheadModule,
     FileUploadModule
   ]

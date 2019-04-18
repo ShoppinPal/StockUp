@@ -1,11 +1,11 @@
 import {Component, OnInit} from '@angular/core';
 import {OrgModelApi} from "../../../shared/lb-sdk/services/custom/OrgModel";
 import {ActivatedRoute, Router} from '@angular/router';
-import {Observable} from 'rxjs';
+import {Observable, combineLatest} from 'rxjs';
+import {map, mergeMap} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
 import {UserProfileService} from "../../../shared/services/user-profile.service";
 import {TypeaheadMatch} from 'ngx-bootstrap';
-import {DatePipe} from '@angular/common';
 import {FileUploader} from 'ng2-file-upload';
 import {LoopBackConfig, LoopBackAuth} from "../../../shared/lb-sdk";
 
@@ -84,7 +84,7 @@ export class StockOrdersComponent implements OnInit {
       // Runs on every search
       observer.next(this.searchCategoryText);
     })
-      .mergeMap((token: string) => this.searchCategory(token));
+      .pipe(mergeMap((token: string) => this.searchCategory(token)));
   }
 
   fetchOrderRowCounts() {
@@ -118,7 +118,7 @@ export class StockOrdersComponent implements OnInit {
       order: 'created DESC',
       include: 'storeModel'
     };
-    let fetchOrders = Observable.combineLatest(
+    let fetchOrders = combineLatest(
       this.orgModelApi.getReportModels(this.userProfile.orgModelId, filter),
       this.orgModelApi.countReportModels(this.userProfile.orgModelId));
     fetchOrders.subscribe((data: any) => {
@@ -229,12 +229,12 @@ export class StockOrdersComponent implements OnInit {
       limit: this.categoriesListLimit,
       fields: ['name', 'id']
     })
-      .map((data: any) => {
+      .pipe(map((data: any) => {
           return data;
         },
         err => {
           console.log('err', err);
-        });
+        }));
   }
 
   public typeaheadOnSelect(e: TypeaheadMatch): void {

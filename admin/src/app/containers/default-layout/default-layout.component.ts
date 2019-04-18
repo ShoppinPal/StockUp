@@ -1,4 +1,6 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, OnDestroy, Inject} from '@angular/core';
+import {DOCUMENT} from '@angular/common';
+import {navItems} from '../../_nav';
 import {Router, ActivatedRoute} from '@angular/router';
 import {UserModelApi} from '../../shared/lb-sdk/services';
 import {environment} from '../../../environments/environment';
@@ -8,11 +10,14 @@ import {UserProfileService} from "../../shared/services/user-profile.service";
 
 
 @Component({
-  selector: 'app-header',
-  templateUrl: './app-header.component.html'
+  selector: 'app-dashboard',
+  templateUrl: './default-layout.component.html'
 })
-export class AppHeaderComponent implements OnInit {
-
+export class DefaultLayoutComponent implements OnDestroy {
+  public navItems = navItems;
+  public sidebarMinimized = true;
+  private changes: MutationObserver;
+  public element: HTMLElement;
   public user: any;
   public loading = false;
 
@@ -20,9 +25,23 @@ export class AppHeaderComponent implements OnInit {
               private _userProfileService: UserProfileService,
               private _router: Router,
               private _route: ActivatedRoute,
-              private localStorage: SDKStorage) {
+              private localStorage: SDKStorage,
+              @Inject(DOCUMENT) _document?: any) {
+
+    this.changes = new MutationObserver((mutations) => {
+      this.sidebarMinimized = _document.body.classList.contains('sidebar-minimized');
+    });
+    this.element = _document.body;
+    this.changes.observe(<Element>this.element, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
     LoopBackConfig.setBaseURL(environment.BASE_URL);
     LoopBackConfig.setApiVersion(environment.API_VERSION);
+  }
+
+  ngOnDestroy(): void {
+    this.changes.disconnect();
   }
 
 
@@ -43,11 +62,6 @@ export class AppHeaderComponent implements OnInit {
     this.loading = true;
     this.userModelApi.logout().subscribe((res => {
         this._userProfileService.refreshUserProfile();
-        //also logout from warehouse-v1 app
-        this.localStorage.remove('$LoopBack$accessTokenId');
-        this.localStorage.remove('$LoopBack$currentUserId');
-        this.localStorage.remove('$LoopBack$rememberMe');
-
         this.loading = false;
         this._router.navigate(['/login']);
       }),
@@ -56,8 +70,5 @@ export class AppHeaderComponent implements OnInit {
       });
   };
 
-  backToOldWarehouse() {
-    window.location.href = environment.BASE_URL + '/#/warehouse-landing';
-  }
 
 }

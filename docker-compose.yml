@@ -1,7 +1,7 @@
 version: "3.2"
 services:
   admin:
-    image: node:6.10
+    image: node:10.15.3
     working_dir: /apps/warehouse/admin
     command: npm run start
     ports:
@@ -39,9 +39,6 @@ services:
       - type: bind
         source: .
         target: /apps/warehouse
-      - type: bind
-        source: ../vend-nodejs-sdk
-        target: /apps/warehouse/node_modules/vend-nodejs-sdk
     depends_on:
       - db
 

@@ -66,7 +66,7 @@ export class LoopBackAuth {
    * This method will set a flag in order to remember the current credentials
    **/
   public setToken(token: SDKToken): void {
-    this.token = Object.assign(this.token, token);
+    this.token = Object.assign({}, this.token, token);
     this.save();
   }
   /**
@@ -113,7 +113,6 @@ export class LoopBackAuth {
    * But only if rememberMe is enabled.
    **/
   public save(): boolean {
-    if (this.token.rememberMe) {
       let today = new Date();
       let expires = new Date(today.getTime() + (this.token.ttl * 1000));
       this.persist('id', this.token.id, expires);
@@ -123,9 +122,6 @@ export class LoopBackAuth {
       this.persist('ttl', this.token.ttl, expires);
       this.persist('rememberMe', this.token.rememberMe, expires);
       return true;
-    } else {
-      return false;
-    }
   };
   /**
    * @method load
@@ -158,7 +154,7 @@ export class LoopBackAuth {
       this.storage.set(
         `${this.prefix}${prop}`,
         (typeof value === 'object') ? JSON.stringify(value) : value,
-        expires
+        this.token.rememberMe?expires:null
       );
     }
     catch (err) {

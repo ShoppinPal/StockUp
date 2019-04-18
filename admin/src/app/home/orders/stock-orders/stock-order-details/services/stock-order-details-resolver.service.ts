@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
 import {ActivatedRoute, ActivatedRouteSnapshot, Resolve} from '@angular/router';
 
 import {UserProfileService} from '../../../../../shared/services/user-profile.service';
@@ -25,13 +26,13 @@ export class StockOrderDetailsResolverService implements Resolve<string>{
         id: reportModelId
       }
     };
-    return this.orgModelApi.getReportModels(this.userProfile.orgModelId, filter).map((data: any) => {
+    return this.orgModelApi.getReportModels(this.userProfile.orgModelId, filter).pipe(map((data: any) => {
         return data;
       },
       err => {
         console.log('Could not fetch stock orders', err);
         return err;
-      });
+      }));
 
   };
 

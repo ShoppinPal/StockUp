@@ -71,6 +71,7 @@ export class OrgModel implements OrgModelInterface {
       name: 'OrgModel',
       plural: 'OrgModels',
       path: 'OrgModels',
+      idName: 'id',
       properties: {
         "name": {
           name: 'name',
@@ -95,62 +96,98 @@ export class OrgModel implements OrgModelInterface {
         userModels: {
           name: 'userModels',
           type: 'UserModel[]',
-          model: 'UserModel'
+          model: 'UserModel',
+          relationType: 'hasMany',
+                  keyFrom: 'id',
+          keyTo: 'orgModelId'
         },
         storeModels: {
           name: 'storeModels',
           type: 'any[]',
-          model: ''
+          model: '',
+          relationType: 'hasMany',
+                  keyFrom: 'id',
+          keyTo: 'orgModelId'
         },
         supplierModels: {
           name: 'supplierModels',
           type: 'any[]',
-          model: ''
+          model: '',
+          relationType: 'hasMany',
+                  keyFrom: 'id',
+          keyTo: 'orgModelId'
         },
         stockOrderLineitemModels: {
           name: 'stockOrderLineitemModels',
           type: 'any[]',
-          model: ''
+          model: '',
+          relationType: 'hasMany',
+                  keyFrom: 'id',
+          keyTo: 'orgModelId'
         },
         reportModels: {
           name: 'reportModels',
           type: 'any[]',
-          model: ''
+          model: '',
+          relationType: 'hasMany',
+                  keyFrom: 'id',
+          keyTo: 'orgModelId'
         },
         productModels: {
           name: 'productModels',
           type: 'any[]',
-          model: ''
+          model: '',
+          relationType: 'hasMany',
+                  keyFrom: 'id',
+          keyTo: 'orgModelId'
         },
         inventoryModels: {
           name: 'inventoryModels',
           type: 'any[]',
-          model: ''
+          model: '',
+          relationType: 'hasMany',
+                  keyFrom: 'id',
+          keyTo: 'orgModelId'
         },
         syncModels: {
           name: 'syncModels',
           type: 'any[]',
-          model: ''
+          model: '',
+          relationType: 'hasMany',
+                  keyFrom: 'id',
+          keyTo: 'orgModelId'
         },
         integrationModels: {
           name: 'integrationModels',
           type: 'any[]',
-          model: ''
+          model: '',
+          relationType: 'hasMany',
+                  keyFrom: 'id',
+          keyTo: 'orgModelId'
         },
         salesModels: {
           name: 'salesModels',
           type: 'any[]',
-          model: ''
+          model: '',
+          relationType: 'hasMany',
+                  keyFrom: 'id',
+          keyTo: 'orgModelId'
         },
         salesLineItemsModels: {
           name: 'salesLineItemsModels',
           type: 'any[]',
-          model: ''
+          model: '',
+          relationType: 'hasMany',
+                  keyFrom: 'id',
+          keyTo: 'orgModelId'
         },
         categoryModels: {
           name: 'categoryModels',
           type: 'any[]',
-          model: ''
+          model: '',
+          relationType: 'hasMany',
+                  keyFrom: 'id',
+          keyTo: 'orgModelId'
         },
       }
     }

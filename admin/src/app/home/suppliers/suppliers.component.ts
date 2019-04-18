@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {OrgModelApi} from "../../shared/lb-sdk/services/custom/OrgModel";
 import {UserProfileService} from "../../shared/services/user-profile.service";
 import {ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs';
+import {Observable, combineLatest} from 'rxjs';
 import {ToastrService} from 'ngx-toastr';
 
 @Component({
@@ -64,7 +64,7 @@ export class SuppliersComponent implements OnInit {
       limit: limit || 10,
       skip: skip || 0
     };
-    let fetchSuppliers = Observable.combineLatest(
+    let fetchSuppliers = combineLatest(
       this.orgModelApi.getSupplierModels(this.userProfile.storeConfigModelId, filter),
       this.orgModelApi.countSupplierModels(this.userProfile.storeConfigModelId));
     fetchSuppliers.subscribe((data: any) => {
