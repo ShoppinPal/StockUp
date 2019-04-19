@@ -26,11 +26,11 @@ export interface UserModelInterface {
   teamModels?: any[];
   globalConfigModels?: any;
   storeConfigModel?: any;
-  storeModels?: any[];
   reportModels?: any[];
   stockOrderLineitemModels?: any[];
   supplierModels?: any[];
   orgModel?: OrgModel;
+  storeModels?: any[];
   roleMappings?: any[];
 }
 
@@ -56,11 +56,11 @@ export class UserModel implements UserModelInterface {
   teamModels: any[];
   globalConfigModels: any;
   storeConfigModel: any;
-  storeModels: any[];
   reportModels: any[];
   stockOrderLineitemModels: any[];
   supplierModels: any[];
   orgModel: OrgModel;
+  storeModels: any[];
   roleMappings: any[];
   constructor(data?: UserModelInterface) {
     Object.assign(this, data);
@@ -210,14 +210,6 @@ export class UserModel implements UserModelInterface {
                   keyFrom: 'storeConfigModelId',
           keyTo: 'objectId'
         },
-        storeModels: {
-          name: 'storeModels',
-          type: 'any[]',
-          model: '',
-          relationType: 'hasMany',
-                  keyFrom: 'id',
-          keyTo: 'userModelToStoreModelId'
-        },
         reportModels: {
           name: 'reportModels',
           type: 'any[]',
@@ -249,6 +241,16 @@ export class UserModel implements UserModelInterface {
           relationType: 'belongsTo',
                   keyFrom: 'orgModelId',
           keyTo: 'id'
+        },
+        storeModels: {
+          name: 'storeModels',
+          type: 'any[]',
+          model: '',
+          relationType: 'hasMany',
+          modelThrough: 'UserStoreMapping',
+          keyThrough: 'storeModelId',
+          keyFrom: 'id',
+          keyTo: 'storeModelId'
         },
         roleMappings: {
           name: 'roleMappings',

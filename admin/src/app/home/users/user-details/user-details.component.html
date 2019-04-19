@@ -1,0 +1,95 @@
+<ngx-loading [show]="loading"></ngx-loading>
+<div class="animated fadeIn">
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="card">
+        <div class="card-header">
+          <strong>User details</strong>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="form-group col-sm-6">
+              <p>Name: <strong>{{user.name}}</strong></p>
+              <p>Email: <strong>{{user.email}}</strong></p>
+              <p *ngIf="user.id !== userProfile.userId ">Invitation:
+
+                <button *ngIf="!user.emailVerified" class="btn btn-danger"
+                        type="submit"
+                        (click)="inviteUser(user)">
+                  <i class="fa fa-save"></i> Invite user
+                </button>
+                <strong class="text-success"
+                        *ngIf="user.emailVerified">
+                  Invite accepted</strong>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!--/.col-->
+  </div><!--/.row-->
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="card">
+        <div class="card-header">
+          <strong>Select Stores</strong>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-12">
+              <div class="form-group" *ngFor="let store of stores">
+                <div class="input-group">
+                  <label class="switch switch-pill switch-outline-primary-alt">
+                    <input type="checkbox" class="switch-input" [(ngModel)]="store.selected">
+                    <span class="switch-slider"></span>
+                  </label>
+                  <span> &nbsp;&nbsp; {{store.name}}</span>
+
+                </div>
+              </div>
+            </div>
+          </div><!--/.row-->
+        </div>
+        <div class="card-footer">
+          <div class="row">
+            <div class="col-sm-6">
+              <button type="button" class="btn btn-success" (click)="assignStoreModels()">
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!--/.col-->
+  </div><!--/.row-->
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="card">
+        <div class="card-header">
+          <strong>Select Roles:</strong>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-12">
+              <div class="form-group">
+                <div class="input-group">
+
+                </div>
+              </div>
+            </div>
+          </div><!--/.row-->
+        </div>
+        <div class="card-footer">
+          <div class="row">
+            <div class="col-sm-6">
+              <button type="button" class="btn btn-success">
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!--/.col-->
+  </div><!--/.row-->
+
+</div>

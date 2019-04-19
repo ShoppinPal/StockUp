@@ -191,8 +191,19 @@ export class StockOrderDetailsComponent implements OnInit {
         api_id: sku
       }
     }).subscribe((data: any) => {
-      this.getApprovedStockOrderLineItems(1, 0, data[0].id);
-      this.getNotApprovedStockOrderLineItems(1, 0, data[0].id);
+      if(data.length) {
+        this.getApprovedStockOrderLineItems(1, 0, data[0].id);
+        this.getNotApprovedStockOrderLineItems(1, 0, data[0].id);
+      }
+      else {
+        this.loading = false;
+        this.currentPageNotApproved = 1;
+        this.totalNotApprovedLineItems = 0;
+        this.notApprovedLineItems = [];
+        this.approvedLineItems = [];
+        this.totalApprovedLineItems = 0;
+        this.currentPageApproved = 1;
+      }
     })
   }
 

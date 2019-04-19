@@ -332,7 +332,7 @@ module.exports = function (UserModel) {
                             message: 'Assigning role',
                             functionName: 'assignRoles'
                         });
-                        return RoleMapping.upsert({roleId: eachRole.id, principalId: userId});
+                        return RoleMapping.upsert({roleId: eachRole.id, principalId: userId, updatedAt: new Date()});
                     });
                 })
                 .then(function (result) {
@@ -520,6 +520,63 @@ module.exports = function (UserModel) {
                     return Promise.resolve(true);
                 });
         });
+
+        UserModel.assignStoreModelsToUser = function (orgModelId, userModelId, storeIds, options) {
+            logger.debug({
+                message: 'Will delete previous store-user mappings',
+                functionName: 'assignStoreModelsToUser',
+                userModelId,
+                options
+            });
+            return UserModel.app.models.UserStoreMapping.destroyAll({
+                userModelId: userModelId
+            })
+                .then(function (response) {
+                    logger.debug({
+                        message: 'Deleted previous store mappings of user, will assign new ones',
+                        response,
+                        options,
+                        storeIds,
+                        userModelId,
+                        functionName: 'assignStoreModelsToUser'
+                    });
+                    if (storeIds.length) {
+                        var mappingsToCreate = [];
+                        for (var i = 0; i<storeIds.length; i++) {
+                            mappingsToCreate.push({
+                                storeModelId: storeIds[i],
+                                userModelId: userModelId,
+                                orgModelId: orgModelId
+                            });
+                        }
+
+                        return UserModel.app.models.UserStoreMapping.create(mappingsToCreate);
+                    }
+                    else {
+                        return Promise.resolve('No store mappings to create');
+                    }
+                })
+                .then(function (response) {
+                    logger.debug({
+                        message: 'Assigned new store mappings to user',
+                        response,
+                        functionName: 'assignStoreModelsToUser',
+                        options
+                    });
+                    return Promise.resolve(true);
+                })
+                .catch(function (err) {
+                    logger.error({
+                        message: 'Could not assign stores to user',
+                        err,
+                        reason: err,
+                        functionName: 'assignStoreModelsToUser',
+                        options
+                    });
+                    return Promise.reject('Could not assign stores to user');
+                });
+
+        };
 
 
     });

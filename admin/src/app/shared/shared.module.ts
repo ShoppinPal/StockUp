@@ -8,6 +8,10 @@ import {LoadingModule} from 'ngx-loading';
 import {FormsModule} from '@angular/forms';
 import {AppAsideModule} from '@coreui/angular';
 import {FileUploadModule} from 'ng2-file-upload';
+import {CollapseModule} from 'ngx-bootstrap/collapse';
+import {PopoverModule} from 'ngx-bootstrap/popover';
+import {LoadingModule} from 'ngx-loading';
+import {FormsModule} from "@angular/forms";
 
 @NgModule({
   imports: [
@@ -16,7 +20,12 @@ import {FileUploadModule} from 'ng2-file-upload';
     FormsModule,
     LoadingModule,
     FileUploadModule,
-    TypeaheadModule
+    TypeaheadModule,
+    CollapseModule,
+    FileUploadModule,
+    FormsModule,
+    LoadingModule,
+    PopoverModule.forRoot()
   ],
   declarations: [],
   exports: [
@@ -24,8 +33,12 @@ import {FileUploadModule} from 'ng2-file-upload';
     TypeaheadModule,
     LoadingModule,
     AppAsideModule,
+    CollapseModule,
+    FormsModule,
     TypeaheadModule,
-    FileUploadModule
+    FileUploadModule,
+    LoadingModule,
+    PopoverModule
   ]
 })
 

@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {OrgModelApi} from "../../shared/lb-sdk/services/custom/OrgModel";
 import {ToastrService} from 'ngx-toastr';
 import {Observable, combineLatest} from 'rxjs';
@@ -14,6 +14,7 @@ export class UsersComponent implements OnInit {
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
+              private _router: Router,
               private toastr: ToastrService,
               private _userProfileService: UserProfileService) {
   }
@@ -41,6 +42,7 @@ export class UsersComponent implements OnInit {
         console.log('error', error)
       });
   }
+
 
   fetchUsers(limit?: number, skip?: number, searchUserText?: string) {
     if (!(limit && skip)) {
@@ -87,20 +89,9 @@ export class UsersComponent implements OnInit {
       });
   };
 
-  inviteUser(userId: string) {
+  goToUserDetailsPage(userId) {
     this.loading = true;
-    this.orgModelApi.inviteUser(this.userProfile.orgModelId, userId)
-      .subscribe((data: any) => {
-          this.loading = false;
-          this.toastr.success('Sent invitation to user successfully');
-          console.log('invite', data);
-        },
-        err => {
-          this.loading = false;
-          this.toastr.error('Error in sending invitation');
-          console.log('invite err', err);
-        });
-
+    this._router.navigate(['users/user-details/' + userId]);
   }
 
 }

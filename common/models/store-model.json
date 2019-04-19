@@ -67,10 +67,11 @@
   },
   "validations": [],
   "relations": {
-    "userModel": {
-      "type": "belongsTo",
+    "userModels": {
+      "type": "hasMany",
       "model": "UserModel",
-      "foreignKey": "userModelToStoreModelId"
+      "foreignKey": "storeModelId",
+      "through": "UserStoreMapping"
     },
     "storeConfigModel": {
       "type": "belongsTo",

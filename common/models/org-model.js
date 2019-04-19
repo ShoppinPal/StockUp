@@ -1045,5 +1045,30 @@ module.exports = function (OrgModel) {
                     });
                 });
         };
+
+        OrgModel.remoteMethod('assignStoreModelsToUser', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'userId', type: 'string', required: true},
+                {arg: 'storeIds', type: 'array', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/assignStoreModelsToUser', verb: 'POST'},
+            returns: {arg: 'status', type: 'boolean', root: true}
+        });
+
+        OrgModel.assignStoreModelsToUser = function (id, userId, storeIds, options) {
+            return OrgModel.app.models.UserModel.assignStoreModelsToUser(id, userId, storeIds, options)
+                .catch(function (error) {
+                    logger.error({
+                        error,
+                        reason: error,
+                        message: 'Could not assign stores to user',
+                        userId,
+                        functionName: 'assignStoreModelsToUser',
+                        options
+                    });
+                });
+        };
     });
 };

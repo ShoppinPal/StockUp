@@ -55,8 +55,8 @@
             <tr>
               <th>Email</th>
               <th>Name</th>
-              <th>Roles</th>
               <th>Invite</th>
+              <th>Manage</th>
             </tr>
             </thead>
             <tbody>
@@ -66,19 +66,19 @@
               <td>
                 {{user.name}}
               </td>
+              <td *ngIf="user.id === userProfile.userId" class="text-primary">
+                <strong>Self</strong>
+              </td>
+              <td *ngIf="user.emailVerified && user.id !== userProfile.userId" class="text-success">
+                <strong>Invite accepted</strong>
+              </td>
+              <td *ngIf="!user.emailVerified && user.id !== userProfile.userId" class="text-danger">
+                <strong>Invite pending</strong>
+              </td>
               <td>
-                <button class="btn btn-primary" type="submit" appAsideMenuToggler>
-                  <i class="fa fa-save"></i> Set Roles
+                <button class="btn btn-primary" type="submit" (click)="goToUserDetailsPage(user.id)">
+                <i class="fa fa-save"></i> Manage settings
                 </button>
-              </td>
-              <td *ngIf="!user.emailVerified">
-                <button *ngIf="user.id !== userProfile.userId" class="btn btn-danger" type="submit"
-                        (click)="inviteUser(user.id)">
-                  <i class="fa fa-save"></i> Invite user
-                </button>
-              </td>
-              <td *ngIf="user.emailVerified && user.id !== userProfile.userId" class="text-green">
-                Invite accepted
               </td>
             </tr>
             </tbody>
@@ -93,36 +93,6 @@
           </pagination>
         </div>
       </div>
-
-
-      <!--<div class="card">-->
-        <!--<div class="card-header">-->
-          <!--Bootstrap Collapse-->
-          <!--<div class="card-header-actions">-->
-            <!--<a href="https://valor-software.com/ngx-bootstrap/#/collapse" target="_blank">-->
-              <!--<small className="text-muted">docs</small>-->
-            <!--</a>-->
-          <!--</div>-->
-        <!--</div>-->
-        <!--<div class="card-body"-->
-             <!--(collapsed)="collapsed($event)"-->
-             <!--(expanded)="expanded($event)"-->
-             <!--[collapse]="isCollapsed">-->
-          <!--<p>-->
-            <!--Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet-->
-            <!--dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper-->
-            <!--suscipit lobortis nisl ut aliquip ex ea commodo-->
-            <!--consequat.-->
-          <!--</p>-->
-        <!--</div>-->
-        <!--<div class="card-footer">-->
-          <!--<button type="button" class="btn btn-primary"-->
-                  <!--(click)="isCollapsed = !isCollapsed">Toggle collapse-->
-          <!--</button>-->
-        <!--</div>-->
-      <!--</div>-->
-
-
     </div>
     <!--/.col-->
   </div>

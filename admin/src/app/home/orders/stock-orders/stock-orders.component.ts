@@ -115,7 +115,7 @@ export class StockOrdersComponent implements OnInit {
     let filter = {
       limit: limit,
       skip: skip,
-      order: 'created DESC',
+      order: 'createdAt DESC',
       include: 'storeModel'
     };
     let fetchOrders = combineLatest(

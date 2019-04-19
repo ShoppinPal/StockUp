@@ -76,6 +76,11 @@
       "type": "hasMany",
       "model": "CategoryModel",
       "foreignKey": "orgModelId"
+    },
+    "userStoreMappings": {
+      "type": "hasMany",
+      "model": "UserStoreMapping",
+      "foreignKey": "orgModelId"
     }
   },
   "acls": [
@@ -460,7 +465,7 @@
       "principalType": "ROLE",
       "principalId": "orgAdmin",
       "permission": "ALLOW",
-      "property": "assignRoles"
+      "property": "assignStoreModelsToUser"
     }
   ],
   "methods": {}

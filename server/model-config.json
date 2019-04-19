@@ -111,5 +111,9 @@
   "CategoryModel": {
     "dataSource": "db",
     "public": false
+  },
+  "UserStoreMapping": {
+    "dataSource": "db",
+    "public": false
   }
 }

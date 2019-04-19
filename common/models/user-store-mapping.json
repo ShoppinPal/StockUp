@@ -1,0 +1,42 @@
+{
+  "name": "UserStoreMapping",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "mixins": {
+    "Timestamp": {},
+    "Context": {}
+  },
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "userModelId": {
+      "type": "string",
+      "required": true
+    },
+    "storeModelId": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "userModel": {
+      "type": "belongsTo",
+      "model": "UserModel",
+      "foreignKey": "userModelId"
+    },
+    "storeModel": {
+      "type": "belongsTo",
+      "model": "StoreModel",
+      "foreignKey": "storeModelId"
+    },
+    "orgModel": {
+      "type": "belongsTo",
+      "model": "OrgModel",
+      "foreignKey": "orgModelId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

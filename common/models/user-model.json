@@ -42,7 +42,8 @@
     "storeModels": {
       "type": "hasMany",
       "model": "StoreModel",
-      "foreignKey": "userModelToStoreModelId"
+      "foreignKey": "userModelId",
+      "through": "UserStoreMapping"
     },
     "reportModels": {
       "type": "hasMany",
