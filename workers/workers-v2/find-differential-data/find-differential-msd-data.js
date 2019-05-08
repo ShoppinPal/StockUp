@@ -322,22 +322,8 @@ var callFetchDataObjectsWorker = function (sqlPool, orgModelId, syncModels) {
                         message: 'Calling fetch inventory worker',
                         orgModelId
                     });
-                    var fetchIncrementalInventory = require('./../fetch-incremental-inventory/fetch-incremental-inventorySums-msd');
+                    var fetchIncrementalInventory = require('./../fetch-incremental-inventory/fetch-incremental-inventory-msd');
                     return fetchIncrementalInventory.run(sqlPool, orgModelId, syncModels[dataObjectIndices.inventorySums]);
-                }
-                else {
-                    return Promise.resolve();
-                }
-            })
-            .then(function () {
-                if (dataObjectIndices.inventoryDims !== -1) {
-                    logger.debug({
-                        commandName: commandName,
-                        message: 'Calling fetch inventory worker',
-                        orgModelId
-                    });
-                    var fetchIncrementalInventory = require('./../fetch-incremental-inventory/fetch-incremental-inventoryDims-msd');
-                    return fetchIncrementalInventory.run(sqlPool, orgModelId, syncModels[dataObjectIndices.inventoryDims]);
                 }
                 else {
                     return Promise.resolve();

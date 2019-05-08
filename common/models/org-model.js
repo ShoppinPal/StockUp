@@ -808,15 +808,61 @@ module.exports = function (OrgModel) {
         });
 
         OrgModel.fetchOrderRowCounts = function (id, orderIds, options) {
-           return OrgModel.app.models.ReportModel.fetchOrderRowCounts(orderIds, options)
-               .catch(function (error) {
-                   logger.error({
-                       error,
-                       options,
-                       functionName: 'fetchOrderRowCounts'
-                   });
-                   return Promise.reject(error);
-               });
+            return OrgModel.app.models.ReportModel.fetchOrderRowCounts(orderIds, options)
+                .catch(function (error) {
+                    logger.error({
+                        error,
+                        options,
+                        functionName: 'fetchOrderRowCounts'
+                    });
+                    return Promise.reject(error);
+                });
+        };
+
+        OrgModel.remoteMethod('downloadReportModelCSV', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'reportModelId', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/downloadReportModelCSV', verb: 'GET'},
+            returns: {arg: 'csvReportUrl', type: 'string', root: true}
+        });
+
+        OrgModel.downloadReportModelCSV = function (id, reportModelId, options) {
+            return OrgModel.app.models.ReportModel.downloadReportModelCSV(id, reportModelId, options)
+                .catch(function (error) {
+                    logger.error({
+                        error,
+                        options,
+                        functionName: 'downloadReportModelCSV'
+                    });
+                    return Promise.reject(error);
+                });
+        };
+
+        OrgModel.remoteMethod('updateOrgSettings', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'data', type: 'object', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/updateOrgSettings', verb: 'GET'},
+            returns: {arg: 'data', type: 'object', root: true}
+        });
+
+        OrgModel.updateOrgSettings = function (id, data, options) {
+            return OrgModel.updateAll({
+                id: id
+            }, data)
+                .catch(function (error) {
+                    logger.error({
+                        error,
+                        options,
+                        functionName: 'updateOrgSettings'
+                    });
+                    return Promise.reject(error);
+                });
         };
     });
 };

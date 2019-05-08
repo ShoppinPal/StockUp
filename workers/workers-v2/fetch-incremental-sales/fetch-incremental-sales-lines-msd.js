@@ -242,7 +242,8 @@ function fetchPaginatedSalesLines(sqlPool, orgModelId, pagesToFetch) {
                                 salesModelId: salesModelToAttach ? salesModelToAttach._id : null,
                                 productModelId: productModelToAttach ? productModelToAttach._id : null,
                                 storeModelId: salesModelToAttach ? salesModelToAttach.storeModelId : null,
-                                orgModelId: ObjectId(orgModelId)
+                                orgModelId: ObjectId(orgModelId),
+                                updatedAt: new Date()
                             }
                         });
                         batchCounter++;
@@ -291,7 +292,8 @@ function fetchPaginatedSalesLines(sqlPool, orgModelId, pagesToFetch) {
                         .input('sales_lines_per_page', sql.Int, SALES_LINES_PER_PAGE)
                         .input('transfer_pending_state', sql.Int, 0)
                         .input('transfer_success_state', sql.Int, 1)
-                        .query('UPDATE TOP (@sales_lines_per_page) ' + SALES_LINES_TABLE + ' SET STOCKUPTRANSFER = @transfer_success_state WHERE STOCKUPTRANSFER = @transfer_pending_state ')
+                        .input('transfer_time', sql.DateTime, new Date())
+                        .query('UPDATE TOP (@sales_lines_per_page) ' + SALES_LINES_TABLE + ' SET STOCKUPTRANSFER = @transfer_success_state, STOCKUPTRANSFERTIME = @transfer_time WHERE STOCKUPTRANSFER = @transfer_pending_state ')
                 }
             })
             .catch(function (error) {

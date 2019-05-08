@@ -14,6 +14,7 @@ import {OrdersModule} from "./orders/orders.module";
 import {SuppliersModule} from "./suppliers/suppliers.module";
 import {ConnectModule} from "./connect/connect.module";
 import {UsersModule} from "./users/users.module";
+import {ReorderPointsModule} from "./reorder-points/reorder-points.module";
 
 
 @NgModule({
@@ -27,6 +28,7 @@ import {UsersModule} from "./users/users.module";
     SuppliersModule,
     PaymentsModule,
     ProductsModule,
+    ReorderPointsModule,
     OrdersModule,
     UsersModule,
     WorkerSettingsModule

@@ -7,6 +7,8 @@ var path = require('path');
 var modulePath = require('mongodb');
 const fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 const logger = require('sp-json-logger')({fileName: 'common:models:' + fileName});
+const papaparse = require('papaparse');
+const fs = Promise.promisifyAll(require('fs'));
 var workerUtils = require('../utils/workers');
 
 module.exports = function (ReportModel) {
@@ -1777,6 +1779,150 @@ module.exports = function (ReportModel) {
                 return Promise.resolve(rowCounts);
             });
     };
+
+    ReportModel.downloadReportModelCSV = function (orgModelId, reportModelId, options) {
+        logger.debug({
+            message: 'Will download CSV report for order',
+            reportModelId,
+            options,
+            functionName: 'downloadReportModelCSV'
+        });
+        var csvFile, reportModelInstance;
+        var s3 = new aws.S3({
+            apiVersion: '2006-03-01',
+            region: ReportModel.app.get('awsS3Region'),
+            accessKeyId: ReportModel.app.get('awsAccessKeyId'),
+            secretAccessKey: ReportModel.app.get('awsSecretAccessKey')
+        });
+        var s3Bucket = ReportModel.app.get('awsS3CSVReportsBucket');
+        return ReportModel.findById(reportModelId, {
+            fields: ['id', 'name', 'csvGenerated']
+        })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not find report model',
+                    error,
+                    reason: error,
+                    functionName: 'downloadReportModelCSV'
+                });
+                return Promise.reject('Could not find report model');
+            })
+            .then(function (response) {
+                reportModelInstance = response;
+                if (!reportModelInstance) {
+                    logger.debug({
+                        message: 'Could not find report model',
+                        reportModelInstance,
+                        options,
+                        functionName: 'downloadReportModelCSV'
+                    });
+                    return Promise.reject('Couldn\'t find report model');
+                }
+                if (reportModelInstance.csvGenerated) {
+                    logger.debug({
+                        message: 'CSV already generated for report model, will fetch signed URL from S3',
+                        reportModelInstance,
+                        options,
+                        functionName: 'downloadReportModelCSV'
+                    });
+                    return Promise.resolve('CSV already exists');
+                }
+                else {
+                    logger.debug({
+                        message: 'Found report model, will look for line items',
+                        reportModelInstance,
+                        options,
+                        functionName: 'downloadReportModelCSV'
+                    });
+                    return ReportModel.app.models.StockOrderLineitemModel.find({
+                        fields: ['orderQuantity', 'storeInventory', 'productModelId', 'originalOrderQuantity'],
+                        where: {
+                            reportModelId: reportModelId,
+                        },
+                        include: {
+                            relation: 'productModel',
+                            scope: {
+                                fields: ['name', 'api_id']
+                            }
+                        }
+                    })
+                        .then(function (lineItems) {
+                            logger.debug({
+                                message: 'Found line items, will upload csv to s3',
+                                count: lineItems.length,
+                                reportModelId,
+                                options,
+                                functionName: 'downloadReportModelCSV'
+                            });
+                            var csvJson = [];
+                            for (var i = 0; i<lineItems.length; i++) {
+                                csvJson.push({
+                                    'Name': lineItems[i].productModel().name,
+                                    'Sku': lineItems[i].productModel().api_id,
+                                    'Order Quantity': lineItems[i].orderQuantity,
+                                    'Suggested Order Quantity': lineItems[i].originalOrderQuantity,
+                                    'Store Inventory': lineItems[i].storeInventory
+                                });
+                            }
+                            csvFile = papaparse.unparse(csvJson);
+                            var params = {
+                                Bucket: s3Bucket,
+                                Key: reportModelInstance.name + '-' + reportModelInstance.id + '.csv',
+                                Body: csvFile
+                            };
+                            var uploadAsync = Promise.promisify(s3.upload, s3);
+                            return uploadAsync(params);
+                        })
+                        .catch(function (error) {
+                            logger.error({
+                                message: 'Could not upload file to S3',
+                                error,
+                                reason: error,
+                                functionName: 'downloadReportModelCSV',
+                                options
+                            });
+                            return Promise.reject('Could not upload file to S3');
+                        })
+                        .then(function (response) {
+                            logger.debug({
+                                message: 'Uploaded file to S3 successfully, will update report model',
+                                response,
+                                functionName: 'downloadReportModelCSV',
+                                options
+                            });
+                            return ReportModel.updateAll({
+                                id: reportModelId
+                            }, {
+                                csvGenerated: true
+                            });
+                        });
+                }
+            })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Uploaded and updated report model successfully, will fetch signed url for download',
+                    response,
+                    functionName: 'downloadReportModelCSV',
+                    options
+                });
+                var params = {
+                    Bucket: s3Bucket,
+                    Key: reportModelInstance.name + '-' + reportModelInstance.id + '.csv'
+                };
+                var url = s3.getSignedUrl('getObject', params);
+                return Promise.resolve(url);
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not get signed url for csv report from s3',
+                    error,
+                    reason: error,
+                    options,
+                    functionName: 'downloadReportModelCSV'
+                });
+                return Promise.reject('Could not get signed url for csv report from s3');
+            });
+    }
 
 };
 

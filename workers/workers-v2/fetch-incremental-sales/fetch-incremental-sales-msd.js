@@ -189,7 +189,8 @@ function fetchPaginatedSales(sqlPool, orgModelId, pagesToFetch) {
                                 grossAmount: eachSales.GROSSAMOUNT,
                                 discountAmount: eachSales.DISCOUNTAMOUNT,
                                 salesDate: eachSales.TRANSACTIONDATE,
-                                orgModelId: ObjectId(orgModelId)
+                                orgModelId: ObjectId(orgModelId),
+                                updatedAt: new Date()
                             }
                         });
                     }
@@ -225,7 +226,8 @@ function fetchPaginatedSales(sqlPool, orgModelId, pagesToFetch) {
                     .input('sales_per_page', sql.Int, SALES_PER_PAGE)
                     .input('transfer_pending_state', sql.Int, 0)
                     .input('transfer_success_state', sql.Int, 1)
-                    .query('UPDATE TOP (@sales_per_page) ' + SALES_TABLE + ' SET STOCKUPTRANSFER = @transfer_success_state WHERE STOCKUPTRANSFER = @transfer_pending_state ');
+                        .input('transfer_time', sql.DateTime, new Date())
+                    .query('UPDATE TOP (@sales_per_page) ' + SALES_TABLE + ' SET STOCKUPTRANSFER = @transfer_success_state, STOCKUPTRANSFERTIME = @transfer_time WHERE STOCKUPTRANSFER = @transfer_pending_state ');
             })
             .then(function (result) {
                 logger.debug({

@@ -17,6 +17,7 @@ import {ConnectResolverService} from "./connect/services/connect-resolver.servic
 import {UsersComponent} from "./users/users.component";
 import {UserManagementResolverService} from "./users/services/user-management-resolver.service";
 import {StoresResolverService} from "./stores/services/stores-resolver.service";
+import {ReorderPointsComponent} from "./reorder-points/reorder-points.component";
 
 const routes: Routes = [
   {
@@ -110,6 +111,13 @@ const routes: Routes = [
         },
         resolve: {
           suppliers: SuppliersResolverService
+        }
+      },
+      {
+        path: 'reorder-points',
+        component: ReorderPointsComponent,
+        data: {
+          title: 'Home > Settings > Reorder Points'
         }
       }
     ]

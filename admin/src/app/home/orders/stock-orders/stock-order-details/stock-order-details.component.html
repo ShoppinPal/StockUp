@@ -37,6 +37,11 @@
             </div>
             <div class="col-sm-3">
               <span class="input-group-btn">
+                <button class="btn btn-primary" type="button" (click)="downloadOrderCSV()">Download CSV</button>
+              </span>
+            </div>
+            <div class="col-sm-3">
+              <span class="input-group-btn">
                 <button class="btn btn-success" type="button"
                         (click)="createTransferOrder()"
                         *ngIf="order.state === reportStates.GENERATED && !creatingTransferOrder">Create Transfer Order</button>
@@ -106,8 +111,8 @@
                 <tr>
                   <th>Name</th>
                   <th>SKU</th>
-                  <th width="140"> New Order Quantity</th>
-                  <th>Previous Order Quantity</th>
+                  <th width="140">Order Quantity</th>
+                  <th>Suggested Order Quantity</th>
                   <th>Store Inventory</th>
                   <th>Approve</th>
                 </tr>
@@ -158,8 +163,8 @@
                 <tr>
                   <th>Name</th>
                   <th>SKU</th>
-                  <th>New Order Quantity</th>
-                  <th>Previous Order Quantity</th>
+                  <th>Order Quantity</th>
+                  <th>Suggested Order Quantity</th>
                   <th>Fulfilled Quantity</th>
                   <th>Approve</th>
                 </tr>

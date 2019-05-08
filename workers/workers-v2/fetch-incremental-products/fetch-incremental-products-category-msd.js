@@ -9,7 +9,10 @@ const path = require('path');
 sql.Promise = require('bluebird');
 const _ = require('underscore');
 const Promise = require('bluebird');
-const PRODUCT_TABLE = 'EcoResProductV2Staging';
+if (process.env.NODE_ENV === 'production')
+    const PRODUCT_TABLE = 'EcoResProductStaging';
+else
+    const PRODUCT_TABLE = 'EcoResProductV2Staging';
 const PRODUCTS_PER_PAGE = 1000;
 var commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 
@@ -216,7 +219,8 @@ function fetchPaginatedProducts(sqlPool, orgModelId, pagesToFetch) {
                     .input('products_per_page', sql.Int, PRODUCTS_PER_PAGE)
                     .input('transfer_pending_state', sql.Int, 0)
                     .input('transfer_success_state', sql.Int, 1)
-                    .query('UPDATE TOP (@products_per_page) ' + PRODUCT_TABLE + ' SET STOCKUPTRANSFER = @transfer_success_state WHERE STOCKUPTRANSFER = @transfer_pending_state');
+                    .input('transfer_time', sql.DateTime, new Date())
+                    .query('UPDATE TOP (@products_per_page) ' + PRODUCT_TABLE + ' SET STOCKUPTRANSFER = @transfer_success_state, STOCKUPTRANSFERTIME = @transfer_time WHERE STOCKUPTRANSFER = @transfer_pending_state');
             })
             .then(function (result) {
                 logger.debug({

@@ -86,6 +86,12 @@
       "principalId": "$everyone",
       "permission": "ALLOW",
       "property": "signup"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "__get__orgModel"
     }
   ],
   "methods": {}

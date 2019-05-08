@@ -114,7 +114,7 @@ module.exports = {
 function calculateMinMax(orgModelId, storeModelId, messageId) {
     try {
 
-        var inventoryModelInstancesToCalculate = [], productModels, salesModels;
+        var inventoryModelInstancesToCalculate = [], productModels, salesModels, orgModelInstance;
         logger.debug({
             message: 'Will calculate min/max for the following store',
             storeModelId,
@@ -127,9 +127,14 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
             orgModelId,
             commandName
         });
-        return db.collection('InventoryModel').find({
-            storeModelId: ObjectId(storeModelId)
-        }).toArray()
+        return Promise.all([
+            db.collection('InventoryModel').find({
+                storeModelId: ObjectId(storeModelId)
+            }).toArray(),
+            db.collection('OrgModel').findOne({
+                _id: ObjectId(orgModelId)
+            })
+        ])
             .catch(function (error) {
                 logger.error({
                     message: 'Could not find the inventory model instances of the store, will exit',
@@ -140,9 +145,12 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                 });
                 return Promise.reject(error);
             })
-            .then(function (inventoryModelInstances) {
+            .then(function (response) {
+                    var inventoryModelInstances = response[0];
+                    orgModelInstance = response[1];
                     logger.debug({
                         message: 'Found inventory model instances, will fetch products and sales history',
+                        orgModelInstance,
                         count: inventoryModelInstances.length,
                         commandName,
                         storeModelId,
@@ -163,7 +171,8 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                         var calculatedToday = eachInventory.standardDeviationCalculationDate &&
                             eachInventory.standardDeviationCalculationDate.getDate() === TODAYS_DATE.getDate() &&
                             eachInventory.standardDeviationCalculationDate.getMonth() === TODAYS_DATE.getMonth() &&
-                            eachInventory.standardDeviationCalculationDate.getYear() === TODAYS_DATE.getYear();
+                            eachInventory.standardDeviationCalculationDate.getYear() === TODAYS_DATE.getYear() &&
+                            eachInventory.salesDateRangeInDays === orgModelInstance.salesDateRangeInDays;
                         return calculatedToday;
                     });
                     var productModelIdsCalculatedToday = _.map(_.pluck(inventoriesCalculatedToday, 'productModelId'), function (eachProductModelId) {
@@ -180,6 +189,8 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                         if (eachProductModelId)
                             return ObjectId(eachProductModelId);
                     });
+                    var salesDateFrom = new Date();
+                    salesDateFrom.setDate(salesDateFrom.getDate() - (orgModelInstance.salesDateRangeInDays || 30));
                     return Promise.all([
                         db.collection('ProductModel').find({
                             _id: {
@@ -199,6 +210,11 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                                 {
                                     salesDate: {
                                         $lte: TODAYS_DATE
+                                    }
+                                },
+                                {
+                                    salesDate: {
+                                        $gte: salesDateFrom
                                     }
                                 }
                             ]
@@ -254,9 +270,10 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                 if (productModels && productModels.length) {
 
                     var batchCounter = 0, batches = [];
-                    batches.push(db.collection('InventoryModel').initializeUnorderedBulkOp());
                     _.each(productModels, function (eachProductModel, i) {
-                        if (i === 999) {
+                        console.log('i', i);
+                        if (i % 999 === 0) {
+                            console.log('pushing batch', batches.length);
                             batches.push(db.collection('InventoryModel').initializeUnorderedBulkOp());
                         }
 
@@ -352,6 +369,7 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                                     standardDeviation: standardDeviation,
                                     averageDailyDemandCalculationDate: new Date(),
                                     standardDeviationCalculationDate: new Date(),
+                                    salesDateRangeInDays: orgModelInstance.salesDateRangeInDays,
                                     reorder_point: MAX ? Math.round(MAX) : Math.round(tempMax), //reorder quantities to this point
                                     reorder_threshold: MIN ? Math.round(MIN) : Math.round(tempMin), //reorder quantities if product below this level
                                 }
@@ -359,7 +377,7 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                         }
                         else {
                             logger.debug({
-                                message: 'There is no previous sales data available, will move on to next one',
+                                message: 'There is no previous sales data available, will set reorder points to null',
                                 product: eachProductModel._id,
                                 inventoryNumber: (i + 1) + '/' + productModels.length
                             });
@@ -368,6 +386,11 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                                 storeModelId: ObjectId(storeModelId)
                             }).update({
                                 $set: {
+                                    averageDailyDemand: null,
+                                    standardDeviation: null,
+                                    reorder_point: null,
+                                    reorder_threshold: null,
+                                    salesDateRangeInDays: orgModelInstance.salesDateRangeInDays,
                                     averageDailyDemandCalculationDate: new Date(),
                                     standardDeviationCalculationDate: new Date()
                                 }

@@ -371,6 +371,27 @@
       "principalId": "orgAdmin",
       "permission": "ALLOW",
       "property": "fetchOrderRowCounts"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "downloadReportModelCSV"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "downloadReportModelCSV"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "updateOrgSettings"
     }
   ],
   "methods": {}

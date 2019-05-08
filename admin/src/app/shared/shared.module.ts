@@ -5,15 +5,21 @@ import {AccessService} from './services/access.service';
 import {UserResolverService} from './services/user-resolver.service';
 import {TypeaheadModule} from 'ngx-bootstrap';
 import {AsideToggleDirective} from '../directives';
+import {LoadingModule} from 'ngx-loading';
+import {FormsModule} from '@angular/forms';
 
 @NgModule({
   imports: [
-    CommonModule
+    CommonModule,
+    FormsModule,
+    LoadingModule
   ],
   declarations: [AsideToggleDirective],
   exports: [
     AsideToggleDirective,
-    TypeaheadModule
+    FormsModule,
+    TypeaheadModule,
+    LoadingModule
   ]
 })
 

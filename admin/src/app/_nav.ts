@@ -81,6 +81,12 @@ export const navigation = [
     url: '/stores',
     icon: 'icon-settings',
     roles: ['orgAdmin']
+  },
+  {
+    name: 'Reorder Points',
+    url: '/reorder-points',
+    icon: 'icon-calculator',
+    roles: ['orgAdmin']
   }
   /*,
    {

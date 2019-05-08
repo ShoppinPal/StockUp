@@ -23,7 +23,7 @@ export class StockOrderDetailsComponent implements OnInit {
   public notApprovedLineItems: Array<any>;
   public totalApprovedLineItems: number;
   public totalNotApprovedLineItems: number;
-  public maxPageDisplay:number = 7;
+  public maxPageDisplay: number = 7;
   public searchSKUText: string;
   // public totalPages: number;
   public currentPageApproved: number = 1;
@@ -217,5 +217,19 @@ export class StockOrderDetailsComponent implements OnInit {
           this.toastr.error('Error updating order state, please refresh');
         });
   };
+
+  downloadOrderCSV() {
+    this.loading = true;
+    this.orgModelApi.downloadReportModelCSV(this.userProfile.orgModelId, this.order.id).subscribe((data) => {
+      const link = document.createElement('a');
+      link.href = data;
+      link.download = this.order.name;
+      link.click();
+      this.loading = false;
+    }, err=> {
+      this.loading = false;
+      console.log(err);
+    })
+  }
 
 }
