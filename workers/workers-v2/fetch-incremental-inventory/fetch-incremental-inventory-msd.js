@@ -159,8 +159,8 @@ function fetchPaginatedInventorySums(sqlPool, orgModelId, pagesToFetch) {
                     numberOfInventory: incrementalInventory.length,
                     commandName,
                     sample: incrementalInventory[0],
-                    sampleIncrementalId: incrementalItemIDs,
-                    sampleIncrementalStore: incrementalStoreNumbers
+                    sampleIncrementalId: incrementalItemIDs[0],
+                    sampleIncrementalStore: incrementalStoreNumbers[0]
                 });
                 //Fetch all productModels and storeModels for this inventory
                 return Promise.all([
@@ -198,14 +198,13 @@ function fetchPaginatedInventorySums(sqlPool, orgModelId, pagesToFetch) {
                 _.each(incrementalInventory, function (eachInventory, iteratee) {
                     var productModelToAttach = _.findWhere(productModelInstances, {api_id: eachInventory.ITEMID});
                     var storeModelToAttach = _.findWhere(storeModelInstances, {storeNumber: eachInventory.INVENTSITEID});
-                    console.log('store', storeModelToAttach);
                     if (productModelToAttach && storeModelToAttach) {
                         batch.find({
                             inventoryDimId: eachInventory.INVENTDIMID[0],
                             productModelId: ObjectId(productModelToAttach._id)
                         }).upsert().update({
                             $set: {
-                                inventoryDimId: eachInventory.INVENTDIMID,
+                                inventoryDimId: eachInventory.INVENTDIMID[0],
                                 productModelId: productModelToAttach ? ObjectId(productModelToAttach._id) : null,
                                 product_id: eachInventory.ITEMID,
                                 inventory_level: eachInventory.PHYSICALINVENT,

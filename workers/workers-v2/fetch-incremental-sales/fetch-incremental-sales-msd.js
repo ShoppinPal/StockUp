@@ -176,7 +176,7 @@ function fetchPaginatedSales(sqlPool, orgModelId, pagesToFetch) {
                 //Add some operations to be executed
                 _.each(incrementalSales, function (eachSales, iteratee) {
                     var storeModelToAttach = _.findWhere(storeModelInstances, {storeNumber: eachSales.WAREHOUSE});
-                    if(storeModelToAttach && eachSales.TRANSACTIONSTATUS === 2) {
+                    if (storeModelToAttach && eachSales.TRANSACTIONSTATUS === 2) {
                         batch.find({
                             transactionNumber: eachSales.TRANSACTIONNUMBER
                         }).upsert().updateOne({
@@ -193,6 +193,7 @@ function fetchPaginatedSales(sqlPool, orgModelId, pagesToFetch) {
                                 updatedAt: new Date()
                             }
                         });
+                        batchCounter++;
                     }
                     process.stdout.write('\033[0G');
                     process.stdout.write('Percentage completed: ' + Math.round((iteratee++ / salesCounter.length) * 100) + '%');
@@ -203,7 +204,12 @@ function fetchPaginatedSales(sqlPool, orgModelId, pagesToFetch) {
                     message: `Batch of sales ready`,
                     pagesToFetch
                 });
-                return batch.execute();
+                if (batchCounter) {
+                    return batch.execute();
+                }
+                else {
+                    return Promise.resolve('Empty batch');
+                }
             })
             .then(function (bulkInsertResponse) {
                 logger.debug({
@@ -212,10 +218,7 @@ function fetchPaginatedSales(sqlPool, orgModelId, pagesToFetch) {
                 });
                 logger.debug({
                     message: 'Inserted/updated inventory in DB',
-                    result: {
-                        upserted: bulkInsertResponse.nUpserted,
-                        inserted: bulkInsertResponse.nInserted
-                    },
+                    bulkInsertResponse,
                     commandName
                 });
                 logger.debug({
@@ -226,7 +229,7 @@ function fetchPaginatedSales(sqlPool, orgModelId, pagesToFetch) {
                     .input('sales_per_page', sql.Int, SALES_PER_PAGE)
                     .input('transfer_pending_state', sql.Int, 0)
                     .input('transfer_success_state', sql.Int, 1)
-                        .input('transfer_time', sql.DateTime, new Date())
+                    .input('transfer_time', sql.DateTime, new Date())
                     .query('UPDATE TOP (@sales_per_page) ' + SALES_TABLE + ' SET STOCKUPTRANSFER = @transfer_success_state, STOCKUPTRANSFERTIME = @transfer_time WHERE STOCKUPTRANSFER = @transfer_pending_state ');
             })
             .then(function (result) {
