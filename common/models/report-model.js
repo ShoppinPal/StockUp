@@ -1664,7 +1664,41 @@ module.exports = function (ReportModel) {
             });
     };
 
-    ReportModel.generateStockOrderVend = function (orgModelId, storeModelId, supplierModelId, options) {
+    ReportModel.receiveConsignment = function (orgModelId, reportModelId, options) {
+        logger.debug({
+            message: 'Will initiate worker to receive order in Vend',
+            reportModelId,
+            functionName: 'receiveConsignment',
+            options,
+        });
+        var payload = {
+            orgModelId: orgModelId,
+            reportModelId: reportModelId,
+            loopbackAccessToken: options.accessToken,
+            op: 'receiveConsignment'
+        };
+        return workerUtils.sendPayLoad(payload)
+            .then(function (response) {
+                logger.debug({
+                    message: 'Sent receiveConsignment operation to worker',
+                    options,
+                    response,
+                    functionName: 'receiveConsignment'
+                });
+                return Promise.resolve('Stock order generation initiated');
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not send receiveConsignment to worker',
+                    options,
+                    error,
+                    functionName: 'receiveConsignment'
+                });
+                return Promise.reject('Error in creating stock order');
+            });
+    };
+
+    ReportModel.generateStockOrderVend = function (orgModelId, storeModelId, supplierModelId, name, options) {
         logger.debug({
             message: 'Will initiate worker to generate stock order for Vend',
             storeModelId,
@@ -1676,6 +1710,7 @@ module.exports = function (ReportModel) {
             orgModelId: orgModelId,
             storeModelId: storeModelId,
             supplierModelId: supplierModelId,
+            name: name,
             loopbackAccessToken: options.accessToken,
             op: 'generateStockOrderVend'
         };
@@ -1697,6 +1732,147 @@ module.exports = function (ReportModel) {
                     functionName: 'generateStockOrderVend'
                 });
                 return Promise.reject('Error in creating stock order');
+            });
+    };
+
+
+    ReportModel.createPurchaseOrderVend = function (orgModelId, reportModelId, options) {
+        logger.debug({
+            message: 'Will initiate worker to create transfer order in MSD',
+            reportModelId,
+            functionName: 'createPurchaseOrderVend',
+            options,
+        });
+        var payload = {
+            orgModelId: orgModelId,
+            reportModelId: reportModelId,
+            loopbackAccessToken: options.accessToken,
+            op: 'createPurchaseOrderVend'
+        };
+        var report;
+        return ReportModel.findById(reportModelId)
+            .then(function (reportModelInstance) {
+                logger.debug({
+                    message: 'Found this report model',
+                    reportModelInstance,
+                    options,
+                    functionName: 'createPurchaseOrderVend'
+                });
+                report = reportModelInstance;
+                if (reportModelInstance.vendConsignmentId) {
+                    logger.debug({
+                        message: 'Purchase order is already created for this report',
+                        options,
+                        functionName: 'createPurchaseOrderVend'
+                    });
+                    return Promise.reject('Purchase Order already created for this report');
+                }
+                else if (reportModelInstance.state === ReportModel.app.get('report_states').PUSHING_TO_VEND) {
+                    logger.debug({
+                        message: 'Purchase order creation in progress',
+                        options,
+                        functionName: 'createPurchaseOrderVend'
+                    });
+                    return Promise.reject('Purchase order creation in progress');
+                }
+                else if (reportModelInstance.state === ReportModel.app.get('report_states').GENERATED) {
+                    logger.debug({
+                        message: 'Will call createPurchaseOrderVend worker',
+                        options,
+                        functionName: 'createPurchaseOrderVend'
+                    });
+                    return workerUtils.sendPayLoad(payload);
+                }
+                else {
+                    logger.debug({
+                        message: 'Only GENERATED orders will be pushed to Vend',
+                        options,
+                        functionName: 'createPurchaseOrderVend'
+                    });
+                    return Promise.reject('Only GENERATED orders will be pushed to Vend');
+                }
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not send createPurchaseOrderVend to worker',
+                    options,
+                    error,
+                    functionName: 'createPurchaseOrderVend'
+                });
+                return Promise.reject('Error in creating purchase order');
+            })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Sent createPurchaseOrderVend to worker',
+                    options,
+                    response,
+                    functionName: 'createPurchaseOrderVend'
+                });
+                return Promise.resolve('Sent createPurchaseOrderVend to worker');
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not update report state',
+                    options,
+                    error,
+                    functionName: 'createPurchaseOrderVend'
+                });
+                return Promise.reject('Error in creating purchase order');
+            });
+
+    };
+
+    ReportModel.sendConsignmentDelivery = function (orgModelId, reportModelId, options) {
+        logger.debug({
+            message: 'Finding report Model',
+            reportModelId,
+            options
+        });
+        return ReportModel.findById(reportModelId, {
+            where: {
+                state: ReportModel.app.get('report_states').FULFILL
+            }
+        })
+            .catch(function (error) {
+                logger.error({
+                    error,
+                    reason: error,
+                    message: 'Could not find this report model in fulfill state',
+                    options,
+                    functionName: 'sendConsignmentDelivery'
+                });
+                return Promise.reject('Could not find this report model in fulfill state');
+            })
+            .then(function (reportModelInstance) {
+                logger.debug({
+                    message: 'Found this report model, will set it to receive state',
+                    reportModelInstance,
+                    options,
+                    functionName: 'sendConsignmentDelivery'
+                });
+                return reportModelInstance.updateAttributes({
+                    state: ReportModel.app.get('report_states').RECEIVE,
+                    fulfilledByUserModelId: options.accessToken.userId
+                });
+            })
+            .catch(function (error) {
+                logger.error({
+                    error,
+                    reason: error,
+                    message: 'Could not update report model state to receive',
+                    options,
+                    functionName: 'sendConsignmentDelivery'
+                });
+                return Promise.reject('Could not update report model state to receive');
+            })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Updated report state to fulfill',
+                    response,
+                    options,
+                    functionName: 'sendConsignmentDelivery'
+                });
+                return Promise.resolve(true);
             });
     };
 
@@ -1732,7 +1908,7 @@ module.exports = function (ReportModel) {
                     });
                     return Promise.reject('Transfer Order already created for this report');
                 }
-                else if (reportModelInstance.state === ReportModel.app.get('report_states').pushingToMSD) {
+                else if (reportModelInstance.state === ReportModel.app.get('report_states').PUSHING_TO_MSD) {
                     logger.debug({
                         message: 'Transfer order creation in progress',
                         options,

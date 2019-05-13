@@ -8,6 +8,7 @@ import {UserProfileService} from "../../../shared/services/user-profile.service"
 import {TypeaheadMatch} from 'ngx-bootstrap';
 import {FileUploader} from 'ng2-file-upload';
 import {LoopBackConfig, LoopBackAuth} from "../../../shared/lb-sdk";
+import {constants} from '../../../shared/constants/constants';
 
 @Component({
   selector: 'app-stock-orders',
@@ -21,13 +22,22 @@ export class StockOrdersComponent implements OnInit {
   public userProfile: any;
   public loading = false;
   public filter: any = {};
-  public orders: Array<any>;
+  public generatedOrders: Array<any>;
+  public totalGeneratedOrders: number;
+  public totalGeneratedOrdersPages: number;
+  public currentPageGeneratedOrders: number = 1;
+  public receiveOrders: Array<any>;
+  public totalReceiveOrders: number;
+  public totalReceiveOrdersPages: number;
+  public currentPageReceiveOrders: number = 1;
+  public fulfillOrders: Array<any>;
+  public totalFulfillOrders: number;
+  public totalFulfillOrdersPages: number;
+  public currentPageFulfillOrders: number = 1;
+  public orderName: string;
   public stores: Array<any> = [];
   public warehouses: Array<any> = [];
   public suppliers: Array<any> = [];
-  public totalOrders: number;
-  public totalPages: number;
-  public currentPage: number = 1;
   public ordersLimitPerPage: number = 10;
   public selectedStoreId: string = "";
   public selectedWarehouseId: string = "Select...";
@@ -53,19 +63,17 @@ export class StockOrdersComponent implements OnInit {
   ngOnInit() {
     this.userProfile = this._userProfileService.getProfileData();
     this._route.data.subscribe((data: any) => {
-        this.orders = data.stockOrders.orders;
-        this.fetchOrderRowCounts();
-        for (var i = 0; i < data.stockOrders.stores.length; i++) {
-          if (data.stockOrders.stores[i].isWarehouse) {
-            this.warehouses.push(data.stockOrders.stores[i]);
+        this.populateOrders(data.stockOrders);
+
+        for (var i = 0; i < this.userProfile.storeModels.length; i++) {
+          if (this.userProfile.storeModels.isWarehouse) {
+            this.warehouses.push(this.userProfile.storeModels[i]);
           }
           else {
-            this.stores.push(data.stockOrders.stores[i])
+            this.stores.push(this.userProfile.storeModels[i])
           }
         }
-        this.totalOrders = data.stockOrders.count;
         this.suppliers = data.stockOrders.suppliers;
-        this.totalPages = this.totalOrders / this.ordersLimitPerPage;
       },
       error => {
         console.log('error', error)
@@ -89,16 +97,35 @@ export class StockOrdersComponent implements OnInit {
 
   fetchOrderRowCounts() {
     let orderIds = [];
-    for (var i = 0; i < this.orders.length; i++) {
-      orderIds.push(this.orders[i].id);
+    for (var i = 0; i < this.ordersLimitPerPage; i++) {
+      if (this.generatedOrders[i])
+        orderIds.push(this.generatedOrders[i].id);
+      if (this.fulfillOrders[i])
+        orderIds.push(this.fulfillOrders[i].id);
+      if (this.receiveOrders[i])
+        orderIds.push(this.receiveOrders[i].id);
     }
     this.orgModelApi.fetchOrderRowCounts(this.userProfile.orgModelId, orderIds)
       .subscribe((rowCounts: any) => {
-          for (var i = 0; i < this.orders.length; i++) {
-            let orderRowCount = rowCounts.find(eachRowCount => {
-              return eachRowCount.reportModelId === this.orders[i].id;
-            });
-            this.orders[i].totalRows = orderRowCount ? orderRowCount.totalRows : 0;
+          for (var i = 0; i < this.ordersLimitPerPage; i++) {
+            if (this.generatedOrders[i]) {
+              let orderRowCount = rowCounts.find(eachRowCount => {
+                return eachRowCount.reportModelId === this.generatedOrders[i].id;
+              });
+              this.generatedOrders[i].totalRows = orderRowCount ? orderRowCount.totalRows : 0;
+            }
+            if (this.fulfillOrders[i]) {
+              let orderRowCount = rowCounts.find(eachRowCount => {
+                return eachRowCount.reportModelId === this.fulfillOrders[i].id;
+              });
+              this.fulfillOrders[i].totalRows = orderRowCount ? orderRowCount.totalRows : 0;
+            }
+            if (this.receiveOrders[i]) {
+              let orderRowCount = rowCounts.find(eachRowCount => {
+                return eachRowCount.reportModelId === this.receiveOrders[i].id;
+              });
+              this.receiveOrders[i].totalRows = orderRowCount ? orderRowCount.totalRows : 0;
+            }
           }
         },
         err => {
@@ -106,38 +133,120 @@ export class StockOrdersComponent implements OnInit {
         });
   }
 
-  fetchOrders(limit?: number, skip?: number, searchText?: string) {
-    if (!(limit && skip)) {
-      limit = 10;
-      skip = 0;
-    }
+  fetchOrders(limit?: number, skip?: number, searchText?: string){
     this.loading = true;
+    limit = limit || 10;
+    skip = skip || 0;
     let filter = {
       limit: limit,
       skip: skip,
       order: 'createdAt DESC',
-      include: 'storeModel'
+      include: ['storeModel', 'userModel', 'supplierModel'],
     };
+
+    let generatedReportsCountFilter = {
+      storeModelId: {
+        inq: this.userProfile.storeModels.map(x => x.objectId)
+      },
+      state: {
+        inq: [constants.REPORT_STATES.EXECUTING, constants.REPORT_STATES.GENERATED, constants.REPORT_STATES.PUSHING_TO_VEND]
+      }
+    };
+
+    let generatedReportsFilter = {
+      ...filter, ...{
+        where: generatedReportsCountFilter
+      }
+    };
+
+    let receiveReportsCountFilter = {
+      storeModelId: {
+        inq: this.userProfile.storeModels.map(x => x.objectId)
+      },
+      state: {
+        inq: [constants.REPORT_STATES.RECEIVE]
+      }
+    };
+    let receiveReportsFilter = {
+      ...filter, ...{
+        where: receiveReportsCountFilter
+      }
+    };
+
+    let fulfillReportsCountFilter = {
+      or: [
+        {
+          supplierModelId: {
+            neq: null
+          }
+        },
+        {
+          deliverFromStoreModelId: {
+            inq: this.userProfile.storeModels.map(x => x.objectId)
+          }
+        }
+      ],
+      state: {
+        inq: [constants.REPORT_STATES.FULFILL]
+      }
+    };
+    let fulfillReportsFilter = {
+      ...filter, ...{
+        where: fulfillReportsCountFilter
+      }
+    };
+
     let fetchOrders = combineLatest(
-      this.orgModelApi.getReportModels(this.userProfile.orgModelId, filter),
-      this.orgModelApi.countReportModels(this.userProfile.orgModelId));
+      this.orgModelApi.getReportModels(this.userProfile.orgModelId, generatedReportsFilter),
+      this.orgModelApi.countReportModels(this.userProfile.orgModelId, generatedReportsCountFilter),
+      this.orgModelApi.getReportModels(this.userProfile.orgModelId, receiveReportsFilter),
+      this.orgModelApi.countReportModels(this.userProfile.orgModelId, receiveReportsCountFilter),
+      this.orgModelApi.getReportModels(this.userProfile.orgModelId, fulfillReportsFilter),
+      this.orgModelApi.countReportModels(this.userProfile.orgModelId, fulfillReportsCountFilter),
+      this.orgModelApi.getSupplierModels(this.userProfile.orgModelId)
+    );
     fetchOrders.subscribe((data: any) => {
-        this.loading = false;
-        this.orders = data[0];
-        this.totalOrders = data[1].count;
-        this.currentPage = (skip / this.ordersLimitPerPage) + 1;
-        this.totalPages = Math.floor(this.totalOrders / 100);
-        this.fetchOrderRowCounts();
+      this.loading = false;
+        let stockOrders = {
+          generatedOrders: data[0],
+          generatedOrdersCount: data[1].count,
+          receiveOrders: data[2],
+          receiveOrdersCount: data[3].count,
+          fulfillOrders: data[4],
+          fulfillOrdersCount: data[5].count,
+          suppliers: data[6]
+        };
+        this.populateOrders(stockOrders);
       },
       err => {
         this.loading = false;
-        console.log('Couldn\'t load orders', err);
+        this.toastr.error('Some error occurred');
+        console.log('Could not fetch stock orders', err);
+        return err;
       });
+
   };
 
-  goToStockOrderDetailsPage(id) {
+  populateOrders(stockOrders) {
+    this.generatedOrders = stockOrders.generatedOrders;
+    this.totalGeneratedOrders = stockOrders.generatedOrdersCount;
+    this.totalGeneratedOrdersPages = this.totalGeneratedOrders / this.ordersLimitPerPage;
+
+    this.fulfillOrders = stockOrders.fulfillOrders;
+    this.totalFulfillOrders = stockOrders.fulfillOrdersCount;
+    this.totalFulfillOrdersPages = this.totalFulfillOrders / this.ordersLimitPerPage;
+
+    this.receiveOrders = stockOrders.receiveOrders;
+    this.totalReceiveOrders = stockOrders.receiveOrdersCount;
+    this.totalReceiveOrdersPages = this.totalReceiveOrders / this.ordersLimitPerPage;
+
+    this.fetchOrderRowCounts();
+  }
+
+
+  goToStockOrderDetailsPage(id, orderState) {
     this.loading = true;
-    this._router.navigate(['orders/stock-orders/' + id]);
+    this._router.navigate(['orders/stock-orders/' + orderState + '/' + id]);
   }
 
   generateStockOrder() {
@@ -193,8 +302,9 @@ export class StockOrdersComponent implements OnInit {
     }
     else if (this.selectedSupplierId) {
       let url = '/api/OrgModels/' + this.userProfile.orgModelId + '/generateStockOrderVend?access_token=' + this.auth.getAccessTokenId() + '&type=json';
-      url += '&supplierModelId='+this.selectedSupplierId;
-      url += '&storeModelId='+this.selectedStoreId;
+      url += '&supplierModelId=' + this.selectedSupplierId;
+      url += '&storeModelId=' + this.selectedStoreId;
+      url += '&name=' + this.orderName;
       let EventSource = window['EventSource'];
       let es = new EventSource(url);
       let toastr = this.toastr;

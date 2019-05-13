@@ -48,7 +48,7 @@
     "reportModels": {
       "type": "hasMany",
       "model": "ReportModel",
-      "foreignKey": "userModelToReportModelId"
+      "foreignKey": "userModelId"
     },
     "stockOrderLineitemModels": {
       "type": "hasMany",

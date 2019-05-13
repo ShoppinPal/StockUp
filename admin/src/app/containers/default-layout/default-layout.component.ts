@@ -14,12 +14,13 @@ import {UserProfileService} from "../../shared/services/user-profile.service";
   templateUrl: './default-layout.component.html'
 })
 export class DefaultLayoutComponent implements OnDestroy {
-  public navItems = navItems;
+  public navItems;
   public sidebarMinimized = true;
   private changes: MutationObserver;
   public element: HTMLElement;
   public user: any;
   public loading = false;
+  public userProfile: any = this._userProfileService.getProfileData();
 
   constructor(private userModelApi: UserModelApi,
               private _userProfileService: UserProfileService,
@@ -38,6 +39,12 @@ export class DefaultLayoutComponent implements OnDestroy {
     });
     LoopBackConfig.setBaseURL(environment.BASE_URL);
     LoopBackConfig.setApiVersion(environment.API_VERSION);
+    this.navItems = navItems.filter(item => {
+      return item.roles.some(role => {
+        return this.userProfile.roles.indexOf(role) !== -1;
+      });
+    });
+
   }
 
   ngOnDestroy(): void {

@@ -8,8 +8,12 @@ export const constants = {
     REPORT_COMPLETE: 'report_complete',
     EXECUTING: 'Executing...',
     GENERATED: 'Generated',
+    FULFILL: 'Fulfill',
+    RECEIVE: 'Receive',
+    COMPLETE: 'Complete',
     ERROR: 'Error',
     PUSHING_TO_MSD: 'Pushing to MSD',
+    PUSHING_TO_VEND: 'Pushing to Vend',
     PUSHED_TO_MSD: 'Pushed to MSD'
   }
 };

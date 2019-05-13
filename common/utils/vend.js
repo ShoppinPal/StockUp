@@ -87,7 +87,12 @@ var fetchVendToken = function (orgModelId, options) {
                 });
                 return OrgModel.app.models.IntegrationModel.updateAll({
                     orgModelId: orgModelId
-                }, res);
+                }, {
+                    access_token: res.access_token,
+                    expires: res.expires,
+                    expires_in: res.expires_in,
+                    updatedAt: new Date()
+                });
             }
             else {
                 return Promise.resolve('tokenNotExpired');
@@ -872,11 +877,10 @@ var createStockOrderForVend = function (storeModelInstance, reportModelInstance,
         });
 };
 
-var markStockOrderAsSent = function (storeModelInstance, reportModelInstance) {
-    var storeConfigId = storeModelInstance.storeConfigModelToStoreModelId;
+var markStockOrderAsSent = function (storeModelInstance, reportModelInstance, options) {
     //log.debug('markStockOrderAsSent()', 'storeConfigId: ' + storeConfigId);
     logger.debug({log: {message: 'markStockOrderAsSent()', storeConfig: storeConfigId}});
-    return getVendConnectionInfo(storeConfigId)
+    return getVendConnectionInfo(storeModelInstance.orgModelId, options)
         .then(function (connectionInfo) {
             var argsForStockOrder = vendSdk.args.consignments.stockOrders.markAsSent();
             argsForStockOrder.apiId.value = reportModelInstance.vendConsignmentId;

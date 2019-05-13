@@ -10,8 +10,8 @@ import {AppAsideModule} from '@coreui/angular';
 import {FileUploadModule} from 'ng2-file-upload';
 import {CollapseModule} from 'ngx-bootstrap/collapse';
 import {PopoverModule} from 'ngx-bootstrap/popover';
-import {LoadingModule} from 'ngx-loading';
-import {FormsModule} from "@angular/forms";
+import {PaginationModule} from 'ngx-bootstrap/pagination';
+import {TabsModule} from 'ngx-bootstrap/tabs';
 
 @NgModule({
   imports: [
@@ -23,9 +23,9 @@ import {FormsModule} from "@angular/forms";
     TypeaheadModule,
     CollapseModule,
     FileUploadModule,
-    FormsModule,
-    LoadingModule,
-    PopoverModule.forRoot()
+    PaginationModule,
+    PopoverModule.forRoot(),
+    TabsModule
   ],
   declarations: [],
   exports: [
@@ -34,11 +34,12 @@ import {FormsModule} from "@angular/forms";
     LoadingModule,
     AppAsideModule,
     CollapseModule,
-    FormsModule,
-    TypeaheadModule,
+    CommonModule,
     FileUploadModule,
-    LoadingModule,
-    PopoverModule
+    TypeaheadModule,
+    PaginationModule,
+    PopoverModule,
+    TabsModule
   ]
 })
 

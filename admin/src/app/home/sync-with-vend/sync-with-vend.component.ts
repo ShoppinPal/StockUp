@@ -2,7 +2,6 @@ import {Component, OnInit} from '@angular/core';
 import {UserProfileService} from '../../shared/services/user-profile.service';
 import {OrgModelApi} from '../../shared/lb-sdk';
 import {ActivatedRoute} from '@angular/router';
-import {checkPort} from "@angular/cli/utilities/check-port";
 
 @Component({
   selector: 'app-sync-with-vend',

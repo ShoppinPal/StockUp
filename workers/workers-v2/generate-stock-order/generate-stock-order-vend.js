@@ -1,15 +1,3 @@
-var SUCCESS = 0;
-var FAILURE = 1;
-
-var REPORT_EMPTY = 'report_empty';
-var MANAGER_NEW_ORDERS = 'manager_new_orders';
-var MANAGER_IN_PROCESS = 'manager_in_process';
-var WAREHOUSE_FULFILL = 'warehouse_fulfill';
-var MANAGER_RECEIVE = 'manager_receive';
-var REPORT_COMPLETE = 'report_complete';
-
-var BOXED = 'boxed';
-
 const path = require('path');
 const commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 const logger = require('sp-json-logger')({fileName: 'workers:workers-v2:' + commandName});
@@ -44,7 +32,6 @@ var runMe = function (payload, config, taskId, messageId) {
             messageId: messageId,
             message: `This worker will generate stock order for outlet ${payload.storeModelId} and supplier ${payload.supplierModelId}`
         });
-        // return utils.savePayloadConfigToFiles(payload)
         return Promise.resolve()
             .then(function () {
                 logger.debug({
@@ -138,14 +125,16 @@ var runMe = function (payload, config, taskId, messageId) {
                 var supplierStoreCode = supplierModelInstance.storeIds ? supplierModelInstance.storeIds[payload.storeModelId] : '';
                 supplierStoreCode = supplierStoreCode ? '#' + supplierStoreCode : '';
                 var TODAYS_DATE = new Date();
+                var name = payload.name || storeModelInstance.name + ' - ' + supplierStoreCode + ' ' + supplierModelInstance.name + ' - ' + TODAYS_DATE.getFullYear() + '-' + (TODAYS_DATE.getMonth() + 1) + '-' + TODAYS_DATE.getDate();
                 return db.collection('ReportModel').insertOne({
-                    name: storeModelInstance.name + ' - ' + supplierStoreCode + ' ' + supplierModelInstance.name + ' - ' + TODAYS_DATE.getFullYear() + '-' + (TODAYS_DATE.getMonth() + 1) + '-' + TODAYS_DATE.getDate(),
+                    name: name,
                     userModelId: ObjectId(payload.loopbackAccessToken.userId), // explicitly setup the foreignKeys for related models
-                    state: REPORT_EMPTY,
+                    state: utils.REPORT_STATES.EXECUTING,
                     storeModelId: ObjectId(payload.storeModelId),
                     supplierModelId: ObjectId(payload.supplierModelId),
                     orgModelId: ObjectId(payload.orgModelId),
-                    createdAt: new Date()
+                    createdAt: new Date(),
+                    updatedAt: new Date()
                 });
             })
             .catch(function (error) {
@@ -303,12 +292,15 @@ var runMe = function (payload, config, taskId, messageId) {
                                 storeInventory: quantityOnHand,
                                 desiredStockLevel: desiredStockLevel,
                                 orderQuantity: orderQuantity,
+                                originalOrderQuantity: orderQuantity,
                                 fulfilledQuantity: orderQuantity,
                                 caseQuantity: caseQuantity,
                                 supplyPrice: eachProduct.supply_price,
                                 supplierModelId: ObjectId(eachProduct.supplierModelId),
                                 type: eachProduct.type,
                                 approved: false,
+                                fulfilled: false,
+                                received: false,
                                 reportModelId: ObjectId(reportModel._id),
                                 userModelId: ObjectId(payload.loopbackAccessToken.userId),
                                 createdAt: new Date(),
@@ -337,7 +329,12 @@ var runMe = function (payload, config, taskId, messageId) {
                         messageId
                     });
                 }
-                return db.collection('StockOrderLineitemModel').insertMany(rows);
+                if (rows.length) {
+                    return db.collection('StockOrderLineitemModel').insertMany(rows);
+                }
+                else {
+                    return Promise.resolve('No items to insert');
+                }
             })
             .catch(function (error) {
                 logger.error({
@@ -345,26 +342,32 @@ var runMe = function (payload, config, taskId, messageId) {
                     messageId,
                     error
                 });
-                return Promise.reject('Could not save line items to db');
+                return Promise.resolve('ERROR_REPORT');
             })
             .then(function (response) {
                 logger.debug({
                     messageId: messageId,
-                    message: `Done updating the stock order line item models with required product and inventory info ${response.insertedCount}`
+                    message: `Done updating the stock order line item models with required product and inventory info`,
+                    response
                 });
-                var reportState = _.some(userRoles, function (eachRole) {
-                   return eachRole.name === 'warehouseManager' || eachRole.name === 'orgAdmin'
-                }) ? WAREHOUSE_FULFILL : MANAGER_NEW_ORDERS;
                 logger.debug({
                     messageId: messageId,
-                    message: `Will change the status of report to ${reportState}`
+                    message: `Will change the status of report to ${utils.REPORT_STATES.GENERATED}`
                 });
-                return db.collection('ReportModel').updateOne({_id: ObjectId(reportModel._id)}, {
-                    $set: {
-                        state: reportState,
-                        totalRows: response.insertedCount
-                    }
-                });
+                if (response === 'ERROR_REPORT') {
+                    return db.collection('ReportModel').updateOne({_id: ObjectId(reportModel._id)}, {
+                        $set: {
+                            state: utils.REPORT_STATES.ERROR
+                        }
+                    });
+                }
+                else {
+                    return db.collection('ReportModel').updateOne({_id: ObjectId(reportModel._id)}, {
+                        $set: {
+                            state: utils.REPORT_STATES.GENERATED
+                        }
+                    });
+                }
             })
             .catch(function (error) {
                 logger.error({
@@ -377,9 +380,12 @@ var runMe = function (payload, config, taskId, messageId) {
             .then(function (response) {
                 logger.debug({
                     messageId: messageId,
-                    message: 'Updated the report status, will exit worker now',
+                    message: 'Updated the report status, will fetch Vend token to update the order to vend',
                     result: response.result
                 });
+                return utils.fetchVendToken(db, payload.orgModelId, messageId);
+            })
+            .then(function (response) {
                 var options = {
                     method: 'POST',
                     uri: utils.API_URL + '/api/OrgModels/' + payload.orgModelId + '/sendWorkerStatus',

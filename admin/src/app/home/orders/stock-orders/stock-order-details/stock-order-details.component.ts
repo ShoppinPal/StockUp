@@ -31,6 +31,7 @@ export class StockOrderDetailsComponent implements OnInit {
   public currentPageNotApproved: number = 1;
   public lineItemsLimitPerPage: number = 100;
   public creatingTransferOrder: boolean = false;
+  public creatingPurchaseOrderVend: boolean = false;
   public reportStates: any = constants.REPORT_STATES;
   public isWarehouser: boolean = false;
   public boxes: Array<any> = [];
@@ -191,7 +192,7 @@ export class StockOrderDetailsComponent implements OnInit {
         api_id: sku
       }
     }).subscribe((data: any) => {
-      if(data.length) {
+      if (data.length) {
         this.getApprovedStockOrderLineItems(1, 0, data[0].id);
         this.getNotApprovedStockOrderLineItems(1, 0, data[0].id);
       }
@@ -236,17 +237,30 @@ export class StockOrderDetailsComponent implements OnInit {
     }
   }
 
-  setReportStatus() {
-    this.loading = true;
-    this.orgModelApi.setReportStatus(this.userProfile.orgModelId, this.order.id, this.reportStates.WAREHOUSE_FULFILL, this.reportStates.MANAGER_RECEIVE)
-      .subscribe((res: any) => {
-        this.loading = false;
-        console.log('res',res);
-      },
-      err => {
-        this.loading = false;
-        console.log('err', err);
-      });
+  createPurchaseOrderVend() {
+    if (!this.totalApprovedLineItems) {
+      this.toastr.error('Please approve at least one item to send order to supplier');
+    }
+    else {
+      this.creatingPurchaseOrderVend = true;
+      let componentScope = this;
+      let EventSource = window['EventSource'];
+      let es = new EventSource('/api/OrgModels/' + this.userProfile.orgModelId + '/createPurchaseOrderVend?access_token=' + this.auth.getAccessTokenId() + '&reportModelId=' + this.order.id + '&type=json');
+      this.toastr.info('Generating supplier order...');
+      this._router.navigate(['/orders/stock-orders']);
+      es.onmessage = function (event) {
+        let response = JSON.parse(event.data);
+        console.log(response);
+        if (response.success) {
+          componentScope.toastr.success('Order sent successfully');
+        }
+        else {
+          componentScope.creatingPurchaseOrderVend = false;
+          componentScope.toastr.error('Error in sending order to supplier');
+        }
+        es.close();
+      };
+    }
   }
 
   updateLineItems(lineItems, data: any) {
@@ -272,7 +286,7 @@ export class StockOrderDetailsComponent implements OnInit {
         });
   }
 
-  approveItem(lineItem) {
+  fulfillItem(lineItem) {
     if (this.selectedBox) {
       this.selectedBox.totalItems++;
       this.updateLineItems(lineItem, {
@@ -284,6 +298,13 @@ export class StockOrderDetailsComponent implements OnInit {
     else {
       this.toastr.error('Please open a box first');
     }
+  }
+
+  approveItem(lineItem) {
+    this.updateLineItems(lineItem, {
+      approved: true,
+      orderQuantity: lineItem.orderQuantity
+    });
   }
 
   removeItem(lineItem) {

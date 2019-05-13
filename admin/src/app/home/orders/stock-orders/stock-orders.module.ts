@@ -1,18 +1,18 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StockOrdersComponent } from './stock-orders.component';
-import {LoadingModule} from 'ngx-loading';
-import {FormsModule} from '@angular/forms';
 import {SharedModule} from '../../../shared/shared.module';
-import {PaginationModule} from 'ngx-bootstrap';
+import {FulfillModule} from "./fulfill/fulfill.module";
+import {GeneratedModule} from "./generated/generated.module";
+import {ReceiveModule} from "./receive/receive.module";
 
 @NgModule({
   imports: [
     CommonModule,
-    LoadingModule,
-    FormsModule,
-    PaginationModule,
-    SharedModule
+    SharedModule,
+    FulfillModule,
+    GeneratedModule,
+    ReceiveModule
   ],
   declarations: [StockOrdersComponent]
 })

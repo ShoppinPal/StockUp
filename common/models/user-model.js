@@ -42,6 +42,7 @@ module.exports = function (UserModel) {
             UserModel.findById(id, {
                 include: [
                     'roles',
+                    'storeModels',
                     {
                         relation: 'orgModel',
                         scope: {
@@ -66,6 +67,7 @@ module.exports = function (UserModel) {
                         email: userModelInstance.email,
                         roles: roles,
                         userId: userModelInstance.id,
+                        storeModels: userModelInstance.storeModels(),
                         integrationType: userModelInstance.orgModel().integrationModels().length ? userModelInstance.orgModel().integrationModels()[0].type : null,
                         orgModelId: userModelInstance.orgModelId
                     };

@@ -1,20 +1,14 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StockOrderDetailsComponent } from './stock-order-details.component';
-import {LoadingModule} from 'ngx-loading';
 import {StockOrderDetailsResolverService} from "./services/stock-order-details-resolver.service";
-import {TabsModule} from 'ngx-bootstrap/tabs';
-import {FormsModule} from '@angular/forms';
-import {PaginationModule} from 'ngx-bootstrap';
+import {SharedModule} from '../../../../shared/shared.module';
 
 
 @NgModule({
   imports: [
     CommonModule,
-    FormsModule,
-    LoadingModule,
-    PaginationModule,
-    TabsModule
+    SharedModule
   ],
   declarations: [StockOrderDetailsComponent],
   providers: [StockOrderDetailsResolverService]

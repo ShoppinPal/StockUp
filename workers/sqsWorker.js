@@ -556,6 +556,38 @@ function routeToWorker(payload, config, taskId, messageId, receiptHandle) {
                     return Promise.reject('Internal Server Error');
                 });
         }
+        else if (payload.op === 'createPurchaseOrderVend') {
+            logger.tag('Routed').info({
+                messageId: messageId,
+                message: 'routed to createPurchaseOrderVend'
+            });
+            var createPurchaseOrderVend = require('./workers-v2/generate-purchase-order-vend/generate-purchase-order-vend');
+            return createPurchaseOrderVend.run(payload, config, taskId, messageId)
+                .then(function () {
+                    logger.debug({messageId: messageId, message: 'created purchase order in Vend successfully'});
+                    return Promise.resolve(receiptHandle);
+                })
+                .catch(function (error) {
+                    logger.error({err: error, messageId: messageId});
+                    return Promise.reject('Internal Server Error');
+                });
+        }
+        else if (payload.op === 'receiveConsignment') {
+            logger.tag('Routed').info({
+                messageId: messageId,
+                message: 'routed to receiveConsignment'
+            });
+            var receiveConsignment = require('./workers-v2/receive-consignment/receive-consignment-vend');
+            return receiveConsignment.run(payload, config, taskId, messageId)
+                .then(function () {
+                    logger.debug({messageId: messageId, message: 'received purchase order in Vend successfully'});
+                    return Promise.resolve(receiptHandle);
+                })
+                .catch(function (error) {
+                    logger.error({err: error, messageId: messageId});
+                    return Promise.reject('Internal Server Error');
+                });
+        }
         else {
             return Promise.reject('No worker found for processing given payload: ' + JSON.stringify(payload));
         }

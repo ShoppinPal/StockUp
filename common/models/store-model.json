@@ -97,6 +97,11 @@
       "type": "hasMany",
       "model": "ReportModel",
       "foreignKey": "storeModelId"
+    },
+    "fulfillReportModels": {
+      "type": "hasMany",
+      "model": "ReportModel",
+      "foreignKey": "deliverFromStoreModelId"
     }
   },
   "acls": [

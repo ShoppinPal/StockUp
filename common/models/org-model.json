@@ -161,6 +161,18 @@
     },
     {
       "principalType": "ROLE",
+      "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "__get__storeModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "__count__storeModels"
+    },
+    {
+      "principalType": "ROLE",
       "principalId": "orgAdmin",
       "permission": "ALLOW",
       "property": "__updateById__storeModels"
@@ -185,6 +197,24 @@
     },
     {
       "principalType": "ROLE",
+      "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "__get__stockOrderLineitemModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "__count__stockOrderLineitemModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "__updateById__stockOrderLineitemModels"
+    },
+    {
+      "principalType": "ROLE",
       "principalId": "orgAdmin",
       "permission": "ALLOW",
       "property": "__get__userModels"
@@ -204,6 +234,18 @@
     {
       "principalType": "ROLE",
       "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__count__reportModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "__get__reportModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "storeManager",
       "permission": "ALLOW",
       "property": "__count__reportModels"
     },
@@ -298,6 +340,13 @@
     {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
+      "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "sendWorkerStatus"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
       "principalId": "orgAdmin",
       "permission": "ALLOW",
       "property": "createTransferOrderMSD"
@@ -306,6 +355,27 @@
       "accessType": "EXECUTE",
       "principalType": "ROLE",
       "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "createPurchaseOrderVend"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "createPurchaseOrderVend"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "updateAllStockOrderLineItemModels"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "storeManager",
       "permission": "ALLOW",
       "property": "updateAllStockOrderLineItemModels"
     },
@@ -379,7 +449,19 @@
     },
     {
       "principalType": "ROLE",
+      "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "fetchOrderRowCounts"
+    },
+    {
+      "principalType": "ROLE",
       "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__get__supplierModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "storeManager",
       "permission": "ALLOW",
       "property": "__get__supplierModels"
     },
@@ -428,13 +510,6 @@
     {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
-      "principalId": "warehouseManager",
-      "permission": "ALLOW",
-      "property": "setReportStatus"
-    },
-    {
-      "accessType": "EXECUTE",
-      "principalType": "ROLE",
       "principalId": "orgAdmin",
       "permission": "ALLOW",
       "property": "setReportStatus"
@@ -466,6 +541,27 @@
       "principalId": "orgAdmin",
       "permission": "ALLOW",
       "property": "assignStoreModelsToUser"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "sendConsignmentDelivery"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "receiveConsignment"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "receiveConsignment"
     }
   ],
   "methods": {}

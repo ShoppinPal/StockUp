@@ -88,9 +88,9 @@ var runMe = function (vendConnectionInfo, orgModelId, dataObject) {
                     var batchCounter = 0, inventoryCounter = 0;
                     //Add some operations to be executed
                     _.each(incrementalInventory, function (eachInventory, iteratee) {
-                        if (eachInventory.reorder_point !== null) {
-                            var productModelToAttach = _.findWhere(productModelInstances, {api_id: eachInventory.product_id});
-                            var storeModelToAttach = _.findWhere(storeModelInstances, {storeNumber: eachInventory.outlet_id});
+                        var productModelToAttach = _.findWhere(productModelInstances, {api_id: eachInventory.product_id});
+                        var storeModelToAttach = _.findWhere(storeModelInstances, {storeNumber: eachInventory.outlet_id});
+                        if(productModelToAttach && storeModelToAttach) {
                             batchesArray[batchCounter].find({
                                 orgModelId: ObjectId(orgModelId),
                                 api_id: eachInventory.id

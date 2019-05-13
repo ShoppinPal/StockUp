@@ -42,12 +42,13 @@
             </div>
             <div class="col-sm-3">
               <span class="input-group-btn">
+
                 <button class="btn btn-success" type="button"
                         (click)="createTransferOrder()"
-                        *ngIf="order.state === reportStates.GENERATED && !creatingTransferOrder">Create Transfer Order</button>
+                        *ngIf="userProfile.integrationType === 'msdynamics' && !creatingTransferOrder">Create Transfer Order</button>
                 <button class="btn btn-success" type="button"
-                        (click)="setReportStatus()"
-                        *ngIf="order.state === reportStates.WAREHOUSE_FULFILL">Send to Store</button>
+                        *ngIf="userProfile.integrationType === 'vend'"
+                        (click)="createPurchaseOrderVend()">Send order to Supplier</button>
               </span>
             </div>
           </div>
@@ -255,7 +256,6 @@
                 </tr>
                 </tbody>
               </table>
-
               <pagination [totalItems]="totalApprovedLineItems"
                           [(ngModel)]="currentPageApproved"
                           [maxSize]="maxPageDisplay"
@@ -356,7 +356,7 @@
               </tr>
               </tbody>
             </table>
-
+          </tab>
         </div>
 
       </div>
@@ -365,5 +365,3 @@
   </div>
 </div>
 <!--/.col-->
-</div>
-</div>

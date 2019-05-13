@@ -216,7 +216,7 @@ export class UserModel implements UserModelInterface {
           model: '',
           relationType: 'hasMany',
                   keyFrom: 'id',
-          keyTo: 'userModelToReportModelId'
+          keyTo: 'userModelId'
         },
         stockOrderLineitemModels: {
           name: 'stockOrderLineitemModels',
@@ -250,7 +250,7 @@ export class UserModel implements UserModelInterface {
           modelThrough: 'UserStoreMapping',
           keyThrough: 'storeModelId',
           keyFrom: 'id',
-          keyTo: 'storeModelId'
+          keyTo: 'userModelId'
         },
         roleMappings: {
           name: 'roleMappings',

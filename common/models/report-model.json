@@ -58,7 +58,7 @@
     "userModel": {
       "type": "belongsTo",
       "model": "UserModel",
-      "foreignKey": "userModelToReportModelId"
+      "foreignKey": "userModelId"
     },
     "stockOrderLineitemModels": {
       "type": "hasMany",
@@ -89,6 +89,11 @@
       "type": "belongsTo",
       "model": "SupplierModel",
       "foreignKey": "supplierModelId"
+    },
+    "deliverFromStoreModel": {
+      "type": "belongsTo",
+      "model": "StoreModel",
+      "foreignKey": "deliverFromStoreModelId"
     }
   },
   "acls": [
