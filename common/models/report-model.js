@@ -1861,7 +1861,8 @@ module.exports = function (ReportModel) {
                                     'Sku': lineItems[i].productModel().api_id,
                                     'Order Quantity': lineItems[i].orderQuantity,
                                     'Suggested Order Quantity': lineItems[i].originalOrderQuantity,
-                                    'Store Inventory': lineItems[i].storeInventory
+                                    'Store Inventory': lineItems[i].storeInventory,
+                                    'Approved': lineItems[i].approved ? 'Yes' : 'No'
                                 });
                             }
                             csvFile = papaparse.unparse(csvJson);
