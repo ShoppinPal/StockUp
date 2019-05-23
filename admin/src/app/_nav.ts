@@ -1,4 +1,36 @@
-export const navigation = [
+interface NavAttributes {
+  [propName: string]: any;
+}
+interface NavWrapper {
+  attributes: NavAttributes;
+  element: string;
+}
+interface NavBadge {
+  text: string;
+  variant: string;
+}
+interface NavLabel {
+  class?: string;
+  variant: string;
+}
+
+export interface NavData {
+  name?: string;
+  url?: string;
+  icon?: string;
+  roles: Array<string>;
+  badge?: NavBadge;
+  title?: boolean;
+  children?: NavData[];
+  variant?: string;
+  attributes?: NavAttributes;
+  divider?: boolean;
+  class?: string;
+  label?: NavLabel;
+  wrapper?: NavWrapper;
+}
+
+export const navItems: NavData[] = [
   {
     title: true,
     name: 'Products',
@@ -33,13 +65,13 @@ export const navigation = [
   {
     title: true,
     name: 'Orders',
-    roles: ['orgAdmin']
+    roles: ['orgAdmin', 'storeManager']
   },
   {
     name: 'Stock Orders',
     url: '/orders/stock-orders',
     icon: 'icon-close',
-    roles: ['orgAdmin']
+    roles: ['orgAdmin', 'storeManager']
   },
   // {
   //   name: 'Stuck Orders',

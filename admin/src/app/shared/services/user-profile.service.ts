@@ -1,7 +1,8 @@
 import {Injectable} from '@angular/core';
 import {UserProfile} from '../models/userProfile';
 import {UserModelApi} from '../lb-sdk/services';
-import {Observable} from "rxjs/Observable";
+import {Observable, of} from "rxjs";
+import {map} from "rxjs/operators";
 import {LoopBackAuth} from '../lb-sdk/services';
 
 @Injectable()
@@ -64,21 +65,20 @@ export class UserProfileService {
   public refreshUserProfile(): Observable<any> {
     if (this.auth.getCurrentUserId()) {
       return this._userModelApi.profile(this.auth.getCurrentUserId())
-        .map((user) => {
+        .pipe(map((user) => {
           this.User = new UserProfile(user.profileData);
           this.User.isAuthenticated = true;
           return this.User;
-        })
-        .catch(error => {
+        }, err => {
           this.User = new UserProfile({});
           this.User.isAuthenticated = false;
-          return Observable.of(this.User);
-        });
+          return of(this.User);
+        }));
     }
     else {
       this.User = new UserProfile({});
       this.User.isAuthenticated = false;
-      return Observable.of(this.User);
+      return of(this.User);
     }
   }
 

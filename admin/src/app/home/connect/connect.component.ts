@@ -3,7 +3,8 @@ import {OrgModelApi} from "../../shared/lb-sdk/services/custom/OrgModel";
 import {ActivatedRoute} from '@angular/router';
 import {UserProfileService} from "../../shared/services/user-profile.service";
 import {ToastrService} from 'ngx-toastr';
-import {Observable} from 'rxjs';
+import {Observable, empty} from 'rxjs';
+import {mergeMap} from 'rxjs/operators';
 
 @Component({
   selector: 'app-connect',
@@ -55,7 +56,9 @@ export class ConnectComponent implements OnInit {
     this.orgModelApi.initiateVendSync(this.userProfile.orgModelId)
       .subscribe((data: any) => {
           console.log('vend sync', data);
+          this.syncModels = data.syncStatus;
           this.loading = false;
+          this.cd.markForCheck();
         },
         err => {
           this.loading = false;
@@ -146,6 +149,34 @@ export class ConnectComponent implements OnInit {
         });
   }
 
+  private syncVendStores() {
+    this.loading = true;
+    this.orgModelApi.syncVendStores(this.userProfile.orgModelId)
+      .subscribe((data: any) => {
+          this.loading = false;
+          this.toastr.success('Synced stores successfully');
+        },
+        err => {
+          this.loading = false;
+          console.log('err', err);
+          this.toastr.error('Error in syncing stores');
+        });
+  }
+
+  private syncVendUsers() {
+    this.loading = true;
+    this.orgModelApi.syncVendUsers(this.userProfile.orgModelId)
+      .subscribe((data: any) => {
+          this.loading = false;
+          this.toastr.success('Synced users successfully');
+        },
+        err => {
+          this.loading = false;
+          console.log('err', err);
+          this.toastr.error('Error in syncing users');
+        });
+  }
+
   private saveCompany() {
     this.loading = true;
     this.orgModelApi.updateByIdIntegrationModels(this.userProfile.orgModelId, this.integration[0].id, {dataAreaId: this.selectedCompany})
@@ -167,7 +198,7 @@ export class ConnectComponent implements OnInit {
     }
     else {
       this.orgModelApi.validateMSSQLDatabase(this.userProfile.orgModelId, this.integration[0].databaseName)
-        .flatMap((data: any) => {
+        .pipe(mergeMap((data: any) => {
           if (data && data.success) {
             this.toastr.success('Database validated successfully');
             return this.orgModelApi.getIntegrationModels(this.userProfile.orgModelId);
@@ -175,14 +206,8 @@ export class ConnectComponent implements OnInit {
           else {
             this.toastr.error('Error validating database');
             console.log(data);
-            return Observable.empty();
           }
-        })
-        .catch(err=> {
-          this.toastr.error('Error validating database');
-          console.log('err', err);
-          return Observable.empty();
-        })
+        }))
         .subscribe((data) => {
             if (data.length) {
               this.integration = data;

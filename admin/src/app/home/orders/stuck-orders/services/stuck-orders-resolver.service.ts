@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
-import {StoreConfigModelApi} from '../../../../shared/lb-sdk';
+import {Observable, of} from 'rxjs';
+// import {StoreConfigModelApi} from '../../../../shared/lb-sdk';
 import {UserProfileService} from '../../../../shared/services/user-profile.service';
 
 @Injectable()
@@ -8,7 +8,8 @@ export class StuckOrdersResolverService {
 
   private userProfile: any = this._userProfileService.getProfileData();
 
-  constructor(private storeConfigModelApi: StoreConfigModelApi,
+  constructor(
+    // private storeConfigModelApi: StoreConfigModelApi,
               private _userProfileService: UserProfileService) {
   }
 
@@ -19,14 +20,15 @@ export class StuckOrdersResolverService {
   fetchStuckOrders(limit?: number, skip?: number): Observable<any> {
     limit = limit || 10;
     skip = skip || 0;
-    return this.storeConfigModelApi.getStuckOrders(this.userProfile.storeConfigModelId, limit, skip)
-      .map((data: any) => {
-          return data;
-        },
-        err => {
-          console.log('Could not fetch stuck orders', err);
-          return err;
-        });
+    return of('af');
+    // return this.storeConfigModelApi.getStuckOrders(this.userProfile.storeConfigModelId, limit, skip)
+    //   .map((data: any) => {
+    //       return data;
+    //     },
+    //     err => {
+    //       console.log('Could not fetch stuck orders', err);
+    //       return err;
+    //     });
 
   };
 

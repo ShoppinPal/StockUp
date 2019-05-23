@@ -29,7 +29,7 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: '/products/bin-locations',
+        redirectTo: '/orders/stock-orders',
         pathMatch: 'full'
       },
       {

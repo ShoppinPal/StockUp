@@ -1,15 +1,14 @@
 /* tslint:disable */
 import { Injectable, Inject, Optional } from '@angular/core';
-import { Http, Response } from '@angular/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { SDKModels } from './SDKModels';
 import { BaseLoopBackApi } from '../core/base.service';
 import { LoopBackConfig } from '../../lb.config';
 import { LoopBackAuth } from '../core/auth.service';
 import { LoopBackFilter,  } from '../../models/BaseModels';
-import { JSONSearchParams } from '../core/search.params';
 import { ErrorHandler } from '../core/error.service';
-import { Subject } from 'rxjs/Subject';
-import { Observable } from 'rxjs/Rx';
+import { Observable, Subject } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Container } from '../../models/Container';
 import { SocketConnection } from '../../sockets/socket.connections';
 
@@ -21,14 +20,13 @@ import { SocketConnection } from '../../sockets/socket.connections';
 export class ContainerApi extends BaseLoopBackApi {
 
   constructor(
-    @Inject(Http) protected http: Http,
+    @Inject(HttpClient) protected http: HttpClient,
     @Inject(SocketConnection) protected connection: SocketConnection,
     @Inject(SDKModels) protected models: SDKModels,
     @Inject(LoopBackAuth) protected auth: LoopBackAuth,
-    @Inject(JSONSearchParams) protected searchParams: JSONSearchParams,
     @Optional() @Inject(ErrorHandler) protected errorHandler: ErrorHandler
   ) {
-    super(http,  connection,  models, auth, searchParams, errorHandler);
+    super(http,  connection,  models, auth, errorHandler);
   }
 
   /**
@@ -102,7 +100,7 @@ export class ContainerApi extends BaseLoopBackApi {
    *
    *  - `` – `{}` - 
    */
-  public destroyContainer(container: any, customHeaders?: Function): Observable<any> {
+  public destroyContainer(container: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "DELETE";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/containers/:container";
@@ -131,7 +129,7 @@ export class ContainerApi extends BaseLoopBackApi {
    * This usually means the response is a `Container` object.)
    * </em>
    */
-  public getContainer(container: any, customHeaders?: Function): Observable<any> {
+  public getContainer(container: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/containers/:container";
@@ -160,7 +158,7 @@ export class ContainerApi extends BaseLoopBackApi {
    * This usually means the response is a `Container` object.)
    * </em>
    */
-  public getFiles(container: any, customHeaders?: Function): Observable<any> {
+  public getFiles(container: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/containers/:container/files";
@@ -191,7 +189,7 @@ export class ContainerApi extends BaseLoopBackApi {
    * This usually means the response is a `Container` object.)
    * </em>
    */
-  public getFile(container: any, file: any, customHeaders?: Function): Observable<any> {
+  public getFile(container: any = {}, file: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/containers/:container/files/:file";
@@ -222,7 +220,7 @@ export class ContainerApi extends BaseLoopBackApi {
    *
    *  - `` – `{}` - 
    */
-  public removeFile(container: any, file: any, customHeaders?: Function): Observable<any> {
+  public removeFile(container: any = {}, file: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "DELETE";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/containers/:container/files/:file";
@@ -241,8 +239,6 @@ export class ContainerApi extends BaseLoopBackApi {
          * (The remote method definition does not provide any description.)
          * </em>
    *
-   * @param {string} container 
-   *
    * @param {object} data Request data.
    *
    *  - `req` – `{object}` - 
@@ -257,13 +253,11 @@ export class ContainerApi extends BaseLoopBackApi {
    *
    *  - `result` – `{object}` - 
    */
-  public upload(container: any, req: any = {}, res: any = {}, customHeaders?: Function): Observable<any> {
+  public upload(req: any = {}, res: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/containers/:container/upload";
-    let _routeParams: any = {
-      container: container
-    };
+    let _routeParams: any = {};
     let _postBody: any = {};
     let _urlParams: any = {};
     let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
@@ -279,8 +273,6 @@ export class ContainerApi extends BaseLoopBackApi {
    *
    * @param {string} file 
    *
-   * @param {object} req 
-   *
    * @param {object} res 
    *
    * @returns {object} An empty reference that will be
@@ -289,7 +281,7 @@ export class ContainerApi extends BaseLoopBackApi {
    *
    * This method returns no data.
    */
-  public download(container: any, file: any, req: any = {}, res: any = {}, customHeaders?: Function): Observable<any> {
+  public download(container: any = {}, file: any = {}, res: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/containers/:container/download/:file";

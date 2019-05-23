@@ -1,11 +1,5 @@
 /* tslint:disable */
 import {
-  GlobalConfigModel,
-  StoreConfigModel,
-  StoreModel,
-  ReportModel,
-  StockOrderLineitemModel,
-  SupplierModel,
   OrgModel
 } from '../index';
 
@@ -30,13 +24,13 @@ export interface UserModelInterface {
   accessTokens?: any[];
   roles?: any[];
   teamModels?: any[];
-  globalConfigModels?: GlobalConfigModel;
-  storeConfigModel?: StoreConfigModel;
-  storeModels?: StoreModel[];
-  reportModels?: ReportModel[];
-  stockOrderLineitemModels?: StockOrderLineitemModel[];
-  supplierModels?: SupplierModel[];
+  globalConfigModels?: any;
+  storeConfigModel?: any;
+  reportModels?: any[];
+  stockOrderLineitemModels?: any[];
+  supplierModels?: any[];
   orgModel?: OrgModel;
+  storeModels?: any[];
   roleMappings?: any[];
 }
 
@@ -60,13 +54,13 @@ export class UserModel implements UserModelInterface {
   accessTokens: any[];
   roles: any[];
   teamModels: any[];
-  globalConfigModels: GlobalConfigModel;
-  storeConfigModel: StoreConfigModel;
-  storeModels: StoreModel[];
-  reportModels: ReportModel[];
-  stockOrderLineitemModels: StockOrderLineitemModel[];
-  supplierModels: SupplierModel[];
+  globalConfigModels: any;
+  storeConfigModel: any;
+  reportModels: any[];
+  stockOrderLineitemModels: any[];
+  supplierModels: any[];
   orgModel: OrgModel;
+  storeModels: any[];
   roleMappings: any[];
   constructor(data?: UserModelInterface) {
     Object.assign(this, data);
@@ -99,6 +93,7 @@ export class UserModel implements UserModelInterface {
       name: 'UserModel',
       plural: 'UserModels',
       path: 'UserModels',
+      idName: 'id',
       properties: {
         "id": {
           name: 'id',
@@ -176,57 +171,94 @@ export class UserModel implements UserModelInterface {
         accessTokens: {
           name: 'accessTokens',
           type: 'any[]',
-          model: ''
+          model: '',
+          relationType: 'hasMany',
+                  keyFrom: 'id',
+          keyTo: 'userId'
         },
         roles: {
           name: 'roles',
           type: 'any[]',
-          model: ''
+          model: '',
+          relationType: 'hasMany',
+          modelThrough: 'RoleMapping',
+          keyThrough: 'roleId',
+          keyFrom: 'id',
+          keyTo: 'principalId'
         },
         teamModels: {
           name: 'teamModels',
           type: 'any[]',
-          model: ''
+          model: '',
+          relationType: 'hasMany',
+                  keyFrom: 'id',
+          keyTo: 'ownerId'
         },
         globalConfigModels: {
           name: 'globalConfigModels',
-          type: 'GlobalConfigModel',
-          model: 'GlobalConfigModel'
+          type: 'any',
+          model: '',
+          relationType: 'hasOne',
+                  keyFrom: 'id',
+          keyTo: 'userModelToGlobalConfigModelId'
         },
         storeConfigModel: {
           name: 'storeConfigModel',
-          type: 'StoreConfigModel',
-          model: 'StoreConfigModel'
-        },
-        storeModels: {
-          name: 'storeModels',
-          type: 'StoreModel[]',
-          model: 'StoreModel'
+          type: 'any',
+          model: '',
+          relationType: 'belongsTo',
+                  keyFrom: 'storeConfigModelId',
+          keyTo: 'objectId'
         },
         reportModels: {
           name: 'reportModels',
-          type: 'ReportModel[]',
-          model: 'ReportModel'
+          type: 'any[]',
+          model: '',
+          relationType: 'hasMany',
+                  keyFrom: 'id',
+          keyTo: 'userModelId'
         },
         stockOrderLineitemModels: {
           name: 'stockOrderLineitemModels',
-          type: 'StockOrderLineitemModel[]',
-          model: 'StockOrderLineitemModel'
+          type: 'any[]',
+          model: '',
+          relationType: 'hasMany',
+                  keyFrom: 'id',
+          keyTo: 'userId'
         },
         supplierModels: {
           name: 'supplierModels',
-          type: 'SupplierModel[]',
-          model: 'SupplierModel'
+          type: 'any[]',
+          model: '',
+          relationType: 'hasMany',
+                  keyFrom: 'id',
+          keyTo: 'userId'
         },
         orgModel: {
           name: 'orgModel',
           type: 'OrgModel',
-          model: 'OrgModel'
+          model: 'OrgModel',
+          relationType: 'belongsTo',
+                  keyFrom: 'orgModelId',
+          keyTo: 'id'
+        },
+        storeModels: {
+          name: 'storeModels',
+          type: 'any[]',
+          model: '',
+          relationType: 'hasMany',
+          modelThrough: 'UserStoreMapping',
+          keyThrough: 'storeModelId',
+          keyFrom: 'id',
+          keyTo: 'userModelId'
         },
         roleMappings: {
           name: 'roleMappings',
           type: 'any[]',
-          model: ''
+          model: '',
+          relationType: 'hasMany',
+                  keyFrom: 'id',
+          keyTo: 'principalId'
         },
       }
     }

@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {StoreConfigModelApi} from "../../shared/lb-sdk/services/custom/StoreConfigModel";
+// import {StoreConfigModelApi} from "../../shared/lb-sdk/services/custom/StoreConfigModel";
 import {UserProfileService} from "../../shared/services/user-profile.service";
 import {ToastrService} from 'ngx-toastr';
 
@@ -16,7 +16,7 @@ export class WorkerSettingsComponent implements OnInit {
   public loading: boolean = false;
 
   constructor(private _route: ActivatedRoute,
-              private _storeConfigModelApi: StoreConfigModelApi,
+              // private _storeConfigModelApi: StoreConfigModelApi,
               private toastr: ToastrService,
               private _userProfileService: UserProfileService) {
   }
@@ -32,15 +32,15 @@ export class WorkerSettingsComponent implements OnInit {
 
   toggleWorker(workerName) {
     this.loading = true;
-    this._storeConfigModelApi.updateWorkerSettings(this.userProfile.storeConfigModelId, workerName)
-      .subscribe((data: any) => {
-        this.loading = false;
-        this.toastr.success('Changed worker', workerName);
-      }, err => {
-        this.loading = false;
-        this.toastr.error('Could not change the worker', workerName);
-        console.log('Could not toggle the worker', workerName);
-      })
+    // this._storeConfigModelApi.updateWorkerSettings(this.userProfile.storeConfigModelId, workerName)
+    //   .subscribe((data: any) => {
+    //     this.loading = false;
+    //     this.toastr.success('Changed worker', workerName);
+    //   }, err => {
+    //     this.loading = false;
+    //     this.toastr.error('Could not change the worker', workerName);
+    //     console.log('Could not toggle the worker', workerName);
+    //   })
 
   }
 

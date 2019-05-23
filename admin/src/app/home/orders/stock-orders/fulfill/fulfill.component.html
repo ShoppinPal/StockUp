@@ -1,0 +1,228 @@
+<ngx-loading [show]="loading"></ngx-loading>
+<div class="animated fadeIn">
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="card">
+        <div class="card-header">
+          <strong>Stock order details</strong>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="form-group col-sm-6">
+              <p>Name: <strong>{{order.name}}</strong></p>
+              <p>Total Items: <strong>{{totalFulfilledLineItems+totalNotFulfilledLineItems}}</strong></p>
+              <p>Created At: <strong>{{order.created | date: 'y-MM-dd HH:mm'}}</strong></p>
+              <p>Status: <strong>{{order.state}}</strong>
+                <!--<span *ngIf="order.state === reportStates.PUSHING_TO_MSD">({{order.percentagePushedToMSD || 0 | number : '1.2-2'}})%</span></strong>-->
+                <button type="button" class="btn btn-link" (click)="getOrderDetails()">
+                  <i class="fa fa-refresh"></i>
+                </button>
+              </p>
+              <p *ngIf="order.transferOrderNumber">Transfer Order Number: <strong>{{order.transferOrderNumber}}</strong>
+              </p>
+            </div>
+            <!--<div class="form-group col-sm-12">-->
+            <!--<div class="input-group">-->
+            <!--<span>(Upload Min Display Quantities and Shelf Capacities) &nbsp;&nbsp; </span>-->
+            <!--<input type="file" ng2FileSelect [uploader]="uploader"/>-->
+            <!--</div>-->
+            <!--</div>-->
+          </div>
+        </div>
+        <div class="card-footer" *ngIf="editable">
+          <div class="row">
+            <div class="col-sm-3">
+              <span class="input-group-btn">
+                <button class="btn btn-success" type="button"
+                        (click)="sendDelivery()">Send consignment to {{order.storeModel.name}}</button>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!--/.col-->
+  </div><!--/.row-->
+
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="card">
+        <div class="card-header">
+          <strong>Search products</strong>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-12">
+              <div class="form-group">
+                <div class="input-group">
+                  <input type="text"
+                         class="form-control"
+                         id="searchSKU"
+                         [(ngModel)]="searchSKUText"
+                         placeholder="Scan SKU barcode here or enter text">
+                  <span class="input-group-btn">
+                    <button class="btn btn-primary" type="button"
+                            (click)="searchProductBySku(searchSKUText)">
+                      <i class="fa fa-search"></i> Search
+                    </button>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div><!--/.row-->
+        </div>
+        <div class="card-footer">
+          <div class="row">
+            <div class="col-sm-6">
+              <button type="button" class="btn btn-link"
+                      (click)="searchSKUText='';getFulfilledStockOrderLineItems();getNotFulfilledStockOrderLineItems()">
+                Clear All Searches
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!--/.col-->
+  </div><!--/.row-->
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="card-header">
+          <i class="fa fa-cubes"></i> Stock order items
+          <button type="button" class="btn btn-link float-right">
+            <i class="fa fa-filter fa-2x"></i>
+          </button>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-12">
+              <tabset>
+                <tab heading="Not Fulfilled ({{totalNotFulfilledLineItems}})">
+
+                  <table class="table table-striped table-hover">
+                    <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>SKU</th>
+                      <th>Order Quantity</th>
+                      <th>Fulfilled Quantity</th>
+                      <th>Fulfill</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr *ngFor="let lineItem of notFulfilledLineItems">
+                      <ng-container *ngIf="lineItem.productModel">
+                        <td>
+                          {{lineItem.productModel.name}}
+                          <br/>
+                          <small *ngIf="userProfile.integrationType === 'msdynamics'">({{lineItem.productModel.sizeId}}
+                            : {{lineItem.productModel.colorId}} :
+                            {{lineItem.productModel.styleId}} : {{lineItem.productModel.configurationId}})
+                          </small>
+                        </td>
+                        <td *ngIf="userProfile.integrationType==='msdynamics'">{{lineItem.productModel.api_id}}</td>
+                        <td *ngIf="userProfile.integrationType==='vend'">{{lineItem.productModel.sku}}</td>
+                        <td>{{lineItem.orderQuantity}}</td>
+                        <td *ngIf="editable">
+                          <div class="form-group">
+                            <div class="input-group">
+                              <div class="input-group-prepend pointer" (click)="lineItem.fulfilledQuantity = lineItem.fulfilledQuantity - 1">
+                                <span class="input-group-text">
+                                  <i class="fa fa-minus-circle quantity-icon text-danger"></i>
+                                </span>
+                              </div>
+                              <input type="number" class="input-order-quantity form-control-sm form-control text-center"
+                                     [(ngModel)]="lineItem.fulfilledQuantity"/>
+                              <div class="input-group-append pointer" (click)="lineItem.fulfilledQuantity = lineItem.fulfilledQuantity + 1">
+                                <span class="input-group-text">
+                                  <i class="fa fa-plus-circle quantity-icon text-success"></i>
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td *ngIf="!editable">
+                          0
+                        </td>
+                        <td>
+                          <button *ngIf="editable" class="btn btn-danger" type="submit"
+                                  (click)="fulfillItem(lineItem, selectedBox)">
+                            <i class="fa fa-save"></i> Fulfill
+                          </button>
+                        </td>
+                      </ng-container>
+                    </tr>
+                    </tbody>
+                  </table>
+
+                  <pagination [totalItems]="totalNotFulfilledLineItems"
+                              [(ngModel)]="currentPageNotFulfilled"
+                              [maxSize]="maxPageDisplay"
+                              [rotate]="false"
+                              [boundaryLinks]="true"
+                              (pageChanged)="getNotFulfilledStockOrderLineItems(lineItemsLimitPerPage, ($event.page - 1) *
+                  lineItemsLimitPerPage)"
+                              [itemsPerPage]="lineItemsLimitPerPage"></pagination>
+
+                </tab>
+
+                <tab heading="Fulfilled ({{totalFulfilledLineItems}})">
+                  <table class="table table-striped table-hover">
+                    <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>SKU</th>
+                      <th>Order Quantity</th>
+                      <th>Fulfilled Quantity</th>
+                      <th>Remove</th>
+
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr *ngFor="let lineItem of fulfilledLineItems">
+                      <ng-container *ngIf="lineItem.productModel">
+                        <td>
+                          {{lineItem.productModel.name}}
+                          <br/>
+                          <small>({{lineItem.productModel.sizeId}} : {{lineItem.productModel.colorId}} :
+                            {{lineItem.productModel.styleId}} : {{lineItem.productModel.configurationId}})
+                          </small>
+                        </td>
+                        <td *ngIf="userProfile.integrationType==='msdynamics'">{{lineItem.productModel.api_id}}</td>
+                        <td *ngIf="userProfile.integrationType==='vend'">{{lineItem.productModel.sku}}</td>
+                        <td>
+                          {{lineItem.orderQuantity}}
+                        </td>
+                        <td>{{lineItem.fulfilledQuantity}}</td>
+                        <td>
+                          <button *ngIf="editable" class="btn btn-danger" type="submit"
+                                  (click)="removeItem(lineItem)">
+                            <i class="fa fa-save"></i> Remove
+                          </button>
+                        </td>
+                      </ng-container>
+                    </tr>
+                    </tbody>
+                  </table>
+
+                  <pagination [totalItems]="totalFulfilledLineItems"
+                              [(ngModel)]="currentPageFulfilled"
+                              [maxSize]="maxPageDisplay"
+                              [rotate]="false"
+                              [boundaryLinks]="true"
+                              (pageChanged)="getFulfilledStockOrderLineItems(lineItemsLimitPerPage, ($event.page - 1) * lineItemsLimitPerPage)"
+                              [itemsPerPage]="lineItemsLimitPerPage">
+                  </pagination>
+
+                </tab>
+              </tabset>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <!--/.col-->
+  </div>
+</div>

@@ -30,7 +30,7 @@
     },
     "outlet": {
       "type": "object",
-      "required": true
+      "required": false
     },
     "totalRows": {
       "type": "number",
@@ -58,7 +58,7 @@
     "userModel": {
       "type": "belongsTo",
       "model": "UserModel",
-      "foreignKey": "userModelToReportModelId"
+      "foreignKey": "userModelId"
     },
     "stockOrderLineitemModels": {
       "type": "hasMany",
@@ -84,6 +84,16 @@
       "type": "belongsTo",
       "model": "CategoryModel",
       "foreignKey": "categoryModelId"
+    },
+    "supplierModel": {
+      "type": "belongsTo",
+      "model": "SupplierModel",
+      "foreignKey": "supplierModelId"
+    },
+    "deliverFromStoreModel": {
+      "type": "belongsTo",
+      "model": "StoreModel",
+      "foreignKey": "deliverFromStoreModelId"
     }
   },
   "acls": [

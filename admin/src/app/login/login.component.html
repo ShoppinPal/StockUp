@@ -17,16 +17,23 @@
                 <span class="input-group-addon"><i class="icon-lock"></i></span>
                 <input type="password" #password class="form-control" placeholder="Password">
               </div>
-              <div class="row">
+              <div class="row mb-2">
                 <div class="col-6">
                   <button type="button" (click)="fetchInput(username.value, password.value)"
                           class="btn btn-primary px-4">Login
                   </button>
                 </div>
               </div>
-              <div class="row text-center">
-                <div class="col-12">
-                  <a routerLink="/signup" routerLinkActive="active" (click)="loading=true">New user? Create Account</a>
+              <div class="row">
+                <div class="text-left col-sm-6">
+                  <a routerLink="/signup" routerLinkActive="active" (click)="loading=true">
+                    New user? Create Account
+                  </a>
+                </div>
+                <div class="text-right col-sm-6">
+                  <a routerLink="/forgot-password" routerLinkActive="active" (click)="loading=true">
+                    Forgot Password
+                  </a>
                 </div>
               </div>
             </div>

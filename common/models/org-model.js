@@ -667,6 +667,118 @@ module.exports = function (OrgModel) {
                 });
         };
 
+        OrgModel.remoteMethod('generateStockOrderVend', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'storeModelId', type: 'string', required: true},
+                {arg: 'supplierModelId', type: 'string', required: true},
+                {arg: 'name', type: 'string'},
+                {arg: 'warehouseModelId', type: 'string', required: true},
+                {arg: 'req', type: 'object', 'http': {source: 'req'}},
+                {arg: 'res', type: 'object', 'http': {source: 'res'}},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/generateStockOrderVend', verb: 'get'},
+            returns: {arg: 'data', type: 'ReadableStream', root: true}
+        });
+
+        OrgModel.generateStockOrderVend = function (id, storeModelId, supplierModelId, name, warehouseModelId, req, res, options) {
+            try {
+                res.connection.setTimeout(0);
+                if (!sseMap[options.accessToken.userId]) {
+                    var sse = new SSE(0);
+                    sse.init(req, res);
+                    sseMap[options.accessToken.userId] = sse;
+                    logger.debug({
+                        options,
+                        message: 'Created sse for user',
+                        functionName: 'generateStockOrderVend'
+                    });
+                }
+                else {
+                    sseMap[options.accessToken.userId].init(req, res);
+                    logger.debug({
+                        options,
+                        message: 'SSE exists for this user, will move on',
+                        functionName: 'generateStockOrderVend'
+                    });
+                }
+            }
+            catch (e) {
+                logger.error({
+                    e,
+                    options,
+                    message: 'Error creating SSE',
+                    functionName: 'generateStockOrderVend'
+                });
+            }
+            OrgModel.app.models.ReportModel.generateStockOrderVend(id, storeModelId, supplierModelId, name, warehouseModelId, options)
+                .catch(function (error) {
+                    logger.error({
+                        error,
+                        message: 'Could not initiate stock order generation',
+                        functionName: 'generateStockOrderVend',
+                        options
+                    });
+                    return Promise.reject('Could not initiate stock order generation');
+                });
+        };
+
+        OrgModel.remoteMethod('receiveConsignment', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'reportModelId', type: 'string', required: true},
+                {arg: 'req', type: 'object', 'http': {source: 'req'}},
+                {arg: 'res', type: 'object', 'http': {source: 'res'}},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/receiveConsignment', verb: 'get'},
+            returns: {arg: 'data', type: 'ReadableStream', root: true}
+        });
+
+        OrgModel.receiveConsignment = function (id, reportModelId, req, res, options) {
+            try {
+                res.connection.setTimeout(0);
+                if (!sseMap[options.accessToken.userId]) {
+                    var sse = new SSE(0);
+                    sse.init(req, res);
+                    sseMap[options.accessToken.userId] = sse;
+                    logger.debug({
+                        options,
+                        message: 'Created sse for user',
+                        functionName: 'receiveConsignment'
+                    });
+                }
+                else {
+                    sseMap[options.accessToken.userId].init(req, res);
+                    logger.debug({
+                        options,
+                        message: 'SSE exists for this user, will move on',
+                        functionName: 'receiveConsignment'
+                    });
+                }
+            }
+            catch (e) {
+                logger.error({
+                    e,
+                    options,
+                    message: 'Error creating SSE',
+                    functionName: 'receiveConsignment'
+                });
+            }
+            OrgModel.app.models.ReportModel.receiveConsignment(id, reportModelId, options)
+                .catch(function (error) {
+                    logger.error({
+                        error,
+                        message: 'Could not initiate stock order receiving',
+                        functionName: 'receiveConsignment',
+                        options
+                    });
+                    return Promise.reject('Could not initiate stock order receiving');
+                });
+        };
+
+
         OrgModel.remoteMethod('sendWorkerStatus', {
             accepts: [
                 {arg: 'id', type: 'string', required: true},
@@ -797,6 +909,83 @@ module.exports = function (OrgModel) {
                 });
         };
 
+        OrgModel.remoteMethod('syncVendStores', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/syncVendStores', verb: 'get'},
+            returns: {arg: 'outlets', type: 'array', root: true}
+        });
+
+        OrgModel.syncVendStores = function (id, options, cb) {
+            logger.debug({
+                message: 'Will sync Vend stores',
+                options,
+                functionName: 'syncVendStores'
+            });
+            return OrgModel.app.models.SyncModel.syncVendStores(id, options)
+                .catch(function (error) {
+                    logger.error({
+                        message: 'Could not sync vend outlets',
+                        error,
+                        functionName: 'syncVendStores',
+                        options
+                    });
+                    return Promise.reject('Could not sync vend outlets');
+                });
+        };
+
+        OrgModel.remoteMethod('syncVendUsers', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/syncVendUsers', verb: 'get'},
+            returns: {arg: 'users', type: 'array', root: true}
+        });
+
+        OrgModel.syncVendUsers = function (id, options, cb) {
+            logger.debug({
+                message: 'Will sync Vend stores',
+                options,
+                functionName: 'syncVendUsers'
+            });
+            return OrgModel.app.models.SyncModel.syncVendUsers(id, options)
+                .catch(function (error) {
+                    logger.error({
+                        message: 'Could not sync vend users',
+                        error,
+                        functionName: 'syncVendUsers',
+                        options
+                    });
+                    return Promise.reject('Could not sync vend users');
+                });
+        };
+
+        OrgModel.remoteMethod('inviteUser', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'userId', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/inviteUser', verb: 'post'},
+            returns: {arg: 'status', type: 'boolean', root: true}
+        });
+
+        OrgModel.inviteUser = function (id, userId, options) {
+            return OrgModel.app.models.UserModel.inviteUser(id, userId, options)
+                .catch(function (error) {
+                    logger.error({
+                        message: 'Could not invite user to StockUp',
+                        error,
+                        functionName: 'inviteUser',
+                        options
+                    });
+                    return Promise.reject('Could not invite user to StockUp');
+                });
+        };
+
         OrgModel.remoteMethod('fetchOrderRowCounts', {
             accepts: [
                 {arg: 'id', type: 'string', required: true},
@@ -806,7 +995,6 @@ module.exports = function (OrgModel) {
             http: {path: '/:id/fetchOrderRowCounts', verb: 'GET'},
             returns: {arg: 'rowCounts', type: 'object', root: true}
         });
-
         OrgModel.fetchOrderRowCounts = function (id, orderIds, options) {
             return OrgModel.app.models.ReportModel.fetchOrderRowCounts(orderIds, options)
                 .catch(function (error) {
@@ -841,6 +1029,29 @@ module.exports = function (OrgModel) {
                 });
         };
 
+        OrgModel.remoteMethod('setReportStatus', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'reportModelId', type: 'string', required: true},
+                {arg: 'to', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/setReportStatus', verb: 'put'},
+            returns: {arg: 'updatedReportModelInstance', type: 'object', root: true}
+        });
+
+        OrgModel.setReportStatus = function (id, reportModelId, to, options) {
+            return OrgModel.app.models.ReportModel.setReportStatus(id, reportModelId, to, options)
+                .catch(function (error) {
+                    logger.error({
+                        error,
+                        options,
+                        functionName: 'setReportStatus'
+                    });
+                    return Promise.reject(error);
+                });
+        };
+
         OrgModel.remoteMethod('updateOrgSettings', {
             accepts: [
                 {arg: 'id', type: 'string', required: true},
@@ -864,5 +1075,135 @@ module.exports = function (OrgModel) {
                     return Promise.reject(error);
                 });
         };
+
+        OrgModel.remoteMethod('createPurchaseOrderVend', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'reportModelId', type: 'string', required: true},
+                {arg: 'req', type: 'object', 'http': {source: 'req'}},
+                {arg: 'res', type: 'object', 'http': {source: 'res'}},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/createPurchaseOrderVend', verb: 'GET'},
+            returns: {arg: 'data', type: 'ReadableStream', root: true}
+        });
+
+        OrgModel.createPurchaseOrderVend = function (id, reportModelId, req, res, options) {
+            logger.debug({
+                message: 'Will create purchase order in Vend',
+                reportModelId,
+                options,
+                functionName: 'createPurchaseOrderVend'
+            });
+            res.connection.setTimeout(0);
+            if (!sseMap[options.accessToken.userId]) {
+                var sse = new SSE(0);
+                sse.init(req, res);
+                sseMap[options.accessToken.userId] = sse;
+                logger.debug({
+                    options,
+                    message: 'Created sse for user',
+                    functionName: 'createPurchaseOrderVend'
+                });
+            }
+            else {
+                sseMap[options.accessToken.userId].init(req, res);
+                logger.debug({
+                    options,
+                    message: 'SSE exists for this user, will move on',
+                    functionName: 'createPurchaseOrderVend'
+                });
+            }
+            OrgModel.app.models.ReportModel.createPurchaseOrderVend(id, reportModelId, options)
+                .catch(function (error) {
+                    logger.error({
+                        message: 'Could not create purchase order in Vend',
+                        reportModelId,
+                        options,
+                        functionName: 'createPurchaseOrderVend',
+                        error
+                    });
+                    sseMap[options.accessToken.userId].send(false);
+                });
+        };
+
+        OrgModel.remoteMethod('assignRoles', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'userId', type: 'string', required: true},
+                {arg: 'roles', type: 'array', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/assignRoles', verb: 'POST'},
+            returns: {arg: 'roles', type: 'object', root: true}
+        });
+
+        OrgModel.assignRoles = function (id, userId, roles, options) {
+            return OrgModel.app.models.UserModel.assignRoles(userId, roles)
+                .catch(function (error) {
+                    logger.error({
+                        error,
+                        reason: error,
+                        message: 'Could not assign roles to user',
+                        userId,
+                        functionName: 'assignRoles',
+                        options
+                    });
+                    return Promise.reject('Could not assign roles to user');
+                });
+        };
+
+        OrgModel.remoteMethod('assignStoreModelsToUser', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'userId', type: 'string', required: true},
+                {arg: 'storeIds', type: 'array', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/assignStoreModelsToUser', verb: 'POST'},
+            returns: {arg: 'status', type: 'boolean', root: true}
+        });
+
+        OrgModel.assignStoreModelsToUser = function (id, userId, storeIds, options) {
+            return OrgModel.app.models.UserModel.assignStoreModelsToUser(id, userId, storeIds, options)
+                .catch(function (error) {
+                    logger.error({
+                        error,
+                        reason: error,
+                        message: 'Could not assign stores to user',
+                        userId,
+                        functionName: 'assignStoreModelsToUser',
+                        options
+                    });
+                    return Promise.reject(false);
+                });
+        };
+
+        OrgModel.remoteMethod('sendConsignmentDelivery', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'reportModelId', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/sendConsignmentDelivery', verb: 'POST'},
+            returns: {arg: 'status', type: 'boolean', root: true}
+        });
+
+        OrgModel.sendConsignmentDelivery = function (id, reportModelId, options) {
+            return OrgModel.app.models.ReportModel.sendConsignmentDelivery(id, reportModelId, options)
+                .catch(function (error) {
+                    logger.error({
+                        error,
+                        reason: error,
+                        message: 'Could not send consignment delivery',
+                        userId,
+                        functionName: 'sendConsignmentDelivery',
+                        options
+                    });
+                    return Promise.reject(false);
+                });
+        };
+
+
     });
 };

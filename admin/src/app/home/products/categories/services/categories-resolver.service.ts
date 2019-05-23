@@ -1,7 +1,8 @@
 import {Injectable} from '@angular/core';
 import {OrgModelApi} from "../../../../shared/lb-sdk/services/custom/OrgModel";
 import {Router} from '@angular/router';
-import {Observable} from 'rxjs';
+import {Observable, combineLatest, of} from 'rxjs';
+import {map} from 'rxjs/operators';
 import {UserProfileService} from "../../../../shared/services/user-profile.service";
 
 @Injectable()
@@ -25,22 +26,21 @@ export class CategoriesResolverService {
       limit: 10,
       skip: skip || 0
     };
-    let fetchCategories = Observable.combineLatest(
+    let fetchCategories = combineLatest(
       this.orgModelApi.getCategoryModels(this.userProfile.orgModelId, filter),
       this.orgModelApi.countCategoryModels(this.userProfile.orgModelId)
     );
-    return fetchCategories.map((data: any) => {
+    return fetchCategories.pipe(map((data: any) => {
       this.categories = data[0];
       this.count = data[1].count;
       return {
         categories: data[0],
         count: this.count
       }
-    })
-      .catch((err: any) => {
-        this._router.navigate(['/stores']); //TODO: make a 404 page
-        return Observable.of({err: err});
-      });
+    }, err => {
+              this._router.navigate(['/stores']); //TODO: make a 404 page
+        return of({err: err});
+    }));
   }
 
 }

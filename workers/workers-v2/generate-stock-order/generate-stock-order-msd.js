@@ -12,6 +12,7 @@ const Promise = require('bluebird');
 const commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 const TODAYS_DATE = new Date();
 const rp = require('request-promise');
+const REPORT_STATES = utils.REPORT_STATES
 var runMe = function (payload, config, taskId, messageId) {
 
     var orgModelId = payload.orgModelId;
@@ -231,7 +232,7 @@ function generateStockOrder(payload, config, taskId, messageId) {
                 categoryModelId: ObjectId(categoryModelId),
                 created: new Date(),
                 updated: new Date(),
-                state: utils.REPORT_STATES.EXECUTING,
+                state: REPORT_STATES.PROCESSING,
                 percentagePushedToMSD: 0,
                 transferOrderNumber: null,
                 transferOrderCount: 0
@@ -493,7 +494,7 @@ function generateStockOrder(payload, config, taskId, messageId) {
                     _id: reportModel._id
                 }, {
                     $set: {
-                        state: utils.REPORT_STATES.ERROR,
+                        state: REPORT_STATES.PROCESSING_FAILURE,
                         totalRows: totalRows
                     }
                 });
@@ -509,7 +510,7 @@ function generateStockOrder(payload, config, taskId, messageId) {
                     _id: reportModel._id
                 }, {
                     $set: {
-                        state: utils.REPORT_STATES.GENERATED
+                        state: REPORT_STATES.GENERATED
                     }
                 });
             }

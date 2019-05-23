@@ -42,12 +42,13 @@
     "storeModels": {
       "type": "hasMany",
       "model": "StoreModel",
-      "foreignKey": "userModelToStoreModelId"
+      "foreignKey": "userModelId",
+      "through": "UserStoreMapping"
     },
     "reportModels": {
       "type": "hasMany",
       "model": "ReportModel",
-      "foreignKey": "userModelToReportModelId"
+      "foreignKey": "userModelId"
     },
     "stockOrderLineitemModels": {
       "type": "hasMany",
@@ -92,6 +93,13 @@
       "principalId": "$owner",
       "permission": "ALLOW",
       "property": "__get__orgModel"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "setPassword"
     }
   ],
   "methods": {}

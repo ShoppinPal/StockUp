@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {Observable} from 'rxjs';
+import {Observable, combineLatest, of} from 'rxjs';
+import {map} from 'rxjs/operators';
 import {UserProfileService} from '../../../../shared/services/user-profile.service';
 import {OrgModelApi} from "../../../../shared/lb-sdk/services/custom/OrgModel";
 
@@ -26,11 +27,11 @@ export class BinLocationsResolverService {
       limit: 10,
       skip: skip || 0
     };
-    let fetchProducts = Observable.combineLatest(
+    let fetchProducts = combineLatest(
       this.orgModelApi.getProductModels(this.userProfile.orgModelId, filter),
       this.orgModelApi.countProductModels(this.userProfile.orgModelId)
     );
-    return fetchProducts.map((data: any) => {
+    return fetchProducts.pipe(map((data: any) => {
       // this.loading = false;
       this.products = data[0];
       this.count = data[1].count;
@@ -38,10 +39,10 @@ export class BinLocationsResolverService {
         products: this.products,
         count: this.count
       }
-    })
-      .catch((err: any) => {
-        this._router.navigate(['/stores']); //TODO: make a 404 page
-        return Observable.of({err: err});
-      });
+    },
+    err => {
+      this._router.navigate(['/stores']); //TODO: make a 404 page
+        return of({err: err});
+    }));
   };
 }

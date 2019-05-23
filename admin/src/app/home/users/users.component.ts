@@ -1,8 +1,8 @@
 import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {OrgModelApi} from "../../shared/lb-sdk/services/custom/OrgModel";
 import {ToastrService} from 'ngx-toastr';
-import {Observable} from 'rxjs';
+import {Observable, combineLatest} from 'rxjs';
 import {UserProfileService} from "../../shared/services/user-profile.service";
 
 @Component({
@@ -14,6 +14,7 @@ export class UsersComponent implements OnInit {
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
+              private _router: Router,
               private toastr: ToastrService,
               private _userProfileService: UserProfileService) {
   }
@@ -28,21 +29,22 @@ export class UsersComponent implements OnInit {
   public searchUserText: string;
   public foundUser: boolean = false;
   public searchedUser: Array<any>;
+  public maxPageDisplay: number = 7;
 
   ngOnInit() {
     this.userProfile = this._userProfileService.getProfileData();
     this._route.data.subscribe((data: any) => {
-      console.log('user route data', data);
+        console.log('user route data', data);
         this.users = data.users.users;
         this.totalUsers = data.users.count;
-        this.totalPages = this.totalUsers / this.usersLimitPerPage;
       },
       error => {
         console.log('error', error)
       });
   }
 
-  fetchUsers(limit?: number, skip?: number) {
+
+  fetchUsers(limit?: number, skip?: number, searchUserText?: string) {
     if (!(limit && skip)) {
       this.searchUserText = '';
     }
@@ -53,14 +55,32 @@ export class UsersComponent implements OnInit {
       limit: limit || 10,
       skip: skip || 0
     };
-    let fetchUsers = Observable.combineLatest(
+    let countFilter = {};
+    if (searchUserText) {
+      filter['where'] = countFilter = {
+        or: [
+          {
+            name: {
+              like: searchUserText
+            }
+          },
+          {
+            email: {
+              like: searchUserText
+            }
+          }
+        ]
+      }
+
+    }
+    let fetchUsers = combineLatest(
       this.orgModelApi.getUserModels(this.userProfile.orgModelId, filter),
-      this.orgModelApi.countUserModels(this.userProfile.orgModelId));
+      this.orgModelApi.countUserModels(this.userProfile.orgModelId, countFilter));
     fetchUsers.subscribe((data: any) => {
         this.loading = false;
         this.users = data[0];
         this.totalUsers = data[1].count;
-
+        this.currentPage = (skip / this.usersLimitPerPage) + 1;
         this.totalPages = Math.floor(this.totalUsers / 100);
       },
       err => {
@@ -68,5 +88,10 @@ export class UsersComponent implements OnInit {
         console.log('Couldn\'t load products', err);
       });
   };
+
+  goToUserDetailsPage(userId) {
+    this.loading = true;
+    this._router.navigate(['users/user-details/' + userId]);
+  }
 
 }

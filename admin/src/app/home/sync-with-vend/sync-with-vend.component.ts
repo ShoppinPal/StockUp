@@ -1,8 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {UserProfileService} from '../../shared/services/user-profile.service';
-import {StoreConfigModelApi} from '../../shared/lb-sdk';
+import {OrgModelApi} from '../../shared/lb-sdk';
 import {ActivatedRoute} from '@angular/router';
-import {checkPort} from "@angular/cli/utilities/check-port";
 
 @Component({
   selector: 'app-sync-with-vend',
@@ -16,7 +15,7 @@ export class SyncWithVendComponent implements OnInit {
   public syncModels: any;
 
   constructor(private _userProfileService: UserProfileService,
-              private storeConfigModelApi: StoreConfigModelApi,
+              private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute) {
   }
 
@@ -32,15 +31,15 @@ export class SyncWithVendComponent implements OnInit {
 
   initiateSync(dataObjects) {
     this.loading = true;
-    this.storeConfigModelApi.initiateSync(this.userProfile.storeConfigModelId, dataObjects)
-      .subscribe((data: any) => {
-          this.loading = false;
-          console.log('initiated sync', data);
-        },
-        error => {
-          this.loading = false;
-          console.log('error', error);
-        });
+    // this.orgModelApi.initiateVendSync(this.userProfile.orgModelId, dataObjects)
+    //   .subscribe((data: any) => {
+    //       this.loading = false;
+    //       console.log('initiated sync', data);
+    //     },
+    //     error => {
+    //       this.loading = false;
+    //       console.log('error', error);
+    //     });
   }
 
   checkSync(dataObject) {
@@ -50,37 +49,37 @@ export class SyncWithVendComponent implements OnInit {
   }
 
   toggleSync(dataObject) {
-    this.loading = true;
-    let filter = {
-
-    };
-    if(this.checkSync(dataObject)) {
-      let syncModel = this.syncModels.find(function (eachSyncModel) {
-        return eachSyncModel.name === dataObject;
-      });
-      let syncModelIndex = this.syncModels.indexOf(syncModel);
-      this.storeConfigModelApi.destroyByIdSyncModels(this.userProfile.storeConfigModelId, syncModel.id)
-        .subscribe((data:any) => {
-          this.loading = false;
-          this.syncModels.splice(syncModelIndex, 1);
-        }, error => {
-          console.log('error', error);
-          this.loading = false;
-        })
-    }
-    else {
-      this.storeConfigModelApi.createSyncModels(this.userProfile.storeConfigModelId, {
-        name: dataObject,
-        version: 0,
-        syncInProcess: false
-      }).subscribe((data:any) => {
-        this.loading = false;
-          this.syncModels.push(data);
-      }, error => {
-        console.log('error', error);
-        this.loading = false;
-      })
-    }
+    // this.loading = true;
+    // let filter = {
+    //
+    // };
+    // if(this.checkSync(dataObject)) {
+    //   let syncModel = this.syncModels.find(function (eachSyncModel) {
+    //     return eachSyncModel.name === dataObject;
+    //   });
+    //   let syncModelIndex = this.syncModels.indexOf(syncModel);
+    //   this.storeConfigModelApi.destroyByIdSyncModels(this.userProfile.storeConfigModelId, syncModel.id)
+    //     .subscribe((data:any) => {
+    //       this.loading = false;
+    //       this.syncModels.splice(syncModelIndex, 1);
+    //     }, error => {
+    //       console.log('error', error);
+    //       this.loading = false;
+    //     })
+    // }
+    // else {
+    //   this.storeConfigModelApi.createSyncModels(this.userProfile.storeConfigModelId, {
+    //     name: dataObject,
+    //     version: 0,
+    //     syncInProcess: false
+    //   }).subscribe((data:any) => {
+    //     this.loading = false;
+    //       this.syncModels.push(data);
+    //   }, error => {
+    //     console.log('error', error);
+    //     this.loading = false;
+    //   })
+    // }
 
   }
 

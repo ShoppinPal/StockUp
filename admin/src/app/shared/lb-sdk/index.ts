@@ -1,3 +1,4 @@
+/* tslint:disable */
 /**
 * @module SDKModule
 * @author Jonathan Casarrubias <t:@johncasarrubias> <gh:jonathan-casarrubias>
@@ -33,13 +34,12 @@
 * export class AppModule { }
 *
 **/
-import { JSONSearchParams } from './services/core/search.params';
 import { ErrorHandler } from './services/core/error.service';
 import { LoopBackAuth } from './services/core/auth.service';
 import { LoggerService } from './services/custom/logger.service';
 import { SDKModels } from './services/custom/SDKModels';
 import { InternalStorage, SDKStorage } from './storage/storage.swaps';
-import { HttpModule } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { NgModule, ModuleWithProviders } from '@angular/core';
 import { CookieBrowser } from './storage/cookie.browser';
@@ -49,15 +49,8 @@ import { SocketDriver } from './sockets/socket.driver';
 import { SocketConnection } from './sockets/socket.connections';
 import { RealTime } from './services/core/real.time';
 import { UserModelApi } from './services/custom/UserModel';
-import { GlobalConfigModelApi } from './services/custom/GlobalConfigModel';
-import { StoreConfigModelApi } from './services/custom/StoreConfigModel';
-import { StoreModelApi } from './services/custom/StoreModel';
-import { ReportModelApi } from './services/custom/ReportModel';
-import { StockOrderLineitemModelApi } from './services/custom/StockOrderLineitemModel';
-import { SupplierModelApi } from './services/custom/SupplierModel';
 import { ContainerApi } from './services/custom/Container';
 import { OrgModelApi } from './services/custom/OrgModel';
-import { IntegrationModelApi } from './services/custom/IntegrationModel';
 /**
 * @module SDKBrowserModule
 * @description
@@ -68,7 +61,7 @@ import { IntegrationModelApi } from './services/custom/IntegrationModel';
 *  3.- Progressive applications (Angular Mobile, Ionic, WebViews, etc)
 **/
 @NgModule({
-  imports:      [ CommonModule, HttpModule ],
+  imports:      [ CommonModule, HttpClientModule ],
   declarations: [ ],
   exports:      [ ],
   providers:    [
@@ -86,19 +79,11 @@ export class SDKBrowserModule {
       providers : [
         LoopBackAuth,
         LoggerService,
-        JSONSearchParams,
         SDKModels,
         RealTime,
         UserModelApi,
-        GlobalConfigModelApi,
-        StoreConfigModelApi,
-        StoreModelApi,
-        ReportModelApi,
-        StockOrderLineitemModelApi,
-        SupplierModelApi,
         ContainerApi,
         OrgModelApi,
-        IntegrationModelApi,
         internalStorageProvider,
         { provide: SDKStorage, useClass: StorageBrowser },
         { provide: SocketDriver, useClass: SocketBrowser }
@@ -116,3 +101,4 @@ export * from './lb.config';
 export * from './storage/storage.swaps';
 export { CookieBrowser } from './storage/cookie.browser';
 export { StorageBrowser } from './storage/storage.browser';
+

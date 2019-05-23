@@ -1,0 +1,34 @@
+<div class="app flex-row align-items-center">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <h1 align="center">StockUp</h1>
+        <div class="card-group">
+          <div class="card p-4">
+            <div class="card-body">
+              <ngx-loading [show]="loading"></ngx-loading>
+              <h1>Welcome {{name}}!</h1>
+              <p class="text-muted">Create new password for your account</p>
+              <div class="input-group mb-3">
+                <span class="input-group-addon"><i class="icon-user"></i></span>
+                <input type="password" [(ngModel)]="password" class="form-control" placeholder="Enter new password">
+              </div>
+              <div class="row">
+                <div class="col-6">
+                  <button type="button" (click)="setPassword()"
+                          class="btn btn-primary px-4">Sign In
+                  </button>
+                </div>
+              </div>
+              <div class="row text-center">
+                <div class="col-12">
+                  <a routerLink="/login" routerLinkActive="active" (click)="loading=true">Already have an account? Login</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

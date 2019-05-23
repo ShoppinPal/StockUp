@@ -4,22 +4,42 @@ import {UserProfileService} from './services/user-profile.service';
 import {AccessService} from './services/access.service';
 import {UserResolverService} from './services/user-resolver.service';
 import {TypeaheadModule} from 'ngx-bootstrap';
-import {AsideToggleDirective} from '../directives';
 import {LoadingModule} from 'ngx-loading';
 import {FormsModule} from '@angular/forms';
+import {AppAsideModule} from '@coreui/angular';
+import {FileUploadModule} from 'ng2-file-upload';
+import {CollapseModule} from 'ngx-bootstrap/collapse';
+import {PopoverModule} from 'ngx-bootstrap/popover';
+import {PaginationModule} from 'ngx-bootstrap/pagination';
+import {TabsModule} from 'ngx-bootstrap/tabs';
 
 @NgModule({
   imports: [
+    AppAsideModule,
     CommonModule,
     FormsModule,
-    LoadingModule
+    LoadingModule,
+    FileUploadModule,
+    TypeaheadModule,
+    CollapseModule,
+    FileUploadModule,
+    PaginationModule,
+    PopoverModule.forRoot(),
+    TabsModule
   ],
-  declarations: [AsideToggleDirective],
+  declarations: [],
   exports: [
-    AsideToggleDirective,
     FormsModule,
     TypeaheadModule,
-    LoadingModule
+    LoadingModule,
+    AppAsideModule,
+    CollapseModule,
+    CommonModule,
+    FileUploadModule,
+    TypeaheadModule,
+    PaginationModule,
+    PopoverModule,
+    TabsModule
   ]
 })
 

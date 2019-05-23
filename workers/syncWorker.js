@@ -2,6 +2,7 @@ const path = require('path');
 const fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 const logger = require('sp-json-logger')({fileName: 'common:models:' + fileName});
 const MongoClient = require('mongodb').MongoClient;
+var ObjectId = require('mongodb').ObjectID;
 const dbUrl = process.env.DB_URL;
 const Promise = require('bluebird');
 var retryCount = process.env.WORKER_SYNC_RETRIES;
@@ -53,7 +54,14 @@ return MongoClient.connect(dbUrl, {promiseLibrary: Promise})
 function runSyncJobs() {
     if (retryCount>0) {
         return db.collection('SyncModel').find({
-            $where: "function(){return ((Date.now() - Date.parse(this.lastSyncedAt))/1000 >= "+syncInterval+")}"
+            $and: [
+                {
+                    $where: "function(){return ((Date.now() - Date.parse(this.lastSyncedAt))/1000 >= " + syncInterval + ")}"
+                },
+                {
+                    syncInProcess: false
+                }
+            ]
         }).toArray()
             .catch(function (error) {
                 logger.error({
@@ -140,22 +148,82 @@ function routeToWorker(syncModels) {
         orgSyncModels
     });
     return Promise.map(Object.keys(orgSyncModels), function (eachOrg) {
-        if(orgSyncModels[eachOrg][0].syncType === 'msd') {
-            logger.debug({
-                fileName,
-                message: 'Will find differential msd data for this org',
-                organisation: eachOrg
+        logger.debug({
+            message: 'Will update syncInProcess to true for this org',
+            eachOrg,
+            functionName: 'routeToWorker'
+        });
+        return db.collection('SyncModel').updateMany({
+            orgModelId: ObjectId(eachOrg)
+        }, {
+            $set: {
+                syncInProcess: true
+            }
+        })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not update sync status',
+                    error,
+                    functionName: 'routeToWorker',
+                    eachOrg
+                });
+            })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Updated sync models to inProcess',
+                    response,
+                    organisation: eachOrg
+                });
+                if (orgSyncModels[eachOrg][0].syncType === 'msd') {
+                    logger.debug({
+                        message: 'Will find differential MSD data for this org',
+                        eachOrg,
+                        functionName: 'routeToWorker'
+                    });
+                    var findDifferentialMSDData = require('./workers-v2/find-differential-data/find-differential-msd-data');
+                    return findDifferentialMSDData.run(eachOrg, orgSyncModels[eachOrg]);
+                }
+                else if (orgSyncModels[eachOrg][0].syncType === 'vend') {
+                    logger.debug({
+                        message: 'Will find differential Vend data for this org',
+                        organisation: eachOrg,
+                        functionName: 'routeToWorker'
+                    });
+                    var findDifferentialVendData = require('./workers-v2/find-differential-data/find-differential-vend-data');
+                    return findDifferentialVendData.run(eachOrg, orgSyncModels[eachOrg]);
+                }
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not initiate sync for org',
+                    error,
+                    eachOrg,
+                    functionName: 'routeToWorker'
+                });
+                return Promise.reject('Could not initiate sync for org, will move on');
+            })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Successfully synced data for org, will update syncInProcess to false',
+                    response,
+                    eachOrg
+                });
+                return db.collection('SyncModel').updateMany({
+                    orgModelId: ObjectId(eachOrg)
+                }, {
+                    $set: {
+                        syncInProcess: false
+                    }
+                })
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not update sync status, will move on',
+                    error,
+                    functionName: 'routeToWorker',
+                    eachOrg
+                });
+                return Promise.resolve('Could not update sync status, will move on');
             });
-            var findDifferentialMSDData = require('./workers-v2/find-differential-data/find-differential-msd-data');
-            return findDifferentialMSDData.run(eachOrg, orgSyncModels[eachOrg]);
-        }
-        else if(orgSyncModels[eachOrg].type === 'vend') {
-            logger.debug({
-                fileName,
-                message: 'Vend ka baad me dekhenge',
-                organisation: eachOrg
-            });
-            return Promise.resolve('Vend ka baad me');
-        }
     });
 }

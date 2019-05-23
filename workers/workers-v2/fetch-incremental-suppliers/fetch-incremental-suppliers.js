@@ -1,49 +1,40 @@
-var runMe = function (payload, config, taskId, messageId) {
+var runMe = function (vendConnectionInfo, orgModelId, dataObject) {
 
-    const logger = require('sp-json-logger')();
+    const path = require('path');
+    const commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
+    const logger = require('sp-json-logger')({fileName: 'workers:workers-v2:' + commandName});
     var dbUrl = process.env.DB_URL;
 
     try {
         var utils = require('./../../jobs/utils/utils.js');
-        var path = require('path');
         var MongoClient = require('mongodb').MongoClient;
         var ObjectId = require('mongodb').ObjectID;
         var _ = require('underscore');
         var Promise = require('bluebird');
         var vendSdk = require('vend-nodejs-sdk')({}); //why the {}?
-        var vendConnectionInfo;
+        // var vendConnectionInfo;
         var db = null; //database connected
         var incrementalSuppliers, suppliersToDelete;
 
-        // Global variable for logging
-        var commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
-
-        logger.debug({
-            messageId: messageId,
-            commandName: commandName,
-            payload: payload,
-            config: config,
-            taskId: taskId,
-            argv: process.argv
-        });
         try {
-            process.env['User-Agent'] = taskId + ':' + messageId + ':' + commandName + ':' + payload.domainPrefix;
+            // process.env['User-Agent'] = taskId + ':' + messageId + ':' + commandName + ':' + payload.domainPrefix;
             logger.debug({
-                messageId: messageId,
-                commandName: commandName,
                 message: 'This worker will fetch and save incremental suppliers from vend to warehouse'
             });
-            return utils.savePayloadConfigToFiles(payload)
+            // return utils.savePayloadConfigToFiles(payload)
+            return Promise.resolve()
                 .then(function () {
-                    //TODO: remove these relative paths
-                    var nconf = require('./../../node_modules/nconf/lib/nconf');
-                    nconf.file('client', {file: 'config/client.json'})
-                    //.file('settings', { file: 'config/settings.json' }) // NOTE: useful for quicker testing
-                        .file('oauth', {file: 'config/oauth.json'});
-                    logger.debug({messageId: messageId, commandName: commandName, nconf: nconf.get()});
-                    vendConnectionInfo = utils.loadOauthTokens();
+                    /**
+                     //TODO: remove these relative paths
+                     var nconf = require('./../../node_modules/nconf/lib/nconf');
+                     nconf.file('client', {file: 'config/client.json'})
+                     //.file('settings', { file: 'config/settings.json' }) // NOTE: useful for quicker testing
+                     .file('oauth', {file: 'config/oauth.json'});
+                     logger.debug({messageId: messageId, commandName: commandName, nconf: nconf.get()});
+                     vendConnectionInfo = utils.loadOauthTokens();
+                     */
                     var argsForSuppliers = vendSdk.args.suppliers.fetch();
-                    argsForSuppliers.after.value = payload.versionsAfter;
+                    argsForSuppliers.after.value = dataObject.versionsAfter;
                     argsForSuppliers.deleted.value = 1; //fetch all deleted suppliers also
                     return vendSdk.suppliers.fetch(argsForSuppliers, vendConnectionInfo);
                 })
@@ -56,21 +47,15 @@ var runMe = function (payload, config, taskId, messageId) {
                     });
                     incrementalSuppliers = _.difference(fetchedSuppliers.data, suppliersToDelete);
                     logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
                         message: `Found ${suppliersToDelete.length} deleted suppliers, will delete them from the database`
                     });
                     logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
                         message: `Found ${incrementalSuppliers.length} new suppliers, will filter only required data from them`
                     });
                     return MongoClient.connect(dbUrl, {promiseLibrary: Promise});
                 })
                 .then(function (dbInstance) {
                     logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
                         message: 'Connected to mongodb database, will download suppliers into database'
                     });
                     db = dbInstance;
@@ -79,17 +64,20 @@ var runMe = function (payload, config, taskId, messageId) {
                     //Add some operations to be executed
                     _.each(incrementalSuppliers, function (eachSupplier) {
                         batch.find({
+                            orgModelId: ObjectId(orgModelId),
                             api_id: eachSupplier.id
                         }).upsert().updateOne({
                             $set: {
                                 name: eachSupplier.name,
                                 api_id: eachSupplier.id,
-                                orgModelId: ObjectId(payload.orgModelId)
+                                orgModelId: ObjectId(orgModelId),
+                                updatedAt: new Date()
                             }
                         });
                     });
                     _.each(suppliersToDelete, function (eachSupplier) {
                         batch.find({
+                            orgModelId: orgModelId,
                             api_id: eachSupplier.id
                         }).remove({
                             api_id: eachSupplier.id
@@ -109,20 +97,16 @@ var runMe = function (payload, config, taskId, messageId) {
                         nRemoved: bulkInsertResponse.nRemoved
                     };
                     logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
                         message: 'Bulk insert operation complete',
                         result: result
                     });
                     logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
                         message: 'Will go on to update version no. in warehouse'
                     });
                     return db.collection('SyncModel').updateOne({
                             $and: [
                                 {
-                                    'orgModelId': ObjectId(payload.orgModelId)
+                                    'orgModelId': ObjectId(orgModelId)
                                 },
                                 {
                                     'name': 'suppliers'
@@ -131,8 +115,8 @@ var runMe = function (payload, config, taskId, messageId) {
                         },
                         {
                             $set: {
-                                'version': payload.versionsBefore,
-                                'syncInProcess': false,
+                                'version': dataObject.versionsBefore,
+                                // 'syncInProcess': false,
                                 'workerTaskId': '',
                                 'lastSyncedAt': new Date()
                             }
@@ -140,8 +124,6 @@ var runMe = function (payload, config, taskId, messageId) {
                 })
                 .then(function (response) {
                     logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
                         message: 'Updates suppliers version number in warehouse',
                         result: response ? response.result || response : ''
                     });
@@ -150,31 +132,28 @@ var runMe = function (payload, config, taskId, messageId) {
                 .catch(function (error) {
                     if (error === 'noIncrementalSuppliers') {
                         logger.debug({
-                            messageId: messageId,
-                            commandName: commandName,
                             message: 'No incremental suppliers found, will exit'
                         });
-                        return db.collection('SyncModel').updateOne({
-                                $and: [
-                                    {
-                                        'orgModelId': ObjectId(payload.orgModelId)
-                                    },
-                                    {
-                                        'name': 'suppliers'
-                                    }
-                                ],
-                            },
-                            {
-                                $set: {
-                                    'syncInProcess': false,
-                                    'workerTaskId': '',
-                                    'lastSyncedAt': new Date()
-                                }
-                            });
+                        // return db.collection('SyncModel').updateOne({
+                        //         $and: [
+                        //             {
+                        //                 'orgModelId': ObjectId(payload.orgModelId)
+                        //             },
+                        //             {
+                        //                 'name': 'suppliers'
+                        //             }
+                        //         ],
+                        //     },
+                        //     {
+                        //         $set: {
+                        //             'syncInProcess': false,
+                        //             'workerTaskId': '',
+                        //             'lastSyncedAt': new Date()
+                        //         }
+                        //     });
+                        return Promise.resolve();
                     }
                     logger.error({
-                        messageId: messageId,
-                        commandName: commandName,
                         message: 'Could not fetch and save suppliers',
                         err: error
                     });
@@ -182,8 +161,6 @@ var runMe = function (payload, config, taskId, messageId) {
                 })
                 .then(function (response) {
                     logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
                         message: 'Updated sync model for suppliers',
                         result: response ? response.result || response : ''
                     });
@@ -191,8 +168,6 @@ var runMe = function (payload, config, taskId, messageId) {
                 })
                 .finally(function () {
                     logger.debug({
-                        messageId: messageId,
-                        commandName: commandName,
                         message: 'Closing database connection'
                     });
                     if (db) {
@@ -201,8 +176,6 @@ var runMe = function (payload, config, taskId, messageId) {
                 })
                 .catch(function (error) {
                     logger.error({
-                        messageId: messageId,
-                        commandName: commandName,
                         message: 'Could not close db connection',
                         err: error
                     });
@@ -211,12 +184,12 @@ var runMe = function (payload, config, taskId, messageId) {
                 });
         }
         catch (e) {
-            logger.error({messageId: messageId, commandName: commandName, message: '2nd last catch block', err: e});
+            logger.error({message: '2nd last catch block', err: e});
             throw e;
         }
     }
     catch (e) {
-        logger.error({messageId: messageId, message: 'last catch block', err: e});
+        logger.error({message: 'last catch block', err: e});
         throw e;
     }
 };

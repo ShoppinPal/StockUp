@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {StoreConfigModelApi} from '../../../shared/lb-sdk';
+// import {StoreConfigModelApi} from '../../../shared/lb-sdk';
 import {ToastrService} from 'ngx-toastr';
 import {UserProfileService} from '../../../shared/services/user-profile.service';
 
@@ -21,7 +21,7 @@ export class StuckOrdersComponent implements OnInit {
   public ordersLimitPerPage: number = 10;
 
   constructor(private _route: ActivatedRoute,
-              private storeConfigModelApi: StoreConfigModelApi,
+              // private storeConfigModelApi: StoreConfigModelApi,
               private toastr: ToastrService,
               private _userProfileService: UserProfileService) {
   }
@@ -49,18 +49,18 @@ export class StuckOrdersComponent implements OnInit {
   }
 
   removeSelectedOrders() {
-    this.loading = true;
-    console.log('removeSelectedOrders()', this.ordersToRemove);
-    let ordersToRemove = this.ordersToRemove;
-    this.storeConfigModelApi.removeStuckOrders(this.userProfile.storeConfigModelId, this.ordersToRemove)
-      .subscribe((data: any) => {
-        this.loading = false;
-        this.toastr.success('Removed ' + this.ordersToRemove.length + ' stuck order(s)');
-        this.fetchStuckOrders();
-      }, err => {
-        this.loading = false;
-        this.toastr.error('Could not remove stuck orders');
-      })
+    // this.loading = true;
+    // console.log('removeSelectedOrders()', this.ordersToRemove);
+    // let ordersToRemove = this.ordersToRemove;
+    // this.storeConfigModelApi.removeStuckOrders(this.userProfile.storeConfigModelId, this.ordersToRemove)
+    //   .subscribe((data: any) => {
+    //     this.loading = false;
+    //     this.toastr.success('Removed ' + this.ordersToRemove.length + ' stuck order(s)');
+    //     this.fetchStuckOrders();
+    //   }, err => {
+    //     this.loading = false;
+    //     this.toastr.error('Could not remove stuck orders');
+    //   })
 
   }
 
@@ -82,20 +82,20 @@ export class StuckOrdersComponent implements OnInit {
   }
 
   fetchStuckOrders(limit?: number, currentPage?: number) {
-    this.loading = true;
-    limit = limit || 10;
-    currentPage = currentPage || 1;
-    let skip = (currentPage-1)*limit || 0;
-    this.storeConfigModelApi.getStuckOrders(this.userProfile.storeConfigModelId, limit, skip)
-      .subscribe((data: any) => {
-          this.loading = false;
-          this.stuckOrders = data.stuckOrders;
-        },
-        err => {
-          this.loading = false;
-          console.log('Could not fetch stuck orders', err);
-          this.toastr.error('Something went wrong', 'Couldn\'t fetch more stuck orders');
-        });
+    // this.loading = true;
+    // limit = limit || 10;
+    // currentPage = currentPage || 1;
+    // let skip = (currentPage-1)*limit || 0;
+    // this.storeConfigModelApi.getStuckOrders(this.userProfile.storeConfigModelId, limit, skip)
+    //   .subscribe((data: any) => {
+    //       this.loading = false;
+    //       this.stuckOrders = data.stuckOrders;
+    //     },
+    //     err => {
+    //       this.loading = false;
+    //       console.log('Could not fetch stuck orders', err);
+    //       this.toastr.error('Something went wrong', 'Couldn\'t fetch more stuck orders');
+    //     });
 
   }
 }
