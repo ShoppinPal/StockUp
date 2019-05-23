@@ -673,6 +673,7 @@ module.exports = function (OrgModel) {
                 {arg: 'storeModelId', type: 'string', required: true},
                 {arg: 'supplierModelId', type: 'string', required: true},
                 {arg: 'name', type: 'string'},
+                {arg: 'warehouseModelId', type: 'string', required: true},
                 {arg: 'req', type: 'object', 'http': {source: 'req'}},
                 {arg: 'res', type: 'object', 'http': {source: 'res'}},
                 {arg: 'options', type: 'object', http: 'optionsFromRequest'}
@@ -681,7 +682,7 @@ module.exports = function (OrgModel) {
             returns: {arg: 'data', type: 'ReadableStream', root: true}
         });
 
-        OrgModel.generateStockOrderVend = function (id, storeModelId, supplierModelId, name, req, res, options) {
+        OrgModel.generateStockOrderVend = function (id, storeModelId, supplierModelId, name, warehouseModelId, req, res, options) {
             try {
                 res.connection.setTimeout(0);
                 if (!sseMap[options.accessToken.userId]) {
@@ -711,7 +712,7 @@ module.exports = function (OrgModel) {
                     functionName: 'generateStockOrderVend'
                 });
             }
-            OrgModel.app.models.ReportModel.generateStockOrderVend(id, storeModelId, supplierModelId, name, options)
+            OrgModel.app.models.ReportModel.generateStockOrderVend(id, storeModelId, supplierModelId, name, warehouseModelId, options)
                 .catch(function (error) {
                     logger.error({
                         error,

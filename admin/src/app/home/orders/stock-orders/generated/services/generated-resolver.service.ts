@@ -25,8 +25,16 @@ export class GeneratedResolverService implements Resolve<string> {
   }
 
   fetchStockOrderDetails(reportModelId): Observable<any> {
-    let allowedStates = [constants.REPORT_STATES.EXECUTING,
-      constants.REPORT_STATES.GENERATED];
+    let allowedStates = [
+      constants.REPORT_STATES.GENERATED,
+      constants.REPORT_STATES.APPROVAL_IN_PROCESS,
+      constants.REPORT_STATES.PROCESSING_FAILURE,
+      constants.REPORT_STATES.SENDING_TO_SUPPLIER,
+      constants.REPORT_STATES.ERROR_SENDING_TO_SUPPLIER,
+      constants.REPORT_STATES.FULFILMENT_PENDING,
+      constants.REPORT_STATES.FULFILMENT_IN_PROCESS,
+      constants.REPORT_STATES.FULFILMENT_FAILURE
+    ];
     let filter = {
       where: {
         id: reportModelId,

@@ -1,19 +1,17 @@
 export const constants = {
-  REPORT_STATES: {
-    REPORT_EMPTY: 'report_empty',
-    MANAGER_NEW_ORDERS: 'manager_new_orders',
-    MANAGER_IN_PROCESS: 'manager_in_process',
-    WAREHOUSE_FULFILL: 'warehouse_fulfill',
-    MANAGER_RECEIVE: 'manager_receive',
-    REPORT_COMPLETE: 'report_complete',
-    EXECUTING: 'Executing...',
-    GENERATED: 'Generated',
-    FULFILL: 'Fulfill',
-    RECEIVE: 'Receive',
-    COMPLETE: 'Complete',
-    ERROR: 'Error',
-    PUSHING_TO_MSD: 'Pushing to MSD',
-    PUSHING_TO_VEND: 'Pushing to Vend',
-    PUSHED_TO_MSD: 'Pushed to MSD'
+  "REPORT_STATES": {
+    "PROCESSING": "Processing",
+    "PROCESSING_FAILURE": "Processing failure",
+    "GENERATED": "Generated",
+    "APPROVAL_IN_PROCESS": "Approval in Process",
+    "SENDING_TO_SUPPLIER": "Sending to Supplier",
+    "ERROR_SENDING_TO_SUPPLIER": "Error sending to Supplier",
+    "FULFILMENT_PENDING": "Fulfilment pending",
+    "FULFILMENT_IN_PROCESS": "Fulfilment in Process",
+    "FULFILMENT_FAILURE": "Fulfilment failure",
+    "RECEIVING_PENDING": "Receiving pending",
+    "RECEIVING_IN_PROCESS": "Receiving in process",
+    "RECEIVING_FAILURE": "Receiving failure",
+    "COMPLETE": "Complete"
   }
 };

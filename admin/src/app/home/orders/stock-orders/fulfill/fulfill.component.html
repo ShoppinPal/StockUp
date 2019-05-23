@@ -12,7 +12,8 @@
               <p>Name: <strong>{{order.name}}</strong></p>
               <p>Total Items: <strong>{{totalFulfilledLineItems+totalNotFulfilledLineItems}}</strong></p>
               <p>Created At: <strong>{{order.created | date: 'y-MM-dd HH:mm'}}</strong></p>
-              <p>State: <strong>{{order.state}} <span *ngIf="order.state === reportStates.PUSHING_TO_MSD">({{order.percentagePushedToMSD || 0 | number : '1.2-2'}})%</span></strong>
+              <p>Status: <strong>{{order.state}}</strong>
+                <!--<span *ngIf="order.state === reportStates.PUSHING_TO_MSD">({{order.percentagePushedToMSD || 0 | number : '1.2-2'}})%</span></strong>-->
                 <button type="button" class="btn btn-link" (click)="getOrderDetails()">
                   <i class="fa fa-refresh"></i>
                 </button>
@@ -28,7 +29,7 @@
             <!--</div>-->
           </div>
         </div>
-        <div class="card-footer">
+        <div class="card-footer" *ngIf="editable">
           <div class="row">
             <div class="col-sm-3">
               <span class="input-group-btn">
@@ -122,15 +123,29 @@
                         <td *ngIf="userProfile.integrationType==='msdynamics'">{{lineItem.productModel.api_id}}</td>
                         <td *ngIf="userProfile.integrationType==='vend'">{{lineItem.productModel.sku}}</td>
                         <td>{{lineItem.orderQuantity}}</td>
-                        <td>
-                          <i class="fa fa-minus-circle quantity-icon text-danger"
-                             (click)="lineItem.fulfilledQuantity = lineItem.fulfilledQuantity - 1"></i>
-                          <input type="number" class="input-order-quantity" [(ngModel)]="lineItem.fulfilledQuantity"/>
-                          <i class="fa fa-plus-circle quantity-icon text-success"
-                             (click)="lineItem.fulfilledQuantity = lineItem.fulfilledQuantity + 1"></i>
+                        <td *ngIf="editable">
+                          <div class="form-group">
+                            <div class="input-group">
+                              <div class="input-group-prepend pointer" (click)="lineItem.fulfilledQuantity = lineItem.fulfilledQuantity - 1">
+                                <span class="input-group-text">
+                                  <i class="fa fa-minus-circle quantity-icon text-danger"></i>
+                                </span>
+                              </div>
+                              <input type="number" class="input-order-quantity form-control-sm form-control text-center"
+                                     [(ngModel)]="lineItem.fulfilledQuantity"/>
+                              <div class="input-group-append pointer" (click)="lineItem.fulfilledQuantity = lineItem.fulfilledQuantity + 1">
+                                <span class="input-group-text">
+                                  <i class="fa fa-plus-circle quantity-icon text-success"></i>
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td *ngIf="!editable">
+                          0
                         </td>
                         <td>
-                          <button class="btn btn-danger" type="submit"
+                          <button *ngIf="editable" class="btn btn-danger" type="submit"
                                   (click)="fulfillItem(lineItem, selectedBox)">
                             <i class="fa fa-save"></i> Fulfill
                           </button>
@@ -180,7 +195,7 @@
                         </td>
                         <td>{{lineItem.fulfilledQuantity}}</td>
                         <td>
-                          <button class="btn btn-danger" type="submit"
+                          <button *ngIf="editable" class="btn btn-danger" type="submit"
                                   (click)="removeItem(lineItem)">
                             <i class="fa fa-save"></i> Remove
                           </button>

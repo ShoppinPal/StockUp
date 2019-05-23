@@ -13,6 +13,8 @@ import {ReceiveComponent} from "./stock-orders/receive/receive.component";
 import {ReceiveResolverService} from "./stock-orders/receive/services/receive-resolver.service";
 import {FulfillResolverService} from "./stock-orders/fulfill/services/fulfill-resolver.service";
 import {GeneratedResolverService} from "./stock-orders/generated/services/generated-resolver.service";
+import {CompleteComponent} from "./stock-orders/complete/complete.component";
+import {CompleteResolverService} from "./stock-orders/complete/services/complete-resolver.service";
 
 const routes: Routes = [
   {
@@ -41,7 +43,7 @@ const routes: Routes = [
         path: 'stock-orders/generated/:id',
         component: GeneratedComponent,
         data: {
-          title: 'Home > Orders > Stock Orders'
+          title: 'Home > Orders > Stock Orders > Generated'
         },
         resolve: {
           stockOrderDetails: GeneratedResolverService
@@ -51,7 +53,7 @@ const routes: Routes = [
         path: 'stock-orders/fulfill/:id',
         component: FulfillComponent,
         data: {
-          title: 'Home > Orders > Stock Orders'
+          title: 'Home > Orders > Stock Orders > Fulfill'
         },
         resolve: {
           stockOrderDetails: FulfillResolverService
@@ -61,10 +63,20 @@ const routes: Routes = [
         path: 'stock-orders/receive/:id',
         component: ReceiveComponent,
         data: {
-          title: 'Home > Orders > Stock Orders'
+          title: 'Home > Orders > Stock Orders > Receive'
         },
         resolve: {
           stockOrderDetails: ReceiveResolverService
+        }
+      },
+      {
+        path: 'stock-orders/complete/:id',
+        component: CompleteComponent,
+        data: {
+          title: 'Home > Orders > Stock Orders > Complete'
+        },
+        resolve: {
+          stockOrderDetails: CompleteResolverService
         }
       },
       {

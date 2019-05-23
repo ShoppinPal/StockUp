@@ -35,6 +35,7 @@ export class GeneratedComponent implements OnInit {
   public isWarehouser: boolean = false;
   public boxes: Array<any> = [];
   public selectedBox = null;
+  public editable: boolean;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -46,14 +47,7 @@ export class GeneratedComponent implements OnInit {
 
   ngOnInit() {
     this.userProfile = this._userProfileService.getProfileData();
-    // this._userProfileService.hasAnyRole(['orgAdmin', 'warehouseManager'])
-    //   .subscribe((data: boolean)=> {
-    //       this.isWarehouser = true;
-    //       console.log('isWarehouser', data);
-    //     },
-    //     err => {
-    //       console.log('isWarehouser', err);
-    //     });
+
     this._route.data.subscribe((data: any) => {
         this.order = data.stockOrderDetails[0];
         this.getNotApprovedStockOrderLineItems();
@@ -62,6 +56,23 @@ export class GeneratedComponent implements OnInit {
       error => {
         console.log('error', error)
       });
+
+
+    if(this.order.state === constants.REPORT_STATES.GENERATED ||
+        this.order.state === constants.REPORT_STATES.APPROVAL_IN_PROCESS ||
+        this.order.state === constants.REPORT_STATES.PROCESSING_FAILURE) {
+        this.editable = true;
+    }
+
+    //update order to state "Approval in Process" from "Generated"
+    if (this.order.state === constants.REPORT_STATES.GENERATED) {
+      this.orgModelApi.updateByIdReportModels(this.userProfile.orgModelId, this.order.id, {
+        state: constants.REPORT_STATES.APPROVAL_IN_PROCESS
+      })
+        .subscribe((data: any) => {
+          console.log('updated report state to approval in process', data);
+        });
+    }
   }
 
   getApprovedStockOrderLineItems(limit?: number, skip?: number, productModelId?: string) {
@@ -147,7 +158,9 @@ export class GeneratedComponent implements OnInit {
     this.loading = true;
     this.orgModelApi.getProductModels(this.userProfile.orgModelId, {
       where: {
-        api_id: sku
+        sku: {
+          like: sku
+        }
       }
     }).subscribe((data: any) => {
       if (data.length) {

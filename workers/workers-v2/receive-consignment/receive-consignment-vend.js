@@ -182,12 +182,30 @@ var runMe = function (payload, config, taskId, messageId) {
                 })
                 .then(function (result) {
                     logger.debug({
-                        message: 'Updated report state to COMPLETE in DB',
+                        message: 'Updated report state to COMPLETE in DB, will update non-received line items quantity to 0',
                         reportModelId,
                         commandName,
                         messageId,
                         result
                     });
+                    return db.collection('StockOrderLineitemModel').updateMany({
+                        reportModelId: reportModelId,
+                        received: false
+                    }, {
+                        $set: {
+                            receivedQuantity: 0
+                        }
+                    });
+                })
+                .catch(function (error) {
+                    logger.error({
+                        message: 'Could not update non-received line items quantity to 0, will continue anyway because they have received boolean set to false',
+                        error,
+                        commandName,
+                        messageId,
+                        reason: error
+                    });
+                    return Promise.resolve('Could not update non-received line items quantity to 0, will continue anyway because they have received boolean set to false');
                 })
                 .then(function (result) {
                     var options = {

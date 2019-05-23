@@ -10,6 +10,7 @@ const _ = require('underscore');
 const Promise = require('bluebird');
 const TODAYS_DATE = new Date();
 const rp = require('request-promise');
+const REPORT_STATES = utils.REPORT_STATES;
 
 var runMe = function (payload, config, taskId, messageId) {
 
@@ -114,7 +115,7 @@ var runMe = function (payload, config, taskId, messageId) {
                         _id: ObjectId(reportModelId)
                     }, {
                         $set: {
-                            state: utils.REPORT_STATES.PUSHING_TO_VEND
+                            state: REPORT_STATES.SENDING_TO_SUPPLIER
                         }
                     });
                 })
@@ -151,9 +152,7 @@ var runMe = function (payload, config, taskId, messageId) {
                     }, {
                         $set: {
                             vendConsignmentId: result.id,
-                            vendConsignment: {
-                                blasdf: 'asdf'
-                            }
+                            vendConsignment: result
                         }
                     });
 
@@ -257,13 +256,28 @@ var runMe = function (payload, config, taskId, messageId) {
                 })
                 .catch(function (error) {
                     logger.error({
-                        message: 'Could not update order status to SENT in Vend',
+                        message: 'Could not update order status to SENT in Vend, will update failure status',
                         reportModelId,
                         messageId,
                         error,
                         reason: error
                     });
-                    return Promise.reject('Could not update order status to SENT in Vend');
+                    return db.collection('ReportModel').updateOne({
+                        _id: ObjectId(reportModelId)
+                    }, {
+                        $set: {
+                            state: REPORT_STATES.FULFILMENT_FAILURE
+                        }
+                    })
+                        .then(function (response) {
+                            logger.debug({
+                                message: 'Updated order status to FULFILMENT FAILURE',
+                                reportModelId,
+                                messageId,
+                                response
+                            });
+                            return Promise.reject('Could not update order status to SENT in Vend');
+                        });
                 })
                 .then(function (updatedPurchaseOrder) {
                     logger.debug({
@@ -275,7 +289,7 @@ var runMe = function (payload, config, taskId, messageId) {
                         _id: ObjectId(reportModelId)
                     }, {
                         $set: {
-                            state: utils.REPORT_STATES.FULFILL,
+                            state: REPORT_STATES.FULFILMENT_PENDING,
                             vendConsignmentId: createdPurchaseOrder.id,
                             vendConsignment: createdPurchaseOrder
                         }

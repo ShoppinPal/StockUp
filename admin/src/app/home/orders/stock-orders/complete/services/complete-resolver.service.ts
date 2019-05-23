@@ -9,8 +9,7 @@ import {constants} from "../../../../../shared/constants/constants";
 @Injectable({
   providedIn: 'root'
 })
-
-export class FulfillResolverService implements Resolve<string> {
+export class CompleteResolverService {
 
   private userProfile: any = this._userProfileService.getProfileData();
 
@@ -26,12 +25,7 @@ export class FulfillResolverService implements Resolve<string> {
 
   fetchStockOrderDetails(reportModelId): Observable<any> {
     let allowedStates = [
-      constants.REPORT_STATES.FULFILMENT_PENDING,
-      constants.REPORT_STATES.FULFILMENT_IN_PROCESS,
-      constants.REPORT_STATES.FULFILMENT_FAILURE,
-      constants.REPORT_STATES.RECEIVING_PENDING,
-      constants.REPORT_STATES.RECEIVING_IN_PROCESS,
-      constants.REPORT_STATES.RECEIVING_FAILURE
+      constants.REPORT_STATES.COMPLETE
     ];
     let filter = {
       where: {
@@ -58,4 +52,3 @@ export class FulfillResolverService implements Resolve<string> {
   };
 
 }
-

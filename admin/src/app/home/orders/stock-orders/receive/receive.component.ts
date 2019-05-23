@@ -52,6 +52,17 @@ export class ReceiveComponent implements OnInit {
       error => {
         console.log('error', error)
       });
+
+    //update order to state "Approval in Process" from "Generated"
+    if (this.order.state === constants.REPORT_STATES.RECEIVING_PENDING) {
+      this.orgModelApi.updateByIdReportModels(this.userProfile.orgModelId, this.order.id, {
+        state: constants.REPORT_STATES.RECEIVING_IN_PROCESS
+      })
+        .subscribe((data: any) => {
+          console.log('updated report state to receiving in process', data);
+        });
+    }
+
   }
 
   getReceivedStockOrderLineItems(limit?: number, skip?: number, productModelId?: string) {

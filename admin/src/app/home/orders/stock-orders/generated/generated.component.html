@@ -12,7 +12,7 @@
               <p>Name: <strong>{{order.name}}</strong></p>
               <p>Total Items: <strong>{{totalApprovedLineItems+totalNotApprovedLineItems}}</strong></p>
               <p>Created At: <strong>{{order.created | date: 'y-MM-dd HH:mm'}}</strong></p>
-              <p>State: <strong>{{order.state}} <span *ngIf="order.state === reportStates.PUSHING_TO_MSD">({{order.percentagePushedToMSD || 0 | number : '1.2-2'}})%</span></strong>
+              <p>Status: <strong>{{order.state}} <span *ngIf="order.state === reportStates.PUSHING_TO_MSD">({{order.percentagePushedToMSD || 0 | number : '1.2-2'}})%</span></strong>
                 <button type="button" class="btn btn-link" (click)="getOrderDetails()">
                   <i class="fa fa-refresh"></i>
                 </button>
@@ -20,15 +20,9 @@
               <p *ngIf="order.transferOrderNumber">Transfer Order Number: <strong>{{order.transferOrderNumber}}</strong>
               </p>
             </div>
-            <!--<div class="form-group col-sm-12">-->
-            <!--<div class="input-group">-->
-            <!--<span>(Upload Min Display Quantities and Shelf Capacities) &nbsp;&nbsp; </span>-->
-            <!--<input type="file" ng2FileSelect [uploader]="uploader"/>-->
-            <!--</div>-->
-            <!--</div>-->
           </div>
         </div>
-        <div class="card-footer">
+        <div class="card-footer" *ngIf="editable">
           <div class="row">
             <div class="col-sm-3">
               <span class="input-group-btn">
@@ -36,7 +30,7 @@
               </span>
             </div>
             <div class="col-sm-3">
-              <span class="input-group-btn" *ngIf="order.state === reportStates.GENERATED">
+              <span class="input-group-btn">
                 <button class="btn btn-success" type="button"
                         (click)="createTransferOrder()"
                         *ngIf="userProfile.integrationType === 'msdynamics' && !creatingTransferOrder">Create Transfer Order</button>
@@ -131,31 +125,29 @@
                         </td>
                         <td *ngIf="userProfile.integrationType==='msdynamics'">{{lineItem.productModel.api_id}}</td>
                         <td *ngIf="userProfile.integrationType==='vend'">{{lineItem.productModel.sku}}</td>
-                        <td>
+                        <td *ngIf="editable">
                           <div class="form-group">
                             <div class="input-group">
-                              <div class="input-group-prepend">
+                              <div class="input-group-prepend pointer" (click)="lineItem.orderQuantity = lineItem.orderQuantity - 1">
                                 <span class="input-group-text">
-                                  <i class="fa fa-minus-circle quantity-icon text-danger"
-                                     (click)="lineItem.orderQuantity = lineItem.orderQuantity - 1"></i>
+                                  <i class="fa fa-minus-circle quantity-icon text-danger"></i>
                                 </span>
                               </div>
                               <input type="number" class="input-order-quantity form-control-sm form-control text-center"
                                      [(ngModel)]="lineItem.orderQuantity"/>
-                              <div class="input-group-append">
+                              <div class="input-group-append pointer" (click)="lineItem.orderQuantity = lineItem.orderQuantity + 1">
                                 <span class="input-group-text">
-                                  <i class="fa fa-plus-circle quantity-icon text-success"
-                                     (click)="lineItem.orderQuantity = lineItem.orderQuantity + 1"></i>
+                                  <i class="fa fa-plus-circle quantity-icon text-success"></i>
                                 </span>
                               </div>
                             </div>
                           </div>
-
                         </td>
+                        <td *ngIf="!editable">{{lineItem.orderQuantity}}</td>
                         <td>{{lineItem.originalOrderQuantity}}</td>
                         <td>{{lineItem.storeInventory}}</td>
                         <td>
-                          <button class="btn btn-danger" type="submit" (click)="approveItem(lineItem)">
+                          <button *ngIf="editable" class="btn btn-danger" type="submit" (click)="approveItem(lineItem)">
                             <i class="fa fa-save"></i> Approve
                           </button>
                         </td>
@@ -206,7 +198,7 @@
                         </td>
                         <td>{{lineItem.storeInventory}}</td>
                         <td>
-                          <button class="btn btn-danger" type="submit" (click)="removeItem(lineItem)">
+                          <button *ngIf="editable" class="btn btn-danger" type="submit" (click)="removeItem(lineItem)">
                             <i class="fa fa-save"></i> Remove
                           </button>
                         </td>

@@ -26,7 +26,9 @@ export class ReceiveResolverService implements Resolve<string>{
 
   fetchStockOrderDetails(reportModelId): Observable<any> {
     let allowedStates = [
-      constants.REPORT_STATES.RECEIVE
+      constants.REPORT_STATES.RECEIVING_PENDING,
+      constants.REPORT_STATES.RECEIVING_IN_PROCESS,
+      constants.REPORT_STATES.RECEIVING_FAILURE,
     ];
     let filter = {
       where: {

@@ -13,6 +13,7 @@ var runMe = function (payload, config, taskId, messageId) {
         var ObjectId = require('mongodb').ObjectID;
         var fs = require('fs');
         var utils = require('./../../jobs/utils/utils.js');
+        const REPORT_STATES = utils.REPORT_STATES;
         var db = null; //database connected
         const rp = require('request-promise');
         var productInstances, inventoryInstances, reportModel, userRoles;
@@ -22,8 +23,7 @@ var runMe = function (payload, config, taskId, messageId) {
             payload: payload,
             config: config,
             taskId: taskId,
-            argv: process.argv,
-            env: process.env
+            argv: process.argv
         });
 
         process.env['User-Agent'] = taskId + ':' + messageId + ':' + commandName + ':' + payload.domainPrefix;
@@ -129,10 +129,11 @@ var runMe = function (payload, config, taskId, messageId) {
                 return db.collection('ReportModel').insertOne({
                     name: name,
                     userModelId: ObjectId(payload.loopbackAccessToken.userId), // explicitly setup the foreignKeys for related models
-                    state: utils.REPORT_STATES.EXECUTING,
+                    state: REPORT_STATES.PROCESSING,
                     storeModelId: ObjectId(payload.storeModelId),
                     supplierModelId: ObjectId(payload.supplierModelId),
                     orgModelId: ObjectId(payload.orgModelId),
+                    deliverFromStoreModelId: ObjectId(payload.warehouseModelId),
                     createdAt: new Date(),
                     updatedAt: new Date()
                 });
@@ -294,6 +295,7 @@ var runMe = function (payload, config, taskId, messageId) {
                                 orderQuantity: orderQuantity,
                                 originalOrderQuantity: orderQuantity,
                                 fulfilledQuantity: orderQuantity,
+                                receivedQuantity: orderQuantity,
                                 caseQuantity: caseQuantity,
                                 supplyPrice: eachProduct.supply_price,
                                 supplierModelId: ObjectId(eachProduct.supplierModelId),
@@ -352,19 +354,19 @@ var runMe = function (payload, config, taskId, messageId) {
                 });
                 logger.debug({
                     messageId: messageId,
-                    message: `Will change the status of report to ${utils.REPORT_STATES.GENERATED}`
+                    message: `Will change the status of report to ${REPORT_STATES.GENERATED}`
                 });
                 if (response === 'ERROR_REPORT') {
                     return db.collection('ReportModel').updateOne({_id: ObjectId(reportModel._id)}, {
                         $set: {
-                            state: utils.REPORT_STATES.ERROR
+                            state: REPORT_STATES.PROCESSING_FAILURE
                         }
                     });
                 }
                 else {
                     return db.collection('ReportModel').updateOne({_id: ObjectId(reportModel._id)}, {
                         $set: {
-                            state: utils.REPORT_STATES.GENERATED
+                            state: REPORT_STATES.GENERATED
                         }
                     });
                 }

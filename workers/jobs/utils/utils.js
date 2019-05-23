@@ -586,18 +586,22 @@ exports.createStockOrderForVend = createStockOrderForVend;
 exports.createStockOrderLineitemForVend = createStockOrderLineitemForVend;
 exports.updateStockOrderLineitemForVend = updateStockOrderLineitemForVend;
 exports.deleteStockOrderLineitemForVend = deleteStockOrderLineitemForVend;
+exports.REPORT_STATES = {
+    "PROCESSING": "Processing",
+    "PROCESSING_FAILURE": "Processing failure",
+    "GENERATED": "Generated",
+    "APPROVAL_IN_PROCESS": "Approval in Process",
+    "SENDING_TO_SUPPLIER": "Sending to Supplier",
+    "ERROR_SENDING_TO_SUPPLIER": "Error sending to Supplier",
+    "FULFILMENT_PENDING": "Fulfilment pending",
+    "FULFILMENT_IN_PROCESS": "Fulfilment in Process",
+    "FULFILMENT_FAILURE": "Fulfilment failure",
+    "RECEIVING_PENDING": "Receiving pending",
+    "RECEIVING_IN_PROCESS": "Receiving in process",
+    "RECEIVING_FAILURE": "Receiving failure",
+    "COMPLETE": "Complete"
+};
+
 
 var port = process.env.APP_PORT_NUMBER ? ':' + process.env.APP_PORT_NUMBER : '';
 exports.API_URL = process.env.APP_PROTOCOL + '://' + process.env.APP_HOST_NAME + port;
-
-exports.REPORT_STATES = {
-    EXECUTING: 'Executing...',
-    GENERATED: 'Generated',
-    FULFILL: 'Fulfill',
-    RECEIVING: 'Receiving',
-    COMPLETE: 'Complete',
-    ERROR: 'Error',
-    PUSHING_TO_MSD: 'Pushing to MSD',
-    PUSHED_TO_MSD: 'Pushed to MSD',
-    PUSHING_TO_VEND: 'Pushing to Vend'
-};

@@ -33,6 +33,7 @@ export class FulfillComponent implements OnInit {
   public creatingPurchaseOrderVend: boolean = false;
   public reportStates: any = constants.REPORT_STATES;
   public isWarehouser: boolean = false;
+  public editable: boolean;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -44,6 +45,8 @@ export class FulfillComponent implements OnInit {
 
   ngOnInit() {
     this.userProfile = this._userProfileService.getProfileData();
+
+
     this._route.data.subscribe((data: any) => {
         this.order = data.stockOrderDetails[0];
         this.getNotFulfilledStockOrderLineItems();
@@ -52,6 +55,21 @@ export class FulfillComponent implements OnInit {
       error => {
         console.log('error', error)
       });
+
+    if (this.order.state === constants.REPORT_STATES.FULFILMENT_PENDING ||
+      this.order.state === constants.REPORT_STATES.FULFILMENT_FAILURE) {
+      this.editable = true;
+    }
+
+    //update order to state "Approval in Process" from "Generated"
+    if (this.order.state === constants.REPORT_STATES.FULFILMENT_PENDING) {
+      this.orgModelApi.updateByIdReportModels(this.userProfile.orgModelId, this.order.id, {
+        state: constants.REPORT_STATES.FULFILMENT_IN_PROCESS
+      })
+        .subscribe((data: any) => {
+          console.log('updated report state to fulfilment in process', data);
+        });
+    }
   }
 
 
@@ -186,10 +204,10 @@ export class FulfillComponent implements OnInit {
   }
 
   fulfillItem(lineItem) {
-      this.updateLineItems(lineItem, {
-        fulfilledQuantity: lineItem.fulfilledQuantity,
-        fulfilled: true
-      });
+    this.updateLineItems(lineItem, {
+      fulfilledQuantity: lineItem.fulfilledQuantity,
+      fulfilled: true
+    });
   }
 
   removeItem(lineItem) {
@@ -202,15 +220,14 @@ export class FulfillComponent implements OnInit {
     this.orgModelApi.getReportModels(this.userProfile.orgModelId, {
       where: {
         id: this.order.id
-      }
+      },
+      include: 'storeModel'
     })
       .subscribe((data: any) => {
           this.order = data[0];
           //fetch line items only if the report status changes from executing to generated
-          if (this.order.state === this.reportStates.GENERATED && previousState !== this.reportStates.GENERATED) {
-            this.getNotFulfilledStockOrderLineItems();
-        this.getFulfilledStockOrderLineItems();
-          }
+          this.getNotFulfilledStockOrderLineItems();
+          this.getFulfilledStockOrderLineItems();
           this.loading = false;
         },
         err => {

@@ -12,7 +12,7 @@
               <p>Name: <strong>{{order.name}}</strong></p>
               <p>Total Items: <strong>{{totalReceivedLineItems+totalNotReceivedLineItems}}</strong></p>
               <p>Created At: <strong>{{order.created | date: 'y-MM-dd HH:mm'}}</strong></p>
-              <p>State: <strong>{{order.state}}</strong>
+              <p>Status: <strong>{{order.state}}</strong>
                 <button type="button" class="btn btn-link" (click)="getOrderDetails()">
                   <i class="fa fa-refresh"></i>
                 </button>
@@ -125,11 +125,22 @@
                         <td>{{lineItem.orderQuantity}}</td>
                         <td>{{lineItem.fulfilledQuantity}}</td>
                         <td>
-                          <i class="fa fa-minus-circle quantity-icon text-danger"
-                             (click)="lineItem.receivedQuantity = lineItem.receivedQuantity - 1"></i>
-                          <input type="number" class="input-order-quantity" [(ngModel)]="lineItem.receivedQuantity"/>
-                          <i class="fa fa-plus-circle quantity-icon text-success"
-                             (click)="lineItem.receivedQuantity = lineItem.receivedQuantity + 1"></i>
+                          <div class="form-group">
+                            <div class="input-group">
+                              <div class="input-group-prepend pointer" (click)="lineItem.receivedQuantity = lineItem.receivedQuantity - 1">
+                                <span class="input-group-text">
+                                  <i class="fa fa-minus-circle quantity-icon text-danger"></i>
+                                </span>
+                              </div>
+                              <input type="number" class="input-order-quantity form-control-sm form-control text-center"
+                                     [(ngModel)]="lineItem.receivedQuantity"/>
+                              <div class="input-group-append pointer" (click)="lineItem.receivedQuantity = lineItem.receivedQuantity + 1">
+                                <span class="input-group-text">
+                                  <i class="fa fa-plus-circle quantity-icon text-success"></i>
+                                </span>
+                              </div>
+                            </div>
+                          </div>
                         </td>
                         <td>
                           <button class="btn btn-danger" type="submit"

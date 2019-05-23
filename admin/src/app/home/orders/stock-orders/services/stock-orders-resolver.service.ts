@@ -14,11 +14,42 @@ export class StockOrdersResolverService {
               private _userProfileService: UserProfileService) {
   }
 
-  resolve(): Observable<any> {
-    return this.fetchStockOrders();
-  }
+  resolve = ():Observable<any> => {
+    return combineLatest(
+      this.fetchGeneratedStockOrders(),
+      this.fetchReceiveStockOrders(),
+      this.fetchFulfillStockOrders(),
+      this.fetchCompletedStockOrders(),
+      this.orgModelApi.getSupplierModels(this.userProfile.orgModelId),
+      this.orgModelApi.getStoreModels(this.userProfile.orgModelId, {
+        where: {
+          isWarehouse: true
+        }
+      })
+    )
+      .pipe(map((data: any) => {
+          return {
+            generatedOrders: data[0].generatedOrders,
+            generatedOrdersCount: data[0].generatedOrdersCount,
+            pendingGeneratedOrdersCount: data[0].pendingGeneratedOrdersCount,
+            receiveOrders: data[1].receiveOrders,
+            receiveOrdersCount: data[1].receiveOrdersCount,
+            pendingReceiveOrdersCount: data[1].pendingReceiveOrdersCount,
+            fulfillOrders: data[2].fulfillOrders,
+            fulfillOrdersCount: data[2].fulfillOrdersCount,
+            pendingFulfillOrdersCount: data[2].pendingFulfillOrdersCount,
+            completedOrders: data[3].completedOrders,
+            completedOrdersCount: data[3].completedOrdersCount,
+            suppliers: data[4],
+            warehouses: data[5]
+          }
+        },
+        err => {
+          console.log('error fetching stock orders', err);
+        }))
+  };
 
-  fetchStockOrders(limit?: number, skip?: number): Observable<any> {
+  fetchGeneratedStockOrders = (limit?: number, skip?: number): Observable<any> => {
     limit = limit || 10;
     skip = skip || 0;
     let filter = {
@@ -28,12 +59,34 @@ export class StockOrdersResolverService {
       include: ['storeModel', 'userModel', 'supplierModel'],
     };
 
+    let pendingGeneratedReportsCountFilter = {
+      storeModelId: {
+        inq: this.userProfile.storeModels.map(x => x.objectId)
+      },
+      state: {
+        inq: [
+          constants.REPORT_STATES.GENERATED,
+          constants.REPORT_STATES.APPROVAL_IN_PROCESS
+        ]
+      }
+    };
+
     let generatedReportsCountFilter = {
       storeModelId: {
         inq: this.userProfile.storeModels.map(x => x.objectId)
       },
       state: {
-        inq: [constants.REPORT_STATES.EXECUTING, constants.REPORT_STATES.GENERATED, constants.REPORT_STATES.PUSHING_TO_VEND]
+        inq: [
+          constants.REPORT_STATES.PROCESSING,
+          constants.REPORT_STATES.GENERATED,
+          constants.REPORT_STATES.APPROVAL_IN_PROCESS,
+          constants.REPORT_STATES.PROCESSING_FAILURE,
+          constants.REPORT_STATES.SENDING_TO_SUPPLIER,
+          constants.REPORT_STATES.ERROR_SENDING_TO_SUPPLIER,
+          constants.REPORT_STATES.FULFILMENT_PENDING,
+          constants.REPORT_STATES.FULFILMENT_IN_PROCESS,
+          constants.REPORT_STATES.FULFILMENT_FAILURE
+        ]
       }
     };
 
@@ -43,25 +96,166 @@ export class StockOrdersResolverService {
       }
     };
 
+    let fetchOrders = combineLatest(
+      this.orgModelApi.getReportModels(this.userProfile.orgModelId, generatedReportsFilter),
+      this.orgModelApi.countReportModels(this.userProfile.orgModelId, generatedReportsCountFilter),
+      this.orgModelApi.countReportModels(this.userProfile.orgModelId, pendingGeneratedReportsCountFilter)
+    );
+    return fetchOrders.pipe(map((data: any) => {
+        return {
+          generatedOrders: data[0],
+          generatedOrdersCount: data[1].count,
+          pendingGeneratedOrdersCount: data[2].count
+        };
+      },
+      err => {
+        console.log('Could not fetch generated stock orders', err);
+        return err;
+      }
+    ));
+
+  };
+
+  fetchReceiveStockOrders = (limit?: number, skip?: number): Observable<any> => {
+    limit = limit || 10;
+    skip = skip || 0;
+    let filter = {
+      limit: limit,
+      skip: skip,
+      order: 'createdAt DESC',
+      include: ['storeModel', 'userModel', 'supplierModel'],
+    };
+
+    let pendingReceiveReportsCountFilter = {
+      storeModelId: {
+        inq: this.userProfile.storeModels.map(x => x.objectId)
+      },
+      state: {
+        inq: [
+          constants.REPORT_STATES.RECEIVING_PENDING,
+          constants.REPORT_STATES.RECEIVING_IN_PROCESS
+        ]
+      }
+    };
+
     let receiveReportsCountFilter = {
       storeModelId: {
         inq: this.userProfile.storeModels.map(x => x.objectId)
       },
       state: {
-        inq: [constants.REPORT_STATES.RECEIVE]
+        inq: [
+          constants.REPORT_STATES.RECEIVING_PENDING,
+          constants.REPORT_STATES.RECEIVING_IN_PROCESS,
+          constants.REPORT_STATES.RECEIVING_FAILURE
+        ]
       }
     };
+
     let receiveReportsFilter = {
       ...filter, ...{
         where: receiveReportsCountFilter
       }
     };
 
+    let fetchOrders = combineLatest(
+      this.orgModelApi.getReportModels(this.userProfile.orgModelId, receiveReportsFilter),
+      this.orgModelApi.countReportModels(this.userProfile.orgModelId, receiveReportsCountFilter),
+      this.orgModelApi.countReportModels(this.userProfile.orgModelId, pendingReceiveReportsCountFilter)
+    );
+    return fetchOrders.pipe(map((data: any) => {
+        return {
+          receiveOrders: data[0],
+          receiveOrdersCount: data[1].count,
+          pendingReceiveOrdersCount: data[2].count,
+        };
+      },
+      err => {
+        console.log('Could not fetch stock orders', err);
+        return err;
+      }
+    ));
+
+  };
+
+  fetchFulfillStockOrders = (limit?: number, skip?: number): Observable<any> => {
+    limit = limit || 10;
+    skip = skip || 0;
+    let filter = {
+      limit: limit,
+      skip: skip,
+      order: 'createdAt DESC',
+      include: ['storeModel', 'userModel', 'supplierModel'],
+    };
+
+    let pendingFulfillReportsCountFilter = {
+      deliverFromStoreModelId: {
+        inq: this.userProfile.storeModels.map(x => x.objectId)
+      },
+      state: {
+        inq: [
+          constants.REPORT_STATES.FULFILMENT_PENDING,
+          constants.REPORT_STATES.FULFILMENT_IN_PROCESS
+        ]
+      }
+    };
+
     let fulfillReportsCountFilter = {
+      deliverFromStoreModelId: {
+        inq: this.userProfile.storeModels.map(x => x.objectId)
+      },
+      state: {
+        inq: [
+          constants.REPORT_STATES.FULFILMENT_PENDING,
+          constants.REPORT_STATES.FULFILMENT_IN_PROCESS,
+          constants.REPORT_STATES.FULFILMENT_FAILURE,
+          constants.REPORT_STATES.RECEIVING_PENDING,
+          constants.REPORT_STATES.RECEIVING_IN_PROCESS,
+          constants.REPORT_STATES.RECEIVING_FAILURE
+        ]
+      }
+    };
+
+    let fulfillReportsFilter = {
+      ...filter, ...{
+        where: fulfillReportsCountFilter
+      }
+    };
+
+    let fetchOrders = combineLatest(
+      this.orgModelApi.getReportModels(this.userProfile.orgModelId, fulfillReportsFilter),
+      this.orgModelApi.countReportModels(this.userProfile.orgModelId, fulfillReportsCountFilter),
+      this.orgModelApi.countReportModels(this.userProfile.orgModelId, pendingFulfillReportsCountFilter)
+    );
+    return fetchOrders.pipe(map((data: any) => {
+        return {
+          fulfillOrders: data[0],
+          fulfillOrdersCount: data[1].count,
+          pendingFulfillOrdersCount: data[2].count
+        };
+      },
+      err => {
+        console.log('Could not fetch fulfill stock orders', err);
+        return err;
+      }
+    ));
+
+  };
+
+  fetchCompletedStockOrders = (limit?: number, skip?: number): Observable<any> => {
+    limit = limit || 10;
+    skip = skip || 0;
+    let filter = {
+      limit: limit,
+      skip: skip,
+      order: 'createdAt DESC',
+      include: ['storeModel', 'userModel', 'supplierModel'],
+    };
+
+    let completeReportsCountFilter = {
       or: [
         {
-          supplierModelId: {
-            neq: null
+          storeModelId: {
+            inq: this.userProfile.storeModels.map(x => x.objectId)
           }
         },
         {
@@ -71,39 +265,33 @@ export class StockOrdersResolverService {
         }
       ],
       state: {
-        inq: [constants.REPORT_STATES.FULFILL]
+        inq: [
+          constants.REPORT_STATES.COMPLETE
+        ]
       }
     };
-    let fulfillReportsFilter = {
+
+    let completeReportsFilter = {
       ...filter, ...{
-        where: fulfillReportsCountFilter
+        where: completeReportsCountFilter
       }
     };
 
     let fetchOrders = combineLatest(
-      this.orgModelApi.getReportModels(this.userProfile.orgModelId, generatedReportsFilter),
-      this.orgModelApi.countReportModels(this.userProfile.orgModelId, generatedReportsCountFilter),
-      this.orgModelApi.getReportModels(this.userProfile.orgModelId, receiveReportsFilter),
-      this.orgModelApi.countReportModels(this.userProfile.orgModelId, receiveReportsCountFilter),
-      this.orgModelApi.getReportModels(this.userProfile.orgModelId, fulfillReportsFilter),
-      this.orgModelApi.countReportModels(this.userProfile.orgModelId, fulfillReportsCountFilter),
-      this.orgModelApi.getSupplierModels(this.userProfile.orgModelId)
-    );
+        this.orgModelApi.getReportModels(this.userProfile.orgModelId, completeReportsFilter),
+        this.orgModelApi.countReportModels(this.userProfile.orgModelId, completeReportsCountFilter)
+      );
     return fetchOrders.pipe(map((data: any) => {
         return {
-          generatedOrders: data[0],
-          generatedOrdersCount: data[1].count,
-          receiveOrders: data[2],
-          receiveOrdersCount: data[3].count,
-          fulfillOrders: data[4],
-          fulfillOrdersCount: data[5].count,
-          suppliers: data[6]
+          completedOrders: data[0],
+          completedOrdersCount: data[1].count
         };
       },
       err => {
-        console.log('Could not fetch stock orders', err);
+        console.log('Could not fetch completed stock orders', err);
         return err;
-      }));
+      }
+    ));
 
   };
 

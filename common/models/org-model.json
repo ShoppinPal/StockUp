@@ -251,6 +251,18 @@
     },
     {
       "principalType": "ROLE",
+      "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "__updateById__reportModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__updateById__reportModels"
+    },
+    {
+      "principalType": "ROLE",
       "principalId": "orgAdmin",
       "permission": "ALLOW",
       "property": "__get__categoryModels"
@@ -546,6 +558,13 @@
       "accessType": "EXECUTE",
       "principalType": "ROLE",
       "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "sendConsignmentDelivery"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "storeManager",
       "permission": "ALLOW",
       "property": "sendConsignmentDelivery"
     },
