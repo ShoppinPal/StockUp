@@ -605,7 +605,7 @@ module.exports = function (ReportModel) {
                 });
                 return ReportModel.app.models.StockOrderLineitemModel.updateAll({
                     reportModelId: reportModelId,
-                    received: false
+                    fulfilled: false
                 }, {
                     fulfilledQuantity: 0
                 });
@@ -787,7 +787,7 @@ module.exports = function (ReportModel) {
         });
         var s3Bucket = ReportModel.app.get('awsS3CSVReportsBucket');
         return ReportModel.findById(reportModelId, {
-            fields: ['id', 'name', 'csvGenerated']
+            fields: ['id', 'name']
         })
             .catch(function (error) {
                 logger.error({
@@ -817,14 +817,24 @@ module.exports = function (ReportModel) {
                         functionName: 'downloadReportModelCSV'
                     });
                     return ReportModel.app.models.StockOrderLineitemModel.find({
-                        fields: ['orderQuantity', 'storeInventory', 'productModelId', 'originalOrderQuantity'],
+                        fields: [
+                            'orderQuantity',
+                            'storeInventory',
+                            'productModelId',
+                            'originalOrderQuantity',
+                            'approved',
+                            'fulfilled',
+                            'received',
+                            'fulfilledQuantity',
+                            'receivedQuantity'
+                        ],
                         where: {
                             reportModelId: reportModelId,
                         },
                         include: {
                             relation: 'productModel',
                             scope: {
-                                fields: ['name', 'api_id']
+                                fields: ['name', 'sku']
                             }
                         }
                     })
@@ -840,11 +850,15 @@ module.exports = function (ReportModel) {
                             for (var i = 0; i<lineItems.length; i++) {
                                 csvJson.push({
                                     'Name': lineItems[i].productModel().name,
-                                    'Sku': lineItems[i].productModel().api_id,
-                                    'Order Quantity': lineItems[i].orderQuantity,
+                                    'Sku': lineItems[i].productModel().sku,
                                     'Suggested Order Quantity': lineItems[i].originalOrderQuantity,
-                                    'Store Inventory': lineItems[i].storeInventory,
-                                    'Approved': lineItems[i].approved ? 'Yes' : 'No'
+                                    'Approved': lineItems[i].approved ? 'Yes' : 'No',
+                                    'Order Quantity': lineItems[i].approved ? lineItems[i].orderQuantity : 0,
+                                    'Fulfilled': lineItems[i].fulfilled ? 'Yes' : 'No',
+                                    'Fulfilled Quantity': lineItems[i].fulfilled ? lineItems[i].fulfilledQuantity : 0,
+                                    'Received': lineItems[i].received ? 'Yes' : 'No',
+                                    'Received Quantity': lineItems[i].received ? lineItems[i].receivedQuantity : 0,
+                                    'Store Inventory': lineItems[i].storeInventory
                                 });
                             }
                             csvFile = papaparse.unparse(csvJson);

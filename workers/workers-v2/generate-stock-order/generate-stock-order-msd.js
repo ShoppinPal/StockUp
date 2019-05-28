@@ -225,14 +225,20 @@ function generateStockOrder(payload, config, taskId, messageId) {
                 commandName,
                 messageId
             });
+            var name;
+            if(!payload.name) {
+                name = storeModelInstance.name + ' - ' + TODAYS_DATE.getFullYear() + '-' + (TODAYS_DATE.getMonth() + 1) + '-' + TODAYS_DATE.getDate();
+            }
             return db.collection('ReportModel').insert({
-                name: storeModelInstance.name + ' - ' + TODAYS_DATE.getFullYear() + '-' + (TODAYS_DATE.getMonth() + 1) + '-' + TODAYS_DATE.getDate(),
+                name: name,
                 orgModelId: ObjectId(orgModelId),
+                userModelId: ObjectId(payload.loopbackAccessToken.userId), // explicitly setup the foreignKeys for related models
                 storeModelId: ObjectId(storeModelId),
                 categoryModelId: ObjectId(categoryModelId),
-                created: new Date(),
-                updated: new Date(),
+                createdAt: new Date(),
+                updatedAt: new Date(),
                 state: REPORT_STATES.PROCESSING,
+                deliverFromStoreModelId: ObjectId(payload.warehouseModelId),
                 percentagePushedToMSD: 0,
                 transferOrderNumber: null,
                 transferOrderCount: 0
@@ -433,6 +439,9 @@ function generateStockOrder(payload, config, taskId, messageId) {
                                 storeInventory: storeQuantityOnHand,
                                 originalOrderQuantity: orderQuantity,
                                 fulfilledQuantity: 0,
+                                receivedQuantity: 0,
+                                fulfilled: false,
+                                received: false,
                                 state: 'unboxed',
                                 approved: false,
                                 createdAt: new Date(),

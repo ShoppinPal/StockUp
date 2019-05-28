@@ -57,6 +57,7 @@ export class FulfillComponent implements OnInit {
       });
 
     if (this.order.state === constants.REPORT_STATES.FULFILMENT_PENDING ||
+        this.order.state === constants.REPORT_STATES.FULFILMENT_IN_PROCESS ||
       this.order.state === constants.REPORT_STATES.FULFILMENT_FAILURE) {
       this.editable = true;
     }
@@ -149,6 +150,9 @@ export class FulfillComponent implements OnInit {
         this.loading = false;
         this.currentPageNotFulfilled = (skip / this.lineItemsLimitPerPage) + 1;
         this.totalNotFulfilledLineItems = data[1].count;
+        for(var i = 0; i < data[0].length; i++) {
+          data[0][i].fulfilledQuantity = data[0][i].orderQuantity;
+        }
         this.notFulfilledLineItems = data[0];
       },
       err => {
@@ -246,6 +250,20 @@ export class FulfillComponent implements OnInit {
         this.toastr.error('Error sending consignment');
         this.loading = false;
       });
+  }
+
+  downloadOrderCSV() {
+    this.loading = true;
+    this.orgModelApi.downloadReportModelCSV(this.userProfile.orgModelId, this.order.id).subscribe((data) => {
+      const link = document.createElement('a');
+      link.href = data;
+      link.download = this.order.name;
+      link.click();
+      this.loading = false;
+    }, err=> {
+      this.loading = false;
+      console.log(err);
+    })
   }
 
 }

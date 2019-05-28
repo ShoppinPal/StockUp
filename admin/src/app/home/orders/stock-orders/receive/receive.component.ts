@@ -33,6 +33,7 @@ export class ReceiveComponent implements OnInit {
   public creatingPurchaseOrderVend: boolean = false;
   public reportStates: any = constants.REPORT_STATES;
   public isWarehouser: boolean = false;
+  public editable: boolean;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -61,6 +62,12 @@ export class ReceiveComponent implements OnInit {
         .subscribe((data: any) => {
           console.log('updated report state to receiving in process', data);
         });
+    }
+
+    if (this.order.state === constants.REPORT_STATES.RECEIVING_PENDING ||
+      this.order.state === constants.REPORT_STATES.RECEIVING_IN_PROCESS ||
+      this.order.state === constants.REPORT_STATES.RECEIVING_FAILURE) {
+      this.editable = true;
     }
 
   }
@@ -144,6 +151,9 @@ export class ReceiveComponent implements OnInit {
         this.loading = false;
         this.currentPageNotReceived = (skip / this.lineItemsLimitPerPage) + 1;
         this.totalNotReceivedLineItems = data[1].count;
+        for (var i = 0; i < data[0].length; i++) {
+          data[0][i].receivedQuantity = data[0][i].fulfilledQuantity;
+        }
         this.notReceivedLineItems = data[0];
       },
       err => {
@@ -256,6 +266,20 @@ export class ReceiveComponent implements OnInit {
         es.close();
       };
     }
+  }
+
+  downloadOrderCSV() {
+    this.loading = true;
+    this.orgModelApi.downloadReportModelCSV(this.userProfile.orgModelId, this.order.id).subscribe((data) => {
+      const link = document.createElement('a');
+      link.href = data;
+      link.download = this.order.name;
+      link.click();
+      this.loading = false;
+    }, err=> {
+      this.loading = false;
+      console.log(err);
+    })
   }
 
 }

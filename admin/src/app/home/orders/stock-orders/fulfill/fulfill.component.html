@@ -29,12 +29,17 @@
             <!--</div>-->
           </div>
         </div>
-        <div class="card-footer" *ngIf="editable">
+        <div class="card-footer">
           <div class="row">
             <div class="col-sm-3">
-              <span class="input-group-btn">
+              <span class="input-group-btn" *ngIf="editable">
                 <button class="btn btn-success" type="button"
                         (click)="sendDelivery()">Send consignment to {{order.storeModel.name}}</button>
+              </span>
+            </div>
+            <div class="col-sm-3">
+              <span class="input-group-btn">
+                <button class="btn btn-primary" type="button" (click)="downloadOrderCSV()">Download CSV</button>
               </span>
             </div>
           </div>

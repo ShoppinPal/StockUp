@@ -109,7 +109,7 @@ var runMe = function (payload, config, taskId, messageId) {
                         _id: ObjectId(reportModelId)
                     }, {
                         $set: {
-                            state: utils.REPORT_STATES.RECEIVING
+                            state: utils.REPORT_STATES.RECEIVING_IN_PROCESS
                         }
                     });
                 })
@@ -154,7 +154,7 @@ var runMe = function (payload, config, taskId, messageId) {
                         messageId,
                         reason: error
                     });
-                    return Promise.reject('Could not mark stock order as received in Vend');
+                    return Promise.resolve('ERROR_REPORT');
                 })
                 .then(function (updatedOrder) {
                     logger.debug({
@@ -162,13 +162,24 @@ var runMe = function (payload, config, taskId, messageId) {
                         updatedOrder,
                         messageId
                     });
-                    return db.collection('ReportModel').updateOne({
-                        _id: ObjectId(reportModelId)
-                    }, {
-                        $set: {
-                            state: utils.REPORT_STATES.COMPLETE
-                        }
-                    });
+                    if (updatedOrder === 'ERROR_REPORT') {
+                        return db.collection('ReportModel').updateOne({
+                            _id: ObjectId(reportModelId)
+                        }, {
+                            $set: {
+                                state: utils.REPORT_STATES.RECEIVING_FAILURE
+                            }
+                        });
+                    }
+                    else {
+                        return db.collection('ReportModel').updateOne({
+                            _id: ObjectId(reportModelId)
+                        }, {
+                            $set: {
+                                state: utils.REPORT_STATES.COMPLETE
+                            }
+                        });
+                    }
                 })
                 .catch(function (error) {
                     logger.error({

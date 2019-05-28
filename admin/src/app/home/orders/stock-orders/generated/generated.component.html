@@ -22,21 +22,26 @@
             </div>
           </div>
         </div>
-        <div class="card-footer" *ngIf="editable">
+        <div class="card-footer">
           <div class="row">
-            <div class="col-sm-3">
+            <div class="col-sm-3" *ngIf="editable">
               <span class="input-group-btn">
                 <button class="btn btn-primary" type="button" (click)="updateLineItems([], {approved: true})">Approve all</button>
               </span>
             </div>
             <div class="col-sm-3">
-              <span class="input-group-btn">
+              <span class="input-group-btn" *ngIf="editable">
                 <button class="btn btn-success" type="button"
                         (click)="createTransferOrder()"
                         *ngIf="userProfile.integrationType === 'msdynamics' && !creatingTransferOrder">Create Transfer Order</button>
                 <button class="btn btn-success" type="button"
                         *ngIf="userProfile.integrationType === 'vend'"
                         (click)="createPurchaseOrderVend()">Send order to Supplier</button>
+              </span>
+            </div>
+            <div class="col-sm-3">
+              <span class="input-group-btn">
+                <button class="btn btn-primary" type="button" (click)="downloadOrderCSV()">Download CSV</button>
               </span>
             </div>
           </div>
@@ -128,14 +133,16 @@
                         <td *ngIf="editable">
                           <div class="form-group">
                             <div class="input-group">
-                              <div class="input-group-prepend pointer" (click)="lineItem.orderQuantity = lineItem.orderQuantity - 1">
+                              <div class="input-group-prepend pointer"
+                                   (click)="lineItem.orderQuantity = lineItem.orderQuantity - 1">
                                 <span class="input-group-text">
                                   <i class="fa fa-minus-circle quantity-icon text-danger"></i>
                                 </span>
                               </div>
                               <input type="number" class="input-order-quantity form-control-sm form-control text-center"
                                      [(ngModel)]="lineItem.orderQuantity"/>
-                              <div class="input-group-append pointer" (click)="lineItem.orderQuantity = lineItem.orderQuantity + 1">
+                              <div class="input-group-append pointer"
+                                   (click)="lineItem.orderQuantity = lineItem.orderQuantity + 1">
                                 <span class="input-group-text">
                                   <i class="fa fa-plus-circle quantity-icon text-success"></i>
                                 </span>

@@ -100,7 +100,8 @@ module.exports = function (UserModel) {
 
         UserModel.signup = function (data, cb) {
             logger.debug({
-                data: data,
+                orgName: data.orgName,
+                email: data.email,
                 message: 'initiating sign-up',
                 functionName: 'signup'
             });

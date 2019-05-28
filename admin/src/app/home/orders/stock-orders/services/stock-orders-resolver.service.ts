@@ -7,14 +7,14 @@ import {constants} from '../../../../shared/constants/constants';
 
 @Injectable()
 export class StockOrdersResolverService {
-
-  private userProfile: any = this._userProfileService.getProfileData();
+private userProfile: any;
 
   constructor(private orgModelApi: OrgModelApi,
               private _userProfileService: UserProfileService) {
   }
 
   resolve = ():Observable<any> => {
+   this.userProfile = this._userProfileService.getProfileData();
     return combineLatest(
       this.fetchGeneratedStockOrders(),
       this.fetchReceiveStockOrders(),

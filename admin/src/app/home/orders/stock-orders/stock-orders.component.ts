@@ -24,19 +24,19 @@ export class StockOrdersComponent implements OnInit {
   public loading = false;
   public filter: any = {};
 
-  public generatedOrders: Array<any>;
+  public generatedOrders: Array<any> = [];
   public pendingGeneratedOrdersCount: number;
   public totalGeneratedOrders: number;
   public totalGeneratedOrdersPages: number;
   public currentPageGeneratedOrders: number = 1;
 
-  public receiveOrders: Array<any>;
+  public receiveOrders: Array<any> = [];
   public pendingReceiveOrdersCount: number;
   public totalReceiveOrders: number;
   public totalReceiveOrdersPages: number;
   public currentPageReceiveOrders: number = 1;
 
-  public fulfillOrders: Array<any>;
+  public fulfillOrders: Array<any> = [];
   public pendingFulfillOrdersCount: number;
   public totalFulfillOrders: number;
   public totalFulfillOrdersPages: number;
@@ -80,7 +80,6 @@ export class StockOrdersComponent implements OnInit {
     this.userProfile = this._userProfileService.getProfileData();
     this.userStores = this.userProfile.storeModels.map(x => x.objectId);
     this._route.data.subscribe((data: any) => {
-        console.log('data', data);
         this.populateOrders(data.stockOrders);
         this.warehouses = data.stockOrders.warehouses;
         this.stores = this.userProfile.storeModels.filter(x => x.isWarehouse !== true);

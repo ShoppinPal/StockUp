@@ -63,7 +63,7 @@ var runMe = function (sqlPool, orgModelId, salesSyncModel) {
                 .then(function (result) {
                     logger.debug({
                         commandName: commandName,
-                        message: 'Downloaded inventory to the DB',
+                        message: 'Downloaded sales to the DB',
                         result
                     });
                     logger.debug({
@@ -76,7 +76,7 @@ var runMe = function (sqlPool, orgModelId, salesSyncModel) {
                                     'orgModelId': ObjectId(orgModelId)
                                 },
                                 {
-                                    'name': 'inventory'
+                                    'name': 'sales'
                                 }
                             ],
                         },
@@ -91,7 +91,7 @@ var runMe = function (sqlPool, orgModelId, salesSyncModel) {
                 .then(function (response) {
                     logger.debug({
                         commandName: commandName,
-                        message: 'Updated inventory sync model in DB',
+                        message: 'Updated sales sync model in DB',
                         result: response ? response.result || response : ''
                     });
                     return Promise.resolve();
@@ -99,7 +99,7 @@ var runMe = function (sqlPool, orgModelId, salesSyncModel) {
                 .catch(function (error) {
                     logger.error({
                         commandName: commandName,
-                        message: 'Could not fetch and save inventory',
+                        message: 'Could not fetch and save sales',
                         err: error
                     });
                     return Promise.reject(error);
@@ -217,12 +217,12 @@ function fetchPaginatedSales(sqlPool, orgModelId, pagesToFetch) {
                     message: 'Bulk insert operation complete'
                 });
                 logger.debug({
-                    message: 'Inserted/updated inventory in DB',
+                    message: 'Inserted/updated sales in DB',
                     bulkInsertResponse,
                     commandName
                 });
                 logger.debug({
-                    message: 'Will delete the inserted/updated inventory from Azure SQL',
+                    message: 'Will delete the inserted/updated sales from Azure SQL',
                     commandName
                 });
                 return sqlPool.request()

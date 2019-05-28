@@ -291,4 +291,18 @@ export class GeneratedComponent implements OnInit {
         });
   };
 
+  downloadOrderCSV() {
+    this.loading = true;
+    this.orgModelApi.downloadReportModelCSV(this.userProfile.orgModelId, this.order.id).subscribe((data) => {
+      const link = document.createElement('a');
+      link.href = data;
+      link.download = this.order.name;
+      link.click();
+      this.loading = false;
+    }, err=> {
+      this.loading = false;
+      console.log(err);
+    })
+  }
+
 }

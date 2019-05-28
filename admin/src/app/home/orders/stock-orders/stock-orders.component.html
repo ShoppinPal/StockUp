@@ -132,15 +132,15 @@
                 <tr *ngFor="let order of generatedOrders">
                   <td>{{order.name}}</td>
                   <td>
-                    {{order.storeModel.name}}
+                    {{order.storeModel?.name}}
                   </td>
                   <td>
-                    {{order.supplierModel.name}}
+                    {{order.supplierModel?.name}}
                   </td>
                   <td>{{order.totalRows || 0}}</td>
                   <td>{{order.state}}</td>
                   <td>{{order.created | date: 'y-MM-dd HH:mm'}}</td>
-                  <td>{{order.userModel.name}}</td>
+                  <td>{{order.userModel?.name}}</td>
                   <td>
                     <button class="btn btn-danger" type="submit"
                             (click)="goToStockOrderDetailsPage(order.id, 'generated')">
@@ -179,15 +179,15 @@
                 <tr *ngFor="let order of receiveOrders">
                   <td>{{order.name}}</td>
                   <td>
-                    {{order.storeModel.name}}
+                    {{order.storeModel?.name}}
                   </td>
                   <td>
-                    {{order.supplierModel.name}}
+                    {{order.supplierModel?.name}}
                   </td>
                   <td>{{order.totalRows || 0}}</td>
                   <td>{{order.state}}</td>
                   <td>{{order.created | date: 'y-MM-dd HH:mm'}}</td>
-                  <td>{{order.userModel.name}}</td>
+                  <td>{{order.userModel?.name}}</td>
                   <td>
                     <button class="btn btn-danger" type="submit"
                             (click)="goToStockOrderDetailsPage(order.id, 'receive')">
@@ -225,15 +225,15 @@
                 <tr *ngFor="let order of fulfillOrders">
                   <td>{{order.name}}</td>
                   <td>
-                    {{order.storeModel.name}}
+                    {{order.storeModel?.name}}
                   </td>
                   <td>
-                    {{order.supplierModel.name}}
+                    {{order.supplierModel?.name}}
                   </td>
                   <td>{{order.totalRows || 0}}</td>
                   <td>{{order.state}}</td>
                   <td>{{order.created | date: 'y-MM-dd HH:mm'}}</td>
-                  <td>{{order.userModel.name}}</td>
+                  <td>{{order.userModel?.name}}</td>
                   <td>
                     <button class="btn btn-danger" type="submit"
                             (click)="goToStockOrderDetailsPage(order.id, 'fulfill')">
@@ -271,15 +271,15 @@
                 <tr *ngFor="let order of completedOrders">
                   <td>{{order.name}}</td>
                   <td>
-                    {{order.storeModel.name}}
+                    {{order.storeModel?.name}}
                   </td>
                   <td>
-                    {{order.supplierModel.name}}
+                    {{order.supplierModel?.name}}
                   </td>
                   <td>{{order.totalRows || 0}}</td>
                   <td>{{order.state}}</td>
                   <td>{{order.created | date: 'y-MM-dd HH:mm'}}</td>
-                  <td>{{order.userModel.name}}</td>
+                  <td>{{order.userModel?.name}}</td>
                   <td>
                     <button class="btn btn-danger" type="submit"
                             (click)="goToStockOrderDetailsPage(order.id, 'complete')">
