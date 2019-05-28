@@ -1,4 +1,4 @@
-FROM node:6.11.1 as adminbuilder
+FROM node:10.15.3 as adminbuilder
 RUN mkdir -p /apps/warehouse
 RUN mkdir -p /apps/warehouse/client
 COPY . /apps/warehouse
