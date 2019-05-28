@@ -1,6 +1,7 @@
 FROM node:10.15.3 as adminbuilder
 RUN mkdir -p /apps/warehouse
 RUN mkdir -p /apps/warehouse/client
+RUN chown -R node:node /apps/warehouse
 COPY . /apps/warehouse
 WORKDIR /apps/warehouse/admin
 RUN npm install
@@ -27,7 +28,7 @@ RUN mkdir -p /apps/warehouse
 RUN chown -R node:node /apps/warehouse
 WORKDIR /apps/warehouse
 COPY package.json /apps/warehouse/package.json
-COPY npm-shrinkwrap.json /apps/warehouse/npm-shrinkwrap.json
+#COPY npm-shrinkwrap.json /apps/warehouse/npm-shrinkwrap.json
 RUN npm install --production && npm install grunt-cli
 RUN npm install -g bower
 #RUN mv /apps/warehouse/node_modules /apps/node_modules
