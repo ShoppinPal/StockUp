@@ -16,7 +16,7 @@ import {DatePipe} from '@angular/common';
 export class ReceiveComponent implements OnInit {
 
   public userProfile: any;
-  public loading = false;
+  public loading = 0;
   public filter: any = {};
   public order: any = {};
   public receivedLineItems: Array<any>;
@@ -102,18 +102,18 @@ export class ReceiveComponent implements OnInit {
     };
     if (productModelId)
       countFilter['productModelId'] = productModelId;
-    this.loading = true;
+    this.loading++;
     let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
       this.orgModelApi.countStockOrderLineitemModels(this.userProfile.orgModelId, countFilter));
     fetchLineItems.subscribe((data: any) => {
-        this.loading = false;
+        this.loading--;
         this.currentPageReceived = (skip / this.lineItemsLimitPerPage) + 1;
         this.totalReceivedLineItems = data[1].count;
         this.receivedLineItems = data[0];
       },
       err => {
-        this.loading = false;
+        this.loading--;
         console.log('error', err);
       });
   }
@@ -145,7 +145,7 @@ export class ReceiveComponent implements OnInit {
     };
     if (productModelId)
       countFilter['productModelId'] = productModelId;
-    this.loading = true;
+    this.loading++;
     let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
       this.orgModelApi.countStockOrderLineitemModels(this.userProfile.orgModelId, countFilter));
@@ -164,16 +164,16 @@ export class ReceiveComponent implements OnInit {
               this.searchSKUText = '';
           }
           this.notReceivedLineItems = data[0];
-          this.loading = false;
+          this.loading--;
         },
       err => {
-        this.loading = false;
+        this.loading--;
         console.log('error', err);
       });
   }
 
   searchProductBySku(sku?: string) {
-    this.loading = true;
+    this.loading++;
     this.orgModelApi.getProductModels(this.userProfile.orgModelId, {
       where: {
           sku: sku
@@ -182,9 +182,10 @@ export class ReceiveComponent implements OnInit {
       if (data.length) {
         this.getReceivedStockOrderLineItems(1, 0, data[0].id);
         this.getNotReceivedStockOrderLineItems(1, 0, data[0].id);
+        this.loading--;
       }
       else {
-        this.loading = false;
+        this.loading--;
         this.currentPageNotReceived = 1;
         this.totalNotReceivedLineItems = 0;
         this.notReceivedLineItems = [];
@@ -196,7 +197,7 @@ export class ReceiveComponent implements OnInit {
   }
 
   updateLineItems(lineItems, data: any) {
-    this.loading = true;
+    this.loading++;
     let lineItemsIDs: Array<string> = [];
     if (lineItems instanceof Array) {
       for (var i = 0; i < lineItems.length; i++) {
@@ -211,12 +212,13 @@ export class ReceiveComponent implements OnInit {
           this.getReceivedStockOrderLineItems();
           this.getNotReceivedStockOrderLineItems();
           console.log('approved', res);
+          this.loading--;
           this.toastr.success('Row Updated');
           },
         err => {
           this.toastr.error('Error Updating Row');
           console.log('err', err);
-          this.loading = false;
+          this.loading--;
         });
   }
 
@@ -233,7 +235,7 @@ export class ReceiveComponent implements OnInit {
 
   getOrderDetails() {
     let previousState = this.order.state;
-    this.loading = true;
+    this.loading++;
     this.orgModelApi.getReportModels(this.userProfile.orgModelId, {
       where: {
         id: this.order.id
@@ -246,10 +248,10 @@ export class ReceiveComponent implements OnInit {
             this.getNotReceivedStockOrderLineItems();
             this.getReceivedStockOrderLineItems();
           }
-          this.loading = false;
+          this.loading--;
         },
         err => {
-          this.loading = false;
+          this.loading--;
           this.toastr.error('Error updating order state, please refresh');
         });
   };
@@ -281,15 +283,15 @@ export class ReceiveComponent implements OnInit {
   }
 
   downloadOrderCSV() {
-    this.loading = true;
+    this.loading++;
     this.orgModelApi.downloadReportModelCSV(this.userProfile.orgModelId, this.order.id).subscribe((data) => {
       const link = document.createElement('a');
       link.href = data;
       link.download = this.order.name;
       link.click();
-      this.loading = false;
+      this.loading--;
     }, err=> {
-      this.loading = false;
+      this.loading--;
       console.log(err);
     })
   }
