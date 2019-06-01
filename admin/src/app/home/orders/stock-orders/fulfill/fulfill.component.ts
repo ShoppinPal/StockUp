@@ -16,7 +16,7 @@ import {DatePipe} from '@angular/common';
 export class FulfillComponent implements OnInit {
 
   public userProfile: any;
-  public loading = false;
+  public loading = 0;
   public filter: any = {};
   public order: any = {};
   public fulfilledLineItems: Array<any>;
@@ -101,18 +101,18 @@ export class FulfillComponent implements OnInit {
     };
     if (productModelId)
       countFilter['productModelId'] = productModelId;
-    this.loading = true;
+    this.loading++;
     let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
       this.orgModelApi.countStockOrderLineitemModels(this.userProfile.orgModelId, countFilter));
     fetchLineItems.subscribe((data: any) => {
-        this.loading = false;
+        this.loading--;
         this.currentPageFulfilled = (skip / this.lineItemsLimitPerPage) + 1;
         this.totalFulfilledLineItems = data[1].count;
         this.fulfilledLineItems = data[0];
       },
       err => {
-        this.loading = false;
+        this.loading--;
         console.log('error', err);
       });
   }
@@ -145,7 +145,7 @@ export class FulfillComponent implements OnInit {
     };
     if (productModelId)
       countFilter['productModelId'] = productModelId;
-    this.loading = true;
+    this.loading++;
     let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
       this.orgModelApi.countStockOrderLineitemModels(this.userProfile.orgModelId, countFilter));
@@ -164,16 +164,16 @@ export class FulfillComponent implements OnInit {
             this.searchSKUText = '';
           }
         this.notFulfilledLineItems = data[0];
-        this.loading = false;
+        this.loading--;
         },
       err => {
-        this.loading = false;
+        this.loading--;
         console.log('error', err);
       });
   }
 
   searchProductBySku(sku?: string) {
-    this.loading = true;
+    this.loading++;
     this.orgModelApi.getProductModels(this.userProfile.orgModelId, {
       where: {
         sku: sku
@@ -182,9 +182,10 @@ export class FulfillComponent implements OnInit {
       if (data.length) {
         this.getFulfilledStockOrderLineItems(1, 0, data[0].id);
         this.getNotFulfilledStockOrderLineItems(1, 0, data[0].id);
+        this.loading--;
       }
       else {
-        this.loading = false;
+        this.loading--;
         this.currentPageNotFulfilled = 1;
         this.totalNotFulfilledLineItems = 0;
         this.notFulfilledLineItems = [];
@@ -192,11 +193,14 @@ export class FulfillComponent implements OnInit {
         this.totalFulfilledLineItems = 0;
         this.currentPageFulfilled = 1;
       }
+    }, err => {
+        this.loading--;
+        console.log('error', err);
     })
   }
 
   updateLineItems(lineItems, data: any) {
-    this.loading = true;
+    this.loading++;
     let lineItemsIDs: Array<string> = [];
     if (lineItems instanceof Array) {
       for (var i = 0; i < lineItems.length; i++) {
@@ -211,12 +215,13 @@ export class FulfillComponent implements OnInit {
           this.getFulfilledStockOrderLineItems();
           this.getNotFulfilledStockOrderLineItems();
           console.log('approved', res);
+          this.loading--;
           this.toastr.success('Row Updated');
           },
         err => {
           this.toastr.error('Error Updating Row');
           console.log('err', err);
-          this.loading = false;
+          this.loading--;
         });
   }
 
@@ -233,7 +238,7 @@ export class FulfillComponent implements OnInit {
 
   getOrderDetails() {
     let previousState = this.order.state;
-    this.loading = true;
+    this.loading++;
     this.orgModelApi.getReportModels(this.userProfile.orgModelId, {
       where: {
         id: this.order.id
@@ -245,36 +250,36 @@ export class FulfillComponent implements OnInit {
           //fetch line items only if the report status changes from executing to generated
           this.getNotFulfilledStockOrderLineItems();
           this.getFulfilledStockOrderLineItems();
-          this.loading = false;
+          this.loading--;
         },
         err => {
-          this.loading = false;
+          this.loading--;
           this.toastr.error('Error updating order state, please refresh');
         });
   };
 
   sendDelivery() {
-    this.loading = true;
+    this.loading++;
     this.orgModelApi.sendConsignmentDelivery(this.userProfile.orgModelId, this.order.id)
       .subscribe((data: any) => {
         this.toastr.success('Sent consignment successfully');
         this._router.navigate(['/orders/stock-orders']);
       }, err => {
         this.toastr.error('Error sending consignment');
-        this.loading = false;
+        this.loading--;
       });
   }
 
   downloadOrderCSV() {
-    this.loading = true;
+    this.loading++;
     this.orgModelApi.downloadReportModelCSV(this.userProfile.orgModelId, this.order.id).subscribe((data) => {
       const link = document.createElement('a');
       link.href = data;
       link.download = this.order.name;
       link.click();
-      this.loading = false;
+      this.loading--;
     }, err=> {
-      this.loading = false;
+      this.loading--;
       console.log(err);
     })
   }
@@ -297,7 +302,7 @@ export class FulfillComponent implements OnInit {
    * @param searchText
    */
   barcodeSearchSKU() {
-    if (this.enableBarcode && this.searchSKUText != '') {
+    if (this.enableBarcode && this.searchSKUText !== '') {
       this.searchProductBySku(this.searchSKUText);
     }
   }
