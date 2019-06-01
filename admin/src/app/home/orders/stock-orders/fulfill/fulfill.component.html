@@ -63,6 +63,7 @@
                          class="form-control"
                          id="searchSKU"
                          [(ngModel)]="searchSKUText"
+                         (appDebounceKeyUp)="barcodeSearchSKU()"
                          placeholder="Scan SKU barcode here or enter text">
                   <span class="input-group-btn">
                     <button class="btn btn-primary" type="button"
@@ -78,7 +79,22 @@
         <div class="card-footer">
           <div class="row">
             <div class="col-sm-6">
-              <button type="button" class="btn btn-link"
+              <div class="form-group">
+                <div class="input-group">
+                  <span>Manual Entry &nbsp;&nbsp; </span>
+                  <label class="switch switch-3d switch-primary">
+                    <input type="checkbox"
+                           [(ngModel)]="enableBarcode"
+                           (ngModelChange)="changeScanMode()"
+                           class="switch-input">
+                    <span class="switch-slider"></span>
+                  </label>
+                  <span> &nbsp;&nbsp; Barcode Scanning</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <button type="button" class="btn btn-link float-right"
                       (click)="searchSKUText='';getFulfilledStockOrderLineItems();getNotFulfilledStockOrderLineItems()">
                 Clear All Searches
               </button>
