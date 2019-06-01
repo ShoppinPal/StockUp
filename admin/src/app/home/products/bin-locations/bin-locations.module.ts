@@ -17,7 +17,7 @@ import {FormsModule} from '@angular/forms';
     LoadingModule
     // NgxPaginationModule
   ],
-  declarations: [BinLocationsComponent, AutoFocusDirective]
+  declarations: [BinLocationsComponent]
 })
 export class BinLocationsModule {
 }

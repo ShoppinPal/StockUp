@@ -12,6 +12,8 @@ import {CollapseModule} from 'ngx-bootstrap/collapse';
 import {PopoverModule} from 'ngx-bootstrap/popover';
 import {PaginationModule} from 'ngx-bootstrap/pagination';
 import {TabsModule} from 'ngx-bootstrap/tabs';
+import {AutoFocusDirective} from "../home/products/bin-locations/directives/auto-focus.directive";
+import { DebounceKeyUpDirective } from './directives/DebounceKeyUp/debounce-key-up.directive';
 
 @NgModule({
   imports: [
@@ -27,7 +29,7 @@ import {TabsModule} from 'ngx-bootstrap/tabs';
     PopoverModule.forRoot(),
     TabsModule
   ],
-  declarations: [],
+  declarations: [AutoFocusDirective, DebounceKeyUpDirective],
   exports: [
     FormsModule,
     TypeaheadModule,
@@ -39,7 +41,9 @@ import {TabsModule} from 'ngx-bootstrap/tabs';
     TypeaheadModule,
     PaginationModule,
     PopoverModule,
-    TabsModule
+    TabsModule,
+    AutoFocusDirective,
+    DebounceKeyUpDirective
   ]
 })
 

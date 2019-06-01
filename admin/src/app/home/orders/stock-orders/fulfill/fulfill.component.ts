@@ -34,6 +34,8 @@ export class FulfillComponent implements OnInit {
   public reportStates: any = constants.REPORT_STATES;
   public isWarehouser: boolean = false;
   public editable: boolean;
+  public searchSKUFocused: boolean = true;
+  public enableBarcode: boolean = true;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -124,7 +126,8 @@ export class FulfillComponent implements OnInit {
       where: {
         reportModelId: this.order.id,
         approved: true,
-        fulfilled: false
+        // fulfilled: false
+        productModelId: productModelId
       },
       include: {
         relation: 'productModel',
@@ -138,7 +141,7 @@ export class FulfillComponent implements OnInit {
         eq: null
       },
       approved: true,
-      fulfilled: false
+      // fulfilled: false
     };
     if (productModelId)
       countFilter['productModelId'] = productModelId;
@@ -147,14 +150,22 @@ export class FulfillComponent implements OnInit {
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
       this.orgModelApi.countStockOrderLineitemModels(this.userProfile.orgModelId, countFilter));
     fetchLineItems.subscribe((data: any) => {
-        this.loading = false;
         this.currentPageNotFulfilled = (skip / this.lineItemsLimitPerPage) + 1;
         this.totalNotFulfilledLineItems = data[1].count;
         for(var i = 0; i < data[0].length; i++) {
-          data[0][i].fulfilledQuantity = data[0][i].orderQuantity;
+          // If Manual Mode And The fulfilledQuantity is default 0 then prefill with full order Quantity
+          if (!this.enableBarcode && data[0][i].fulfilledQuantity === 0) {
+            data[0][i].fulfilledQuantity = data[0][i].orderQuantity;
+          }
         }
+          if (this.enableBarcode && data[0].length > 0 && this.searchSKUText === data[0][0].productModel.sku){
+            data[0][0].fulfilledQuantity++;
+            this.fulfillItem(data[0][0]);
+            this.searchSKUText = '';
+          }
         this.notFulfilledLineItems = data[0];
-      },
+        this.loading = false;
+        },
       err => {
         this.loading = false;
         console.log('error', err);
@@ -165,7 +176,7 @@ export class FulfillComponent implements OnInit {
     this.loading = true;
     this.orgModelApi.getProductModels(this.userProfile.orgModelId, {
       where: {
-        api_id: sku
+        sku: sku
       }
     }).subscribe((data: any) => {
       if (data.length) {
@@ -200,8 +211,10 @@ export class FulfillComponent implements OnInit {
           this.getFulfilledStockOrderLineItems();
           this.getNotFulfilledStockOrderLineItems();
           console.log('approved', res);
-        },
+          this.toastr.success('Row Updated');
+          },
         err => {
+          this.toastr.error('Error Updating Row');
           console.log('err', err);
           this.loading = false;
         });
@@ -265,5 +278,27 @@ export class FulfillComponent implements OnInit {
       console.log(err);
     })
   }
-
+  /**
+   * @description If the scan mode is changed
+   * to barcode scanning, then focus is set back to the sku
+   * search bar
+   */
+  changeScanMode() {
+    if (this.enableBarcode) {
+      this.searchSKUFocused = true;
+    }
+    else {
+      this.searchSKUFocused = false;
+    }
+  }
+  /**
+   * @description Code to detect barcode scanner input and
+   * calls the search sku function
+   * @param searchText
+   */
+  barcodeSearchSKU() {
+    if (this.enableBarcode && this.searchSKUText != '') {
+      this.searchProductBySku(this.searchSKUText);
+    }
+  }
 }

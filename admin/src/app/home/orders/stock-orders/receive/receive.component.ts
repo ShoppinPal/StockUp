@@ -24,7 +24,7 @@ export class ReceiveComponent implements OnInit {
   public totalReceivedLineItems: number;
   public totalNotReceivedLineItems: number;
   public maxPageDisplay: number = 7;
-  public searchSKUText: string;
+  public searchSKUText: string = '';
   public totalPages: number;
   public currentPageReceived: number = 1;
   public currentPageNotReceived: number = 1;
@@ -34,6 +34,8 @@ export class ReceiveComponent implements OnInit {
   public reportStates: any = constants.REPORT_STATES;
   public isWarehouser: boolean = false;
   public editable: boolean;
+  public searchSKUFocused: boolean = true;
+  public enableBarcode: boolean = true;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -126,7 +128,7 @@ export class ReceiveComponent implements OnInit {
         reportModelId: this.order.id,
         approved: true,
         fulfilled: true,
-        received: false,
+        // received: false,
         productModelId: productModelId
       },
       include: {
@@ -139,7 +141,7 @@ export class ReceiveComponent implements OnInit {
       reportModelId: this.order.id,
       approved: true,
       fulfilled: true,
-      received: false
+      // received: false
     };
     if (productModelId)
       countFilter['productModelId'] = productModelId;
@@ -148,14 +150,22 @@ export class ReceiveComponent implements OnInit {
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
       this.orgModelApi.countStockOrderLineitemModels(this.userProfile.orgModelId, countFilter));
     fetchLineItems.subscribe((data: any) => {
-        this.loading = false;
         this.currentPageNotReceived = (skip / this.lineItemsLimitPerPage) + 1;
         this.totalNotReceivedLineItems = data[1].count;
         for (var i = 0; i < data[0].length; i++) {
-          data[0][i].receivedQuantity = data[0][i].fulfilledQuantity;
+          // Prefill value if  Manual mode && Nothing has been recieved yet
+          if (!this.enableBarcode && data[0][i].receivedQuantity === 0) {
+            data[0][i].receivedQuantity = data[0][i].fulfilledQuantity;
+          }
         }
-        this.notReceivedLineItems = data[0];
-      },
+          if (this.enableBarcode && data[0].length > 0 && this.searchSKUText === data[0][0].productModel.sku){
+              data[0][0].receivedQuantity++;
+              this.receiveItem(data[0][0]);
+              this.searchSKUText = '';
+          }
+          this.notReceivedLineItems = data[0];
+          this.loading = false;
+        },
       err => {
         this.loading = false;
         console.log('error', err);
@@ -166,7 +176,7 @@ export class ReceiveComponent implements OnInit {
     this.loading = true;
     this.orgModelApi.getProductModels(this.userProfile.orgModelId, {
       where: {
-        api_id: sku
+          sku: sku
       }
     }).subscribe((data: any) => {
       if (data.length) {
@@ -201,8 +211,10 @@ export class ReceiveComponent implements OnInit {
           this.getReceivedStockOrderLineItems();
           this.getNotReceivedStockOrderLineItems();
           console.log('approved', res);
-        },
+          this.toastr.success('Row Updated');
+          },
         err => {
+          this.toastr.error('Error Updating Row');
           console.log('err', err);
           this.loading = false;
         });
@@ -282,6 +294,29 @@ export class ReceiveComponent implements OnInit {
     })
   }
 
+  /**
+   * @description If the scan mode is changed
+   * to barcode scanning, then focus is set back to the sku
+   * search bar
+   */
+  changeScanMode() {
+    if (this.enableBarcode) {
+      this.searchSKUFocused = true;
+    }
+    else {
+      this.searchSKUFocused = false;
+    }
+  }
+  /**
+   * @description Code to detect barcode scanner input and
+   * calls the search sku function
+   * @param searchText
+   */
+  barcodeSearchSKU() {
+    if (this.enableBarcode && this.searchSKUText !== '') {
+      this.searchProductBySku(this.searchSKUText);
+    }
+  }
 }
 
 class box {
