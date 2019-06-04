@@ -2,12 +2,12 @@
   "name": "UserStoreMapping",
   "base": "PersistedModel",
   "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
   "mixins": {
     "Timestamp": {},
     "Context": {}
-  },
-  "options": {
-    "validateUpsert": true
   },
   "properties": {
     "userModelId": {

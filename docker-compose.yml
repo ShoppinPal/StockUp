@@ -42,22 +42,6 @@ services:
     depends_on:
       - db
 
-  worker-web:
-    image: shoppinpal/node:6.10
-    working_dir: /apps/warehouse
-    ports:
-      - "3000"
-    env_file: .env
-    entrypoint: ./docker-entrypoint.sh
-    command: ./node_modules/nodemon/bin/nodemon.js server/server.js
-    volumes:
-      - type: bind
-        source: .
-        target: /apps/warehouse
-    depends_on:
-      - web
-      - db
-
   worker:
     image: shoppinpal/node:6.10
     working_dir: /apps/workers

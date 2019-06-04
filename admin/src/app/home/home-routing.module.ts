@@ -18,6 +18,7 @@ import {StoresResolverService} from "./stores/services/stores-resolver.service";
 import {ReorderPointsComponent} from "./reorder-points/reorder-points.component";
 import {FileImportsComponent} from "./file-imports/file-imports.component";
 import {FileImportsResolverService} from "./file-imports/services/file-imports-resolver.service";
+import {SchedulesComponent} from "./schedules/schedules.component";
 
 const routes: Routes = [
   {
@@ -125,6 +126,13 @@ const routes: Routes = [
         },
         resolve: {
           data: FileImportsResolverService
+        }
+      },
+      {
+        path: 'schedules',
+        component: SchedulesComponent,
+        data: {
+          title: 'Home > Settings > Schedules'
         }
       }
     ]

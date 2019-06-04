@@ -614,6 +614,12 @@ module.exports = function (OrgModel) {
                 {arg: 'storeModelId', type: 'string', required: true},
                 {arg: 'warehouseModelId', type: 'string', required: true},
                 {arg: 'categoryModelId', type: 'string'},
+                {arg: 'scheduled', type: 'boolean', required: false},
+                {arg: 'frequency', type: 'string', required: false},
+                {arg: 'day', type: 'number', required: false},
+                {arg: 'month', type: 'number', required: false},
+                {arg: 'hour', type: 'number', required: false},
+                {arg: 'weekDay', type: 'array', required: false},
                 {arg: 'res', type: 'object', 'http': {source: 'res'}},
                 {arg: 'options', type: 'object', http: 'optionsFromRequest'}
             ],
@@ -621,17 +627,56 @@ module.exports = function (OrgModel) {
             returns: {arg: 'data', type: 'object', root: true}
         });
 
-        OrgModel.generateStockOrderMSD = function (id, storeModelId, warehouseModelId, categoryModelId, res, options) {
-            return OrgModel.app.models.ReportModel.generateStockOrderMSD(id, storeModelId, warehouseModelId, categoryModelId, res, options)
-                .catch(function (error) {
-                    logger.error({
-                        error,
-                        message: 'Could not initiate stock order generation',
-                        functionName: 'generateStockOrderMSD',
-                        options
+        OrgModel.generateStockOrderMSD = function (id, storeModelId, warehouseModelId, categoryModelId, scheduled, frequency, day, month, hour,weekDay, res,options) {
+            if (scheduled){
+                return OrgModel.app.models.SchedulerModel.addSchedule(id, options.accessToken.userId,
+                    OrgModel.app.models.SchedulerModel.JOB_TYPES.STOCK_ORDER, frequency,day, month, hour,weekDay, {
+                        id,
+                        integrationType: 'msdynamics',
+                        storeModelId,
+                        warehouseModelId,
+                        options: {
+                            accessToken: options.accessToken
+                        }
+                    })
+                    .catch(function (error) {
+                        logger.error({
+                            error,
+                            message: 'Could not complete scheduling job',
+                            functionName: 'generateStockOrderMSD',
+                            options
+                        });
+                        return Promise.reject('Could not schedule job');
+                    }).then(function (result) {
+                        logger.debug({
+                            result,
+                            message: 'Job Scheduled Successfully',
+                            functionName: 'generateStockOrderMSD',
+                            options
+                        });
+                        return OrgModel.app.models.ReportModel.generateStockOrderMSD(id, storeModelId, warehouseModelId, categoryModelId, res, options);
+
+                    }).catch(function (error) {
+                        logger.error({
+                            error,
+                            message: 'Could not initiate stock order generation',
+                            functionName: 'generateStockOrderMSD',
+                            options
+                        });
+                        return Promise.reject('Could not initiate stock order generation');
                     });
-                    return Promise.reject('Could not initiate stock order generation');
-                });
+            } else {
+                return OrgModel.app.models.ReportModel.generateStockOrderMSD(id, storeModelId, warehouseModelId, categoryModelId, res, options)
+                    .catch(function (error) {
+                        logger.error({
+                            error,
+                            message: 'Could not initiate stock order generation',
+                            functionName: 'generateStockOrderMSD',
+                            options
+                        });
+                        return Promise.reject('Could not initiate stock order generation');
+                    });
+            }
         };
 
         OrgModel.remoteMethod('generateStockOrderVend', {
@@ -642,6 +687,12 @@ module.exports = function (OrgModel) {
                 {arg: 'supplierModelId', type: 'string', required: true},
                 {arg: 'name', type: 'string'},
                 {arg: 'warehouseModelId', type: 'string', required: true},
+                {arg: 'scheduled', type: 'boolean', required: false},
+                {arg: 'frequency', type: 'string', required: false},
+                {arg: 'day', type: 'number', required: false},
+                {arg: 'month', type: 'number', required: false},
+                {arg: 'hour', type: 'number', required: false},
+                {arg: 'weekDay', type: 'array', required: false},
                 {arg: 'res', type: 'object', 'http': {source: 'res'}},
                 {arg: 'options', type: 'object', http: 'optionsFromRequest'}
             ],
@@ -649,17 +700,57 @@ module.exports = function (OrgModel) {
             returns: {arg: 'data', type: 'object', root: true}
         });
 
-        OrgModel.generateStockOrderVend = function (id, storeModelId, supplierModelId, name, warehouseModelId, res, options) {
-            return OrgModel.app.models.ReportModel.generateStockOrderVend(id, storeModelId, supplierModelId, name, warehouseModelId, res, options)
-                .catch(function (error) {
-                    logger.error({
-                        error,
-                        message: 'Could not initiate stock order generation',
-                        functionName: 'generateStockOrderVend',
-                        options
+        OrgModel.generateStockOrderVend = function (id, storeModelId, supplierModelId, name, warehouseModelId, scheduled, frequency, day, month, hour,weekDay, res, options) {
+            if (scheduled){
+                return OrgModel.app.models.SchedulerModel.addSchedule(id, options.accessToken.userId,
+                    OrgModel.app.models.SchedulerModel.JOB_TYPES.STOCK_ORDER, frequency,day, month, hour ,weekDay , {
+                        id,
+                        integrationType: 'vend',
+                        storeModelId,
+                        supplierModelId,
+                        name,
+                        warehouseModelId,
+                        options: {
+                            accessToken: options.accessToken
+                        }                    })
+                    .catch(function (error) {
+                        logger.error({
+                            error,
+                            message: 'Could not complete scheduling job',
+                            functionName: 'generateStockOrderVend',
+                            options
+                        });
+                        return Promise.reject('Could not schedule job');
+                    }).then(function (result) {
+                        logger.debug({
+                            result,
+                            message: 'Job Scheduled Successfully',
+                            functionName: 'generateStockOrderMSD',
+                            options
+                        });
+                        return OrgModel.app.models.ReportModel.generateStockOrderVend(id, storeModelId, supplierModelId, name, warehouseModelId, res, options)
+
+                    }).catch(function (error) {
+                        logger.error({
+                            error,
+                            message: 'Could not initiate stock order generation',
+                            functionName: 'generateStockOrderVend',
+                            options
+                        });
+                        return Promise.reject('Could not initiate stock order generation');
                     });
-                    return Promise.reject('Could not initiate stock order generation');
-                });
+            } else {
+               return OrgModel.app.models.ReportModel.generateStockOrderVend(id, storeModelId, supplierModelId, name, warehouseModelId, res, options)
+                    .catch(function (error) {
+                        logger.error({
+                            error,
+                            message: 'Could not initiate stock order generation',
+                            functionName: 'generateStockOrderVend',
+                            options
+                        });
+                        return Promise.reject('Could not initiate stock order generation');
+                    });
+            }
         };
 
         OrgModel.remoteMethod('receiveConsignment', {
@@ -1282,88 +1373,5 @@ module.exports = function (OrgModel) {
                     return Promise.reject('Error updating supplier store');
                 });
         };
-
-
-        OrgModel.remoteMethod('listenSSE', {
-            accepts: [
-                {arg: 'id', type: 'string', required: true},
-                {arg: 'req', type: 'object', 'http': {source: 'req'}},
-                {arg: 'res', type: 'object', 'http': {source: 'res'}},
-                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
-            ],
-            http: {path: '/:id/listenSSE', verb: 'get'},
-            returns: {arg: 'data', type: 'ReadableStream', root: true}
-        });
-
-        OrgModel.listenSSE = function (id, req, res, options) {
-            try {
-                logger.debug({
-                    token: options.accessToken,
-                    message: 'Creating SSE',
-                    functionName: 'listenSSE'
-                });
-                sse.setupSSE(req, res, options);
-            }catch (e) {
-                logger.error({
-                    e,
-                    message: 'Error creating SSE',
-                    functionName: 'listenSSE'
-                });
-            }
-        };
-        OrgModel.remoteMethod('notifySyncToAll', {
-            accepts: [
-                {arg: 'id', type: 'string', required: true},
-                {arg: 'data', type: 'object', required: true},
-                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
-            ],
-            http: {path: '/:id/notifySyncToAll', verb: 'post'},
-            returns: {arg: 'data', type: 'ReadableStream', root: true}
-        });
-
-        OrgModel.notifySyncToAll = function (id, data, options) {
-            try {
-                logger.debug({
-                    id,
-                    message: 'This is called by Sync worker',
-
-                    functionName: 'notifyAll'
-                });
-                return OrgModel.app.models.UserModel.find({
-                    where: {
-                        orgModelId: id
-                    }
-                }).then(users => {
-                    logger.debug({
-                        id,
-                        message: 'Will Notify Users of OrgId ' + id,
-                        users,
-                        functionName: 'notifyAll'
-                    });
-                    users.forEach(user => {
-                        var sseInstance = sse.getSSE(user.id);
-                        if (sseInstance) {
-                            sseInstance.send(data, '', '');
-                        }
-                    });
-                }).catch(error => {
-                    logger.error({
-                        error,
-                        message: 'Error Notifying Users Event',
-                        functionName: 'sendReports'
-                    });
-                });
-            }
-            catch (e) {
-                logger.error({
-                    options,
-                    err: e,
-                    message: 'Could not send data to client',
-                    functionName: 'sendReports'
-                });
-                return Promise.reject(e);
-            }
-        };
-
     });
 };

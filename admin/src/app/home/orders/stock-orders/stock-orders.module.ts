@@ -6,6 +6,7 @@ import {FulfillModule} from "./fulfill/fulfill.module";
 import {GeneratedModule} from "./generated/generated.module";
 import {ReceiveModule} from "./receive/receive.module";
 import {CompleteModule} from "./complete/complete.module";
+import {SchedulePickerModule} from './schedule-picker/schedule-picker.module';
 import {StockOrdersRoutingModule} from './stock-orders-routing.module';
 
 @NgModule({
@@ -16,7 +17,8 @@ import {StockOrdersRoutingModule} from './stock-orders-routing.module';
     SharedModule,
     FulfillModule,
     GeneratedModule,
-    ReceiveModule
+    ReceiveModule,
+    SchedulePickerModule
   ],
   declarations: [StockOrdersComponent]
 })

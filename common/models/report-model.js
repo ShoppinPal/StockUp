@@ -437,7 +437,7 @@ module.exports = function (ReportModel) {
                 return Promise.reject('Could not create report model for this store');
             })
 
-        .then(reportInstance => {
+        .then(function (reportInstance) {
             res.send({
                 eventType: workerUtils.messageFor.MESSAGE_FOR_API,
                 callId: reportInstance.id,
@@ -601,7 +601,7 @@ module.exports = function (ReportModel) {
                 });
                 return Promise.reject('Could not create a report model');
             })
-            .then(reportInstance => {
+            .then(function (reportInstance) {
                 logger.debug({
                     message: 'Report model instance created with STATUS processing',
                     storeModelId,
@@ -616,18 +616,18 @@ module.exports = function (ReportModel) {
                     message: 'Stock order generation initiated',
                     data: reportInstance
                 });
-            var payload = {
-                orgModelId: orgModelId,
-                storeModelId: storeModelId,
-                supplierModelId: supplierModelId,
-                name: name,
-                reportModelId: reportInstance.id,
-                callId: reportInstance.id,
-                eventType: workerUtils.messageFor.MESSAGE_FOR_API,
-                warehouseModelId: warehouseModelId,
-                loopbackAccessToken: options.accessToken,
-                op: 'generateStockOrderVend'
-            };
+                var payload = {
+                    orgModelId: orgModelId,
+                    storeModelId: storeModelId,
+                    supplierModelId: supplierModelId,
+                    name: name,
+                    reportModelId: reportInstance.id,
+                    callId: reportInstance.id,
+                    eventType: workerUtils.messageFor.MESSAGE_FOR_API,
+                    warehouseModelId: warehouseModelId,
+                    loopbackAccessToken: options.accessToken,
+                    op: 'generateStockOrderVend'
+                };
                 logger.debug({
                     message: 'Will initiate worker to generate stock order for Vend',
                     storeModelId,
@@ -636,7 +636,7 @@ module.exports = function (ReportModel) {
                     functionName: 'generateStockOrderVend',
                     options,
                 });
-            return workerUtils.sendPayLoad(payload);
+                return workerUtils.sendPayLoad(payload);
             })
             .then(function (response) {
                 logger.debug({
@@ -801,8 +801,8 @@ module.exports = function (ReportModel) {
                 });
                 return Promise.reject('Could not update report model state to receive');
             })
-            .then(([countResult, reportModelInstance]) => {
-                if (countResult>0) {
+            .then(function ([countResult, reportModelInstance]) {
+                if (countResult > 0) {
                     logger.debug({
                         message: 'Found Fulfilled Stock Order Items, Will set status to recieve pending ',
                         countResult,
@@ -814,7 +814,7 @@ module.exports = function (ReportModel) {
                         state: REPORT_STATES.RECEIVING_PENDING,
                         fulfilledByUserModelId: options.accessToken.userId
                     });
-                }else {
+                } else {
                     logger.error({
                         message: 'No Stock order items fulfilled',
                         countResult,

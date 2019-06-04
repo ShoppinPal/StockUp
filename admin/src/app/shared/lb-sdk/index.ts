@@ -51,6 +51,7 @@ import { RealTime } from './services/core/real.time';
 import { UserModelApi } from './services/custom/UserModel';
 import { ContainerApi } from './services/custom/Container';
 import { OrgModelApi } from './services/custom/OrgModel';
+import { SchedulerModelApi } from './services/custom/SchedulerModel';
 /**
 * @module SDKBrowserModule
 * @description
@@ -84,6 +85,7 @@ export class SDKBrowserModule {
         UserModelApi,
         ContainerApi,
         OrgModelApi,
+        SchedulerModelApi,
         internalStorageProvider,
         { provide: SDKStorage, useClass: StorageBrowser },
         { provide: SocketDriver, useClass: SocketBrowser }

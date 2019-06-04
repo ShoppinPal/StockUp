@@ -12,6 +12,7 @@ import {constants} from '../../../shared/constants/constants';
 import {StockOrdersResolverService} from "./services/stock-orders-resolver.service";
 import {EventSourceService} from '../../../shared/services/event-source.service';
 import {HttpParams} from '@angular/common/http';
+import {SchedulePickerComponent} from "./schedule-picker/schedule-picker.component";
 
 @Component({
   selector: 'app-stock-orders',
@@ -72,6 +73,14 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   public REPORT_STATES = constants.REPORT_STATES;
 
+
+  public scheduleAutoGeneration: boolean = false;
+  public selectedSchedulingType: string = '';
+  public selectedSchedulingHour: any = -1;
+  public selectedSchedulingDay: any = -1;
+  public selectedSchedulingMonth: any = -1;
+  public selectedSchedulingWeek: any = [];
+  
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
               private _router: Router,
@@ -237,13 +246,44 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
     this._router.navigate(['orders/stock-orders/' + orderState + '/' + id]);
   }
 
+  getFormattedSchedulingData(){
+    let schedulingData: any = {};
+    if( this.scheduleAutoGeneration ) {
+      const validationResult = SchedulePickerComponent.validateSchedulerParameters(
+        this.selectedSchedulingType,
+        this.selectedSchedulingMonth,
+        this.selectedSchedulingWeek,
+        this.selectedSchedulingDay,
+        this.selectedSchedulingHour
+      );
+      if(!validationResult.validated) {
+        this.toastr.error(validationResult.message);
+        return;
+      }
+      schedulingData = SchedulePickerComponent.convertTimeToUTCandAppend(
+        this.selectedSchedulingType,
+        this.selectedSchedulingMonth,
+        this.selectedSchedulingWeek,
+        this.selectedSchedulingDay,
+        this.selectedSchedulingHour);
+    }
+    return schedulingData;
+  }
+
   generateStockOrderMSD() {
     this.loading = true;
+    const schedulingData = this.getFormattedSchedulingData();
     this.orgModelApi.generateStockOrderMSD(
       this.userProfile.orgModelId,
       this.selectedStoreId,
       this.selectedWarehouseId,
-      this.selectedCategoryId
+      this.selectedCategoryId,
+      this.scheduleAutoGeneration,
+      this.selectedSchedulingType,
+      schedulingData.day || null,
+      schedulingData.month || null,
+      schedulingData.hour || null,
+      schedulingData.weekDay || null,
     ).subscribe(reportModelData => {
       this.loading = false;
       this.toastr.info('Generating stock order');
@@ -284,12 +324,19 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
       }
       else {
         this.selectedSupplierId = deliverFromStore.ownerSupplierModelId;
+        const schedulingData = this.getFormattedSchedulingData();
         this.orgModelApi.generateStockOrderVend(
           this.userProfile.orgModelId,
           this.selectedStoreId,
           this.selectedSupplierId,
           this.orderName || '',
-          this.selectedWarehouseId
+          this.selectedWarehouseId,
+          this.scheduleAutoGeneration,
+          this.selectedSchedulingType,
+          schedulingData.day || null,
+          schedulingData.month || null,
+          schedulingData.hour || null,
+          schedulingData.weekDay || null,
         ).subscribe(reportModelData => {
           this.loading = false;
           this.toastr.info('Generating stock order');
