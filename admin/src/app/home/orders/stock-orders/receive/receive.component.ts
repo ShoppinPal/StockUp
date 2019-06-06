@@ -16,7 +16,7 @@ import {DatePipe} from '@angular/common';
 export class ReceiveComponent implements OnInit {
 
   public userProfile: any;
-  public loading = 0;
+  public loading = false;
   public filter: any = {};
   public order: any = {};
   public receivedLineItems: Array<any>;
@@ -80,6 +80,9 @@ export class ReceiveComponent implements OnInit {
       limit = 100;
       skip = 0;
     }
+    if (!productModelId){
+      this.searchSKUText = ''
+    }
     let filter = {
       where: {
         reportModelId: this.order.id,
@@ -102,18 +105,21 @@ export class ReceiveComponent implements OnInit {
     };
     if (productModelId)
       countFilter['productModelId'] = productModelId;
-    this.loading++;
+    this.loading = true;
     let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
       this.orgModelApi.countStockOrderLineitemModels(this.userProfile.orgModelId, countFilter));
     fetchLineItems.subscribe((data: any) => {
-        this.loading--;
         this.currentPageReceived = (skip / this.lineItemsLimitPerPage) + 1;
         this.totalReceivedLineItems = data[1].count;
+        this.checkScanModeAndIncrement(data, false);
         this.receivedLineItems = data[0];
+        if (!this.enableBarcode || !this.searchSKUText) {
+          this.loading = false;
+        }
       },
       err => {
-        this.loading--;
+        this.loading = false;
         console.log('error', err);
       });
   }
@@ -123,12 +129,15 @@ export class ReceiveComponent implements OnInit {
       limit = 100;
       skip = 0;
     }
+    if (!productModelId){
+      this.searchSKUText = ''
+    }
     let filter = {
       where: {
         reportModelId: this.order.id,
         approved: true,
         fulfilled: true,
-        // received: false,
+        received: false,
         productModelId: productModelId
       },
       include: {
@@ -141,11 +150,11 @@ export class ReceiveComponent implements OnInit {
       reportModelId: this.order.id,
       approved: true,
       fulfilled: true,
-      // received: false
+      received: false
     };
     if (productModelId)
       countFilter['productModelId'] = productModelId;
-    this.loading++;
+    this.loading = true;
     let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
       this.orgModelApi.countStockOrderLineitemModels(this.userProfile.orgModelId, countFilter));
@@ -158,34 +167,39 @@ export class ReceiveComponent implements OnInit {
             data[0][i].receivedQuantity = data[0][i].fulfilledQuantity;
           }
         }
-          if (this.enableBarcode && data[0].length > 0 && this.searchSKUText === data[0][0].productModel.sku){
-              data[0][0].receivedQuantity++;
-              this.receiveItem(data[0][0]);
-              this.searchSKUText = '';
-          }
+          this.checkScanModeAndIncrement(data, true);
           this.notReceivedLineItems = data[0];
-          this.loading--;
+        if (!this.enableBarcode || !this.searchSKUText) {
+          this.loading = false;
+        }
         },
       err => {
-        this.loading--;
+        this.loading = false;
         console.log('error', err);
       });
   }
-
+  checkScanModeAndIncrement(data: any, itemNotRecieved) {
+    if (this.enableBarcode && data[0].length > 0 && this.searchSKUText === data[0][0].productModel.sku){
+      data[0][0].receivedQuantity++;
+      this.updateLineItems(data[0][0], {
+        receivedQuantity: data[0][0].receivedQuantity,
+        received: true
+      }, itemNotRecieved);
+    }
+  }
   searchProductBySku(sku?: string) {
-    this.loading++;
+    this.loading = true;
     this.orgModelApi.getProductModels(this.userProfile.orgModelId, {
       where: {
           sku: sku
       }
     }).subscribe((data: any) => {
-      if (data.length) {
+      if (data.length === 1) {
         this.getReceivedStockOrderLineItems(1, 0, data[0].id);
         this.getNotReceivedStockOrderLineItems(1, 0, data[0].id);
-        this.loading--;
       }
       else {
-        this.loading--;
+        this.loading = false;
         this.currentPageNotReceived = 1;
         this.totalNotReceivedLineItems = 0;
         this.notReceivedLineItems = [];
@@ -196,8 +210,8 @@ export class ReceiveComponent implements OnInit {
     })
   }
 
-  updateLineItems(lineItems, data: any) {
-    this.loading++;
+  updateLineItems(lineItems, data: any, refresh = true) {
+    this.loading = true;
     let lineItemsIDs: Array<string> = [];
     if (lineItems instanceof Array) {
       for (var i = 0; i < lineItems.length; i++) {
@@ -209,16 +223,20 @@ export class ReceiveComponent implements OnInit {
     }
     this.orgModelApi.updateAllStockOrderLineItemModels(this.userProfile.orgModelId, this.order.id, lineItemsIDs, data)
       .subscribe((res: any) => {
+        if (refresh) {
           this.getReceivedStockOrderLineItems();
           this.getNotReceivedStockOrderLineItems();
+        } else {
+          this.loading = false;
+        }
           console.log('approved', res);
-          this.loading--;
+          this.loading = false;
           this.toastr.success('Row Updated');
           },
         err => {
           this.toastr.error('Error Updating Row');
           console.log('err', err);
-          this.loading--;
+          this.loading = false;
         });
   }
 
@@ -235,7 +253,7 @@ export class ReceiveComponent implements OnInit {
 
   getOrderDetails() {
     let previousState = this.order.state;
-    this.loading++;
+    this.loading = true;
     this.orgModelApi.getReportModels(this.userProfile.orgModelId, {
       where: {
         id: this.order.id
@@ -248,10 +266,10 @@ export class ReceiveComponent implements OnInit {
             this.getNotReceivedStockOrderLineItems();
             this.getReceivedStockOrderLineItems();
           }
-          this.loading--;
+          this.loading = false;
         },
         err => {
-          this.loading--;
+          this.loading = false;
           this.toastr.error('Error updating order state, please refresh');
         });
   };
@@ -283,15 +301,15 @@ export class ReceiveComponent implements OnInit {
   }
 
   downloadOrderCSV() {
-    this.loading++;
+    this.loading = true;
     this.orgModelApi.downloadReportModelCSV(this.userProfile.orgModelId, this.order.id).subscribe((data) => {
       const link = document.createElement('a');
       link.href = data;
       link.download = this.order.name;
       link.click();
-      this.loading--;
+      this.loading = false;
     }, err=> {
-      this.loading--;
+      this.loading = false;
       console.log(err);
     })
   }
@@ -302,6 +320,8 @@ export class ReceiveComponent implements OnInit {
    * search bar
    */
   changeScanMode() {
+    this.getNotReceivedStockOrderLineItems();
+    this.searchSKUText = ''
     if (this.enableBarcode) {
       this.searchSKUFocused = true;
     }
@@ -314,9 +334,10 @@ export class ReceiveComponent implements OnInit {
    * calls the search sku function
    * @param searchText
    */
-  barcodeSearchSKU() {
+  barcodeSearchSKU($event) {
     if (this.enableBarcode && this.searchSKUText !== '') {
       this.searchProductBySku(this.searchSKUText);
+      $event.target.select();
     }
   }
 }
