@@ -113,8 +113,9 @@ export class FulfillComponent implements OnInit {
         this.totalFulfilledLineItems = data[1].count;
         this.fulfilledLineItems = data[0];
         this.checkScanModeAndIncrement(data, false);
-        if (!this.searchSKUText)
-        this.loading = false;
+        if (!this.enableBarcode || !this.searchSKUText) {
+          this.loading = false;
+        }
       },
       err => {
         this.loading = false;
@@ -168,7 +169,7 @@ export class FulfillComponent implements OnInit {
         }
         this.checkScanModeAndIncrement(data, true);
         this.notFulfilledLineItems = data[0];
-        if (!this.searchSKUText) {
+        if (!this.enableBarcode || !this.searchSKUText) {
           this.loading = false;
         }
       },
@@ -185,7 +186,6 @@ export class FulfillComponent implements OnInit {
               fulfilledQuantity: data[0][0].fulfilledQuantity,
               fulfilled: true
           }, itemNotFulfilled);
-          this.selectedTab = 'fulfilled';
       }
   }
 
@@ -311,6 +311,7 @@ export class FulfillComponent implements OnInit {
     }
     else {
       this.searchSKUFocused = false;
+      this.getNotFulfilledStockOrderLineItems()
     }
   }
   /**

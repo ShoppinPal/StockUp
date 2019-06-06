@@ -1,4 +1,4 @@
-<ngx-loading [show]="loading > 0"></ngx-loading>
+<ngx-loading [show]="loading"></ngx-loading>
 <div class="animated fadeIn">
   <div class="row">
     <div class="col-sm-12">
@@ -57,7 +57,7 @@
                          id="searchSKU"
                          [(ngModel)]="searchSKUText"
                          [appAutoFocus]="searchSKUFocused"
-                         (appDebounceKeyUp)="barcodeSearchSKU()"
+                         (appDebounceKeyUp)="barcodeSearchSKU($event)"
                          placeholder="Scan SKU barcode here or enter text">
                   <span class="input-group-btn">
                     <button class="btn btn-primary" type="button"
