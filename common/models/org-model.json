@@ -609,6 +609,14 @@
     {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
+      <
+      <
+      <
+      <
+      <
+      <
+      <
+      HEAD
       "principalId": "orgAdmin",
       "permission": "ALLOW",
       "property": "fetchFileImportHeaders"
@@ -656,6 +664,12 @@
       "principalId": "orgAdmin",
       "permission": "ALLOW",
       "property": "__get__supplierStoreMappings"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "scanBarcodeStockOrder"
     }
   ],
   "methods": {}
