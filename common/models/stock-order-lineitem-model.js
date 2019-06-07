@@ -383,42 +383,60 @@ module.exports = function(StockOrderLineitemModel) {
     }
   };
     StockOrderLineitemModel.scanBarCode = function (scanType, productSku, orgModelId, reportModelId, force) {
-        var updateSetObject = {
-            $inc: {
-                fulfilledQuantity: 1
+        const filter = {
+            where: {
+                orgModelId,
+                reportModelId,
+                approved: true,
             },
-            $set:{
-            
-            }
-        };
-           return StockOrderLineitemModel.find({
-               where: {
-                   orgModelId,
-                   reportModelId,
-                   approved: true,
-               },
-                include: {
-                    relation: 'productModel',
-                    scope: {
-                        where: {
-                            sku: productSku
-                        }
+            include: {
+                relation: 'productModel',
+                scope: {
+                    where: {
+                        sku: productSku
                     }
                 }
-            }).then(function (orderLineItems) {
+            }
+        };
+        if (scanType === 'receive'){
+            filter.where.fulfilled = true;
+        }
+           return StockOrderLineitemModel.find().then(function (orderLineItems) {
                 orderLineItems = orderLineItems.filter(function (lineItem) {
                     return lineItem.toJSON().productModel !== undefined;
                 });
                if (orderLineItems.length === 1){
                    var orderLineItem = orderLineItems[0];
                     // If Ordered quantity is equal to fulfilled then show Alert on client side And do not check if forced
-                    if (!force && orderLineItem.fulfilledQuantity === orderLineItem.orderQuantity) {
-                        return Promise.resolve(Object.assign({},orderLineItem,{showDiscrepancyAlert: true}));
+                    if (!force) {
+                        if (
+                            (scanType === 'fulfill' && orderLineItem.fulfilledQuantity === orderLineItem.orderQuantity) ||
+                            (scanType === 'receive' && orderLineItem.receivedQuantity === orderLineItem.fulfilledQuantity)
+                        )
+                            {
+                            return Promise.all([Promise.resolve({showDiscrepancyAlert: true}), Promise.resolve(orderLineItem.id)]);
+                        }
+                    }
+                   let updateSetObject = {};
+                    if (scanType === 'fulfill') {
+                         updateSetObject = {
+                            $inc: {
+                                fulfilledQuantity: 1
+                            }
+                        };
+                    }else if (scanType === 'receive') {
+                         updateSetObject = {
+                            $inc: {
+                                receivedQuantity: 1
+                            }
+                        };
                     }
                     // Set fulfilled true when fulfilled quantity will be equal to ordered Quantity
                     // TODO: try to add it to query itself
-                    if (orderLineItem.fulfilledQuantity + 1 >= orderLineItem.orderQuantity) {
-                        updateSetObject.$set.fulfilled = true;
+                    if (scanType === 'fulfill' && orderLineItem.fulfilledQuantity + 1 >= orderLineItem.orderQuantity) {
+                        updateSetObject = Object.assign({}, updateSetObject, {$set:{fulfilled: true}});
+                    } else if(scanType === 'receive' && orderLineItem.receivedQuantity + 1 === orderLineItem.fulfilledQuantity){
+                        updateSetObject = Object.assign({}, updateSetObject, {$set:{received: true}});
                     }
                     return Promise.all([
                         StockOrderLineitemModel.updateAll({
@@ -429,22 +447,24 @@ module.exports = function(StockOrderLineitemModel) {
                         { allowExtendedOperators: true }),
                         Promise.resolve(orderLineItem.id)]);
                 }else if(orderLineItems.length > 1){
-                    console.log(orderLineItems);
-                    return Promise.reject('Multiple Products Found');
+                    return Promise.reject('Multiple products found with same sku');
                 }else{
                     return Promise.reject('No Such Product Exists');
     
                 }
-           }).then(function ([{count}, stockOrderLineItemId]) {
-               console.log(stockOrderLineItemId);
-                   return StockOrderLineitemModel.findOne(
-                       {
-                           where: {
-                               id: stockOrderLineItemId
-                           },
-                           include: 'productModel'
-                       }
-                   );
+           }).then(function ([obj, stockOrderLineItemId]) {
+                   return Promise.all([
+                       obj,
+                       StockOrderLineitemModel.findOne(
+                               {
+                                   where: {
+                                       id: stockOrderLineItemId
+                                   },
+                                   include: 'productModel'
+                               }
+                   )]);
+           }).then(function ([obj,stockLineItem]) {
+               return Promise.resolve(Object.assign({}, obj, stockLineItem.toJSON()));
            });
     };
 };
