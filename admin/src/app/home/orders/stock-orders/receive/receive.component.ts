@@ -112,7 +112,6 @@ export class ReceiveComponent implements OnInit {
     fetchLineItems.subscribe((data: any) => {
         this.currentPageReceived = (skip / this.lineItemsLimitPerPage) + 1;
         this.totalReceivedLineItems = data[1].count;
-        this.checkScanModeAndIncrement(data, false);
         this.receivedLineItems = data[0];
         if (!this.enableBarcode || !this.searchSKUText) {
           this.loading = false;

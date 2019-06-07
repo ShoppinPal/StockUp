@@ -112,7 +112,6 @@ export class FulfillComponent implements OnInit {
         this.currentPageFulfilled = (skip / this.lineItemsLimitPerPage) + 1;
         this.totalFulfilledLineItems = data[1].count;
         this.fulfilledLineItems = data[0];
-        this.checkScanModeAndIncrement(data, false);
         if (!this.enableBarcode || !this.searchSKUText) {
           this.loading = false;
         }
@@ -167,7 +166,6 @@ export class FulfillComponent implements OnInit {
             data[0][i].fulfilledQuantity = data[0][i].orderQuantity;
           }
         }
-        this.checkScanModeAndIncrement(data, true);
         this.notFulfilledLineItems = data[0];
         if (!this.enableBarcode || !this.searchSKUText) {
           this.loading = false;
@@ -177,16 +175,6 @@ export class FulfillComponent implements OnInit {
         this.loading = false;
         console.log('error', err);
       });
-  }
-
-  checkScanModeAndIncrement(data: any, itemNotFulfilled) {
-      if (this.enableBarcode && data[0].length > 0 && this.searchSKUText === data[0][0].productModel.sku){
-          data[0][0].fulfilledQuantity++;
-          this.updateLineItems(data[0][0], {
-              fulfilledQuantity: data[0][0].fulfilledQuantity,
-              fulfilled: true
-          }, itemNotFulfilled);
-      }
   }
 
   searchProductBySku(sku?: string) {

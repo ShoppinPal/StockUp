@@ -382,5 +382,69 @@ module.exports = function(StockOrderLineitemModel) {
         });
     }
   };
-
+    StockOrderLineitemModel.scanBarCode = function (scanType, productSku, orgModelId, reportModelId, force) {
+        var updateSetObject = {
+            $inc: {
+                fulfilledQuantity: 1
+            },
+            $set:{
+            
+            }
+        };
+           return StockOrderLineitemModel.find({
+               where: {
+                   orgModelId,
+                   reportModelId,
+                   approved: true,
+               },
+                include: {
+                    relation: 'productModel',
+                    scope: {
+                        where: {
+                            sku: productSku
+                        }
+                    }
+                }
+            }).then(function (orderLineItems) {
+                orderLineItems = orderLineItems.filter(function (lineItem) {
+                    return lineItem.toJSON().productModel !== undefined;
+                });
+               if (orderLineItems.length === 1){
+                   var orderLineItem = orderLineItems[0];
+                    // If Ordered quantity is equal to fulfilled then show Alert on client side And do not check if forced
+                    if (!force && orderLineItem.fulfilledQuantity === orderLineItem.orderQuantity) {
+                        return Promise.resolve(Object.assign({},orderLineItem,{showDiscrepancyAlert: true}));
+                    }
+                    // Set fulfilled true when fulfilled quantity will be equal to ordered Quantity
+                    // TODO: try to add it to query itself
+                    if (orderLineItem.fulfilledQuantity + 1 >= orderLineItem.orderQuantity) {
+                        updateSetObject.$set.fulfilled = true;
+                    }
+                    return Promise.all([
+                        StockOrderLineitemModel.updateAll({
+                            id: orderLineItem.id
+                        },
+                        updateSetObject,
+                        // Allows use of increment operator
+                        { allowExtendedOperators: true }),
+                        Promise.resolve(orderLineItem.id)]);
+                }else if(orderLineItems.length > 1){
+                    console.log(orderLineItems);
+                    return Promise.reject('Multiple Products Found');
+                }else{
+                    return Promise.reject('No Such Product Exists');
+    
+                }
+           }).then(function ([{count}, stockOrderLineItemId]) {
+               console.log(stockOrderLineItemId);
+                   return StockOrderLineitemModel.findOne(
+                       {
+                           where: {
+                               id: stockOrderLineItemId
+                           },
+                           include: 'productModel'
+                       }
+                   );
+           });
+    };
 };

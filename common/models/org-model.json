@@ -581,6 +581,20 @@
       "principalId": "storeManager",
       "permission": "ALLOW",
       "property": "receiveConsignment"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "scanBarcodeStockOrder"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "scanBarcodeStockOrder"
     }
   ],
   "methods": {}
