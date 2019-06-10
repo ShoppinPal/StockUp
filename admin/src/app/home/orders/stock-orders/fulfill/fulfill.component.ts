@@ -201,7 +201,11 @@ export class FulfillComponent implements OnInit {
         this.loading = false;
       }, error => {
         this.loading = false;
-        this.toastr.error(error.message)
+        this.toastr.error(error.message);
+        this.notFulfilledLineItems = [];
+        this.fulfilledLineItems = [];
+        this.totalFulfilledLineItems = 0;
+        this.totalNotFulfilledLineItems = 0;
       });
   }
 

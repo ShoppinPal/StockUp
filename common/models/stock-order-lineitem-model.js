@@ -6,7 +6,7 @@ var path = require('path');
 var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 var logger = require('./../lib/debug-extension')('common:models:'+fileName);
 var log = logger.debug.bind(logger); // TODO: over time, please use log.LOGLEVEL(msg) explicitly
-var logger = require('sp-json-logger');
+var logger = require('sp-json-logger')();
 
 module.exports = function(StockOrderLineitemModel) {
 
@@ -383,6 +383,15 @@ module.exports = function(StockOrderLineitemModel) {
     }
   };
     StockOrderLineitemModel.scanBarCode = function (scanType, productSku, orgModelId, reportModelId, force) {
+        logger.debug({
+            functionName: 'scanBarCode',
+            message: 'Will find all stock line items and increment quantity',
+            scanType,
+            productSku,
+            orgModelId,
+            reportModelId,
+            force
+        });
         const filter = {
             where: {
                 orgModelId,
@@ -402,9 +411,21 @@ module.exports = function(StockOrderLineitemModel) {
             filter.where.fulfilled = true;
         }
            return StockOrderLineitemModel.find(filter).then(function (orderLineItems) {
+               // Remove all objects where productModel is not found
                 orderLineItems = orderLineItems.filter(function (lineItem) {
                     return lineItem.toJSON().productModel !== undefined;
                 });
+               logger.debug({
+                   functionName: 'scanBarCode',
+                   message: 'Successfully found stockorderline items query',
+                   orderLineItems,
+                   scanType,
+                   productSku,
+                   orgModelId,
+                   reportModelId,
+                   force
+               });
+                //Proceed only of barcode matches 1 product
                if (orderLineItems.length === 1){
                    var orderLineItem = orderLineItems[0];
                     // If Ordered quantity is equal to fulfilled then show Alert on client side And do not check if forced
@@ -414,7 +435,14 @@ module.exports = function(StockOrderLineitemModel) {
                             (scanType === 'receive' && orderLineItem.receivedQuantity === orderLineItem.fulfilledQuantity)
                         )
                             {
-                            return Promise.all([Promise.resolve({showDiscrepancyAlert: true}), Promise.resolve(orderLineItem.id)]);
+                                logger.debug({
+                                    functionName: 'scanBarCode',
+                                    message: 'Quantity is already fulfilled/received, sending discrepency = true',
+                                    orderLineItems,
+                                    reportModelId,
+                                    force
+                                });
+                                return Promise.all([Promise.resolve({showDiscrepancyAlert: true}), Promise.resolve(orderLineItem.id)]);
                         }
                     }
                    let updateSetObject = {};
@@ -438,6 +466,12 @@ module.exports = function(StockOrderLineitemModel) {
                     } else if(scanType === 'receive' && orderLineItem.receivedQuantity + 1 === orderLineItem.fulfilledQuantity){
                         updateSetObject = Object.assign({}, updateSetObject, {$set:{received: true}});
                     }
+                   logger.debug({
+                       functionName: 'scanBarCode',
+                       message: 'Updating line items with incremented quantity',
+                       reportModelId,
+                       force
+                   });
                     return Promise.all([
                         StockOrderLineitemModel.updateAll({
                             id: orderLineItem.id
@@ -452,7 +486,24 @@ module.exports = function(StockOrderLineitemModel) {
                     return Promise.reject('No Such Product Exists');
     
                 }
-           }).then(function ([obj, stockOrderLineItemId]) {
+           })
+               .catch(function (error) {
+                   logger.error({
+                       functionName: 'scanBarCode',
+                       message: 'Error While Incrementing',
+                       error
+                   });
+                   return Promise.reject(error);
+               })
+               
+               .then(function ([obj, stockOrderLineItemId]) {
+                   logger.debug({
+                       functionName: 'scanBarCode',
+                       message: 'Finding updated lineitem',
+                       stockOrderLineItemId,
+                       reportModelId,
+                       force
+                   });
                    return Promise.all([
                        obj,
                        StockOrderLineitemModel.findOne(
@@ -463,7 +514,17 @@ module.exports = function(StockOrderLineitemModel) {
                                    include: 'productModel'
                                }
                    )]);
-           }).then(function ([obj,stockLineItem]) {
+           })
+               .catch(function (error) {
+                   logger.error({
+                       functionName: 'scanBarCode',
+                       message: 'Error While finding updated line item',
+                       error
+                   });
+                   return Promise.reject(error);
+               })
+               
+               .then(function ([obj,stockLineItem]) {
                return Promise.resolve(Object.assign({}, obj, stockLineItem.toJSON()));
            });
     };

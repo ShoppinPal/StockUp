@@ -215,6 +215,10 @@ export class ReceiveComponent implements OnInit {
       }, error => {
         this.loading = false;
         this.toastr.error(error.message)
+        this.notReceivedLineItems = [];
+        this.receivedLineItems = [];
+        this.totalReceivedLineItems = 0;
+        this.totalNotReceivedLineItems = 0;
       });
   }
 
