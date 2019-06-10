@@ -37,8 +37,7 @@ export class FulfillComponent implements OnInit {
   public editable: boolean;
   public searchSKUFocused: boolean = true;
   public enableBarcode: boolean = true;
-  public modalRef: BsModalRef;
-  @ViewChild('modelTemplete') modelEl;
+  public modalShow: boolean;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -178,9 +177,7 @@ export class FulfillComponent implements OnInit {
   }
 
   searchAndIncrementProduct(sku?: string, force: boolean = false) {
-    if (this.modalRef) {
-      this.modalRef.hide();
-    }
+    this.modalShow = false;
     this.loading = true;
     this.orgModelApi.scanBarcodeStockOrder(this.userProfile.orgModelId,
       'fulfill',
@@ -189,7 +186,9 @@ export class FulfillComponent implements OnInit {
       force)
       .subscribe(searchedOrderItem => {
         if (searchedOrderItem.showDiscrepancyAlert) {
-          this.modalRef = this.modalService.show(this.modelEl, {class: 'modal-sm'});
+          this.modalShow = true
+        }else{
+          this.toastr.success('Row updated');
         }
         this.fulfilledLineItems = [searchedOrderItem];
         this.totalFulfilledLineItems = this.fulfilledLineItems.length;
@@ -200,7 +199,6 @@ export class FulfillComponent implements OnInit {
         }
         this.totalNotFulfilledLineItems = this.notFulfilledLineItems.length;
         this.loading = false;
-        this.toastr.success('Row updated');
       }, error => {
         this.loading = false;
         this.toastr.error(error.message)

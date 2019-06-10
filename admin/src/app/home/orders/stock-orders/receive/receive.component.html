@@ -242,3 +242,7 @@
   </div>
   <!--/.col-->
 </div>
+<app-confirm-modal [(show)]="modalShow"
+                   (confirm)="searchAndIncrementProduct(searchSKUText, true)"
+                   message="This will add to discrepancy."
+></app-confirm-modal>

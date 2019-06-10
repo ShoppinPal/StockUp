@@ -99,7 +99,36 @@ var runMe = function (payload, config, taskId, messageId) {
                 .then(function (response) {
                     stockOrderLineItemModels = response;
                     logger.debug({
-                        message: 'Found line items',
+                        message: 'Found line items, will set recieved true for all quantity gt 0',
+                        response,
+                        messageId
+                    });
+                    return db.collection('StockOrderLineitemModel').updateMany({
+                            reportModelId: ObjectId(payload.reportModelId),
+                            receivedQuantity: {
+                                $gt: 0
+                            }
+                        },
+                        {
+                            $set: {
+                                received: true
+                            }
+                        }
+                        );
+                })
+                .catch(function (error) {
+                    logger.error({
+                        message: 'Could not update status to received: true',
+                        reportModelId,
+                        error,
+                        commandName,
+                        messageId
+                    });
+                    return Promise.reject('Could not update status to received');
+                })
+                .then(function (response) {
+                    logger.debug({
+                        message: 'Updated Status to received',
                         count: response.length,
                         response,
                         commandName,

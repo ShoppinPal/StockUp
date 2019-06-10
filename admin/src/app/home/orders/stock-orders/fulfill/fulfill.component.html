@@ -248,10 +248,7 @@
     <!--/.col-->
   </div>
 </div>
-<ng-template #modelTemplete>
-  <div class="modal-body text-center">
-    <p>This will add to discrepency</p>
-    <button type="button" class="btn btn-primary" (click)="searchAndIncrementProduct(searchSKUText, true)" >Continue</button>
-    <button type="button" class="btn btn-danger" (click)="modalRef.hide()">Cancel</button>
-  </div>
-</ng-template>
+<app-confirm-modal [(show)]="modalShow"
+                   (confirm)="searchAndIncrementProduct(this.searchSKUText, true)"
+                   message="This will add to discrepancy."
+></app-confirm-modal>
