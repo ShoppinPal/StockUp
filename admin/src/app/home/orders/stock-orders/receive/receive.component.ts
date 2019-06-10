@@ -7,6 +7,7 @@ import {UserProfileService} from "../../../../shared/services/user-profile.servi
 import {LoopBackAuth} from "../../../../shared/lb-sdk/services/core/auth.service";
 import {constants} from "../../../../shared/constants/constants";
 import {DatePipe} from '@angular/common';
+import {bool} from "aws-sdk/clients/signer";
 
 @Component({
   selector: 'app-receive',
@@ -36,7 +37,8 @@ export class ReceiveComponent implements OnInit {
   public editable: boolean;
   public searchSKUFocused: boolean = true;
   public enableBarcode: boolean = true;
-
+  public modalShow: boolean;
+  
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
               private _router: Router,
@@ -186,6 +188,36 @@ export class ReceiveComponent implements OnInit {
       }, itemNotRecieved);
     }
   }
+
+  searchAndIncrementProduct(sku?: string, force: boolean = false) {
+    this.modalShow = false;
+    this.loading = true;
+    this.orgModelApi.scanBarcodeStockOrder(this.userProfile.orgModelId,
+      'receive',
+      sku,
+      this.order.id,
+      force)
+      .subscribe(searchedOrderItem => {
+        if (searchedOrderItem.showDiscrepancyAlert) {
+          this.modalShow = true
+        }else{
+          this.toastr.success('Row updated');
+        }
+        this.receivedLineItems = [searchedOrderItem];
+        this.totalReceivedLineItems = this.receivedLineItems.length;
+        if (!searchedOrderItem.received) {
+          this.notReceivedLineItems = [searchedOrderItem];
+        }else {
+          this.notReceivedLineItems = [];
+        }
+        this.totalNotReceivedLineItems = this.notReceivedLineItems.length;
+        this.loading = false;
+      }, error => {
+        this.loading = false;
+        this.toastr.error(error.message)
+      });
+  }
+
   searchProductBySku(sku?: string) {
     this.loading = true;
     this.orgModelApi.getProductModels(this.userProfile.orgModelId, {
@@ -274,10 +306,10 @@ export class ReceiveComponent implements OnInit {
   };
 
   receiveConsignment() {
-    if (!this.totalReceivedLineItems) {
-      this.toastr.error('Please receive at least one item to send order to supplier');
-    }
-    else {
+    // if (!this.totalReceivedLineItems) {
+    //   this.toastr.error('Please receive at least one item to send order to supplier');
+    // }
+    // else {
       // this.creatingPurchaseOrderVend = true;
       let componentScope = this;
       let EventSource = window['EventSource'];
@@ -296,7 +328,7 @@ export class ReceiveComponent implements OnInit {
         }
         es.close();
       };
-    }
+    // }
   }
 
   downloadOrderCSV() {
@@ -335,7 +367,7 @@ export class ReceiveComponent implements OnInit {
    */
   barcodeSearchSKU($event) {
     if (this.enableBarcode && this.searchSKUText !== '') {
-      this.searchProductBySku(this.searchSKUText);
+      this.searchAndIncrementProduct(this.searchSKUText);
       $event.target.select();
     }
   }
