@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {OrgModelApi} from "../../../../shared/lb-sdk/services/custom/OrgModel";
 import {ActivatedRoute, Router} from '@angular/router';
 import {Observable, combineLatest} from 'rxjs';
@@ -7,6 +7,7 @@ import {UserProfileService} from "../../../../shared/services/user-profile.servi
 import {LoopBackAuth} from "../../../../shared/lb-sdk/services/core/auth.service";
 import {constants} from "../../../../shared/constants/constants";
 import {DatePipe} from '@angular/common';
+import {BsModalRef, BsModalService} from "ngx-bootstrap";
 
 @Component({
   selector: 'app-fulfill',
@@ -36,12 +37,15 @@ export class FulfillComponent implements OnInit {
   public editable: boolean;
   public searchSKUFocused: boolean = true;
   public enableBarcode: boolean = true;
+  public modalRef: BsModalRef;
+  @ViewChild('modelTemplete') modelEl;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
               private _router: Router,
               private toastr: ToastrService,
               private _userProfileService: UserProfileService,
+              private modalService: BsModalService,
               private auth: LoopBackAuth) {
   }
 
@@ -109,12 +113,10 @@ export class FulfillComponent implements OnInit {
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
       this.orgModelApi.countStockOrderLineitemModels(this.userProfile.orgModelId, countFilter));
     fetchLineItems.subscribe((data: any) => {
+        this.loading = false;
         this.currentPageFulfilled = (skip / this.lineItemsLimitPerPage) + 1;
         this.totalFulfilledLineItems = data[1].count;
         this.fulfilledLineItems = data[0];
-        if (!this.enableBarcode || !this.searchSKUText) {
-          this.loading = false;
-        }
       },
       err => {
         this.loading = false;
@@ -158,6 +160,7 @@ export class FulfillComponent implements OnInit {
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
       this.orgModelApi.countStockOrderLineitemModels(this.userProfile.orgModelId, countFilter));
     fetchLineItems.subscribe((data: any) => {
+        this.loading = false;
         this.currentPageNotFulfilled = (skip / this.lineItemsLimitPerPage) + 1;
         this.totalNotFulfilledLineItems = data[1].count;
         for(var i = 0; i < data[0].length; i++) {
@@ -167,13 +170,40 @@ export class FulfillComponent implements OnInit {
           }
         }
         this.notFulfilledLineItems = data[0];
-        if (!this.enableBarcode || !this.searchSKUText) {
-          this.loading = false;
-        }
       },
       err => {
         this.loading = false;
         console.log('error', err);
+      });
+  }
+
+  searchAndIncrementProduct(sku?: string, force: boolean = false) {
+    if (this.modalRef) {
+      this.modalRef.hide();
+    }
+    this.loading = true;
+    this.orgModelApi.scanBarcodeStockOrder(this.userProfile.orgModelId,
+      'fulfill',
+      sku,
+      this.order.id,
+      force)
+      .subscribe(searchedOrderItem => {
+        if (searchedOrderItem.showDiscrepancyAlert) {
+          this.modalRef = this.modalService.show(this.modelEl, {class: 'modal-sm'});
+        }
+        this.fulfilledLineItems = [searchedOrderItem];
+        this.totalFulfilledLineItems = this.fulfilledLineItems.length;
+        if (!searchedOrderItem.fulfilled) {
+          this.notFulfilledLineItems = [searchedOrderItem];
+        }else {
+          this.notFulfilledLineItems = [];
+        }
+        this.totalNotFulfilledLineItems = this.notFulfilledLineItems.length;
+        this.loading = false;
+        this.toastr.success('Row updated');
+      }, error => {
+        this.loading = false;
+        this.toastr.error(error.message)
       });
   }
 
@@ -308,7 +338,7 @@ export class FulfillComponent implements OnInit {
    */
   barcodeSearchSKU($event: any) {
     if (this.enableBarcode && this.searchSKUText !== '') {
-      this.searchProductBySku(this.searchSKUText);
+      this.searchAndIncrementProduct(this.searchSKUText);
       $event.target.select();
     }
   }
