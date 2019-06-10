@@ -401,7 +401,7 @@ module.exports = function(StockOrderLineitemModel) {
         if (scanType === 'receive'){
             filter.where.fulfilled = true;
         }
-           return StockOrderLineitemModel.find().then(function (orderLineItems) {
+           return StockOrderLineitemModel.find(filter).then(function (orderLineItems) {
                 orderLineItems = orderLineItems.filter(function (lineItem) {
                     return lineItem.toJSON().productModel !== undefined;
                 });
@@ -420,7 +420,7 @@ module.exports = function(StockOrderLineitemModel) {
                    let updateSetObject = {};
                     if (scanType === 'fulfill') {
                          updateSetObject = {
-                            $inc: {
+                            $inc: {   // Increment Extended Operator
                                 fulfilledQuantity: 1
                             }
                         };

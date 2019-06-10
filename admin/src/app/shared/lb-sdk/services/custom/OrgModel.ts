@@ -3194,6 +3194,8 @@ export class OrgModelApi extends BaseLoopBackApi {
    *
    * @param {string} name 
    *
+   * @param {string} warehouseModelId 
+   *
    * @param {object} req 
    *
    * @param {object} res 
@@ -3209,7 +3211,7 @@ export class OrgModelApi extends BaseLoopBackApi {
    * This usually means the response is a `OrgModel` object.)
    * </em>
    */
-  public generateStockOrderVend(id: any, storeModelId: any, supplierModelId: any, name: any = {}, req: any = {}, res: any = {}, customHeaders?: Function): Observable<any> {
+  public generateStockOrderVend(id: any, storeModelId: any, supplierModelId: any, name: any = {}, warehouseModelId: any, req: any = {}, res: any = {}, customHeaders?: Function): Observable<any> {
     let _method: string = "GET";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/OrgModels/:id/generateStockOrderVend";
@@ -3221,6 +3223,7 @@ export class OrgModelApi extends BaseLoopBackApi {
     if (typeof storeModelId !== 'undefined' && storeModelId !== null) _urlParams.storeModelId = storeModelId;
     if (typeof supplierModelId !== 'undefined' && supplierModelId !== null) _urlParams.supplierModelId = supplierModelId;
     if (typeof name !== 'undefined' && name !== null) _urlParams.name = name;
+    if (typeof warehouseModelId !== 'undefined' && warehouseModelId !== null) _urlParams.warehouseModelId = warehouseModelId;
     let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
     return result;
   }
@@ -3758,6 +3761,49 @@ export class OrgModelApi extends BaseLoopBackApi {
     let _postBody: any = {};
     let _urlParams: any = {};
     if (typeof reportModelId !== 'undefined' && reportModelId !== null) _urlParams.reportModelId = reportModelId;
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * <em>
+         * (The remote method definition does not provide any description.)
+         * </em>
+   *
+   * @param {object} data Request data.
+   *
+   *  - `id` – `{string}` - 
+   *
+   *  - `scanType` – `{string}` - 
+   *
+   *  - `productSku` – `{string}` - 
+   *
+   *  - `reportModelId` – `{string}` - 
+   *
+   *  - `force` – `{boolean}` - 
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * <em>
+   * (The remote method definition does not provide any description.
+   * This usually means the response is a `OrgModel` object.)
+   * </em>
+   */
+  public scanBarcodeStockOrder(id: any, scanType: any, productSku: any, reportModelId: any, force: any = {}, customHeaders?: Function): Observable<any> {
+    let _method: string = "POST";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/:id/scanBarcodeStockOrder";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    if (typeof scanType !== 'undefined' && scanType !== null) _urlParams.scanType = scanType;
+    if (typeof productSku !== 'undefined' && productSku !== null) _urlParams.productSku = productSku;
+    if (typeof reportModelId !== 'undefined' && reportModelId !== null) _urlParams.reportModelId = reportModelId;
+    if (typeof force !== 'undefined' && force !== null) _urlParams.force = force;
     let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
     return result;
   }
