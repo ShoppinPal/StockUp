@@ -7,7 +7,6 @@ import {UserProfileService} from "../../../../shared/services/user-profile.servi
 import {LoopBackAuth} from "../../../../shared/lb-sdk/services/core/auth.service";
 import {constants} from "../../../../shared/constants/constants";
 import {DatePipe} from '@angular/common';
-import {bool} from "aws-sdk/clients/signer";
 
 @Component({
   selector: 'app-receive',
@@ -112,12 +111,10 @@ export class ReceiveComponent implements OnInit {
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
       this.orgModelApi.countStockOrderLineitemModels(this.userProfile.orgModelId, countFilter));
     fetchLineItems.subscribe((data: any) => {
+        this.loading = false;
         this.currentPageReceived = (skip / this.lineItemsLimitPerPage) + 1;
         this.totalReceivedLineItems = data[1].count;
         this.receivedLineItems = data[0];
-        if (!this.enableBarcode || !this.searchSKUText) {
-          this.loading = false;
-        }
       },
       err => {
         this.loading = false;
@@ -160,6 +157,7 @@ export class ReceiveComponent implements OnInit {
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
       this.orgModelApi.countStockOrderLineitemModels(this.userProfile.orgModelId, countFilter));
     fetchLineItems.subscribe((data: any) => {
+        this.loading = false;
         this.currentPageNotReceived = (skip / this.lineItemsLimitPerPage) + 1;
         this.totalNotReceivedLineItems = data[1].count;
         for (var i = 0; i < data[0].length; i++) {
@@ -168,25 +166,12 @@ export class ReceiveComponent implements OnInit {
             data[0][i].receivedQuantity = data[0][i].fulfilledQuantity;
           }
         }
-          this.checkScanModeAndIncrement(data, true);
-          this.notReceivedLineItems = data[0];
-        if (!this.enableBarcode || !this.searchSKUText) {
-          this.loading = false;
-        }
-        },
+        this.notReceivedLineItems = data[0];
+      },
       err => {
         this.loading = false;
         console.log('error', err);
       });
-  }
-  checkScanModeAndIncrement(data: any, itemNotRecieved) {
-    if (this.enableBarcode && data[0].length > 0 && this.searchSKUText === data[0][0].productModel.sku){
-      data[0][0].receivedQuantity++;
-      this.updateLineItems(data[0][0], {
-        receivedQuantity: data[0][0].receivedQuantity,
-        received: true
-      }, itemNotRecieved);
-    }
   }
 
   searchAndIncrementProduct(sku?: string, force: boolean = false) {
@@ -229,7 +214,7 @@ export class ReceiveComponent implements OnInit {
           sku: sku
       }
     }).subscribe((data: any) => {
-      if (data.length === 1) {
+      if (data.length) {
         this.getReceivedStockOrderLineItems(1, 0, data[0].id);
         this.getNotReceivedStockOrderLineItems(1, 0, data[0].id);
       }
@@ -245,7 +230,7 @@ export class ReceiveComponent implements OnInit {
     })
   }
 
-  updateLineItems(lineItems, data: any, refresh = true) {
+  updateLineItems(lineItems, data: any) {
     this.loading = true;
     let lineItemsIDs: Array<string> = [];
     if (lineItems instanceof Array) {
@@ -258,16 +243,11 @@ export class ReceiveComponent implements OnInit {
     }
     this.orgModelApi.updateAllStockOrderLineItemModels(this.userProfile.orgModelId, this.order.id, lineItemsIDs, data)
       .subscribe((res: any) => {
-        if (refresh) {
           this.getReceivedStockOrderLineItems();
           this.getNotReceivedStockOrderLineItems();
-        } else {
-          this.loading = false;
-        }
           console.log('approved', res);
-          this.loading = false;
           this.toastr.success('Row Updated');
-          },
+        },
         err => {
           this.toastr.error('Error Updating Row');
           console.log('err', err);
@@ -356,6 +336,7 @@ export class ReceiveComponent implements OnInit {
    */
   changeScanMode() {
     this.getNotReceivedStockOrderLineItems();
+    this.getReceivedStockOrderLineItems();
     this.searchSKUText = ''
     if (this.enableBarcode) {
       this.searchSKUFocused = true;
