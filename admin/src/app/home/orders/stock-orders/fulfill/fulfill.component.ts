@@ -7,7 +7,6 @@ import {UserProfileService} from "../../../../shared/services/user-profile.servi
 import {LoopBackAuth} from "../../../../shared/lb-sdk/services/core/auth.service";
 import {constants} from "../../../../shared/constants/constants";
 import {DatePipe} from '@angular/common';
-import {BsModalRef, BsModalService} from "ngx-bootstrap";
 
 @Component({
   selector: 'app-fulfill',
@@ -44,7 +43,6 @@ export class FulfillComponent implements OnInit {
               private _router: Router,
               private toastr: ToastrService,
               private _userProfileService: UserProfileService,
-              private modalService: BsModalService,
               private auth: LoopBackAuth) {
   }
 
@@ -216,7 +214,7 @@ export class FulfillComponent implements OnInit {
         sku: sku
       }
     }).subscribe((data: any) => {
-      if (data.length === 1) {
+      if (data.length) {
         this.getFulfilledStockOrderLineItems(1, 0, data[0].id);
         this.getNotFulfilledStockOrderLineItems(1, 0, data[0].id);
       }
@@ -232,7 +230,7 @@ export class FulfillComponent implements OnInit {
     })
   }
 
-  updateLineItems(lineItems, data: any, refresh = true) {
+  updateLineItems(lineItems, data: any) {
     this.loading = true;
     let lineItemsIDs: Array<string> = [];
     if (lineItems instanceof Array) {
@@ -245,13 +243,9 @@ export class FulfillComponent implements OnInit {
     }
     this.orgModelApi.updateAllStockOrderLineItemModels(this.userProfile.orgModelId, this.order.id, lineItemsIDs, data)
       .subscribe((res: any) => {
-        if (refresh) {
-          this.getNotFulfilledStockOrderLineItems();
           this.getFulfilledStockOrderLineItems();
-        }else{
-          this.loading = false;
-        }
-        console.log('approved', res);
+          this.getNotFulfilledStockOrderLineItems();
+          console.log('approved', res);
         this.toastr.success('Row Updated');
         },
         err => {
@@ -325,13 +319,14 @@ export class FulfillComponent implements OnInit {
    * search bar
    */
   changeScanMode() {
+    this.getNotFulfilledStockOrderLineItems();
+    this.getFulfilledStockOrderLineItems();
     this.searchSKUText = ''
     if (this.enableBarcode) {
       this.searchSKUFocused = true;
     }
     else {
       this.searchSKUFocused = false;
-      this.getNotFulfilledStockOrderLineItems()
     }
   }
   /**
