@@ -81,6 +81,11 @@
       "type": "hasMany",
       "model": "UserStoreMapping",
       "foreignKey": "orgModelId"
+    },
+    "orderConfigModels": {
+      "type": "hasMany",
+      "model": "OrderConfigModel",
+      "foreignKey": "orgModelId"
     }
   },
   "acls": [
@@ -581,6 +586,31 @@
       "principalId": "storeManager",
       "permission": "ALLOW",
       "property": "receiveConsignment"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "fetchFileImportHeaders"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__create__orderConfigModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__get__orderConfigModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__updateById__orderConfigModels"
     }
   ],
   "methods": {}

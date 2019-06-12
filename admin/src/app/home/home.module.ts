@@ -15,6 +15,7 @@ import {SuppliersModule} from "./suppliers/suppliers.module";
 import {ConnectModule} from "./connect/connect.module";
 import {UsersModule} from "./users/users.module";
 import {ReorderPointsModule} from "./reorder-points/reorder-points.module";
+import {FileImportsModule} from "./file-imports/file-imports.module";
 
 
 @NgModule({
@@ -23,6 +24,7 @@ import {ReorderPointsModule} from "./reorder-points/reorder-points.module";
     HomeRoutingModule,
     SyncWithVendModule,
     ConnectModule,
+    FileImportsModule,
     SharedModule,
     StoresModule,
     SuppliersModule,

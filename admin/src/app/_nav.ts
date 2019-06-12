@@ -119,6 +119,12 @@ export const navItems: NavData[] = [
     url: '/reorder-points',
     icon: 'icon-calculator',
     roles: ['orgAdmin']
+  },
+  {
+    name: 'File Imports',
+    url: '/file-imports',
+    icon: 'icon-calculator',
+    roles: ['orgAdmin']
   }
   /*,
    {

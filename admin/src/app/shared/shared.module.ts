@@ -3,7 +3,7 @@ import {ModuleWithProviders, NgModule} from '@angular/core';
 import {UserProfileService} from './services/user-profile.service';
 import {AccessService} from './services/access.service';
 import {UserResolverService} from './services/user-resolver.service';
-import {TypeaheadModule} from 'ngx-bootstrap';
+import {TypeaheadModule, BsDropdownModule} from 'ngx-bootstrap';
 import {LoadingModule} from 'ngx-loading';
 import {FormsModule} from '@angular/forms';
 import {AppAsideModule} from '@coreui/angular';
@@ -16,6 +16,7 @@ import {TabsModule} from 'ngx-bootstrap/tabs';
 @NgModule({
   imports: [
     AppAsideModule,
+    BsDropdownModule,
     CommonModule,
     FormsModule,
     LoadingModule,
@@ -30,6 +31,7 @@ import {TabsModule} from 'ngx-bootstrap/tabs';
   declarations: [],
   exports: [
     FormsModule,
+    BsDropdownModule,
     TypeaheadModule,
     LoadingModule,
     AppAsideModule,

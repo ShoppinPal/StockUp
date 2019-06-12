@@ -115,5 +115,9 @@
   "UserStoreMapping": {
     "dataSource": "db",
     "public": false
+  },
+  "OrderConfigModel": {
+    "dataSource": "db",
+    "public": false
   }
 }

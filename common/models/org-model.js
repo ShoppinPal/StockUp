@@ -1204,6 +1204,30 @@ module.exports = function (OrgModel) {
                 });
         };
 
+        OrgModel.remoteMethod('fetchFileImportHeaders', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/fetchImportHeaders', verb: 'GET'},
+            returns: {arg: 'headers', type: 'object', root: true}
+        });
+
+        OrgModel.fetchFileImportHeaders = function (id, options) {
+            return OrgModel.app.models.OrderConfigModel.fetchFileImportHeaders(id, options)
+                .catch(function (error) {
+                    logger.error({
+                        error,
+                        reason: error,
+                        message: 'Could not fetch file import headers',
+                        userId,
+                        functionName: 'fetchFileImportHeaders',
+                        options
+                    });
+                    return Promise.reject(false);
+                });
+        };
+
 
     });
 };
