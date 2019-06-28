@@ -11,6 +11,7 @@ const papaparse = require('papaparse');
 const fs = Promise.promisifyAll(require('fs'));
 var workerUtils = require('../utils/workers');
 const REPORT_STATES = require('../utils/constants').REPORT_STATES;
+const sse = require('../utils/sse');
 
 module.exports = function (ReportModel) {
 
@@ -430,30 +431,76 @@ module.exports = function (ReportModel) {
 
     ReportModel.generateStockOrderVend = function (orgModelId, storeModelId, supplierModelId, name, warehouseModelId, options) {
         logger.debug({
-            message: 'Will initiate worker to generate stock order for Vend',
+            message: 'Will Create a report model and initialize worker to process it',
             storeModelId,
             supplierModelId,
             functionName: 'generateStockOrderVend',
             options,
         });
-        var payload = {
-            orgModelId: orgModelId,
+        return ReportModel.create({
+            name: name,
+            userModelId: options.accessToken.userId, // explicitly setup the foreignKeys for related models
+            state: REPORT_STATES.PROCESSING,
             storeModelId: storeModelId,
             supplierModelId: supplierModelId,
-            name: name,
-            warehouseModelId: warehouseModelId,
-            loopbackAccessToken: options.accessToken,
-            op: 'generateStockOrderVend'
-        };
-        return workerUtils.sendPayLoad(payload)
-            .then(function (response) {
+            orgModelId: orgModelId,
+            deliverFromStoreModelId: warehouseModelId,
+            createdAt: new Date(),
+            updatedAt: new Date()
+        })
+            .then(reportInstance => {
                 logger.debug({
-                    message: 'Sent generateStockOrderVend to worker',
+                    message: 'Report model instance created with STATUS processing',
+                    storeModelId,
+                    supplierModelId,
+                    reportInstance,
+                    functionName: 'generateStockOrderVend',
                     options,
-                    response,
-                    functionName: 'generateStockOrderVend'
                 });
-                return Promise.resolve('Stock order generation initiated');
+            var payload = {
+                orgModelId: orgModelId,
+                storeModelId: storeModelId,
+                supplierModelId: supplierModelId,
+                name: name,
+                reportModelId: reportInstance.id,
+                warehouseModelId: warehouseModelId,
+                loopbackAccessToken: options.accessToken,
+                op: 'generateStockOrderVend'
+            };
+                logger.debug({
+                    message: 'Will initiate worker to generate stock order for Vend',
+                    storeModelId,
+                    supplierModelId,
+                    payload,
+                    functionName: 'generateStockOrderVend',
+                    options,
+                });
+            return Promise.all([workerUtils.sendPayLoad(payload),
+                reportInstance]);
+            })
+            .then(function ([response, reportInstance]) {
+                sse.getSSE(options.accessToken.userId).send({
+                    MessageId: response.MessageId,
+                    data: reportInstance,
+                    type: sse.PROCESSING,
+                    message: 'Order generation in progress'
+                }, '', response.MessageId);
+                logger.debug({
+                    data: {
+                        MessageId: response.MessageId,
+                        data: reportInstance,
+                        message: 'Order generation in progress'
+                    },
+                    message: 'Sent SSE Data'
+                });
+            logger.debug({
+                message: 'Sent generateStockOrderVend to worker',
+                options,
+                response,
+                functionName: 'generateStockOrderVend'
+            });
+
+            return Promise.resolve('Stock order generation initiated');
             })
             .catch(function (error) {
                 logger.error({

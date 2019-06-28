@@ -129,7 +129,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr *ngFor="let order of generatedOrders">
+                <tr *ngFor="let order of generatedOrders" [ngClass]="{'backgroundEffectStart': order.backgroundEffect}">
                   <td>{{order.name}}</td>
                   <td>
                     {{order.storeModel?.name}}
@@ -137,12 +137,15 @@
                   <td>
                     {{order.supplierModel?.name}}
                   </td>
-                  <td>{{order.totalRows || 0}}</td>
+                  <div *ngIf="order.state === 'Processing'" class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                  </div>
+                  <td *ngIf="order.state !== 'Processing'">{{order.totalRows || 0}}</td>
                   <td>{{order.state}}</td>
                   <td>{{order.created | date: 'y-MM-dd HH:mm'}}</td>
                   <td>{{order.userModel?.name}}</td>
                   <td>
-                    <button class="btn btn-danger" type="submit"
+                    <button *ngIf="order.state !== 'Processing'" class="btn btn-danger" type="submit"
                             (click)="goToStockOrderDetailsPage(order.id, 'generated')">
                       <i class="fa fa-save"></i> View
                     </button>

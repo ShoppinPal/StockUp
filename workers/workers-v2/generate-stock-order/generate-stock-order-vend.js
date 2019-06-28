@@ -33,6 +33,7 @@ var runMe = function (payload, config, taskId, messageId) {
             message: `This worker will generate stock order for outlet ${payload.storeModelId} and supplier ${payload.supplierModelId}`
         });
         return Promise.resolve()
+            .delay(15000)
             .then(function () {
                 logger.debug({
                     message: 'Will connect to Mongodb',
@@ -99,44 +100,54 @@ var runMe = function (payload, config, taskId, messageId) {
                 return Promise.reject('Could not find store and supplier details');
             })
             .then(function (response) {
-                var storeModelInstance = response[0];
-                var supplierModelInstance = response[1];
                 userRoles = response[2];
-                if (!storeModelInstance) {
-                    logger.error({
-                        message: 'Could not find store info, will exit',
-                        response,
-                        messageId
+                if (!payload.reportModelId) {
+                    var storeModelInstance = response[0];
+                    var supplierModelInstance = response[1];
+                    if (!storeModelInstance) {
+                        logger.error({
+                            message: 'Could not find store info, will exit',
+                            response,
+                            messageId
+                        });
+                        return Promise.reject('Could not find store info, will exit');
+                    }
+                    if (!supplierModelInstance) {
+                        logger.error({
+                            message: 'Could not find supplier info, will exit',
+                            response,
+                            messageId
+                        });
+                        return Promise.reject('Could not find supplier info, will exit');
+                    }
+                    logger.debug({
+                        message: 'Found supplier and store info, will create a new report model',
+                        response
                     });
-                    return Promise.reject('Could not find store info, will exit');
-                }
-                if (!supplierModelInstance) {
-                    logger.error({
-                        message: 'Could not find supplier info, will exit',
-                        response,
-                        messageId
+                    var supplierStoreCode = supplierModelInstance.storeIds ? supplierModelInstance.storeIds[payload.storeModelId] : '';
+                    supplierStoreCode = supplierStoreCode ? '#' + supplierStoreCode : '';
+                    var TODAYS_DATE = new Date();
+                    var name = payload.name || storeModelInstance.name + ' - ' + supplierStoreCode + ' ' + supplierModelInstance.name + ' - ' + TODAYS_DATE.getFullYear() + '-' + (TODAYS_DATE.getMonth() + 1) + '-' + TODAYS_DATE.getDate();
+                    return db.collection('ReportModel').insertOne({
+                        name: name,
+                        userModelId: ObjectId(payload.loopbackAccessToken.userId), // explicitly setup the foreignKeys for related models
+                        state: REPORT_STATES.PROCESSING,
+                        storeModelId: ObjectId(payload.storeModelId),
+                        supplierModelId: ObjectId(payload.supplierModelId),
+                        orgModelId: ObjectId(payload.orgModelId),
+                        deliverFromStoreModelId: ObjectId(payload.warehouseModelId),
+                        createdAt: new Date(),
+                        updatedAt: new Date()
                     });
-                    return Promise.reject('Could not find supplier info, will exit');
+                } else {
+                    return Promise.resolve({
+                        ops: [
+                            {
+                                _id: payload.reportModelId
+                            }
+                        ]
+                    });
                 }
-                logger.debug({
-                    message: 'Found supplier and store info, will create a new report model',
-                    response
-                });
-                var supplierStoreCode = supplierModelInstance.storeIds ? supplierModelInstance.storeIds[payload.storeModelId] : '';
-                supplierStoreCode = supplierStoreCode ? '#' + supplierStoreCode : '';
-                var TODAYS_DATE = new Date();
-                var name = payload.name || storeModelInstance.name + ' - ' + supplierStoreCode + ' ' + supplierModelInstance.name + ' - ' + TODAYS_DATE.getFullYear() + '-' + (TODAYS_DATE.getMonth() + 1) + '-' + TODAYS_DATE.getDate();
-                return db.collection('ReportModel').insertOne({
-                    name: name,
-                    userModelId: ObjectId(payload.loopbackAccessToken.userId), // explicitly setup the foreignKeys for related models
-                    state: REPORT_STATES.PROCESSING,
-                    storeModelId: ObjectId(payload.storeModelId),
-                    supplierModelId: ObjectId(payload.supplierModelId),
-                    orgModelId: ObjectId(payload.orgModelId),
-                    deliverFromStoreModelId: ObjectId(payload.warehouseModelId),
-                    createdAt: new Date(),
-                    updatedAt: new Date()
-                });
             })
             .catch(function (error) {
                 logger.error({
@@ -428,7 +439,7 @@ var runMe = function (payload, config, taskId, messageId) {
                         messageId: messageId,
                         userId: payload.loopbackAccessToken.userId,
                         data: {
-                            success: false
+                            success: false,
                         }
                     }
                 };

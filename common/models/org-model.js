@@ -9,10 +9,8 @@ var Joi = Promise.promisifyAll(require('joi'));
 var validate = Promise.promisify(require('joi').validate);
 var vendSdk = require('vend-nodejs-sdk')({});
 const rp = require('request-promise');
-var SSE = require('express-sse');
-var sseMap = {};
 const sql = require('mssql');
-
+const sse = require('../utils/sse');
 module.exports = function (OrgModel) {
 
 
@@ -627,25 +625,7 @@ module.exports = function (OrgModel) {
 
         OrgModel.generateStockOrderMSD = function (id, storeModelId, warehouseModelId, req, res, categoryModelId, options) {
             try {
-                res.connection.setTimeout(0);
-                if (!sseMap[options.accessToken.userId]) {
-                    var sse = new SSE(0);
-                    sse.init(req, res);
-                    sseMap[options.accessToken.userId] = sse;
-                    logger.debug({
-                        options,
-                        message: 'Created sse for user',
-                        functionName: 'generateStockOrderMSD'
-                    });
-                }
-                else {
-                    sseMap[options.accessToken.userId].init(req, res);
-                    logger.debug({
-                        options,
-                        message: 'SSE exists for this user, will move on',
-                        functionName: 'generateStockOrderMSD'
-                    });
-                }
+                sse.setupSSE(req,res, options);
             }
             catch (e) {
                 logger.error({
@@ -684,25 +664,7 @@ module.exports = function (OrgModel) {
 
         OrgModel.generateStockOrderVend = function (id, storeModelId, supplierModelId, name, warehouseModelId, req, res, options) {
             try {
-                res.connection.setTimeout(0);
-                if (!sseMap[options.accessToken.userId]) {
-                    var sse = new SSE(0);
-                    sse.init(req, res);
-                    sseMap[options.accessToken.userId] = sse;
-                    logger.debug({
-                        options,
-                        message: 'Created sse for user',
-                        functionName: 'generateStockOrderVend'
-                    });
-                }
-                else {
-                    sseMap[options.accessToken.userId].init(req, res);
-                    logger.debug({
-                        options,
-                        message: 'SSE exists for this user, will move on',
-                        functionName: 'generateStockOrderVend'
-                    });
-                }
+                sse.setupSSE(req,res, options);
             }
             catch (e) {
                 logger.error({
@@ -738,25 +700,7 @@ module.exports = function (OrgModel) {
 
         OrgModel.receiveConsignment = function (id, reportModelId, req, res, options) {
             try {
-                res.connection.setTimeout(0);
-                if (!sseMap[options.accessToken.userId]) {
-                    var sse = new SSE(0);
-                    sse.init(req, res);
-                    sseMap[options.accessToken.userId] = sse;
-                    logger.debug({
-                        options,
-                        message: 'Created sse for user',
-                        functionName: 'receiveConsignment'
-                    });
-                }
-                else {
-                    sseMap[options.accessToken.userId].init(req, res);
-                    logger.debug({
-                        options,
-                        message: 'SSE exists for this user, will move on',
-                        functionName: 'receiveConsignment'
-                    });
-                }
+                sse.setupSSE(req,res, options);
             }
             catch (e) {
                 logger.error({
@@ -801,8 +745,8 @@ module.exports = function (OrgModel) {
                     messageId,
                     functionName: 'sendWorkerStatus'
                 });
-                var sse = sseMap[userId];
-                sse.send(data, '', messageId);
+                var sseInstance = sse.getSSE(userId);
+                sseInstance.send(Object.assign({}, {messageId}, data), '', messageId);
                 cb(null, true);
             }
             catch (e) {
@@ -835,25 +779,7 @@ module.exports = function (OrgModel) {
                 options,
                 functionName: 'createTransferOrderMSD'
             });
-            res.connection.setTimeout(0);
-            if (!sseMap[options.accessToken.userId]) {
-                var sse = new SSE(0);
-                sse.init(req, res);
-                sseMap[options.accessToken.userId] = sse;
-                logger.debug({
-                    options,
-                    message: 'Created sse for user',
-                    functionName: 'createTransferOrderMSD'
-                });
-            }
-            else {
-                sseMap[options.accessToken.userId].init(req, res);
-                logger.debug({
-                    options,
-                    message: 'SSE exists for this user, will move on',
-                    functionName: 'createTransferOrderMSD'
-                });
-            }
+            sse.setupSSE(req,res, options);
             OrgModel.app.models.ReportModel.createTransferOrderMSD(id, reportModelId, options)
                 .catch(function (error) {
                     logger.error({
@@ -863,7 +789,7 @@ module.exports = function (OrgModel) {
                         functionName: 'createTransferOrderMSD',
                         error
                     });
-                    sseMap[options.accessToken.userId].send(false);
+                    sse.getSSE(options.accessToken.userId).send(false);
                 });
         };
 
@@ -1096,24 +1022,7 @@ module.exports = function (OrgModel) {
                 functionName: 'createPurchaseOrderVend'
             });
             res.connection.setTimeout(0);
-            if (!sseMap[options.accessToken.userId]) {
-                var sse = new SSE(0);
-                sse.init(req, res);
-                sseMap[options.accessToken.userId] = sse;
-                logger.debug({
-                    options,
-                    message: 'Created sse for user',
-                    functionName: 'createPurchaseOrderVend'
-                });
-            }
-            else {
-                sseMap[options.accessToken.userId].init(req, res);
-                logger.debug({
-                    options,
-                    message: 'SSE exists for this user, will move on',
-                    functionName: 'createPurchaseOrderVend'
-                });
-            }
+            sse.setupSSE(req,res, options);
             OrgModel.app.models.ReportModel.createPurchaseOrderVend(id, reportModelId, options)
                 .catch(function (error) {
                     logger.error({
@@ -1123,7 +1032,7 @@ module.exports = function (OrgModel) {
                         functionName: 'createPurchaseOrderVend',
                         error
                     });
-                    sseMap[options.accessToken.userId].send(false);
+                    sse.getSSE(options.accessToken.userId).send(false);
                 });
         };
 
