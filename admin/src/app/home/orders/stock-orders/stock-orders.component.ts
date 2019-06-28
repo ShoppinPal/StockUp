@@ -10,6 +10,8 @@ import {FileUploader} from 'ng2-file-upload';
 import {LoopBackConfig, LoopBackAuth} from "../../../shared/lb-sdk";
 import {constants} from '../../../shared/constants/constants';
 import {StockOrdersResolverService} from "./services/stock-orders-resolver.service";
+import {EventSourceService} from '../../../shared/services/event-source.service';
+import {HttpParams} from '@angular/common/http';
 
 @Component({
   selector: 'app-stock-orders',
@@ -74,6 +76,7 @@ export class StockOrdersComponent implements OnInit {
               private toastr: ToastrService,
               private _userProfileService: UserProfileService,
               private auth: LoopBackAuth,
+              private _eventSourceService: EventSourceService,
               private _stockOrdersResolverService: StockOrdersResolverService) {
   }
 
@@ -272,36 +275,35 @@ export class StockOrdersComponent implements OnInit {
         console.log('status', status);
         this.toastr.error('Error importing stock order from file');
       };
-    }
-    else if (!this.selectedStoreId) {
-      this.toastr.error('Select a store to deliver to');
-      return;
-    }
-    else if (this.selectedSupplierId) {
-      let url = '/api/OrgModels/' + this.userProfile.orgModelId + '/generateStockOrderVend?access_token=' + this.auth.getAccessTokenId() + '&type=json';
-      url += '&supplierModelId=' + this.selectedSupplierId;
-      url += '&storeModelId=' + this.selectedStoreId;
-      url += '&name=' + this.orderName;
-      url += '&warehouseModelId=' + this.selectedWarehouseId;
-      let EventSource = window['EventSource'];
-      let es = new EventSource(url);
-      let toastr = this.toastr;
-      toastr.info('Generating stock order...');
-      es.onmessage = function (event) {
-        es.close();
-        let response = JSON.parse(event.data);
-        if (response.success) {
-          toastr.success('Order generated');
+    } else if (this.selectedSupplierId) {
+      this.loading = true;
+      let url = '/api/OrgModels/' + this.userProfile.orgModelId +
+          '/generateStockOrderVend?';
+      let params = new HttpParams();
+      params = params.set('access_token', this.auth.getAccessTokenId());
+      params = params.set('type', 'json');
+      params = params.set('supplierModelId', this.selectedSupplierId);
+      params = params.set('storeModelId', this.selectedStoreId);
+      params = params.set('name', this.orderName);
+      params = params.set('warehouseModelId', this.selectedWarehouseId);
+      url = url + params.toString();
+      this._eventSourceService.connectToStream(url)
+          .subscribe(response => {
+            this.loading = false;
+        if (response.type === EventSourceService.PROCESSING) {
+          this.generatedOrders.unshift({...response.data, backgroundEffect: true});
+        } else if (response.success === true) {
+          this.fetchOrders('all');
+          this.toastr.success('Order generated');
+        } else {
+          this.toastr.error('Error in generating order');
         }
-        else {
-          toastr.error('Error in generating order');
-        }
-      };
-      es.onerror = function (event) {
-        toastr.error('Error in generating order');
-      }
-    }
-    else {
+      }, error1 => {
+        console.error(error1);
+        this.loading = false;
+        this.toastr.error('Error in generating order');
+      });
+    } else {
       this.toastr.error('Select a supplier or upload a file to generate order from');
       return;
     }
