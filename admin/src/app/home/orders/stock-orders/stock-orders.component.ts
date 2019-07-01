@@ -255,6 +255,7 @@ export class StockOrdersComponent implements OnInit {
   };
 
   generateStockOrderVend() {
+    let toastr = this.toastr;
     if (!this.selectedStoreId) {
       this.toastr.error('Select a store to deliver to');
       return;
@@ -277,7 +278,8 @@ export class StockOrdersComponent implements OnInit {
         this.toastr.error('Error importing stock order from file');
       };
     } else if (this.selectedSupplierId) {
-      this.loading = true;
+        toastr.info('Generating stock order...');
+        this.loading = true;
       let url = '/api/OrgModels/' + this.userProfile.orgModelId +
           '/generateStockOrderVend?';
       let params = new HttpParams();
@@ -285,7 +287,7 @@ export class StockOrdersComponent implements OnInit {
       params = params.set('type', 'json');
       params = params.set('supplierModelId', this.selectedSupplierId);
       params = params.set('storeModelId', this.selectedStoreId);
-      params = params.set('name', this.orderName);
+      params = params.set('name', this.orderName || '');
       params = params.set('warehouseModelId', this.selectedWarehouseId);
       url = url + params.toString();
       this._eventSourceService.connectToStream(url)
@@ -294,18 +296,18 @@ export class StockOrdersComponent implements OnInit {
         if (response.type === EventSourceService.PROCESSING) {
           this.generatedOrders.unshift({...response.data, backgroundEffect: true});
         } else if (response.success === true) {
-          this.fetchOrders('all');
-          this.toastr.success('Order generated');
+             toastr.success('Order generated', 'Success');
+            this.fetchOrders('all');
         } else {
-          this.toastr.error('Error in generating order');
+           toastr.error('Error in generating order');
         }
       }, error1 => {
         console.error(error1);
         this.loading = false;
-        this.toastr.error('Error in generating order');
+        toastr.error('Error in generating order');
       });
     } else {
-      this.toastr.error('Select a supplier or upload a file to generate order from');
+      toastr.error('Select a supplier or upload a file to generate order from');
       return;
     }
   };

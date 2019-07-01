@@ -137,11 +137,13 @@
                   <td>
                     {{order.supplierModel?.name}}
                   </td>
-                  <div *ngIf="order.state === 'Processing'" class="spinner-border" role="status">
-                    <span class="sr-only">Loading...</span>
-                  </div>
                   <td *ngIf="order.state !== 'Processing'">{{order.totalRows || 0}}</td>
-                  <td>{{order.state}}</td>
+                  <td *ngIf="order.state === 'Processing'">{{order.totalRows || '-'}}</td>
+                  <td>{{order.state}}
+                      <div *ngIf="order.state === 'Processing'" class="spinner-border spinner-border-sm" role="status">
+                          <span class="sr-only">Loading...</span>
+                      </div>
+                  </td>
                   <td>{{order.created | date: 'y-MM-dd HH:mm'}}</td>
                   <td>{{order.userModel?.name}}</td>
                   <td>

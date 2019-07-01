@@ -100,34 +100,34 @@ var runMe = function (payload, config, taskId, messageId) {
                 return Promise.reject('Could not find store and supplier details');
             })
             .then(function (response) {
+                var storeModelInstance = response[0];
+                var supplierModelInstance = response[1];
                 userRoles = response[2];
-                if (!payload.reportModelId) {
-                    var storeModelInstance = response[0];
-                    var supplierModelInstance = response[1];
-                    if (!storeModelInstance) {
-                        logger.error({
-                            message: 'Could not find store info, will exit',
-                            response,
-                            messageId
-                        });
-                        return Promise.reject('Could not find store info, will exit');
-                    }
-                    if (!supplierModelInstance) {
-                        logger.error({
-                            message: 'Could not find supplier info, will exit',
-                            response,
-                            messageId
-                        });
-                        return Promise.reject('Could not find supplier info, will exit');
-                    }
-                    logger.debug({
-                        message: 'Found supplier and store info, will create a new report model',
-                        response
+                if (!storeModelInstance) {
+                    logger.error({
+                        message: 'Could not find store info, will exit',
+                        response,
+                        messageId
                     });
-                    var supplierStoreCode = supplierModelInstance.storeIds ? supplierModelInstance.storeIds[payload.storeModelId] : '';
-                    supplierStoreCode = supplierStoreCode ? '#' + supplierStoreCode : '';
-                    var TODAYS_DATE = new Date();
-                    var name = payload.name || storeModelInstance.name + ' - ' + supplierStoreCode + ' ' + supplierModelInstance.name + ' - ' + TODAYS_DATE.getFullYear() + '-' + (TODAYS_DATE.getMonth() + 1) + '-' + TODAYS_DATE.getDate();
+                    return Promise.reject('Could not find store info, will exit');
+                }
+                if (!supplierModelInstance) {
+                    logger.error({
+                        message: 'Could not find supplier info, will exit',
+                        response,
+                        messageId
+                    });
+                    return Promise.reject('Could not find supplier info, will exit');
+                }
+                logger.debug({
+                    message: 'Found supplier and store info, will create a new report model',
+                    response
+                });
+                var supplierStoreCode = supplierModelInstance.storeIds ? supplierModelInstance.storeIds[payload.storeModelId] : '';
+                supplierStoreCode = supplierStoreCode ? '#' + supplierStoreCode : '';
+                var TODAYS_DATE = new Date();
+                var name = payload.name || storeModelInstance.name + ' - ' + supplierStoreCode + ' ' + supplierModelInstance.name + ' - ' + TODAYS_DATE.getFullYear() + '-' + (TODAYS_DATE.getMonth() + 1) + '-' + TODAYS_DATE.getDate();
+                if (!payload.reportModelId) {
                     return db.collection('ReportModel').insertOne({
                         name: name,
                         userModelId: ObjectId(payload.loopbackAccessToken.userId), // explicitly setup the foreignKeys for related models
@@ -140,12 +140,31 @@ var runMe = function (payload, config, taskId, messageId) {
                         updatedAt: new Date()
                     });
                 } else {
-                    return Promise.resolve({
-                        ops: [
-                            {
-                                _id: payload.reportModelId
-                            }
-                        ]
+                    return db.collection('ReportModel')
+                        .updateOne({_id: ObjectId(payload.reportModelId)}, {
+                        $set: {
+                            name: name,
+                            updatedAt: new Date()
+                        }
+                    })
+                        .catch(error => {
+                            logger.error({
+                                error,
+                                message: 'Error updating name '
+                            });
+                        })
+                        .then(updateResponse => {
+                            logger.debug({
+                                updateResponse,
+                                message: 'Name of Report updated '
+                            });
+                        return Promise.resolve({
+                            ops: [
+                                {
+                                    _id: payload.reportModelId
+                                }
+                            ]
+                        });
                     });
                 }
             })
