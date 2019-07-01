@@ -1,5 +1,5 @@
 @keyframes backgroundEffect {
-  from {background-color: green;}
+  from {background-color: #91ff84;}
   to {background-color: white;}
 }
 
@@ -15,8 +15,4 @@ $animation-duration: 6s;
   animation-duration: $animation-duration;
   -webkit-animation-name: backgroundEffect;
   -webkit-animation-duration: $animation-duration;
-}
-
-.spinner-border{
-  margin-top: 10px;
 }
