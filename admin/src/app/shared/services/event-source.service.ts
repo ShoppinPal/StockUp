@@ -15,7 +15,7 @@ export class EventSourceService {
      eventSource.onmessage = (event) => {
        console.log('Event Received');
        const json = JSON.parse(event.data);
-       observer.next(json);
+       observer.next([json, eventSource]);
      };
      eventSource.onerror = (error) => {
        // readyState === 0 (closed) means the remote source closed the connection,
@@ -26,7 +26,7 @@ export class EventSourceService {
          eventSource.close();
          observer.complete();
        } else {
-         observer.error('EventSource error: ' + error);
+         observer.error(error);
        }
      };
    });

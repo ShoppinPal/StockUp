@@ -229,20 +229,49 @@ function generateStockOrder(payload, config, taskId, messageId) {
             if(!payload.name) {
                 name = storeModelInstance.name + ' - ' + TODAYS_DATE.getFullYear() + '-' + (TODAYS_DATE.getMonth() + 1) + '-' + TODAYS_DATE.getDate();
             }
-            return db.collection('ReportModel').insert({
-                name: name,
-                orgModelId: ObjectId(orgModelId),
-                userModelId: ObjectId(payload.loopbackAccessToken.userId), // explicitly setup the foreignKeys for related models
-                storeModelId: ObjectId(storeModelId),
-                categoryModelId: ObjectId(categoryModelId),
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                state: REPORT_STATES.PROCESSING,
-                deliverFromStoreModelId: ObjectId(payload.warehouseModelId),
-                percentagePushedToMSD: 0,
-                transferOrderNumber: null,
-                transferOrderCount: 0
-            });
+            if (!payload.reportModelId) {
+                return db.collection('ReportModel').insert({
+                    name: name,
+                    orgModelId: ObjectId(orgModelId),
+                    userModelId: ObjectId(payload.loopbackAccessToken.userId), // explicitly setup the foreignKeys for related models
+                    storeModelId: ObjectId(storeModelId),
+                    categoryModelId: ObjectId(categoryModelId),
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                    state: REPORT_STATES.PROCESSING,
+                    deliverFromStoreModelId: ObjectId(payload.warehouseModelId),
+                    percentagePushedToMSD: 0,
+                    transferOrderNumber: null,
+                    transferOrderCount: 0
+                });
+            } else {
+                return db.collection('ReportModel')
+                    .updateOne({_id: ObjectId(payload.reportModelId)}, {
+                        $set: {
+                            name: name,
+                            updatedAt: new Date()
+                        }
+                    })
+                    .catch(error => {
+                        logger.error({
+                            error,
+                            message: 'Error updating name '
+                        });
+                    })
+                    .then(updateResponse => {
+                        logger.debug({
+                            updateResponse,
+                            message: 'Name of Report updated '
+                        });
+                        return Promise.resolve({
+                            ops: [
+                                {
+                                    _id: payload.reportModelId
+                                }
+                            ]
+                        });
+                    });
+            }
         })
         .catch(function (error) {
             logger.error({

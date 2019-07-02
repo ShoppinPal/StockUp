@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {OrgModelApi} from "../../../shared/lb-sdk/services/custom/OrgModel";
 import {ActivatedRoute, Router} from '@angular/router';
 import {Observable, combineLatest} from 'rxjs';
-import {map, mergeMap} from 'rxjs/operators';
+import {debounceTime, map, mergeMap} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
 import {UserProfileService} from "../../../shared/services/user-profile.service";
 import {TypeaheadMatch} from 'ngx-bootstrap';
@@ -69,6 +69,7 @@ export class StockOrdersComponent implements OnInit {
   public userStores;
   public orderConfigurations: any;
   public selectedOrderConfigurationId;
+  private fetchStockOrdersDebounced: Observable<any>;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -81,6 +82,12 @@ export class StockOrdersComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.fetchStockOrdersDebounced = new Observable((observer) => {
+      this.toastr.success('Order generated successfully', '');
+      observer.next();
+    })
+    .pipe(debounceTime(5000));
+
     this.userProfile = this._userProfileService.getProfileData();
     this.userStores = this.userProfile.storeModels.map(x => x.objectId);
     this._route.data.subscribe((data: any) => {
@@ -230,35 +237,40 @@ export class StockOrdersComponent implements OnInit {
   }
 
   generateStockOrderMSD() {
-    let EventSource = window['EventSource'];
-    let url = '/api/OrgModels/' + this.userProfile.orgModelId + '/generateStockOrderMSD?access_token=' + this.auth.getAccessTokenId() + '&type=json';
-    if (this.selectedStoreId)
-      url += '&storeModelId=' + this.selectedStoreId;
-    if (this.selectedWarehouseId)
-      url += '&warehouseModelId=' + this.selectedWarehouseId;
-    if (this.selectedCategoryId)
-      url += '&categoryModelId=' + this.selectedCategoryId;
-    let es = new EventSource(url);
-    let toastr = this.toastr;
-    toastr.info('Generating stock order...');
-    es.onmessage = function (event) {
-      let response = JSON.parse(event.data);
-      if (response.success) {
-        toastr.success('Order generated');
-
-      }
-      else {
-        toastr.error('Error in generating order');
-      }
-      es.close();
-    };
-    es.onerror = function (event) {
-      toastr.error('Error in generating order');
-    }
+      this.loading = true;
+      let url = '/api/OrgModels/' + this.userProfile.orgModelId + '/generateStockOrderMSD?';
+      let params = new HttpParams();
+      params = params.set('access_token', this.auth.getAccessTokenId());
+      params = params.set('type', 'json');
+      if (this.selectedStoreId)
+          params = params.set('storeModelId', this.selectedStoreId);
+      if (this.selectedWarehouseId)
+          params = params.set('warehouseModelId', this.selectedWarehouseId);
+      if (this.selectedCategoryId)
+          params = params.set('categoryModelId', this.selectedCategoryId);
+      url = url + params.toString();
+      this.toastr.info('Generating stock order...');
+      this._eventSourceService.connectToStream(url)
+          .subscribe(([response, es]) => {
+              if (response.type === EventSourceService.PROCESSING) {
+                  this.loading = false;
+                  this.generatedOrders.unshift({...response.data, backgroundEffect: true});
+              } else if (response.success) {
+                  es.close();
+                  this.fetchStockOrdersDebounced
+                      .subscribe(event => {
+                          this.toastr.success('Order generated successfully');
+                          this.fetchOrders('generated');
+                      });
+              } else {
+                  this.toastr.error('Error in generating order');
+              }
+          }, error => {
+              this.toastr.error('Error in generating order');
+          });
   };
 
   generateStockOrderVend() {
-    let toastr = this.toastr;
     if (this.uploader.queue.length) {
       console.log('uploading file...', this.uploader);
       this.uploader.onBuildItemForm = (fileItem: any, form: any)=> {
@@ -277,8 +289,8 @@ export class StockOrdersComponent implements OnInit {
         this.toastr.error('Error importing stock order from file');
       };
     } else if (this.selectedSupplierId) {
-        toastr.info('Generating stock order...');
         this.loading = true;
+        this.toastr.info('Generating stock order');
       let url = '/api/OrgModels/' + this.userProfile.orgModelId +
           '/generateStockOrderVend?';
       let params = new HttpParams();
@@ -290,23 +302,27 @@ export class StockOrdersComponent implements OnInit {
       params = params.set('warehouseModelId', this.selectedWarehouseId);
       url = url + params.toString();
       this._eventSourceService.connectToStream(url)
-          .subscribe(response => {
-            this.loading = false;
+          .subscribe(([response, es]) => {
         if (response.type === EventSourceService.PROCESSING) {
+          this.loading = false;
           this.generatedOrders.unshift({...response.data, backgroundEffect: true});
         } else if (response.success === true) {
-             toastr.success('Order generated', 'Success');
-            this.fetchOrders('all');
+          es.close();
+          this.fetchStockOrdersDebounced
+              .subscribe(event => {
+                this.toastr.success('Order generated successfully');
+                this.fetchOrders('generated');
+              });
         } else {
-           toastr.error('Error in generating order');
+           this.toastr.error('Error in generating order');
         }
       }, error1 => {
         console.error(error1);
         this.loading = false;
-        toastr.error('Error in generating order');
+        this.toastr.error('Error in generating order');
       });
     } else {
-      toastr.error('Select a supplier or upload a file to generate order from');
+      this.toastr.error('Select a supplier or upload a file to generate order from');
       return;
     }
   };
