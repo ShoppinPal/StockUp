@@ -374,22 +374,69 @@ module.exports = function (ReportModel) {
             loopbackAccessToken: options.accessToken,
             op: 'generateStockOrderMSD'
         };
-        return workerUtils.sendPayLoad(payload)
-            .then(function (response) {
+        return ReportModel.create({
+            //name: name,
+            orgModelId,
+            userModelId: options.accessToken.userId, // explicitly setup the foreignKeys for related models
+            storeModelId,
+            categoryModelId,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            state: REPORT_STATES.PROCESSING,
+            deliverFromStoreModelId: warehouseModelId,
+            percentagePushedToMSD: 0,
+            transferOrderNumber: null,
+            transferOrderCount: 0
+        }).then(reportInstance => {
+            payload = Object.assign({}, payload, {reportModelId: reportInstance.id});
+            logger.debug({
+                message: 'Report model instance created with STATUS processing',
+                storeModelId,
+                reportInstance,
+                functionName: 'generateStockOrderMSD',
+                options,
+            });
+            logger.debug({
+                message: 'Will initiate worker to generate stock order for Vend',
+                storeModelId,
+                payload,
+                functionName: 'generateStockOrderMSD',
+                options,
+            });
+            return Promise.all([workerUtils.sendPayLoad(payload),
+                reportInstance]);
+        })
+            .then(function ([response, reportInstance]) {
                 logger.debug({
                     message: 'Sent generateStockOrderMSD to worker',
                     options,
                     response,
                     functionName: 'generateStockOrderMSD'
                 });
+                sse.getSSE(options.accessToken.userId).send({
+                    MessageId: response.MessageId,
+                    data: reportInstance,
+                    type: sse.PROCESSING,
+                    message: 'Order generation in progress'
+                }, '', response.MessageId);
+                logger.debug({
+                    data: {
+                        MessageId: response.MessageId,
+                        data: reportInstance,
+                        message: 'Order generation in progress'
+                    },
+                    message: 'Sent SSE Data'
+                });
+
+
                 return Promise.resolve('Stock order generation initiated');
             })
             .catch(function (error) {
                 logger.error({
-                    message: 'Could not send generateStockOrderMSD to worker',
+                    message: 'Could not send generateStockOrderVend to worker',
                     options,
                     error,
-                    functionName: 'generateStockOrderMSD'
+                    functionName: 'generateStockOrderVend'
                 });
                 return Promise.reject('Error in creating stock order');
             });
