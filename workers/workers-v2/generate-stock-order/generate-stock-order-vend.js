@@ -33,7 +33,6 @@ var runMe = function (payload, config, taskId, messageId) {
             message: `This worker will generate stock order for outlet ${payload.storeModelId} and supplier ${payload.supplierModelId}`
         });
         return Promise.resolve()
-            .delay(15000)
             .then(function () {
                 logger.debug({
                     message: 'Will connect to Mongodb',
