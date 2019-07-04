@@ -1,37 +1,68 @@
-import {Component, OnInit, ChangeDetectorRef} from '@angular/core';
+import {Component, OnInit, ChangeDetectorRef, OnDestroy} from '@angular/core';
 import {OrgModelApi} from "../../shared/lb-sdk/services/custom/OrgModel";
 import {ActivatedRoute} from '@angular/router';
 import {UserProfileService} from "../../shared/services/user-profile.service";
 import {ToastrService} from 'ngx-toastr';
-import {Observable, empty} from 'rxjs';
+import {Subscription} from 'rxjs';
 import {mergeMap} from 'rxjs/operators';
-
+import {EventSourceService} from '../../shared/services/event-source.service';
+import {HttpParams} from '@angular/common/http';
+import {LoopBackAuth} from '../../shared/lb-sdk/services/core';
 @Component({
   selector: 'app-connect',
   templateUrl: './connect.component.html',
   styleUrls: ['./connect.component.scss']
 })
-export class ConnectComponent implements OnInit {
+export class ConnectComponent implements OnInit, OnDestroy {
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
               private _userProfileService: UserProfileService,
               private cd: ChangeDetectorRef,
+              private auth: LoopBackAuth,
+              private eventSourceService: EventSourceService,
               private toastr: ToastrService) {
   }
 
   public userProfile: any = this._userProfileService.getProfileData();
   public integration: any;
   public syncModels: number;
+  public syncModelsData: any;
   public loading: boolean = false;
   public selectedCompany: string;
   public databaseName: string;
+  public syncing = {
+      products: false,
+      inventory: false,
+      suppliers: false
+  };
+  private subscription: Subscription;
+
+  getSyncEvents(): void {
+      let params = new HttpParams();
+      params = params.set('access_token', this.auth.getAccessTokenId());
+      params = params.set('type', 'json');
+      this.subscription = this.eventSourceService.connectToStream(
+          `/api/OrgModels/${this.userProfile.orgModelId}/listenSSE?${params.toString()}`,
+          true
+      )
+          .subscribe(([status, es]) => {
+              console.log(status);
+              Object.keys(this.syncing).forEach(v => this.syncing[v] = status.loading);
+              console.log(this.syncModelsData);
+          });
+  }
 
   ngOnInit() {
+      this.getSyncEvents();
     this._route.data.subscribe((data: any) => {
         this.integration = data.integration.integration;
         this.syncModels = data.integration.syncModels;
+        this.syncModelsData = data.integration.syncModelsData;
         this.selectedCompany = this.integration && this.integration.length ? this.integration[0].dataAreaId : '';
+        this.syncModelsData.forEach((syncData) => {
+            this.syncing[syncData.name] = syncData.syncInProcess;
+        });
       },
       error => {
         console.log('error', error)
@@ -221,9 +252,9 @@ export class ConnectComponent implements OnInit {
   }
 
   checkSync(dataObject) {
-    // return this.syncModels.find(function (eachSyncModel) {
-    //   return eachSyncModel.name === dataObject;
-    // }) ? true : false;
+    return !!this.syncModelsData.find(function (eachSyncModel) {
+        return eachSyncModel.name === dataObject;
+    });
   }
 
   toggleSync(dataObject) {
@@ -256,6 +287,13 @@ export class ConnectComponent implements OnInit {
     //     this.loading = false;
     //   })
   }
+
+    ngOnDestroy(): void {
+      // Unsubscribing closes all event source connections for this url
+      if (this.subscription) {
+          this.subscription.unsubscribe();
+      }
+    }
 
 
 }

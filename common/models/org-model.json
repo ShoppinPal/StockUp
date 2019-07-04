@@ -581,6 +581,27 @@
       "principalId": "storeManager",
       "permission": "ALLOW",
       "property": "receiveConsignment"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "notifySyncToAll"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "listenSSE"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "listenSSE"
     }
   ],
   "methods": {}
