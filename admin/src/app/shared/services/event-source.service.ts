@@ -39,6 +39,7 @@ export class EventSourceService {
                   eventSource.close();
                   if (!retry) {
                       observer.complete();
+                      this.destroyAllEventSourcesForUrl(url);
                   } else {
                       observer.error(error)
                   }
@@ -47,16 +48,18 @@ export class EventSourceService {
               }
           };
       }).pipe(
-          retryWhen(errors =>
-              errors.pipe(
-                  tap(val => console.log(`Value ${val} was too high!`)),
-                  delayWhen(val => timer(val * 1000)),
-                  map(e => {
-                      console.log('Retry Event Source Connection')
-                      return e;
-                  })
-              )
-          ),
+          retryWhen(errors => {
+              if (retry) {
+                  return errors.pipe(
+                      tap(val => console.log(`Value ${val} was too high!`)),
+                      delayWhen(val => timer(val * 1000)),
+                      map(e => {
+                          console.log('Retry Event Source Connection')
+                          return e;
+                      })
+                  )
+              }
+          }),
           finalize(() => {
               // Will be called on last subscriber unsubscribe
               this.destroyAllEventSourcesForUrl(url)
