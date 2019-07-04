@@ -1215,6 +1215,86 @@ module.exports = function (OrgModel) {
                 });
         };
 
+        OrgModel.remoteMethod('listenSSE', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'req', type: 'object', 'http': {source: 'req'}},
+                {arg: 'res', type: 'object', 'http': {source: 'res'}},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/listenSSE', verb: 'get'},
+            returns: {arg: 'data', type: 'ReadableStream', root: true}
+        });
+
+        OrgModel.listenSSE = function (id,req, res, options) {
+            try {
+                logger.debug({
+                    token: options.accessToken,
+                    message: 'Creating SSE',
+                    functionName: 'listenSSE'
+                });
+                sse.setupSSE(req, res, options);
+            } catch (e) {
+                logger.error({
+                    e,
+                    message: 'Error creating SSE',
+                    functionName: 'listenSSE'
+                });
+            }
+        };
+        OrgModel.remoteMethod('notifySyncToAll', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'data', type: 'object', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/notifySyncToAll', verb: 'post'},
+            returns: {arg: 'data', type: 'ReadableStream', root: true}
+        });
+
+        OrgModel.notifySyncToAll = function (id, data, options) {
+            try {
+                logger.debug({
+                    id,
+                    message: 'This is called by Sync worker',
+
+                    functionName: 'notifyAll'
+                });
+                return OrgModel.app.models.UserModel.find({
+                    where:{
+                        orgModelId: id
+                    }
+                }).then(users => {
+                    logger.debug({
+                        id,
+                        message: 'Will Notify Users of OrgId '+ id,
+                        users,
+                        functionName: 'notifyAll'
+                    });
+                    users.forEach(user => {
+                        var sseInstance = sse.getSSE(user.id);
+                        if (sseInstance) {
+                            sseInstance.send(data, '', '');
+                        }
+                    });
+                }).catch(error => {
+                    logger.error({
+                        error,
+                        message: 'Error Notifying Users Event',
+                        functionName: 'sendReports'
+                    });
+                });
+            }
+            catch (e) {
+                logger.error({
+                    options,
+                    err: e,
+                    message: 'Could not send data to client',
+                    functionName: 'sendReports'
+                });
+               return Promise.reject(e);
+            }
+        };
 
     });
 };

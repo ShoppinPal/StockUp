@@ -178,6 +178,9 @@
                   <input type="checkbox" class="switch-input" [ngModel]="checkSync('products')" disabled>
                   <span class="switch-slider"></span>
                 </label>
+                <div *ngIf="syncing['products']" class="spinner-border spinner-border-sm spinner-margins" role="status">
+                  <span class="sr-only">Loading...</span>
+                </div>
               </td>
             </tr>
             <tr>
@@ -189,6 +192,9 @@
                   <input type="checkbox" class="switch-input" [ngModel]="checkSync('inventory')" disabled>
                   <span class="switch-slider"></span>
                 </label>
+                <div *ngIf="syncing['inventory']" class="spinner-border spinner-border-sm spinner-margins" role="status">
+                  <span class="sr-only">Loading...</span>
+                </div>
               </td>
             </tr>
             <tr>
@@ -200,6 +206,9 @@
                   <input type="checkbox" class="switch-input" [ngModel]="checkSync('suppliers')" disabled>
                   <span class="switch-slider"></span>
                 </label>
+                <div *ngIf="syncing['suppliers']" class="spinner-border spinner-border-sm spinner-margins" role="status">
+                  <span class="sr-only">Loading...</span>
+                </div>
               </td>
             </tr>
             </tbody>
