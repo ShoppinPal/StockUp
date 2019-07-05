@@ -66,18 +66,19 @@ var runMe = function (payload, config, taskId, messageId) {
                 .then(function (result) {
                     var options = {
                         method: 'POST',
-                        uri: utils.API_URL + '/api/OrgModels/' + orgModelId + '/sendWorkerStatus',
+                        uri: utils.PUBLISH_URL,
                         json: true,
                         headers: {
                             'Authorization': payload.loopbackAccessToken.id
                         },
-                        body: {
-                            messageId: messageId,
-                            userId: payload.loopbackAccessToken.userId,
-                            data: {
-                                success: true
-                            }
-                        }
+                        body: new utils.Notification(
+                            utils.workerType.GENERATE_STOCK_ORDER,
+                            utils.messageFor.MESSAGE_FOR_API,
+                            utils.workerStatus.SUCCESS,
+                            {success: true, reportModelId: payload.reportModelId},
+                            payload.callId
+                        )
+
                     };
                     logger.debug({
                         commandName: commandName,
@@ -97,18 +98,19 @@ var runMe = function (payload, config, taskId, messageId) {
                     });
                     var options = {
                         method: 'POST',
-                        uri: utils.API_URL + '/api/OrgModels/' + orgModelId + '/sendWorkerStatus',
+                        uri: utils.PUBLISH_URL,
                         json: true,
                         headers: {
                             'Authorization': payload.loopbackAccessToken.id
                         },
-                        body: {
-                            messageId: messageId,
-                            userId: payload.loopbackAccessToken.userId,
-                            data: {
-                                success: false
-                            }
-                        }
+                        body: new utils.Notification(
+                            utils.workerType.GENERATE_STOCK_ORDER,
+                            utils.messageFor.MESSAGE_FOR_API,
+                            utils.workerStatus.FAILED,
+                            {success: false, reportModelId: payload.reportModelId},
+                            payload.callId
+                        )
+
                     };
                     logger.debug({
                         message: 'Could not insert line items to report model, will send the following error',

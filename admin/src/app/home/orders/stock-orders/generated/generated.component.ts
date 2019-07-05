@@ -1,19 +1,20 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {OrgModelApi} from "../../../../shared/lb-sdk/services/custom/OrgModel";
 import {ActivatedRoute, Router} from '@angular/router';
-import {Observable, combineLatest} from 'rxjs';
+import {Observable, combineLatest, Subscription} from 'rxjs';
 import {ToastrService} from 'ngx-toastr';
 import {UserProfileService} from "../../../../shared/services/user-profile.service";
 import {LoopBackAuth} from "../../../../shared/lb-sdk/services/core/auth.service";
 import {constants} from "../../../../shared/constants/constants";
 import {DatePipe} from '@angular/common';
+import {EventSourceService} from '../../../../shared/services/event-source.service';
 
 @Component({
   selector: 'app-generated',
   templateUrl: './generated.component.html',
   styleUrls: ['./generated.component.scss']
 })
-export class GeneratedComponent implements OnInit {
+export class GeneratedComponent implements OnInit, OnDestroy {
 
   public userProfile: any;
   public loading = false;
@@ -36,12 +37,14 @@ export class GeneratedComponent implements OnInit {
   public boxes: Array<any> = [];
   public selectedBox = null;
   public editable: boolean;
+  private subscriptions: Subscription[] = [];
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
               private _router: Router,
               private toastr: ToastrService,
               private _userProfileService: UserProfileService,
+              private _eventSourceService: EventSourceService,
               private auth: LoopBackAuth) {
   }
 
@@ -183,54 +186,36 @@ export class GeneratedComponent implements OnInit {
     console.log('submitting');
     if (!this.totalApprovedLineItems) {
       this.toastr.error('Please approve at least one item to create Transfer Order in MSD');
-    }
-    else {
+    } else {
       this.creatingTransferOrder = true;
-      let componentScope = this;
-      let EventSource = window['EventSource'];
-      let es = new EventSource('/api/OrgModels/' + this.userProfile.orgModelId + '/createTransferOrderMSD?access_token=' + this.auth.getAccessTokenId() + '&reportModelId=' + this.order.id + '&type=json');
-      this.toastr.info('Generating transfer order...');
-      this.getOrderDetails();
-      let _router = this._router;
-      es.onmessage = function (event) {
-        let response = JSON.parse(event.data);
-        console.log(response);
-        if (response.success) {
-          componentScope.toastr.success('Created transfer order in MSD');
-
-        }
-        else {
-          componentScope.creatingTransferOrder = false;
-          componentScope.toastr.error('Error in creating transfer order in MSD');
-        }
-        es.close();
-      };
+      this.orgModelApi.createPurchaseOrderVend(
+          this.userProfile.orgModelId,
+          this.order.id
+      ).subscribe(transferOrderRequest => {
+        this.creatingTransferOrder = false;
+        this.waitForGeneration(transferOrderRequest.callId);
+      }, error1 => {
+        this.creatingTransferOrder = false;
+        this.toastr.error('Error in creating transfer order in MSD')
+      });
     }
   }
 
   createPurchaseOrderVend() {
     if (!this.totalApprovedLineItems) {
       this.toastr.error('Please approve at least one item to send order to supplier');
-    }
-    else {
+    } else {
       this.creatingPurchaseOrderVend = true;
-      let componentScope = this;
-      let EventSource = window['EventSource'];
-      let es = new EventSource('/api/OrgModels/' + this.userProfile.orgModelId + '/createPurchaseOrderVend?access_token=' + this.auth.getAccessTokenId() + '&reportModelId=' + this.order.id + '&type=json');
-      this.toastr.info('Generating supplier order...');
-      this._router.navigate(['/orders/stock-orders']);
-      es.onmessage = function (event) {
-        let response = JSON.parse(event.data);
-        console.log(response);
-        if (response.success) {
-          componentScope.toastr.success('Order sent successfully');
-        }
-        else {
-          componentScope.creatingPurchaseOrderVend = false;
-          componentScope.toastr.error('Error in sending order to supplier');
-        }
-        es.close();
-      };
+      this.orgModelApi.createPurchaseOrderVend(
+          this.userProfile.orgModelId,
+          this.order.id
+      ).subscribe(purchaseOrderRequest => {
+        this.creatingPurchaseOrderVend = false;
+        this.waitForGeneration(purchaseOrderRequest.callId);
+      }, error1 => {
+        this.creatingPurchaseOrderVend = false;
+        this.toastr.error('Error in sending order to supplier')
+      });
     }
   }
 
@@ -296,6 +281,25 @@ export class GeneratedComponent implements OnInit {
         });
   };
 
+  waitForGeneration(callId) {
+    const EventSourceUrl = `/notification/${callId}/waitForResponseAPI`;
+    this.subscriptions.push(
+        this._eventSourceService.connectToStream(EventSourceUrl)
+            .subscribe(([event, es]) => {
+              console.log(event);
+              if (event.data === 'connected') {
+
+              } else if (event.data.success === true) {
+                es.close();
+                this._router.navigate(['/orders/stock-orders']);
+                this.toastr.success('Order sent successfully');
+              } else {
+                this.toastr.error('Error in sending order to supplier');
+              }
+            })
+    );
+  }
+
   downloadOrderCSV() {
     this.loading = true;
     this.orgModelApi.downloadReportModelCSV(this.userProfile.orgModelId, this.order.id).subscribe((data) => {
@@ -307,6 +311,14 @@ export class GeneratedComponent implements OnInit {
     }, err=> {
       this.loading = false;
       console.log(err);
+    })
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(subscription => {
+      if (subscription) {
+        subscription.unsubscribe()
+      }
     })
   }
 

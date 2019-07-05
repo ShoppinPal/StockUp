@@ -614,28 +614,16 @@ module.exports = function (OrgModel) {
                 {arg: 'id', type: 'string', required: true},
                 {arg: 'storeModelId', type: 'string', required: true},
                 {arg: 'warehouseModelId', type: 'string', required: true},
-                {arg: 'req', type: 'object', 'http': {source: 'req'}},
-                {arg: 'res', type: 'object', 'http': {source: 'res'}},
                 {arg: 'categoryModelId', type: 'string'},
+                {arg: 'res', type: 'object', 'http': {source: 'res'}},
                 {arg: 'options', type: 'object', http: 'optionsFromRequest'}
             ],
-            http: {path: '/:id/generateStockOrderMSD', verb: 'get'},
-            returns: {arg: 'data', type: 'ReadableStream', root: true}
+            http: {path: '/:id/generateStockOrderMSD', verb: 'post'},
+            returns: {arg: 'data', type: 'object', root: true}
         });
 
-        OrgModel.generateStockOrderMSD = function (id, storeModelId, warehouseModelId, req, res, categoryModelId, options) {
-            try {
-                sse.setupSSE(req,res, options);
-            }
-            catch (e) {
-                logger.error({
-                    e,
-                    options,
-                    message: 'Error creating SSE',
-                    functionName: 'generateStockOrderMSD'
-                });
-            }
-            OrgModel.app.models.ReportModel.generateStockOrderMSD(id, storeModelId, warehouseModelId, categoryModelId, options)
+        OrgModel.generateStockOrderMSD = function (id, storeModelId, warehouseModelId, categoryModelId, res,options) {
+            return OrgModel.app.models.ReportModel.generateStockOrderMSD(id, storeModelId, warehouseModelId, categoryModelId, res, options)
                 .catch(function (error) {
                     logger.error({
                         error,
@@ -643,38 +631,28 @@ module.exports = function (OrgModel) {
                         functionName: 'generateStockOrderMSD',
                         options
                     });
+                    res.status(500).send('Could not initiate stock order generation');
                     return Promise.reject('Could not initiate stock order generation');
                 });
         };
 
         OrgModel.remoteMethod('generateStockOrderVend', {
+
             accepts: [
                 {arg: 'id', type: 'string', required: true},
                 {arg: 'storeModelId', type: 'string', required: true},
                 {arg: 'supplierModelId', type: 'string', required: true},
                 {arg: 'name', type: 'string'},
                 {arg: 'warehouseModelId', type: 'string', required: true},
-                {arg: 'req', type: 'object', 'http': {source: 'req'}},
                 {arg: 'res', type: 'object', 'http': {source: 'res'}},
                 {arg: 'options', type: 'object', http: 'optionsFromRequest'}
             ],
-            http: {path: '/:id/generateStockOrderVend', verb: 'get'},
-            returns: {arg: 'data', type: 'ReadableStream', root: true}
+            http: {path: '/:id/generateStockOrderVend', verb: 'post'},
+            returns: {arg: 'data', type: 'object', root: true}
         });
 
-        OrgModel.generateStockOrderVend = function (id, storeModelId, supplierModelId, name, warehouseModelId, req, res, options) {
-            try {
-                sse.setupSSE(req,res, options);
-            }
-            catch (e) {
-                logger.error({
-                    e,
-                    options,
-                    message: 'Error creating SSE',
-                    functionName: 'generateStockOrderVend'
-                });
-            }
-            OrgModel.app.models.ReportModel.generateStockOrderVend(id, storeModelId, supplierModelId, name, warehouseModelId, options)
+        OrgModel.generateStockOrderVend = function (id, storeModelId, supplierModelId, name, warehouseModelId, res, options) {
+            return OrgModel.app.models.ReportModel.generateStockOrderVend(id, storeModelId, supplierModelId, name, warehouseModelId, res, options)
                 .catch(function (error) {
                     logger.error({
                         error,
@@ -682,6 +660,7 @@ module.exports = function (OrgModel) {
                         functionName: 'generateStockOrderVend',
                         options
                     });
+                    res.status(500).send('Could not initiate stock order generation');
                     return Promise.reject('Could not initiate stock order generation');
                 });
         };
@@ -690,27 +669,15 @@ module.exports = function (OrgModel) {
             accepts: [
                 {arg: 'id', type: 'string', required: true},
                 {arg: 'reportModelId', type: 'string', required: true},
-                {arg: 'req', type: 'object', 'http': {source: 'req'}},
                 {arg: 'res', type: 'object', 'http': {source: 'res'}},
                 {arg: 'options', type: 'object', http: 'optionsFromRequest'}
             ],
-            http: {path: '/:id/receiveConsignment', verb: 'get'},
-            returns: {arg: 'data', type: 'ReadableStream', root: true}
+            http: {path: '/:id/receiveConsignment', verb: 'post'},
+            returns: {arg: 'data', type: 'object', root: true}
         });
 
-        OrgModel.receiveConsignment = function (id, reportModelId, req, res, options) {
-            try {
-                sse.setupSSE(req,res, options);
-            }
-            catch (e) {
-                logger.error({
-                    e,
-                    options,
-                    message: 'Error creating SSE',
-                    functionName: 'receiveConsignment'
-                });
-            }
-            OrgModel.app.models.ReportModel.receiveConsignment(id, reportModelId, options)
+        OrgModel.receiveConsignment = function (id, reportModelId, res, options) {
+            return OrgModel.app.models.ReportModel.receiveConsignment(id, reportModelId, res,options)
                 .catch(function (error) {
                     logger.error({
                         error,
@@ -764,24 +731,23 @@ module.exports = function (OrgModel) {
             accepts: [
                 {arg: 'id', type: 'string', required: true},
                 {arg: 'reportModelId', type: 'string', required: true},
-                {arg: 'req', type: 'object', 'http': {source: 'req'}},
                 {arg: 'res', type: 'object', 'http': {source: 'res'}},
                 {arg: 'options', type: 'object', http: 'optionsFromRequest'}
             ],
-            http: {path: '/:id/createTransferOrderMSD', verb: 'GET'},
-            returns: {arg: 'data', type: 'ReadableStream', root: true}
+            http: {path: '/:id/createTransferOrderMSD', verb: 'POST'},
+            returns: {arg: 'data', type: 'object', root: true}
         });
 
-        OrgModel.createTransferOrderMSD = function (id, reportModelId, req, res, options, cb) {
+        OrgModel.createTransferOrderMSD = function (id, reportModelId, res, options) {
             logger.debug({
                 message: 'Will create transfer order in MSD',
                 reportModelId,
                 options,
                 functionName: 'createTransferOrderMSD'
             });
-            sse.setupSSE(req,res, options);
-            OrgModel.app.models.ReportModel.createTransferOrderMSD(id, reportModelId, options)
+            return OrgModel.app.models.ReportModel.createTransferOrderMSD(id, reportModelId, res, options)
                 .catch(function (error) {
+                    res.status(500).send('Could not create transfer order in MSD');
                     logger.error({
                         message: 'Could not create transfer order in MSD',
                         reportModelId,
@@ -789,7 +755,6 @@ module.exports = function (OrgModel) {
                         functionName: 'createTransferOrderMSD',
                         error
                     });
-                    sse.getSSE(options.accessToken.userId).send(false);
                 });
         };
 
@@ -1006,24 +971,21 @@ module.exports = function (OrgModel) {
             accepts: [
                 {arg: 'id', type: 'string', required: true},
                 {arg: 'reportModelId', type: 'string', required: true},
-                {arg: 'req', type: 'object', 'http': {source: 'req'}},
                 {arg: 'res', type: 'object', 'http': {source: 'res'}},
                 {arg: 'options', type: 'object', http: 'optionsFromRequest'}
             ],
-            http: {path: '/:id/createPurchaseOrderVend', verb: 'GET'},
-            returns: {arg: 'data', type: 'ReadableStream', root: true}
+            http: {path: '/:id/createPurchaseOrderVend', verb: 'POST'},
+            returns: {arg: 'data', type: 'object', root: true}
         });
 
-        OrgModel.createPurchaseOrderVend = function (id, reportModelId, req, res, options) {
+        OrgModel.createPurchaseOrderVend = function (id, reportModelId, res, options) {
             logger.debug({
                 message: 'Will create purchase order in Vend',
                 reportModelId,
                 options,
                 functionName: 'createPurchaseOrderVend'
             });
-            res.connection.setTimeout(0);
-            sse.setupSSE(req,res, options);
-            OrgModel.app.models.ReportModel.createPurchaseOrderVend(id, reportModelId, options)
+            return OrgModel.app.models.ReportModel.createPurchaseOrderVend(id, reportModelId, res, options)
                 .catch(function (error) {
                     logger.error({
                         message: 'Could not create purchase order in Vend',
@@ -1032,7 +994,7 @@ module.exports = function (OrgModel) {
                         functionName: 'createPurchaseOrderVend',
                         error
                     });
-                    sse.getSSE(options.accessToken.userId).send(false);
+                    res.status(500).send('Could not create purchase order in Vend');
                 });
         };
 
@@ -1112,7 +1074,7 @@ module.exports = function (OrgModel) {
                     return Promise.reject(false);
                 });
         };
-    
+
         OrgModel.remoteMethod('scanBarcodeStockOrder', {
             accepts: [
                 {arg: 'id', type: 'string', required: true},
@@ -1125,7 +1087,7 @@ module.exports = function (OrgModel) {
             http: {path: '/:id/scanBarcodeStockOrder', verb: 'post'},
             returns: {arg: 'data', type: 'object', root: true}
         });
-    
+
         OrgModel.scanBarcodeStockOrder = function (id, scanType, productSku, reportModelId, force, options) {
                 logger.debug({
                     id, scanType, productSku, reportModelId, force, options,

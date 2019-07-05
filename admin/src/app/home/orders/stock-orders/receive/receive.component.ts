@@ -1,12 +1,13 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {OrgModelApi} from "../../../../shared/lb-sdk/services/custom/OrgModel";
 import {ActivatedRoute, Router} from '@angular/router';
-import {Observable, combineLatest} from 'rxjs';
+import {Observable, combineLatest, Subscription} from 'rxjs';
 import {ToastrService} from 'ngx-toastr';
 import {UserProfileService} from "../../../../shared/services/user-profile.service";
 import {LoopBackAuth} from "../../../../shared/lb-sdk/services/core/auth.service";
 import {constants} from "../../../../shared/constants/constants";
 import {DatePipe} from '@angular/common';
+import {EventSourceService} from '../../../../shared/services/event-source.service';
 import {ModalDirective} from 'ngx-bootstrap';
 
 @Component({
@@ -14,7 +15,7 @@ import {ModalDirective} from 'ngx-bootstrap';
   templateUrl: './receive.component.html',
   styleUrls: ['./receive.component.scss']
 })
-export class ReceiveComponent implements OnInit {
+export class ReceiveComponent implements OnInit, OnDestroy {
   @ViewChild('discrepancyModal') public discrepancyModal: ModalDirective;
   @ViewChild('searchInput') public searchInputRef: ElementRef;
 
@@ -40,12 +41,14 @@ export class ReceiveComponent implements OnInit {
   public searchSKUFocused: boolean = true;
   public enableBarcode: boolean = true;
   public discrepancyOrderItem: any;
+  private subscriptions: Subscription[] = [];
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
               private _router: Router,
               private toastr: ToastrService,
               private _userProfileService: UserProfileService,
+              private _eventSourceService: EventSourceService,
               private auth: LoopBackAuth) {
   }
 
@@ -302,27 +305,34 @@ export class ReceiveComponent implements OnInit {
   receiveConsignment() {
     if (!this.totalReceivedLineItems) {
       this.toastr.error('Please receive at least one item to send order to supplier');
+    } else {
+      // this.creatingPurchaseOrderVend = true;
+      this.orgModelApi.receiveConsignment(
+          this.userProfile.orgModelId,
+          this.order.id
+      ).subscribe(recieveRequest => {
+        this.waitForRecieveWorker(recieveRequest.callId);
+      });
     }
-    else {
-      this.creatingPurchaseOrderVend = true;
-      let componentScope = this;
-      let EventSource = window['EventSource'];
-      let es = new EventSource('/api/OrgModels/' + this.userProfile.orgModelId + '/receiveConsignment?access_token=' + this.auth.getAccessTokenId() + '&reportModelId=' + this.order.id + '&type=json');
-      this.toastr.info('Receiving consignment...');
-      this._router.navigate(['/orders/stock-orders']);
-      es.onmessage = function (event) {
-        let response = JSON.parse(event.data);
-        console.log(response);
-        if (response.success) {
-          componentScope.toastr.success('Order received successfully');
-        }
-        else {
-          componentScope.creatingPurchaseOrderVend = false;
-          componentScope.toastr.error('Error in receiving order');
-        }
-        es.close();
-      };
-    }
+  }
+
+  waitForRecieveWorker(callId) {
+    const EventSourceUrl = `/notification/${callId}/waitForResponseAPI`;
+    this.subscriptions.push(
+        this._eventSourceService.connectToStream(EventSourceUrl)
+            .subscribe(([event, es]) => {
+              console.log(event);
+              if (event.data === 'connected') {
+
+              } else if (event.data.success === true) {
+                es.close();
+                this._router.navigate(['/orders/stock-orders']);
+                this.toastr.success('Order received successfully');
+              } else {
+                this.toastr.error('Error in receiving order');
+              }
+            })
+    );
   }
 
   downloadOrderCSV() {
@@ -336,6 +346,14 @@ export class ReceiveComponent implements OnInit {
     }, err=> {
       this.loading = false;
       console.log(err);
+    })
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(subscription => {
+      if (subscription) {
+        subscription.unsubscribe()
+      }
     })
   }
 

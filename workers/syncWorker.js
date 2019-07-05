@@ -5,8 +5,6 @@ const MongoClient = require('mongodb').MongoClient;
 var ObjectId = require('mongodb').ObjectID;
 const dbUrl = process.env.DB_URL;
 const Promise = require('bluebird');
-var utils = require('./jobs/utils/utils.js');
-const rp = require('request-promise');
 var retryCount = process.env.WORKER_SYNC_RETRIES;
 const retryInterval = process.env.WORKER_SYNC_RETRY_INTERVAL_IN_SECONDS;
 var db = null;
@@ -169,32 +167,6 @@ function routeToWorker(syncModels) {
                     functionName: 'routeToWorker',
                     eachOrg
                 });
-            }).then(function (response) {
-                var options = {
-                    method: 'POST',
-                    uri: utils.API_URL + '/api/OrgModels/' + eachOrg + '/notifySyncToAll',
-                    json: true,
-                    body: {
-                        data: {
-                            loading: true
-                        }
-                    }
-                };
-                logger.debug({
-                    message: 'Will Notify Org Users',
-                    response,
-                    options
-                });
-                return rp(options);
-            })
-            .catch(function (error) {
-                logger.error({
-                    message: 'Could not Notify Users.Will Move On',
-                    error,
-                    eachOrg,
-                    functionName: 'routeToWorker'
-                });
-                // return Promise.reject('Could not notify users ');
             })
             .then(function (response) {
                 logger.debug({
@@ -243,23 +215,6 @@ function routeToWorker(syncModels) {
                         syncInProcess: false
                     }
                 })
-            }).then(function (response) {
-                var options = {
-                    method: 'POST',
-                    uri: utils.API_URL + '/api/OrgModels/' + eachOrg + '/notifySyncToAll',
-                    json: true,
-                    body: {
-                        data: {
-                            loading: false
-                        }
-                    }
-                };
-                logger.debug({
-                    message: 'Starting Sync , Notifying Users',
-                    response,
-                    options
-                });
-                return rp(options);
             })
             .catch(function (error) {
                 logger.error({

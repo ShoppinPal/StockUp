@@ -1,7 +1,7 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {OrgModelApi} from "../../../shared/lb-sdk/services/custom/OrgModel";
 import {ActivatedRoute, Router} from '@angular/router';
-import {Observable, combineLatest} from 'rxjs';
+import {Observable, combineLatest, Subscription} from 'rxjs';
 import {debounceTime, map, mergeMap} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
 import {UserProfileService} from "../../../shared/services/user-profile.service";
@@ -20,7 +20,7 @@ import {HttpParams} from '@angular/common/http';
 })
 
 
-export class StockOrdersComponent implements OnInit {
+export class StockOrdersComponent implements OnInit, OnDestroy {
 
   public userProfile: any;
   public loading = false;
@@ -70,6 +70,7 @@ export class StockOrdersComponent implements OnInit {
   public orderConfigurations: any;
   public selectedOrderConfigurationId;
   private fetchStockOrdersDebounced: Observable<any>;
+  private subscriptions: Subscription[] = [];
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -205,6 +206,11 @@ export class StockOrdersComponent implements OnInit {
       this.pendingGeneratedOrdersCount = stockOrders.pendingGeneratedOrdersCount;
       this.totalGeneratedOrders = stockOrders.generatedOrdersCount;
       this.totalGeneratedOrdersPages = this.totalGeneratedOrders / this.ordersLimitPerPage;
+      this.generatedOrders.forEach(order => {
+        if (order.state === 'Processing') {
+          this.waitForStockOrderNotification(order.id)
+        }
+      })
     }
 
     if (stockOrders.fulfillOrders) {
@@ -237,37 +243,22 @@ export class StockOrdersComponent implements OnInit {
   }
 
   generateStockOrderMSD() {
-      this.loading = true;
-      let url = '/api/OrgModels/' + this.userProfile.orgModelId + '/generateStockOrderMSD?';
-      let params = new HttpParams();
-      params = params.set('access_token', this.auth.getAccessTokenId());
-      params = params.set('type', 'json');
-      if (this.selectedStoreId)
-          params = params.set('storeModelId', this.selectedStoreId);
-      if (this.selectedWarehouseId)
-          params = params.set('warehouseModelId', this.selectedWarehouseId);
-      if (this.selectedCategoryId)
-          params = params.set('categoryModelId', this.selectedCategoryId);
-      url = url + params.toString();
-      this.toastr.info('Generating stock order...');
-      this._eventSourceService.connectToStream(url)
-          .subscribe(([response, es]) => {
-              if (response.type === EventSourceService.PROCESSING) {
-                  this.loading = false;
-                  this.generatedOrders.unshift({...response.data, backgroundEffect: true});
-              } else if (response.success) {
-                  es.close();
-                  this.fetchStockOrdersDebounced
-                      .subscribe(event => {
-                          this.toastr.success('Order generated successfully');
-                          this.fetchOrders('generated');
-                      });
-              } else {
-                  this.toastr.error('Error in generating order');
-              }
-          }, error => {
-              this.toastr.error('Error in generating order');
-          });
+    this.loading = true;
+    this.orgModelApi.generateStockOrderMSD(
+        this.userProfile.orgModelId,
+        this.selectedStoreId,
+        this.selectedWarehouseId,
+        this.selectedCategoryId
+    ).subscribe(reportModelData => {
+      this.loading = false;
+      this.toastr.info('Generating stock order');
+      console.log(reportModelData);
+      this.generatedOrders.unshift({...reportModelData.data, backgroundEffect: true});
+      this.waitForStockOrderNotification(reportModelData.callId)
+    }, error => {
+      this.loading = false;
+      this.toastr.error('Error in generating order');
+    });
   };
 
   generateStockOrderVend() {
@@ -290,22 +281,29 @@ export class StockOrdersComponent implements OnInit {
       };
     } else if (this.selectedSupplierId) {
         this.loading = true;
-        this.toastr.info('Generating stock order');
-      let url = '/api/OrgModels/' + this.userProfile.orgModelId +
+
+        this.orgModelApi.generateStockOrderVend(
+            this.userProfile.orgModelId,
+            this.selectedStoreId,
+            this.selectedSupplierId,
+            this.orderName || '',
+            this.selectedWarehouseId
+            ).subscribe(reportModelData => {
+              this.loading = false;
+              this.toastr.info('Generating stock order');
+              console.log(reportModelData);
+              this.generatedOrders.unshift({...reportModelData.data, backgroundEffect: true});
+              this.waitForStockOrderNotification(reportModelData.callId)
+        }, error => {
+              this.loading = false;
+              this.toastr.error('Error in generating order');
+      })
+     /* let url = '/notification/' + this.userProfile.orgModelId +
           '/generateStockOrderVend?';
-      let params = new HttpParams();
-      params = params.set('access_token', this.auth.getAccessTokenId());
-      params = params.set('type', 'json');
-      params = params.set('supplierModelId', this.selectedSupplierId);
-      params = params.set('storeModelId', this.selectedStoreId);
-      params = params.set('name', this.orderName || '');
-      params = params.set('warehouseModelId', this.selectedWarehouseId);
-      url = url + params.toString();
       this._eventSourceService.connectToStream(url)
           .subscribe(([response, es]) => {
         if (response.type === EventSourceService.PROCESSING) {
           this.loading = false;
-          this.generatedOrders.unshift({...response.data, backgroundEffect: true});
         } else if (response.success === true) {
           es.close();
           this.fetchStockOrdersDebounced
@@ -320,12 +318,37 @@ export class StockOrdersComponent implements OnInit {
         console.error(error1);
         this.loading = false;
         this.toastr.error('Error in generating order');
-      });
+      });*/
     } else {
       this.toastr.error('Select a supplier or upload a file to generate order from');
       return;
     }
   };
+
+  waitForStockOrderNotification(callId) {
+    const EventSourceUrl = `/notification/${callId}/waitForResponseAPI`;
+    this.subscriptions.push(
+    this._eventSourceService.connectToStream(EventSourceUrl)
+        .subscribe(([event, es]) => {
+          console.log(event);
+          if (event.data === 'connected'){
+
+          } else if (event.data.success === true) {
+            es.close();
+            this._stockOrdersResolverService.fetchGeneratedStockOrders(1, 0, event.data.reportModelId)
+                .subscribe(reportModel => {
+                  const reportIndex = this.generatedOrders.findIndex((report) => report.id === event.data.reportModelId);
+                  this.generatedOrders[reportIndex] = reportModel.generatedOrders[0];
+                  this.totalGeneratedOrders = reportModel.generatedOrdersCount;
+                  this.totalGeneratedOrdersPages = this.totalGeneratedOrders / this.ordersLimitPerPage;
+                });
+            this.toastr.success('Generated Stock Order Success');
+          } else {
+            this.toastr.error('Error Generating Stock Order');
+          }
+        })
+    );
+  }
 
   searchCategory(searchToken) {
     return this.orgModelApi.getCategoryModels(this.userProfile.orgModelId, {
@@ -347,6 +370,14 @@ export class StockOrdersComponent implements OnInit {
 
   public typeaheadOnSelect(e: TypeaheadMatch): void {
     this.selectedCategoryId = e.item.id;
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(subscription => {
+      if (subscription) {
+        subscription.unsubscribe()
+      }
+    })
   }
 
 }

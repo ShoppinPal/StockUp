@@ -3142,19 +3142,17 @@ export class OrgModelApi extends BaseLoopBackApi {
          * (The remote method definition does not provide any description.)
          * </em>
    *
-   * @param {string} id 
+   * @param {object} data Request data.
    *
-   * @param {string} storeModelId 
+   *  - `id` – `{string}` - 
    *
-   * @param {string} warehouseModelId 
+   *  - `storeModelId` – `{string}` - 
    *
-   * @param {object} req 
+   *  - `warehouseModelId` – `{string}` - 
    *
-   * @param {object} res 
+   *  - `categoryModelId` – `{string}` - 
    *
-   * @param {string} categoryModelId 
-   *
-   * @param {object} options 
+   *  - `res` – `{object}` - 
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -3165,8 +3163,8 @@ export class OrgModelApi extends BaseLoopBackApi {
    * This usually means the response is a `OrgModel` object.)
    * </em>
    */
-  public generateStockOrderMSD(id: any, storeModelId: any, warehouseModelId: any, req: any = {}, res: any = {}, categoryModelId: any = {}, customHeaders?: Function): Observable<any> {
-    let _method: string = "GET";
+  public generateStockOrderMSD(id: any, storeModelId: any, warehouseModelId: any, categoryModelId: any = {}, res: any = {}, customHeaders?: Function): Observable<any> {
+    let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/OrgModels/:id/generateStockOrderMSD";
     let _routeParams: any = {
@@ -3186,21 +3184,19 @@ export class OrgModelApi extends BaseLoopBackApi {
          * (The remote method definition does not provide any description.)
          * </em>
    *
-   * @param {string} id 
+   * @param {object} data Request data.
    *
-   * @param {string} storeModelId 
+   *  - `id` – `{string}` - 
    *
-   * @param {string} supplierModelId 
+   *  - `storeModelId` – `{string}` - 
    *
-   * @param {string} name 
+   *  - `supplierModelId` – `{string}` - 
    *
-   * @param {string} warehouseModelId 
+   *  - `name` – `{string}` - 
    *
-   * @param {object} req 
+   *  - `warehouseModelId` – `{string}` - 
    *
-   * @param {object} res 
-   *
-   * @param {object} options 
+   *  - `res` – `{object}` - 
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -3211,8 +3207,8 @@ export class OrgModelApi extends BaseLoopBackApi {
    * This usually means the response is a `OrgModel` object.)
    * </em>
    */
-  public generateStockOrderVend(id: any, storeModelId: any, supplierModelId: any, name: any = {}, warehouseModelId: any, req: any = {}, res: any = {}, customHeaders?: Function): Observable<any> {
-    let _method: string = "GET";
+  public generateStockOrderVend(id: any, storeModelId: any, supplierModelId: any, name: any = {}, warehouseModelId: any, res: any = {}, customHeaders?: Function): Observable<any> {
+    let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/OrgModels/:id/generateStockOrderVend";
     let _routeParams: any = {
@@ -3233,15 +3229,13 @@ export class OrgModelApi extends BaseLoopBackApi {
          * (The remote method definition does not provide any description.)
          * </em>
    *
-   * @param {string} id 
+   * @param {object} data Request data.
    *
-   * @param {string} reportModelId 
+   *  - `id` – `{string}` - 
    *
-   * @param {object} req 
+   *  - `reportModelId` – `{string}` - 
    *
-   * @param {object} res 
-   *
-   * @param {object} options 
+   *  - `res` – `{object}` - 
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -3252,8 +3246,8 @@ export class OrgModelApi extends BaseLoopBackApi {
    * This usually means the response is a `OrgModel` object.)
    * </em>
    */
-  public receiveConsignment(id: any, reportModelId: any, req: any = {}, res: any = {}, customHeaders?: Function): Observable<any> {
-    let _method: string = "GET";
+  public receiveConsignment(id: any, reportModelId: any, res: any = {}, customHeaders?: Function): Observable<any> {
+    let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/OrgModels/:id/receiveConsignment";
     let _routeParams: any = {
@@ -3311,15 +3305,13 @@ export class OrgModelApi extends BaseLoopBackApi {
          * (The remote method definition does not provide any description.)
          * </em>
    *
-   * @param {string} id 
+   * @param {object} data Request data.
    *
-   * @param {string} reportModelId 
+   *  - `id` – `{string}` - 
    *
-   * @param {object} req 
+   *  - `reportModelId` – `{string}` - 
    *
-   * @param {object} res 
-   *
-   * @param {object} options 
+   *  - `res` – `{object}` - 
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -3330,8 +3322,8 @@ export class OrgModelApi extends BaseLoopBackApi {
    * This usually means the response is a `OrgModel` object.)
    * </em>
    */
-  public createTransferOrderMSD(id: any, reportModelId: any, req: any = {}, res: any = {}, customHeaders?: Function): Observable<any> {
-    let _method: string = "GET";
+  public createTransferOrderMSD(id: any, reportModelId: any, res: any = {}, customHeaders?: Function): Observable<any> {
+    let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/OrgModels/:id/createTransferOrderMSD";
     let _routeParams: any = {
@@ -3624,15 +3616,13 @@ export class OrgModelApi extends BaseLoopBackApi {
          * (The remote method definition does not provide any description.)
          * </em>
    *
-   * @param {string} id 
+   * @param {object} data Request data.
    *
-   * @param {string} reportModelId 
+   *  - `id` – `{string}` - 
    *
-   * @param {object} req 
+   *  - `reportModelId` – `{string}` - 
    *
-   * @param {object} res 
-   *
-   * @param {object} options 
+   *  - `res` – `{object}` - 
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -3643,8 +3633,8 @@ export class OrgModelApi extends BaseLoopBackApi {
    * This usually means the response is a `OrgModel` object.)
    * </em>
    */
-  public createPurchaseOrderVend(id: any, reportModelId: any, req: any = {}, res: any = {}, customHeaders?: Function): Observable<any> {
-    let _method: string = "GET";
+  public createPurchaseOrderVend(id: any, reportModelId: any, res: any = {}, customHeaders?: Function): Observable<any> {
+    let _method: string = "POST";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
     "/OrgModels/:id/createPurchaseOrderVend";
     let _routeParams: any = {
@@ -3770,17 +3760,13 @@ export class OrgModelApi extends BaseLoopBackApi {
          * (The remote method definition does not provide any description.)
          * </em>
    *
-   * @param {object} data Request data.
+   * @param {string} id 
    *
-   *  - `id` – `{string}` - 
+   * @param {object} req 
    *
-   *  - `scanType` – `{string}` - 
+   * @param {object} res 
    *
-   *  - `productSku` – `{string}` - 
-   *
-   *  - `reportModelId` – `{string}` - 
-   *
-   *  - `force` – `{boolean}` - 
+   * @param {object} options 
    *
    * @returns {object} An empty reference that will be
    *   populated with the actual data once the response is returned
@@ -3791,19 +3777,49 @@ export class OrgModelApi extends BaseLoopBackApi {
    * This usually means the response is a `OrgModel` object.)
    * </em>
    */
-  public scanBarcodeStockOrder(id: any, scanType: any, productSku: any, reportModelId: any, force: any = {}, customHeaders?: Function): Observable<any> {
-    let _method: string = "POST";
+  public listenSSE(id: any, req: any = {}, res: any = {}, customHeaders?: Function): Observable<any> {
+    let _method: string = "GET";
     let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
-    "/OrgModels/:id/scanBarcodeStockOrder";
+    "/OrgModels/:id/listenSSE";
     let _routeParams: any = {
       id: id
     };
     let _postBody: any = {};
     let _urlParams: any = {};
-    if (typeof scanType !== 'undefined' && scanType !== null) _urlParams.scanType = scanType;
-    if (typeof productSku !== 'undefined' && productSku !== null) _urlParams.productSku = productSku;
-    if (typeof reportModelId !== 'undefined' && reportModelId !== null) _urlParams.reportModelId = reportModelId;
-    if (typeof force !== 'undefined' && force !== null) _urlParams.force = force;
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * <em>
+         * (The remote method definition does not provide any description.)
+         * </em>
+   *
+   * @param {object} data Request data.
+   *
+   *  - `id` – `{string}` - 
+   *
+   *  - `data` – `{object}` - 
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * <em>
+   * (The remote method definition does not provide any description.
+   * This usually means the response is a `OrgModel` object.)
+   * </em>
+   */
+  public notifySyncToAll(id: any, data: any, customHeaders?: Function): Observable<any> {
+    let _method: string = "POST";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/:id/notifySyncToAll";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    if (typeof data !== 'undefined' && data !== null) _urlParams.data = data;
     let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
     return result;
   }

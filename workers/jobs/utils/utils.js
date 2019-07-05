@@ -605,3 +605,32 @@ exports.REPORT_STATES = {
 
 var port = process.env.APP_PORT_NUMBER ? ':' + process.env.APP_PORT_NUMBER : '';
 exports.API_URL = process.env.APP_PROTOCOL + '://' + process.env.APP_HOST_NAME + port;
+const notificationPort = process.env.NOTIFICATION_PORT ? ':' + process.env.NOTIFICATION_PORT : '';
+exports.PUBLISH_URL = process.env.NOTIFICATION_PROTOCOL + '://' + process.env.NOTIFICATION_HOST + notificationPort
+    + '/'+ process.env.NOTIFICATION_PATH;
+
+exports.messageFor = {
+    MESSAGE_FOR_CLIENT: 'MESSAGE_FOR_CLIENT',
+    MESSAGE_FOR_API: 'MESSAGE_FOR_API'
+};
+
+exports.workerType = {
+    GENERATE_STOCK_ORDER: 'GENERATE_STOCK_ORDER',
+    RECEIVE_CONSIGNMENT: 'RECEIVE_CONSIGNMENT',
+    CREATE_PURCHASE_ORDER_VEND: 'CREATE_PURCHASE_ORDER_VEND',
+};
+
+exports.workerStatus = {
+    STARTED: 'STARTED',
+    PROCESSING: 'PROCESSING',
+    SUCCESS: 'SUCCESS',
+    FAILED: 'FAILED',
+};
+
+exports.Notification = function (eventType, messageFor, status, data, callId) {
+    this.eventType= eventType;
+    this.messageFor = messageFor;
+    this.status = status;
+    this.data = data;
+    this.callId = callId;
+};
