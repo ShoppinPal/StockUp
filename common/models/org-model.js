@@ -10,7 +10,6 @@ var validate = Promise.promisify(require('joi').validate);
 var vendSdk = require('vend-nodejs-sdk')({});
 const rp = require('request-promise');
 const sql = require('mssql');
-const sse = require('../utils/sse');
 module.exports = function (OrgModel) {
 
 
@@ -712,8 +711,7 @@ module.exports = function (OrgModel) {
                     messageId,
                     functionName: 'sendWorkerStatus'
                 });
-                var sseInstance = sse.getSSE(userId);
-                sseInstance.send(Object.assign({}, {messageId}, data), '', messageId);
+
                 cb(null, true);
             }
             catch (e) {
