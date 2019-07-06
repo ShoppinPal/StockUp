@@ -1,0 +1,36 @@
+{
+  "name": "SupplierStoreMapping",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "storeCode": {
+      "type": "string"
+    },
+    "supplierCode": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "orgModel": {
+      "type": "belongsTo",
+      "model": "OrgModel",
+      "foreignKey": "orgModelId"
+    },
+    "supplierModel": {
+      "type": "belongsTo",
+      "model": "SupplierModel",
+      "foreignKey": "supplierModelId"
+    },
+    "storeModel": {
+      "type": "belongsTo",
+      "model": "StoreModel",
+      "foreignKey": "storeModelId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

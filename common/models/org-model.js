@@ -1229,5 +1229,34 @@ module.exports = function (OrgModel) {
         };
 
 
+        OrgModel.remoteMethod('updateSupplierStoreMappings', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'mappings', type: 'array', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/updateSupplierStoreMappings', verb: 'post'},
+            returns: {arg: 'result', type: 'string'}
+        });
+
+        OrgModel.updateSupplierStoreMappings = function (id, mappings, options) {
+            logger.debug({
+                message: 'Will update supplier store mappings',
+                functionName: 'updateSupplierStoreMappings',
+                options
+            });
+            return OrgModel.app.models.SupplierStoreMapping.updateSupplierStoreMappings(id, mappings, options)
+                .catch(function (error) {
+                    logger.debug({
+                        message: 'Error updating mappings',
+                        error,
+                        functionName: 'updateSupplierStoreMappings',
+                        options
+                    });
+                    return Promise.reject('Error updating mappings');
+                });
+        };
+
+
     });
 };

@@ -5,9 +5,11 @@
   "options": {
     "validateUpsert": true
   },
+  "injectOptionsFromRemoteContext": true,
   "mixins": {
     "Timestamp": {},
-    "Context": {}
+    "Context": {},
+    "CurrentUser": {}
   },
   "properties": {
     "name": {
@@ -85,6 +87,11 @@
     "orderConfigModels": {
       "type": "hasMany",
       "model": "OrderConfigModel",
+      "foreignKey": "orgModelId"
+    },
+    "supplierStoreMappings": {
+      "type": "hasMany",
+      "model": "SupplierStoreMapping",
       "foreignKey": "orgModelId"
     }
   },
@@ -483,6 +490,18 @@
       "property": "__get__supplierModels"
     },
     {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__count__supplierModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__updateById__supplierModels"
+    },
+    {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
       "principalId": "orgAdmin",
@@ -611,6 +630,32 @@
       "principalId": "orgAdmin",
       "permission": "ALLOW",
       "property": "__updateById__orderConfigModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__destroyById__orderConfigModels"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "importVendOrderFromFile"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "updateSupplierStoreMappings"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__get__supplierStoreMappings"
     }
   ],
   "methods": {}

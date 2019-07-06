@@ -22,12 +22,20 @@ export class EditSuppliersResolverService {
     let filter = {
       where: {
         id: supplierId
+      },
+      include: {
+        relation: 'supplierStoreMappings',
+        scope: {
+          where: {
+            supplierModelId: supplierId
+          }
+        }
       }
     };
 
     let fetchSupplier = combineLatest(
-      this.orgModelApi.getSupplierModels(this.userProfile.storeConfigModelId, filter),
-      this.orgModelApi.getStoreModels(this.userProfile.storeConfigModelId)
+      this.orgModelApi.getSupplierModels(this.userProfile.orgModelId, filter),
+      this.orgModelApi.getStoreModels(this.userProfile.orgModelId)
     );
     return fetchSupplier.pipe(map((data: any) => {
         return {

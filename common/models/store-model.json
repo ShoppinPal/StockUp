@@ -3,8 +3,11 @@
   "base": "PersistedModel",
   "idInjection": false,
   "mixins": {
-    "Utils": true
+    "Timestamp": {},
+    "Context": {},
+    "CurrentUser": {}
   },
+  "injectOptionsFromRemoteContext": true,
   "properties": {
     "objectId": {
       "type": "number",
@@ -102,6 +105,17 @@
       "type": "hasMany",
       "model": "ReportModel",
       "foreignKey": "deliverFromStoreModelId"
+    },
+    "supplierModels": {
+      "type": "hasMany",
+      "model": "SupplierModel",
+      "foreignKey": "storeModelId",
+      "through": "SupplierStoreMapping"
+    },
+    "supplierStoreMappings": {
+      "type": "hasMany",
+      "model": "SupplierStoreMapping",
+      "foreignKey": "storeModelId"
     }
   },
   "acls": [

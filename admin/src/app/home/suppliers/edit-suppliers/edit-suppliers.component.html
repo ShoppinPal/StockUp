@@ -15,6 +15,20 @@
               </div>
             </div>
           </form>
+        </div>
+        <div class="card-footer">
+          <button type="submit" class="btn btn-sm btn-primary" (click)="updateSupplierDetails()"><i class="fa fa-dot-circle-o"></i> Save</button>
+        </div>
+      </div>
+    </div><!--/.col-->
+  </div><!--/.row-->
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="card">
+        <div class="card-header">
+          <h4>{{supplier.name}}</h4>
+        </div>
+        <div class="card-body">
           <h5>Store IDs</h5>
           <table class="table table-striped table-hover">
             <thead>
@@ -28,8 +42,8 @@
               <td>{{store.name}}</td>
               <td>
                 <input type="text"
-                       class="form-control-sm"
-                       [(ngModel)]="supplier.storeIds[store.objectId]"
+                       class="form-control-sm form-control"
+                       [(ngModel)]="mappings[store.objectId]"
                        placeholder="Enter Store ID"
                        required/>
               </td>
@@ -38,8 +52,7 @@
           </table>
         </div>
         <div class="card-footer">
-          <button type="submit" class="btn btn-sm btn-primary" (click)="updateSupplierDetails()"><i class="fa fa-dot-circle-o"></i> Save</button>
-          <button type="reset" class="btn btn-sm btn-danger" (click)="supplier.email='';supplier.storeIds={}"><i class="fa fa-ban"></i> Reset</button>
+          <button type="submit" class="btn btn-sm btn-primary" (click)="updateSupplierStoreMappings()"><i class="fa fa-dot-circle-o"></i> Save</button>
         </div>
       </div>
     </div><!--/.col-->

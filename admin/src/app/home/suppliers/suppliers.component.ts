@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {OrgModelApi} from "../../shared/lb-sdk/services/custom/OrgModel";
 import {UserProfileService} from "../../shared/services/user-profile.service";
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {Observable, combineLatest} from 'rxjs';
 import {ToastrService} from 'ngx-toastr';
 
@@ -18,6 +18,7 @@ export class SuppliersComponent implements OnInit {
   public suppliers: Array<any>;
   public totalSuppliers: number;
   public totalPages: number;
+  public maxPageDisplay: number = 7;
   public currentPage: number = 1;
   public searchedSupplier: Array<any>;
   public foundSupplier: boolean = false;
@@ -26,6 +27,7 @@ export class SuppliersComponent implements OnInit {
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
+              private _router: Router,
               private toastr: ToastrService,
               private _userProfileService: UserProfileService) {
   }
@@ -65,8 +67,8 @@ export class SuppliersComponent implements OnInit {
       skip: skip || 0
     };
     let fetchSuppliers = combineLatest(
-      this.orgModelApi.getSupplierModels(this.userProfile.storeConfigModelId, filter),
-      this.orgModelApi.countSupplierModels(this.userProfile.storeConfigModelId));
+      this.orgModelApi.getSupplierModels(this.userProfile.orgModelId, filter),
+      this.orgModelApi.countSupplierModels(this.userProfile.orgModelId));
     fetchSuppliers.subscribe((data: any) => {
         this.loading = false;
         this.suppliers = data[0];
@@ -92,7 +94,7 @@ export class SuppliersComponent implements OnInit {
         }
       }
     };
-    this.orgModelApi.getSupplierModels(this.userProfile.storeConfigModelId, filter)
+    this.orgModelApi.getSupplierModels(this.userProfile.orgModelId, filter)
       .subscribe((data: Array<any>) => {
           this.loading = false;
           if (data.length) {
@@ -110,6 +112,11 @@ export class SuppliersComponent implements OnInit {
           this.loading = false;
           console.log('Error in finding supplier', error);
         });
+  }
+
+  goToSupplierDetailsPage(supplierId) {
+    this.loading = true;
+    this._router.navigate(['suppliers/edit/' + supplierId]);
   }
 
 }

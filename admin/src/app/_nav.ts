@@ -48,20 +48,6 @@ export const navItems: NavData[] = [
     icon: 'icon-location-pin',
     roles: ['orgAdmin']
   },
-  /*
-   {
-   title: true,
-   name: 'Suppliers'
-   },
-   {
-   name: 'Suppliers',
-   url: '/suppliers',
-   icon: 'icon-close',
-   badge: {
-   variant: 'success',
-   text: 'new'
-   }
-   },*/
   {
     title: true,
     name: 'Orders',
@@ -72,6 +58,17 @@ export const navItems: NavData[] = [
     url: '/orders/stock-orders',
     icon: 'icon-close',
     roles: ['orgAdmin', 'storeManager']
+  },
+  {
+    title: true,
+    name: 'Suppliers',
+    roles: ['orgAdmin']
+  },
+  {
+    name: 'Suppliers',
+    url: '/suppliers',
+    icon: 'icon-close',
+    roles: ['orgAdmin']
   },
   // {
   //   name: 'Stuck Orders',
