@@ -121,8 +121,8 @@ services:
     volumes:
       - './notification-service:/notification-service'
     working_dir: /notification-service
-#    command: node index.js
-    command: ./node_modules/nodemon/bin/nodemon.js index.js
+    command: node index.js
+#    command: ./node_modules/nodemon/bin/nodemon.js index.js
     env_file:
       - ./notification-service/notification.env
     ports:

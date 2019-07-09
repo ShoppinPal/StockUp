@@ -362,14 +362,7 @@ module.exports = function (ReportModel) {
             functionName: 'generateStockOrderMSD',
             options,
         });
-        var payload = {
-            orgModelId: orgModelId,
-            storeModelId: storeModelId,
-            warehouseModelId: warehouseModelId,
-            categoryModelId: categoryModelId,
-            loopbackAccessToken: options.accessToken,
-            op: 'generateStockOrderMSD',
-        };
+
         return ReportModel.create({
             //name: name,
             orgModelId,
@@ -385,14 +378,22 @@ module.exports = function (ReportModel) {
             transferOrderCount: 0
         }).then(reportInstance => {
             res.send({
+                eventType: workerUtils.messageFor.MESSAGE_FOR_API,
                 callId: reportInstance.id,
                 message: 'Stock order generation initiated',
                 data: reportInstance
             });
-            payload = Object.assign({}, payload, {
+            var payload = {
+                orgModelId: orgModelId,
+                storeModelId: storeModelId,
+                warehouseModelId: warehouseModelId,
+                categoryModelId: categoryModelId,
+                loopbackAccessToken: options.accessToken,
+                op: 'generateStockOrderMSD',
+                eventType: workerUtils.messageFor.MESSAGE_FOR_API,
+                callId: reportInstance.id,
                 reportModelId: reportInstance.id,
-                callId: reportInstance.id
-            });
+            };
             logger.debug({
                 message: 'Report model instance created with STATUS processing',
                 storeModelId,
@@ -435,10 +436,12 @@ module.exports = function (ReportModel) {
             reportModelId: reportModelId,
             loopbackAccessToken: options.accessToken,
             op: 'receiveConsignment',
-            callId: `receive_${reportModelId}`,
+            eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
+            callId: options.accessToken.userId,
         };
         res.send({
-            callId: `receive_${reportModelId}`,
+            eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
+            callId: options.accessToken.userId,
             message: 'Receive Consignment Initiated',
             data: {}
         });
@@ -493,6 +496,7 @@ module.exports = function (ReportModel) {
                 });
                 res.send({
                     callId: reportInstance.id,
+                    eventType: workerUtils.messageFor.MESSAGE_FOR_API,
                     message: 'Stock order generation initiated',
                     data: reportInstance
                 });
@@ -503,6 +507,7 @@ module.exports = function (ReportModel) {
                 name: name,
                 reportModelId: reportInstance.id,
                 callId: reportInstance.id,
+                eventType: workerUtils.messageFor.MESSAGE_FOR_API,
                 warehouseModelId: warehouseModelId,
                 loopbackAccessToken: options.accessToken,
                 op: 'generateStockOrderVend'
@@ -557,7 +562,8 @@ module.exports = function (ReportModel) {
             reportModelId: reportModelId,
             loopbackAccessToken: options.accessToken,
             op: 'createPurchaseOrderVend',
-            callId: `purchaseOrder_${reportModelId}`,
+            callId: options.accessToken.userId,
+            eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
         };
         var report;
         return ReportModel.findById(reportModelId)
@@ -590,7 +596,8 @@ module.exports = function (ReportModel) {
                         functionName: 'createPurchaseOrderVend'
                     });
                     res.send({
-                        callId: `purchaseOrder_${reportModelId}`,
+                        eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
+                        callId: options.accessToken.userId,
                         message: 'Purchase Order Generation initiated',
                         data: {}
                     });
@@ -760,7 +767,9 @@ module.exports = function (ReportModel) {
             orgModelId: orgModelId,
             reportModelId: reportModelId,
             loopbackAccessToken: options.accessToken,
-            op: 'createTransferOrderMSD'
+            op: 'createTransferOrderMSD',
+            callId: options.accessToken.userId,
+            eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
         };
         var report;
         return ReportModel.findById(reportModelId)
@@ -788,7 +797,8 @@ module.exports = function (ReportModel) {
                     return Promise.reject('Transfer order creation in progress');
                 } else {
                     res.send({
-                        callId: `transferOrder_${reportModelId}`,
+                        eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
+                        callId: options.accessToken.userId,
                         message: 'Transfer Order Generation initiated',
                         data: {}
                     });

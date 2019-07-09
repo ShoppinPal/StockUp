@@ -88,5 +88,9 @@ var successHandler = function (response) {
 };
 
 module.exports = {
-    sendPayLoad: sendPayLoad
+    sendPayLoad: sendPayLoad,
+    messageFor: {
+      MESSAGE_FOR_CLIENT: 'MESSAGE_FOR_CLIENT',
+      MESSAGE_FOR_API: 'MESSAGE_FOR_API'
+    }
 };

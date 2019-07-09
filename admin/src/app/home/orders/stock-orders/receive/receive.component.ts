@@ -317,7 +317,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   }
 
   waitForRecieveWorker(callId) {
-    const EventSourceUrl = `/notification/${callId}/waitForResponseAPI`;
+    const EventSourceUrl = `/notification/${callId}/waitForResponse`;
     this.subscriptions.push(
         this._eventSourceService.connectToStream(EventSourceUrl)
             .subscribe(([event, es]) => {

@@ -256,11 +256,11 @@ var runMe = function (payload, config, taskId, messageId) {
                             'Authorization': payload.loopbackAccessToken.id
                         },
                         body: new utils.Notification(
-                            utils.workerType.RECEIVE_CONSIGNMENT,
-                            utils.messageFor.MESSAGE_FOR_API,
+                            utils.workerType.RECEIVE_CONSIGNMENT_VEND,
+                            payload.eventType,
                             utils.workerStatus.SUCCESS,
                             {success: true, reportModelId: payload.reportModelId},
-                            payload.callId
+                            payload.userId
                         )
 
                     };
@@ -288,11 +288,11 @@ var runMe = function (payload, config, taskId, messageId) {
                             'Authorization': payload.loopbackAccessToken.id
                         },
                         body: new utils.Notification(
-                            utils.workerType.RECEIVE_CONSIGNMENT,
-                            utils.messageFor.MESSAGE_FOR_API,
+                            utils.workerType.RECEIVE_CONSIGNMENT_VEND,
+                            payload.eventType,
                             utils.workerStatus.FAILED,
                             {success: false, reportModelId: payload.reportModelId},
-                            payload.callId
+                            payload.userId
                         )
 
                     };

@@ -16,18 +16,26 @@ module.exports = (app) => {
             res.status(400).send('POST body is missing');
         }
         let payload = req.body; // add object property validations!
-        utils.publishToRedis(app, payload)
-            .then(() => {
-                res.send({
-                    success: true,
-                    message: 'worker payload published to redis'
-                });
-            })
-            .catch(error => {
-                res.status(500).send({
-                    success: false,
-                    error
-                });
+        const publishPromises = [];
+        if (payload instanceof Array){
+            payload.forEach(notification => {
+                publishPromises.push(utils.publishToRedis(app, notification));
             });
+        } else {
+            publishPromises.push(utils.publishToRedis(app, payload));
+        }
+            Promise.all(publishPromises)
+                .then(() => {
+                    res.send({
+                        success: true,
+                        message: 'worker payload published to redis'
+                    });
+                })
+                .catch(error => {
+                    res.status(500).send({
+                        success: false,
+                        error
+                    });
+                });
     });
 };

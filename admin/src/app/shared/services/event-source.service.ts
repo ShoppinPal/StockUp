@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Observable, timer} from 'rxjs';
-import {delayWhen, finalize, flatMap, map, retryWhen, share, tap} from 'rxjs/operators';
+import {delay, delayWhen, finalize, flatMap, map, retryWhen, share, tap} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +20,7 @@ export class EventSourceService {
           this.eventSourcesMap[url] = []
       }
   }
-  connectToStream(url: string, retry = false): Observable<any> {
+  connectToStream(url: string): Observable<any> {
      this.initializeMapForUrl(url);
       return new Observable((observer) => {
           const EventSource = window['EventSource'];
@@ -31,34 +31,20 @@ export class EventSourceService {
               observer.next([json, eventSource]);
           };
           eventSource.onerror = (error) => {
-              // readyState === 0 (closed) means the remote source closed the connection,
-              // so we can safely treat it as a normal situation. Another way of detecting the end of the stream
-              // is to insert a special element in the stream of events, which the client can identify as the last one.
-              if (eventSource.readyState === 0) {
-                  console.log('The stream has been closed by the server.');
-                  eventSource.close();
-                  if (!retry) {
-                      observer.complete();
-                      this.destroyAllEventSourcesForUrl(url);
-                  } else {
-                      observer.error(error)
-                  }
-              } else {
-                  observer.error(error);
-              }
+              console.error(error);
+              eventSource.close();
+              observer.error(error);
           };
       }).pipe(
           retryWhen(errors => {
-              if (retry) {
                   return errors.pipe(
                       tap(val => console.log(`Value ${val} was too high!`)),
-                      delayWhen(val => timer(val * 1000)),
+                      delayWhen(val => timer(3000)),
                       map(e => {
                           console.log('Retry Event Source Connection')
                           return e;
                       })
                   )
-              }
           }),
           finalize(() => {
               // Will be called on last subscriber unsubscribe
@@ -69,7 +55,6 @@ export class EventSourceService {
   }
 
     private destroyAllEventSourcesForUrl(url) {
-      console.log('destroying all events', url);
        this.eventSourcesMap[url].forEach(eventSource => {
            if (eventSource) {
             eventSource.close()

@@ -615,10 +615,14 @@ exports.messageFor = {
 };
 
 exports.workerType = {
-    GENERATE_STOCK_ORDER: 'GENERATE_STOCK_ORDER',
-    RECEIVE_CONSIGNMENT: 'RECEIVE_CONSIGNMENT',
+    GENERATE_STOCK_ORDER_VEND: 'GENERATE_STOCK_ORDER_VEND',
+    GENERATE_STOCK_ORDER_MSD: 'GENERATE_STOCK_ORDER_MSD',
+    GENERATE_TRANSFER_ORDER_MSD: 'GENERATE_TRANSFER_ORDER_MSD',
+    RECEIVE_CONSIGNMENT_VEND: 'RECEIVE_CONSIGNMENT_VEND',
     CREATE_PURCHASE_ORDER_VEND: 'CREATE_PURCHASE_ORDER_VEND',
-    SYNC_WORKER: 'SYNC_WORKER',
+    SYNC_WORKER_PRODUCT: 'products',
+    SYNC_WORKER_INVENTORY: 'inventory',
+    SYNC_WORKER_SUPPLIERS: 'suppliers',
 };
 
 exports.workerStatus = {
@@ -628,10 +632,14 @@ exports.workerStatus = {
     FAILED: 'FAILED',
 };
 
-exports.Notification = function (eventType, messageFor, status, data, callId) {
+exports.Notification = function (eventType, messageFor, status, data, id) {
     this.eventType= eventType;
     this.messageFor = messageFor;
     this.status = status;
     this.data = data;
-    this.callId = callId;
+    if (messageFor === exports.messageFor.MESSAGE_FOR_CLIENT){
+        this.userId = id;
+    } else if (messageFor === exports.messageFor.MESSAGE_FOR_API){
+        this.callId = id;
+    }
 };

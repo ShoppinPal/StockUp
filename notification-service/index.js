@@ -65,7 +65,6 @@ app.get('/:callId/waitForResponseAPI', (req, res) => {
 
         logger.debug(`created a new sse object for callId: ${callId}`);
         sse.send({data: 'connected', eventType: 'EVENT_INIT'});
-        utils.cleanupSSEMap(sseAPI, callId);
     }
     else {
         // reconnecting scenario
@@ -74,7 +73,6 @@ app.get('/:callId/waitForResponseAPI', (req, res) => {
 
         let sse = sseAPI[callId].sse;
         sse.send({data: 'connected', eventType: 'EVENT_INIT'});
-        utils.cleanupSSEMap(sseAPI, callId);
     }
 });
 
@@ -122,6 +120,7 @@ app.on('redis-subscriber-connected', () => {
 });
 
 utils.cleanUsersIfInactive(sseUsers);
+utils.cleanApiIfInactive(sseAPI);
 
 app.listen(3001, function () {
     logger.debug({

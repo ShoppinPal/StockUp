@@ -325,10 +325,10 @@ var runMe = function (payload, config, taskId, messageId) {
                         },
                         body: new utils.Notification(
                             utils.workerType.CREATE_PURCHASE_ORDER_VEND,
-                            utils.messageFor.MESSAGE_FOR_API,
+                            payload.eventType,
                             utils.workerStatus.SUCCESS,
                             {success: true, reportModelId: payload.reportModelId},
-                            payload.callId
+                            payload.userId
                         )
 
                     };
@@ -357,10 +357,10 @@ var runMe = function (payload, config, taskId, messageId) {
                         },
                         body: new utils.Notification(
                             utils.workerType.CREATE_PURCHASE_ORDER_VEND,
-                            utils.messageFor.MESSAGE_FOR_API,
+                            payload.eventType,
                             utils.workerStatus.FAILED,
                             {success: false, reportModelId: payload.reportModelId},
-                            payload.callId
+                            payload.userId
                         )
 
                     };

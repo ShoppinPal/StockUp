@@ -72,8 +72,8 @@ var runMe = function (payload, config, taskId, messageId) {
                             'Authorization': payload.loopbackAccessToken.id
                         },
                         body: new utils.Notification(
-                            utils.workerType.GENERATE_STOCK_ORDER,
-                            utils.messageFor.MESSAGE_FOR_API,
+                            utils.workerType.GENERATE_STOCK_ORDER_MSD,
+                            payload.eventType,
                             utils.workerStatus.SUCCESS,
                             {success: true, reportModelId: payload.reportModelId},
                             payload.callId
@@ -104,8 +104,8 @@ var runMe = function (payload, config, taskId, messageId) {
                             'Authorization': payload.loopbackAccessToken.id
                         },
                         body: new utils.Notification(
-                            utils.workerType.GENERATE_STOCK_ORDER,
-                            utils.messageFor.MESSAGE_FOR_API,
+                            utils.workerType.GENERATE_STOCK_ORDER_MSD,
+                            payload.eventType,
                             utils.workerStatus.FAILED,
                             {success: false, reportModelId: payload.reportModelId},
                             payload.callId

@@ -282,7 +282,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
   };
 
   waitForGeneration(callId) {
-    const EventSourceUrl = `/notification/${callId}/waitForResponseAPI`;
+    const EventSourceUrl = `/notification/${callId}/waitForResponse`;
     this.subscriptions.push(
         this._eventSourceService.connectToStream(EventSourceUrl)
             .subscribe(([event, es]) => {

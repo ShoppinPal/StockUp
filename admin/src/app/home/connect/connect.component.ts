@@ -36,37 +36,44 @@ export class ConnectComponent implements OnInit, OnDestroy {
       inventory: false,
       suppliers: false
   };
-  private subscription: Subscription;
+  private subscriptions: Subscription[] = [];
 
-  getSyncEvents(): void {
+  getSyncEvents(syncModels): void {
       let params = new HttpParams();
       params = params.set('access_token', this.auth.getAccessTokenId());
       params = params.set('type', 'json');
-      this.subscription = this.eventSourceService.connectToStream(
-          `/api/OrgModels/${this.userProfile.orgModelId}/listenSSE?${params.toString()}`,
-          true
-      )
-          .subscribe(([status, es]) => {
-              console.log(status);
-              Object.keys(this.syncing).forEach(v => this.syncing[v] = status.loading);
-              console.log(this.syncModelsData);
-          });
+      syncModels.forEach(model => {
+          const url = `/notification/${model.id}/waitForResponseAPI?${params.toString()}`;
+          this.subscriptions.push(
+              this.eventSourceService.connectToStream(
+                  url
+              ).subscribe(([status, es]) => {
+                  this.syncing[status.eventType] = status.data.loading;
+                  this.cd.markForCheck();
+              })
+          )
+      });
   }
 
   ngOnInit() {
-      this.getSyncEvents();
     this._route.data.subscribe((data: any) => {
         this.integration = data.integration.integration;
         this.syncModels = data.integration.syncModels;
         this.syncModelsData = data.integration.syncModelsData;
         this.selectedCompany = this.integration && this.integration.length ? this.integration[0].dataAreaId : '';
-        this.syncModelsData.forEach((syncData) => {
-            this.syncing[syncData.name] = syncData.syncInProcess;
-        });
+        this.subscribeForSyncEvents();
       },
       error => {
         console.log('error', error)
       });
+  }
+
+  subscribeForSyncEvents() {
+      this.ngOnDestroy();
+      this.syncModelsData.forEach((syncData) => {
+          this.syncing[syncData.name] = syncData.syncInProcess;
+      });
+      this.getSyncEvents(this.syncModelsData)
   }
 
   private connect(integrationType: string) {
@@ -90,6 +97,7 @@ export class ConnectComponent implements OnInit, OnDestroy {
           this.syncModels = data.syncStatus;
           this.loading = false;
           this.cd.markForCheck();
+          this.getSyncModels()
         },
         err => {
           this.loading = false;
@@ -288,10 +296,19 @@ export class ConnectComponent implements OnInit, OnDestroy {
     //   })
   }
 
+  getSyncModels(){
+      this.orgModelApi.getSyncModels(this.userProfile.orgModelId).subscribe(syncModels => {
+          this.syncModelsData = syncModels;
+          this.syncModels = syncModels.length;
+          this.subscribeForSyncEvents();
+          this.cd.markForCheck();
+      })
+  }
+
     ngOnDestroy(): void {
       // Unsubscribing closes all event source connections for this url
-      if (this.subscription) {
-          this.subscription.unsubscribe();
+      if (this.subscriptions) {
+          this.subscriptions.forEach(subscription => subscription.unsubscribe());
       }
     }
 

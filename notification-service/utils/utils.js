@@ -33,6 +33,24 @@ let cleanUsersIfInactive = (sseUsers) => {
         }
     }, 1000 * 60);
 };
+let cleanApiIfInactive = (sseApi) => {
+    setInterval(function() {
+        let keys = Object.keys(sseApi);
+        let totalKeys = keys.length;
+        let maxIdleTime = 1000 * process.env.MAX_API_CALL_IDLE_TIME;
+        let currenTime = new Date();
+
+        logger.debug('cleaning inactive api streams');
+
+        for(let i = 0; i < totalKeys; i++) {
+
+            if(currenTime - sseApi[keys[i]].timeStamp >= maxIdleTime) {
+                sseApi[keys[i]].res.end();
+                delete sseApi[keys[i]];
+            }
+        }
+    }, 1000 * 60);
+};
 
 function publishToRedis(app, payload) {
     return Promise.resolve()
@@ -74,12 +92,8 @@ function sendSSEOutput(sseMapObject, recipient, eventType, status, data, message
             let sse = sseMapObject[recipient].sse;
             sse.send({ eventType, data , status});
             logger.debug(`SSE event sent to ${messageFor}`);
+            sseMapObject[recipient].timeStamp = new Date();
 
-            if (messageFor === MESSAGE_FOR_CLIENT) {
-                // update the timestamp to track activity
-                sseMapObject[recipient].timeStamp = new Date();
-                logger.debug(`Updated timestamp for userId: ${recipient}`);
-            }
         }
         else {
             logger.debug(`Could not find recipient ${recipient} in sseMapObject`);
@@ -99,8 +113,9 @@ module.exports = {
     cleanUsersIfInactive,
     publishToRedis,
     sendSSEOutput,
+    cleanApiIfInactive,
     constants: {
         MESSAGE_FOR_CLIENT,
         MESSAGE_FOR_API
     }
-}
+};
