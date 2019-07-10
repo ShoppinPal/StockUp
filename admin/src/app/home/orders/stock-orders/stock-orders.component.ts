@@ -341,6 +341,7 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
                   this.generatedOrders[reportIndex] = reportModel.generatedOrders[0];
                   this.totalGeneratedOrders = reportModel.generatedOrdersCount;
                   this.totalGeneratedOrdersPages = this.totalGeneratedOrders / this.ordersLimitPerPage;
+                  this.fetchOrderRowCounts();
                 });
             this.toastr.success('Generated Stock Order Success');
           } else {
