@@ -188,15 +188,16 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       this.toastr.error('Please approve at least one item to create Transfer Order in MSD');
     } else {
       this.creatingTransferOrder = true;
+      this.loading = true;
       this.orgModelApi.createPurchaseOrderVend(
           this.userProfile.orgModelId,
           this.order.id
       ).subscribe(transferOrderRequest => {
-        this.creatingTransferOrder = false;
+        this.loading = false;
         this.toastr.info('Creating Transfer Order');
         this.waitForGeneration(transferOrderRequest.callId);
       }, error1 => {
-        this.creatingTransferOrder = false;
+        this.loading = false;
         this.toastr.error('Error in creating transfer order in MSD')
       });
     }
@@ -207,15 +208,16 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       this.toastr.error('Please approve at least one item to send order to supplier');
     } else {
       this.creatingPurchaseOrderVend = true;
+      this.loading = true;
       this.orgModelApi.createPurchaseOrderVend(
           this.userProfile.orgModelId,
           this.order.id
       ).subscribe(purchaseOrderRequest => {
-        this.creatingPurchaseOrderVend = false;
+        this.loading = false;
         this.toastr.info('Creating Purchase Order');
         this.waitForGeneration(purchaseOrderRequest.callId);
       }, error1 => {
-        this.creatingPurchaseOrderVend = false;
+        this.loading = false;
         this.toastr.error('Error in sending order to supplier')
       });
     }
@@ -288,14 +290,17 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
         this._eventSourceService.connectToStream(EventSourceUrl)
             .subscribe(([event, es]) => {
-              console.log(event);
               if (event.data === 'connected') {
 
               } else if (event.data.success === true) {
                 es.close();
+                this.creatingPurchaseOrderVend = false;
+                this.creatingTransferOrder = false;
                 this._router.navigate(['/orders/stock-orders']);
                 this.toastr.success('Order sent successfully');
               } else {
+                this.creatingPurchaseOrderVend = false;
+                this.creatingTransferOrder = false;
                 this.toastr.error('Error in sending order to supplier');
               }
             })
