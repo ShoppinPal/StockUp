@@ -126,46 +126,26 @@ var runMe = function (payload, config, taskId, messageId) {
                 supplierStoreCode = supplierStoreCode ? '#' + supplierStoreCode : '';
                 var TODAYS_DATE = new Date();
                 var name = payload.name || storeModelInstance.name + ' - ' + supplierStoreCode + ' ' + supplierModelInstance.name + ' - ' + TODAYS_DATE.getFullYear() + '-' + (TODAYS_DATE.getMonth() + 1) + '-' + TODAYS_DATE.getDate();
-                if (!payload.reportModelId) {
-                    return db.collection('ReportModel').insertOne({
-                        name: name,
-                        userModelId: ObjectId(payload.loopbackAccessToken.userId), // explicitly setup the foreignKeys for related models
-                        state: REPORT_STATES.PROCESSING,
-                        storeModelId: ObjectId(payload.storeModelId),
-                        supplierModelId: ObjectId(payload.supplierModelId),
-                        orgModelId: ObjectId(payload.orgModelId),
-                        deliverFromStoreModelId: ObjectId(payload.warehouseModelId),
-                        createdAt: new Date(),
-                        updatedAt: new Date()
-                    });
-                } else {
-                    return db.collection('ReportModel')
-                        .updateOne({_id: ObjectId(payload.reportModelId)}, {
-                        $set: {
-                            name: name,
-                            updatedAt: new Date()
-                        }
-                    })
-                        .catch(error => {
-                            logger.error({
-                                error,
-                                message: 'Error updating name '
-                            });
-                        })
-                        .then(updateResponse => {
-                            logger.debug({
-                                updateResponse,
-                                message: 'Name of Report updated '
-                            });
-                        return Promise.resolve({
-                            ops: [
-                                {
-                                    _id: payload.reportModelId
-                                }
-                            ]
-                        });
+                if (payload.reportModelId){
+                    return Promise.resolve({
+                        ops: [
+                            {
+                                _id: payload.reportModelId
+                            }
+                        ]
                     });
                 }
+                return db.collection('ReportModel').insertOne({
+                    name: name,
+                    userModelId: ObjectId(payload.loopbackAccessToken.userId), // explicitly setup the foreignKeys for related models
+                    state: REPORT_STATES.PROCESSING,
+                    storeModelId: ObjectId(payload.storeModelId),
+                    supplierModelId: ObjectId(payload.supplierModelId),
+                    orgModelId: ObjectId(payload.orgModelId),
+                    deliverFromStoreModelId: ObjectId(payload.warehouseModelId),
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                });
             })
             .catch(function (error) {
                 logger.error({

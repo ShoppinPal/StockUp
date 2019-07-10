@@ -23,7 +23,7 @@ let sseAPI = {};
  * from where each running notification-service process will pick up the notification and send to client
  */
 require('./publisher')(app);
-app.get('/:userId/waitForResponse', authUsers, (req, res) => {
+app.get('/:userId/waitForResponse', (req, res) => {
     let userId = req.params.userId;
 
     if (!sseUsers[userId]) {
@@ -42,6 +42,7 @@ app.get('/:userId/waitForResponse', authUsers, (req, res) => {
     else {
         // reconnecting scenario
         sseUsers[userId].sse.init(req, res);
+        sseUsers.timeStamp = new Date();
         logger.debug(`SSE exists for this userId, will move on for userId: ${userId}`);
 
         let sse = sseUsers[userId].sse;

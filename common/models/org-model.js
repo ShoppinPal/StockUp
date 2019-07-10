@@ -983,7 +983,7 @@ module.exports = function (OrgModel) {
                 options,
                 functionName: 'createPurchaseOrderVend'
             });
-            return OrgModel.app.models.ReportModel.createPurchaseOrderVend(id, reportModelId, res, options)
+            OrgModel.app.models.ReportModel.createPurchaseOrderVend(id, reportModelId, res, options)
                 .catch(function (error) {
                     logger.error({
                         message: 'Could not create purchase order in Vend',

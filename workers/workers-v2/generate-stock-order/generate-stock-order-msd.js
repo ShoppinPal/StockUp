@@ -247,32 +247,13 @@ function generateStockOrder(payload, config, taskId, messageId) {
                     transferOrderCount: 0
                 });
             } else {
-                return db.collection('ReportModel')
-                    .updateOne({_id: ObjectId(payload.reportModelId)}, {
-                        $set: {
-                            name: name,
-                            updatedAt: new Date()
+                return Promise.resolve({
+                    ops: [
+                        {
+                            _id: payload.reportModelId
                         }
-                    })
-                    .catch(error => {
-                        logger.error({
-                            error,
-                            message: 'Error updating name '
-                        });
-                    })
-                    .then(updateResponse => {
-                        logger.debug({
-                            updateResponse,
-                            message: 'Name of Report updated '
-                        });
-                        return Promise.resolve({
-                            ops: [
-                                {
-                                    _id: payload.reportModelId
-                                }
-                            ]
-                        });
-                    });
+                    ]
+                });
             }
         })
         .catch(function (error) {

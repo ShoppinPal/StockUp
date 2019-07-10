@@ -363,20 +363,49 @@ module.exports = function (ReportModel) {
             options,
         });
 
-        return ReportModel.create({
-            //name: name,
-            orgModelId,
-            userModelId: options.accessToken.userId, // explicitly setup the foreignKeys for related models
-            storeModelId,
-            categoryModelId,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            state: REPORT_STATES.PROCESSING,
-            deliverFromStoreModelId: warehouseModelId,
-            percentagePushedToMSD: 0,
-            transferOrderNumber: null,
-            transferOrderCount: 0
-        }).then(reportInstance => {
+        return ReportModel.app.models.StoreModel.findOne({
+            _id: storeModelId
+        }) .catch(function (error) {
+            logger.error({
+                message: 'Could not find a store with this id',
+                storeModelId,
+                error,
+            });
+            return Promise.reject('Could not find a store with this id');
+        }).then(function (storeModelInstance) {
+            logger.debug({
+                message: 'Found store, will create a report model',
+                storeModelInstance,
+            });
+            var name;
+            if(!name) {
+                const TODAYS_DATE = new Date();
+                name = storeModelInstance.name + ' - ' + TODAYS_DATE.getFullYear() + '-' + (TODAYS_DATE.getMonth() + 1) + '-' + TODAYS_DATE.getDate();
+            }
+            return ReportModel.create({
+                name: name,
+                orgModelId,
+                userModelId: options.accessToken.userId, // explicitly setup the foreignKeys for related models
+                storeModelId,
+                categoryModelId,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                state: REPORT_STATES.PROCESSING,
+                deliverFromStoreModelId: warehouseModelId,
+                percentagePushedToMSD: 0,
+                transferOrderNumber: null,
+                transferOrderCount: 0
+            });
+        }).catch(function (error) {
+                logger.error({
+                    error,
+                    message: 'Could not create report model for this store',
+                    storeModelId
+                });
+                return Promise.reject('Could not create report model for this store');
+            })
+
+        .then(reportInstance => {
             res.send({
                 eventType: workerUtils.messageFor.MESSAGE_FOR_API,
                 callId: reportInstance.id,
@@ -474,17 +503,86 @@ module.exports = function (ReportModel) {
             functionName: 'generateStockOrderVend',
             options,
         });
-        return ReportModel.create({
-            name: name,
-            userModelId: options.accessToken.userId, // explicitly setup the foreignKeys for related models
-            state: REPORT_STATES.PROCESSING,
-            storeModelId: storeModelId,
-            supplierModelId: supplierModelId,
-            orgModelId: orgModelId,
-            deliverFromStoreModelId: warehouseModelId,
-            createdAt: new Date(),
-            updatedAt: new Date()
+        return ReportModel.app.models.RoleMapping.find({
+            principalId: options.accessToken.userId
+        }).catch(function (error) {
+            logger.error({
+                message: 'Could not find user\'s role mappings',
+                userModelId: options.accessToken.userId,
+                error
+            });
+            return Promise.reject('Could not find user\'s role mappings');
         })
+
+            .then(function (roleMappings) {
+                logger.debug({
+                    message: 'Found user\'s role mappings, will look for user\'s roles, store and supplier info',
+                    roleMappings
+                });
+                return Promise.all([
+                    ReportModel.app.models.StoreModel.findOne({
+                        _id: storeModelId
+                    }),
+                    ReportModel.app.models.SupplierModel.findOne({
+                        _id: supplierModelId
+                    }),
+                    ReportModel.app.models.Role.find({
+                        _id: {
+                            $in: _.pluck(roleMappings, 'roleId')
+                        }
+                    })
+                ]);
+            }) .catch(function (error) {
+                logger.error({
+                    message: 'Could not find roles, store and supplier details',
+                    error
+                });
+                return Promise.reject('Could not find store and supplier details');
+            }).then(function (response) {
+                var storeModelInstance = response[0];
+                var supplierModelInstance = response[1];
+                var userRoles = response[2];
+                if (!storeModelInstance) {
+                    logger.error({
+                        message: 'Could not find store info, will exit',
+                        response,
+                    });
+                    return Promise.reject('Could not find store info, will exit');
+                }
+                if (!supplierModelInstance) {
+                    logger.error({
+                        message: 'Could not find supplier info, will exit',
+                        response
+                    });
+                    return Promise.reject('Could not find supplier info, will exit');
+                }
+                logger.debug({
+                    message: 'Found supplier and store info, will create a new report model',
+                    response
+                });
+                var supplierStoreCode = supplierModelInstance.storeIds ? supplierModelInstance.storeIds[storeModelId] : '';
+                supplierStoreCode = supplierStoreCode ? '#' + supplierStoreCode : '';
+                var TODAYS_DATE = new Date();
+                var name = name || storeModelInstance.name + ' - ' + supplierStoreCode + ' ' + supplierModelInstance.name + ' - ' + TODAYS_DATE.getFullYear() + '-' + (TODAYS_DATE.getMonth() + 1) + '-' + TODAYS_DATE.getDate();
+                return ReportModel.create({
+                    name: name,
+                    userModelId: options.accessToken.userId, // explicitly setup the foreignKeys for related models
+                    state: REPORT_STATES.PROCESSING,
+                    storeModelId: storeModelId,
+                    supplierModelId: supplierModelId,
+                    orgModelId: orgModelId,
+                    deliverFromStoreModelId: warehouseModelId,
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                });
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not create a report model',
+                    error,
+                });
+                return Promise.reject('Could not create a report model');
+            })
             .then(reportInstance => {
                 logger.debug({
                     message: 'Report model instance created with STATUS processing',

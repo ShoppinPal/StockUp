@@ -386,7 +386,7 @@ var runMe = function (payload, config, taskId, messageId) {
                             payload.eventType,
                             utils.workerStatus.SUCCESS,
                             {success: true, reportModelId: payload.reportModelId},
-                            payload.userId
+                            payload.callId
                         )
 
                     };
@@ -418,7 +418,7 @@ var runMe = function (payload, config, taskId, messageId) {
                             payload.eventType,
                             utils.workerStatus.FAILED,
                             {success: false, reportModelId: payload.reportModelId},
-                            payload.userId
+                            payload.callId
                         )
 
                     };

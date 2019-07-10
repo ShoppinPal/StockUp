@@ -306,12 +306,17 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     if (!this.totalReceivedLineItems) {
       this.toastr.error('Please receive at least one item to send order to supplier');
     } else {
-      // this.creatingPurchaseOrderVend = true;
+      this.creatingPurchaseOrderVend = true;
       this.orgModelApi.receiveConsignment(
           this.userProfile.orgModelId,
           this.order.id
       ).subscribe(recieveRequest => {
+        this.toastr.info('Receiving consignment...');
+        this.creatingPurchaseOrderVend = false;
         this.waitForRecieveWorker(recieveRequest.callId);
+      }, error => {
+        this.creatingPurchaseOrderVend = false;
+        this.toastr.error('Error in receiving order');
       });
     }
   }
