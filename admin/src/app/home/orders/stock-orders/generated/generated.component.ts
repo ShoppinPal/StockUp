@@ -189,7 +189,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     } else {
       this.creatingTransferOrder = true;
       this.loading = true;
-      this.orgModelApi.createPurchaseOrderVend(
+      this.orgModelApi.createTransferOrderMSD(
           this.userProfile.orgModelId,
           this.order.id
       ).subscribe(transferOrderRequest => {
