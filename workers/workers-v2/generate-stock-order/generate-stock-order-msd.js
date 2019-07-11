@@ -511,14 +511,15 @@ function generateStockOrder(payload, config, taskId, messageId) {
                     commandName,
                     messageId
                 });
-                return db.collection('ReportModel').updateOne({
-                    _id: reportModel._id
+                return Promise.all([
+                db.collection('ReportModel').updateOne({
+                    _id: ObjectId(reportModel._id)
                 }, {
                     $set: {
                         state: REPORT_STATES.PROCESSING_FAILURE,
                         totalRows: totalRows
                     }
-                });
+                }), result]);
             }
             else {
                 logger.debug({
@@ -527,13 +528,20 @@ function generateStockOrder(payload, config, taskId, messageId) {
                     commandName,
                     messageId
                 });
-                return db.collection('ReportModel').updateOne({
-                    _id: reportModel._id
+                return Promise.all([
+                    db.collection('ReportModel').updateOne({
+                    _id: ObjectId(reportModel._id)
                 }, {
                     $set: {
                         state: REPORT_STATES.GENERATED
                     }
-                });
+                })]);
+            }
+        }).then(function([updateResult, result]){
+            if (result === 'ERROR_REPORT'){
+                return Promise.reject('Error while processing order');
+            } else {
+                return Promise.resolve();
             }
         });
 }

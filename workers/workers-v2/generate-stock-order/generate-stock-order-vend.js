@@ -366,18 +366,24 @@ var runMe = function (payload, config, taskId, messageId) {
                     message: `Will change the status of report to ${REPORT_STATES.GENERATED}`
                 });
                 if (response === 'ERROR_REPORT') {
-                    return db.collection('ReportModel').updateOne({_id: ObjectId(reportModel._id)}, {
+                    return Promise.all([
+                        db.collection('ReportModel').updateOne({_id: ObjectId(reportModel._id)}, {
                         $set: {
                             state: REPORT_STATES.PROCESSING_FAILURE
                         }
-                    });
+                    }),
+                        response
+                    ]);
                 }
                 else {
-                    return db.collection('ReportModel').updateOne({_id: ObjectId(reportModel._id)}, {
+                    return Promise.all([
+                        db.collection('ReportModel').updateOne({_id: ObjectId(reportModel._id)}, {
                         $set: {
                             state: REPORT_STATES.GENERATED
                         }
-                    });
+                    }),
+                        response
+                    ]);
                 }
             })
             .catch(function (error) {
@@ -387,6 +393,13 @@ var runMe = function (payload, config, taskId, messageId) {
                     messageId
                 });
                 return Promise.reject('Could not update report status');
+            })
+            .then(function([updateResult, result]){
+                if (result === 'ERROR_REPORT'){
+                    return Promise.reject('Error while processing order');
+                } else {
+                    return Promise.resolve();
+                }
             })
             .then(function (response) {
                 logger.debug({
