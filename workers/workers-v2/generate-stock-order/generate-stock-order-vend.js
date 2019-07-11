@@ -398,7 +398,7 @@ var runMe = function (payload, config, taskId, messageId) {
                 if (result === 'ERROR_REPORT'){
                     return Promise.reject('Error while processing order');
                 } else {
-                    return Promise.resolve();
+                    return Promise.resolve(updateResult);
                 }
             })
             .then(function (response) {
