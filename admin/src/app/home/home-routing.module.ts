@@ -3,11 +3,9 @@ import {Routes, RouterModule} from '@angular/router';
 import {SyncWithVendComponent} from './sync-with-vend/sync-with-vend.component';
 import {StoresComponent} from './stores/stores.component';
 import {PaymentsComponent} from './payments/payments.component';
-import {ProductsComponent} from './products/products.component';
 import {UserResolverService} from './../shared/services/user-resolver.service';
 import {AccessService} from "../shared/services/access.service";
 import {SyncWithVendResolverService} from "./sync-with-vend/services/sync-with-vend-resolver.service";
-import {OrdersComponent} from "./orders/orders.component";
 import {WorkerSettingsComponent} from "./worker-settings/worker-settings.component";
 import {WorkerSettingsResolverService} from "./worker-settings/services/worker-settings-resolver.service";
 import {SuppliersComponent} from "./suppliers/suppliers.component";
@@ -28,6 +26,9 @@ const routes: Routes = [
       access: AccessService,
       user: UserResolverService
     },
+    data: {
+      title: 'Home'
+    },
     children: [
       {
         path: '',
@@ -38,7 +39,7 @@ const routes: Routes = [
         path: 'sync-with-vend',
         component: SyncWithVendComponent,
         data: {
-          title: 'Home > Stores'
+          title: 'Stores'
         },
         resolve: {
           syncModels: SyncWithVendResolverService
@@ -48,7 +49,7 @@ const routes: Routes = [
         path: 'connect',
         component: ConnectComponent,
         data: {
-          title: 'Home > Connect'
+          title: 'Connect'
         },
         resolve: {
           integration: ConnectResolverService
@@ -58,7 +59,7 @@ const routes: Routes = [
         path: 'users',
         component: UsersComponent,
         data: {
-          title: 'Home > Users',
+          title: 'Users',
         },
         resolve: {
           users: UserManagementResolverService,
@@ -68,7 +69,7 @@ const routes: Routes = [
         path: 'worker-settings',
         component: WorkerSettingsComponent,
         data: {
-          title: 'Home > Settings > Worker Settings'
+          title: 'Settings > Worker Settings'
         },
         resolve: {
           workerSettings: WorkerSettingsResolverService
@@ -78,7 +79,7 @@ const routes: Routes = [
         path: 'stores',
         component: StoresComponent,
         data: {
-          title: 'Home > Stores'
+          title: 'Stores'
         },
         resolve: {
           stores: StoresResolverService
@@ -88,28 +89,28 @@ const routes: Routes = [
         path: 'payments',
         component: PaymentsComponent,
         data: {
-          title: 'Home > Payments'
+          title: 'Payments'
         }
       },
       {
         path: 'products',
-        component: ProductsComponent,
+        loadChildren: './products/products.module#ProductsModule',
         data: {
-          title: 'Home > Products'
+          title: 'Products'
         }
       },
       {
         path: 'orders',
-        component: OrdersComponent,
+        loadChildren: './orders/orders.module#OrdersModule',
         data: {
-          title: 'Home > Orders'
+          title: 'Orders'
         }
       },
       {
         path: 'suppliers',
         component: SuppliersComponent,
         data: {
-          title: 'Home > Suppliers'
+          title: 'Suppliers'
         },
         resolve: {
           suppliers: SuppliersResolverService
@@ -119,7 +120,7 @@ const routes: Routes = [
         path: 'reorder-points',
         component: ReorderPointsComponent,
         data: {
-          title: 'Home > Settings > Reorder Points'
+          title: 'Settings / Reorder Points'
         }
       },
       {

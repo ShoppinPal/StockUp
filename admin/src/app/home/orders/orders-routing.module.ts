@@ -2,37 +2,26 @@ import { NgModule } from '@angular/core';
 import {Routes, RouterModule} from '@angular/router';
 import {AccessService} from "../../shared/services/access.service";
 import {StuckOrdersComponent} from "./stuck-orders/stuck-orders.component";
-import {StuckOrdersResolverService} from "./stuck-orders/services/stuck-orders-resolver.service";
-import {StockOrdersComponent} from "./stock-orders/stock-orders.component";
 import {StockOrdersResolverService} from "./stock-orders/services/stock-orders-resolver.service";
-import {StockOrderDetailsComponent} from "./stock-orders/stock-order-details/stock-order-details.component";
-import {StockOrderDetailsResolverService} from "./stock-orders/stock-order-details/services/stock-order-details-resolver.service";
-import {GeneratedComponent} from "./stock-orders/generated/generated.component";
-import {FulfillComponent} from "./stock-orders/fulfill/fulfill.component";
-import {ReceiveComponent} from "./stock-orders/receive/receive.component";
-import {ReceiveResolverService} from "./stock-orders/receive/services/receive-resolver.service";
-import {FulfillResolverService} from "./stock-orders/fulfill/services/fulfill-resolver.service";
-import {GeneratedResolverService} from "./stock-orders/generated/services/generated-resolver.service";
-import {CompleteComponent} from "./stock-orders/complete/complete.component";
-import {CompleteResolverService} from "./stock-orders/complete/services/complete-resolver.service";
+
 
 const routes: Routes = [
   {
-    path: 'orders',
+    path: '',
     resolve: {
       access: AccessService
     },
     children: [
       {
         redirectTo: 'stock-orders',
-        path: 'orders',
+        path: '',
         pathMatch: 'full'
       },
       {
         path: 'stock-orders',
-        component: StockOrdersComponent,
+        loadChildren: './stock-orders/stock-orders.module#StockOrdersModule',
         data: {
-          title: 'Home > Orders > Stock Orders'
+          title: 'Stock Orders'
         }
         ,
         resolve: {
@@ -40,50 +29,10 @@ const routes: Routes = [
         }
       },
       {
-        path: 'stock-orders/generated/:id',
-        component: GeneratedComponent,
-        data: {
-          title: 'Home > Orders > Stock Orders > Generated'
-        },
-        resolve: {
-          stockOrderDetails: GeneratedResolverService
-        }
-      },
-      {
-        path: 'stock-orders/fulfill/:id',
-        component: FulfillComponent,
-        data: {
-          title: 'Home > Orders > Stock Orders > Fulfill'
-        },
-        resolve: {
-          stockOrderDetails: FulfillResolverService
-        }
-      },
-      {
-        path: 'stock-orders/receive/:id',
-        component: ReceiveComponent,
-        data: {
-          title: 'Home > Orders > Stock Orders > Receive'
-        },
-        resolve: {
-          stockOrderDetails: ReceiveResolverService
-        }
-      },
-      {
-        path: 'stock-orders/complete/:id',
-        component: CompleteComponent,
-        data: {
-          title: 'Home > Orders > Stock Orders > Complete'
-        },
-        resolve: {
-          stockOrderDetails: CompleteResolverService
-        }
-      },
-      {
         path: 'stuck-orders',
         component: StuckOrdersComponent,
         data: {
-          title: 'Home > Orders > Stuck Orders'
+          title: 'Stuck Orders'
         }
         // ,
         // resolve: {
