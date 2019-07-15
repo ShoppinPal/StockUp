@@ -769,6 +769,33 @@ module.exports = function (ReportModel) {
                     },
                     totalRows: {
                         $sum: 1
+                    },
+                    fulfilledRows: {
+                        $sum: {
+                            $cond: {
+                                if: { $eq: ['$fulfilled', true]},
+                                then: 1,
+                                else: 0
+                            }
+                        }
+                    },
+                    receivedRows: {
+                        $sum: {
+                            $cond: {
+                                if: { $eq: ['$received', true]},
+                                then: 1,
+                                else: 0
+                            }
+                        }
+                    },
+                    approvedRows: {
+                        $sum: {
+                            $cond: {
+                                if: { $eq: ['$approved', true]},
+                                then: 1,
+                                else: 0
+                            }
+                        }
                     }
                 }
             }
@@ -792,7 +819,10 @@ module.exports = function (ReportModel) {
                 var rowCounts = _.map(response, function (eachResponse) {
                     return {
                         reportModelId: eachResponse._id.reportModelId,
-                        totalRows: eachResponse.totalRows
+                        totalRows: eachResponse.totalRows,
+                        fulfilledRows: eachResponse.fulfilledRows,
+                        receivedRows: eachResponse.receivedRows,
+                        approvedRows: eachResponse.approvedRows
                     };
                 });
                 return Promise.resolve(rowCounts);

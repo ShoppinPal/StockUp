@@ -133,19 +133,19 @@ export class StockOrdersComponent implements OnInit {
               let orderRowCount = rowCounts.find(eachRowCount => {
                 return eachRowCount.reportModelId === this.fulfillOrders[i].id;
               });
-              this.fulfillOrders[i].totalRows = orderRowCount ? orderRowCount.totalRows : 0;
+              this.fulfillOrders[i].totalRows = orderRowCount ? orderRowCount.approvedRows : 0;
             }
             if (this.receiveOrders && this.receiveOrders[i]) {
               let orderRowCount = rowCounts.find(eachRowCount => {
                 return eachRowCount.reportModelId === this.receiveOrders[i].id;
               });
-              this.receiveOrders[i].totalRows = orderRowCount ? orderRowCount.totalRows : 0;
+              this.receiveOrders[i].totalRows = orderRowCount ? orderRowCount.fulfilledRows : 0;
             }
             if (this.completedOrders && this.completedOrders[i]) {
               let orderRowCount = rowCounts.find(eachRowCount => {
                 return eachRowCount.reportModelId === this.completedOrders[i].id;
               });
-              this.completedOrders[i].totalRows = orderRowCount ? orderRowCount.totalRows : 0;
+              this.completedOrders[i].totalRows = orderRowCount ? orderRowCount.receivedRows : 0;
             }
           }
         },
