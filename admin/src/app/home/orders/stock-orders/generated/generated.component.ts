@@ -250,6 +250,10 @@ export class GeneratedComponent implements OnInit {
           this.getApprovedStockOrderLineItems();
           this.getNotApprovedStockOrderLineItems();
           console.log('approved', res);
+          // Approve All Button Click when no items are present
+          if (res.count  === 0 && lineItems instanceof Array && data.approved) {
+            this.toastr.error('No Items to Approve');
+          }
         },
         err => {
           console.log('err', err);
