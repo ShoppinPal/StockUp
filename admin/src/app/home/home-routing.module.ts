@@ -57,13 +57,10 @@ const routes: Routes = [
       },
       {
         path: 'users',
-        component: UsersComponent,
+        loadChildren: './users/users.module#UsersModule',
         data: {
-          title: 'Users',
+          title: 'Users'
         },
-        resolve: {
-          users: UserManagementResolverService,
-        }
       },
       {
         path: 'worker-settings',

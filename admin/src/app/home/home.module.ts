@@ -11,7 +11,6 @@ import {PaymentsModule} from './payments/payments.module';
 import {SharedModule} from './../shared/shared.module';
 import {SuppliersModule} from "./suppliers/suppliers.module";
 import {ConnectModule} from "./connect/connect.module";
-import {UsersModule} from "./users/users.module";
 import {ReorderPointsModule} from "./reorder-points/reorder-points.module";
 import {FileImportsModule} from "./file-imports/file-imports.module";
 
@@ -28,7 +27,6 @@ import {FileImportsModule} from "./file-imports/file-imports.module";
     SuppliersModule,
     PaymentsModule,
     ReorderPointsModule,
-    UsersModule,
     WorkerSettingsModule
   ],
   declarations: [HomeComponent],
