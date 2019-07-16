@@ -630,7 +630,6 @@ module.exports = function (OrgModel) {
                         functionName: 'generateStockOrderMSD',
                         options
                     });
-                    res.status(500).send('Could not initiate stock order generation');
                     return Promise.reject('Could not initiate stock order generation');
                 });
         };
@@ -659,7 +658,6 @@ module.exports = function (OrgModel) {
                         functionName: 'generateStockOrderVend',
                         options
                     });
-                    res.status(500).send('Could not initiate stock order generation');
                     return Promise.reject('Could not initiate stock order generation');
                 });
         };
@@ -688,43 +686,6 @@ module.exports = function (OrgModel) {
                 });
         };
 
-
-        OrgModel.remoteMethod('sendWorkerStatus', {
-            accepts: [
-                {arg: 'id', type: 'string', required: true},
-                {arg: 'userId', type: 'string', required: true},
-                {arg: 'data', type: 'object'},
-                {arg: 'messageId', type: 'string', required: true},
-                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
-            ],
-            http: {path: '/:id/sendWorkerStatus', verb: 'post'},
-            returns: {arg: 'data', type: 'object', root: true}
-        });
-
-        OrgModel.sendWorkerStatus = function (id, userId, data, messageId, options, cb) {
-            try {
-                logger.debug({
-                    options,
-                    message: 'This is called by worker',
-                    userId,
-                    data,
-                    messageId,
-                    functionName: 'sendWorkerStatus'
-                });
-
-                cb(null, true);
-            }
-            catch (e) {
-                logger.error({
-                    options,
-                    err: e,
-                    message: 'Could not send data to client',
-                    functionName: 'sendReports'
-                });
-                cb(e);
-            }
-        };
-
         OrgModel.remoteMethod('createTransferOrderMSD', {
             accepts: [
                 {arg: 'id', type: 'string', required: true},
@@ -745,7 +706,6 @@ module.exports = function (OrgModel) {
             });
             return OrgModel.app.models.ReportModel.createTransferOrderMSD(id, reportModelId, res, options)
                 .catch(function (error) {
-                    res.status(500).send('Could not create transfer order in MSD');
                     logger.error({
                         message: 'Could not create transfer order in MSD',
                         reportModelId,
@@ -753,6 +713,7 @@ module.exports = function (OrgModel) {
                         functionName: 'createTransferOrderMSD',
                         error
                     });
+                    return Promise.reject('Could not create transfer order in MSD');
                 });
         };
 
@@ -992,7 +953,7 @@ module.exports = function (OrgModel) {
                         functionName: 'createPurchaseOrderVend',
                         error
                     });
-                    res.status(500).send('Could not create purchase order in Vend');
+                    return Promise.reject('Could not create purchase order in Vend')
                 });
         };
 

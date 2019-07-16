@@ -12,14 +12,14 @@ let cleanupSSEMap = (sseMap, keyToDelete) => {
         else {
             logger.debug(`could not clear sseMap as recipient: ${keyToDelete} was not found`);
         }
-    }, process.env.MAX_API_CALL_IDLE_TIME * 1000);
+    }, process.env.MAX_API_CALL_IDLE_TIME_SECONDS * 1000);
 };
 
 let cleanUsersIfInactive = (sseUsers) => {
     setInterval(function() {
         let keys = Object.keys(sseUsers);
         let totalKeys = keys.length;
-        let maxIdleTime = 1000 * 60 * process.env.MAX_USER_IDLE_TIME;
+        let maxIdleTime = 1000 * 60 * process.env.MAX_USER_IDLE_TIME_MINUTES;
         let currenTime = new Date();
 
         logger.debug('cleaning inactive user streams');
@@ -37,7 +37,7 @@ let cleanApiIfInactive = (sseApi) => {
     setInterval(function() {
         let keys = Object.keys(sseApi);
         let totalKeys = keys.length;
-        let maxIdleTime = 1000 * process.env.MAX_API_CALL_IDLE_TIME;
+        let maxIdleTime = 1000 * process.env.MAX_API_CALL_IDLE_TIME_SECONDS;
         let currenTime = new Date();
 
         logger.debug('cleaning inactive api streams');

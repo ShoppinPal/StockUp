@@ -364,7 +364,9 @@ module.exports = function (ReportModel) {
         });
 
         return ReportModel.app.models.StoreModel.findOne({
-            _id: storeModelId
+            where: {
+                objectId: storeModelId
+            }
         }) .catch(function (error) {
             logger.error({
                 message: 'Could not find a store with this id',
@@ -500,39 +502,24 @@ module.exports = function (ReportModel) {
             message: 'Will Create a report model and initialize worker to process it',
             storeModelId,
             supplierModelId,
+            name,
+            warehouseModelId,
             functionName: 'generateStockOrderVend',
             options,
         });
-        return ReportModel.app.models.RoleMapping.find({
-            principalId: options.accessToken.userId
-        }).catch(function (error) {
-            logger.error({
-                message: 'Could not find user\'s role mappings',
-                userModelId: options.accessToken.userId,
-                error
-            });
-            return Promise.reject('Could not find user\'s role mappings');
-        })
-
-            .then(function (roleMappings) {
-                logger.debug({
-                    message: 'Found user\'s role mappings, will look for user\'s roles, store and supplier info',
-                    roleMappings
-                });
-                return Promise.all([
+        return Promise.all([
                     ReportModel.app.models.StoreModel.findOne({
-                        _id: storeModelId
+                        where: {
+                            objectId: storeModelId //Defined in store-model.json as id
+                        }
                     }),
                     ReportModel.app.models.SupplierModel.findOne({
-                        _id: supplierModelId
-                    }),
-                    ReportModel.app.models.Role.find({
-                        _id: {
-                            $in: _.pluck(roleMappings, 'roleId')
+                        where: {
+                            id: supplierModelId
                         }
                     })
-                ]);
-            }) .catch(function (error) {
+                ])
+             .catch(function (error) {
                 logger.error({
                     message: 'Could not find roles, store and supplier details',
                     error
@@ -541,7 +528,6 @@ module.exports = function (ReportModel) {
             }).then(function (response) {
                 var storeModelInstance = response[0];
                 var supplierModelInstance = response[1];
-                var userRoles = response[2];
                 if (!storeModelInstance) {
                     logger.error({
                         message: 'Could not find store info, will exit',
@@ -563,7 +549,9 @@ module.exports = function (ReportModel) {
                 var supplierStoreCode = supplierModelInstance.storeIds ? supplierModelInstance.storeIds[storeModelId] : '';
                 supplierStoreCode = supplierStoreCode ? '#' + supplierStoreCode : '';
                 var TODAYS_DATE = new Date();
-                var name = name || storeModelInstance.name + ' - ' + supplierStoreCode + ' ' + supplierModelInstance.name + ' - ' + TODAYS_DATE.getFullYear() + '-' + (TODAYS_DATE.getMonth() + 1) + '-' + TODAYS_DATE.getDate();
+                if (!name) {
+                    name = storeModelInstance.name + ' - ' + supplierStoreCode + ' ' + supplierModelInstance.name + ' - ' + TODAYS_DATE.getFullYear() + '-' + (TODAYS_DATE.getMonth() + 1) + '-' + TODAYS_DATE.getDate();
+                }
                 return ReportModel.create({
                     name: name,
                     userModelId: options.accessToken.userId, // explicitly setup the foreignKeys for related models

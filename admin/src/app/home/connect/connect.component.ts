@@ -11,15 +11,15 @@ import {LoopBackAuth} from '../../shared/lb-sdk/services/core';
 @Component({
   selector: 'app-connect',
   templateUrl: './connect.component.html',
-  styleUrls: ['./connect.component.scss']
+  styleUrls: ['./connect.component.scss'],
 })
 export class ConnectComponent implements OnInit, OnDestroy {
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
               private _userProfileService: UserProfileService,
-              private cd: ChangeDetectorRef,
               private auth: LoopBackAuth,
+              private changeDetector: ChangeDetectorRef,
               private eventSourceService: EventSourceService,
               private toastr: ToastrService) {
   }
@@ -49,7 +49,7 @@ export class ConnectComponent implements OnInit, OnDestroy {
                   url
               ).subscribe(([status, es]) => {
                   this.syncing[status.eventType] = status.data.loading;
-                  this.cd.markForCheck();
+                  this.changeDetector.detectChanges();
               })
           )
       });
@@ -96,7 +96,6 @@ export class ConnectComponent implements OnInit, OnDestroy {
           console.log('vend sync', data);
           this.syncModels = data.syncStatus;
           this.loading = false;
-          this.cd.markForCheck();
           this.getSyncModels()
         },
         err => {
@@ -119,7 +118,6 @@ export class ConnectComponent implements OnInit, OnDestroy {
             console.log('msd sync', data);
             this.syncModels = data.syncStatus;
             this.loading = false;
-            this.cd.markForCheck();
           },
           err => {
             this.loading = false;
@@ -135,7 +133,6 @@ export class ConnectComponent implements OnInit, OnDestroy {
           console.log(' stopped msd sync', data);
           this.loading = false;
           this.syncModels = 0;
-          this.cd.markForCheck();
         },
         err => {
           this.loading = false;
@@ -223,7 +220,6 @@ export class ConnectComponent implements OnInit, OnDestroy {
           this.loading = false;
           this.toastr.success('Company saved successfully');
           this.integration[0].dataAreaId = this.selectedCompany;
-          this.cd.markForCheck();
         },
         err => {
           this.loading = false;
@@ -265,6 +261,12 @@ export class ConnectComponent implements OnInit, OnDestroy {
     });
   }
 
+  getSyncObject(dataObject): any {
+    return this.syncModelsData.find(function (eachSyncModel) {
+        return eachSyncModel.name === dataObject;
+    });
+  }
+
   toggleSync(dataObject) {
     // this.loading = true;
     // let filter = {};
@@ -301,7 +303,6 @@ export class ConnectComponent implements OnInit, OnDestroy {
           this.syncModelsData = syncModels;
           this.syncModels = syncModels.length;
           this.subscribeForSyncEvents();
-          this.cd.markForCheck();
       })
   }
 

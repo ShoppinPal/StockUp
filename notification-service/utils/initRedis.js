@@ -7,7 +7,6 @@ let EventEmitter = require('events').EventEmitter;
 function initSubscriber(app){
     return Promise.resolve()
             .then(() => {
-                logger.debug(process.env);
                 let eventEmitter = new EventEmitter();
                 app.redis.workerSubscriber = null;
                 // Subscriber client

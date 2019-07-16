@@ -83,12 +83,6 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.fetchStockOrdersDebounced = new Observable((observer) => {
-      this.toastr.success('Order generated successfully', '');
-      observer.next();
-    })
-    .pipe(debounceTime(5000));
-
     this.userProfile = this._userProfileService.getProfileData();
     this.userStores = this.userProfile.storeModels.map(x => x.objectId);
     this._route.data.subscribe((data: any) => {
@@ -298,27 +292,6 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
               this.loading = false;
               this.toastr.error('Error in generating order');
       })
-     /* let url = '/notification/' + this.userProfile.orgModelId +
-          '/generateStockOrderVend?';
-      this._eventSourceService.connectToStream(url)
-          .subscribe(([response, es]) => {
-        if (response.type === EventSourceService.PROCESSING) {
-          this.loading = false;
-        } else if (response.success === true) {
-          es.close();
-          this.fetchStockOrdersDebounced
-              .subscribe(event => {
-                this.toastr.success('Order generated successfully');
-                this.fetchOrders('generated');
-              });
-        } else {
-           this.toastr.error('Error in generating order');
-        }
-      }, error1 => {
-        console.error(error1);
-        this.loading = false;
-        this.toastr.error('Error in generating order');
-      });*/
     } else {
       this.toastr.error('Select a supplier or upload a file to generate order from');
       return;
@@ -331,24 +304,21 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
     this._eventSourceService.connectToStream(EventSourceUrl)
         .subscribe(([event, es]) => {
           console.log(event);
-          if (event.data === 'connected'){
-
-          } else {
-              if (event.data.success === true) {
+          es.close();
+          this._stockOrdersResolverService.fetchGeneratedStockOrders(1, 0, event.data.reportModelId)
+              .subscribe(reportModel => {
+                const reportIndex = this.generatedOrders.findIndex((report) => report.id === event.data.reportModelId);
+                this.generatedOrders[reportIndex] = reportModel.generatedOrders[0];
+                this.totalGeneratedOrders = reportModel.generatedOrdersCount;
+                this.totalGeneratedOrdersPages = this.totalGeneratedOrders / this.ordersLimitPerPage;
+                if (event.data.success === true) {
                   this.toastr.success('Generated Stock Order Success');
-              } else {
+                } else {
                   this.toastr.error('Error Generating Stock Order');
-              }
-              es.close();
-              this._stockOrdersResolverService.fetchGeneratedStockOrders(1, 0, event.data.reportModelId)
-                  .subscribe(reportModel => {
-                      const reportIndex = this.generatedOrders.findIndex((report) => report.id === event.data.reportModelId);
-                      this.generatedOrders[reportIndex] = reportModel.generatedOrders[0];
-                      this.totalGeneratedOrders = reportModel.generatedOrdersCount;
-                      this.totalGeneratedOrdersPages = this.totalGeneratedOrders / this.ordersLimitPerPage;
-                      this.fetchOrderRowCounts();
-                  });
-          }
+                }
+                this.fetchOrderRowCounts();
+              });
+
         })
     );
   }

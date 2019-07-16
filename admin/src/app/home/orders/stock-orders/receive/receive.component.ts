@@ -328,9 +328,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
         this._eventSourceService.connectToStream(EventSourceUrl)
             .subscribe(([event, es]) => {
               console.log(event);
-              if (event.data === 'connected') {
-
-              } else if (event.data.success === true) {
+             if (event.data.success === true) {
                 es.close();
                 this.creatingPurchaseOrderVend = false;
                 this._router.navigate(['/orders/stock-orders']);

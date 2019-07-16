@@ -28,7 +28,9 @@ export class EventSourceService {
           this.eventSourcesMap[url].push(eventSource);
           eventSource.onmessage = (event) => {
               const json = JSON.parse(event.data);
-              observer.next([json, eventSource]);
+              if (json.data !== 'connected') {
+                  observer.next([json, eventSource]);
+              }
           };
           eventSource.onerror = (error) => {
               console.error(error);

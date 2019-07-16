@@ -1,10 +1,12 @@
+$green-color: #e6ffed;
+
 @keyframes backgroundEffect {
-  from {background-color: #91ff84;}
+  from {background-color: $green-color;}
   to {background-color: white;}
 }
 
 @-webkit-keyframes backgroundEffect {
-  from {background-color: green;}
+  from {background-color: $green-color;}
   to {background-color: white;}
 }
 

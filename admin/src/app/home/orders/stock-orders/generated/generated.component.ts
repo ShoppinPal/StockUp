@@ -290,9 +290,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
         this._eventSourceService.connectToStream(EventSourceUrl)
             .subscribe(([event, es]) => {
-              if (event.data === 'connected') {
-
-              } else if (event.data.success === true) {
+              if (event.data.success === true) {
                 es.close();
                 this.creatingPurchaseOrderVend = false;
                 this.creatingTransferOrder = false;
