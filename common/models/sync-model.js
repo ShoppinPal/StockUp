@@ -599,7 +599,10 @@ module.exports = function (SyncModel) {
                     return SyncModel.app.models.UserModel.findOrCreate({
                         where: {
                             orgModelId: id,
-                            api_id: eachUser.api_id
+                            or:[
+                                {api_id: eachUser.api_id},
+                                {email: eachUser.email}
+                            ]
                         }
                     }, eachUser);
                 });
