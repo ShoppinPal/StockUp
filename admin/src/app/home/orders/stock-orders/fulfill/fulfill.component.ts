@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {OrgModelApi} from "../../../../shared/lb-sdk/services/custom/OrgModel";
 import {ActivatedRoute, Router} from '@angular/router';
 import {Observable, combineLatest} from 'rxjs';
@@ -6,7 +6,7 @@ import {ToastrService} from 'ngx-toastr';
 import {UserProfileService} from "../../../../shared/services/user-profile.service";
 import {LoopBackAuth} from "../../../../shared/lb-sdk/services/core/auth.service";
 import {constants} from "../../../../shared/constants/constants";
-import {DatePipe} from '@angular/common';
+import {ModalDirective} from 'ngx-bootstrap/modal';
 
 @Component({
   selector: 'app-fulfill',
@@ -14,6 +14,8 @@ import {DatePipe} from '@angular/common';
   styleUrls: ['./fulfill.component.scss']
 })
 export class FulfillComponent implements OnInit {
+  @ViewChild('discrepancyModal') public discrepancyModal: ModalDirective;
+  @ViewChild('searchInput') public searchInputRef: ElementRef;
 
   public userProfile: any;
   public loading = false;
@@ -36,7 +38,7 @@ export class FulfillComponent implements OnInit {
   public editable: boolean;
   public searchSKUFocused: boolean = true;
   public enableBarcode: boolean = true;
-  public modalShow: boolean;
+  public discrepancyOrderItem: any;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -85,7 +87,7 @@ export class FulfillComponent implements OnInit {
     if (!productModelId){
       this.searchSKUText = ''
     }
-    let filter = {
+    const filter: any = {
       where: {
         reportModelId: this.order.id,
         approved: true,
@@ -98,7 +100,7 @@ export class FulfillComponent implements OnInit {
       limit: limit,
       skip: skip
     };
-    let countFilter = {
+    let countFilter: any = {
       reportModelId: this.order.id,
       approved: true,
       fulfilled: true
@@ -175,7 +177,7 @@ export class FulfillComponent implements OnInit {
   }
 
   searchAndIncrementProduct(sku?: string, force: boolean = false) {
-    this.modalShow = false;
+    this.discrepancyModal.hide();
     this.loading = true;
     this.orgModelApi.scanBarcodeStockOrder(this.userProfile.orgModelId,
       'fulfill',
@@ -184,10 +186,13 @@ export class FulfillComponent implements OnInit {
       force)
       .subscribe(searchedOrderItem => {
         if (searchedOrderItem.showDiscrepancyAlert) {
-          this.modalShow = true
+          this.discrepancyOrderItem = searchedOrderItem;
+          this.discrepancyModal.show();
         }else{
           this.toastr.success('Row updated');
         }
+        this.searchInputRef.nativeElement.focus();
+        this.searchInputRef.nativeElement.select();
         this.fulfilledLineItems = [searchedOrderItem];
         this.totalFulfilledLineItems = this.fulfilledLineItems.length;
         if (!searchedOrderItem.fulfilled) {

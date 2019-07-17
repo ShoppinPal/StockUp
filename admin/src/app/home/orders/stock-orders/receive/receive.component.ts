@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {OrgModelApi} from "../../../../shared/lb-sdk/services/custom/OrgModel";
 import {ActivatedRoute, Router} from '@angular/router';
 import {Observable, combineLatest} from 'rxjs';
@@ -7,6 +7,7 @@ import {UserProfileService} from "../../../../shared/services/user-profile.servi
 import {LoopBackAuth} from "../../../../shared/lb-sdk/services/core/auth.service";
 import {constants} from "../../../../shared/constants/constants";
 import {DatePipe} from '@angular/common';
+import {ModalDirective} from 'ngx-bootstrap';
 
 @Component({
   selector: 'app-receive',
@@ -14,6 +15,8 @@ import {DatePipe} from '@angular/common';
   styleUrls: ['./receive.component.scss']
 })
 export class ReceiveComponent implements OnInit {
+  @ViewChild('discrepancyModal') public discrepancyModal: ModalDirective;
+  @ViewChild('searchInput') public searchInputRef: ElementRef;
 
   public userProfile: any;
   public loading = false;
@@ -36,8 +39,8 @@ export class ReceiveComponent implements OnInit {
   public editable: boolean;
   public searchSKUFocused: boolean = true;
   public enableBarcode: boolean = true;
-  public modalShow: boolean;
-  
+  public discrepancyOrderItem: any;
+
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
               private _router: Router,
@@ -175,19 +178,22 @@ export class ReceiveComponent implements OnInit {
   }
 
   searchAndIncrementProduct(sku?: string, force: boolean = false) {
-    this.modalShow = false;
+    this.discrepancyModal.hide()
     this.loading = true;
     this.orgModelApi.scanBarcodeStockOrder(this.userProfile.orgModelId,
       'receive',
       sku,
       this.order.id,
       force)
-      .subscribe(searchedOrderItem => {
+      .subscribe((searchedOrderItem) => {
         if (searchedOrderItem.showDiscrepancyAlert) {
-          this.modalShow = true
+          this.discrepancyOrderItem = searchedOrderItem;
+          this.discrepancyModal.show()
         }else{
           this.toastr.success('Row updated');
         }
+        this.searchInputRef.nativeElement.focus();
+        this.searchInputRef.nativeElement.select();
         this.receivedLineItems = [searchedOrderItem];
         this.totalReceivedLineItems = this.receivedLineItems.length;
         if (!searchedOrderItem.received) {
@@ -199,7 +205,7 @@ export class ReceiveComponent implements OnInit {
         this.loading = false;
       }, error => {
         this.loading = false;
-        this.toastr.error(error.message)
+        this.toastr.error(error.message);
         this.notReceivedLineItems = [];
         this.receivedLineItems = [];
         this.totalReceivedLineItems = 0;
@@ -290,11 +296,11 @@ export class ReceiveComponent implements OnInit {
   };
 
   receiveConsignment() {
-    // if (!this.totalReceivedLineItems) {
-    //   this.toastr.error('Please receive at least one item to send order to supplier');
-    // }
-    // else {
-      // this.creatingPurchaseOrderVend = true;
+    if (!this.totalReceivedLineItems) {
+      this.toastr.error('Please receive at least one item to send order to supplier');
+    }
+    else {
+      this.creatingPurchaseOrderVend = true;
       let componentScope = this;
       let EventSource = window['EventSource'];
       let es = new EventSource('/api/OrgModels/' + this.userProfile.orgModelId + '/receiveConsignment?access_token=' + this.auth.getAccessTokenId() + '&reportModelId=' + this.order.id + '&type=json');
@@ -312,7 +318,7 @@ export class ReceiveComponent implements OnInit {
         }
         es.close();
       };
-    // }
+    }
   }
 
   downloadOrderCSV() {

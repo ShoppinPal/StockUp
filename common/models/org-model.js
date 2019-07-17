@@ -1223,7 +1223,7 @@ module.exports = function (OrgModel) {
                     message: 'StockOrder Scan to Process',
                     functionName: 'scanBarcodeStockOrder'
                 });
-                return OrgModel.app.models.StockOrderLineitemModel.scanBarCode(scanType, productSku, id,reportModelId, force);
+                return OrgModel.app.models.StockOrderLineitemModel.scanBarcodeStockOrder(scanType, productSku, id,reportModelId, force, options);
         };
 
         OrgModel.remoteMethod('fetchFileImportHeaders', {
