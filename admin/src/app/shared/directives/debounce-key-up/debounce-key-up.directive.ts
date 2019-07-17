@@ -9,7 +9,9 @@ import {debounceTime} from 'rxjs/operators';
   selector: '[appDebounceKeyUp]'
 })
 export class DebounceKeyUpDirective implements OnInit, OnDestroy {
-  @Input() debounceTime = 1000;
+  @Input() debounceTime = 500;
+  @Input() enabled = true;
+  @Input() selectText = true;
   @Output('appDebounceKeyUp') debounceKeyUp = new EventEmitter();
   private keyUp = new Subject();
   private subscription: Subscription;
@@ -29,5 +31,12 @@ export class DebounceKeyUpDirective implements OnInit, OnDestroy {
   keyUpEvent(event) {
     event.stopPropagation();
     this.keyUp.next(event)
+  }
+
+  @HostListener('click', ['$event'])
+  clickEvent(event) {
+    if (this.selectText) {
+      event.target.select();
+    }
   }
 }

@@ -65,6 +65,7 @@
                          #searchInput
                          [(ngModel)]="searchSKUText"
                          [appAutoFocus]="searchSKUFocused"
+                         [selectText]="enableBarcode"
                          (appDebounceKeyUp)="barcodeSearchSKU($event)"
                          placeholder="Scan SKU barcode here or enter text">
                   <span class="input-group-btn">
@@ -149,14 +150,14 @@
                         <td *ngIf="editable">
                           <div class="form-group">
                             <div class="input-group">
-                              <div class="input-group-prepend pointer" (click)="lineItem.fulfilledQuantity = lineItem.fulfilledQuantity - 1">
+                              <div *ngIf="!enableBarcode" class="input-group-prepend pointer" (click)="lineItem.fulfilledQuantity = lineItem.fulfilledQuantity - 1">
                                 <span class="input-group-text">
                                   <i class="fa fa-minus-circle quantity-icon text-danger"></i>
                                 </span>
                               </div>
-                              <input type="number" class="input-order-quantity form-control-sm form-control text-center"
+                              <input [disabled]="enableBarcode" type="number" class="input-order-quantity form-control-sm form-control text-center"
                                      [(ngModel)]="lineItem.fulfilledQuantity"/>
-                              <div class="input-group-append pointer" (click)="lineItem.fulfilledQuantity = lineItem.fulfilledQuantity + 1">
+                              <div *ngIf="!enableBarcode" class="input-group-append pointer" (click)="lineItem.fulfilledQuantity = lineItem.fulfilledQuantity + 1">
                                 <span class="input-group-text">
                                   <i class="fa fa-plus-circle quantity-icon text-success"></i>
                                 </span>
@@ -168,7 +169,7 @@
                           0
                         </td>
                         <td>
-                          <button *ngIf="editable" class="btn btn-danger" type="submit"
+                          <button *ngIf="editable && !enableBarcode" class="btn btn-danger" type="submit"
                                   (click)="fulfillItem(lineItem, selectedBox)">
                             <i class="fa fa-save"></i> Fulfill
                           </button>
@@ -218,7 +219,7 @@
                         </td>
                         <td>{{lineItem.fulfilledQuantity}}</td>
                         <td>
-                          <button *ngIf="editable" class="btn btn-danger" type="submit"
+                          <button *ngIf="editable && !enableBarcode" class="btn btn-danger" type="submit"
                                   (click)="removeItem(lineItem)">
                             <i class="fa fa-save"></i> Remove
                           </button>

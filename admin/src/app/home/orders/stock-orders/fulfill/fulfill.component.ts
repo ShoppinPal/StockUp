@@ -91,7 +91,9 @@ export class FulfillComponent implements OnInit {
       where: {
         reportModelId: this.order.id,
         approved: true,
-        fulfilled: true,
+        fulfilledQuantity: {
+          gt: 0
+        },
         productModelId: productModelId
       },
       include: {
@@ -103,7 +105,9 @@ export class FulfillComponent implements OnInit {
     let countFilter: any = {
       reportModelId: this.order.id,
       approved: true,
-      fulfilled: true
+      fulfilledQuantity: {
+        gt: 0
+      }
     };
     if (productModelId)
       countFilter['productModelId'] = productModelId;
@@ -268,7 +272,7 @@ export class FulfillComponent implements OnInit {
   }
 
   removeItem(lineItem) {
-    this.updateLineItems(lineItem, {fulfilled: false});
+    this.updateLineItems(lineItem, {fulfilled: false, fulfilledQuantity: 0});
   }
 
   getOrderDetails() {
