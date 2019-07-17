@@ -30,6 +30,7 @@ export class FileImportsComponent implements OnInit {
   public orderStatus: string;
   public orderConfigurations: any;
   public groupBy: string;
+  public orderName: string;
 
   constructor(private orgModelApi: OrgModelApi,
               private containerApi: ContainerApi,
@@ -132,7 +133,11 @@ export class FileImportsComponent implements OnInit {
     } else if (!this.orderStatus) {
       this.toastr.error('Please select a status for this order');
       this.loading = false;
-    } else {
+    } else if (!this.orderName) {
+      this.toastr.error('Please enter a name for order');
+      this.loading = false;
+    }
+    else {
       this.orgModelApi.createOrderConfigModels(this.userProfile.orgModelId, {
         name: this.mappingName,
         mappings: this.mappings,
@@ -152,6 +157,22 @@ export class FileImportsComponent implements OnInit {
             this.loading = false;
           });
     }
+  }
+
+  deleteOrderConfig(configId) {
+    this.loading = true;
+    this.orgModelApi.destroyByIdOrderConfigModels(this.userProfile.orgModelId, configId)
+      .subscribe((data: any) => {
+        return this._fileImportsResolverService.resolve()
+          .subscribe((data: any) => {
+            this.populateData(data);
+            this.loading = false;
+            this.toastr.success('Deleted mapping successfully');
+          })
+      }, err => {
+        this.toastr.error('Could not delete mapping');
+        this.loading = false;
+      });
   }
 
   goToFileImportsDetailsPage(configId) {

@@ -588,6 +588,22 @@ function routeToWorker(payload, config, taskId, messageId, receiptHandle) {
                     return Promise.reject('Internal Server Error');
                 });
         }
+        else if (payload.op === 'importVendOrderFromFile') {
+            logger.tag('Routed').info({
+                messageId: messageId,
+                message: 'routed to importVendOrderFromFile'
+            });
+            var importVendOrderFromFile = require('./workers-v2/import-stock-order/import-stock-order-vend');
+            return importVendOrderFromFile.run(payload, config, taskId, messageId)
+                .then(function () {
+                    logger.debug({messageId: messageId, message: 'imported stock order from file successfully'});
+                    return Promise.resolve(receiptHandle);
+                })
+                .catch(function (error) {
+                    logger.error({err: error, messageId: messageId});
+                    return Promise.reject('Internal Server Error');
+                });
+        }
         else {
             return Promise.reject('No worker found for processing given payload: ' + JSON.stringify(payload));
         }

@@ -101,6 +101,18 @@
             </div>
           </div>
           <div class="row">
+            <div class="form-group col-sm-12">
+              <div class="input-group">
+                <span>Enter a name for orders: &nbsp;&nbsp;</span>
+                <input type="text"
+                       class="form-control col-sm-6"
+                       [(ngModel)]="orderName"
+                       placeholder="Order Name"/>
+
+              </div>
+            </div>
+          </div>
+          <div class="row">
             <div class="col-sm-12">
               <span class="input-group-btn">
                 <button class="btn btn-success" type="button"
@@ -129,8 +141,8 @@
               <th>Name</th>
               <th>Group By</th>
               <th>Order State</th>
-              <th>Mappings</th>
-              <th>Manage</th>
+              <th>View</th>
+              <th>Delete</th>
             </tr>
             </thead>
             <tbody>
@@ -143,11 +155,13 @@
                 {{config.orderStatus}}
               </td>
               <td>
-                <strong>Invite accepted</strong>
+                <button class="btn btn-primary" type="submit" (click)="goToFileImportsDetailsPage(config.id)">
+                <i class="fa fa-save"></i> View
+                </button>
               </td>
               <td>
-                <button class="btn btn-danger" type="submit" (click)="goToFileImportsDetailsPage(config.id)">
-                <i class="fa fa-save"></i> View
+                <button class="btn btn-danger" type="submit" (click)="deleteOrderConfig(config.id)">
+                <i class="fa fa-save"></i> Delete
                 </button>
               </td>
             </tr>

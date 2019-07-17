@@ -13,8 +13,8 @@ module.exports = function (OrderConfigModel) {
             var importableHeaders = {
                 Inventory: ['orderQuantity', 'fulfilledQuantity'],
                 Product: ['name', 'sku'],
-                Store: ['name', 'storeNumber'],
-                Supplier: ['name', 'storeId']
+                Store: ['name', 'storeNumber', 'supplierStoreId'],
+                Supplier: ['name']
             };
             logger.debug({
                 message: 'Will return file import headers',

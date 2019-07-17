@@ -94,6 +94,11 @@
       "type": "belongsTo",
       "model": "StoreModel",
       "foreignKey": "deliverFromStoreModelId"
+    },
+    "orderConfigModel": {
+      "type": "belongsTo",
+      "model": "OrderConfigModel",
+      "foreignKey": "orderConfigModelId"
     }
   },
   "acls": [

@@ -25,6 +25,11 @@
       "type": "belongsTo",
       "model": "OrgModel",
       "foreignKey": "orgModelId"
+    },
+    "reportModels": {
+      "type": "hasMany",
+      "model": "ReportModel",
+      "foreignKey": "reportModelId"
     }
   },
   "acls": [],

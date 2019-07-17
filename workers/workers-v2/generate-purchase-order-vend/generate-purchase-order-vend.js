@@ -22,6 +22,7 @@ var runMe = function (payload, config, taskId, messageId) {
         // Global variable for logging
 
         logger.debug({
+            payload,
             commandName: commandName,
             argv: process.argv,
             orgModelId,

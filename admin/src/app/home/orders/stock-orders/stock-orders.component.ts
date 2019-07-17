@@ -65,7 +65,8 @@ export class StockOrdersComponent implements OnInit {
   public uploader: FileUploader;
   public createSales: boolean = true;
   public userStores;
-
+  public orderConfigurations: any;
+  public selectedOrderConfigurationId;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -84,6 +85,8 @@ export class StockOrdersComponent implements OnInit {
         this.warehouses = data.stockOrders.warehouses;
         this.stores = this.userProfile.storeModels.filter(x => x.isWarehouse !== true);
         this.suppliers = data.stockOrders.suppliers;
+        this.orderConfigurations = data.stockOrders.orderConfigurations;
+        this.selectedOrderConfigurationId = this.orderConfigurations[0].id;
       },
       error => {
         console.log('error', error)
@@ -223,7 +226,7 @@ export class StockOrdersComponent implements OnInit {
     this._router.navigate(['orders/stock-orders/' + orderState + '/' + id]);
   }
 
-  generateStockOrder() {
+  generateStockOrderMSD() {
     let EventSource = window['EventSource'];
     let url = '/api/OrgModels/' + this.userProfile.orgModelId + '/generateStockOrderMSD?access_token=' + this.auth.getAccessTokenId() + '&type=json';
     if (this.selectedStoreId)
@@ -252,14 +255,10 @@ export class StockOrdersComponent implements OnInit {
   };
 
   generateStockOrderVend() {
-    if (!this.selectedStoreId) {
-      this.toastr.error('Select a store to deliver to');
-      return;
-    }
     if (this.uploader.queue.length) {
       console.log('uploading file...', this.uploader);
       this.uploader.onBuildItemForm = (fileItem: any, form: any)=> {
-        form.append('storeModelId', this.selectedStoreId);
+        form.append('orderConfigModelId', this.selectedOrderConfigurationId);
       };
       this.uploader.uploadAll();
       this.uploader.onSuccessItem = (item: any, response: any, status: number, headers: any): any => {
@@ -273,6 +272,10 @@ export class StockOrdersComponent implements OnInit {
         console.log('status', status);
         this.toastr.error('Error importing stock order from file');
       };
+    }
+    else if (!this.selectedStoreId) {
+      this.toastr.error('Select a store to deliver to');
+      return;
     }
     else if (this.selectedSupplierId) {
       let url = '/api/OrgModels/' + this.userProfile.orgModelId + '/generateStockOrderVend?access_token=' + this.auth.getAccessTokenId() + '&type=json';

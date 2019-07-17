@@ -34,11 +34,21 @@
                         placeholder="Select..">
                   <option *ngFor="let states of reportStates | keyvalue"
                           [value]="states.value"
-                          [selected]="orderConfiguration.orderStatus === states.value"
                   >
                     {{states.value}}
                   </option>
                 </select>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group col-sm-12">
+              <div class="input-group">
+                <span>Order Name: &nbsp;&nbsp;</span>
+                <input type="text"
+                       class="form-control col-sm-6"
+                       [(ngModel)]="orderConfiguration.orderName"
+                       placeholder="Enter order name"/>
               </div>
             </div>
           </div>

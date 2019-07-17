@@ -11,9 +11,10 @@ const papaparse = require('papaparse');
 const fs = Promise.promisifyAll(require('fs'));
 var workerUtils = require('../utils/workers');
 const REPORT_STATES = require('../utils/constants').REPORT_STATES;
+const multiparty = require("multiparty");
+const excel = require('excel-stream');
 
 module.exports = function (ReportModel) {
-
 
 
     // https://github.com/strongloop/loopback/issues/418
@@ -25,7 +26,7 @@ module.exports = function (ReportModel) {
             ReportModel,
             {
                 filter: function (name, func, target) {
-                    return !( name == 'validate');
+                    return !(name == 'validate');
                 }
             }
         );
@@ -175,7 +176,8 @@ module.exports = function (ReportModel) {
                 apiVersion: '2010-12-01'
             })
         });
-        var report, csvArray = [], supplier, emailSubject, totalOrderQuantity = 0, totalSupplyCost = 0, htmlForPdf, csvReport;
+        var report, csvArray = [], supplier, emailSubject, totalOrderQuantity = 0, totalSupplyCost = 0, htmlForPdf,
+            csvReport;
         ReportModel.findById(id, {
             include: ['userModel', 'storeConfigModel']
         })
@@ -189,8 +191,7 @@ module.exports = function (ReportModel) {
                             api_id: reportModelInstance.supplier.id
                         }
                     });
-                }
-                else {
+                }else {
                     logger.debug({log: {message: 'Report is not specific to a supplier, need generate email? Don\'t know what to do MAN!!!'}});
                     return Promise.resolve('noSupplier');
                 }
@@ -199,12 +200,10 @@ module.exports = function (ReportModel) {
                 logger.debug({log: {message: 'Found this supplier', supplier: supplierInstance[0]}});
                 if (supplierInstance === 'noSupplier') {
                     emailSubject = 'Order #' + report.outlet.name + ' from ' + report.storeConfigModel().name;
-                }
-                else {
+                }else {
                     if (supplierInstance[0].storeIds && supplierInstance[0].storeIds[report.outlet.outletId]) {
                         emailSubject = 'Order #' + report.outlet.name + '-' + supplierInstance[0].storeIds[report.outlet.outletId] + ' from ' + report.storeConfigModel().name;
-                    }
-                    else {
+                    }else {
                         emailSubject = 'Order #' + report.outlet.name + ' from ' + report.storeConfigModel().name;
                     }
                 }
@@ -308,8 +307,7 @@ module.exports = function (ReportModel) {
                     if (err) {
                         logger.error({log: {error: err}});
                         cb(err);
-                    }
-                    else {
+                    }else {
                         logger.debug({log: {message: 'Sent email successfully', response: success.messageId}});
                         cb(null, true);
                     }
@@ -342,8 +340,7 @@ module.exports = function (ReportModel) {
                         functionName: 'sendReportAsEmail'
                     });
                     reject('Could not convert pdf');
-                }
-                else {
+                }else {
                     logger.debug({
                         message: 'Created PDF, will attach to email',
                         functionName: 'sendReportAsEmail',
@@ -497,24 +494,21 @@ module.exports = function (ReportModel) {
                         functionName: 'createPurchaseOrderVend'
                     });
                     return Promise.reject('Purchase Order already created for this report');
-                }
-                else if (reportModelInstance.state === REPORT_STATES.SENDING_TO_SUPPLIER) {
+                }else if (reportModelInstance.state === REPORT_STATES.SENDING_TO_SUPPLIER) {
                     logger.debug({
                         message: 'Purchase order creation in progress',
                         options,
                         functionName: 'createPurchaseOrderVend'
                     });
                     return Promise.reject('Purchase order creation in progress');
-                }
-                else if (reportModelInstance.state === REPORT_STATES.APPROVAL_IN_PROCESS) {
+                }else if (reportModelInstance.state === REPORT_STATES.APPROVAL_IN_PROCESS) {
                     logger.debug({
                         message: 'Will call createPurchaseOrderVend worker',
                         options,
                         functionName: 'createPurchaseOrderVend'
                     });
                     return workerUtils.sendPayLoad(payload);
-                }
-                else {
+                }else {
                     logger.debug({
                         message: 'Only GENERATED orders will be pushed to Vend',
                         options,
@@ -662,16 +656,14 @@ module.exports = function (ReportModel) {
                         functionName: 'createTransferOrderMSD'
                     });
                     return Promise.reject('Transfer Order already created for this report');
-                }
-                else if (reportModelInstance.state === REPORT_STATES.SENDING_TO_SUPPLIER) {
+                }else if (reportModelInstance.state === REPORT_STATES.SENDING_TO_SUPPLIER) {
                     logger.debug({
                         message: 'Transfer order creation in progress',
                         options,
                         functionName: 'createTransferOrderMSD'
                     });
                     return Promise.reject('Transfer order creation in progress');
-                }
-                else {
+                }else {
                     return workerUtils.sendPayLoad(payload);
                 }
             })
@@ -808,8 +800,7 @@ module.exports = function (ReportModel) {
                         functionName: 'downloadReportModelCSV'
                     });
                     return Promise.reject('Couldn\'t find report model');
-                }
-                else {
+                }else {
                     logger.debug({
                         message: 'Found report model, will look for line items',
                         reportModelInstance,
@@ -919,7 +910,125 @@ module.exports = function (ReportModel) {
                 });
                 return Promise.reject('Could not get signed url for csv report from s3');
             });
+    };
+
+    ReportModel.importVendOrderFromFile = function (id, req, options) {
+        let orderConfigModelId;
+        return readMultiPartFormData(req, options)
+            .catch(function (err) {
+                logger.error({
+                    message: 'Multi part form data',
+                    err,
+                    reason: err,
+                    functionName: 'importVendOrderFromFile',
+                    options
+                });
+                return Promise.reject('Could not parse Multi part form data');
+            })
+            .then(function (result) {
+                logger.debug({
+                    message: 'Read Multi part form data, will upload to S3',
+                    result,
+                    functionName: 'importVendOrderFromFile',
+                    options
+                });
+                orderConfigModelId = result.fields.orderConfigModelId[0];
+                // return Promise.resolve();
+                let s3 = new aws.S3({
+                    apiVersion: '2006-03-01',
+                    region: ReportModel.app.get('awsS3Region'),
+                    accessKeyId: ReportModel.app.get('awsAccessKeyId'),
+                    secretAccessKey: ReportModel.app.get('awsSecretAccessKey')
+                });
+                let s3Bucket = ReportModel.app.get('awsS3CSVImportsBucket');
+                let fileData = fs.readFileSync(result.file.path, 'utf8');
+                let params = {
+                    Bucket: s3Bucket,
+                    Key: options.accessToken.userId + ' - ' + result.file.originalFilename,
+                    Body: fs.createReadStream(result.file.path)
+                };
+                let uploadAsync = Promise.promisify(s3.upload, s3);
+                return uploadAsync(params);
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not upload file to S3',
+                    error,
+                    reason: error,
+                    functionName: 'importVendOrderFromFile',
+                    options
+                });
+                return Promise.reject('Could not upload file to S3');
+            })
+            .then(function (result) {
+                logger.debug({
+                    message: 'Uploaded file to S3 successfully, will initiate worker to import from file',
+                    result,
+                    functionName: 'importVendOrderFromFile',
+                    options
+                });
+                let payload = {
+                    orgModelId: id,
+                    s3params: {
+                        bucket: result.Bucket,
+                        key: result.key
+                    },
+                    orderConfigModelId: orderConfigModelId,
+                    loopbackAccessToken: options.accessToken,
+                    op: 'importVendOrderFromFile'
+                };
+                return workerUtils.sendPayLoad(payload);
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not send importVendOrderFromFile to worker',
+                    options,
+                    error,
+                    functionName: 'importVendOrderFromFile'
+                });
+                return Promise.reject('Error in creating stock order');
+            })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Sent importVendOrderFromFile to worker',
+                    options,
+                    response,
+                    functionName: 'importVendOrderFromFile'
+                });
+                return Promise.resolve('Stock order generation initiated');
+            });
+    };
+
+    function readMultiPartFormData(req, options) {
+        return new Promise(function (resolve, reject) {
+            let form = new multiparty.Form();
+            form.parse(req, function (err, fields, files) {
+                if (err) {
+                    logger.error({
+                        message: 'Error in parsing form data',
+                        functionName: 'parseCSVToJson',
+                        options
+                    });
+                    reject(err);
+                }else {
+                    //TODO: add file and fields validation
+                    logger.debug({
+                        message: 'Received the following file, will parse it to json',
+                        files,
+                        fields,
+                        functionName: 'parseCSVToJson',
+                        options
+                    });
+                    resolve({
+                        file: files.file[0],
+                        fields: fields
+                    });
+                }
+            });
+        });
+
     }
+
 
 };
 

@@ -1228,6 +1228,33 @@ module.exports = function (OrgModel) {
                 });
         };
 
+        OrgModel.remoteMethod('importVendOrderFromFile', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'req', type: 'object', 'http': {source: 'req'}},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/importVendOrderFromFile', verb: 'post'},
+            returns: {arg: 'result', type: 'string'}
+        });
+
+        OrgModel.importVendOrderFromFile = function (id, req, options, cb) {
+            logger.debug({
+                message: 'Will import vend order from file',
+                functionName: 'importVendOrderFromFile',
+                options
+            });
+            return OrgModel.app.models.ReportModel.importVendOrderFromFile(id, req, options)
+                .catch(function (error) {
+                    logger.debug({
+                        message: 'Error processing order file',
+                        error,
+                        functionName: 'importVendOrderFromFile',
+                        options
+                    });
+                    return Promise.reject(false);
+                });
+        };
 
         OrgModel.remoteMethod('updateSupplierStoreMappings', {
             accepts: [
