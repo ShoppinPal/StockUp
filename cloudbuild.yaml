@@ -1,5 +1,13 @@
 steps:
 
+    - id: Docker Hub login
+      name: gcr.io/cloud-builders/docker
+      entrypoint: /bin/bash
+      args:
+      - -ceux
+      - |
+        docker login --username $_DOCKER_USER --password $_DOCKER_PASS
+
     - name: 'gcr.io/cloud-builders/docker'
       id: create mongo
       args: ['run', '-d', '--name=mongo-local', '--network=cloudbuild', 'mongo']
@@ -18,13 +26,6 @@ steps:
       - -ceux
       - |
         docker run -d --name=warehouse -p 3000:3000 -e "MONGOLAB_URI=mongodb://mongo-local:27017/test" -e "NODE_ENV=staging" shoppinpal/warehouse:$(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g')
-    - id: Docker Hub login
-      name: gcr.io/cloud-builders/docker
-      entrypoint: /bin/bash
-      args:
-      - -ceux
-      - |
-        docker login --username $_DOCKER_USER --password $_DOCKER_PASS
  
     - id: Deploy warehouse
       name: gcr.io/cloud-builders/docker
