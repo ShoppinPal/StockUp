@@ -87,12 +87,14 @@ export class ReceiveComponent implements OnInit {
     if (!productModelId){
       this.searchSKUText = ''
     }
-    let filter = {
+    const filter: any = {
       where: {
         reportModelId: this.order.id,
         approved: true,
         fulfilled: true,
-        received: true,
+        receivedQuantity: {
+          gt: 0
+        },
         productModelId: productModelId
       },
       include: {
@@ -101,11 +103,13 @@ export class ReceiveComponent implements OnInit {
       limit: limit,
       skip: skip
     };
-    let countFilter = {
+    let countFilter: any = {
       reportModelId: this.order.id,
       approved: true,
       fulfilled: true,
-      received: true
+      receivedQuantity: {
+        gt: 0
+      }
     };
     if (productModelId)
       countFilter['productModelId'] = productModelId;
@@ -269,7 +273,7 @@ export class ReceiveComponent implements OnInit {
   }
 
   removeItem(lineItem) {
-    this.updateLineItems(lineItem, {received: false});
+    this.updateLineItems(lineItem, {received: false, receivedQuantity: 0});
   }
 
   getOrderDetails() {
