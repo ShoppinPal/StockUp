@@ -13,9 +13,8 @@ import {PopoverModule} from 'ngx-bootstrap/popover';
 import {PaginationModule} from 'ngx-bootstrap/pagination';
 import {ModalModule} from 'ngx-bootstrap/modal';
 import {TabsModule} from 'ngx-bootstrap/tabs';
-import {AutoFocusDirective} from "../home/products/bin-locations/directives/auto-focus.directive";
-import { DebounceKeyUpDirective } from './directives/DebounceKeyUp/debounce-key-up.directive';
-import { ConfirmModalComponent } from './components/confirm-modal/confirm-modal.component';
+import {AutoFocusDirective} from '../home/products/bin-locations/directives/auto-focus.directive';
+import { DebounceKeyUpDirective } from './directives/debounce-key-up/debounce-key-up.directive';
 
 @NgModule({
   imports: [
@@ -32,7 +31,7 @@ import { ConfirmModalComponent } from './components/confirm-modal/confirm-modal.
     TabsModule,
     ModalModule.forRoot()
   ],
-  declarations: [AutoFocusDirective, DebounceKeyUpDirective, ConfirmModalComponent],
+  declarations: [AutoFocusDirective, DebounceKeyUpDirective],
   exports: [
     FormsModule,
     TypeaheadModule,
@@ -47,8 +46,7 @@ import { ConfirmModalComponent } from './components/confirm-modal/confirm-modal.
     TabsModule,
     AutoFocusDirective,
     DebounceKeyUpDirective,
-    ModalModule,
-    ConfirmModalComponent
+    ModalModule
   ]
 })
 
