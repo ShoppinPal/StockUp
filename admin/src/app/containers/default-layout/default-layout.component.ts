@@ -1,12 +1,21 @@
 import {Component, OnInit, OnDestroy, Inject} from '@angular/core';
 import {DOCUMENT} from '@angular/common';
 import {navItems} from '../../_nav';
-import {Router, ActivatedRoute} from '@angular/router';
+import {
+  Router,
+  ActivatedRoute,
+  RouterEvent,
+  NavigationStart,
+  NavigationEnd,
+  NavigationCancel,
+  NavigationError
+} from '@angular/router';
 import {UserModelApi} from '../../shared/lb-sdk/services';
 import {environment} from '../../../environments/environment';
 import {LoopBackConfig}        from '../../shared/lb-sdk/lb.config';
 import {SDKStorage} from '../../shared/lb-sdk';
 import {UserProfileService} from "../../shared/services/user-profile.service";
+import {animate, style, transition, trigger} from '@angular/animations';
 
 
 @Component({
@@ -54,6 +63,7 @@ export class DefaultLayoutComponent implements OnDestroy {
 
   ngOnInit() {
     this.getRouteData();
+    this.subscribeForRouteEvents();
   }
 
   getRouteData() {
@@ -78,4 +88,22 @@ export class DefaultLayoutComponent implements OnDestroy {
   };
 
 
+  private subscribeForRouteEvents() {
+    this._router.events.subscribe((event: RouterEvent) => {
+        this.navigationInterceptor(event);
+    })
+  }
+
+  navigationInterceptor(event: RouterEvent): void {
+    if (event instanceof NavigationStart) {
+      this.loading = true
+    }
+    if (
+        event instanceof NavigationEnd ||
+        event instanceof NavigationCancel ||
+        event instanceof NavigationError
+    ) {
+      this.loading = false
+    }
+  }
 }
