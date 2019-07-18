@@ -570,15 +570,49 @@ module.exports = function (ReportModel) {
             })
             .then(function (reportModelInstance) {
                 logger.debug({
-                    message: 'Found this report model, will set it to receive state',
+                    message: 'Found this report model, Will Check For Fulfilled Stock Order Line Items ',
                     reportModelInstance,
                     options,
                     functionName: 'sendConsignmentDelivery'
                 });
-                return reportModelInstance.updateAttributes({
-                    state: REPORT_STATES.RECEIVING_PENDING,
-                    fulfilledByUserModelId: options.accessToken.userId
+                return Promise.all([ReportModel.app.models.StockOrderLineitemModel.count({
+                    reportModelId: reportModelInstance.id,
+                    fulfilled: true
+                }), reportModelInstance]);
+            })
+            .catch(function (error) {
+                logger.error({
+                    error,
+                    reason: error,
+                    message: 'Could not find stock order items count',
+                    options,
+                    functionName: 'sendConsignmentDelivery'
                 });
+                return Promise.reject('Could not update report model state to receive');
+            })
+            .then(([countResult, reportModelInstance]) => {
+                if (countResult > 0) {
+                    logger.debug({
+                        message: 'Found Fulfilled Stock Order Items, Will set status to recieve pending ',
+                        countResult,
+                        reportModelInstance,
+                        options,
+                        functionName: 'sendConsignmentDelivery'
+                    });
+                    return reportModelInstance.updateAttributes({
+                        state: REPORT_STATES.RECEIVING_PENDING,
+                        fulfilledByUserModelId: options.accessToken.userId
+                    });
+                } else {
+                    logger.error({
+                        message: 'No Stock order items fulfilled',
+                        countResult,
+                        reportModelInstance,
+                        options,
+                        functionName: 'sendConsignmentDelivery'
+                    });
+                    return Promise.reject('No Stock order items fulfilled');
+                }
             })
             .catch(function (error) {
                 logger.error({
@@ -614,7 +648,7 @@ module.exports = function (ReportModel) {
                     options,
                     functionName: 'sendConsignmentDelivery'
                 });
-                return Promise.resolve('Could not update received quantities, but don\'t worry they have a not received boolean');
+                return Promise.reject('Could not update received quantities, but don\'t worry they have a not received boolean');
             })
             .then(function (response) {
                 logger.debug({
@@ -735,6 +769,33 @@ module.exports = function (ReportModel) {
                     },
                     totalRows: {
                         $sum: 1
+                    },
+                    fulfilledRows: {
+                        $sum: {
+                            $cond: {
+                                if: { $eq: ['$fulfilled', true]},
+                                then: 1,
+                                else: 0
+                            }
+                        }
+                    },
+                    receivedRows: {
+                        $sum: {
+                            $cond: {
+                                if: { $eq: ['$received', true]},
+                                then: 1,
+                                else: 0
+                            }
+                        }
+                    },
+                    approvedRows: {
+                        $sum: {
+                            $cond: {
+                                if: { $eq: ['$approved', true]},
+                                then: 1,
+                                else: 0
+                            }
+                        }
                     }
                 }
             }
@@ -758,7 +819,10 @@ module.exports = function (ReportModel) {
                 var rowCounts = _.map(response, function (eachResponse) {
                     return {
                         reportModelId: eachResponse._id.reportModelId,
-                        totalRows: eachResponse.totalRows
+                        totalRows: eachResponse.totalRows,
+                        fulfilledRows: eachResponse.fulfilledRows,
+                        receivedRows: eachResponse.receivedRows,
+                        approvedRows: eachResponse.approvedRows
                     };
                 });
                 return Promise.resolve(rowCounts);

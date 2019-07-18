@@ -114,7 +114,7 @@
                       <th>Order Quantity</th>
                       <th>Suggested Order Quantity</th>
                       <th>Store Inventory</th>
-                      <th>Approve</th>
+                      <th *ngIf="editable">Approve</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -182,7 +182,7 @@
                       <th>Order Quantity</th>
                       <th>Suggested Order Quantity</th>
                       <th>Store Inventory</th>
-                      <th>Remove</th>
+                      <th  *ngIf="editable">Remove</th>
                     </tr>
                     </thead>
                     <tbody>

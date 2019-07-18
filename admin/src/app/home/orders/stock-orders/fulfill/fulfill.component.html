@@ -130,7 +130,7 @@
                       <th>SKU</th>
                       <th>Order Quantity</th>
                       <th>Fulfilled Quantity</th>
-                      <th>Fulfill</th>
+                      <th *ngIf="editable">Fulfill</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -198,7 +198,7 @@
                       <th>SKU</th>
                       <th>Order Quantity</th>
                       <th>Fulfilled Quantity</th>
-                      <th>Remove</th>
+                      <th  *ngIf="editable">Remove</th>
 
                     </tr>
                     </thead>

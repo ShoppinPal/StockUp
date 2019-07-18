@@ -235,6 +235,11 @@ export class GeneratedComponent implements OnInit {
   }
 
   updateLineItems(lineItems, data: any) {
+    // Approve All Button Click when no items are present
+    if (data.approved && this.totalNotApprovedLineItems + this.totalApprovedLineItems  === 0) {
+      this.toastr.error('No Items to Approve');
+      return
+    }
     this.loading = true;
     let lineItemsIDs: Array<string> = [];
     if (lineItems instanceof Array) {
