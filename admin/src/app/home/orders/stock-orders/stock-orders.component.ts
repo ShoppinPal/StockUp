@@ -69,7 +69,6 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
   public userStores;
   public orderConfigurations: any;
   public selectedOrderConfigurationId;
-  private fetchStockOrdersDebounced: Observable<any>;
   private subscriptions: Subscription[] = [];
 
   constructor(private orgModelApi: OrgModelApi,
@@ -91,7 +90,9 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
         this.stores = this.userProfile.storeModels.filter(x => x.isWarehouse !== true);
         this.suppliers = data.stockOrders.suppliers;
         this.orderConfigurations = data.stockOrders.orderConfigurations;
-        this.selectedOrderConfigurationId = this.orderConfigurations[0].id;
+        if (this.orderConfigurations && this.orderConfigurations.length > 0) {
+          this.selectedOrderConfigurationId = this.orderConfigurations[0].id;
+        }
       },
       error => {
         console.log('error', error)

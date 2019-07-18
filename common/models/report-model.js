@@ -446,10 +446,10 @@ module.exports = function (ReportModel) {
             })
             .catch(function (error) {
                 logger.error({
-                    message: 'Could not send generateStockOrderVend to worker',
+                    message: 'Could not send generateStockOrderMSD to worker',
                     options,
                     error,
-                    functionName: 'generateStockOrderVend'
+                    functionName: 'generateStockOrderMSD'
                 });
                 return Promise.reject('Error in creating stock order');
             });
@@ -1166,7 +1166,7 @@ module.exports = function (ReportModel) {
             });
     };
 
-    ReportModel.importVendOrderFromFile = function (id, req, options) {
+    ReportModel.importVendOrderFromFile = function (id, req, res,options) {
         let orderConfigModelId;
         return readMultiPartFormData(req, options)
             .catch(function (err) {
@@ -1229,8 +1229,16 @@ module.exports = function (ReportModel) {
                     },
                     orderConfigModelId: orderConfigModelId,
                     loopbackAccessToken: options.accessToken,
-                    op: 'importVendOrderFromFile'
+                    op: 'importVendOrderFromFile',
+                    callId: options.accessToken.userId,
+                    eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
                 };
+                res.send(JSON.stringify({
+                    eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
+                    callId: options.accessToken.userId,
+                    message: 'Stock order generation initiated',
+                    data: {}
+                }));
                 return workerUtils.sendPayLoad(payload);
             })
             .catch(function (error) {

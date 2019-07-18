@@ -1084,19 +1084,20 @@ module.exports = function (OrgModel) {
             accepts: [
                 {arg: 'id', type: 'string', required: true},
                 {arg: 'req', type: 'object', 'http': {source: 'req'}},
+                {arg: 'res', type: 'object', 'http': {source: 'res'}},
                 {arg: 'options', type: 'object', http: 'optionsFromRequest'}
             ],
             http: {path: '/:id/importVendOrderFromFile', verb: 'post'},
             returns: {arg: 'result', type: 'string'}
         });
 
-        OrgModel.importVendOrderFromFile = function (id, req, options, cb) {
+        OrgModel.importVendOrderFromFile = function (id, req, res, options, cb) {
             logger.debug({
                 message: 'Will import vend order from file',
                 functionName: 'importVendOrderFromFile',
                 options
             });
-            return OrgModel.app.models.ReportModel.importVendOrderFromFile(id, req, options)
+            return OrgModel.app.models.ReportModel.importVendOrderFromFile(id, req, res, options)
                 .catch(function (error) {
                     logger.debug({
                         message: 'Error processing order file',

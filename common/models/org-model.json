@@ -648,6 +648,12 @@
       "principalId": "storeManager",
       "permission": "ALLOW",
       "property": "scanBarcodeStockOrder"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "scanBarcodeStockOrder"
     }
   ],
   "methods": {}
