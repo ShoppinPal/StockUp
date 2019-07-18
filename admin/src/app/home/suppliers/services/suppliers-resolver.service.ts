@@ -27,8 +27,8 @@ export class SuppliersResolverService {
       skip: skip || 0
     };
     let fetchSuppliers = combineLatest(
-      this.orgModelApi.getSupplierModels(this.userProfile.storeConfigModelId, filter),
-      this.orgModelApi.countSupplierModels(this.userProfile.storeConfigModelId));
+      this.orgModelApi.getSupplierModels(this.userProfile.orgModelId, filter),
+      this.orgModelApi.countSupplierModels(this.userProfile.orgModelId));
     return fetchSuppliers.pipe(map((data: any) => {
         // this.loading = false;
         this.suppliers = data[0];

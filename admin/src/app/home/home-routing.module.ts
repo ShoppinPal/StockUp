@@ -18,6 +18,8 @@ import {UsersComponent} from "./users/users.component";
 import {UserManagementResolverService} from "./users/services/user-management-resolver.service";
 import {StoresResolverService} from "./stores/services/stores-resolver.service";
 import {ReorderPointsComponent} from "./reorder-points/reorder-points.component";
+import {FileImportsComponent} from "./file-imports/file-imports.component";
+import {FileImportsResolverService} from "./file-imports/services/file-imports-resolver.service";
 
 const routes: Routes = [
   {
@@ -119,6 +121,16 @@ const routes: Routes = [
         data: {
           title: 'Home > Settings > Reorder Points'
         }
+      },
+      {
+        path: 'file-imports',
+        component: FileImportsComponent,
+        data: {
+          title: 'Home > Settings > File Imports'
+        },
+        resolve: {
+          data: FileImportsResolverService
+        }
       }
     ]
   }
@@ -128,6 +140,7 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
   providers: [
+    FileImportsResolverService,
     SyncWithVendResolverService,
     ConnectResolverService,
     SuppliersResolverService,

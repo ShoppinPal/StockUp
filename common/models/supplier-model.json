@@ -48,6 +48,17 @@
       "type": "hasMany",
       "model": "ReportModel",
       "foreignKey": "supplierModelId"
+    },
+    "storeModels": {
+      "type": "hasMany",
+      "model": "StoreModel",
+      "foreignKey": "supplierModelId",
+      "through": "SupplierStoreMapping"
+    },
+    "supplierStoreMappings": {
+      "type": "hasMany",
+      "model": "SupplierStoreMapping",
+      "foreignKey": "supplierModelId"
     }
   },
   "acls": [

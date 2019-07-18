@@ -1,0 +1,97 @@
+<ngx-loading [show]="loading"></ngx-loading>
+<div class="animated fadeIn">
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="card">
+        <div class="card-header">
+          <strong>File Import Configuration details</strong>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="form-group col-sm-12">
+              <div class="input-group">
+                <span>Name: &nbsp;&nbsp;</span>
+                <input type="text"
+                       class="form-control col-sm-6"
+                       [(ngModel)]="orderConfiguration.name"
+                       placeholder="Enter mapping name"/>
+
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group col-sm-12">
+              <div class="input-group">
+                <span>Group By (Optional) : &nbsp;&nbsp;{{orderConfiguration.groupBy || 'NA'}}</span>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group col-sm-12">
+              <div class="input-group">
+                <span>Report Status : &nbsp;&nbsp;</span>
+                <select class="form-control col-sm-6" [(ngModel)]="orderConfiguration.orderStatus"
+                        placeholder="Select..">
+                  <option *ngFor="let states of reportStates | keyvalue"
+                          [value]="states.value"
+                  >
+                    {{states.value}}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group col-sm-12">
+              <div class="input-group">
+                <span>Order Name: &nbsp;&nbsp;</span>
+                <input type="text"
+                       class="form-control col-sm-6"
+                       [(ngModel)]="orderConfiguration.orderName"
+                       placeholder="Enter order name"/>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="row">
+            <div class="col-sm-6">
+              <button type="button" class="btn btn-success" (click)="saveOrderConfiguration()">
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!--/.col-->
+  </div><!--/.row-->
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="card">
+        <div class="card-header">
+          <strong>Mappings: </strong>
+        </div>
+        <div class="card-body">
+          <table class="table table-striped table-hover table-bordered">
+            <thead>
+            <tr>
+              <th>File Headers</th>
+              <th>Stockup Headers</th>
+            </tr>
+            </thead>
+            <tbody *ngFor="let mainHeader of orderConfiguration.mappings | keyvalue">
+            <tr *ngIf="orderConfiguration.mappings[mainHeader.key].length">
+              <td colspan="2"><strong>{{mainHeader.key}}</strong></td>
+            </tr>
+            <tr *ngFor="let mapping of orderConfiguration.mappings[mainHeader.key]">
+              <td>{{mapping.fileHeader}}</td>
+              <td>{{mapping.stockupHeader}}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div><!--/.col-->
+  </div><!--/.row-->
+
+</div>

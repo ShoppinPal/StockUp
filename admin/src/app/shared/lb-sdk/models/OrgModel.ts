@@ -22,6 +22,8 @@ export interface OrgModelInterface {
   salesLineItemsModels?: any[];
   categoryModels?: any[];
   userStoreMappings?: any[];
+  orderConfigModels?: any[];
+  supplierStoreMappings?: any[];
 }
 
 export class OrgModel implements OrgModelInterface {
@@ -42,6 +44,8 @@ export class OrgModel implements OrgModelInterface {
   salesLineItemsModels: any[];
   categoryModels: any[];
   userStoreMappings: any[];
+  orderConfigModels: any[];
+  supplierStoreMappings: any[];
   constructor(data?: OrgModelInterface) {
     Object.assign(this, data);
   }
@@ -193,6 +197,22 @@ export class OrgModel implements OrgModelInterface {
         },
         userStoreMappings: {
           name: 'userStoreMappings',
+          type: 'any[]',
+          model: '',
+          relationType: 'hasMany',
+                  keyFrom: 'id',
+          keyTo: 'orgModelId'
+        },
+        orderConfigModels: {
+          name: 'orderConfigModels',
+          type: 'any[]',
+          model: '',
+          relationType: 'hasMany',
+                  keyFrom: 'id',
+          keyTo: 'orgModelId'
+        },
+        supplierStoreMappings: {
+          name: 'supplierStoreMappings',
           type: 'any[]',
           model: '',
           relationType: 'hasMany',

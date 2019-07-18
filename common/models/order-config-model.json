@@ -1,0 +1,37 @@
+{
+  "name": "OrderConfigModel",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "mixins": {
+    "Timestamp": {},
+    "Context": {},
+    "CurrentUser": {}
+  },
+  "injectOptionsFromRemoteContext": true,
+  "properties": {
+    "salesDateRangeInDays": {
+      "type": "number"
+    },
+    "fileImportMappings": {
+      "type": "object"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "orgModel": {
+      "type": "belongsTo",
+      "model": "OrgModel",
+      "foreignKey": "orgModelId"
+    },
+    "reportModels": {
+      "type": "hasMany",
+      "model": "ReportModel",
+      "foreignKey": "reportModelId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

@@ -4,13 +4,15 @@ import {map} from 'rxjs/operators';
 import {UserProfileService} from '../../../../shared/services/user-profile.service';
 import {OrgModelApi} from "../../../../shared/lb-sdk/services/custom/OrgModel";
 import {constants} from '../../../../shared/constants/constants';
+import {FileImportsResolverService} from "../../../file-imports/services/file-imports-resolver.service";
 
 @Injectable()
 export class StockOrdersResolverService {
 private userProfile: any;
 
   constructor(private orgModelApi: OrgModelApi,
-              private _userProfileService: UserProfileService) {
+              private _userProfileService: UserProfileService,
+              private _fileImportsResolverService: FileImportsResolverService) {
   }
 
   resolve = ():Observable<any> => {
@@ -25,6 +27,10 @@ private userProfile: any;
         where: {
           isWarehouse: true
         }
+      }),
+      this.orgModelApi.getOrderConfigModels(this.userProfile.orgModelId, {
+        order: 'createdAt desc',
+        fields: ['id', 'name']
       })
     )
       .pipe(map((data: any) => {
@@ -41,7 +47,8 @@ private userProfile: any;
             completedOrders: data[3].completedOrders,
             completedOrdersCount: data[3].completedOrdersCount,
             suppliers: data[4],
-            warehouses: data[5]
+            warehouses: data[5],
+            orderConfigurations: data[6]
           }
         },
         err => {

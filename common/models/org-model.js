@@ -1204,6 +1204,86 @@ module.exports = function (OrgModel) {
                 });
         };
 
+        OrgModel.remoteMethod('fetchFileImportHeaders', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/fetchImportHeaders', verb: 'GET'},
+            returns: {arg: 'headers', type: 'object', root: true}
+        });
+
+        OrgModel.fetchFileImportHeaders = function (id, options) {
+            return OrgModel.app.models.OrderConfigModel.fetchFileImportHeaders(id, options)
+                .catch(function (error) {
+                    logger.error({
+                        error,
+                        reason: error,
+                        message: 'Could not fetch file import headers',
+                        userId,
+                        functionName: 'fetchFileImportHeaders',
+                        options
+                    });
+                    return Promise.reject(false);
+                });
+        };
+
+        OrgModel.remoteMethod('importVendOrderFromFile', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'req', type: 'object', 'http': {source: 'req'}},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/importVendOrderFromFile', verb: 'post'},
+            returns: {arg: 'result', type: 'string'}
+        });
+
+        OrgModel.importVendOrderFromFile = function (id, req, options, cb) {
+            logger.debug({
+                message: 'Will import vend order from file',
+                functionName: 'importVendOrderFromFile',
+                options
+            });
+            return OrgModel.app.models.ReportModel.importVendOrderFromFile(id, req, options)
+                .catch(function (error) {
+                    logger.debug({
+                        message: 'Error processing order file',
+                        error,
+                        functionName: 'importVendOrderFromFile',
+                        options
+                    });
+                    return Promise.reject(false);
+                });
+        };
+
+        OrgModel.remoteMethod('updateSupplierStoreMappings', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'mappings', type: 'array', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/updateSupplierStoreMappings', verb: 'post'},
+            returns: {arg: 'result', type: 'string'}
+        });
+
+        OrgModel.updateSupplierStoreMappings = function (id, mappings, options) {
+            logger.debug({
+                message: 'Will update supplier store mappings',
+                functionName: 'updateSupplierStoreMappings',
+                options
+            });
+            return OrgModel.app.models.SupplierStoreMapping.updateSupplierStoreMappings(id, mappings, options)
+                .catch(function (error) {
+                    logger.debug({
+                        message: 'Error updating mappings',
+                        error,
+                        functionName: 'updateSupplierStoreMappings',
+                        options
+                    });
+                    return Promise.reject('Error updating mappings');
+                });
+        };
+
 
     });
 };

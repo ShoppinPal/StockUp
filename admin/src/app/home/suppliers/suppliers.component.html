@@ -52,19 +52,29 @@
               <td>{{supplier.name}}</td>
               <td>{{supplier.email}}</td>
               <td>
-                <a [routerLink]="['edit', supplier.id]">Edit</a>
+                <button class="btn btn-primary" type="submit" (click)="goToSupplierDetailsPage(supplier.id)">
+                  <i class="fa fa-save"></i> Manage
+                </button>
               </td>
             </tr>
             </tbody>
           </table>
+          <pagination [totalItems]="totalSuppliers"
+                      [(ngModel)]="currentPage"
+                      [maxSize]="maxPageDisplay"
+                      [rotate]="false"
+                      [boundaryLinks]="true"
+                      (pageChanged)="fetchSuppliers(suppliersLimitPerPage, ($event.page - 1) * suppliersLimitPerPage)"
+                      [itemsPerPage]="usersLimitPerPage">
+          </pagination>
           <!--<ul class="pagination">-->
-            <!--<li class="page-item" *ngFor="let page of suppliers | paginate: {itemsPerPage: 10,-->
-                                                                 <!--currentPage: currentPage,-->
-                                                                 <!--totalItems: totalSuppliers}">-->
-            <!--</li>-->
+          <!--<li class="page-item" *ngFor="let page of suppliers | paginate: {itemsPerPage: 10,-->
+          <!--currentPage: currentPage,-->
+          <!--totalItems: totalSuppliers}">-->
+          <!--</li>-->
           <!--</ul>-->
           <!--<pagination-controls-->
-            <!--(pageChange)="fetchSuppliers(suppliersLimitPerPage, currentPage); currentPage=$event"></pagination-controls>-->
+          <!--(pageChange)="fetchSuppliers(suppliersLimitPerPage, currentPage); currentPage=$event"></pagination-controls>-->
         </div>
       </div>
     </div>
