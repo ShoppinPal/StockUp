@@ -38,7 +38,7 @@ RUN npm install --production && npm install grunt-cli
 #RUN npm install -g bower
 #RUN mv /apps/warehouse/node_modules /apps/node_modules
 COPY . /apps/warehouse
-RUN bower --allow-root install
+#RUN bower --allow-root install
 RUN chown -R node:node /apps/warehouse
 ENV SCHEME=http
 # Disable the debug logs for warehouse
