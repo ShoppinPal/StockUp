@@ -599,9 +599,11 @@ module.exports = function (ReportModel) {
                 });
                 return ReportModel.app.models.StockOrderLineitemModel.updateAll({
                     reportModelId: reportModelId,
-                    fulfilled: false
+                    fulfilledQuantity: {
+                        gt: 0
+                    }
                 }, {
-                    fulfilledQuantity: 0
+                    fulfilled: true
                 });
             })
             .catch(function (error) {
@@ -616,7 +618,7 @@ module.exports = function (ReportModel) {
             })
             .then(function (response) {
                 logger.debug({
-                    message: 'Updated non-fulfilled line items with zero fulfilledQuantity',
+                    message: 'Updated non-fulfilled line items with fulfilledQuantity > 0 to fulfilled',
                     response,
                     options,
                     functionName: 'sendConsignmentDelivery'

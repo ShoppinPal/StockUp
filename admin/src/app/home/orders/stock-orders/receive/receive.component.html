@@ -53,9 +53,13 @@
               <div class="form-group">
                 <div class="input-group">
                   <input type="text"
+                         #searchInput
                          class="form-control"
                          id="searchSKU"
+                         [selectText]="enableBarcode"
                          [(ngModel)]="searchSKUText"
+                         [appAutoFocus]="searchSKUFocused"
+                         (appDebounceKeyUp)="barcodeSearchSKU($event)"
                          placeholder="Scan SKU barcode here or enter text">
                   <span class="input-group-btn">
                     <button class="btn btn-primary" type="button"
@@ -71,7 +75,22 @@
         <div class="card-footer">
           <div class="row">
             <div class="col-sm-6">
-              <button type="button" class="btn btn-link"
+              <div class="form-group">
+                <div class="input-group">
+                  <span>Manual Entry &nbsp;&nbsp; </span>
+                  <label class="switch switch-3d switch-primary">
+                    <input type="checkbox"
+                           [(ngModel)]="enableBarcode"
+                           (ngModelChange)="changeScanMode()"
+                           class="switch-input">
+                    <span class="switch-slider"></span>
+                  </label>
+                  <span> &nbsp;&nbsp; Barcode Scanning</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <button type="button" class="btn btn-link float-right"
                       (click)="searchSKUText='';getNotReceivedStockOrderLineItems();getReceivedStockOrderLineItems()">
                 Clear All Searches
               </button>
@@ -126,14 +145,14 @@
                         <td>
                           <div class="form-group">
                             <div class="input-group">
-                              <div class="input-group-prepend pointer" (click)="lineItem.receivedQuantity = lineItem.receivedQuantity - 1">
+                              <div  *ngIf="!enableBarcode" class="input-group-prepend pointer" (click)="lineItem.receivedQuantity = lineItem.receivedQuantity - 1">
                                 <span class="input-group-text">
                                   <i class="fa fa-minus-circle quantity-icon text-danger"></i>
                                 </span>
                               </div>
-                              <input type="number" class="input-order-quantity form-control-sm form-control text-center"
+                              <input [disabled]="enableBarcode" type="number" class="input-order-quantity form-control-sm form-control text-center"
                                      [(ngModel)]="lineItem.receivedQuantity"/>
-                              <div class="input-group-append pointer" (click)="lineItem.receivedQuantity = lineItem.receivedQuantity + 1">
+                              <div *ngIf="!enableBarcode" class="input-group-append pointer" (click)="lineItem.receivedQuantity = lineItem.receivedQuantity + 1">
                                 <span class="input-group-text">
                                   <i class="fa fa-plus-circle quantity-icon text-success"></i>
                                 </span>
@@ -142,7 +161,7 @@
                           </div>
                         </td>
                         <td>
-                          <button class="btn btn-danger" type="submit"
+                          <button *ngIf="!enableBarcode" class="btn btn-danger" type="submit"
                                   (click)="receiveItem(lineItem)">
                             <i class="fa fa-save"></i> Receive
                           </button>
@@ -193,7 +212,7 @@
                         <td>{{lineItem.fulfilledQuantity}}</td>
                         <td>{{lineItem.receivedQuantity}}</td>
                         <td>
-                          <button class="btn btn-danger" type="submit"
+                          <button *ngIf="!enableBarcode" class="btn btn-danger" type="submit"
                                   (click)="removeItem(lineItem)">
                             <i class="fa fa-save"></i> Remove
                           </button>
@@ -224,4 +243,27 @@
     </div>
   </div>
   <!--/.col-->
+</div>
+
+<div bsModal #discrepancyModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-warning" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Discrepancy Detected</h4>
+        <button type="button" class="close" (click)="discrepancyModal.hide()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Product Name: {{discrepancyOrderItem?.productModel.name}}</p>
+        <p>Order Quantity: {{discrepancyOrderItem?.orderQuantity}}</p>
+        <p>Fulfilled Quantity: {{discrepancyOrderItem?.fulfilledQuantity}}</p>
+        <p>Received Quantity: {{discrepancyOrderItem?.receivedQuantity}}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="discrepancyModal.hide()">Cancel</button>
+        <button type="button" class="btn btn-warning" (click)="searchAndIncrementProduct(searchSKUText, true)">Continue</button>
+      </div>
+    </div>
+  </div>
 </div>

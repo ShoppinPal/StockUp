@@ -1,3 +1,7 @@
 .pointer {
   cursor: pointer;
 }
+
+input[disabled] {
+  background: white;
+}

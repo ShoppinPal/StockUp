@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {OrgModelApi} from "../../../../shared/lb-sdk/services/custom/OrgModel";
 import {ActivatedRoute, Router} from '@angular/router';
 import {Observable, combineLatest} from 'rxjs';
@@ -6,7 +6,7 @@ import {ToastrService} from 'ngx-toastr';
 import {UserProfileService} from "../../../../shared/services/user-profile.service";
 import {LoopBackAuth} from "../../../../shared/lb-sdk/services/core/auth.service";
 import {constants} from "../../../../shared/constants/constants";
-import {DatePipe} from '@angular/common';
+import {ModalDirective} from 'ngx-bootstrap/modal';
 
 @Component({
   selector: 'app-fulfill',
@@ -14,6 +14,8 @@ import {DatePipe} from '@angular/common';
   styleUrls: ['./fulfill.component.scss']
 })
 export class FulfillComponent implements OnInit {
+  @ViewChild('discrepancyModal') public discrepancyModal: ModalDirective;
+  @ViewChild('searchInput') public searchInputRef: ElementRef;
 
   public userProfile: any;
   public loading = false;
@@ -34,6 +36,9 @@ export class FulfillComponent implements OnInit {
   public reportStates: any = constants.REPORT_STATES;
   public isWarehouser: boolean = false;
   public editable: boolean;
+  public searchSKUFocused: boolean = true;
+  public enableBarcode: boolean = true;
+  public discrepancyOrderItem: any;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -79,11 +84,16 @@ export class FulfillComponent implements OnInit {
       limit = 100;
       skip = 0;
     }
-    let filter = {
+    if (!productModelId){
+      this.searchSKUText = ''
+    }
+    const filter: any = {
       where: {
         reportModelId: this.order.id,
         approved: true,
-        fulfilled: true,
+        fulfilledQuantity: {
+          gt: 0
+        },
         productModelId: productModelId
       },
       include: {
@@ -92,10 +102,12 @@ export class FulfillComponent implements OnInit {
       limit: limit,
       skip: skip
     };
-    let countFilter = {
+    let countFilter: any = {
       reportModelId: this.order.id,
       approved: true,
-      fulfilled: true
+      fulfilledQuantity: {
+        gt: 0
+      }
     };
     if (productModelId)
       countFilter['productModelId'] = productModelId;
@@ -120,11 +132,15 @@ export class FulfillComponent implements OnInit {
       limit = 100;
       skip = 0;
     }
+    if (!productModelId){
+        this.searchSKUText = ''
+    }
     let filter = {
       where: {
         reportModelId: this.order.id,
         approved: true,
-        fulfilled: false
+        fulfilled: false,
+        productModelId: productModelId
       },
       include: {
         relation: 'productModel',
@@ -151,7 +167,10 @@ export class FulfillComponent implements OnInit {
         this.currentPageNotFulfilled = (skip / this.lineItemsLimitPerPage) + 1;
         this.totalNotFulfilledLineItems = data[1].count;
         for(var i = 0; i < data[0].length; i++) {
-          data[0][i].fulfilledQuantity = data[0][i].orderQuantity;
+          // If Manual Mode And The fulfilledQuantity is default 0 then prefill with full order Quantity
+          if (!this.enableBarcode && data[0][i].fulfilledQuantity === 0) {
+            data[0][i].fulfilledQuantity = data[0][i].orderQuantity;
+          }
         }
         this.notFulfilledLineItems = data[0];
       },
@@ -161,11 +180,47 @@ export class FulfillComponent implements OnInit {
       });
   }
 
+  searchAndIncrementProduct(sku?: string, force: boolean = false) {
+    this.discrepancyModal.hide();
+    this.loading = true;
+    this.orgModelApi.scanBarcodeStockOrder(this.userProfile.orgModelId,
+      'fulfill',
+      sku,
+      this.order.id,
+      force)
+      .subscribe(searchedOrderItem => {
+        if (searchedOrderItem.showDiscrepancyAlert) {
+          this.discrepancyOrderItem = searchedOrderItem;
+          this.discrepancyModal.show();
+        }else{
+          this.toastr.success('Row updated');
+        }
+        this.searchInputRef.nativeElement.focus();
+        this.searchInputRef.nativeElement.select();
+        this.fulfilledLineItems = [searchedOrderItem];
+        this.totalFulfilledLineItems = this.fulfilledLineItems.length;
+        if (!searchedOrderItem.fulfilled) {
+          this.notFulfilledLineItems = [searchedOrderItem];
+        }else {
+          this.notFulfilledLineItems = [];
+        }
+        this.totalNotFulfilledLineItems = this.notFulfilledLineItems.length;
+        this.loading = false;
+      }, error => {
+        this.loading = false;
+        this.toastr.error(error.message);
+        this.notFulfilledLineItems = [];
+        this.fulfilledLineItems = [];
+        this.totalFulfilledLineItems = 0;
+        this.totalNotFulfilledLineItems = 0;
+      });
+  }
+
   searchProductBySku(sku?: string) {
     this.loading = true;
     this.orgModelApi.getProductModels(this.userProfile.orgModelId, {
       where: {
-        api_id: sku
+        sku: sku
       }
     }).subscribe((data: any) => {
       if (data.length) {
@@ -200,8 +255,10 @@ export class FulfillComponent implements OnInit {
           this.getFulfilledStockOrderLineItems();
           this.getNotFulfilledStockOrderLineItems();
           console.log('approved', res);
+        this.toastr.success('Row Updated');
         },
         err => {
+          this.toastr.error('Error Updating Row');
           console.log('err', err);
           this.loading = false;
         });
@@ -215,7 +272,7 @@ export class FulfillComponent implements OnInit {
   }
 
   removeItem(lineItem) {
-    this.updateLineItems(lineItem, {fulfilled: false});
+    this.updateLineItems(lineItem, {fulfilled: false, fulfilledQuantity: 0});
   }
 
   getOrderDetails() {
@@ -265,5 +322,30 @@ export class FulfillComponent implements OnInit {
       console.log(err);
     })
   }
-
+  /**
+   * @description If the scan mode is changed
+   * to barcode scanning, then focus is set back to the sku
+   * search bar
+   */
+  changeScanMode() {
+    this.getNotFulfilledStockOrderLineItems();
+    this.getFulfilledStockOrderLineItems();
+    this.searchSKUText = ''
+    if (this.enableBarcode) {
+      this.searchSKUFocused = true;
+    }
+    else {
+      this.searchSKUFocused = false;
+    }
+  }
+  /**
+   * @description Code to detect barcode scanner input and
+   * calls the search sku function
+   */
+  barcodeSearchSKU($event: any) {
+    if (this.enableBarcode && this.searchSKUText !== '') {
+      this.searchAndIncrementProduct(this.searchSKUText);
+      $event.target.select();
+    }
+  }
 }

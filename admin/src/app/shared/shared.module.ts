@@ -11,7 +11,10 @@ import {FileUploadModule} from 'ng2-file-upload';
 import {CollapseModule} from 'ngx-bootstrap/collapse';
 import {PopoverModule} from 'ngx-bootstrap/popover';
 import {PaginationModule} from 'ngx-bootstrap/pagination';
+import {ModalModule} from 'ngx-bootstrap/modal';
 import {TabsModule} from 'ngx-bootstrap/tabs';
+import {AutoFocusDirective} from '../home/products/bin-locations/directives/auto-focus.directive';
+import { DebounceKeyUpDirective } from './directives/debounce-key-up/debounce-key-up.directive';
 
 @NgModule({
   imports: [
@@ -26,9 +29,10 @@ import {TabsModule} from 'ngx-bootstrap/tabs';
     FileUploadModule,
     PaginationModule,
     PopoverModule.forRoot(),
-    TabsModule
+    TabsModule,
+    ModalModule.forRoot()
   ],
-  declarations: [],
+  declarations: [AutoFocusDirective, DebounceKeyUpDirective],
   exports: [
     FormsModule,
     BsDropdownModule,
@@ -41,7 +45,10 @@ import {TabsModule} from 'ngx-bootstrap/tabs';
     TypeaheadModule,
     PaginationModule,
     PopoverModule,
-    TabsModule
+    TabsModule,
+    AutoFocusDirective,
+    DebounceKeyUpDirective,
+    ModalModule
   ]
 })
 

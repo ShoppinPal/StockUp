@@ -1203,6 +1203,28 @@ module.exports = function (OrgModel) {
                     return Promise.reject(false);
                 });
         };
+    
+        OrgModel.remoteMethod('scanBarcodeStockOrder', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'scanType', type: 'string', required: true},
+                {arg: 'productSku', type: 'string', required: true},
+                {arg: 'reportModelId', type: 'string', required: true},
+                {arg: 'force', type: 'boolean', required: false},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/scanBarcodeStockOrder', verb: 'post'},
+            returns: {arg: 'data', type: 'object', root: true}
+        });
+    
+        OrgModel.scanBarcodeStockOrder = function (id, scanType, productSku, reportModelId, force, options) {
+                logger.debug({
+                    id, scanType, productSku, reportModelId, force, options,
+                    message: 'StockOrder Scan to Process',
+                    functionName: 'scanBarcodeStockOrder'
+                });
+                return OrgModel.app.models.StockOrderLineitemModel.scanBarcodeStockOrder(scanType, productSku, id,reportModelId, force, options);
+        };
 
         OrgModel.remoteMethod('fetchFileImportHeaders', {
             accepts: [
