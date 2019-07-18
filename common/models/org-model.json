@@ -609,14 +609,6 @@
     {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
-      <
-      <
-      <
-      <
-      <
-      <
-      <
-      HEAD
       "principalId": "orgAdmin",
       "permission": "ALLOW",
       "property": "fetchFileImportHeaders"

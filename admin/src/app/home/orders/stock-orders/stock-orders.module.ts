@@ -6,10 +6,12 @@ import {FulfillModule} from "./fulfill/fulfill.module";
 import {GeneratedModule} from "./generated/generated.module";
 import {ReceiveModule} from "./receive/receive.module";
 import {CompleteModule} from "./complete/complete.module";
+import {StockOrdersRoutingModule} from './stock-orders-routing.module';
 
 @NgModule({
   imports: [
     CommonModule,
+    StockOrdersRoutingModule,
     CompleteModule,
     SharedModule,
     FulfillModule,

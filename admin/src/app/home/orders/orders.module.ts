@@ -11,7 +11,6 @@ import {StockOrderDetailsModule} from "./stock-orders/stock-order-details/stock-
     CommonModule,
     OrdersRoutingModule,
     StuckOrdersModule,
-    StockOrdersModule,
     StockOrderDetailsModule
   ],
   declarations: [OrdersComponent]
