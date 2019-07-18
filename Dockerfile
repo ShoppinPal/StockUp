@@ -3,6 +3,9 @@ RUN mkdir -p /apps/warehouse
 RUN mkdir -p /apps/warehouse/client
 RUN chown -R node:node /apps/warehouse
 COPY . /apps/warehouse
+WORKDIR /apps/warehouse
+RUN npm install
+RUN npm run angular2-sdk
 WORKDIR /apps/warehouse/admin
 RUN npm install
 RUN npm run admin
@@ -31,7 +34,6 @@ COPY package.json /apps/warehouse/package.json
 #COPY npm-shrinkwrap.json /apps/warehouse/npm-shrinkwrap.json
 RUN npm install --production && npm install grunt-cli
 #RUN npm install -g bower
-RUN npm run angular2-sdk
 #RUN mv /apps/warehouse/node_modules /apps/node_modules
 COPY . /apps/warehouse
 RUN bower --allow-root install
