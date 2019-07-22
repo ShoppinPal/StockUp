@@ -264,10 +264,9 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
       };
       this.uploader.uploadAll();
       this.uploader.onSuccessItem = (item: any, response: any, status: number, headers: any): any => {
-        const res = JSON.parse(response);
-        this.waitForFileImportWorker(res.callId);
         this.loading = false;
         this.toastr.info('Importing stock order from file...');
+        this.waitForFileImportWorker();
       };
       this.uploader.onErrorItem = (item: any, response: any, status: number, headers: any): any => {
         this.loading = false;
@@ -356,14 +355,19 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
     })
   }
 
-  private waitForFileImportWorker(callId: any) {
-    const EventSourceUrl = `/notification/${callId}/waitForResponse`;
+  private waitForFileImportWorker() {
+    const EventSourceUrl = `/notification/${this.userProfile.userId}/waitForResponse`;
     this.subscriptions.push(
         this._eventSourceService.connectToStream(EventSourceUrl)
             .subscribe(([event, es]) => {
               console.log(event);
               es.close();
-              this.fetchOrders('generated')
+              if (event.data.success === true) {
+                this.toastr.success('File Imported Successfully');
+                this.fetchOrders('generated')
+              }else {
+                this.toastr.error('File Import Failed ');
+              }
             })
     );
   }

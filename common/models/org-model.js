@@ -1105,7 +1105,7 @@ module.exports = function (OrgModel) {
                         functionName: 'importVendOrderFromFile',
                         options
                     });
-                    return Promise.reject(false);
+                    return Promise.reject('Cannot Import from file');
                 });
         };
 

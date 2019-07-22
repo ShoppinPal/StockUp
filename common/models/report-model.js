@@ -1233,12 +1233,6 @@ module.exports = function (ReportModel) {
                     callId: options.accessToken.userId,
                     eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
                 };
-                res.send(JSON.stringify({
-                    eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
-                    callId: options.accessToken.userId,
-                    message: 'Stock order generation initiated',
-                    data: {}
-                }));
                 return workerUtils.sendPayLoad(payload);
             })
             .catch(function (error) {
