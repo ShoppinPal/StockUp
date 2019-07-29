@@ -72,7 +72,7 @@ export class EditSuppliersComponent implements OnInit {
           storeCode: this.mappings[key]
         })
     }
-    this.orgModelApi.updateSupplierStoreMappings(this.userProfile.orgModelId, mappings)
+    this.orgModelApi.editSupplierStoreMappings(this.userProfile.orgModelId, mappings)
       .subscribe((data: any) => {
         this.toastr.success('Updated store codes successfully');
         this.loading = false;
