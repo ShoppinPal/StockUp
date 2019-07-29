@@ -22,6 +22,8 @@ export class CompleteComponent implements OnInit {
   public lineItemsLimitPerPage: number = 100;
   public lineItems: Array<any>;
   public totalLineItems: number;
+  public sortAscending = true;
+  public sortColumn = 'productModelSku';
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -48,6 +50,7 @@ export class CompleteComponent implements OnInit {
       limit = 100;
       skip = 0;
     }
+    let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
     let filter = {
       where: {
         reportModelId: this.order.id,
@@ -57,7 +60,8 @@ export class CompleteComponent implements OnInit {
         relation: 'productModel'
       },
       limit: limit,
-      skip: skip
+      skip: skip,
+      order: 'categoryModelName ' + sortOrder + ', ' + this.sortColumn + ' ' + sortOrder
     };
     let countFilter = {
       reportModelId: this.order.id

@@ -123,59 +123,73 @@
               <tabset>
                 <tab heading="Not Fulfilled ({{totalNotFulfilledLineItems}})">
 
-                  <table class="table table-striped table-hover">
+                  <table class="table table-hover">
                     <thead>
                     <tr>
-                      <th>Name</th>
-                      <th>SKU</th>
+                      <th class="pointer" (click)="sortColumn = 'productModelName';sortAscending = !sortAscending; getNotFulfilledStockOrderLineItems()">Name
+                        <i [ngClass]="{'cui-sort-ascending': sortAscending === true && sortColumn === 'productModelName', 'cui-sort-descending': sortAscending === false && sortColumn === 'productModelName'}">
+                        </i></th>
+                      <th class="pointer" (click)="sortColumn = 'productModelSku';sortAscending = !sortAscending; getNotFulfilledStockOrderLineItems()">SKU
+                        <i [ngClass]="{'cui-sort-ascending': sortAscending===true && sortColumn === 'productModelSku', 'cui-sort-descending': sortAscending===false && sortColumn === 'productModelSku'}">
+                        </i></th>
                       <th>Order Quantity</th>
                       <th>Fulfilled Quantity</th>
                       <th *ngIf="editable">Fulfill</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr *ngFor="let lineItem of notFulfilledLineItems">
-                      <ng-container *ngIf="lineItem.productModel">
-                        <td>
-                          {{lineItem.productModel.name}}
-                          <br/>
-                          <small *ngIf="userProfile.integrationType === 'msdynamics'">({{lineItem.productModel.sizeId}}
-                            : {{lineItem.productModel.colorId}} :
-                            {{lineItem.productModel.styleId}} : {{lineItem.productModel.configurationId}})
-                          </small>
-                        </td>
-                        <td *ngIf="userProfile.integrationType==='msdynamics'">{{lineItem.productModel.api_id}}</td>
-                        <td *ngIf="userProfile.integrationType==='vend'">{{lineItem.productModel.sku}}</td>
-                        <td>{{lineItem.orderQuantity}}</td>
-                        <td *ngIf="editable">
-                          <div class="form-group">
-                            <div class="input-group">
-                              <div *ngIf="!enableBarcode" class="input-group-prepend pointer" (click)="lineItem.fulfilledQuantity = lineItem.fulfilledQuantity - 1">
+                    <ng-container *ngFor="let lineItem of notFulfilledLineItems; let i = index">
+                      <tr class="bg-light text-primary"
+                          *ngIf="lineItem.binLocation !== notFulfilledLineItems[i-1]?.binLocation || i==0">
+                        <td colspan="6"><strong>{{lineItem.binLocation || 'No Bin Location'}}</strong></td>
+                      </tr>
+                      <tr>
+                        <ng-container *ngIf="lineItem.productModel">
+                          <td>
+                            {{lineItem.productModel.name}}
+                            <br/>
+                            <small *ngIf="userProfile.integrationType === 'msdynamics'">
+                              ({{lineItem.productModel.sizeId}}
+                              : {{lineItem.productModel.colorId}} :
+                              {{lineItem.productModel.styleId}} : {{lineItem.productModel.configurationId}})
+                            </small>
+                          </td>
+                          <td *ngIf="userProfile.integrationType==='msdynamics'">{{lineItem.productModel.api_id}}</td>
+                          <td *ngIf="userProfile.integrationType==='vend'">{{lineItem.productModel.sku}}</td>
+                          <td>{{lineItem.orderQuantity}}</td>
+                          <td *ngIf="editable">
+                            <div class="form-group">
+                              <div class="input-group">
+                                <div *ngIf="!enableBarcode" class="input-group-prepend pointer"
+                                     (click)="lineItem.fulfilledQuantity = lineItem.fulfilledQuantity - 1">
                                 <span class="input-group-text">
                                   <i class="fa fa-minus-circle quantity-icon text-danger"></i>
                                 </span>
-                              </div>
-                              <input [disabled]="enableBarcode" type="number" class="input-order-quantity form-control-sm form-control text-center"
-                                     [(ngModel)]="lineItem.fulfilledQuantity"/>
-                              <div *ngIf="!enableBarcode" class="input-group-append pointer" (click)="lineItem.fulfilledQuantity = lineItem.fulfilledQuantity + 1">
+                                </div>
+                                <input [disabled]="enableBarcode" type="number"
+                                       class="input-order-quantity form-control-sm form-control text-center"
+                                       [(ngModel)]="lineItem.fulfilledQuantity"/>
+                                <div *ngIf="!enableBarcode" class="input-group-append pointer"
+                                     (click)="lineItem.fulfilledQuantity = lineItem.fulfilledQuantity + 1">
                                 <span class="input-group-text">
                                   <i class="fa fa-plus-circle quantity-icon text-success"></i>
                                 </span>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </td>
-                        <td *ngIf="!editable">
-                          0
-                        </td>
-                        <td>
-                          <button *ngIf="editable && !enableBarcode" class="btn btn-danger" type="submit"
-                                  (click)="fulfillItem(lineItem, selectedBox)">
-                            <i class="fa fa-save"></i> Fulfill
-                          </button>
-                        </td>
-                      </ng-container>
-                    </tr>
+                          </td>
+                          <td *ngIf="!editable">
+                            0
+                          </td>
+                          <td>
+                            <button *ngIf="editable && !enableBarcode" class="btn btn-danger" type="submit"
+                                    (click)="fulfillItem(lineItem, selectedBox)">
+                              <i class="fa fa-save"></i> Fulfill
+                            </button>
+                          </td>
+                        </ng-container>
+                      </tr>
+                    </ng-container>
                     </tbody>
                   </table>
 
@@ -191,41 +205,52 @@
                 </tab>
 
                 <tab heading="Fulfilled ({{totalFulfilledLineItems}})">
-                  <table class="table table-striped table-hover">
+                  <table class="table table-hover">
                     <thead>
                     <tr>
-                      <th>Name</th>
-                      <th>SKU</th>
+                      <th class="pointer" (click)="sortColumn = 'productModelName';sortAscending = !sortAscending; getFulfilledStockOrderLineItems()">Name
+                        <i [ngClass]="{'cui-sort-ascending': sortAscending === true && sortColumn === 'productModelName', 'cui-sort-descending': sortAscending === false && sortColumn === 'productModelName'}">
+                        </i></th>
+                      <th class="pointer" (click)="sortColumn = 'productModelSku';sortAscending = !sortAscending; getFulfilledStockOrderLineItems()">SKU
+                        <i [ngClass]="{'cui-sort-ascending': sortAscending===true && sortColumn === 'productModelSku', 'cui-sort-descending': sortAscending===false && sortColumn === 'productModelSku'}">
+                        </i></th>
                       <th>Order Quantity</th>
                       <th>Fulfilled Quantity</th>
-                      <th  *ngIf="editable">Remove</th>
+                      <th *ngIf="editable">Remove</th>
 
                     </tr>
                     </thead>
                     <tbody>
-                    <tr *ngFor="let lineItem of fulfilledLineItems">
-                      <ng-container *ngIf="lineItem.productModel">
-                        <td>
-                          {{lineItem.productModel.name}}
-                          <br/>
-                          <small>({{lineItem.productModel.sizeId}} : {{lineItem.productModel.colorId}} :
-                            {{lineItem.productModel.styleId}} : {{lineItem.productModel.configurationId}})
-                          </small>
-                        </td>
-                        <td *ngIf="userProfile.integrationType==='msdynamics'">{{lineItem.productModel.api_id}}</td>
-                        <td *ngIf="userProfile.integrationType==='vend'">{{lineItem.productModel.sku}}</td>
-                        <td>
-                          {{lineItem.orderQuantity}}
-                        </td>
-                        <td>{{lineItem.fulfilledQuantity}}</td>
-                        <td>
-                          <button *ngIf="editable && !enableBarcode" class="btn btn-danger" type="submit"
-                                  (click)="removeItem(lineItem)">
-                            <i class="fa fa-save"></i> Remove
-                          </button>
-                        </td>
-                      </ng-container>
-                    </tr>
+                    <ng-container *ngFor="let lineItem of fulfilledLineItems; let i = index">
+                      <tr class="bg-light text-primary"
+                          *ngIf="lineItem.binLocation !== fulfilledLineItems[i-1]?.binLocation || i==0">
+                        <td colspan="6"><strong>{{lineItem.binLocation || 'No Bin Location'}}</strong></td>
+                      </tr>
+                      <tr>
+                        <ng-container *ngIf="lineItem.productModel">
+                          <td>
+                            {{lineItem.productModel.name}}
+                            <br/>
+                            <small *ngIf="userProfile.integrationType === 'msdynamics'">
+                              ({{lineItem.productModel.sizeId}} : {{lineItem.productModel.colorId}} :
+                              {{lineItem.productModel.styleId}} : {{lineItem.productModel.configurationId}})
+                            </small>
+                          </td>
+                          <td *ngIf="userProfile.integrationType==='msdynamics'">{{lineItem.productModel.api_id}}</td>
+                          <td *ngIf="userProfile.integrationType==='vend'">{{lineItem.productModel.sku}}</td>
+                          <td>
+                            {{lineItem.orderQuantity}}
+                          </td>
+                          <td>{{lineItem.fulfilledQuantity}}</td>
+                          <td>
+                            <button *ngIf="editable && !enableBarcode" class="btn btn-danger" type="submit"
+                                    (click)="removeItem(lineItem)">
+                              <i class="fa fa-save"></i> Remove
+                            </button>
+                          </td>
+                        </ng-container>
+                      </tr>
+                    </ng-container>
                     </tbody>
                   </table>
 
@@ -252,7 +277,8 @@
 </div>
 
 
-<div bsModal #discrepancyModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div bsModal #discrepancyModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
   <div class="modal-dialog modal-warning" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -268,7 +294,9 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="discrepancyModal.hide()">Cancel</button>
-        <button type="button" class="btn btn-warning" (click)="searchAndIncrementProduct(searchSKUText, true)">Continue</button>
+        <button type="button" class="btn btn-warning" (click)="searchAndIncrementProduct(searchSKUText, true)">
+          Continue
+        </button>
       </div>
     </div>
   </div>

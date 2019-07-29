@@ -408,18 +408,31 @@ function mapSpreadSheetDataToOrders(db, orderConfigModel, spreadSheetRows, userM
         skuCount: skusToAdd.length,
         skusToAddStringified
     });
-    return db.collection('ProductModel').find({
-        $and: [
-            {
-                orgModelId: ObjectId(orderConfigModel.orgModelId)
-            },
-            {
-                sku: {
-                    $in: skusToAddStringified
-                }
+    return db.collection('ProductModel').aggregate([
+        {
+            $match: {
+                $and: [
+                    {
+                        orgModelId: ObjectId(orderConfigModel.orgModelId)
+                    },
+                    {
+                        sku: {
+                            $in: skusToAddStringified
+                        }
+                    }
+                ]
+
             }
-        ]
-    }).toArray()
+        },
+        {
+            $lookup: {
+                from: "CategoryModel",
+                localField: "categoryModelId",
+                foreignField: "_id",
+                as: "categoryModel"
+            }
+        }
+    ]).toArray()
         .then(function (response) {
             productModelInstances = response;
             logger.debug({
@@ -451,8 +464,13 @@ function mapSpreadSheetDataToOrders(db, orderConfigModel, spreadSheetRows, userM
                     });
                     if (productFound) {
                         eachSpreadSheetRow.productModelId = productFound._id;
+                        eachSpreadSheetRow.productModelName = productFound.name;
+                        eachSpreadSheetRow.productModelSku = productFound.sku;
                         eachSpreadSheetRow.supplierModelId = productFound.supplierModelId;
+                        eachSpreadSheetRow.categoryModelId = productFound.categoryModelId;
+                        eachSpreadSheetRow.categoryModelName = productFound.categoryModel && productFound.categoryModel.length ? productFound.categoryModel[0].name : 'No Category';
                         eachSpreadSheetRow.supplyPrice = productFound.supply_price;
+                        eachSpreadSheetRow.binLocation = productFound.binLocation;
                         let correspondingSupplierStoreMapping = _.find(supplierStoreMappings, function (eachMapping) {
                             return (
                                     typeof eachSpreadSheetRow[supplierStoreCodeFileHeader] === 'string' ?
@@ -485,11 +503,16 @@ function mapSpreadSheetDataToOrders(db, orderConfigModel, spreadSheetRows, userM
                         let isReceived = receivedStates.includes(orderConfigModel.orderStatus);
                         let lineItem = {
                             productModelId: ObjectId(eachSpreadSheetRow.productModelId),
+                            productModelName: eachSpreadSheetRow.productModelName, //need for sorting
+                            productModelSku: eachSpreadSheetRow.productModelSku, //need for sorting
                             storeModelId: ObjectId(eachSpreadSheetRow.storeModelId),
                             orgModelId: ObjectId(orderConfigModel.orgModelId),
                             orderQuantity: eachSpreadSheetRow[orderQuantityFileHeader],
                             originalOrderQuantity: eachSpreadSheetRow[orderQuantityFileHeader],
                             fulfilledQuantity: eachSpreadSheetRow[fulfilledQuantityFileHeader],
+                            categoryModelId: ObjectId(eachSpreadSheetRow.categoryModelId),
+                            categoryModelName: eachSpreadSheetRow.categoryModelName, //need for sorting
+                            binLocation: eachSpreadSheetRow.binLocation,
                             approved: isApproved,
                             fulfilled: isFulfilled,
                             received: isReceived,

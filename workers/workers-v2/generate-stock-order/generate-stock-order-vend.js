@@ -162,16 +162,28 @@ var runMe = function (payload, config, taskId, messageId) {
                     message: `Created report model, Will look for products belonging to supplier ID ${payload.supplierModelId}`
                 });
                 reportModel = response.ops[0];
-                return db.collection('ProductModel').find({
-                    $and: [
-                        {
-                            orgModelId: ObjectId(payload.orgModelId)
-                        },
-                        {
-                            supplierModelId: ObjectId(payload.supplierModelId)
+                return db.collection('ProductModel').aggregate([
+                    {
+                        $match: {
+                            $and: [
+                                {
+                                    orgModelId: ObjectId(payload.orgModelId)
+                                },
+                                {
+                                    supplierModelId: ObjectId(payload.supplierModelId)
+                                }
+                            ]
                         }
-                    ]
-                }).toArray();
+                    },
+                    {
+                        $lookup: {
+                            from: "CategoryModel",
+                            localField: "categoryModelId",
+                            foreignField: "_id",
+                            as: "categoryModel"
+                        }
+                    }
+                ]).toArray();
             })
             .catch(function (error) {
                 logger.error({
@@ -297,8 +309,11 @@ var runMe = function (payload, config, taskId, messageId) {
                         }
 
                         if (useRow) {
+                            var categoryName = eachProduct.categoryModel && eachProduct.categoryModel.length ? eachProduct.categoryModel[0].name: 'No Category';
                             var row = {
                                 productModelId: ObjectId(eachProduct._id),
+                                productModelName: eachProduct.name, //need for sorting
+                                productModelSku: eachProduct.sku, //need for sorting
                                 storeInventory: quantityOnHand,
                                 desiredStockLevel: desiredStockLevel,
                                 orderQuantity: orderQuantity,
@@ -308,7 +323,9 @@ var runMe = function (payload, config, taskId, messageId) {
                                 caseQuantity: caseQuantity,
                                 supplyPrice: eachProduct.supply_price,
                                 supplierModelId: ObjectId(eachProduct.supplierModelId),
-                                type: eachProduct.type,
+                                categoryModelId: ObjectId(eachProduct.categoryModelId),
+                                binLocation: eachProduct.binLocation,
+                                categoryModelName: categoryName,  //need for sorting
                                 approved: false,
                                 fulfilled: false,
                                 received: false,
@@ -400,14 +417,6 @@ var runMe = function (payload, config, taskId, messageId) {
                 } else {
                     return Promise.resolve(updateResult);
                 }
-            })
-            .then(function (response) {
-                logger.debug({
-                    messageId: messageId,
-                    message: 'Updated the report status, will fetch Vend token to update the order to vend',
-                    result: response.result
-                });
-                return utils.fetchVendToken(db, payload.orgModelId, messageId);
             })
             .then(function (response) {
                 var options = {

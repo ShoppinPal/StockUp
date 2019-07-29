@@ -675,7 +675,8 @@ module.exports = function (ReportModel) {
                         functionName: 'createPurchaseOrderVend'
                     });
                     return Promise.reject('Purchase order creation in progress');
-                }else if (reportModelInstance.state === REPORT_STATES.APPROVAL_IN_PROCESS) {
+                }else if (reportModelInstance.state === REPORT_STATES.APPROVAL_IN_PROCESS ||
+                    reportModelInstance.state === REPORT_STATES.ERROR_SENDING_TO_SUPPLIER) {
                     logger.debug({
                         message: 'Will call createPurchaseOrderVend worker',
                         options,
@@ -771,7 +772,7 @@ module.exports = function (ReportModel) {
                 return Promise.reject('Could not update report model state to receive');
             })
             .then(([countResult, reportModelInstance]) => {
-                if (countResult > 0) {
+                if (countResult>0) {
                     logger.debug({
                         message: 'Found Fulfilled Stock Order Items, Will set status to recieve pending ',
                         countResult,
@@ -783,7 +784,7 @@ module.exports = function (ReportModel) {
                         state: REPORT_STATES.RECEIVING_PENDING,
                         fulfilledByUserModelId: options.accessToken.userId
                     });
-                } else {
+                }else {
                     logger.error({
                         message: 'No Stock order items fulfilled',
                         countResult,
@@ -961,7 +962,7 @@ module.exports = function (ReportModel) {
                     fulfilledRows: {
                         $sum: {
                             $cond: {
-                                if: { $eq: ['$fulfilled', true]},
+                                if: {$eq: ['$fulfilled', true]},
                                 then: 1,
                                 else: 0
                             }
@@ -970,7 +971,7 @@ module.exports = function (ReportModel) {
                     receivedRows: {
                         $sum: {
                             $cond: {
-                                if: { $eq: ['$received', true]},
+                                if: {$eq: ['$received', true]},
                                 then: 1,
                                 else: 0
                             }
@@ -979,7 +980,7 @@ module.exports = function (ReportModel) {
                     approvedRows: {
                         $sum: {
                             $cond: {
-                                if: { $eq: ['$approved', true]},
+                                if: {$eq: ['$approved', true]},
                                 then: 1,
                                 else: 0
                             }

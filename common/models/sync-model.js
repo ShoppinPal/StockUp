@@ -599,7 +599,7 @@ module.exports = function (SyncModel) {
                     return SyncModel.app.models.UserModel.findOrCreate({
                         where: {
                             orgModelId: id,
-                            or:[
+                            or: [
                                 {api_id: eachUser.api_id},
                                 {email: eachUser.email}
                             ]
@@ -718,12 +718,72 @@ module.exports = function (SyncModel) {
             });
     };
 
-    SyncModel.syncVendSuppliers = function (id, options) {
+    SyncModel.syncVendProductTypes = function (id, options) {
         logger.debug({
-            message: 'Will fetch suppliers from Vend',
-
-        })
+            message: 'Will sync vend product types',
+            functionName: 'syncVendProductTypes',
+            options
+        });
+        var vendUtils = require('./../../common/utils/vend')({OrgModel: SyncModel.app.models.OrgModel});
+        return vendUtils.getVendProductTypes(id, options)
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not fetch vend product types',
+                    error,
+                    functionName: 'syncVendProductTypes',
+                    options
+                });
+            })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Fetched vend product types, will save to db',
+                    response,
+                    functionName: 'syncVendProductTypes',
+                    options
+                });
+                if (response && response.data && response.data.length) {
+                    return Promise.map(response.data, function (eachProductType) {
+                        if (eachProductType.name && eachProductType.deleted_at !== 'null') {
+                            return SyncModel.app.models.CategoryModel.findOrCreate({
+                                where: {
+                                    api_id: eachProductType.id,
+                                    orgModelId: id
+                                }
+                            }, {
+                                api_id: eachProductType.id,
+                                name: eachProductType.name,
+                                orgModelId: id
+                            });
+                        }
+                    });
+                }
+                else {
+                    logger.error({
+                        message: 'Could not fetch any product types from vend',
+                        options,
+                        functionName: 'syncVendProductTypes'
+                    });
+                    return Promise.reject('Could not fetch any stores from vend');
+                }
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not save product types to db',
+                    error,
+                    reason: error,
+                    options,
+                    functionName: 'syncVendProductTypes'
+                });
+                return Promise.reject('Could not save stores to db');
+            })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Saved product types to db as categories',
+                    response,
+                    options,
+                    functionName: 'syncVendProductTypes'
+                });
+                return Promise.resolve('Saved product types to db as categories');
+            });
     };
-
-
 };

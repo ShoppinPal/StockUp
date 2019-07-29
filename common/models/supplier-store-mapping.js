@@ -9,10 +9,10 @@ const _ = require('underscore');
 
 module.exports = function (SupplierStoreMapping) {
 
-    SupplierStoreMapping.updateSupplierStoreMappings = function (id, mappings, options) {
+    SupplierStoreMapping.editSupplierStoreMappings = function (id, mappings, options) {
         logger.debug({
             message: 'Will validate mappings data against default mappings schema',
-            functionName: 'updateSupplierStoreMappings',
+            functionName: 'editSupplierStoreMappings',
             mappings,
             options
         });
@@ -30,7 +30,7 @@ module.exports = function (SupplierStoreMapping) {
             .catch(function (error) {
                 logger.error({
                     message: 'Mappings should be a valid array',
-                    functionName: 'updateSupplierStoreMappings',
+                    functionName: 'editSupplierStoreMappings',
                     validSchema: mappingsSchema,
                     error,
                     options
@@ -40,7 +40,7 @@ module.exports = function (SupplierStoreMapping) {
             .then(function () {
                 logger.debug({
                     message: 'Mappings schema validated, will update all mappings',
-                    functionName: 'updateSupplierStoreMappings',
+                    functionName: 'editSupplierStoreMappings',
                     options
                 });
                 return Promise.map(mappings, function (eachMapping) {
@@ -55,7 +55,7 @@ module.exports = function (SupplierStoreMapping) {
             .catch(function (error) {
                 logger.error({
                     message: 'Could not findOrCreate mappings',
-                    functionName: 'updateSupplierStoreMappings',
+                    functionName: 'editSupplierStoreMappings',
                     error,
                     options
                 });
@@ -65,7 +65,7 @@ module.exports = function (SupplierStoreMapping) {
                 logger.debug({
                     message: 'find or create response',
                     response,
-                    functionName: 'updateSupplierStoreMappings',
+                    functionName: 'editSupplierStoreMappings',
                     options
                 });
                 return Promise.map(response, function (eachResponse) {
@@ -90,7 +90,7 @@ module.exports = function (SupplierStoreMapping) {
             .catch(function (error) {
                 logger.error({
                     message: 'Could not update mappings',
-                    functionName: 'updateSupplierStoreMappings',
+                    functionName: 'editSupplierStoreMappings',
                     error,
                     options
                 });
@@ -100,7 +100,7 @@ module.exports = function (SupplierStoreMapping) {
                 logger.debug({
                     message: 'Updated mappings',
                     response,
-                    functionName: 'updateSupplierStoreMappings',
+                    functionName: 'editSupplierStoreMappings',
                     options
                 });
                 return Promise.resolve('Updated mappings successfully');

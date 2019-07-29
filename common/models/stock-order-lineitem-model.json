@@ -97,6 +97,11 @@
       "model": "ProductModel",
       "foreignKey": "productModelId"
     },
+    "categoryModel": {
+      "type": "belongsTo",
+      "model": "CategoryModel",
+      "foreignKey": "categoryModelId"
+    },
     "orgModel": {
       "type": "belongsTo",
       "model": "OrgModel",

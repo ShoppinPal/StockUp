@@ -81,7 +81,7 @@
           <div class="row">
             <div class="col-sm-6">
               <button type="button" class="btn btn-link"
-                      (click)="searchSKUText='';getNotApprovedStockOrderLineItems();getApprovedStockOrderLineItems()">
+                      (click)="searchSKUText='';getNotApprovedStockOrderLineItems(undefined, undefined, undefined, 'type');getApprovedStockOrderLineItems(undefined, undefined, undefined, 'type')">
                 Clear All Searches
               </button>
             </div>
@@ -106,11 +106,15 @@
               <tabset>
                 <tab heading="Not Approved ({{totalNotApprovedLineItems}})">
 
-                  <table class="table table-striped table-hover">
+                  <table class="table table-hover">
                     <thead>
                     <tr>
-                      <th>Name</th>
-                      <th>SKU</th>
+                      <th class="pointer" (click)="sortColumn = 'productModelName';sortAscending = !sortAscending; getNotApprovedStockOrderLineItems()">Name
+                        <i [ngClass]="{'cui-sort-ascending': sortAscending === true && sortColumn === 'productModelName', 'cui-sort-descending': sortAscending === false && sortColumn === 'productModelName'}">
+                        </i></th>
+                      <th class="pointer" (click)="sortColumn = 'productModelSku';sortAscending = !sortAscending; getNotApprovedStockOrderLineItems()">SKU
+                        <i [ngClass]="{'cui-sort-ascending': sortAscending===true && sortColumn === 'productModelSku', 'cui-sort-descending': sortAscending===false && sortColumn === 'productModelSku'}">
+                        </i></th>
                       <th>Order Quantity</th>
                       <th>Suggested Order Quantity</th>
                       <th>Store Inventory</th>
@@ -118,48 +122,57 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr *ngFor="let lineItem of notApprovedLineItems">
-                      <ng-container *ngIf="lineItem.productModel">
-                        <td>
-                          {{lineItem.productModel.name}}
-                          <br/>
-                          <small *ngIf="userProfile.integrationType === 'msdynamics'">({{lineItem.productModel.sizeId}}
-                            : {{lineItem.productModel.colorId}} :
-                            {{lineItem.productModel.styleId}} : {{lineItem.productModel.configurationId}})
-                          </small>
-                        </td>
-                        <td *ngIf="userProfile.integrationType==='msdynamics'">{{lineItem.productModel.api_id}}</td>
-                        <td *ngIf="userProfile.integrationType==='vend'">{{lineItem.productModel.sku}}</td>
-                        <td *ngIf="editable">
-                          <div class="form-group">
-                            <div class="input-group">
-                              <div class="input-group-prepend pointer"
-                                   (click)="lineItem.orderQuantity = lineItem.orderQuantity - 1">
+                    <ng-container *ngFor="let lineItem of notApprovedLineItems; let i = index">
+                      <tr class="bg-light text-primary"
+                          *ngIf="lineItem.categoryModelName !== notApprovedLineItems[i-1]?.categoryModelName">
+                        <td colspan="6"><strong>{{lineItem.categoryModelName || 'No Category'}}</strong></td>
+                      </tr>
+                      <tr>
+                        <ng-container *ngIf="lineItem.productModel">
+                          <td>
+                            {{lineItem.productModel.name}}
+                            <br/>
+                            <small *ngIf="userProfile.integrationType === 'msdynamics'">
+                              ({{lineItem.productModel.sizeId}}
+                              : {{lineItem.productModel.colorId}} :
+                              {{lineItem.productModel.styleId}} : {{lineItem.productModel.configurationId}})
+                            </small>
+                          </td>
+                          <td *ngIf="userProfile.integrationType==='msdynamics'">{{lineItem.productModel.api_id}}</td>
+                          <td *ngIf="userProfile.integrationType==='vend'">{{lineItem.productModel.sku}}</td>
+                          <td *ngIf="editable">
+                            <div class="form-group">
+                              <div class="input-group">
+                                <div class="input-group-prepend pointer"
+                                     (click)="lineItem.orderQuantity = lineItem.orderQuantity - 1">
                                 <span class="input-group-text">
                                   <i class="fa fa-minus-circle quantity-icon text-danger"></i>
                                 </span>
-                              </div>
-                              <input type="number" class="input-order-quantity form-control-sm form-control text-center"
-                                     [(ngModel)]="lineItem.orderQuantity"/>
-                              <div class="input-group-append pointer"
-                                   (click)="lineItem.orderQuantity = lineItem.orderQuantity + 1">
+                                </div>
+                                <input type="number"
+                                       class="input-order-quantity form-control-sm form-control text-center"
+                                       [(ngModel)]="lineItem.orderQuantity"/>
+                                <div class="input-group-append pointer"
+                                     (click)="lineItem.orderQuantity = lineItem.orderQuantity + 1">
                                 <span class="input-group-text">
                                   <i class="fa fa-plus-circle quantity-icon text-success"></i>
                                 </span>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </td>
-                        <td *ngIf="!editable">{{lineItem.orderQuantity}}</td>
-                        <td>{{lineItem.originalOrderQuantity}}</td>
-                        <td>{{lineItem.storeInventory}}</td>
-                        <td>
-                          <button *ngIf="editable" class="btn btn-danger" type="submit" (click)="approveItem(lineItem)">
-                            <i class="fa fa-save"></i> Approve
-                          </button>
-                        </td>
-                      </ng-container>
-                    </tr>
+                          </td>
+                          <td *ngIf="!editable">{{lineItem.orderQuantity}}</td>
+                          <td>{{lineItem.originalOrderQuantity}}</td>
+                          <td>{{lineItem.storeInventory}}</td>
+                          <td>
+                            <button *ngIf="editable" class="btn btn-danger" type="submit"
+                                    (click)="approveItem(lineItem)">
+                              <i class="fa fa-save"></i> Approve
+                            </button>
+                          </td>
+                        </ng-container>
+                      </tr>
+                    </ng-container>
                     </tbody>
                   </table>
 
@@ -174,43 +187,55 @@
                 </tab>
 
                 <tab heading="Approved ({{totalApprovedLineItems}})">
-                  <table class="table table-striped table-hover">
+                  <table class="table table-hover">
                     <thead>
                     <tr>
-                      <th>Name</th>
-                      <th>SKU</th>
+                      <th class="pointer" (click)="sortColumn = 'productModelName';sortAscending = !sortAscending; getApprovedStockOrderLineItems()">Name
+                        <i [ngClass]="{'cui-sort-ascending': sortAscending === true && sortColumn === 'productModelName', 'cui-sort-descending': sortAscending === false && sortColumn === 'productModelName'}">
+                        </i></th>
+                      <th class="pointer" (click)="sortColumn = 'productModelSku';sortAscending = !sortAscending; getApprovedStockOrderLineItems()">SKU
+                        <i [ngClass]="{'cui-sort-ascending': sortAscending===true && sortColumn === 'productModelSku', 'cui-sort-descending': sortAscending===false && sortColumn === 'productModelSku'}">
+                        </i></th>
                       <th>Order Quantity</th>
                       <th>Suggested Order Quantity</th>
                       <th>Store Inventory</th>
-                      <th  *ngIf="editable">Remove</th>
+                      <th *ngIf="editable">Remove</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr *ngFor="let lineItem of approvedLineItems">
-                      <ng-container *ngIf="lineItem.productModel">
-                        <td>
-                          {{lineItem.productModel.name}}
-                          <br/>
-                          <small>({{lineItem.productModel.sizeId}} : {{lineItem.productModel.colorId}} :
-                            {{lineItem.productModel.styleId}} : {{lineItem.productModel.configurationId}})
-                          </small>
-                        </td>
-                        <td *ngIf="userProfile.integrationType==='msdynamics'">{{lineItem.productModel.api_id}}</td>
-                        <td *ngIf="userProfile.integrationType==='vend'">{{lineItem.productModel.sku}}</td>
-                        <td>
-                          {{lineItem.orderQuantity}}
-                        </td>
-                        <td>
-                          {{lineItem.originalOrderQuantity}}
-                        </td>
-                        <td>{{lineItem.storeInventory}}</td>
-                        <td>
-                          <button *ngIf="editable" class="btn btn-danger" type="submit" (click)="removeItem(lineItem)">
-                            <i class="fa fa-save"></i> Remove
-                          </button>
-                        </td>
-                      </ng-container>
-                    </tr>
+                    <ng-container *ngFor="let lineItem of approvedLineItems; let i = index">
+                      <tr class="bg-light text-primary"
+                          *ngIf="lineItem.categoryModelName !== approvedLineItems[i-1]?.categoryModelName">
+                        <td colspan="6"><strong>{{lineItem.categoryModelName || 'No Category'}}</strong></td>
+                      </tr>
+                      <tr>
+                        <ng-container *ngIf="lineItem.productModel">
+                          <td>
+                            {{lineItem.productModel.name}}
+                            <br/>
+                            <small *ngIf="userProfile.integrationType === 'msdynamics'">
+                              ({{lineItem.productModel.sizeId}} : {{lineItem.productModel.colorId}} :
+                              {{lineItem.productModel.styleId}} : {{lineItem.productModel.configurationId}})
+                            </small>
+                          </td>
+                          <td *ngIf="userProfile.integrationType==='msdynamics'">{{lineItem.productModel.api_id}}</td>
+                          <td *ngIf="userProfile.integrationType==='vend'">{{lineItem.productModel.sku}}</td>
+                          <td>
+                            {{lineItem.orderQuantity}}
+                          </td>
+                          <td>
+                            {{lineItem.originalOrderQuantity}}
+                          </td>
+                          <td>{{lineItem.storeInventory}}</td>
+                          <td>
+                            <button *ngIf="editable" class="btn btn-danger" type="submit"
+                                    (click)="removeItem(lineItem)">
+                              <i class="fa fa-save"></i> Remove
+                            </button>
+                          </td>
+                        </ng-container>
+                      </tr>
+                    </ng-container>
                     </tbody>
                   </table>
 

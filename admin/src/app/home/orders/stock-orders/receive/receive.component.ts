@@ -42,6 +42,8 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   public enableBarcode: boolean = true;
   public discrepancyOrderItem: any;
   private subscriptions: Subscription[] = [];
+  public sortAscending = true;
+  public sortColumn = 'productModelSku';
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -87,9 +89,10 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       limit = 100;
       skip = 0;
     }
-    if (!productModelId){
+    if (!productModelId) {
       this.searchSKUText = ''
     }
+    let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
     const filter: any = {
       where: {
         reportModelId: this.order.id,
@@ -104,7 +107,8 @@ export class ReceiveComponent implements OnInit, OnDestroy {
         relation: 'productModel'
       },
       limit: limit,
-      skip: skip
+      skip: skip,
+      order: 'categoryModelName ' + sortOrder + ', ' + this.sortColumn + ' ' + sortOrder
     };
     let countFilter: any = {
       reportModelId: this.order.id,
@@ -137,9 +141,10 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       limit = 100;
       skip = 0;
     }
-    if (!productModelId){
+    if (!productModelId) {
       this.searchSKUText = ''
     }
+    let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
     let filter = {
       where: {
         reportModelId: this.order.id,
@@ -152,7 +157,8 @@ export class ReceiveComponent implements OnInit, OnDestroy {
         relation: 'productModel',
       },
       limit: limit,
-      skip: skip
+      skip: skip,
+      order: 'categoryModelName ' + sortOrder + ', ' + this.sortColumn + ' ' + sortOrder
     };
     let countFilter = {
       reportModelId: this.order.id,
@@ -196,7 +202,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
         if (searchedOrderItem.showDiscrepancyAlert) {
           this.discrepancyOrderItem = searchedOrderItem;
           this.discrepancyModal.show()
-        }else{
+        } else {
           this.toastr.success('Row updated');
         }
         this.searchInputRef.nativeElement.focus();
@@ -205,7 +211,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
         this.totalReceivedLineItems = this.receivedLineItems.length;
         if (!searchedOrderItem.received) {
           this.notReceivedLineItems = [searchedOrderItem];
-        }else {
+        } else {
           this.notReceivedLineItems = [];
         }
         this.totalNotReceivedLineItems = this.notReceivedLineItems.length;
@@ -224,7 +230,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.orgModelApi.getProductModels(this.userProfile.orgModelId, {
       where: {
-          sku: sku
+        sku: sku
       }
     }).subscribe((data: any) => {
       if (data.length) {
@@ -379,6 +385,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       this.searchSKUFocused = false;
     }
   }
+
   /**
    * @description Code to detect barcode scanner input and
    * calls the search sku function

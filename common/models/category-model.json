@@ -23,6 +23,11 @@
       "model": "ProductModel",
       "foreignKey": "categoryModelId"
     },
+    "stockOrderLineitemModels": {
+      "type": "hasMany",
+      "model": "StockOrderLineitemModel",
+      "foreignKey": "categoryModelId"
+    },
     "reportModels": {
       "type": "hasMany",
       "model": "ReportModel",

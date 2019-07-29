@@ -78,14 +78,21 @@ var runMe = function (vendConnectionInfo, orgModelId, dataObject) {
                         orgModelId,
                         message: 'Will look for suppliers to attach to products'
                     });
-                    return db.collection('SupplierModel').find({
-                        orgModelId: ObjectId(orgModelId)
-                    }).toArray();
+                    return Promise.all([
+                        db.collection('SupplierModel').find({
+                            orgModelId: ObjectId(orgModelId)
+                        }).toArray(),
+                        db.collection('CategoryModel').find({
+                            orgModelId: ObjectId(orgModelId)
+                        }).toArray()
+                    ]);
                 })
-                .then(function (supplierModelInstances) {
+                .then(function (response) {
+                    let supplierModelInstances = response[0];
+                    let categoryModelInstances = response[1];
                     logger.debug({
                         orgModelId,
-                        message: `Found ${supplierModelInstances.length} suppliers, will attach them to products`
+                        message: `Found ${supplierModelInstances.length} suppliers and ${categoryModelInstances.length} categories, will attach them to products`
                     });
 
                     /**
@@ -123,6 +130,7 @@ var runMe = function (vendConnectionInfo, orgModelId, dataObject) {
 
                     _.each(incrementalProducts, function (eachProduct) {
                         var supplierModelToAttach = _.findWhere(supplierModelInstances, {api_id: eachProduct.supplier_id});
+                        var categoryModelToAttach = _.findWhere(categoryModelInstances, {api_id: eachProduct.type ? eachProduct.type.id: ''});
                         var tagsToAttach = '';
                         if (eachProduct.tag_ids && eachProduct.tag_ids.length) {
                             _.each(eachProduct.tag_ids, function (eachTagId) {
@@ -141,7 +149,8 @@ var runMe = function (vendConnectionInfo, orgModelId, dataObject) {
                                 supplierVendId: supplierModelToAttach ? supplierModelToAttach.api_id : null,
                                 supplierCode: eachProduct.supplier_code,
                                 sku: eachProduct.sku,
-                                type: eachProduct.type ? eachProduct.type.name : null,
+                                categoryModelVendId: categoryModelToAttach ? categoryModelToAttach.api_id: null,
+                                categoryModelId: categoryModelToAttach ? categoryModelToAttach._id: null,
                                 supply_price: eachProduct.supply_price,
                                 api_id: eachProduct.id,
                                 tags: tagsToAttach,

@@ -347,7 +347,8 @@ function getVendConnectionInfo(db, orgModelId) {
                 domainPrefix: integrationModelInstance.domain_prefix,
                 client_id: integrationModelInstance.client_id,
                 client_secret: integrationModelInstance.client_secret,
-                accessToken: integrationModelInstance.access_token
+                accessToken: integrationModelInstance.access_token,
+                refreshToken: integrationModelInstance.refresh_token
             };
             return Promise.resolve(connectionInfo);
         });

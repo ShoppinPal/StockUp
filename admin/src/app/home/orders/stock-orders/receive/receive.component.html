@@ -116,11 +116,16 @@
               <tabset>
                 <tab heading="Not Received ({{totalNotReceivedLineItems}})">
 
-                  <table class="table table-striped table-hover">
+                  <table class="table table-hover">
                     <thead>
                     <tr>
-                      <th>Name</th>
-                      <th>SKU</th>
+                      <th class="pointer" (click)="sortColumn = 'productModelName';sortAscending = !sortAscending; getNotReceivedStockOrderLineItems()">Name
+                        <i [ngClass]="{'cui-sort-ascending': sortAscending === true && sortColumn === 'productModelName',
+                         'cui-sort-descending': sortAscending === false && sortColumn === 'productModelName'}">
+                        </i></th>
+                      <th class="pointer" (click)="sortColumn = 'productModelSku';sortAscending = !sortAscending; getNotReceivedStockOrderLineItems()">SKU
+                        <i [ngClass]="{'cui-sort-ascending': sortAscending===true && sortColumn === 'productModelSku', 'cui-sort-descending': sortAscending===false && sortColumn === 'productModelSku'}">
+                        </i></th>
                       <th>Ordered Quantity</th>
                       <th>Delivered Quantity</th>
                       <th>Received Quantity</th>
@@ -128,46 +133,56 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr *ngFor="let lineItem of notReceivedLineItems">
-                      <ng-container *ngIf="lineItem.productModel">
-                        <td>
-                          {{lineItem.productModel.name}}
-                          <br/>
-                          <small *ngIf="userProfile.integrationType === 'msdynamics'">({{lineItem.productModel.sizeId}}
-                            : {{lineItem.productModel.colorId}} :
-                            {{lineItem.productModel.styleId}} : {{lineItem.productModel.configurationId}})
-                          </small>
-                        </td>
-                        <td *ngIf="userProfile.integrationType==='msdynamics'">{{lineItem.productModel.api_id}}</td>
-                        <td *ngIf="userProfile.integrationType==='vend'">{{lineItem.productModel.sku}}</td>
-                        <td>{{lineItem.orderQuantity}}</td>
-                        <td>{{lineItem.fulfilledQuantity}}</td>
-                        <td>
-                          <div class="form-group">
-                            <div class="input-group">
-                              <div  *ngIf="!enableBarcode" class="input-group-prepend pointer" (click)="lineItem.receivedQuantity = lineItem.receivedQuantity - 1">
+                    <ng-container *ngFor="let lineItem of notReceivedLineItems; let i = index;">
+                      <tr class="bg-light text-primary"
+                          *ngIf="lineItem.categoryModelName !== notReceivedLineItems[i-1]?.categoryModelName">
+                        <td colspan="6"><strong>{{lineItem.categoryModelName || 'No Category'}}</strong></td>
+                      </tr>
+                      <tr>
+                        <ng-container *ngIf="lineItem.productModel">
+                          <td>
+                            {{lineItem.productModel.name}}
+                            <br/>
+                            <small *ngIf="userProfile.integrationType === 'msdynamics'">
+                              ({{lineItem.productModel.sizeId}}
+                              : {{lineItem.productModel.colorId}} :
+                              {{lineItem.productModel.styleId}} : {{lineItem.productModel.configurationId}})
+                            </small>
+                          </td>
+                          <td *ngIf="userProfile.integrationType==='msdynamics'">{{lineItem.productModel.api_id}}</td>
+                          <td *ngIf="userProfile.integrationType==='vend'">{{lineItem.productModel.sku}}</td>
+                          <td>{{lineItem.orderQuantity}}</td>
+                          <td>{{lineItem.fulfilledQuantity}}</td>
+                          <td>
+                            <div class="form-group">
+                              <div class="input-group">
+                                <div *ngIf="!enableBarcode" class="input-group-prepend pointer"
+                                     (click)="lineItem.receivedQuantity = lineItem.receivedQuantity - 1">
                                 <span class="input-group-text">
                                   <i class="fa fa-minus-circle quantity-icon text-danger"></i>
                                 </span>
-                              </div>
-                              <input [disabled]="enableBarcode" type="number" class="input-order-quantity form-control-sm form-control text-center"
-                                     [(ngModel)]="lineItem.receivedQuantity"/>
-                              <div *ngIf="!enableBarcode" class="input-group-append pointer" (click)="lineItem.receivedQuantity = lineItem.receivedQuantity + 1">
+                                </div>
+                                <input [disabled]="enableBarcode" type="number"
+                                       class="input-order-quantity form-control-sm form-control text-center"
+                                       [(ngModel)]="lineItem.receivedQuantity"/>
+                                <div *ngIf="!enableBarcode" class="input-group-append pointer"
+                                     (click)="lineItem.receivedQuantity = lineItem.receivedQuantity + 1">
                                 <span class="input-group-text">
                                   <i class="fa fa-plus-circle quantity-icon text-success"></i>
                                 </span>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </td>
-                        <td>
-                          <button *ngIf="!enableBarcode" class="btn btn-danger" type="submit"
-                                  (click)="receiveItem(lineItem)">
-                            <i class="fa fa-save"></i> Receive
-                          </button>
-                        </td>
-                      </ng-container>
-                    </tr>
+                          </td>
+                          <td>
+                            <button *ngIf="!enableBarcode" class="btn btn-danger" type="submit"
+                                    (click)="receiveItem(lineItem)">
+                              <i class="fa fa-save"></i> Receive
+                            </button>
+                          </td>
+                        </ng-container>
+                      </tr>
+                    </ng-container>
                     </tbody>
                   </table>
 
@@ -182,11 +197,15 @@
                 </tab>
 
                 <tab heading="Received ({{totalReceivedLineItems}})">
-                  <table class="table table-striped table-hover">
+                  <table class="table table-hover">
                     <thead>
                     <tr>
-                      <th>Name</th>
-                      <th>SKU</th>
+                      <th class="pointer" (click)="sortColumn = 'productModelName';sortAscending = !sortAscending; getReceivedStockOrderLineItems()">Name
+                        <i [ngClass]="{'cui-sort-ascending': sortAscending === true && sortColumn === 'productModelName', 'cui-sort-descending': sortAscending === false && sortColumn === 'productModelName'}">
+                        </i></th>
+                      <th class="pointer" (click)="sortColumn = 'productModelSku';sortAscending = !sortAscending; getReceivedStockOrderLineItems()">SKU
+                        <i [ngClass]="{'cui-sort-ascending': sortAscending===true && sortColumn === 'productModelSku', 'cui-sort-descending': sortAscending===false && sortColumn === 'productModelSku'}">
+                        </i></th>
                       <th>Ordered Quantity</th>
                       <th>Delivered Quantity</th>
                       <th>Received Quantity</th>
@@ -195,30 +214,36 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr *ngFor="let lineItem of receivedLineItems">
-                      <ng-container *ngIf="lineItem.productModel">
-                        <td>
-                          {{lineItem.productModel.name}}
-                          <br/>
-                          <small>({{lineItem.productModel.sizeId}} : {{lineItem.productModel.colorId}} :
-                            {{lineItem.productModel.styleId}} : {{lineItem.productModel.configurationId}})
-                          </small>
-                        </td>
-                        <td *ngIf="userProfile.integrationType==='msdynamics'">{{lineItem.productModel.api_id}}</td>
-                        <td *ngIf="userProfile.integrationType==='vend'">{{lineItem.productModel.sku}}</td>
-                        <td>
-                          {{lineItem.orderQuantity}}
-                        </td>
-                        <td>{{lineItem.fulfilledQuantity}}</td>
-                        <td>{{lineItem.receivedQuantity}}</td>
-                        <td>
-                          <button *ngIf="!enableBarcode" class="btn btn-danger" type="submit"
-                                  (click)="removeItem(lineItem)">
-                            <i class="fa fa-save"></i> Remove
-                          </button>
-                        </td>
-                      </ng-container>
-                    </tr>
+                    <ng-container *ngFor="let lineItem of receivedLineItems; let i = index;">
+                      <tr class="bg-light text-primary"
+                          *ngIf="lineItem.categoryModelName !== receivedLineItems[i-1]?.categoryModelName">
+                        <td colspan="6"><strong>{{lineItem.categoryModelName || 'No Category'}}</strong></td>
+                      </tr>
+                      <tr>
+                        <ng-container *ngIf="lineItem.productModel">
+                          <td>
+                            {{lineItem.productModel.name}}
+                            <br/>
+                            <small *ngIf="userProfile.integrationType === 'msdynamics'">({{lineItem.productModel.sizeId}} : {{lineItem.productModel.colorId}} :
+                              {{lineItem.productModel.styleId}} : {{lineItem.productModel.configurationId}})
+                            </small>
+                          </td>
+                          <td *ngIf="userProfile.integrationType==='msdynamics'">{{lineItem.productModel.api_id}}</td>
+                          <td *ngIf="userProfile.integrationType==='vend'">{{lineItem.productModel.sku}}</td>
+                          <td>
+                            {{lineItem.orderQuantity}}
+                          </td>
+                          <td>{{lineItem.fulfilledQuantity}}</td>
+                          <td>{{lineItem.receivedQuantity}}</td>
+                          <td>
+                            <button *ngIf="!enableBarcode" class="btn btn-danger" type="submit"
+                                    (click)="removeItem(lineItem)">
+                              <i class="fa fa-save"></i> Remove
+                            </button>
+                          </td>
+                        </ng-container>
+                      </tr>
+                    </ng-container>
                     </tbody>
                   </table>
 
@@ -245,7 +270,8 @@
   <!--/.col-->
 </div>
 
-<div bsModal #discrepancyModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div bsModal #discrepancyModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
   <div class="modal-dialog modal-warning" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -262,7 +288,9 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="discrepancyModal.hide()">Cancel</button>
-        <button type="button" class="btn btn-warning" (click)="searchAndIncrementProduct(searchSKUText, true)">Continue</button>
+        <button type="button" class="btn btn-warning" (click)="searchAndIncrementProduct(searchSKUText, true)">
+          Continue
+        </button>
       </div>
     </div>
   </div>

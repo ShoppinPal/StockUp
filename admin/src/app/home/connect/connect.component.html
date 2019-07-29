@@ -120,6 +120,11 @@
                         class="btn btn-primary"
                         (click)="syncMSDCategories()">Sync Product Categories
                 </button>
+                <button type="button"
+                        *ngIf="integration.length && integration[0].type === 'vend'"
+                        class="btn btn-primary"
+                        (click)="syncVendProductTypes()">Sync Product Types
+                </button>
               </td>
             </tr>
             </tbody>

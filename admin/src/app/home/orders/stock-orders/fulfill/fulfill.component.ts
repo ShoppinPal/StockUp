@@ -39,6 +39,8 @@ export class FulfillComponent implements OnInit {
   public searchSKUFocused: boolean = true;
   public enableBarcode: boolean = true;
   public discrepancyOrderItem: any;
+  public sortAscending = true;
+  public sortColumn = 'productModelSku';
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -62,7 +64,7 @@ export class FulfillComponent implements OnInit {
       });
 
     if (this.order.state === constants.REPORT_STATES.FULFILMENT_PENDING ||
-        this.order.state === constants.REPORT_STATES.FULFILMENT_IN_PROCESS ||
+      this.order.state === constants.REPORT_STATES.FULFILMENT_IN_PROCESS ||
       this.order.state === constants.REPORT_STATES.FULFILMENT_FAILURE) {
       this.editable = true;
     }
@@ -84,9 +86,10 @@ export class FulfillComponent implements OnInit {
       limit = 100;
       skip = 0;
     }
-    if (!productModelId){
+    if (!productModelId) {
       this.searchSKUText = ''
     }
+    let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
     const filter: any = {
       where: {
         reportModelId: this.order.id,
@@ -100,7 +103,8 @@ export class FulfillComponent implements OnInit {
         relation: 'productModel'
       },
       limit: limit,
-      skip: skip
+      skip: skip,
+      order: 'categoryModelName ' + sortOrder + ', ' + this.sortColumn + ' ' + sortOrder
     };
     let countFilter: any = {
       reportModelId: this.order.id,
@@ -132,9 +136,10 @@ export class FulfillComponent implements OnInit {
       limit = 100;
       skip = 0;
     }
-    if (!productModelId){
-        this.searchSKUText = ''
+    if (!productModelId) {
+      this.searchSKUText = ''
     }
+    let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
     let filter = {
       where: {
         reportModelId: this.order.id,
@@ -146,7 +151,8 @@ export class FulfillComponent implements OnInit {
         relation: 'productModel',
       },
       limit: limit,
-      skip: skip
+      skip: skip,
+      order: 'categoryModelName ' + sortOrder + ', ' + this.sortColumn + ' ' + sortOrder
     };
     let countFilter = {
       reportModelId: this.order.id,
@@ -166,7 +172,7 @@ export class FulfillComponent implements OnInit {
         this.loading = false;
         this.currentPageNotFulfilled = (skip / this.lineItemsLimitPerPage) + 1;
         this.totalNotFulfilledLineItems = data[1].count;
-        for(var i = 0; i < data[0].length; i++) {
+        for (var i = 0; i < data[0].length; i++) {
           // If Manual Mode And The fulfilledQuantity is default 0 then prefill with full order Quantity
           if (!this.enableBarcode && data[0][i].fulfilledQuantity === 0) {
             data[0][i].fulfilledQuantity = data[0][i].orderQuantity;
@@ -192,7 +198,7 @@ export class FulfillComponent implements OnInit {
         if (searchedOrderItem.showDiscrepancyAlert) {
           this.discrepancyOrderItem = searchedOrderItem;
           this.discrepancyModal.show();
-        }else{
+        } else {
           this.toastr.success('Row updated');
         }
         this.searchInputRef.nativeElement.focus();
@@ -201,7 +207,7 @@ export class FulfillComponent implements OnInit {
         this.totalFulfilledLineItems = this.fulfilledLineItems.length;
         if (!searchedOrderItem.fulfilled) {
           this.notFulfilledLineItems = [searchedOrderItem];
-        }else {
+        } else {
           this.notFulfilledLineItems = [];
         }
         this.totalNotFulfilledLineItems = this.notFulfilledLineItems.length;
@@ -255,7 +261,7 @@ export class FulfillComponent implements OnInit {
           this.getFulfilledStockOrderLineItems();
           this.getNotFulfilledStockOrderLineItems();
           console.log('approved', res);
-        this.toastr.success('Row Updated');
+          this.toastr.success('Row Updated');
         },
         err => {
           this.toastr.error('Error Updating Row');
@@ -322,6 +328,7 @@ export class FulfillComponent implements OnInit {
       console.log(err);
     })
   }
+
   /**
    * @description If the scan mode is changed
    * to barcode scanning, then focus is set back to the sku
@@ -338,6 +345,7 @@ export class FulfillComponent implements OnInit {
       this.searchSKUFocused = false;
     }
   }
+
   /**
    * @description Code to detect barcode scanner input and
    * calls the search sku function

@@ -46,7 +46,13 @@ var fetchVendToken = function (orgModelId, options) {
                     });
                     let vendConfig = OrgModel.app.get('integrations').vend;
                     let tokenService = 'https://' + orgModelInstance.integrationModels()[0].domain_prefix + vendConfig.token_service;
-                    return vendSdk.refreshAccessToken(tokenService, vendConfig.client_id, vendConfig.client_secret, orgModelInstance.integrationModels()[0].refresh_token, orgModelInstance.integrationModels()[0].domain_prefix);
+                    return vendSdk.refreshAccessToken(
+                        tokenService,
+                        vendConfig.client_id,
+                        vendConfig.client_secret,
+                        orgModelInstance.integrationModels()[0].refresh_token,
+                        orgModelInstance.integrationModels()[0].domain_prefix
+                    );
                 }
                 else {
                     logger.debug({
@@ -587,6 +593,55 @@ var getVendOutlets = function (orgModelId, options) {
         });
 };
 
+var getVendProductTypes = function (orgModelId, options) {
+    logger.debug({
+        message: 'Will fetch all product types',
+        functionName: 'getVendProductTypes',
+        options,
+    });
+    var token = null;
+    return fetchVendToken(orgModelId)
+        .then(function (response) {
+            token = response;
+            logger.debug({
+                message: 'Found access token, will fetch integration details for org',
+                functionName: 'getVendProductTypes',
+                options
+            });
+            return getVendConnectionInfo(orgModelId, options)
+        })
+        .catch(function (error) {
+            logger.error({
+                message: 'Could not fetch integration details of org',
+                error,
+                functionName: 'getVendProductTypes',
+                options
+            });
+            return Promise.reject('Could not fetch integration details of org');
+        })
+        .then(function (connectionInfo) {
+            logger.debug({
+                message: 'Found connection info, will fetch vend product types',
+                functionName: 'getVendProductTypes',
+                options
+            });
+            var argsForProductTypes = vendSdk.args.productTypes.fetch();
+            //change args to fetch all product types at once
+            argsForProductTypes.after = 0;
+            argsForProductTypes.pageSize = 1000;
+            return vendSdk.productTypes.fetch(argsForProductTypes, connectionInfo);
+        })
+        .catch(function (error) {
+            logger.error({
+                message: 'Could not fetch vend product types',
+                errMessage: error,
+                functionName: 'getVendProductTypes',
+                options
+            });
+            return Promise.reject('Could not fetch vend outlets');
+        });
+};
+
 var getVendUsers = function (orgModelId, options) {
     logger.debug({
         message: 'Will fetch all vend users',
@@ -753,6 +808,7 @@ var getVendPaymentTypes = function (storeConfigId) {
                 return q.reject('An error occurred while getting vend paymentTypes.\n' + JSON.stringify(error));
             });
 };
+
 
 var setDesiredStockLevelForVend = function (storeConfigId, outletId, productId, desiredStockLevel) {
     //log.debug('setDesiredStockLevelForVend()', 'storeConfigId: ' + storeConfigId);
@@ -1122,6 +1178,7 @@ module.exports = function (dependencies) {
         getVendUsers: getVendUsers,
         getVendTaxes: getVendTaxes,
         getVendPaymentTypes: getVendPaymentTypes,
+        getVendProductTypes: getVendProductTypes,
         setDesiredStockLevelForVend: setDesiredStockLevelForVend,
         lookupBySku: lookupBySku,
         createStockOrderForVend: createStockOrderForVend,
