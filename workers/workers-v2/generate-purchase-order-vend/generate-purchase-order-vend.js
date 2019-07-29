@@ -318,21 +318,19 @@ var runMe = function (payload, config, taskId, messageId) {
                 .then(function (result) {
                     var options = {
                         method: 'POST',
-                        uri: utils.API_URL + '/api/OrgModels/' + orgModelId + '/sendWorkerStatus',
+                        uri: utils.PUBLISH_URL,
                         json: true,
                         headers: {
-                            'Authorization': payload.loopbackAccessToken.id,
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'Accept-Charset': 'UTF-8'
+                            'Authorization': payload.loopbackAccessToken.id
                         },
-                        body: {
-                            messageId: messageId,
-                            userId: payload.loopbackAccessToken.userId,
-                            data: {
-                                success: true
-                            }
-                        }
+                        body: new utils.Notification(
+                            utils.workerType.CREATE_PURCHASE_ORDER_VEND,
+                            payload.eventType,
+                            utils.workerStatus.SUCCESS,
+                            {success: true, reportModelId: payload.reportModelId},
+                            payload.callId
+                        )
+
                     };
                     logger.debug({
                         commandName: commandName,
@@ -352,18 +350,19 @@ var runMe = function (payload, config, taskId, messageId) {
                     });
                     var options = {
                         method: 'POST',
-                        uri: utils.API_URL + '/api/OrgModels/' + orgModelId + '/sendWorkerStatus',
+                        uri: utils.PUBLISH_URL,
                         json: true,
                         headers: {
                             'Authorization': payload.loopbackAccessToken.id
                         },
-                        body: {
-                            messageId: messageId,
-                            userId: payload.loopbackAccessToken.userId,
-                            data: {
-                                success: false
-                            }
-                        }
+                        body: new utils.Notification(
+                            utils.workerType.CREATE_PURCHASE_ORDER_VEND,
+                            payload.eventType,
+                            utils.workerStatus.FAILED,
+                            {success: false, reportModelId: payload.reportModelId},
+                            payload.callId
+                        )
+
                     };
                     var slackMessage = 'Generate purchase order Vend Worker failed for reportModelId ' + reportModelId + '\n taskId' +
                         ': ' + taskId + '\nMessageId: ' + messageId;

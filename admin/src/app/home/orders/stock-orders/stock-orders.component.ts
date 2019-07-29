@@ -1,8 +1,8 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {OrgModelApi} from "../../../shared/lb-sdk/services/custom/OrgModel";
 import {ActivatedRoute, Router} from '@angular/router';
-import {Observable, combineLatest} from 'rxjs';
-import {map, mergeMap} from 'rxjs/operators';
+import {Observable, combineLatest, Subscription} from 'rxjs';
+import {debounceTime, map, mergeMap} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
 import {UserProfileService} from "../../../shared/services/user-profile.service";
 import {TypeaheadMatch} from 'ngx-bootstrap';
@@ -10,6 +10,8 @@ import {FileUploader} from 'ng2-file-upload';
 import {LoopBackConfig, LoopBackAuth} from "../../../shared/lb-sdk";
 import {constants} from '../../../shared/constants/constants';
 import {StockOrdersResolverService} from "./services/stock-orders-resolver.service";
+import {EventSourceService} from '../../../shared/services/event-source.service';
+import {HttpParams} from '@angular/common/http';
 
 @Component({
   selector: 'app-stock-orders',
@@ -18,7 +20,7 @@ import {StockOrdersResolverService} from "./services/stock-orders-resolver.servi
 })
 
 
-export class StockOrdersComponent implements OnInit {
+export class StockOrdersComponent implements OnInit, OnDestroy {
 
   public userProfile: any;
   public loading = false;
@@ -67,6 +69,7 @@ export class StockOrdersComponent implements OnInit {
   public userStores;
   public orderConfigurations: any;
   public selectedOrderConfigurationId;
+  private subscriptions: Subscription[] = [];
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -74,6 +77,7 @@ export class StockOrdersComponent implements OnInit {
               private toastr: ToastrService,
               private _userProfileService: UserProfileService,
               private auth: LoopBackAuth,
+              private _eventSourceService: EventSourceService,
               private _stockOrdersResolverService: StockOrdersResolverService) {
   }
 
@@ -86,7 +90,9 @@ export class StockOrdersComponent implements OnInit {
         this.stores = this.userProfile.storeModels.filter(x => x.isWarehouse !== true);
         this.suppliers = data.stockOrders.suppliers;
         this.orderConfigurations = data.stockOrders.orderConfigurations;
-        this.selectedOrderConfigurationId = this.orderConfigurations[0].id;
+        if (this.orderConfigurations && this.orderConfigurations.length > 0) {
+          this.selectedOrderConfigurationId = this.orderConfigurations[0].id;
+        }
       },
       error => {
         console.log('error', error)
@@ -195,6 +201,11 @@ export class StockOrdersComponent implements OnInit {
       this.pendingGeneratedOrdersCount = stockOrders.pendingGeneratedOrdersCount;
       this.totalGeneratedOrders = stockOrders.generatedOrdersCount;
       this.totalGeneratedOrdersPages = this.totalGeneratedOrders / this.ordersLimitPerPage;
+      this.generatedOrders.forEach(order => {
+        if (order.state === 'Processing') {
+          this.waitForStockOrderNotification(order.id)
+        }
+      })
     }
 
     if (stockOrders.fulfillOrders) {
@@ -227,31 +238,22 @@ export class StockOrdersComponent implements OnInit {
   }
 
   generateStockOrderMSD() {
-    let EventSource = window['EventSource'];
-    let url = '/api/OrgModels/' + this.userProfile.orgModelId + '/generateStockOrderMSD?access_token=' + this.auth.getAccessTokenId() + '&type=json';
-    if (this.selectedStoreId)
-      url += '&storeModelId=' + this.selectedStoreId;
-    if (this.selectedWarehouseId)
-      url += '&warehouseModelId=' + this.selectedWarehouseId;
-    if (this.selectedCategoryId)
-      url += '&categoryModelId=' + this.selectedCategoryId;
-    let es = new EventSource(url);
-    let toastr = this.toastr;
-    toastr.info('Generating stock order...');
-    es.onmessage = function (event) {
-      let response = JSON.parse(event.data);
-      if (response.success) {
-        toastr.success('Order generated');
-
-      }
-      else {
-        toastr.error('Error in generating order');
-      }
-      es.close();
-    };
-    es.onerror = function (event) {
-      toastr.error('Error in generating order');
-    }
+    this.loading = true;
+    this.orgModelApi.generateStockOrderMSD(
+        this.userProfile.orgModelId,
+        this.selectedStoreId,
+        this.selectedWarehouseId,
+        this.selectedCategoryId
+    ).subscribe(reportModelData => {
+      this.loading = false;
+      this.toastr.info('Generating stock order');
+      console.log(reportModelData);
+      this.generatedOrders.unshift({...reportModelData.data, backgroundEffect: true});
+      this.waitForStockOrderNotification(reportModelData.callId)
+    }, error => {
+      this.loading = false;
+      this.toastr.error('Error in generating order');
+    });
   };
 
   generateStockOrderVend() {
@@ -264,6 +266,7 @@ export class StockOrdersComponent implements OnInit {
       this.uploader.onSuccessItem = (item: any, response: any, status: number, headers: any): any => {
         this.loading = false;
         this.toastr.info('Importing stock order from file...');
+        this.waitForFileImportWorker();
       };
       this.uploader.onErrorItem = (item: any, response: any, status: number, headers: any): any => {
         this.loading = false;
@@ -272,40 +275,55 @@ export class StockOrdersComponent implements OnInit {
         console.log('status', status);
         this.toastr.error('Error importing stock order from file');
       };
-    }
-    else if (!this.selectedStoreId) {
-      this.toastr.error('Select a store to deliver to');
-      return;
-    }
-    else if (this.selectedSupplierId) {
-      let url = '/api/OrgModels/' + this.userProfile.orgModelId + '/generateStockOrderVend?access_token=' + this.auth.getAccessTokenId() + '&type=json';
-      url += '&supplierModelId=' + this.selectedSupplierId;
-      url += '&storeModelId=' + this.selectedStoreId;
-      url += '&name=' + this.orderName;
-      url += '&warehouseModelId=' + this.selectedWarehouseId;
-      let EventSource = window['EventSource'];
-      let es = new EventSource(url);
-      let toastr = this.toastr;
-      toastr.info('Generating stock order...');
-      es.onmessage = function (event) {
-        es.close();
-        let response = JSON.parse(event.data);
-        if (response.success) {
-          toastr.success('Order generated');
-        }
-        else {
-          toastr.error('Error in generating order');
-        }
-      };
-      es.onerror = function (event) {
-        toastr.error('Error in generating order');
-      }
-    }
-    else {
+    } else if (this.selectedSupplierId) {
+        this.loading = true;
+
+        this.orgModelApi.generateStockOrderVend(
+            this.userProfile.orgModelId,
+            this.selectedStoreId,
+            this.selectedSupplierId,
+            this.orderName || '',
+            this.selectedWarehouseId
+            ).subscribe(reportModelData => {
+              this.loading = false;
+              this.toastr.info('Generating stock order');
+              console.log(reportModelData);
+              this.generatedOrders.unshift({...reportModelData.data, backgroundEffect: true});
+              this.waitForStockOrderNotification(reportModelData.callId)
+        }, error => {
+              this.loading = false;
+              this.toastr.error('Error in generating order');
+      })
+    } else {
       this.toastr.error('Select a supplier or upload a file to generate order from');
       return;
     }
   };
+
+  waitForStockOrderNotification(callId) {
+    const EventSourceUrl = `/notification/${callId}/waitForResponseAPI`;
+    this.subscriptions.push(
+    this._eventSourceService.connectToStream(EventSourceUrl)
+        .subscribe(([event, es]) => {
+          console.log(event);
+          es.close();
+          this._stockOrdersResolverService.fetchGeneratedStockOrders(1, 0, event.data.reportModelId)
+              .subscribe(reportModel => {
+                const reportIndex = this.generatedOrders.findIndex((report) => report.id === event.data.reportModelId);
+                this.generatedOrders[reportIndex] = reportModel.generatedOrders[0];
+                this.totalGeneratedOrders = reportModel.generatedOrdersCount;
+                this.totalGeneratedOrdersPages = this.totalGeneratedOrders / this.ordersLimitPerPage;
+                if (event.data.success === true) {
+                  this.toastr.success('Generated Stock Order Success');
+                } else {
+                  this.toastr.error('Error Generating Stock Order');
+                }
+                this.fetchOrderRowCounts();
+              });
+
+        })
+    );
+  }
 
   searchCategory(searchToken) {
     return this.orgModelApi.getCategoryModels(this.userProfile.orgModelId, {
@@ -329,4 +347,28 @@ export class StockOrdersComponent implements OnInit {
     this.selectedCategoryId = e.item.id;
   }
 
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(subscription => {
+      if (subscription) {
+        subscription.unsubscribe()
+      }
+    })
+  }
+
+  private waitForFileImportWorker() {
+    const EventSourceUrl = `/notification/${this.userProfile.userId}/waitForResponse`;
+    this.subscriptions.push(
+        this._eventSourceService.connectToStream(EventSourceUrl)
+            .subscribe(([event, es]) => {
+              console.log(event);
+              es.close();
+              if (event.data.success === true) {
+                this.toastr.success('File Imported Successfully');
+                this.fetchOrders('generated')
+              }else {
+                this.toastr.error('File Import Failed ');
+              }
+            })
+    );
+  }
 }

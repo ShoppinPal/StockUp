@@ -126,6 +126,15 @@ var runMe = function (payload, config, taskId, messageId) {
                 supplierStoreCode = supplierStoreCode ? '#' + supplierStoreCode : '';
                 var TODAYS_DATE = new Date();
                 var name = payload.name || storeModelInstance.name + ' - ' + supplierStoreCode + ' ' + supplierModelInstance.name + ' - ' + TODAYS_DATE.getFullYear() + '-' + (TODAYS_DATE.getMonth() + 1) + '-' + TODAYS_DATE.getDate();
+                if (payload.reportModelId){
+                    return Promise.resolve({
+                        ops: [
+                            {
+                                _id: payload.reportModelId
+                            }
+                        ]
+                    });
+                }
                 return db.collection('ReportModel').insertOne({
                     name: name,
                     userModelId: ObjectId(payload.loopbackAccessToken.userId), // explicitly setup the foreignKeys for related models
@@ -357,18 +366,24 @@ var runMe = function (payload, config, taskId, messageId) {
                     message: `Will change the status of report to ${REPORT_STATES.GENERATED}`
                 });
                 if (response === 'ERROR_REPORT') {
-                    return db.collection('ReportModel').updateOne({_id: ObjectId(reportModel._id)}, {
+                    return Promise.all([
+                        db.collection('ReportModel').updateOne({_id: ObjectId(reportModel._id)}, {
                         $set: {
                             state: REPORT_STATES.PROCESSING_FAILURE
                         }
-                    });
+                    }),
+                        response
+                    ]);
                 }
                 else {
-                    return db.collection('ReportModel').updateOne({_id: ObjectId(reportModel._id)}, {
+                    return Promise.all([
+                        db.collection('ReportModel').updateOne({_id: ObjectId(reportModel._id)}, {
                         $set: {
                             state: REPORT_STATES.GENERATED
                         }
-                    });
+                    }),
+                        response
+                    ]);
                 }
             })
             .catch(function (error) {
@@ -378,6 +393,13 @@ var runMe = function (payload, config, taskId, messageId) {
                     messageId
                 });
                 return Promise.reject('Could not update report status');
+            })
+            .then(function([updateResult, result]){
+                if (result === 'ERROR_REPORT'){
+                    return Promise.reject('Error while processing order');
+                } else {
+                    return Promise.resolve(updateResult);
+                }
             })
             .then(function (response) {
                 logger.debug({
@@ -390,18 +412,19 @@ var runMe = function (payload, config, taskId, messageId) {
             .then(function (response) {
                 var options = {
                     method: 'POST',
-                    uri: utils.API_URL + '/api/OrgModels/' + payload.orgModelId + '/sendWorkerStatus',
+                    uri: utils.PUBLISH_URL,
                     json: true,
                     headers: {
                         'Authorization': payload.loopbackAccessToken.id
                     },
-                    body: {
-                        messageId: messageId,
-                        userId: payload.loopbackAccessToken.userId,
-                        data: {
-                            success: true
-                        }
-                    }
+                    body: new utils.Notification(
+                           utils.workerType.GENERATE_STOCK_ORDER_VEND,
+                           payload.eventType,
+                           utils.workerStatus.SUCCESS,
+                            {success: true, reportModelId: payload.reportModelId},
+                            payload.callId
+                        )
+
                 };
                 logger.debug({
                     message: 'Generated stock order, will send the status to worker',
@@ -419,18 +442,19 @@ var runMe = function (payload, config, taskId, messageId) {
                 });
                 var options = {
                     method: 'POST',
-                    uri: utils.API_URL + '/api/OrgModels/' + payload.orgModelId + '/sendWorkerStatus',
+                    uri: utils.PUBLISH_URL,
                     json: true,
                     headers: {
                         'Authorization': payload.loopbackAccessToken.id
                     },
-                    body: {
-                        messageId: messageId,
-                        userId: payload.loopbackAccessToken.userId,
-                        data: {
-                            success: false
-                        }
-                    }
+                    body: new utils.Notification(
+                        utils.workerType.GENERATE_STOCK_ORDER_VEND,
+                        payload.eventType,
+                        utils.workerStatus.FAILED,
+                        {success: false, reportModelId: payload.reportModelId},
+                        payload.callId
+                    )
+
                 };
                 logger.debug({
                     message: 'Could not insert line items to report model, will send the following error',

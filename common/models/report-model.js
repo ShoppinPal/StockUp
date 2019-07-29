@@ -353,7 +353,7 @@ module.exports = function (ReportModel) {
     }
 
 
-    ReportModel.generateStockOrderMSD = function (orgModelId, storeModelId, warehouseModelId, categoryModelId, options) {
+    ReportModel.generateStockOrderMSD = function (orgModelId, storeModelId, warehouseModelId, categoryModelId, res,  options) {
         logger.debug({
             message: 'Will initiate worker to generate stock order for MSD',
             storeModelId,
@@ -362,22 +362,86 @@ module.exports = function (ReportModel) {
             functionName: 'generateStockOrderMSD',
             options,
         });
-        var payload = {
-            orgModelId: orgModelId,
-            storeModelId: storeModelId,
-            warehouseModelId: warehouseModelId,
-            categoryModelId: categoryModelId,
-            loopbackAccessToken: options.accessToken,
-            op: 'generateStockOrderMSD'
-        };
-        return workerUtils.sendPayLoad(payload)
-            .then(function (response) {
-                logger.debug({
-                    message: 'Sent generateStockOrderMSD to worker',
-                    options,
-                    response,
-                    functionName: 'generateStockOrderMSD'
+
+        return ReportModel.app.models.StoreModel.findOne({
+            where: {
+                objectId: storeModelId
+            }
+        }) .catch(function (error) {
+            logger.error({
+                message: 'Could not find a store with this id',
+                storeModelId,
+                error,
+            });
+            return Promise.reject('Could not find a store with this id');
+        }).then(function (storeModelInstance) {
+            logger.debug({
+                message: 'Found store, will create a report model',
+                storeModelInstance,
+            });
+            var name;
+            if(!name) {
+                const TODAYS_DATE = new Date();
+                name = storeModelInstance.name + ' - ' + TODAYS_DATE.getFullYear() + '-' + (TODAYS_DATE.getMonth() + 1) + '-' + TODAYS_DATE.getDate();
+            }
+            return ReportModel.create({
+                name: name,
+                orgModelId,
+                userModelId: options.accessToken.userId, // explicitly setup the foreignKeys for related models
+                storeModelId,
+                categoryModelId,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                state: REPORT_STATES.PROCESSING,
+                deliverFromStoreModelId: warehouseModelId,
+                percentagePushedToMSD: 0,
+                transferOrderNumber: null,
+                transferOrderCount: 0
+            });
+        }).catch(function (error) {
+                logger.error({
+                    error,
+                    message: 'Could not create report model for this store',
+                    storeModelId
                 });
+                return Promise.reject('Could not create report model for this store');
+            })
+
+        .then(reportInstance => {
+            res.send({
+                eventType: workerUtils.messageFor.MESSAGE_FOR_API,
+                callId: reportInstance.id,
+                message: 'Stock order generation initiated',
+                data: reportInstance
+            });
+            var payload = {
+                orgModelId: orgModelId,
+                storeModelId: storeModelId,
+                warehouseModelId: warehouseModelId,
+                categoryModelId: categoryModelId,
+                loopbackAccessToken: options.accessToken,
+                op: 'generateStockOrderMSD',
+                eventType: workerUtils.messageFor.MESSAGE_FOR_API,
+                callId: reportInstance.id,
+                reportModelId: reportInstance.id,
+            };
+            logger.debug({
+                message: 'Report model instance created with STATUS processing',
+                storeModelId,
+                reportInstance,
+                functionName: 'generateStockOrderMSD',
+                options,
+            });
+            logger.debug({
+                message: 'Will initiate worker to generate stock order for Vend',
+                storeModelId,
+                payload,
+                functionName: 'generateStockOrderMSD',
+                options,
+            });
+            return workerUtils.sendPayLoad(payload);
+        })
+            .then(function (response) {
                 return Promise.resolve('Stock order generation initiated');
             })
             .catch(function (error) {
@@ -391,7 +455,7 @@ module.exports = function (ReportModel) {
             });
     };
 
-    ReportModel.receiveConsignment = function (orgModelId, reportModelId, options) {
+    ReportModel.receiveConsignment = function (orgModelId, reportModelId, res, options) {
         logger.debug({
             message: 'Will initiate worker to receive order in Vend',
             reportModelId,
@@ -402,8 +466,16 @@ module.exports = function (ReportModel) {
             orgModelId: orgModelId,
             reportModelId: reportModelId,
             loopbackAccessToken: options.accessToken,
-            op: 'receiveConsignment'
+            op: 'receiveConsignment',
+            eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
+            callId: options.accessToken.userId,
         };
+        res.send({
+            eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
+            callId: options.accessToken.userId,
+            message: 'Receive Consignment Initiated',
+            data: {}
+        });
         return workerUtils.sendPayLoad(payload)
             .then(function (response) {
                 logger.debug({
@@ -425,32 +497,132 @@ module.exports = function (ReportModel) {
             });
     };
 
-    ReportModel.generateStockOrderVend = function (orgModelId, storeModelId, supplierModelId, name, warehouseModelId, options) {
+    ReportModel.generateStockOrderVend = function (orgModelId, storeModelId, supplierModelId, name, warehouseModelId, res, options) {
         logger.debug({
-            message: 'Will initiate worker to generate stock order for Vend',
+            message: 'Will Create a report model and initialize worker to process it',
             storeModelId,
             supplierModelId,
+            name,
+            warehouseModelId,
             functionName: 'generateStockOrderVend',
             options,
         });
-        var payload = {
-            orgModelId: orgModelId,
-            storeModelId: storeModelId,
-            supplierModelId: supplierModelId,
-            name: name,
-            warehouseModelId: warehouseModelId,
-            loopbackAccessToken: options.accessToken,
-            op: 'generateStockOrderVend'
-        };
-        return workerUtils.sendPayLoad(payload)
+        return Promise.all([
+                    ReportModel.app.models.StoreModel.findOne({
+                        where: {
+                            objectId: storeModelId //Defined in store-model.json as id
+                        }
+                    }),
+                    ReportModel.app.models.SupplierModel.findOne({
+                        where: {
+                            id: supplierModelId
+                        }
+                    })
+                ])
+             .catch(function (error) {
+                logger.error({
+                    message: 'Could not find roles, store and supplier details',
+                    error
+                });
+                return Promise.reject('Could not find store and supplier details');
+            }).then(function (response) {
+                var storeModelInstance = response[0];
+                var supplierModelInstance = response[1];
+                if (!storeModelInstance) {
+                    logger.error({
+                        message: 'Could not find store info, will exit',
+                        response,
+                    });
+                    return Promise.reject('Could not find store info, will exit');
+                }
+                if (!supplierModelInstance) {
+                    logger.error({
+                        message: 'Could not find supplier info, will exit',
+                        response
+                    });
+                    return Promise.reject('Could not find supplier info, will exit');
+                }
+                logger.debug({
+                    message: 'Found supplier and store info, will create a new report model',
+                    response
+                });
+                var supplierStoreCode = supplierModelInstance.storeIds ? supplierModelInstance.storeIds[storeModelId] : '';
+                supplierStoreCode = supplierStoreCode ? '#' + supplierStoreCode : '';
+                var TODAYS_DATE = new Date();
+                if (!name) {
+                    name = storeModelInstance.name + ' - ' + supplierStoreCode + ' ' + supplierModelInstance.name + ' - ' + TODAYS_DATE.getFullYear() + '-' + (TODAYS_DATE.getMonth() + 1) + '-' + TODAYS_DATE.getDate();
+                }
+                return ReportModel.create({
+                    name: name,
+                    userModelId: options.accessToken.userId, // explicitly setup the foreignKeys for related models
+                    state: REPORT_STATES.PROCESSING,
+                    storeModelId: storeModelId,
+                    supplierModelId: supplierModelId,
+                    orgModelId: orgModelId,
+                    deliverFromStoreModelId: warehouseModelId,
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                });
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not create a report model',
+                    error,
+                });
+                return Promise.reject('Could not create a report model');
+            })
+            .then(reportInstance => {
+                logger.debug({
+                    message: 'Report model instance created with STATUS processing',
+                    storeModelId,
+                    supplierModelId,
+                    reportInstance,
+                    functionName: 'generateStockOrderVend',
+                    options,
+                });
+                res.send({
+                    callId: reportInstance.id,
+                    eventType: workerUtils.messageFor.MESSAGE_FOR_API,
+                    message: 'Stock order generation initiated',
+                    data: reportInstance
+                });
+            var payload = {
+                orgModelId: orgModelId,
+                storeModelId: storeModelId,
+                supplierModelId: supplierModelId,
+                name: name,
+                reportModelId: reportInstance.id,
+                callId: reportInstance.id,
+                eventType: workerUtils.messageFor.MESSAGE_FOR_API,
+                warehouseModelId: warehouseModelId,
+                loopbackAccessToken: options.accessToken,
+                op: 'generateStockOrderVend'
+            };
+                logger.debug({
+                    message: 'Will initiate worker to generate stock order for Vend',
+                    storeModelId,
+                    supplierModelId,
+                    payload,
+                    functionName: 'generateStockOrderVend',
+                    options,
+                });
+            return workerUtils.sendPayLoad(payload);
+            })
             .then(function (response) {
                 logger.debug({
-                    message: 'Sent generateStockOrderVend to worker',
-                    options,
-                    response,
-                    functionName: 'generateStockOrderVend'
+                    data: {
+                        MessageId: response.MessageId,
+                        message: 'Order generation in progress'
+                    },
                 });
-                return Promise.resolve('Stock order generation initiated');
+            logger.debug({
+                message: 'Sent generateStockOrderVend to worker',
+                options,
+                response,
+                functionName: 'generateStockOrderVend'
+            });
+
+            return Promise.resolve();
             })
             .catch(function (error) {
                 logger.error({
@@ -464,7 +636,7 @@ module.exports = function (ReportModel) {
     };
 
 
-    ReportModel.createPurchaseOrderVend = function (orgModelId, reportModelId, options) {
+    ReportModel.createPurchaseOrderVend = function (orgModelId, reportModelId, res, options) {
         logger.debug({
             message: 'Will initiate worker to create purchase order in Vend',
             reportModelId,
@@ -475,7 +647,9 @@ module.exports = function (ReportModel) {
             orgModelId: orgModelId,
             reportModelId: reportModelId,
             loopbackAccessToken: options.accessToken,
-            op: 'createPurchaseOrderVend'
+            op: 'createPurchaseOrderVend',
+            callId: options.accessToken.userId,
+            eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
         };
         var report;
         return ReportModel.findById(reportModelId)
@@ -506,6 +680,12 @@ module.exports = function (ReportModel) {
                         message: 'Will call createPurchaseOrderVend worker',
                         options,
                         functionName: 'createPurchaseOrderVend'
+                    });
+                    res.send({
+                        eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
+                        callId: options.accessToken.userId,
+                        message: 'Purchase Order Generation initiated',
+                        data: {}
                     });
                     return workerUtils.sendPayLoad(payload);
                 }else {
@@ -662,7 +842,7 @@ module.exports = function (ReportModel) {
     };
 
 
-    ReportModel.createTransferOrderMSD = function (orgModelId, reportModelId, options) {
+    ReportModel.createTransferOrderMSD = function (orgModelId, reportModelId, res, options) {
         logger.debug({
             message: 'Will initiate worker to create transfer order in MSD',
             reportModelId,
@@ -673,7 +853,9 @@ module.exports = function (ReportModel) {
             orgModelId: orgModelId,
             reportModelId: reportModelId,
             loopbackAccessToken: options.accessToken,
-            op: 'createTransferOrderMSD'
+            op: 'createTransferOrderMSD',
+            callId: options.accessToken.userId,
+            eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
         };
         var report;
         return ReportModel.findById(reportModelId)
@@ -699,7 +881,13 @@ module.exports = function (ReportModel) {
                         functionName: 'createTransferOrderMSD'
                     });
                     return Promise.reject('Transfer order creation in progress');
-                }else {
+                } else {
+                    res.send({
+                        eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
+                        callId: options.accessToken.userId,
+                        message: 'Transfer Order Generation initiated',
+                        data: {}
+                    });
                     return workerUtils.sendPayLoad(payload);
                 }
             })
@@ -978,7 +1166,7 @@ module.exports = function (ReportModel) {
             });
     };
 
-    ReportModel.importVendOrderFromFile = function (id, req, options) {
+    ReportModel.importVendOrderFromFile = function (id, req, res,options) {
         let orderConfigModelId;
         return readMultiPartFormData(req, options)
             .catch(function (err) {
@@ -1041,7 +1229,9 @@ module.exports = function (ReportModel) {
                     },
                     orderConfigModelId: orderConfigModelId,
                     loopbackAccessToken: options.accessToken,
-                    op: 'importVendOrderFromFile'
+                    op: 'importVendOrderFromFile',
+                    callId: options.accessToken.userId,
+                    eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
                 };
                 return workerUtils.sendPayLoad(payload);
             })

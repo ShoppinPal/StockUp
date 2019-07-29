@@ -5,6 +5,8 @@ const MongoClient = require('mongodb').MongoClient;
 var ObjectId = require('mongodb').ObjectID;
 const dbUrl = process.env.DB_URL;
 const Promise = require('bluebird');
+var utils = require('./jobs/utils/utils.js');
+const rp = require('request-promise');
 var retryCount = process.env.WORKER_SYNC_RETRIES;
 const retryInterval = process.env.WORKER_SYNC_RETRY_INTERVAL_IN_SECONDS;
 var db = null;
@@ -167,6 +169,42 @@ function routeToWorker(syncModels) {
                     functionName: 'routeToWorker',
                     eachOrg
                 });
+            }).then(function (response) {
+                logger.debug({
+                    message: 'Will notify status of sync',
+                    syncModels: orgSyncModels[eachOrg],
+                    functionName: 'routeToWorker'
+                });
+                var options = {
+                    method: 'POST',
+                    uri: utils.PUBLISH_URL,
+                    json: true,
+                    body: []
+
+                };
+                orgSyncModels[eachOrg].forEach(syncModel => {
+                    options.body.push(new utils.Notification(
+                        syncModel.name,
+                        utils.messageFor.MESSAGE_FOR_API,
+                        utils.workerStatus.PROCESSING,
+                        {loading: true, orgId: eachOrg},
+                        syncModel._id
+                    ));
+                });
+                logger.debug({
+                    message: 'Notified Users',
+                    options
+                });
+                return rp(options);
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not Notify Users.Will Move On',
+                    error,
+                    eachOrg,
+                    functionName: 'routeToWorker'
+                });
+                // return Promise.reject('Could not notify users ');
             })
             .then(function (response) {
                 logger.debug({
@@ -214,7 +252,29 @@ function routeToWorker(syncModels) {
                     $set: {
                         syncInProcess: false
                     }
-                })
+                });
+            }).then(function (response) {
+                var options = {
+                    method: 'POST',
+                    uri: utils.PUBLISH_URL,
+                    json: true,
+                    body: []
+
+                };
+                orgSyncModels[eachOrg].forEach(syncModel => {
+                    options.body.push(new utils.Notification(
+                        syncModel.name,
+                        utils.messageFor.MESSAGE_FOR_API,
+                        utils.workerStatus.SUCCESS,
+                        {loading: false, orgId: eachOrg},
+                        syncModel._id
+                    ));
+                });
+                logger.debug({
+                    message: 'Notified Users',
+                    options
+                });
+                return rp(options);
             })
             .catch(function (error) {
                 logger.error({

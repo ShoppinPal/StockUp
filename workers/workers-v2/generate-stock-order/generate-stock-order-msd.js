@@ -66,18 +66,19 @@ var runMe = function (payload, config, taskId, messageId) {
                 .then(function (result) {
                     var options = {
                         method: 'POST',
-                        uri: utils.API_URL + '/api/OrgModels/' + orgModelId + '/sendWorkerStatus',
+                        uri: utils.PUBLISH_URL,
                         json: true,
                         headers: {
                             'Authorization': payload.loopbackAccessToken.id
                         },
-                        body: {
-                            messageId: messageId,
-                            userId: payload.loopbackAccessToken.userId,
-                            data: {
-                                success: true
-                            }
-                        }
+                        body: new utils.Notification(
+                            utils.workerType.GENERATE_STOCK_ORDER_MSD,
+                            payload.eventType,
+                            utils.workerStatus.SUCCESS,
+                            {success: true, reportModelId: payload.reportModelId},
+                            payload.callId
+                        )
+
                     };
                     logger.debug({
                         commandName: commandName,
@@ -97,18 +98,19 @@ var runMe = function (payload, config, taskId, messageId) {
                     });
                     var options = {
                         method: 'POST',
-                        uri: utils.API_URL + '/api/OrgModels/' + orgModelId + '/sendWorkerStatus',
+                        uri: utils.PUBLISH_URL,
                         json: true,
                         headers: {
                             'Authorization': payload.loopbackAccessToken.id
                         },
-                        body: {
-                            messageId: messageId,
-                            userId: payload.loopbackAccessToken.userId,
-                            data: {
-                                success: false
-                            }
-                        }
+                        body: new utils.Notification(
+                            utils.workerType.GENERATE_STOCK_ORDER_MSD,
+                            payload.eventType,
+                            utils.workerStatus.FAILED,
+                            {success: false, reportModelId: payload.reportModelId},
+                            payload.callId
+                        )
+
                     };
                     logger.debug({
                         message: 'Could not insert line items to report model, will send the following error',
@@ -229,20 +231,30 @@ function generateStockOrder(payload, config, taskId, messageId) {
             if(!payload.name) {
                 name = storeModelInstance.name + ' - ' + TODAYS_DATE.getFullYear() + '-' + (TODAYS_DATE.getMonth() + 1) + '-' + TODAYS_DATE.getDate();
             }
-            return db.collection('ReportModel').insert({
-                name: name,
-                orgModelId: ObjectId(orgModelId),
-                userModelId: ObjectId(payload.loopbackAccessToken.userId), // explicitly setup the foreignKeys for related models
-                storeModelId: ObjectId(storeModelId),
-                categoryModelId: ObjectId(categoryModelId),
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                state: REPORT_STATES.PROCESSING,
-                deliverFromStoreModelId: ObjectId(payload.warehouseModelId),
-                percentagePushedToMSD: 0,
-                transferOrderNumber: null,
-                transferOrderCount: 0
-            });
+            if (!payload.reportModelId) {
+                return db.collection('ReportModel').insert({
+                    name: name,
+                    orgModelId: ObjectId(orgModelId),
+                    userModelId: ObjectId(payload.loopbackAccessToken.userId), // explicitly setup the foreignKeys for related models
+                    storeModelId: ObjectId(storeModelId),
+                    categoryModelId: ObjectId(categoryModelId),
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                    state: REPORT_STATES.PROCESSING,
+                    deliverFromStoreModelId: ObjectId(payload.warehouseModelId),
+                    percentagePushedToMSD: 0,
+                    transferOrderNumber: null,
+                    transferOrderCount: 0
+                });
+            } else {
+                return Promise.resolve({
+                    ops: [
+                        {
+                            _id: payload.reportModelId
+                        }
+                    ]
+                });
+            }
         })
         .catch(function (error) {
             logger.error({
@@ -499,14 +511,15 @@ function generateStockOrder(payload, config, taskId, messageId) {
                     commandName,
                     messageId
                 });
-                return db.collection('ReportModel').updateOne({
-                    _id: reportModel._id
+                return Promise.all([
+                db.collection('ReportModel').updateOne({
+                    _id: ObjectId(reportModel._id)
                 }, {
                     $set: {
                         state: REPORT_STATES.PROCESSING_FAILURE,
                         totalRows: totalRows
                     }
-                });
+                }), result]);
             }
             else {
                 logger.debug({
@@ -515,13 +528,20 @@ function generateStockOrder(payload, config, taskId, messageId) {
                     commandName,
                     messageId
                 });
-                return db.collection('ReportModel').updateOne({
-                    _id: reportModel._id
+                return Promise.all([
+                    db.collection('ReportModel').updateOne({
+                    _id: ObjectId(reportModel._id)
                 }, {
                     $set: {
                         state: REPORT_STATES.GENERATED
                     }
-                });
+                })]);
+            }
+        }).then(function([updateResult, result]){
+            if (result === 'ERROR_REPORT'){
+                return Promise.reject('Error while processing order');
+            } else {
+                return Promise.resolve();
             }
         });
 }

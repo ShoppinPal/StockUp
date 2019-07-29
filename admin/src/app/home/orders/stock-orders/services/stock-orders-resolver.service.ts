@@ -56,7 +56,7 @@ private userProfile: any;
         }))
   };
 
-  fetchGeneratedStockOrders = (limit?: number, skip?: number): Observable<any> => {
+  fetchGeneratedStockOrders = (limit?: number, skip?: number, reportModelId ?: string): Observable<any> => {
     limit = limit || 10;
     skip = skip || 0;
     let filter = {
@@ -103,6 +103,9 @@ private userProfile: any;
       }
     };
 
+    if (reportModelId){
+      generatedReportsFilter.where['id'] = reportModelId
+    }
     let fetchOrders = combineLatest(
       this.orgModelApi.getReportModels(this.userProfile.orgModelId, generatedReportsFilter),
       this.orgModelApi.countReportModels(this.userProfile.orgModelId, generatedReportsCountFilter),

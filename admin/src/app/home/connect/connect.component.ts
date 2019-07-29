@@ -1,41 +1,79 @@
-import {Component, OnInit, ChangeDetectorRef} from '@angular/core';
+import {Component, OnInit, ChangeDetectorRef, OnDestroy} from '@angular/core';
 import {OrgModelApi} from "../../shared/lb-sdk/services/custom/OrgModel";
 import {ActivatedRoute} from '@angular/router';
 import {UserProfileService} from "../../shared/services/user-profile.service";
 import {ToastrService} from 'ngx-toastr';
-import {Observable, empty} from 'rxjs';
+import {Subscription} from 'rxjs';
 import {mergeMap} from 'rxjs/operators';
-
+import {EventSourceService} from '../../shared/services/event-source.service';
+import {HttpParams} from '@angular/common/http';
+import {LoopBackAuth} from '../../shared/lb-sdk/services/core';
 @Component({
   selector: 'app-connect',
   templateUrl: './connect.component.html',
-  styleUrls: ['./connect.component.scss']
+  styleUrls: ['./connect.component.scss'],
 })
-export class ConnectComponent implements OnInit {
+export class ConnectComponent implements OnInit, OnDestroy {
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
               private _userProfileService: UserProfileService,
-              private cd: ChangeDetectorRef,
+              private auth: LoopBackAuth,
+              private changeDetector: ChangeDetectorRef,
+              private eventSourceService: EventSourceService,
               private toastr: ToastrService) {
   }
 
   public userProfile: any = this._userProfileService.getProfileData();
   public integration: any;
   public syncModels: number;
+  public syncModelsData: any;
   public loading: boolean = false;
   public selectedCompany: string;
   public databaseName: string;
+  public syncing = {
+      products: false,
+      inventory: false,
+      suppliers: false
+  };
+  private subscriptions: Subscription[] = [];
+
+  getSyncEvents(syncModels): void {
+      let params = new HttpParams();
+      params = params.set('access_token', this.auth.getAccessTokenId());
+      params = params.set('type', 'json');
+      syncModels.forEach(model => {
+          const url = `/notification/${model.id}/waitForResponseAPI?${params.toString()}`;
+          this.subscriptions.push(
+              this.eventSourceService.connectToStream(
+                  url
+              ).subscribe(([status, es]) => {
+                  this.syncing[status.eventType] = status.data.loading;
+                  this.changeDetector.detectChanges();
+              })
+          )
+      });
+  }
 
   ngOnInit() {
     this._route.data.subscribe((data: any) => {
         this.integration = data.integration.integration;
         this.syncModels = data.integration.syncModels;
+        this.syncModelsData = data.integration.syncModelsData;
         this.selectedCompany = this.integration && this.integration.length ? this.integration[0].dataAreaId : '';
+        this.subscribeForSyncEvents();
       },
       error => {
         console.log('error', error)
       });
+  }
+
+  subscribeForSyncEvents() {
+      this.ngOnDestroy();
+      this.syncModelsData.forEach((syncData) => {
+          this.syncing[syncData.name] = syncData.syncInProcess;
+      });
+      this.getSyncEvents(this.syncModelsData)
   }
 
   private connect(integrationType: string) {
@@ -58,7 +96,7 @@ export class ConnectComponent implements OnInit {
           console.log('vend sync', data);
           this.syncModels = data.syncStatus;
           this.loading = false;
-          this.cd.markForCheck();
+          this.getSyncModels()
         },
         err => {
           this.loading = false;
@@ -80,7 +118,6 @@ export class ConnectComponent implements OnInit {
             console.log('msd sync', data);
             this.syncModels = data.syncStatus;
             this.loading = false;
-            this.cd.markForCheck();
           },
           err => {
             this.loading = false;
@@ -96,7 +133,6 @@ export class ConnectComponent implements OnInit {
           console.log(' stopped msd sync', data);
           this.loading = false;
           this.syncModels = 0;
-          this.cd.markForCheck();
         },
         err => {
           this.loading = false;
@@ -184,7 +220,6 @@ export class ConnectComponent implements OnInit {
           this.loading = false;
           this.toastr.success('Company saved successfully');
           this.integration[0].dataAreaId = this.selectedCompany;
-          this.cd.markForCheck();
         },
         err => {
           this.loading = false;
@@ -221,9 +256,15 @@ export class ConnectComponent implements OnInit {
   }
 
   checkSync(dataObject) {
-    // return this.syncModels.find(function (eachSyncModel) {
-    //   return eachSyncModel.name === dataObject;
-    // }) ? true : false;
+    return !!this.syncModelsData.find(function (eachSyncModel) {
+        return eachSyncModel.name === dataObject;
+    });
+  }
+
+  getSyncObject(dataObject): any {
+    return this.syncModelsData.find(function (eachSyncModel) {
+        return eachSyncModel.name === dataObject;
+    });
   }
 
   toggleSync(dataObject) {
@@ -256,6 +297,21 @@ export class ConnectComponent implements OnInit {
     //     this.loading = false;
     //   })
   }
+
+  getSyncModels(){
+      this.orgModelApi.getSyncModels(this.userProfile.orgModelId).subscribe(syncModels => {
+          this.syncModelsData = syncModels;
+          this.syncModels = syncModels.length;
+          this.subscribeForSyncEvents();
+      })
+  }
+
+    ngOnDestroy(): void {
+      // Unsubscribing closes all event source connections for this url
+      if (this.subscriptions) {
+          this.subscriptions.forEach(subscription => subscription.unsubscribe());
+      }
+    }
 
 
 }

@@ -23,10 +23,6 @@ const routes: Routes = [
         data: {
           title: 'Stock Orders'
         }
-        ,
-        resolve: {
-          stockOrders: StockOrdersResolverService
-        }
       },
       {
         path: 'stuck-orders',

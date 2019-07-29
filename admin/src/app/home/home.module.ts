@@ -9,7 +9,6 @@ import {WorkerSettingsModule} from './worker-settings/worker-settings.module';
 import {StoresModule} from './stores/stores.module';
 import {PaymentsModule} from './payments/payments.module';
 import {SharedModule} from './../shared/shared.module';
-import {SuppliersModule} from "./suppliers/suppliers.module";
 import {ConnectModule} from "./connect/connect.module";
 import {ReorderPointsModule} from "./reorder-points/reorder-points.module";
 import {FileImportsModule} from "./file-imports/file-imports.module";
@@ -24,7 +23,6 @@ import {FileImportsModule} from "./file-imports/file-imports.module";
     FileImportsModule,
     SharedModule,
     StoresModule,
-    SuppliersModule,
     PaymentsModule,
     ReorderPointsModule,
     WorkerSettingsModule

@@ -116,4 +116,26 @@ services:
     ports:
      - "1433:1433"
 
+  notification:
+    image: "node:8.16"
+    volumes:
+      - './notification-service:/notification-service'
+    working_dir: /notification-service
+    command: node index.js
+#    command: ./node_modules/nodemon/bin/nodemon.js index.js
+    env_file:
+      - ./notification-service/notification.env
+    ports:
+      - "3001:3001"
+    depends_on:
+      - redis
+
+  redis:
+    image: "bitnami/redis:4.0"
+    environment:
+      - REDIS_PASSWORD=password
+      - REDIS_EXTRA_FLAGS=--maxmemory 100mb
+    ports:
+      - 6379:6379
+
 

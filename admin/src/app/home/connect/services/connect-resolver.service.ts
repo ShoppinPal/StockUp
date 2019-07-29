@@ -18,13 +18,15 @@ export class ConnectResolverService {
   resolve(): Observable<any> {
     let fetchData = combineLatest(
       this.orgModelApi.getIntegrationModels(this.userProfile.orgModelId),
-      this.orgModelApi.countSyncModels(this.userProfile.orgModelId)
+      // this.orgModelApi.countSyncModels(this.userProfile.orgModelId),
+      this.orgModelApi.getSyncModels(this.userProfile.orgModelId)
     );
     return fetchData.pipe(map((data: any) => {
       console.log('data', data);
       return {
         integration: data[0],
-        syncModels: data[1].count
+        syncModels: data[1].length,
+        syncModelsData: data[1]
       }
     }, (err: any) => {
       console.log('err', err);

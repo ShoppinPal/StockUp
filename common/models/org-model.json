@@ -359,20 +359,6 @@
       "principalType": "ROLE",
       "principalId": "orgAdmin",
       "permission": "ALLOW",
-      "property": "sendWorkerStatus"
-    },
-    {
-      "accessType": "EXECUTE",
-      "principalType": "ROLE",
-      "principalId": "storeManager",
-      "permission": "ALLOW",
-      "property": "sendWorkerStatus"
-    },
-    {
-      "accessType": "EXECUTE",
-      "principalType": "ROLE",
-      "principalId": "orgAdmin",
-      "permission": "ALLOW",
       "property": "createTransferOrderMSD"
     },
     {
@@ -659,7 +645,15 @@
     },
     {
       "accessType": "EXECUTE",
+      "principalType": "ROLE",
       "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "scanBarcodeStockOrder"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
       "permission": "ALLOW",
       "property": "scanBarcodeStockOrder"
     }

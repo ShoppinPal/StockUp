@@ -105,13 +105,10 @@ const routes: Routes = [
       },
       {
         path: 'suppliers',
-        component: SuppliersComponent,
         data: {
           title: 'Suppliers'
         },
-        resolve: {
-          suppliers: SuppliersResolverService
-        }
+        loadChildren: './suppliers/suppliers.module#SuppliersModule'
       },
       {
         path: 'reorder-points',

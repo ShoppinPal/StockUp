@@ -17,7 +17,6 @@ const routes: Routes = [
         path: '',
         resolve: {
             access: AccessService,
-            stockOrders: StockOrdersResolverService
         },
         data: {
             title: 'Stock Orders'

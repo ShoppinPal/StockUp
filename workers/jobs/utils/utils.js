@@ -605,3 +605,41 @@ exports.REPORT_STATES = {
 
 var port = process.env.APP_PORT_NUMBER ? ':' + process.env.APP_PORT_NUMBER : '';
 exports.API_URL = process.env.APP_PROTOCOL + '://' + process.env.APP_HOST_NAME + port;
+const notificationPort = process.env.NOTIFICATION_PORT ? ':' + process.env.NOTIFICATION_PORT : '';
+exports.PUBLISH_URL = process.env.NOTIFICATION_PROTOCOL + '://' + process.env.NOTIFICATION_HOST + notificationPort
+    + '/'+ process.env.NOTIFICATION_PATH;
+
+exports.messageFor = {
+    MESSAGE_FOR_CLIENT: 'MESSAGE_FOR_CLIENT',
+    MESSAGE_FOR_API: 'MESSAGE_FOR_API'
+};
+
+exports.workerType = {
+    GENERATE_STOCK_ORDER_VEND: 'GENERATE_STOCK_ORDER_VEND',
+    GENERATE_STOCK_ORDER_MSD: 'GENERATE_STOCK_ORDER_MSD',
+    GENERATE_TRANSFER_ORDER_MSD: 'GENERATE_TRANSFER_ORDER_MSD',
+    RECEIVE_CONSIGNMENT_VEND: 'RECEIVE_CONSIGNMENT_VEND',
+    CREATE_PURCHASE_ORDER_VEND: 'CREATE_PURCHASE_ORDER_VEND',
+    SYNC_WORKER_PRODUCT: 'products',
+    SYNC_WORKER_INVENTORY: 'inventory',
+    SYNC_WORKER_SUPPLIERS: 'suppliers',
+};
+
+exports.workerStatus = {
+    STARTED: 'STARTED',
+    PROCESSING: 'PROCESSING',
+    SUCCESS: 'SUCCESS',
+    FAILED: 'FAILED',
+};
+
+exports.Notification = function (eventType, messageFor, status, data, id) {
+    this.eventType= eventType;
+    this.messageFor = messageFor;
+    this.status = status;
+    this.data = data;
+    if (messageFor === exports.messageFor.MESSAGE_FOR_CLIENT){
+        this.userId = id;
+    } else if (messageFor === exports.messageFor.MESSAGE_FOR_API){
+        this.callId = id;
+    }
+};
