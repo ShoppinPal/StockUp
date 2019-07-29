@@ -504,6 +504,13 @@
     {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "syncVendProductTypes"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
       "principalId": "storeManager",
       "permission": "ALLOW",
       "property": "downloadReportModelCSV"
@@ -635,7 +642,7 @@
       "principalType": "ROLE",
       "principalId": "orgAdmin",
       "permission": "ALLOW",
-      "property": "updateSupplierStoreMappings"
+      "property": "editSupplierStoreMappings"
     },
     {
       "principalType": "ROLE",

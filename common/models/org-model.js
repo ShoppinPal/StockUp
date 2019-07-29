@@ -813,6 +813,33 @@ module.exports = function (OrgModel) {
                 });
         };
 
+        OrgModel.remoteMethod('syncVendProductTypes', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/syncVendProductTypes', verb: 'get'},
+            returns: {arg: 'result', type: 'string', root: true}
+        });
+
+        OrgModel.syncVendProductTypes = function (id, options, cb) {
+            logger.debug({
+                message: 'Will sync Vend product types',
+                options,
+                functionName: 'syncVendProductTypes'
+            });
+            return OrgModel.app.models.SyncModel.syncVendProductTypes(id, options)
+                .catch(function (error) {
+                    logger.error({
+                        message: 'Could not sync vend ProductTypes',
+                        error,
+                        functionName: 'syncVendProductTypes',
+                        options
+                    });
+                    return Promise.reject('Could not sync vend product types');
+                });
+        };
+
         OrgModel.remoteMethod('inviteUser', {
             accepts: [
                 {arg: 'id', type: 'string', required: true},
@@ -1109,28 +1136,29 @@ module.exports = function (OrgModel) {
                 });
         };
 
-        OrgModel.remoteMethod('updateSupplierStoreMappings', {
+
+        OrgModel.remoteMethod('editSupplierStoreMappings', {
             accepts: [
                 {arg: 'id', type: 'string', required: true},
                 {arg: 'mappings', type: 'array', required: true},
                 {arg: 'options', type: 'object', http: 'optionsFromRequest'}
             ],
-            http: {path: '/:id/updateSupplierStoreMappings', verb: 'post'},
+            http: {path: '/:id/editSupplierStoreMappings', verb: 'post'},
             returns: {arg: 'result', type: 'string'}
         });
 
-        OrgModel.updateSupplierStoreMappings = function (id, mappings, options) {
+        OrgModel.editSupplierStoreMappings = function (id, mappings, options) {
             logger.debug({
                 message: 'Will update supplier store mappings',
-                functionName: 'updateSupplierStoreMappings',
+                functionName: 'editSupplierStoreMappings',
                 options
             });
-            return OrgModel.app.models.SupplierStoreMapping.updateSupplierStoreMappings(id, mappings, options)
+            return OrgModel.app.models.SupplierStoreMapping.editSupplierStoreMappings(id, mappings, options)
                 .catch(function (error) {
                     logger.debug({
                         message: 'Error updating mappings',
                         error,
-                        functionName: 'updateSupplierStoreMappings',
+                        functionName: 'editSupplierStoreMappings',
                         options
                     });
                     return Promise.reject('Error updating mappings');

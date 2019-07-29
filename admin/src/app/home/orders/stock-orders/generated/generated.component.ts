@@ -38,6 +38,8 @@ export class GeneratedComponent implements OnInit, OnDestroy {
   public selectedBox = null;
   public editable: boolean;
   private subscriptions: Subscription[] = [];
+  public sortAscending = true;
+  public sortColumn = 'productModelSku';
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -61,10 +63,11 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       });
 
 
-    if(this.order.state === constants.REPORT_STATES.GENERATED ||
-        this.order.state === constants.REPORT_STATES.APPROVAL_IN_PROCESS ||
-        this.order.state === constants.REPORT_STATES.PROCESSING_FAILURE) {
-        this.editable = true;
+    if (this.order.state === constants.REPORT_STATES.GENERATED ||
+      this.order.state === constants.REPORT_STATES.APPROVAL_IN_PROCESS ||
+      this.order.state === constants.REPORT_STATES.ERROR_SENDING_TO_SUPPLIER ||
+      this.order.state === constants.REPORT_STATES.PROCESSING_FAILURE) {
+      this.editable = true;
     }
 
     //update order to state "Approval in Process" from "Generated"
@@ -79,22 +82,25 @@ export class GeneratedComponent implements OnInit, OnDestroy {
   }
 
   getApprovedStockOrderLineItems(limit?: number, skip?: number, productModelId?: string) {
-
     if (!(limit && skip)) {
       limit = 100;
       skip = 0;
     }
+    let sortOrder = this.sortAscending ? 'ASC': 'DESC';
     let filter = {
       where: {
         reportModelId: this.order.id,
         approved: true,
         productModelId: productModelId
       },
-      include: {
-        relation: 'productModel'
-      },
+      include: [
+        {
+          relation: 'productModel'
+        }
+      ],
       limit: limit,
-      skip: skip
+      skip: skip,
+      order: 'categoryModelName ' + sortOrder + ', ' + this.sortColumn + ' ' + sortOrder
     };
     let countFilter = {
       reportModelId: this.order.id,
@@ -123,17 +129,21 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       limit = 100;
       skip = 0;
     }
+    let sortOrder = this.sortAscending ? 'ASC': 'DESC';
     let filter = {
       where: {
         reportModelId: this.order.id,
         approved: false,
         productModelId: productModelId
       },
-      include: {
-        relation: 'productModel',
-      },
+      include: [
+        {
+          relation: 'productModel'
+        }
+      ],
       limit: limit,
-      skip: skip
+      skip: skip,
+      order: 'categoryModelName ' + sortOrder + ', ' + this.sortColumn + ' ' + sortOrder
     };
     let countFilter = {
       reportModelId: this.order.id,
@@ -225,7 +235,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
 
   updateLineItems(lineItems, data: any) {
     // Approve All Button Click when no items are present
-    if (data.approved && this.totalNotApprovedLineItems + this.totalApprovedLineItems  === 0) {
+    if (data.approved && this.totalNotApprovedLineItems + this.totalApprovedLineItems === 0) {
       this.toastr.error('No Items to Approve');
       return
     }

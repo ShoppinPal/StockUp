@@ -199,6 +199,20 @@ export class ConnectComponent implements OnInit, OnDestroy {
         });
   }
 
+  private syncVendProductTypes() {
+    this.loading = true;
+    this.orgModelApi.syncVendProductTypes(this.userProfile.orgModelId)
+      .subscribe((data: any) => {
+          this.loading = false;
+          this.toastr.success('Synced Product Types successfully');
+        },
+        err => {
+          this.loading = false;
+          console.log('err', err);
+          this.toastr.error('Error in syncing Product Types');
+        });
+  }
+
   private syncVendUsers() {
     this.loading = true;
     this.orgModelApi.syncVendUsers(this.userProfile.orgModelId)

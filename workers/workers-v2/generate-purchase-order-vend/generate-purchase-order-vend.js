@@ -267,7 +267,7 @@ var runMe = function (payload, config, taskId, messageId) {
                         _id: ObjectId(reportModelId)
                     }, {
                         $set: {
-                            state: REPORT_STATES.FULFILMENT_FAILURE
+                            state: REPORT_STATES.ERROR_SENDING_TO_SUPPLIER
                         }
                     })
                         .then(function (response) {

@@ -31,32 +31,6 @@ var runMe = function (orgModelId, syncModels) {
                     });
                     return MongoClient.connect(dbUrl, {promiseLibrary: Promise});
                 })
-                // return utils.savePayloadConfigToFiles(payload)
-                //     .then(function () {
-                //         TODO: remove these relative paths
-                // var nconf = require('./../../node_modules/nconf/lib/nconf');
-                // nconf.file('client', {file: 'config/client.json'})
-                // .file('settings', {file: 'config/settings.json'}) // NOTE: useful for quicker testing
-                // .file('oauth', {file: 'config/oauth.json'});
-                // logger.debug({orgModelId,messageId: messageId, commandName: commandName, nconf: nconf.get()});
-                // vendConnectionInfo = utils.loadOauthTokens();
-                // return vendSdk.versions.fetchAll(vendConnectionInfo);
-                // })
-                // .then(function (versions) {
-                //     logger.debug({orgModelId,
-                //         messageId: messageId,
-                //         commandName: commandName,
-                //         message: 'Found latest data object versions from vend',
-                //         data: versions.data
-                //     });
-                //     logger.debug({orgModelId,
-                //         messageId: messageId,
-                //         commandName: commandName,
-                //         message: 'Will connect to the mongo database'
-                //     });
-                //     vendNewDataObjectVersions = versions.data;
-                //     return MongoClient.connect(dbUrl, {promiseLibrary: Promise});
-                // })
                 .catch(function (error) {
                     logger.error({
                         orgModelId,
