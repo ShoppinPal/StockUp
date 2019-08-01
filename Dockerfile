@@ -11,6 +11,12 @@ WORKDIR /apps/warehouse/admin
 RUN npm install
 RUN npm run admin
 
+FROM node:8.16 as notification
+RUN mkdir -p /apps/warehouse
+COPY . /apps/warehouse
+WORKDIR /apps/warehouse/notification-service
+RUN npm install
+
 FROM node:6.11.1
 ENV MONGOLAB_URI=mongodb://admin:c64e8e7b05a6d35@35.200.175.36:27017/warehouse-local
 RUN sed -i '2d' /etc/apt/sources.list && apt-get -y update && apt-get -y dist-upgrade
@@ -47,4 +53,5 @@ ENV SCHEME=http
 ENTRYPOINT [ "./docker-entrypoint.sh" ]
 EXPOSE 3000
 COPY --from=adminbuilder /apps/warehouse/client/admin /apps/warehouse/client/admin
+COPY --from=notification /apps/warehouse/notification-service/node_modules /apps/warehouse/notification-service/node_modules
 CMD [ "node","server/server.js" ]
