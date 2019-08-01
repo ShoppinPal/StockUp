@@ -32,11 +32,11 @@
             <div class="col-sm-3">
               <span class="input-group-btn" *ngIf="editable">
                 <button class="btn btn-success" type="button"
-                        (click)="createTransferOrder()"
+                        (click)="emailModal.show()"
                         *ngIf="userProfile.integrationType === 'msdynamics' && !creatingTransferOrder">Create Transfer Order</button>
                 <button class="btn btn-success" type="button"
                         *ngIf="userProfile.integrationType === 'vend'"
-                        (click)="createPurchaseOrderVend()">Send order to Supplier</button>
+                        (click)="emailModal.show()">Send order to Supplier</button>
               </span>
             </div>
             <div class="col-sm-3">
@@ -368,3 +368,45 @@
     <!--/.col-->
   </div>
 </div>
+
+<!-- Email Modal -->
+<div bsModal [config]="{keyboard: false, backdrop: 'static'}" #emailModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-success" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Email Report</h4>
+      </div>
+      <div class="modal-body">
+        <form>
+        <label><input type="checkbox" name="sendEmail" [(ngModel)]="emailModalData.sendEmail"> Send Email  to Supplier</label>
+          <div *ngIf="emailModalData.sendEmail">
+            <p>Multiple Emails can be comma(,) separated</p>
+            <div class="form-group col-sm-12">
+              <span>To: </span>
+              <input class="form-control" type="email" name="to" [(ngModel)]="emailModalData.to"/>
+            </div>
+          <div class="form-group col-sm-12">
+            <span>Cc: </span>
+            <input class="form-control" type="email" name="cc" [(ngModel)]="emailModalData.cc"/>
+          </div>
+            <div class="form-group col-sm-12">
+              <span>Bcc: </span>
+              <input class="form-control" type="email" name="bcc" [(ngModel)]="emailModalData.bcc"/>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button *ngIf="!(creatingPurchaseOrderVend || creatingTransferOrder)" type="button" class="btn btn-secondary" (click)="emailModal.hide()">Cancel</button>
+        <button [disabled]="creatingPurchaseOrderVend" *ngIf="userProfile.integrationType === 'vend'" type="button" class="btn btn-warning" (click)="createPurchaseOrderVend()">Send order to Supplier
+          <div [ngClass]="{'d-none': !creatingPurchaseOrderVend}" class="spinner-border spinner-border-sm spinner-margins" role="status"></div>
+        </button>
+        <button [disabled]="creatingTransferOrder" *ngIf="userProfile.integrationType === 'msdynamics'" type="button" class="btn btn-warning" (click)="createTransferOrder()">Create Transfer Order
+          <div [ngClass]="{'d-none': !creatingTransferOrder}" class="spinner-border spinner-border-sm spinner-margins" role="status"></div>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+  <!-- Email Modal -->

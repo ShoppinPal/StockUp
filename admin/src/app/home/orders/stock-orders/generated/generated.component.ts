@@ -40,7 +40,12 @@ export class GeneratedComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   public sortAscending = true;
   public sortColumn = 'productModelSku';
-
+  public emailModalData: any = {
+    sendEmail: false,
+    to: '',
+    cc: '',
+    bcc: ''
+  };
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
               private _router: Router,
@@ -55,6 +60,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
 
     this._route.data.subscribe((data: any) => {
         this.order = data.stockOrderDetails[0];
+        this.emailModalData.to = this.order.supplierModel.email || "";
         this.getNotApprovedStockOrderLineItems();
         this.getApprovedStockOrderLineItems();
       },
@@ -218,14 +224,21 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       this.creatingTransferOrder = true;
       this.loading = true;
       this.orgModelApi.createTransferOrderMSD(
-        this.userProfile.orgModelId,
-        this.order.id
+          this.userProfile.orgModelId,
+          this.order.id,
+          this.emailModalData.sendEmail,
+          {
+            to: this.emailModalData.to.split(','),
+            cc: this.emailModalData.cc? this.emailModalData.cc.split(','): [],
+            bcc: this.emailModalData.bcc? this.emailModalData.bcc.split(','): []
+          }
       ).subscribe(transferOrderRequest => {
         this.loading = false;
         this.toastr.info('Creating Transfer Order');
         this.waitForGeneration(transferOrderRequest.callId);
       }, error1 => {
         this.loading = false;
+        this.creatingTransferOrder = false;
         this.toastr.error('Error in creating transfer order in MSD')
       });
     }
@@ -238,13 +251,14 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       this.creatingPurchaseOrderVend = true;
       this.loading = true;
       this.orgModelApi.createPurchaseOrderVend(
-        this.userProfile.orgModelId,
-        this.order.id
+          this.userProfile.orgModelId,
+          this.order.id
       ).subscribe(purchaseOrderRequest => {
         this.loading = false;
         this.toastr.info('Creating Purchase Order');
         this.waitForGeneration(purchaseOrderRequest.callId);
       }, error1 => {
+        this.creatingPurchaseOrderVend = false;
         this.loading = false;
         this.toastr.error('Error in sending order to supplier')
       });

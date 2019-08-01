@@ -41,6 +41,12 @@ export class GeneratedResolverService implements Resolve<string> {
         state: {
           inq: allowedStates
         }
+      },
+      include: {
+        relation: 'supplierModel',
+        scope:{
+          fields: ['email']
+        }
       }
     };
     return this.orgModelApi.getReportModels(this.userProfile.orgModelId, filter).pipe(map((data: any) => {

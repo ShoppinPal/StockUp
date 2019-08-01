@@ -144,7 +144,15 @@ module.exports = function (ReportModel) {
 
     };
 
-    ReportModel.sendReportAsEmail = function (id, toEmailArray, ccEmailArray, bccEmailArray, cb) {
+    ReportModel.sendReportAsEmail = function (id, toEmailArray, ccEmailArray, bccEmailArray, options) {
+        logger.debug({
+            message: 'Parameters Received for sending report as mail',
+            toEmailArray,
+            ccEmailArray,
+            bccEmailArray,
+            functionName: 'sendReportAsEmail',
+            options
+        });
         var nodemailer = require('nodemailer');
         const papaparse = require('papaparse');
 
@@ -153,22 +161,8 @@ module.exports = function (ReportModel) {
             toEmailArray,
             ccEmailArray,
             bccEmailArray,
-            functionName: 'sendReportAsEmail'
-        });
-        toEmailArray.forEach(function (eachEmail) {
-            if (!validateEmail(eachEmail)) {
-                cb('Invalid Primary Email: ' + eachEmail);
-            }
-        });
-        ccEmailArray.forEach(function (eachEmail) {
-            if (!validateEmail(eachEmail)) {
-                cb('Invalid Cc Email: ' + eachEmail);
-            }
-        });
-        bccEmailArray.forEach(function (eachEmail) {
-            if (!validateEmail(eachEmail)) {
-                cb('Invalid Bcc Email: ' + eachEmail);
-            }
+            functionName: 'sendReportAsEmail',
+            options
         });
         aws.config.region = 'us-west-2';
         var transporter = nodemailer.createTransport({
@@ -178,39 +172,67 @@ module.exports = function (ReportModel) {
         });
         var report, csvArray = [], supplier, emailSubject, totalOrderQuantity = 0, totalSupplyCost = 0, htmlForPdf,
             csvReport;
-        ReportModel.findById(id, {
-            include: ['userModel', 'storeConfigModel']
-        })
-            .then(function (reportModelInstance) {
-                report = reportModelInstance;
-                logger.debug({log: {message: 'Found this report model', report: reportModelInstance}});
-                if (reportModelInstance.supplier) {
-                    logger.debug({log: {message: 'Will look for supplier for the report'}});
-                    return ReportModel.app.models.SupplierModel.find({
-                        where: {
-                            api_id: reportModelInstance.supplier.id
+        return Promise.each(toEmailArray,
+            function (eachEmail) {
+                if (!validateEmail(eachEmail)) {
+                    return Promise.reject('Invalid Primary Email: ' + eachEmail);
+                }
+            }).then(function () {
+                return Promise.each(ccEmailArray,
+                    function (eachEmail) {
+                        if (!validateEmail(eachEmail)) {
+                            return Promise.reject('Invalid Cc Email: ' + eachEmail);
                         }
                     });
-                }else {
-                    logger.debug({log: {message: 'Report is not specific to a supplier, need generate email? Don\'t know what to do MAN!!!'}});
-                    return Promise.resolve('noSupplier');
-                }
+            }).then(function () {
+                return Promise.each(bccEmailArray,
+                    function (eachEmail) {
+                        if (!validateEmail(eachEmail)) {
+                            return Promise.reject('Invalid Bcc Email: ' + eachEmail);
+                        }
+                    });
+            }).catch(function (error) {
+                logger.error({
+                    functionName: 'sendReportAsEmail',
+                    message: 'Email Verification Failed',
+                    error,
+                    options
+                });
+                return Promise.reject(error);
             })
-            .then(function (supplierInstance) {
-                logger.debug({log: {message: 'Found this supplier', supplier: supplierInstance[0]}});
-                if (supplierInstance === 'noSupplier') {
-                    emailSubject = 'Order #' + report.outlet.name + ' from ' + report.storeConfigModel().name;
-                }else {
-                    if (supplierInstance[0].storeIds && supplierInstance[0].storeIds[report.outlet.outletId]) {
-                        emailSubject = 'Order #' + report.outlet.name + '-' + supplierInstance[0].storeIds[report.outlet.outletId] + ' from ' + report.storeConfigModel().name;
-                    }else {
-                        emailSubject = 'Order #' + report.outlet.name + ' from ' + report.storeConfigModel().name;
-                    }
-                }
-                logger.debug({log: {message: 'Will look for stock line items for the report'}});
+            .then(function () {
+                return ReportModel.findById(id, {
+                    include: ['userModel', 'storeConfigModel', 'supplierModel', 'storeModel', 'orgModel']
+                });
+            })
+            .then(function (reportModelInstance) {
+                report = reportModelInstance;
+                const supplierInstance = reportModelInstance.supplierModel();
+                supplier = supplierInstance;
+                logger.debug({
+                    message: 'Found this supplier',
+                    supplier: supplierInstance,
+                    store: report.storeModel(),
+                    orgName: report.orgModel().name,
+                    functionName: 'sendReportAsEmail',
+                    options
+                });
+                emailSubject = 'Order #' + report.storeModel().name + ' from ' + report.orgModel().name;
+                logger.debug({
+                    functionName: 'sendReportAsEmail',
+                    message: 'Will look for stock line items for the report',
+                    options
+                });
                 return ReportModel.app.models.StockOrderLineitemModel.find({
                     where: {
-                        reportId: id
+                        reportModelId: id,
+                        approved: true
+                    },
+                    include: {
+                        relation: 'productModel',
+                        scope: {
+                            fields:['sku', 'name']
+                        }
                     }
                 });
             })
@@ -242,7 +264,11 @@ module.exports = function (ReportModel) {
                     '<th>Comments</th>' +
                     '</tr>';
                 htmlForPdf += '<h5>' + emailSubject + '</h5>';
-                logger.debug({log: {message: 'Found ' + lineItems.length + ' line items for the report, will convert to csv'}});
+                logger.debug({
+                    functionName: 'sendReportAsEmail',
+                    message: 'Found ' + lineItems.length + ' line items for the report, will convert to csv',
+                    options
+                });
 
                 for (var i = 0; i<lineItems.length; i++) {
                     if (lineItems[i].orderQuantity>0) {
@@ -250,19 +276,19 @@ module.exports = function (ReportModel) {
                         totalOrderQuantity += lineItems[i].orderQuantity;
                         totalSupplyCost += lineItems[i].supplyPrice * lineItems[i].orderQuantity;
                         csvArray.push({
-                            'SKU': lineItems[i].sku,
+                            'SKU': lineItems[i].productModel().sku,
                             'Ordered': lineItems[i].orderQuantity,
-                            'Product': lineItems[i].name,
-                            'Supplier Code': lineItems[i].supplierCode,
+                            'Product': lineItems[i].productModel().name,
+                            'Supplier Code': supplier.api_id,
                             'Supply cost': lineItems[i].supplyPrice,
                             'Total supply cost': lineItems[i].supplyPrice * lineItems[i].orderQuantity,
                             'Comments': lineItems[i].comments ? lineItems[i].comments.manager_in_process : ''
                         });
                         htmlForPdf += '<tr>' +
-                            '<td>' + lineItems[i].sku + '</td>' +
+                            '<td>' + lineItems[i].productModel().sku + '</td>' +
                             '<td>' + lineItems[i].orderQuantity + '</td>' +
-                            '<td>' + lineItems[i].name + '</td>' +
-                            '<td>' + lineItems[i].supplierCode + '</td>' +
+                            '<td>' + lineItems[i].productModel().name + '</td>' +
+                            '<td>' + supplier.api_id + '</td>' +
                             '<td>' + lineItems[i].supplyPrice + '</td>' +
                             '<td>' + (lineItems[i].supplyPrice * lineItems[i].orderQuantity) + '</td>' +
                             '<td>' + (lineItems[i].comments ? lineItems[i].comments.manager_in_process : '') + '</td>' +
@@ -287,7 +313,8 @@ module.exports = function (ReportModel) {
                     cc: ccEmailArray.toString(),
                     bcc: bccEmailArray.toString(),
                     subject: emailSubject,
-                    from: report.outlet.name + '\<' + report.userModel().email + '>',
+                    //from: report.storeModel().name + '\<' + report.userModel().email + '>',
+                    from: report.storeModel().name + '\<' + 'shrey@shoppinpal.com' + '>',
                     mailer: transporter,
                     text: 'Total Order Quantity: ' + totalOrderQuantity + '\n Total Supply Cost: ' + totalSupplyCost,
                     attachments: [
@@ -303,20 +330,24 @@ module.exports = function (ReportModel) {
                         }
                     ]
                 };
-                transporter.sendMail(emailOptions, function (err, success) {
-                    if (err) {
-                        logger.error({log: {error: err}});
-                        cb(err);
-                    }else {
-                        logger.debug({log: {message: 'Sent email successfully', response: success.messageId}});
-                        cb(null, true);
-                    }
+                return transporter.sendMail(emailOptions);
+            })
+            .then(function (mailSentDetails) {
+                logger.debug({
+                    message: 'Sent email successfully',
+                    response: mailSentDetails.messageId,
+                    functionName: 'sendReportAsEmail',
+                    options
                 });
-
             })
             .catch(function (error) {
-                logger.error({log: {error: error}});
-                cb(error);
+                logger.error({
+                    error: error,
+                    functionName: 'sendReportAsEmail',
+                    message: 'Unable to send E-mail',
+                    options
+                });
+                return Promise.reject('Unable to send E-mail');
             });
     };
 
