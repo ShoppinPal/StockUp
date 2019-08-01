@@ -66,6 +66,7 @@ module.exports = function (UserModel) {
                         username: userModelInstance.username,
                         email: userModelInstance.email,
                         roles: roles,
+                        name: userModelInstance.name,
                         userId: userModelInstance.id,
                         storeModels: userModelInstance.storeModels(),
                         integrationType: userModelInstance.orgModel().integrationModels().length ? userModelInstance.orgModel().integrationModels()[0].type : null,

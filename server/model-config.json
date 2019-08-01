@@ -123,5 +123,9 @@
   "SupplierStoreMapping": {
     "dataSource": "db",
     "public": false
+  },
+  "CommentModel": {
+    "dataSource": "db",
+    "public": false
   }
 }

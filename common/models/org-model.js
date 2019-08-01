@@ -621,7 +621,7 @@ module.exports = function (OrgModel) {
             returns: {arg: 'data', type: 'object', root: true}
         });
 
-        OrgModel.generateStockOrderMSD = function (id, storeModelId, warehouseModelId, categoryModelId, res,options) {
+        OrgModel.generateStockOrderMSD = function (id, storeModelId, warehouseModelId, categoryModelId, res, options) {
             return OrgModel.app.models.ReportModel.generateStockOrderMSD(id, storeModelId, warehouseModelId, categoryModelId, res, options)
                 .catch(function (error) {
                     logger.error({
@@ -674,7 +674,7 @@ module.exports = function (OrgModel) {
         });
 
         OrgModel.receiveConsignment = function (id, reportModelId, res, options) {
-            return OrgModel.app.models.ReportModel.receiveConsignment(id, reportModelId, res,options)
+            return OrgModel.app.models.ReportModel.receiveConsignment(id, reportModelId, res, options)
                 .catch(function (error) {
                     logger.error({
                         error,
@@ -1075,12 +1075,12 @@ module.exports = function (OrgModel) {
         });
 
         OrgModel.scanBarcodeStockOrder = function (id, scanType, productSku, reportModelId, force, options) {
-                logger.debug({
-                    id, scanType, productSku, reportModelId, force, options,
-                    message: 'StockOrder Scan to Process',
-                    functionName: 'scanBarcodeStockOrder'
-                });
-                return OrgModel.app.models.StockOrderLineitemModel.scanBarcodeStockOrder(scanType, productSku, id,reportModelId, force, options);
+            logger.debug({
+                id, scanType, productSku, reportModelId, force, options,
+                message: 'StockOrder Scan to Process',
+                functionName: 'scanBarcodeStockOrder'
+            });
+            return OrgModel.app.models.StockOrderLineitemModel.scanBarcodeStockOrder(scanType, productSku, id, reportModelId, force, options);
         };
 
         OrgModel.remoteMethod('fetchFileImportHeaders', {
@@ -1137,6 +1137,36 @@ module.exports = function (OrgModel) {
         };
 
 
+        OrgModel.remoteMethod('setDesiredStockLevelForVend', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'storeModelId', type: 'string', required: true},
+                {arg: 'productModelId', type: 'string', required: true},
+                {arg: 'desiredStockLevel', type: 'number', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/setDesiredStockLevelForVend', verb: 'post'},
+            returns: {arg: 'result', type: 'string'}
+        });
+
+        OrgModel.setDesiredStockLevelForVend = function (id, storeModelId, productModelId, desiredStockLevel, options) {
+            logger.debug({
+                message: 'Will update desired stock level for product in vend',
+                functionName: 'setDesiredStockLevelForVend',
+                options
+            });
+            return OrgModel.app.models.ProductModel.setDesiredStockLevelForVend(id, storeModelId, productModelId, desiredStockLevel, options)
+                .catch(function (error) {
+                    logger.debug({
+                        message: 'Error updating desired stock level',
+                        error,
+                        functionName: 'setDesiredStockLevelForVend',
+                        options
+                    });
+                    return Promise.reject('Error updating desired stock level');
+                });
+        };
+
         OrgModel.remoteMethod('editSupplierStoreMappings', {
             accepts: [
                 {arg: 'id', type: 'string', required: true},
@@ -1165,6 +1195,7 @@ module.exports = function (OrgModel) {
                 });
         };
 
+
         OrgModel.remoteMethod('listenSSE', {
             accepts: [
                 {arg: 'id', type: 'string', required: true},
@@ -1176,7 +1207,7 @@ module.exports = function (OrgModel) {
             returns: {arg: 'data', type: 'ReadableStream', root: true}
         });
 
-        OrgModel.listenSSE = function (id,req, res, options) {
+        OrgModel.listenSSE = function (id, req, res, options) {
             try {
                 logger.debug({
                     token: options.accessToken,
@@ -1184,7 +1215,7 @@ module.exports = function (OrgModel) {
                     functionName: 'listenSSE'
                 });
                 sse.setupSSE(req, res, options);
-            } catch (e) {
+            }catch (e) {
                 logger.error({
                     e,
                     message: 'Error creating SSE',
@@ -1211,13 +1242,13 @@ module.exports = function (OrgModel) {
                     functionName: 'notifyAll'
                 });
                 return OrgModel.app.models.UserModel.find({
-                    where:{
+                    where: {
                         orgModelId: id
                     }
                 }).then(users => {
                     logger.debug({
                         id,
-                        message: 'Will Notify Users of OrgId '+ id,
+                        message: 'Will Notify Users of OrgId ' + id,
                         users,
                         functionName: 'notifyAll'
                     });
@@ -1242,7 +1273,7 @@ module.exports = function (OrgModel) {
                     message: 'Could not send data to client',
                     functionName: 'sendReports'
                 });
-               return Promise.reject(e);
+                return Promise.reject(e);
             }
         };
 

@@ -84,10 +84,9 @@ var fetchVendToken = function (orgModelId, options) {
         })
         .then(function (res) {
             if (res !== 'tokenNotExpired') {
-                token = res.access_token;
                 logger.debug({
                     message: 'Will save the new access token to db',
-                    token,
+                    res,
                     functionName: 'fetchVendToken',
                     options
                 });
@@ -485,9 +484,12 @@ var getGlobalConfigValuesAsMap = function () {
 };
 
 var getVendConnectionInfo = function (orgModelId, options) {
-    return OrgModel.findById(orgModelId, {
-        include: 'integrationModels'
-    })
+    return fetchVendToken(orgModelId, options)
+        .then(function () {
+            return OrgModel.findById(orgModelId, {
+                include: 'integrationModels'
+            });
+        })
         .catch(function (error) {
             logger.error({
                 message: 'Could not fetch integration details of org',
@@ -499,7 +501,7 @@ var getVendConnectionInfo = function (orgModelId, options) {
         })
         .then(function (orgModelInstance) {
             logger.debug({
-                message: 'Found integration details, will fetch vend outlets',
+                message: 'Found integration details, will return connectionInfo',
                 orgModelInstance,
                 functionName: 'getVendConnectionInfo',
                 options
@@ -545,16 +547,8 @@ var getVendOutlets = function (orgModelId, options) {
         options,
     });
     var token = null;
-    return fetchVendToken(orgModelId)
-        .then(function (response) {
-            token = response;
-            logger.debug({
-                message: 'Found access token, will fetch integration details for org',
-                functionName: 'getVendOutlets',
-                options
-            });
-            return getVendConnectionInfo(orgModelId, options);
-        })
+
+    return getVendConnectionInfo(orgModelId, options)
         .catch(function (error) {
             logger.error({
                 message: 'Could not fetch integration details of org',
@@ -600,16 +594,7 @@ var getVendProductTypes = function (orgModelId, options) {
         options,
     });
     var token = null;
-    return fetchVendToken(orgModelId)
-        .then(function (response) {
-            token = response;
-            logger.debug({
-                message: 'Found access token, will fetch integration details for org',
-                functionName: 'getVendProductTypes',
-                options
-            });
-            return getVendConnectionInfo(orgModelId, options)
-        })
+    return getVendConnectionInfo(orgModelId, options)
         .catch(function (error) {
             logger.error({
                 message: 'Could not fetch integration details of org',
@@ -649,16 +634,8 @@ var getVendUsers = function (orgModelId, options) {
         options,
     });
     var token = null;
-    return fetchVendToken(orgModelId)
-        .then(function (response) {
-            token = response;
-            logger.debug({
-                message: 'Found access token, will fetch integration details for org',
-                functionName: 'getVendUsers',
-                options
-            });
-            return getVendConnectionInfo(orgModelId, options);
-        })
+
+    return getVendConnectionInfo(orgModelId, options)
         .catch(function (error) {
             logger.error({
                 message: 'Could not fetch integration details of org',
@@ -706,43 +683,24 @@ var getVendSuppliers = function (orgModelId, options) {
         options,
     });
     var token = null;
-    return fetchVendToken(orgModelId)
-        .then(function (response) {
-            token = response;
-            logger.debug({
-                message: 'Found access token, will fetch integration details for org',
-                functionName: 'getVendSuppliers',
-                options
-            });
-            return OrgModel.findById(orgModelId, {
-                include: 'integrationModels'
-            });
-        })
+    return getVendConnectionInfo(orgModelId, options)
         .catch(function (error) {
             logger.error({
                 message: 'Could not fetch integration details of org',
                 error,
-                functionName: 'getVendSuppliers',
+                functionName: 'getVendUsers',
                 options
             });
             return Promise.reject('Could not fetch integration details of org');
         })
-        .then(function (orgModelInstance) {
+        .then(function (connectionInfo) {
             logger.debug({
-                message: 'Found integration details, will fetch vend suppliers',
-                orgModelInstance,
-                functionName: 'getVendSuppliers',
+                message: 'Found connection info, will fetch vend users',
+                functionName: 'getVendUsers',
+                connectionInfo,
                 options
             });
             var argsForSuppliers = vendSdk.args.suppliers.fetch();
-            var vendConfig = OrgModel.app.get('integrations').vend;
-            console.log('accesstoken', token);
-            var connectionInfo = {
-                domainPrefix: orgModelInstance.integrationModels()[0].domain_prefix,
-                client_id: vendConfig.client_id,
-                client_secret: vendConfig.client_secret,
-                accessToken: token
-            };
             return vendSdk.suppliers.fetchAll(argsForSuppliers, connectionInfo);
         })
         .catch(function (error) {
@@ -810,12 +768,32 @@ var getVendPaymentTypes = function (storeConfigId) {
 };
 
 
-var setDesiredStockLevelForVend = function (storeConfigId, outletId, productId, desiredStockLevel) {
-    //log.debug('setDesiredStockLevelForVend()', 'storeConfigId: ' + storeConfigId);
-    logger.debug({log: {message: 'setDesiredStockLevelForVend()', storeConfigId: storeConfigId}});
-    // TODO: do we want to use redis? do we want to wire up vendSdk here?
-    return getVendConnectionInfo(storeConfigId)
+var setDesiredStockLevelForVend = function (orgModelId, outletId, productId, desiredStockLevel, options) {
+    logger.debug({
+        message: 'Set desired stock level',
+        orgModelId,
+        options,
+        productId,
+        outletId,
+        desiredStockLevel,
+        functionName: 'setDesiredStockLevelForVend'
+    });
+    return getVendConnectionInfo(orgModelId, options)
+        .catch(function (error) {
+            logger.error({
+                message: 'Could not fetch integration details of org',
+                error,
+                functionName: 'setDesiredStockLevelForVend',
+                options
+            });
+            return Promise.reject('Could not fetch integration details of org');
+        })
         .then(function (connectionInfo) {
+            logger.debug({
+                message: 'Fetched connection info, will update product',
+                options,
+                functionName: 'setDesiredStockLevelForVend'
+            });
             var product = {
                 id: productId //'3aab7379-15a2-11e3-a415-bc764e10976c'
             };
@@ -830,29 +808,44 @@ var setDesiredStockLevelForVend = function (storeConfigId, outletId, productId, 
             };
             return vendSdk.products.update({apiId: {value: product.id}, body: {value: updateData}}, connectionInfo);
         })
-        .then(function (response) {
-                var miniProduct = response.product;
-                if (miniProduct) {
-                    miniProduct = {
-                        id: response.product.id,
-                        handle: response.product.handle,
-                        name: response.product.name,
-                        sku: response.product.sku,
-                        inventory: _.find(response.product.inventory || [], function (inv) {
-                            return inv.outlet_id == outletId;
-                        }),
-                        updated_at: response.product.updated_at
-                    };
-                }
-                //log.debug('Vend product updated.\n', miniProduct);
-                logger.debug({log: {message: 'Vend product updated.', miniProduct: miniProduct}});
-                return q(response.product);
-            },
-            function (error) {
-                //log.error('Error getting Vend product:\n' + JSON.stringify(error));
-                logger.error({err: error, message: 'Error getting Vend product'});
-                return q.reject('An error occurred while getting vend product.\n' + JSON.stringify(error));
+        .catch(function (error) {
+            logger.error({
+                message: 'Could not update product desired stock level',
+                error,
+                reason: error,
+                functionName: 'setDesiredStockLevelForVend'
             });
+            return Promise.reject('Could not update product desired stock level')
+        })
+        .then(function (response) {
+            /*var miniProduct = response.product;
+             if (miniProduct) {
+             miniProduct = {
+             id: response.product.id,
+             handle: response.product.handle,
+             name: response.product.name,
+             sku: response.product.sku,
+             inventory: _.find(response.product.inventory || [], function (inv) {
+             return inv.outlet_id == outletId;
+             }),
+             updated_at: response.product.updated_at
+             };
+             }
+             logger.debug({log: {message: 'Vend product updated.', miniProduct: miniProduct}});
+             return q(response.product);
+             },
+             function (error) {
+             //log.error('Error getting Vend product:\n' + JSON.stringify(error));
+             logger.error({err: error, message: 'Error getting Vend product'});
+             return q.reject('An error occurred while getting vend product.\n' + JSON.stringify(error));*/
+            logger.debug({
+                message: 'Updated vend product desired stock level successfully',
+                response,
+                functionName: 'setDesiredStockLevelForVend',
+                options
+            });
+            return Promise.resolve('Updated vend product desired stock level successfully');
+        });
 };
 
 var lookupBySku = function (sku, storeModelInstance, reportModelInstance) {
@@ -889,15 +882,7 @@ var createStockOrderForVend = function (storeModelInstance, reportModelInstance,
         options,
         functionName: 'createStockOrderForVend'
     });
-    return fetchVendToken(orgModelId, options)
-        .then(function (token) {
-            logger.debug({
-                message: 'Fetched vend token, will fetch connection info',
-                options,
-                functionName: 'createStockOrderForVend'
-            });
-            return getVendConnectionInfo(orgModelId, options);
-        })
+    return getVendConnectionInfo(orgModelId, options)
         .then(function (connectionInfo) {
             var argsForStockOrder = vendSdk.args.consignments.stockOrders.create();
             argsForStockOrder.name.value = reportName;
