@@ -603,6 +603,32 @@ exports.REPORT_STATES = {
     "COMPLETE": "Complete"
 };
 
+exports.approvedStates = [
+    exports.REPORT_STATES.FULFILMENT_PENDING,
+    exports.REPORT_STATES.FULFILMENT_IN_PROCESS,
+    exports.REPORT_STATES.RECEIVING_PENDING,
+    exports.REPORT_STATES.RECEIVING_IN_PROCESS,
+    exports.REPORT_STATES.COMPLETE
+];
+exports.fulfilledStates = [
+    exports.REPORT_STATES.RECEIVING_PENDING,
+    exports.REPORT_STATES.RECEIVING_IN_PROCESS,
+    exports.REPORT_STATES.COMPLETE
+];
+exports.receivedStates = [
+    exports.REPORT_STATES.COMPLETE
+];
+exports.notReceivedStates = [
+    exports.REPORT_STATES.RECEIVING_PENDING,
+    exports.REPORT_STATES.RECEIVING_IN_PROCESS,
+];
+
+exports.notApprovedStates = [
+    exports.REPORT_STATES.APPROVAL_IN_PROCESS,
+    exports.REPORT_STATES.GENERATED,
+    exports.REPORT_STATES.PROCESSING
+];
+
 
 var port = process.env.APP_PORT_NUMBER ? ':' + process.env.APP_PORT_NUMBER : '';
 exports.API_URL = process.env.APP_PROTOCOL + '://' + process.env.APP_HOST_NAME + port;

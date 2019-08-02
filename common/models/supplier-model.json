@@ -20,6 +20,10 @@
     "storeIds": {
       "type": "object",
       "required": false
+    },
+    "reportDefaultState": {
+      "type": "string",
+      "required": false
     }
   },
   "validations": [],

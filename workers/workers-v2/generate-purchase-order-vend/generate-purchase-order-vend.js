@@ -376,7 +376,7 @@ var runMe = function (payload, config, taskId, messageId) {
                         commandName,
                         messageId
                     });
-                    return Promise.reject('Could not send status to server')
+                    return Promise.reject('Could not send status to server');
                 })
                 .then(function (res) {
                     logger.debug({
