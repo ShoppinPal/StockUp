@@ -4,6 +4,39 @@
     <div class="col-sm-12">
       <div class="card">
         <div class="card-header">
+          <strong>Create User</strong>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="form-group col-sm-12">
+              <span>User Email: &nbsp;&nbsp;</span>
+              <div class="input-group">
+                <input type="text"
+                       class="form-control"
+                       [(ngModel)]="newUserEmail"
+                       placeholder="Email">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="row">
+            <div class="col-sm-12">
+              <span class="input-group-btn">
+                <button class="btn btn-primary" type="button"
+                        (click)="createVirtualUser()">Create virtual user</button>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!--/.col-->
+  </div><!--/.row-->
+
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="card">
+        <div class="card-header">
           <strong>Search users</strong>
         </div>
         <div class="card-body">

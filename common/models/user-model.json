@@ -16,6 +16,10 @@
     "emailVerified": {
       "type": "boolean",
       "default": false
+    },
+    "virtual": {
+      "type": "boolean",
+      "required": false
     }
   },
   "validations": [],
