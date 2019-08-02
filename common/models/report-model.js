@@ -313,8 +313,7 @@ module.exports = function (ReportModel) {
                     cc: ccEmailArray.toString(),
                     bcc: bccEmailArray.toString(),
                     subject: emailSubject,
-                    //from: report.storeModel().name + '\<' + report.userModel().email + '>',
-                    from: report.storeModel().name + '\<' + 'shrey@shoppinpal.com' + '>',
+                    from: report.storeModel().name + '\<' + report.userModel().email + '>',
                     mailer: transporter,
                     text: 'Total Order Quantity: ' + totalOrderQuantity + '\n Total Supply Cost: ' + totalSupplyCost,
                     attachments: [

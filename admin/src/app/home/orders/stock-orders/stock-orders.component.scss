@@ -18,3 +18,8 @@ $animation-duration: 6s;
   -webkit-animation-name: backgroundEffect;
   -webkit-animation-duration: $animation-duration;
 }
+
+.table-wrapper{
+  max-width: 100%;
+  overflow-x: auto;
+}
