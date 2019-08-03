@@ -135,6 +135,7 @@
                       <th>Ordered Quantity</th>
                       <th>Delivered Quantity</th>
                       <th>Received Quantity</th>
+                      <th>Store Inventory</th>
                       <th>Receive</th>
                     </tr>
                     </thead>
@@ -186,6 +187,7 @@
                               </div>
                             </div>
                           </td>
+                          <td>{{lineItem.storeInventory}}</td>
                           <td>
                             <button *ngIf="!enableBarcode" class="btn btn-danger" type="submit"
                                     (click)="receiveItem(lineItem)">
