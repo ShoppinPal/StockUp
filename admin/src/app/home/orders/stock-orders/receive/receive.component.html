@@ -95,8 +95,16 @@
                   <span> &nbsp;&nbsp; Barcode Scanning</span>
                 </div>
               </div>
-            </div>
-            <div class="col-sm-6">
+            </div> <div class="col-sm-3">
+            <button type="button"
+                    *ngIf="editable"
+                    class="btn btn-link"
+                    (click)="showAddProductModal = true"
+            >
+              Cant Find? Add Product
+            </button>
+          </div>
+            <div class="col-sm-3">
               <button type="button" class="btn btn-link float-right"
                       (click)="searchSKUText='';getNotReceivedStockOrderLineItems();getReceivedStockOrderLineItems()">
                 Clear All Searches
@@ -360,3 +368,5 @@
     </div>
   </div>
 </div>
+
+<app-add-product-modal [order]="order" *ngIf="showAddProductModal" (modalClosed)="showAddProductModal = false;getNotReceivedStockOrderLineItems(); getReceivedStockOrderLineItems()"></app-add-product-modal>

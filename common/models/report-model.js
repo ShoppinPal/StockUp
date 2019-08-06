@@ -13,6 +13,7 @@ var workerUtils = require('../utils/workers');
 const REPORT_STATES = require('../utils/constants').REPORT_STATES;
 const multiparty = require("multiparty");
 const excel = require('excel-stream');
+const vendUtils = require('../utils/vend');
 
 module.exports = function (ReportModel) {
 
@@ -1316,7 +1317,191 @@ module.exports = function (ReportModel) {
 
     }
 
+    ReportModel.addProductToStockOrder = function (id, reportModelId, storeModelId, product, options) {
+        let approvedStates = [
+            REPORT_STATES.FULFILMENT_PENDING,
+            REPORT_STATES.FULFILMENT_IN_PROCESS,
+            REPORT_STATES.FULFILMENT_FAILURE,
+            REPORT_STATES.RECEIVING_PENDING,
+            REPORT_STATES.RECEIVING_IN_PROCESS,
+            REPORT_STATES.RECEIVING_FAILURE,
+        ];
+        let orderAlreadyApproved = false, reportModel;
+        logger.debug({
+            functionName: 'addProductToStockOrder',
+            message: 'Will find existing products in stockorderline items',
+            id, reportModelId, storeModelId, product, options
+        });
+        return ReportModel.findById(reportModelId, {
+            include: 'storeModel'
+        })
+            .then(function (report) {
+                reportModel = report;
+                if (approvedStates.findIndex(function(state) {
+                    return state === reportModel.state;
+                }) !== -1){
+                    orderAlreadyApproved = true;
+                }
+                return ReportModel.app.models.StockOrderLineitemModel.find({
+                    where: {
+                        productModelId: product.id,
+                        reportModelId: reportModelId
+                    }
+                });
+            })
+            .then(function (presentLineItems) {
+            logger.debug({
+                functionName: 'addProductToStockOrder',
+                message: 'stockorderline items matching product Id',
+                options,
+                reportModel,
+                presentLineItems
+            });
+                if (presentLineItems.length > 0){
+                    logger.debug({
+                        functionName: 'addProductToStockOrder',
+                        message: 'Aborting, product already exists in stock order',
+                        options,
+                    });
+                    return Promise.reject('Product already present in stock order');
+                } else {
+                    return Promise.resolve();
+                }
+        }).catch(function (error) {
+            logger.error({
+                functionName: 'addProductToStockOrder',
+                message: 'Error while searching existing product in stock order',
+                options,
+                error
+            });
+            return Promise.reject(error);
+        })
+            .then(function () {
+                logger.debug({
+                    functionName: 'addProductToStockOrder',
+                    message: 'Will find inventory associated with product, store and org',
+                    options,
+                });
+          return ReportModel.app.models.InventoryModel.find({
+              where: {
+                  productModelId: product.id,
+                  orgModelId: id,
+                  storeModelId
+              }
+          });
+        }).then(function (inventoryInstances) {
+                var row;
 
+                    var useRow = true;
+                    var caseQuantity, quantityOnHand, desiredStockLevel, orderQuantity;
+                    if (product.tags) {
+                        var tagsAsCsv = product.tags.trim();
+                        //logger.debug({ tagsAsCsv: tagsAsCsv });
+                        var tagsArray = tagsAsCsv.split(',');
+                        if (tagsArray && tagsArray.length>0) {
+                            _.each(tagsArray, function (tag) {
+                                tag = tag.trim();
+                                if (tag.length>0) {
+                                    //logger.debug({ tag: tag });
+                                    // http://stackoverflow.com/questions/8993773/javascript-indexof-case-insensitive
+                                    var prefix = 'CaseQuantity:'.toLowerCase();
+                                    if (tag.toLowerCase().indexOf(prefix) === 0) {
+                                        var caseQty = tag.substr(prefix.length);
+                                        //logger.debug({ message: `based on a prefix, adding CaseQuantity: ${caseQty}` });
+                                        caseQuantity = Number(caseQty);
+                                    }
+                                    else {
+                                        //logger.debug({ message: 'ignoring anything without a prefix' });
+                                    }
+                                }
+                            });
+                        }
+                    }
+                    var inventory = _.find(inventoryInstances, function (eachInventory) {
+                        return eachInventory.productModelId.toString() === product.id.toString();
+                    });
+                        quantityOnHand = Number(inventory.inventory_level);
+                        desiredStockLevel = Number(inventory.reorder_point);
+                        orderQuantity = 0;
+                        if (quantityOnHand<0) {
+                            logger.debug({
+
+                                message: `TODO: how should negative inventory be handled? DSL minus QOH w/ a negative QOH will lead to a positive! Example: 100 - (-2) = 102`
+                            });
+                        }
+                        if (!_.isNaN(desiredStockLevel) && _.isNumber(desiredStockLevel)) {
+                            orderQuantity = desiredStockLevel - quantityOnHand;
+                            if (orderQuantity>0) {
+                                useRow = true;
+                                if (caseQuantity) {
+                                    if ((orderQuantity % caseQuantity) === 0) {
+                                        //logger.debug({ message: 'NO-OP: orderQuantity is already a multiple of caseQuantity' });
+                                    }
+                                    else {
+                                        orderQuantity = Math.ceil(orderQuantity / caseQuantity) * caseQuantity;
+                                    }
+                                }
+                            }
+                            else {
+                                logger.debug({
+                                    message: `do not waste time on negative or zero orderQuantity ${product.sku}`
+                                });
+                                useRow = false;
+                            }
+                        }
+                        else {
+                            //logger.debug({  message: 'give humans a chance to look over dubious data', dilutedProduct: dilutedProduct });
+                            desiredStockLevel = undefined;
+                            orderQuantity = undefined;
+                            useRow = true;
+                        }
+                        var categoryName = product.categoryModel && product.categoryModel.length ? product.categoryModel[0].name: 'No Category';
+                        row = {
+                            productModelId: product.id,
+                            productModelName: product.name, //need for sorting
+                            productModelSku: product.sku, //need for sorting
+                            storeInventory: quantityOnHand,
+                            desiredStockLevel: desiredStockLevel,
+                            orderQuantity: product.orderQuantity || 0,
+                            originalOrderQuantity: orderQuantity,
+                            fulfilledQuantity: product.fulfilledQuantity || 0,
+                            receivedQuantity: product.receivedQuantity || 0,
+                            caseQuantity: caseQuantity,
+                            supplyPrice: product.supply_price,
+                            supplierModelId: product.supplierModelId,
+                            categoryModelId: product.categoryModelId,
+                            binLocation: product.binLocation,
+                            categoryModelName: categoryName,  //need for sorting
+                            approved: orderAlreadyApproved,
+                            fulfilled: product.fulfilled || false,
+                            received: false,
+                            reportModelId: reportModelId,   
+                            userModelId: options.accessToken.userId,
+                            createdAt: new Date(),
+                            orgModelId: id
+                        };
+                        logger.debug({ row: row});
+                        return Promise.resolve(row);
+                })
+            .then(function (stockOrderLineItem) {
+                    return ReportModel.app.models.StockOrderLineitemModel.create(stockOrderLineItem);
+            }).catch(function (error) {
+                    logger.error({
+                        functionName: 'addProductToStockOrder',
+                        message: 'Error adding product to report',
+                        options,
+                        error
+                    });
+                    return Promise.reject(error);
+            }).then(function (stockOrderInstance) {
+                if (orderAlreadyApproved) {
+                    return vendUtils({OrgModel: ReportModel.app.models.OrgModel})
+                        .createStockOrderLineitemForVend(reportModel.storeModel(), reportModel, product,stockOrderInstance,options);
+                }else {
+                    return Promise.resolve();
+                }
+            });
+    };
 };
 
 

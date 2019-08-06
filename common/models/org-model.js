@@ -1373,5 +1373,64 @@ module.exports = function (OrgModel) {
                     return Promise.reject('Error updating supplier store');
                 });
         };
+
+        OrgModel.remoteMethod('listenSSE', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'req', type: 'object', 'http': {source: 'req'}},
+                {arg: 'res', type: 'object', 'http': {source: 'res'}},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/listenSSE', verb: 'get'},
+            returns: {arg: 'data', type: 'ReadableStream', root: true}
+        });
+
+        OrgModel.listenSSE = function (id, req, res, options) {
+            try {
+                logger.debug({
+                    token: options.accessToken,
+                    message: 'Creating SSE',
+                    functionName: 'listenSSE'
+                });
+                sse.setupSSE(req, res, options);
+            }catch (e) {
+                logger.error({
+                    e,
+                    message: 'Error creating SSE',
+                    functionName: 'listenSSE'
+                });
+            }
+        };
+        OrgModel.remoteMethod('addProductToStockOrder', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'reportModelId', type: 'string', required: true},
+                {arg: 'storeModelId', type: 'string', required: true},
+                {arg: 'product', type: 'object', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/addProductToStockOrder', verb: 'post'},
+            returns: {arg: 'result', type: 'string', root: true}
+        });
+
+        OrgModel.addProductToStockOrder = function (id, reportModelId, storeModelId, product, options) {
+            logger.debug({
+                message: 'will add product to report model ',
+                functionName: 'addProductToStockOrder',
+                id, reportModelId, storeModelId, product,
+                options
+            });
+            return OrgModel.app.models.ReportModel.addProductToStockOrder(id, reportModelId, storeModelId, product, options)
+                .catch(function (error) {
+                    logger.debug({
+                        message: 'Error adding product',
+                        error,
+                        functionName: 'addProductToStockOrder',
+                        options
+                    });
+                    return Promise.reject('Cannot add product to stock order');
+                });
+        };
+
     });
 };

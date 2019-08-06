@@ -85,7 +85,16 @@
         <div class="card-footer">
           <div class="row">
             <div class="col-sm-6">
-              <button type="button" class="btn btn-link"
+              <button type="button"
+                      *ngIf="editable"
+                      class="btn btn-link"
+                      (click)="showAddProductModal = true"
+                      >
+                Cant Find? Add Product
+              </button>
+            </div>
+            <div class="col-sm-6">
+              <button type="button" class="btn btn-link float-right"
                       (click)="searchSKUText='';getNotApprovedStockOrderLineItems(undefined, undefined, undefined, 'type');getApprovedStockOrderLineItems(undefined, undefined, undefined, 'type')">
                 Clear All Searches
               </button>
@@ -415,3 +424,5 @@
   </div>
 </div>
   <!-- Email Modal -->
+
+<app-add-product-modal [order]="order" *ngIf="showAddProductModal" (modalClosed)="showAddProductModal = false;getNotApprovedStockOrderLineItems();getApprovedStockOrderLineItems();"></app-add-product-modal>

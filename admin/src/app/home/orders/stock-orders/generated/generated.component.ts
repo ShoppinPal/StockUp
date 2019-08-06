@@ -8,6 +8,8 @@ import {LoopBackAuth} from "../../../../shared/lb-sdk/services/core/auth.service
 import {constants} from "../../../../shared/constants/constants";
 import {DatePipe} from '@angular/common';
 import {EventSourceService} from '../../../../shared/services/event-source.service';
+import {BsModalService} from 'ngx-bootstrap';
+import {AddProductModalComponent} from '../shared/add-product-modal/add-product-modal.component';
 import Utils from '../../../../shared/constants/utils';
 
 @Component({
@@ -47,6 +49,8 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     cc: '',
     bcc: '',
   };
+
+  public showAddProductModal = false;
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
               private _router: Router,
@@ -200,22 +204,27 @@ export class GeneratedComponent implements OnInit, OnDestroy {
           like: sku
         }
       }
-    }).subscribe((data: any) => {
-      if (data.length) {
-        this.getApprovedStockOrderLineItems(1, 0, data[0].id);
-        this.getNotApprovedStockOrderLineItems(1, 0, data[0].id);
-      }
-      else {
-        this.loading = false;
-        this.currentPageNotApproved = 1;
-        this.totalNotApprovedLineItems = 0;
-        this.notApprovedLineItems = [];
-        this.approvedLineItems = [];
-        this.totalApprovedLineItems = 0;
-        this.currentPageApproved = 1;
-      }
     })
+      .subscribe((data) => {
+        this.loadStockItemsByProducts(data)
+      })
   }
+
+  loadStockItemsByProducts(data: any) {
+    if (data.length) {
+      this.getApprovedStockOrderLineItems(1, 0, data[0].id);
+      this.getNotApprovedStockOrderLineItems(1, 0, data[0].id);
+    }
+    else {
+      this.loading = false;
+      this.currentPageNotApproved = 1;
+      this.totalNotApprovedLineItems = 0;
+      this.notApprovedLineItems = [];
+      this.approvedLineItems = [];
+      this.totalApprovedLineItems = 0;
+      this.currentPageApproved = 1;
+    }
+  };
 
   createTransferOrder() {
     console.log('submitting');
@@ -372,7 +381,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       link.download = this.order.name;
       link.click();
       this.loading = false;
-    }, err=> {
+    }, err => {
       this.loading = false;
       console.log(err);
     })
@@ -429,4 +438,20 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     }
   }
 
+  addProductToStockOrder(productModel: any) {
+      if (!productModel.orderQuantity){
+        this.toastr.error('Order Quantity should be greater than zero');
+        return;
+      }
+      this.orgModelApi.addProductToStockOrder(
+        this.userProfile.orgModelId,
+        this.order.id,
+        this.order.storeModelId,
+        productModel
+      ).subscribe(result => {
+        this.toastr.success('Added product to stock order');
+      }, error => {
+        this.toastr.error('Cannot add product to stock order');
+      })
+  }
 }

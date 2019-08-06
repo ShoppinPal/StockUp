@@ -772,6 +772,20 @@
       "principalId": "orgAdmin",
       "permission": "ALLOW",
       "property": "__count__schedulerModels"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "addProductToStockOrder"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "addProductToStockOrder"
     }
   ],
   "methods": {}

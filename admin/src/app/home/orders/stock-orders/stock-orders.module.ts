@@ -20,6 +20,6 @@ import {StockOrdersRoutingModule} from './stock-orders-routing.module';
     ReceiveModule,
     SchedulePickerModule
   ],
-  declarations: [StockOrdersComponent]
+  declarations: [StockOrdersComponent],
 })
 export class StockOrdersModule { }

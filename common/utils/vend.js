@@ -1020,26 +1020,24 @@ var deleteStockOrder = function (storeModelInstance, reportModelInstance) {
         });
 };
 
-var createStockOrderLineitemForVend = function (storeModelInstance, reportModelInstance, stockOrderLineitemModelInstance) {
+var createStockOrderLineitemForVend = function (storeModelInstance, reportModelInstance, productModel,stockOrderLineitemModelInstance, options) {
     if (stockOrderLineitemModelInstance.vendConsignmentProductId) {
         //log.error('WARN: You are about to create a new vendConsignmentProduct even though one already exists!');
         logger.warn({log: {message: 'You are about to create a new vendConsignmentProduct even though one already exists!'}});
         return Promise.reject('WARN: You are about to create a new vendConsignmentProduct even though one already exists!');
     }
-    var storeConfigId = storeModelInstance.storeConfigModelToStoreModelId;
     //log.debug('createStockOrderLineitemForVend()', 'storeConfigId: ' + storeConfigId);
     logger.tag('createStockOrderLineitemForVend()').debug({
         log: {
             message: 'createStockOrderLineitemForVend()',
-            storeConfigId: storeConfigId
         }
     });
-    return getVendConnectionInfo(storeConfigId)
+    return getVendConnectionInfo(storeModelInstance.orgModelId, options)
         .then(function (connectionInfo) {
             var consignmentProduct = {
                 //'sequence_number': 1,
                 'consignment_id': reportModelInstance.vendConsignmentId,
-                'product_id': stockOrderLineitemModelInstance.productId,
+                'product_id': productModel.api_id,
                 'count': stockOrderLineitemModelInstance.orderQuantity,
                 'cost': stockOrderLineitemModelInstance.supplyPrice,
                 'received': stockOrderLineitemModelInstance.receivedQuantity
