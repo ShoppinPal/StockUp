@@ -3687,46 +3687,6 @@ export class OrgModelApi extends BaseLoopBackApi {
    *
    *  - `id` – `{string}` - 
    *
-   *  - `userId` – `{string}` - 
-   *
-   *  - `data` – `{object}` - 
-   *
-   *  - `messageId` – `{string}` - 
-   *
-   * @returns {object} An empty reference that will be
-   *   populated with the actual data once the response is returned
-   *   from the server.
-   *
-   * <em>
-   * (The remote method definition does not provide any description.
-   * This usually means the response is a `OrgModel` object.)
-   * </em>
-   */
-  public sendWorkerStatus(id: any, userId: any, data: any = {}, messageId: any, customHeaders?: Function): Observable<any> {
-    let _method: string = "POST";
-    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
-    "/OrgModels/:id/sendWorkerStatus";
-    let _routeParams: any = {
-      id: id
-    };
-    let _postBody: any = {};
-    let _urlParams: any = {};
-    if (typeof userId !== 'undefined' && userId !== null) _urlParams.userId = userId;
-    if (typeof data !== 'undefined' && data !== null) _urlParams.data = data;
-    if (typeof messageId !== 'undefined' && messageId !== null) _urlParams.messageId = messageId;
-    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
-    return result;
-  }
-
-  /**
-   * <em>
-         * (The remote method definition does not provide any description.)
-         * </em>
-   *
-   * @param {object} data Request data.
-   *
-   *  - `id` – `{string}` - 
-   *
    *  - `reportModelId` – `{string}` - 
    *
    *  - `res` – `{object}` - 
@@ -4209,6 +4169,147 @@ export class OrgModelApi extends BaseLoopBackApi {
          * (The remote method definition does not provide any description.)
          * </em>
    *
+   * @param {object} data Request data.
+   *
+   *  - `id` – `{string}` - 
+   *
+   *  - `scanType` – `{string}` - 
+   *
+   *  - `productSku` – `{string}` - 
+   *
+   *  - `reportModelId` – `{string}` - 
+   *
+   *  - `force` – `{boolean}` - 
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * <em>
+   * (The remote method definition does not provide any description.
+   * This usually means the response is a `OrgModel` object.)
+   * </em>
+   */
+  public scanBarcodeStockOrder(id: any, scanType: any, productSku: any, reportModelId: any, force: any = {}, customHeaders?: Function): Observable<any> {
+    let _method: string = "POST";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/:id/scanBarcodeStockOrder";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    if (typeof scanType !== 'undefined' && scanType !== null) _urlParams.scanType = scanType;
+    if (typeof productSku !== 'undefined' && productSku !== null) _urlParams.productSku = productSku;
+    if (typeof reportModelId !== 'undefined' && reportModelId !== null) _urlParams.reportModelId = reportModelId;
+    if (typeof force !== 'undefined' && force !== null) _urlParams.force = force;
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * <em>
+         * (The remote method definition does not provide any description.)
+         * </em>
+   *
+   * @param {string} id 
+   *
+   * @param {object} options 
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * <em>
+   * (The remote method definition does not provide any description.
+   * This usually means the response is a `OrgModel` object.)
+   * </em>
+   */
+  public fetchFileImportHeaders(id: any, customHeaders?: Function): Observable<any> {
+    let _method: string = "GET";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/:id/fetchImportHeaders";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * <em>
+         * (The remote method definition does not provide any description.)
+         * </em>
+   *
+   * @param {object} data Request data.
+   *
+   *  - `id` – `{string}` - 
+   *
+   *  - `req` – `{object}` - 
+   *
+   *  - `res` – `{object}` - 
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * Data properties:
+   *
+   *  - `result` – `{string}` - 
+   */
+  public importVendOrderFromFile(id: any, req: any = {}, res: any = {}, customHeaders?: Function): Observable<any> {
+    let _method: string = "POST";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/:id/importVendOrderFromFile";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * <em>
+         * (The remote method definition does not provide any description.)
+         * </em>
+   *
+   * @param {object} data Request data.
+   *
+   *  - `id` – `{string}` - 
+   *
+   *  - `mappings` – `{any}` - 
+   *
+   * @returns {object} An empty reference that will be
+   *   populated with the actual data once the response is returned
+   *   from the server.
+   *
+   * Data properties:
+   *
+   *  - `result` – `{string}` - 
+   */
+  public editSupplierStoreMappings(id: any, mappings: any, customHeaders?: Function): Observable<any> {
+    let _method: string = "POST";
+    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+    "/OrgModels/:id/editSupplierStoreMappings";
+    let _routeParams: any = {
+      id: id
+    };
+    let _postBody: any = {};
+    let _urlParams: any = {};
+    if (typeof mappings !== 'undefined' && mappings !== null) _urlParams.mappings = mappings;
+    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
+    return result;
+  }
+
+  /**
+   * <em>
+         * (The remote method definition does not provide any description.)
+         * </em>
+   *
    * @param {string} id 
    *
    * @param {object} req 
@@ -4269,102 +4370,6 @@ export class OrgModelApi extends BaseLoopBackApi {
     let _postBody: any = {};
     let _urlParams: any = {};
     if (typeof data !== 'undefined' && data !== null) _urlParams.data = data;
-    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
-    return result;
-  }
-
-  /**
-   * <em>
-         * (The remote method definition does not provide any description.)
-         * </em>
-   *
-   * @param {string} id 
-   *
-   * @param {object} options 
-   *
-   * @returns {object} An empty reference that will be
-   *   populated with the actual data once the response is returned
-   *   from the server.
-   *
-   * <em>
-   * (The remote method definition does not provide any description.
-   * This usually means the response is a `OrgModel` object.)
-   * </em>
-   */
-  public fetchFileImportHeaders(id: any, customHeaders?: Function): Observable<any> {
-    let _method: string = "GET";
-    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
-    "/OrgModels/:id/fetchImportHeaders";
-    let _routeParams: any = {
-      id: id
-    };
-    let _postBody: any = {};
-    let _urlParams: any = {};
-    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
-    return result;
-  }
-
-  /**
-   * <em>
-         * (The remote method definition does not provide any description.)
-         * </em>
-   *
-   * @param {object} data Request data.
-   *
-   *  - `id` – `{string}` - 
-   *
-   *  - `req` – `{object}` - 
-   *
-   * @returns {object} An empty reference that will be
-   *   populated with the actual data once the response is returned
-   *   from the server.
-   *
-   * Data properties:
-   *
-   *  - `result` – `{string}` - 
-   */
-  public importVendOrderFromFile(id: any, req: any = {}, customHeaders?: Function): Observable<any> {
-    let _method: string = "POST";
-    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
-    "/OrgModels/:id/importVendOrderFromFile";
-    let _routeParams: any = {
-      id: id
-    };
-    let _postBody: any = {};
-    let _urlParams: any = {};
-    let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
-    return result;
-  }
-
-  /**
-   * <em>
-         * (The remote method definition does not provide any description.)
-         * </em>
-   *
-   * @param {object} data Request data.
-   *
-   *  - `id` – `{string}` - 
-   *
-   *  - `mappings` – `{any}` - 
-   *
-   * @returns {object} An empty reference that will be
-   *   populated with the actual data once the response is returned
-   *   from the server.
-   *
-   * Data properties:
-   *
-   *  - `result` – `{string}` - 
-   */
-  public editSupplierStoreMappings(id: any, mappings: any, customHeaders?: Function): Observable<any> {
-    let _method: string = "POST";
-    let _url: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
-    "/OrgModels/:id/editSupplierStoreMappings";
-    let _routeParams: any = {
-      id: id
-    };
-    let _postBody: any = {};
-    let _urlParams: any = {};
-    if (typeof mappings !== 'undefined' && mappings !== null) _urlParams.mappings = mappings;
     let result = this.request(_method, _url, _routeParams, _urlParams, _postBody, null, customHeaders);
     return result;
   }

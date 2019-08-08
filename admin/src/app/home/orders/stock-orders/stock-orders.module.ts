@@ -8,6 +8,7 @@ import {ReceiveModule} from "./receive/receive.module";
 import {CompleteModule} from "./complete/complete.module";
 import {StockOrdersRoutingModule} from './stock-orders-routing.module';
 import { CreateStockOrderComponent } from './create-stock-order/create-stock-order.component';
+import {CreateStockOrderResolverService} from './create-stock-order/services/create-stock-order-resolver.service';
 
 @NgModule({
   imports: [
@@ -19,6 +20,7 @@ import { CreateStockOrderComponent } from './create-stock-order/create-stock-ord
     GeneratedModule,
     ReceiveModule
   ],
-  declarations: [StockOrdersComponent, CreateStockOrderComponent]
+  declarations: [StockOrdersComponent, CreateStockOrderComponent],
+  providers: [CreateStockOrderResolverService]
 })
 export class StockOrdersModule { }

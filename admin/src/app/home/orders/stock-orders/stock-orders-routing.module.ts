@@ -12,6 +12,7 @@ import {GeneratedResolverService} from './generated/services/generated-resolver.
 import {CompleteComponent} from './complete/complete.component';
 import {CompleteResolverService} from './complete/services/complete-resolver.service';
 import {CreateStockOrderComponent} from './create-stock-order/create-stock-order.component';
+import {CreateStockOrderResolverService} from './create-stock-order/services/create-stock-order-resolver.service';
 
 const routes: Routes = [
     {
@@ -37,7 +38,7 @@ const routes: Routes = [
                 path: 'create-stock-order',
                 component: CreateStockOrderComponent,
                 resolve: {
-                    stockOrders: StockOrdersResolverService
+                    stockOrders: CreateStockOrderResolverService
                 },
                 data: {
                     title: 'Create'

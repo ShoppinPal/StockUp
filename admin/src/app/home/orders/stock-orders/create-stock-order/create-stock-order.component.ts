@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {Observable, Subscription} from 'rxjs/index';
+import {Observable} from 'rxjs';
 import {FileUploader} from 'ng2-file-upload';
 import {UserProfileService} from '../../../../shared/services/user-profile.service';
 import {LoopBackAuth, LoopBackConfig} from '../../../../shared/lb-sdk';
@@ -42,6 +42,8 @@ export class CreateStockOrderComponent implements OnInit {
   constructor(
     private _userProfileService: UserProfileService,
     private orgModelApi: OrgModelApi,
+    private _router: Router,
+    private _route: ActivatedRoute,
     private auth: LoopBackAuth,
     private toastr: ToastrService,
   ) { }
@@ -49,6 +51,18 @@ export class CreateStockOrderComponent implements OnInit {
   ngOnInit() {
     this.userProfile = this._userProfileService.getProfileData();
     this.userStores = this.userProfile.storeModels.map(x => x.objectId);
+    this._route.data.subscribe((data: any) => {
+        this.warehouses = data.stockOrders.warehouses;
+        this.stores = this.userProfile.storeModels.filter(x => x.isWarehouse !== true);
+        this.suppliers = data.stockOrders.suppliers;
+        this.orderConfigurations = data.stockOrders.orderConfigurations;
+        if (this.orderConfigurations && this.orderConfigurations.length > 0) {
+          this.selectedOrderConfigurationId = this.orderConfigurations[0].id;
+        }
+      },
+      error => {
+        console.log('error', error)
+      });
     let orderUploadUrl: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
       "/OrgModels/" + this.userProfile.orgModelId + "/importVendOrderFromFile";
     this.uploader = new FileUploader({
@@ -76,8 +90,7 @@ export class CreateStockOrderComponent implements OnInit {
       this.loading = false;
       this.toastr.info('Generating stock order');
       console.log(reportModelData);
-      this.generatedOrders.unshift({...reportModelData.data, backgroundEffect: true});
-      this.waitForStockOrderNotification(reportModelData.callId)
+      this._router.navigate(['orders', 'stock-orders'])
     }, error => {
       this.loading = false;
       this.toastr.error('Error in generating order');
@@ -94,7 +107,7 @@ export class CreateStockOrderComponent implements OnInit {
       this.uploader.onSuccessItem = (item: any, response: any, status: number, headers: any): any => {
         this.loading = false;
         this.toastr.info('Importing stock order from file...');
-        this.waitForFileImportWorker();
+        this._router.navigate(['stock-orders'])
       };
       this.uploader.onErrorItem = (item: any, response: any, status: number, headers: any): any => {
         this.loading = false;
@@ -116,8 +129,7 @@ export class CreateStockOrderComponent implements OnInit {
         this.loading = false;
         this.toastr.info('Generating stock order');
         console.log(reportModelData);
-        // this.generatedOrders.unshift({...reportModelData.data, backgroundEffect: true});
-        // this.waitForStockOrderNotification(reportModelData.callId)
+        this._router.navigate(['orders', 'stock-orders'])
       }, error => {
         this.loading = false;
         this.toastr.error('Error in generating order');
