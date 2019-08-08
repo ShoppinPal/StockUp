@@ -11,6 +11,7 @@ import {FulfillResolverService} from './fulfill/services/fulfill-resolver.servic
 import {GeneratedResolverService} from './generated/services/generated-resolver.service';
 import {CompleteComponent} from './complete/complete.component';
 import {CompleteResolverService} from './complete/services/complete-resolver.service';
+import {CreateStockOrderComponent} from './create-stock-order/create-stock-order.component';
 
 const routes: Routes = [
     {
@@ -30,6 +31,16 @@ const routes: Routes = [
                 },
                 data: {
                     title: ''
+                },
+            },
+            {
+                path: 'create-stock-order',
+                component: CreateStockOrderComponent,
+                resolve: {
+                    stockOrders: StockOrdersResolverService
+                },
+                data: {
+                    title: 'Create'
                 },
             },
             {

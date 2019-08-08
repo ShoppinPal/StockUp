@@ -7,6 +7,7 @@ import {GeneratedModule} from "./generated/generated.module";
 import {ReceiveModule} from "./receive/receive.module";
 import {CompleteModule} from "./complete/complete.module";
 import {StockOrdersRoutingModule} from './stock-orders-routing.module';
+import { CreateStockOrderComponent } from './create-stock-order/create-stock-order.component';
 
 @NgModule({
   imports: [
@@ -18,6 +19,6 @@ import {StockOrdersRoutingModule} from './stock-orders-routing.module';
     GeneratedModule,
     ReceiveModule
   ],
-  declarations: [StockOrdersComponent]
+  declarations: [StockOrdersComponent, CreateStockOrderComponent]
 })
 export class StockOrdersModule { }

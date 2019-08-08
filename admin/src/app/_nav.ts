@@ -60,6 +60,12 @@ export const navItems: NavData[] = [
     roles: ['orgAdmin', 'storeManager']
   },
   {
+    name: 'Create Stock Order',
+    url: '/orders/stock-orders/create-stock-order',
+    icon: 'icon-close',
+    roles: ['orgAdmin', 'storeManager']
+  },
+  {
     title: true,
     name: 'Suppliers',
     roles: ['orgAdmin']
