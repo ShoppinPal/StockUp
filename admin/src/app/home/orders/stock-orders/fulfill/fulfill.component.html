@@ -142,7 +142,7 @@
                     <ng-container *ngFor="let lineItem of notFulfilledLineItems; let i = index">
                       <tr class="bg-light text-primary"
                           *ngIf="lineItem.binLocation !== notFulfilledLineItems[i-1]?.binLocation || i==0">
-                        <td colspan="6"><strong>{{lineItem.binLocation || 'No Bin Location'}}</strong></td>
+                        <td colspan="7"><strong>{{lineItem.binLocation || 'No Bin Location'}}</strong></td>
                       </tr>
                       <tr>
                         <ng-container *ngIf="lineItem.productModel">
@@ -155,7 +155,7 @@
                           <td>
                             {{lineItem.productModel.name}}
                             <br/>
-                            <small *ngIf="userProfile.integrationType === 'msdynamics'">
+                            <small *ngIf="userProfile.integrationType === 'msdynamics'  ">
                               ({{lineItem.productModel.sizeId}}
                               : {{lineItem.productModel.colorId}} :
                               {{lineItem.productModel.styleId}} : {{lineItem.productModel.configurationId}})
@@ -248,7 +248,7 @@
                     <ng-container *ngFor="let lineItem of fulfilledLineItems; let i = index">
                       <tr class="bg-light text-primary"
                           *ngIf="lineItem.binLocation !== fulfilledLineItems[i-1]?.binLocation || i==0">
-                        <td colspan="6"><strong>{{lineItem.binLocation || 'No Bin Location'}}</strong></td>
+                        <td colspan="7"><strong>{{lineItem.binLocation || 'No Bin Location'}}</strong></td>
                       </tr>
                       <tr>
                         <ng-container *ngIf="lineItem.productModel">
