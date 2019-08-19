@@ -96,6 +96,12 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       include: [
         {
           relation: 'productModel'
+        },
+        {
+          relation: 'commentModels',
+          scope: {
+            include: 'userModel'
+          }
         }
       ],
       limit: limit,
@@ -117,6 +123,9 @@ export class GeneratedComponent implements OnInit, OnDestroy {
         this.currentPageApproved = (skip / this.lineItemsLimitPerPage) + 1;
         this.totalApprovedLineItems = data[1].count;
         this.approvedLineItems = data[0];
+        this.approvedLineItems.forEach(x => {
+          x.isCollapsed = true;
+        });
       },
       err => {
         this.loading = false;
@@ -168,7 +177,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
         this.notApprovedLineItems = data[0];
         this.notApprovedLineItems.forEach(x => {
           x.isCollapsed = true;
-        })
+        });
       },
       err => {
         this.loading = false;
@@ -352,39 +361,6 @@ export class GeneratedComponent implements OnInit, OnDestroy {
 
   expanded(event: any): void {
     // console.log(event);
-  }
-
-  addComment(lineItem) {
-    if (!lineItem.comment) {
-      this.toastr.error('Please write a comment first');
-    }
-    else {
-      this.loading = true;
-      this.orgModelApi.createCommentModels(this.userProfile.orgModelId, {
-        comment: lineItem.comment,
-        userModelId: this.userProfile.userId,
-        stockOrderLineitemModelId: lineItem.id
-      })
-        .subscribe(data => {
-            this.loading = false;
-            let newComment = lineItem.comment;
-            lineItem.comment = null;
-            this.toastr.success('Comment added successfully');
-            lineItem.commentModels.push({
-              comment: newComment,
-              userModel: {
-                name: this.userProfile.name
-              },
-              createdAt: new Date()
-            });
-          },
-          error => {
-            this.loading = false;
-            this.toastr.error('Could not add comment');
-            console.log(error);
-          });
-    }
-
   }
 
   setDesiredStockLevelForVend(lineItem) {

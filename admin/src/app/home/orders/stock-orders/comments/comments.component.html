@@ -1,0 +1,27 @@
+<div *ngFor="let comment of comments">
+  <div class="message">
+    <div>
+      <small class="font-weight-bold">{{comment.userModel.name}}</small>
+      <small class="text-muted float-right mt-1">{{comment.createdAt | date: 'y-MM-dd, HH:mm'}}</small>
+    </div>
+    <small class="text-muted">{{comment.comment}}
+    </small>
+  </div>
+  <hr>
+</div>
+<div class="form-group row" *ngIf="canAddComment">
+  <div class="col-sm-10">
+    <textarea style="resize: none"
+              rows="3"
+              class="form-control"
+              [(ngModel)]="newComment"
+              placeholder="Enter a comment...">
+    </textarea>
+  </div>
+  <div class="col-sm-2">
+    <button class="btn btn-primary" type="button"
+            (click)="addComment()">
+      <i class="fa fa-send"></i> Send
+    </button>
+  </div>
+</div>

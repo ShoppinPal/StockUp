@@ -99,12 +99,20 @@ export class FulfillComponent implements OnInit {
         },
         productModelId: productModelId
       },
-      include: {
-        relation: 'productModel'
-      },
+      include: [
+        {
+          relation: 'productModel'
+        },
+        {
+          relation: 'commentModels',
+          scope: {
+            include: 'userModel'
+          }
+        }
+      ],
       limit: limit,
       skip: skip,
-      order: 'categoryModelName ' + sortOrder + ', ' + this.sortColumn + ' ' + sortOrder
+      order: 'binLocation ' + sortOrder + ', ' + this.sortColumn + ' ' + sortOrder
     };
     let countFilter: any = {
       reportModelId: this.order.id,
@@ -124,6 +132,9 @@ export class FulfillComponent implements OnInit {
         this.currentPageFulfilled = (skip / this.lineItemsLimitPerPage) + 1;
         this.totalFulfilledLineItems = data[1].count;
         this.fulfilledLineItems = data[0];
+        this.fulfilledLineItems.forEach(x => {
+          x.isCollapsed = true;
+        });
       },
       err => {
         this.loading = false;
@@ -147,12 +158,19 @@ export class FulfillComponent implements OnInit {
         fulfilled: false,
         productModelId: productModelId
       },
-      include: {
-        relation: 'productModel',
-      },
+      include: [
+        {
+          relation: 'productModel',
+        }, {
+          relation: 'commentModels',
+          scope: {
+            include: 'userModel'
+          }
+        }
+      ],
       limit: limit,
       skip: skip,
-      order: 'categoryModelName ' + sortOrder + ', ' + this.sortColumn + ' ' + sortOrder
+      order: 'binLocation ' + sortOrder + ', ' + this.sortColumn + ' ' + sortOrder
     };
     let countFilter = {
       reportModelId: this.order.id,
@@ -177,6 +195,7 @@ export class FulfillComponent implements OnInit {
           if (!this.enableBarcode && data[0][i].fulfilledQuantity === 0) {
             data[0][i].fulfilledQuantity = data[0][i].orderQuantity;
           }
+          data[0][i].isCollapsed = true;
         }
         this.notFulfilledLineItems = data[0];
       },
@@ -337,7 +356,7 @@ export class FulfillComponent implements OnInit {
   changeScanMode() {
     this.getNotFulfilledStockOrderLineItems();
     this.getFulfilledStockOrderLineItems();
-    this.searchSKUText = ''
+    this.searchSKUText = '';
     if (this.enableBarcode) {
       this.searchSKUFocused = true;
     }
@@ -355,5 +374,13 @@ export class FulfillComponent implements OnInit {
       this.searchAndIncrementProduct(this.searchSKUText);
       $event.target.select();
     }
+  }
+
+  collapsed(event: any): void {
+    // console.log(event);
+  }
+
+  expanded(event: any): void {
+    // console.log(event);
   }
 }

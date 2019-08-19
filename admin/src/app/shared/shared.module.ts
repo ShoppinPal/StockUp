@@ -15,6 +15,7 @@ import {ModalModule} from 'ngx-bootstrap/modal';
 import {TabsModule} from 'ngx-bootstrap/tabs';
 import {AutoFocusDirective} from '../home/products/bin-locations/directives/auto-focus.directive';
 import { DebounceKeyUpDirective } from './directives/debounce-key-up/debounce-key-up.directive';
+import {CommentsComponent} from "../home/orders/stock-orders/comments/comments.component";
 
 @NgModule({
   imports: [
@@ -32,12 +33,13 @@ import { DebounceKeyUpDirective } from './directives/debounce-key-up/debounce-ke
     TabsModule,
     ModalModule.forRoot()
   ],
-  declarations: [AutoFocusDirective, DebounceKeyUpDirective],
+  declarations: [AutoFocusDirective, DebounceKeyUpDirective, CommentsComponent],
   exports: [
     FormsModule,
     BsDropdownModule,
     TypeaheadModule,
     LoadingModule,
+    CommentsComponent,
     AppAsideModule,
     CollapseModule,
     CommonModule,

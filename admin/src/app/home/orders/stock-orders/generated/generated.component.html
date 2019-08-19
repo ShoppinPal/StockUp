@@ -106,7 +106,7 @@
               <tabset>
                 <tab heading="Not Approved ({{totalNotApprovedLineItems}})">
 
-                  <table class="table table-hover">
+                  <table class="table table-hover table-responsive">
                     <thead>
                     <tr>
                       <th></th>
@@ -197,7 +197,7 @@
                           </div>
 
                         </td>
-                        <td class="no-padding no-border-top">
+                        <td class="no-padding no-border-top" *ngIf="editable">
                           <div class="padding-15"
                                (collapsed)="collapsed($event)"
                                (expanded)="expanded($event)"
@@ -223,9 +223,19 @@
                             </div>
                             <div class="form-group">
                               <div class="input-group">
-                                <button class="btn btn-sm btn-success" (click)="setDesiredStockLevelForVend(lineItem)">Save</button>
+                                <button class="btn btn-sm btn-success" (click)="setDesiredStockLevelForVend(lineItem)">
+                                  Save
+                                </button>
                               </div>
                             </div>
+                          </div>
+                        </td>
+                        <td *ngIf="!editable" class="no-padding no-border-top">
+                          <div class="padding-15"
+                               (collapsed)="collapsed($event)"
+                               (expanded)="expanded($event)"
+                               [collapse]="lineItem.isCollapsed">
+                            {{lineItem.desiredStockLevel}}
                           </div>
                         </td>
                         <td colspan="5" class="no-padding no-border-top">
@@ -233,33 +243,12 @@
                                (collapsed)="collapsed($event)"
                                (expanded)="expanded($event)"
                                [collapse]="lineItem.isCollapsed">
-                            <div *ngFor="let comment of lineItem.commentModels">
-                              <div class="message">
-                                <div>
-                                  <small class="font-weight-bold">{{comment.userModel.name}}</small>
-                                  <small class="text-muted float-right mt-1">{{comment.createdAt | date: 'y-MM-dd, HH:mm'}}</small>
-                                </div>
-                                <small class="text-muted">{{comment.comment}}
-                                </small>
-                              </div>
-                              <hr>
-                            </div>
-                            <div class="form-group row">
-                              <div class="col-sm-10">
-                                  <textarea style="resize: none"
-                                            rows="3"
-                                            class="form-control"
-                                            [(ngModel)]="lineItem.comment"
-                                            placeholder="Enter a comment...">
-                                  </textarea>
-                              </div>
-                              <div class="col-sm-2">
-                                <button class="btn btn-primary" type="button"
-                                        (click)="addComment(lineItem)">
-                                  <i class="fa fa-send"></i> Send
-                                </button>
-                              </div>
-                            </div>
+                            <app-comments
+                              [comments]="lineItem.commentModels"
+                              [stockOrderLineitemModelId]="lineItem.id"
+                              [canAddComment]="editable"
+                              (onCommentAdded)="lineItem.commentModels.push($event)"
+                            ></app-comments>
                           </div>
                         </td>
                       </tr>
@@ -281,6 +270,7 @@
                   <table class="table table-hover">
                     <thead>
                     <tr>
+                      <th></th>
                       <th class="pointer"
                           (click)="sortColumn = 'productModelName';sortAscending = !sortAscending; getApprovedStockOrderLineItems()">
                         Name
@@ -303,10 +293,16 @@
                     <ng-container *ngFor="let lineItem of approvedLineItems; let i = index">
                       <tr class="bg-light text-primary"
                           *ngIf="lineItem.categoryModelName !== approvedLineItems[i-1]?.categoryModelName">
-                        <td colspan="6"><strong>{{lineItem.categoryModelName || 'No Category'}}</strong></td>
+                        <td colspan="7"><strong>{{lineItem.categoryModelName || 'No Category'}}</strong></td>
                       </tr>
                       <tr>
                         <ng-container *ngIf="lineItem.productModel">
+                          <td class="text-center" (click)="lineItem.isCollapsed = !lineItem.isCollapsed">
+                            <button class="btn btn-light">
+                              <i class="fa fa-angle-double-down"></i>
+                              <span *ngIf="lineItem.commentModels.length" class="badge badge-pill badge-success">{{lineItem.commentModels.length}}</span>
+                            </button>
+                          </td>
                           <td>
                             {{lineItem.productModel.name}}
                             <br/>
@@ -331,6 +327,21 @@
                             </button>
                           </td>
                         </ng-container>
+                      </tr>
+                      <tr class="no-border">
+                        <td colspan="5" class="no-padding no-border-top">
+                          <div class="padding-15"
+                               (collapsed)="collapsed($event)"
+                               (expanded)="expanded($event)"
+                               [collapse]="lineItem.isCollapsed">
+                            <app-comments
+                              [comments]="lineItem.commentModels"
+                              [stockOrderLineitemModelId]="lineItem.id"
+                              [canAddComment]="false"
+                              (onCommentAdded)="lineItem.commentModels.push($event)"
+                            ></app-comments>
+                          </div>
+                        </td>
                       </tr>
                     </ng-container>
                     </tbody>

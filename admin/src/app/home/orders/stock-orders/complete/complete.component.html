@@ -92,6 +92,7 @@
               <table class="table table-hover">
                 <thead>
                 <tr>
+                  <th></th>
                   <th class="pointer" (click)="sortColumn = 'productModelName';sortAscending = !sortAscending; getStockOrderLineItems()">Name
                         <i [ngClass]="{'cui-sort-ascending': sortAscending === true && sortColumn === 'productModelName', 'cui-sort-descending': sortAscending === false && sortColumn === 'productModelName'}">
                         </i></th>
@@ -112,6 +113,12 @@
                   </tr>
                   <tr>
                     <ng-container *ngIf="lineItem.productModel">
+                      <td class="text-center" (click)="lineItem.isCollapsed = !lineItem.isCollapsed">
+                        <button class="btn btn-light">
+                          <i class="fa fa-angle-double-down"></i>
+                          <span *ngIf="lineItem.commentModels.length" class="badge badge-pill badge-success">{{lineItem.commentModels.length}}</span>
+                        </button>
+                      </td>
                       <td>
                         {{lineItem.productModel.name}}
                         <br/>
@@ -128,6 +135,21 @@
                       <td>{{lineItem.receivedQuantity}}</td>
                     </ng-container>
                   </tr>
+                  <tr class="no-border">
+                        <td colspan="5" class="no-padding no-border-top">
+                          <div class="padding-15"
+                               (collapsed)="collapsed($event)"
+                               (expanded)="expanded($event)"
+                               [collapse]="lineItem.isCollapsed">
+                            <app-comments
+                              [comments]="lineItem.commentModels"
+                              [stockOrderLineitemModelId]="lineItem.id"
+                              [canAddComment]="editable"
+                              (onCommentAdded)="lineItem.commentModels.push($event)"
+                            ></app-comments>
+                          </div>
+                        </td>
+                      </tr>
                 </ng-container>
                 </tbody>
               </table>
