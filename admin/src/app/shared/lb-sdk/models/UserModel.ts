@@ -31,6 +31,7 @@ export interface UserModelInterface {
   supplierModels?: any[];
   orgModel?: OrgModel;
   storeModels?: any[];
+  commentModels?: any[];
   roleMappings?: any[];
 }
 
@@ -61,6 +62,7 @@ export class UserModel implements UserModelInterface {
   supplierModels: any[];
   orgModel: OrgModel;
   storeModels: any[];
+  commentModels: any[];
   roleMappings: any[];
   constructor(data?: UserModelInterface) {
     Object.assign(this, data);
@@ -250,6 +252,14 @@ export class UserModel implements UserModelInterface {
           modelThrough: 'UserStoreMapping',
           keyThrough: 'storeModelId',
           keyFrom: 'id',
+          keyTo: 'userModelId'
+        },
+        commentModels: {
+          name: 'commentModels',
+          type: 'any[]',
+          model: '',
+          relationType: 'hasMany',
+                  keyFrom: 'id',
           keyTo: 'userModelId'
         },
         roleMappings: {

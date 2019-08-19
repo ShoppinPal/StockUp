@@ -93,6 +93,11 @@
       "type": "hasMany",
       "model": "SupplierStoreMapping",
       "foreignKey": "orgModelId"
+    },
+    "commentModels": {
+      "type": "hasMany",
+      "model": "CommentModel",
+      "foreignKey": "orgModelId"
     }
   },
   "acls": [
@@ -620,6 +625,12 @@
     },
     {
       "principalType": "ROLE",
+      "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "__get__orderConfigModels"
+    },
+    {
+      "principalType": "ROLE",
       "principalId": "orgAdmin",
       "permission": "ALLOW",
       "property": "__updateById__orderConfigModels"
@@ -663,6 +674,44 @@
       "principalId": "orgAdmin",
       "permission": "ALLOW",
       "property": "scanBarcodeStockOrder"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "setDesiredStockLevelForVend"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "setDesiredStockLevelForVend"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__create__commentModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__get__commentModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "__create__commentModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "__get__commentModels"
     }
   ],
   "methods": {}

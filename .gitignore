@@ -57,4 +57,4 @@ seeds
 client/app/scripts/shoppinpal-loopback.js
 client/admin/
 workers/config
-admin/src/app/shared/lb-sdk
+admin/src/app/shared/lb-sdk/

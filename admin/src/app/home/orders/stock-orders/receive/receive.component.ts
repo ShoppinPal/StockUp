@@ -103,9 +103,16 @@ export class ReceiveComponent implements OnInit, OnDestroy {
         },
         productModelId: productModelId
       },
-      include: {
-        relation: 'productModel'
-      },
+      include: [
+        {
+          relation: 'productModel',
+        }, {
+          relation: 'commentModels',
+          scope: {
+            include: 'userModel'
+          }
+        }
+      ],
       limit: limit,
       skip: skip,
       order: 'categoryModelName ' + sortOrder + ', ' + this.sortColumn + ' ' + sortOrder
@@ -129,6 +136,9 @@ export class ReceiveComponent implements OnInit, OnDestroy {
         this.currentPageReceived = (skip / this.lineItemsLimitPerPage) + 1;
         this.totalReceivedLineItems = data[1].count;
         this.receivedLineItems = data[0];
+        this.receivedLineItems.forEach(x => {
+          x.isCollapsed = true;
+        });
       },
       err => {
         this.loading = false;
@@ -153,9 +163,16 @@ export class ReceiveComponent implements OnInit, OnDestroy {
         received: false,
         productModelId: productModelId
       },
-      include: {
-        relation: 'productModel',
-      },
+      include: [
+        {
+          relation: 'productModel',
+        }, {
+          relation: 'commentModels',
+          scope: {
+            include: 'userModel'
+          }
+        }
+      ],
       limit: limit,
       skip: skip,
       order: 'categoryModelName ' + sortOrder + ', ' + this.sortColumn + ' ' + sortOrder
@@ -181,6 +198,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
           if (!this.enableBarcode && data[0][i].receivedQuantity === 0) {
             data[0][i].receivedQuantity = data[0][i].fulfilledQuantity;
           }
+          data[0][i].isCollapsed = true;
         }
         this.notReceivedLineItems = data[0];
       },
@@ -315,8 +333,8 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       this.loading = true;
       this.creatingPurchaseOrderVend = true;
       this.orgModelApi.receiveConsignment(
-          this.userProfile.orgModelId,
-          this.order.id
+        this.userProfile.orgModelId,
+        this.order.id
       ).subscribe(recieveRequest => {
         this.toastr.info('Receiving consignment...');
         this.loading = false;
@@ -331,19 +349,19 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   waitForRecieveWorker(callId) {
     const EventSourceUrl = `/notification/${callId}/waitForResponse`;
     this.subscriptions.push(
-        this._eventSourceService.connectToStream(EventSourceUrl)
-            .subscribe(([event, es]) => {
-              console.log(event);
-             if (event.data.success === true) {
-                es.close();
-                this.creatingPurchaseOrderVend = false;
-                this._router.navigate(['/orders/stock-orders']);
-                this.toastr.success('Order received successfully');
-              } else {
-                this.creatingPurchaseOrderVend = false;
-                this.toastr.error('Error in receiving order');
-              }
-            })
+      this._eventSourceService.connectToStream(EventSourceUrl)
+        .subscribe(([event, es]) => {
+          console.log(event);
+          if (event.data.success === true) {
+            es.close();
+            this.creatingPurchaseOrderVend = false;
+            this._router.navigate(['/orders/stock-orders']);
+            this.toastr.success('Order received successfully');
+          } else {
+            this.creatingPurchaseOrderVend = false;
+            this.toastr.error('Error in receiving order');
+          }
+        })
     );
   }
 
@@ -396,6 +414,14 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       this.searchAndIncrementProduct(this.searchSKUText);
       $event.target.select();
     }
+  }
+
+  collapsed(event: any): void {
+    // console.log(event);
+  }
+
+  expanded(event: any): void {
+    // console.log(event);
   }
 }
 

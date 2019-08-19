@@ -86,7 +86,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       limit = 100;
       skip = 0;
     }
-    let sortOrder = this.sortAscending ? 'ASC': 'DESC';
+    let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
     let filter = {
       where: {
         reportModelId: this.order.id,
@@ -96,6 +96,12 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       include: [
         {
           relation: 'productModel'
+        },
+        {
+          relation: 'commentModels',
+          scope: {
+            include: 'userModel'
+          }
         }
       ],
       limit: limit,
@@ -117,6 +123,9 @@ export class GeneratedComponent implements OnInit, OnDestroy {
         this.currentPageApproved = (skip / this.lineItemsLimitPerPage) + 1;
         this.totalApprovedLineItems = data[1].count;
         this.approvedLineItems = data[0];
+        this.approvedLineItems.forEach(x => {
+          x.isCollapsed = true;
+        });
       },
       err => {
         this.loading = false;
@@ -129,7 +138,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       limit = 100;
       skip = 0;
     }
-    let sortOrder = this.sortAscending ? 'ASC': 'DESC';
+    let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
     let filter = {
       where: {
         reportModelId: this.order.id,
@@ -139,6 +148,12 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       include: [
         {
           relation: 'productModel'
+        },
+        {
+          relation: 'commentModels',
+          scope: {
+            include: 'userModel'
+          }
         }
       ],
       limit: limit,
@@ -160,6 +175,9 @@ export class GeneratedComponent implements OnInit, OnDestroy {
         this.currentPageNotApproved = (skip / this.lineItemsLimitPerPage) + 1;
         this.totalNotApprovedLineItems = data[1].count;
         this.notApprovedLineItems = data[0];
+        this.notApprovedLineItems.forEach(x => {
+          x.isCollapsed = true;
+        });
       },
       err => {
         this.loading = false;
@@ -200,8 +218,8 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       this.creatingTransferOrder = true;
       this.loading = true;
       this.orgModelApi.createTransferOrderMSD(
-          this.userProfile.orgModelId,
-          this.order.id
+        this.userProfile.orgModelId,
+        this.order.id
       ).subscribe(transferOrderRequest => {
         this.loading = false;
         this.toastr.info('Creating Transfer Order');
@@ -220,8 +238,8 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       this.creatingPurchaseOrderVend = true;
       this.loading = true;
       this.orgModelApi.createPurchaseOrderVend(
-          this.userProfile.orgModelId,
-          this.order.id
+        this.userProfile.orgModelId,
+        this.order.id
       ).subscribe(purchaseOrderRequest => {
         this.loading = false;
         this.toastr.info('Creating Purchase Order');
@@ -298,20 +316,20 @@ export class GeneratedComponent implements OnInit, OnDestroy {
   waitForGeneration(callId) {
     const EventSourceUrl = `/notification/${callId}/waitForResponse`;
     this.subscriptions.push(
-        this._eventSourceService.connectToStream(EventSourceUrl)
-            .subscribe(([event, es]) => {
-              if (event.data.success === true) {
-                es.close();
-                this.creatingPurchaseOrderVend = false;
-                this.creatingTransferOrder = false;
-                this._router.navigate(['/orders/stock-orders']);
-                this.toastr.success('Order sent successfully');
-              } else {
-                this.creatingPurchaseOrderVend = false;
-                this.creatingTransferOrder = false;
-                this.toastr.error('Error in sending order to supplier');
-              }
-            })
+      this._eventSourceService.connectToStream(EventSourceUrl)
+        .subscribe(([event, es]) => {
+          if (event.data.success === true) {
+            es.close();
+            this.creatingPurchaseOrderVend = false;
+            this.creatingTransferOrder = false;
+            this._router.navigate(['/orders/stock-orders']);
+            this.toastr.success('Order sent successfully');
+          } else {
+            this.creatingPurchaseOrderVend = false;
+            this.creatingTransferOrder = false;
+            this.toastr.error('Error in sending order to supplier');
+          }
+        })
     );
   }
 
@@ -335,6 +353,49 @@ export class GeneratedComponent implements OnInit, OnDestroy {
         subscription.unsubscribe()
       }
     })
+  }
+
+  collapsed(event: any): void {
+    // console.log(event);
+  }
+
+  expanded(event: any): void {
+    // console.log(event);
+  }
+
+  setDesiredStockLevelForVend(lineItem) {
+    this.loading = true;
+    this.orgModelApi.setDesiredStockLevelForVend(
+      this.userProfile.orgModelId,
+      this.order.storeModelId,
+      lineItem.productModelId,
+      lineItem.desiredStockLevel)
+      .subscribe((data: any) => {
+          this.toastr.success('Updated desired stock level successfully');
+          this.loading = false;
+        },
+        err => {
+          this.toastr.error('Error updating desired stock level');
+          this.loading = false;
+          console.log(err);
+        });
+  }
+
+  increaseDSL(lineItem) {
+    lineItem.desiredStockLevel += 1;
+    this.adjustOrderQuantityWithDSL(lineItem);
+  }
+
+  decreaseDSL(lineItem) {
+    lineItem.desiredStockLevel -= 1;
+    this.adjustOrderQuantityWithDSL(lineItem);
+  }
+
+  adjustOrderQuantityWithDSL(lineItem) {
+    lineItem.orderQuantity = lineItem.desiredStockLevel - lineItem.storeInventory;
+    if (lineItem.caseQuantity && (lineItem.orderQuantity % lineItem.caseQuantity) !== 0) {
+      lineItem.orderQuantity = Math.ceil(lineItem.orderQuantity / lineItem.caseQuantity) * lineItem.caseQuantity;
+    }
   }
 
 }

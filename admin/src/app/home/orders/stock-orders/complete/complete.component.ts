@@ -56,9 +56,17 @@ export class CompleteComponent implements OnInit {
         reportModelId: this.order.id,
         productModelId: productModelId
       },
-      include: {
-        relation: 'productModel'
-      },
+      include: [
+        {
+          relation: 'productModel'
+        },
+        {
+          relation: 'commentModels',
+          scope: {
+            include: 'userModel'
+          }
+        }
+      ],
       limit: limit,
       skip: skip,
       order: 'categoryModelName ' + sortOrder + ', ' + this.sortColumn + ' ' + sortOrder
@@ -77,6 +85,9 @@ export class CompleteComponent implements OnInit {
         this.currentPage = (skip / this.lineItemsLimitPerPage) + 1;
         this.totalLineItems = data[1].count;
         this.lineItems = data[0];
+        this.lineItems.forEach(x => {
+          x.isCollapsed = true;
+        });
       },
       err => {
         this.loading = false;
@@ -115,6 +126,14 @@ export class CompleteComponent implements OnInit {
       this.loading = false;
       console.log(err);
     })
+  }
+
+  collapsed(event: any): void {
+    // console.log(event);
+  }
+
+  expanded(event: any): void {
+    // console.log(event);
   }
 
 }

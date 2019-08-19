@@ -66,6 +66,11 @@
       "type": "belongsTo",
       "model": "OrgModel",
       "foreignKey": ""
+    },
+    "commentModels": {
+      "type": "hasMany",
+      "model": "CommentModel",
+      "foreignKey": "userModelId"
     }
   },
   "acls": [

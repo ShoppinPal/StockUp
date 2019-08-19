@@ -77,4 +77,68 @@ module.exports = function (ProductModel) {
             });
     };
 
+    ProductModel.setDesiredStockLevelForVend = function (id, storeModelId, productModelId, desiredStockLevel, options) {
+        logger.debug({
+            message: 'Will update desired stock level for product in vend',
+            productModelId,
+            storeModelId,
+            desiredStockLevel,
+            functionName: 'setDesiredStockLevelForVend',
+            options
+        });
+        return Promise.all([
+            ProductModel.findById(productModelId),
+            ProductModel.app.models.StoreModel.findById(storeModelId)
+        ])
+            .catch(function (error) {
+                logger.error({
+                    functionName: 'setDesiredStockLevelForVend',
+                    error,
+                    message: 'Could not find product and store instance'
+                });
+                return Promise.reject('Could not find product and store instance');
+            })
+            .then(function (response) {
+                if (response[0] && response[1]) {
+                    logger.debug({
+                        message: 'Found product and store instance',
+                        response,
+                        functionName: 'setDesiredStockLevelForVend',
+                        options
+                    });
+                    let productId = response[0].api_id;
+                    let outletId = response[1].storeNumber;
+                    var vendUtils = require('./../../common/utils/vend')({OrgModel: ProductModel.app.models.OrgModel});
+                    return vendUtils.setDesiredStockLevelForVend(id, outletId, productId, desiredStockLevel, options);
+                }
+                else {
+                    logger.error({
+                        functionName: 'setDesiredStockLevelForVend',
+                        response,
+                        message: 'Could not find product and store instance'
+                    });
+                    return Promise.reject('Could not find product and store instance');
+                }
+            })
+            .catch(function (error) {
+                logger.debug({
+                    message: 'Could not update desired stock level in vend',
+                    functionName: 'setDesiredStockLevelForVend',
+                    error,
+                    reason: error,
+                    options
+                });
+                return Promise.reject('Could not updated desired stock level in vend');
+            })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Successfully updated desired stock level in vend',
+                    functionName: 'setDesiredStockLevelForVend',
+                    options,
+                    response
+                });
+                return Promise.resolve('Successfully updated desired stock level in vend');
+            });
+    };
+
 };
