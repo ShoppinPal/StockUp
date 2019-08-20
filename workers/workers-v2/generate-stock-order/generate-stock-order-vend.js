@@ -9,6 +9,61 @@ const {
     notReceivedStates,
 } = require('../../jobs/utils/utils');
 
+var fulfillAndReceiveConsignment = function(payload, config, taskId, messageId) {
+    'use strict';
+    var Promise = require('bluebird');
+    const ObjectId = require('mongodb').ObjectID;
+    const utils = require('./../../jobs/utils/utils.js');
+    const REPORT_STATES = utils.REPORT_STATES;
+    let reportModel = payload.reportModel,
+        db = payload.db,
+        supplier = payload.supplier;
+    logger.debug({
+        functionName: 'fulfillAndReceiveConsignment',
+        messageId: messageId,
+        message: 'Will update report status to REceive Pending And send to consignment for receive'
+    });
+    return db.collection('ReportModel').update(
+        {
+            _id: ObjectId(reportModel._id),
+            state: REPORT_STATES.FULFILMENT_PENDING
+        },
+        {
+            $set: {
+                state: utils.REPORT_STATES.RECEIVING_PENDING,
+                fulfilledByUserModelId: payload.loopbackAccessToken.userId
+            }
+        }
+    ).catch(function (error) {
+        logger.error({
+            functionName: 'fulfillAndReceiveConsignment',
+            messageId: messageId,
+            error,
+            message: 'Error updating report state to RECEIVING_PENDING'
+        });
+        return Promise.reject('Error updating report state to RECEIVING_PENDING');
+    })
+        .then(function (result) {
+            let receiveConsignmentVend = require('../receive-consignment/receive-consignment-vend');
+            const receiveConsignmentPayload = {
+                orgModelId: payload.orgModelId,
+                reportModelId: reportModel._id,
+                loopbackAccessToken: payload.loopbackAccessToken,
+            };
+            logger.debug({
+                result,
+                messageId: messageId,
+                supplierDefaultState: supplier.reportDefaultState,
+                receiveConsignmentPayload,
+                functionName: 'fulfillAndReceiveConsignment',
+                message: `Will call receive-consignment-vend worker to reach target state of ${supplier.reportDefaultState}`
+            });
+            return receiveConsignmentVend.run(receiveConsignmentPayload, config, taskId, messageId);
+        });
+
+};
+
+
 var runMe = function (payload, config, taskId, messageId) {
 
     try {
@@ -23,50 +78,6 @@ var runMe = function (payload, config, taskId, messageId) {
         var db = null; //database connected
         const rp = require('request-promise');
         var productInstances, inventoryInstances, reportModel, supplier;
-
-        function fulfillAndReceiveConsignment() {
-            logger.debug({
-                functionName: 'fulfillAndReceiveConsignment',
-                messageId: messageId,
-                message: 'Will update report status to REceive Pending And send to consignment for receive'
-            });
-            return db.collection('ReportModel').update(
-                {
-                    _id: ObjectId(reportModel._id),
-                    state: REPORT_STATES.FULFILMENT_PENDING
-                },
-                {
-                    $set: {
-                        state: utils.REPORT_STATES.RECEIVING_PENDING,
-                        fulfilledByUserModelId: payload.loopbackAccessToken.userId
-                    }
-                }
-            ).catch(function (error) {
-                logger.error({
-                    functionName: 'fulfillAndReceiveConsignment',
-                    messageId: messageId,
-                    message: 'Error updating report state to RECEIVING_PENDING'
-                });
-                return Promise.reject('Error updating report state to RECEIVING_PENDING');
-            })
-                .then(function (result) {
-                    let receiveConsignmentVend = require('../receive-consignment/receive-consignment-vend');
-                    const receiveConsignmentPayload = {
-                        orgModelId: payload.orgModelId,
-                        reportModelId: reportModel._id,
-                        loopbackAccessToken: payload.loopbackAccessToken,
-                    };
-                    logger.debug({
-                        messageId: messageId,
-                        supplierDefaultState: supplier.reportDefaultState,
-                        receiveConsignmentPayload,
-                        functionName: 'fulfillAndReceiveConsignment',
-                        message: `Will call receive-consignment-vend worker to reach target state of ${supplier.reportDefaultState}`
-                    });
-                    return receiveConsignmentVend.run(receiveConsignmentPayload, config, taskId, messageId);
-                });
-
-        }
 
         logger.debug({
             messageId: messageId,
@@ -481,7 +492,7 @@ var runMe = function (payload, config, taskId, messageId) {
                 if (result === 'ERROR_REPORT'){
                     return Promise.reject('Error while processing order');
                 } else if(supplier.reportDefaultState === REPORT_STATES.COMPLETE) {
-                   return fulfillAndReceiveConsignment();
+                   return fulfillAndReceiveConsignment(Object.assign(payload, {reportModel}, {supplier}, {db}), config, taskId, messageId);
                 } else {
                     return Promise.resolve(updateResult);
 
