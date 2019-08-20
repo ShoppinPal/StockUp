@@ -7,11 +7,28 @@
           <strong>User details</strong>
         </div>
         <div class="card-body">
-          <div class="row">
-            <div class="form-group col-sm-6">
-              <p>Name: <strong>{{user.name}}</strong></p>
-              <p>Email: <strong>{{user.email}}</strong></p>
-              <p *ngIf="user.id !== userProfile.userId ">Invitation:
+            <div class="row">
+            <div class="form-group col-sm-12">
+              <b>Name:</b>
+              <div class="input-group">
+                <input type="text"
+                       class="form-control"
+                       [(ngModel)]="user.name"
+                       placeholder="Name">
+              </div>
+            </div>
+            </div>
+            <div class="row">
+            <div class="form-group col-sm-12">
+            <b>Email:</b>
+              <div class="input-group">
+                {{user.email}}
+              </div>
+            </div>
+            </div>
+            <div class="row">
+            <div class="form-group col-sm-12">
+            <p *ngIf="user.id !== userProfile.userId ">Invitation:
 
                 <button *ngIf="!user.emailVerified" class="btn btn-danger"
                         type="submit"
@@ -22,6 +39,16 @@
                         *ngIf="user.emailVerified">
                   Invite accepted</strong>
               </p>
+            </div>
+            </div>
+            </div>
+        <div class="card-footer">
+          <div class="row">
+            <div class="col-sm-12">
+              <span class="input-group-btn">
+                <button class="btn btn-primary" type="button"
+                        (click)="updateUser()">Update User</button>
+              </span>
             </div>
           </div>
         </div>

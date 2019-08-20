@@ -5,6 +5,7 @@ import {ToastrService} from 'ngx-toastr';
 import {Observable, combineLatest} from 'rxjs';
 import {UserProfileService} from "../../shared/services/user-profile.service";
 import {UserModel} from '../../shared/lb-sdk/models';
+import Utils from '../../shared/constants/utils'
 
 @Component({
   selector: 'app-users',
@@ -31,7 +32,10 @@ export class UsersComponent implements OnInit {
   public foundUser: boolean = false;
   public searchedUser: Array<any>;
   public maxPageDisplay: number = 7;
-  public newUserEmail: string;
+  public newUser: any = {
+    name: '',
+    email: ''
+  };
 
   ngOnInit() {
     this.userProfile = this._userProfileService.getProfileData();
@@ -97,14 +101,19 @@ export class UsersComponent implements OnInit {
   }
 
   createVirtualUser() {
+    if (!Utils.validateEmail(this.newUser.email)) {
+      this.toastr.error('Invalid Email');
+      return;
+    }
     this.loading = true;
     this.orgModelApi.createUserModels(this.userProfile.orgModelId, {
-      email: this.newUserEmail,
+       email: this.newUser.email,
+      name: this.newUser.name,
       password: Math.random().toString(36).slice(-8),
       virtual: true
     })
       .subscribe(user => {
-      this.newUserEmail = '';
+      this.newUser = new UserModel();
       this.loading = false;
       this.currentPage = 1;
       this.fetchUsers();

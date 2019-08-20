@@ -9,11 +9,22 @@
         <div class="card-body">
           <div class="row">
             <div class="form-group col-sm-12">
-              <span>User Email: &nbsp;&nbsp;</span>
+              <span>Name:</span>
               <div class="input-group">
                 <input type="text"
                        class="form-control"
-                       [(ngModel)]="newUserEmail"
+                       [(ngModel)]="newUser.name"
+                       placeholder="Name">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group col-sm-12">
+              <span>Email: &nbsp;&nbsp;</span>
+              <div class="input-group">
+                <input type="text"
+                       class="form-control"
+                       [(ngModel)]="newUser.email"
                        placeholder="Email">
               </div>
             </div>

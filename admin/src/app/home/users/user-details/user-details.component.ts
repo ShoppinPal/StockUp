@@ -5,6 +5,7 @@ import {ToastrService} from 'ngx-toastr';
 import {Observable, combineLatest} from 'rxjs';
 import {flatMap} from 'rxjs/operators';
 import {UserProfileService} from "../../../shared/services/user-profile.service";
+import Utils from '../../../shared/constants/utils';
 
 @Component({
   selector: 'app-user-details',
@@ -74,6 +75,24 @@ export class UserDetailsComponent implements OnInit {
         this.loading = false;
         console.log('error', err);
       });
+  }
+
+  updateUser() {
+    if (!Utils.validateEmail(this.user.email)) {
+      this.toastr.error('Invalid Email');
+      return;
+    }
+    this.loading = true;
+    this.orgModelApi.updateByIdUserModels(this.userProfile.orgModelId,
+      this.user.id,
+      this.user
+    ).subscribe(user => {
+      this.loading = false;
+      this.user = user;
+    }, error1 => {
+      this.loading = false;
+      console.error(error1);
+    })
   }
 
 }
