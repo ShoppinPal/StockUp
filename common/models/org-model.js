@@ -1001,6 +1001,8 @@ module.exports = function (OrgModel) {
             logger.debug({
                 message: 'Will create purchase order in Vend',
                 reportModelId,
+                sendEmail,
+                emailData,
                 options,
                 functionName: 'createPurchaseOrderVend'
             });
