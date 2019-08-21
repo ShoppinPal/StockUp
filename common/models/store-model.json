@@ -18,11 +18,6 @@
       "type": "string",
       "required": true
     },
-    "isWarehouse": {
-      "type": "boolean",
-      "required": true,
-      "default": false
-    },
     "phone": {
       "type": "string"
     },
@@ -116,6 +111,11 @@
       "type": "hasMany",
       "model": "SupplierStoreMapping",
       "foreignKey": "storeModelId"
+    },
+    "ownerSupplierModel": {
+      "type": "belongsTo",
+      "model": "SupplierModel",
+      "foreignKey": "ownerSupplierModelId"
     }
   },
   "acls": [

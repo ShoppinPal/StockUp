@@ -3,6 +3,7 @@ import {ActivatedRoute} from '@angular/router';
 import {OrgModelApi} from "../../../shared/lb-sdk/services/custom/OrgModel";
 import {UserProfileService} from "../../../shared/services/user-profile.service";
 import {ToastrService} from 'ngx-toastr';
+import {combineLatest} from "rxjs";
 
 @Component({
   selector: 'app-edit-suppliers',
@@ -16,6 +17,7 @@ export class EditSuppliersComponent implements OnInit {
   public userProfile: any;
   public loading: boolean = false;
   public mappings: any = {};
+  public storeLocationId: any;
 
   constructor(private _route: ActivatedRoute,
               private toastr: ToastrService,
@@ -32,7 +34,10 @@ export class EditSuppliersComponent implements OnInit {
           let correspondingMapping = this.supplier.supplierStoreMappings.find(map => {
             return map.storeModelId == this.stores[i].objectId;
           });
-          this.mappings[this.stores[i].objectId] =  correspondingMapping ? correspondingMapping.storeCode : '';
+          this.mappings[this.stores[i].objectId] = correspondingMapping ? correspondingMapping.storeCode : '';
+          if (this.stores[i].ownerSupplierModelId === this.supplier.id) {
+            this.storeLocationId = this.stores[i].objectId;
+          }
         }
 
       },
@@ -48,7 +53,10 @@ export class EditSuppliersComponent implements OnInit {
       this.toastr.error('Invalid supplier email');
     }
     else {
-      this.orgModelApi.updateByIdSupplierModels(this.userProfile.orgModelId, this.supplier.id, this.supplier)
+      combineLatest(
+        this.orgModelApi.updateByIdSupplierModels(this.userProfile.orgModelId, this.supplier.id, this.supplier),
+        this.orgModelApi.assignStoreToSupplier(this.userProfile.orgModelId, this.storeLocationId, this.supplier.id)
+      )
         .subscribe((data: any)=> {
             this.loading = false;
             this.toastr.success('Updated Supplier Info successfully');
@@ -74,14 +82,14 @@ export class EditSuppliersComponent implements OnInit {
     }
     this.orgModelApi.editSupplierStoreMappings(this.userProfile.orgModelId, mappings)
       .subscribe((data: any) => {
-        this.toastr.success('Updated store codes successfully');
-        this.loading = false;
-      },
-      err => {
-        this.loading = false;
-        this.toastr.error('Could not update store codes');
-        console.log('err', err);
-      });
+          this.toastr.success('Updated store codes successfully');
+          this.loading = false;
+        },
+        err => {
+          this.loading = false;
+          this.toastr.error('Could not update store codes');
+          console.log('err', err);
+        });
   }
 
 

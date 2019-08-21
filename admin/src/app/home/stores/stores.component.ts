@@ -17,7 +17,6 @@ export class StoresComponent implements OnInit {
   public filter: any = {};
   public stores: Array<any>;
   public storeName: string;
-  public isWarehouse: boolean;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -57,7 +56,6 @@ export class StoresComponent implements OnInit {
     this.loading = true;
     this.orgModelApi.createStoreModels(this.userProfile.orgModelId, {
       name: this.storeName,
-      isWarehouse: this.isWarehouse,
       storeNumber: 'Virtual Store'
     })
       .subscribe((data: any) => {

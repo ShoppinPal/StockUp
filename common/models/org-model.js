@@ -1195,6 +1195,30 @@ module.exports = function (OrgModel) {
                 });
         };
 
+         OrgModel.remoteMethod('assignStoreToSupplier', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'storeModelId', type: 'string', required: true},
+                {arg: 'supplierModelId', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/assignStoreToSupplier', verb: 'post'},
+            returns: {arg: 'result', type: 'string'}
+        });
+
+        OrgModel.assignStoreToSupplier = function (id, storeModelId, supplierModelId, options) {
+            return OrgModel.app.models.StoreModel.assignStoreToSupplier(id, storeModelId, supplierModelId, options)
+                .catch(function (error) {
+                    logger.debug({
+                        message: 'Error updating supplier store',
+                        error,
+                        functionName: 'assignStoreToSupplier',
+                        options
+                    });
+                    return Promise.reject('Error updating supplier store');
+                });
+        };
+
 
         OrgModel.remoteMethod('listenSSE', {
             accepts: [
