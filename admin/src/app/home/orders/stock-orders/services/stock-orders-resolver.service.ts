@@ -23,11 +23,7 @@ private userProfile: any;
       this.fetchFulfillStockOrders(),
       this.fetchCompletedStockOrders(),
       this.orgModelApi.getSupplierModels(this.userProfile.orgModelId),
-      this.orgModelApi.getStoreModels(this.userProfile.orgModelId, {
-        where: {
-          isWarehouse: true
-        }
-      }),
+      this.orgModelApi.getStoreModels(this.userProfile.orgModelId),
       this.orgModelApi.getOrderConfigModels(this.userProfile.orgModelId, {
         order: 'createdAt desc',
         fields: ['id', 'name']
@@ -47,7 +43,7 @@ private userProfile: any;
             completedOrders: data[3].completedOrders,
             completedOrdersCount: data[3].completedOrdersCount,
             suppliers: data[4],
-            warehouses: data[5],
+            stores: data[5],
             orderConfigurations: data[6]
           }
         },

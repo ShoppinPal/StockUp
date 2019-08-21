@@ -24,15 +24,15 @@
                   <span>Deliver To: &nbsp;&nbsp;</span>
                   <select class="form-control" [(ngModel)]="selectedStoreId" id="storeName">
                     <option disabled="disabled" value="">Select..</option>
-                    <option *ngFor="let store of stores" [value]="store.objectId">{{store.name}}</option>
+                    <option *ngFor="let store of userStores" [value]="store.objectId">{{store.name}}</option>
                   </select>
                 </div>
                 <div class="form-group col-sm-12">
-                  <span>Select Warehouse: &nbsp;&nbsp;</span>
+                  <span>Deliver From: &nbsp;&nbsp;</span>
                   <select class="form-control" [(ngModel)]="selectedWarehouseId" id="warehouseName">
                     <option disabled="disabled" value="Select...">Select..</option>
-                    <option *ngFor="let warehouse of warehouses" [value]="warehouse.objectId">
-                      {{warehouse.name}}
+                    <option *ngFor="let store of stores" [value]="store.objectId">
+                      {{store.name}}
                     </option>
                   </select>
                 </div>
@@ -50,16 +50,6 @@
                          placeholder="Start typing to search for category"
                   />
                 </div>
-                <div class="form-group col-sm-12" *ngIf="userProfile.integrationType === 'vend'">
-                  <span>Select Supplier (Optional) : </span>
-                  <select class="form-control" [(ngModel)]="selectedSupplierId" id="supplierName"
-                          [disabled]="uploader.queue.length">
-                    <option disabled="disabled" value="">Select..</option>
-                    <option *ngFor="let supplier of suppliers" ng-if="" [value]="supplier.id">{{supplier.name}}
-                    </option>
-                  </select>
-                </div>
-
               </tab>
               <tab heading="Import from File">
                 <div class="form-group">

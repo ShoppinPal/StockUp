@@ -83,11 +83,10 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.userProfile = this._userProfileService.getProfileData();
-    this.userStores = this.userProfile.storeModels.map(x => x.objectId);
+    this.userStores = this.userProfile.storeModels;
     this._route.data.subscribe((data: any) => {
         this.populateOrders(data.stockOrders);
-        this.warehouses = data.stockOrders.warehouses;
-        this.stores = this.userProfile.storeModels.filter(x => x.isWarehouse !== true);
+        this.stores = data.stockOrders.stores;
         this.suppliers = data.stockOrders.suppliers;
         this.orderConfigurations = data.stockOrders.orderConfigurations;
         if (this.orderConfigurations && this.orderConfigurations.length > 0) {
@@ -240,10 +239,10 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
   generateStockOrderMSD() {
     this.loading = true;
     this.orgModelApi.generateStockOrderMSD(
-        this.userProfile.orgModelId,
-        this.selectedStoreId,
-        this.selectedWarehouseId,
-        this.selectedCategoryId
+      this.userProfile.orgModelId,
+      this.selectedStoreId,
+      this.selectedWarehouseId,
+      this.selectedCategoryId
     ).subscribe(reportModelData => {
       this.loading = false;
       this.toastr.info('Generating stock order');
@@ -275,27 +274,34 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
         console.log('status', status);
         this.toastr.error('Error importing stock order from file');
       };
-    } else if (this.selectedSupplierId) {
-        this.loading = true;
-
+    } else if (this.selectedStoreId) {
+      this.loading = true;
+      let deliverFromStore = this.stores.find(x => x.objectId === this.selectedWarehouseId);
+      if (!deliverFromStore.ownerSupplierModelId) {
+        this.toastr.error('Store transfers are not supported yet');
+        this.loading = false;
+      }
+      else {
+        this.selectedSupplierId = deliverFromStore.ownerSupplierModelId;
         this.orgModelApi.generateStockOrderVend(
-            this.userProfile.orgModelId,
-            this.selectedStoreId,
-            this.selectedSupplierId,
-            this.orderName || '',
-            this.selectedWarehouseId
-            ).subscribe(reportModelData => {
-              this.loading = false;
-              this.toastr.info('Generating stock order');
-              console.log(reportModelData);
-              this.generatedOrders.unshift({...reportModelData.data, backgroundEffect: true});
-              this.waitForStockOrderNotification(reportModelData.callId)
+          this.userProfile.orgModelId,
+          this.selectedStoreId,
+          this.selectedSupplierId,
+          this.orderName || '',
+          this.selectedWarehouseId
+        ).subscribe(reportModelData => {
+          this.loading = false;
+          this.toastr.info('Generating stock order');
+          console.log(reportModelData);
+          this.generatedOrders.unshift({...reportModelData.data, backgroundEffect: true});
+          this.waitForStockOrderNotification(reportModelData.callId)
         }, error => {
-              this.loading = false;
-              this.toastr.error('Error in generating order');
-      })
+          this.loading = false;
+          this.toastr.error('Error in generating order');
+        })
+      }
     } else {
-      this.toastr.error('Select a supplier or upload a file to generate order from');
+      this.toastr.error('Select a store to deliver from or upload a file to generate order from');
       return;
     }
   };
@@ -303,23 +309,23 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
   waitForStockOrderNotification(callId) {
     const EventSourceUrl = `/notification/${callId}/waitForResponseAPI`;
     this.subscriptions.push(
-    this._eventSourceService.connectToStream(EventSourceUrl)
+      this._eventSourceService.connectToStream(EventSourceUrl)
         .subscribe(([event, es]) => {
           console.log(event);
           es.close();
           this._stockOrdersResolverService.fetchGeneratedStockOrders(1, 0, event.data.reportModelId)
-              .subscribe(reportModel => {
-                const reportIndex = this.generatedOrders.findIndex((report) => report.id === event.data.reportModelId);
-                this.generatedOrders[reportIndex] = reportModel.generatedOrders[0];
-                this.totalGeneratedOrders = reportModel.generatedOrdersCount;
-                this.totalGeneratedOrdersPages = this.totalGeneratedOrders / this.ordersLimitPerPage;
-                if (event.data.success === true) {
-                  this.toastr.success('Generated Stock Order Success');
-                } else {
-                  this.toastr.error('Error Generating Stock Order');
-                }
-                this.fetchOrderRowCounts();
-              });
+            .subscribe(reportModel => {
+              const reportIndex = this.generatedOrders.findIndex((report) => report.id === event.data.reportModelId);
+              this.generatedOrders[reportIndex] = reportModel.generatedOrders[0];
+              this.totalGeneratedOrders = reportModel.generatedOrdersCount;
+              this.totalGeneratedOrdersPages = this.totalGeneratedOrders / this.ordersLimitPerPage;
+              if (event.data.success === true) {
+                this.toastr.success('Generated Stock Order Success');
+              } else {
+                this.toastr.error('Error Generating Stock Order');
+              }
+              this.fetchOrderRowCounts();
+            });
 
         })
     );
@@ -358,17 +364,17 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
   private waitForFileImportWorker() {
     const EventSourceUrl = `/notification/${this.userProfile.userId}/waitForResponse`;
     this.subscriptions.push(
-        this._eventSourceService.connectToStream(EventSourceUrl)
-            .subscribe(([event, es]) => {
-              console.log(event);
-              es.close();
-              if (event.data.success === true) {
-                this.toastr.success('File Imported Successfully');
-                this.fetchOrders('generated')
-              }else {
-                this.toastr.error('File Import Failed ');
-              }
-            })
+      this._eventSourceService.connectToStream(EventSourceUrl)
+        .subscribe(([event, es]) => {
+          console.log(event);
+          es.close();
+          if (event.data.success === true) {
+            this.toastr.success('File Imported Successfully');
+            this.fetchOrders('generated')
+          } else {
+            this.toastr.error('File Import Failed ');
+          }
+        })
     );
   }
 }
