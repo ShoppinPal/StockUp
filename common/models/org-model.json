@@ -690,6 +690,13 @@
       "property": "setDesiredStockLevelForVend"
     },
     {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "assignStoreToSupplier"
+    },
+    {
       "principalType": "ROLE",
       "principalId": "orgAdmin",
       "permission": "ALLOW",

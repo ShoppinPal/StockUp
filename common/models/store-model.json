@@ -116,6 +116,11 @@
       "type": "hasMany",
       "model": "SupplierStoreMapping",
       "foreignKey": "storeModelId"
+    },
+    "ownerSupplierModel": {
+      "type": "belongsTo",
+      "model": "SupplierModel",
+      "foreignKey": "ownerSupplierModelId"
     }
   },
   "acls": [

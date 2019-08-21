@@ -7,17 +7,27 @@
           <h4>{{supplier.name}}</h4>
         </div>
         <div class="card-body">
-          <form action="" method="post" class="form-horizontal">
-            <div class="form-group row">
-              <label class="col-md-2 col-form-label" for="hf-email">Primary Email</label>
-              <div class="col-md-10">
-                <input type="email" id="hf-email" name="hf-email" class="form-control" [(ngModel)]="supplier.email" placeholder="Enter Email..">
-              </div>
+          <div class="form-group row">
+            <label class="col-md-2 col-form-label" for="hf-email">Primary Email</label>
+            <div class="col-md-10">
+              <input type="email" id="hf-email" name="hf-email" class="form-control" [(ngModel)]="supplier.email"
+                     placeholder="Enter Email..">
             </div>
-          </form>
+          </div>
+          <div class="form-group row">
+            <label class="col-md-2 col-form-label" for="storeName">Select Store Location:</label>
+            <div class="col-md-10">
+              <select class="form-control" [(ngModel)]="storeLocationId" id="storeName">
+                <option disabled="disabled" value="Select...">Select..</option>
+                <option *ngFor="let store of stores" [value]="store.objectId">{{store.name}}</option>
+              </select>
+            </div>
+          </div>
         </div>
         <div class="card-footer">
-          <button type="submit" class="btn btn-sm btn-primary" (click)="updateSupplierDetails()"><i class="fa fa-dot-circle-o"></i> Save</button>
+          <button type="submit" class="btn btn-sm btn-primary" (click)="updateSupplierDetails()"><i
+            class="fa fa-dot-circle-o"></i> Save
+          </button>
         </div>
       </div>
     </div><!--/.col-->
@@ -52,7 +62,9 @@
           </table>
         </div>
         <div class="card-footer">
-          <button type="submit" class="btn btn-sm btn-primary" (click)="updateSupplierStoreMappings()"><i class="fa fa-dot-circle-o"></i> Save</button>
+          <button type="submit" class="btn btn-sm btn-primary" (click)="updateSupplierStoreMappings()"><i
+            class="fa fa-dot-circle-o"></i> Save
+          </button>
         </div>
       </div>
     </div><!--/.col-->
