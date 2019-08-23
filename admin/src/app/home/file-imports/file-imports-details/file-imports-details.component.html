@@ -7,48 +7,49 @@
           <strong>File Import Configuration details</strong>
         </div>
         <div class="card-body">
-          <div class="row">
-            <div class="form-group col-sm-12">
-              <div class="input-group">
-                <span>Name: &nbsp;&nbsp;</span>
-                <input type="text"
-                       class="form-control col-sm-6"
-                       [(ngModel)]="orderConfiguration.name"
-                       placeholder="Enter mapping name"/>
-
-              </div>
+          <div class="form-group row">
+            <div class="input-group">
+              <span class="col-sm-4">Name: &nbsp;&nbsp;</span>
+              <input type="text"
+                     class="form-control col-sm-6"
+                     [(ngModel)]="orderConfiguration.name"
+                     placeholder="Enter mapping name"/>
             </div>
           </div>
-          <div class="row">
-            <div class="form-group col-sm-12">
-              <div class="input-group">
-                <span>Group By (Optional) : &nbsp;&nbsp;{{orderConfiguration.groupBy || 'NA'}}</span>
-              </div>
+          <div class="form-group row">
+            <div class="input-group">
+              <span class="col-sm-4">Group By (Optional) :</span>
+              <span class="col-sm-6 text-left">{{orderConfiguration.groupBy || 'NA'}}</span>
             </div>
           </div>
-          <div class="row">
-            <div class="form-group col-sm-12">
-              <div class="input-group">
-                <span>Report Status : &nbsp;&nbsp;</span>
-                <select class="form-control col-sm-6" [(ngModel)]="orderConfiguration.orderStatus"
-                        placeholder="Select..">
-                  <option *ngFor="let states of reportStates | keyvalue"
-                          [value]="states.value"
-                  >
-                    {{states.value}}
-                  </option>
-                </select>
-              </div>
+          <div class="form-group row">
+            <div class="input-group">
+              <span class="col-sm-4">Report Status :</span>
+              <select class="form-control col-sm-6" [(ngModel)]="orderConfiguration.orderStatus"
+                      placeholder="Select..">
+                <option *ngFor="let states of reportStates | keyvalue" [value]="states.value">
+                  {{states.value}}
+                </option>
+              </select>
             </div>
           </div>
-          <div class="row">
-            <div class="form-group col-sm-12">
-              <div class="input-group">
-                <span>Order Name: &nbsp;&nbsp;</span>
-                <input type="text"
-                       class="form-control col-sm-6"
-                       [(ngModel)]="orderConfiguration.orderName"
-                       placeholder="Enter order name"/>
+          <div class="form-group row">
+            <div class="input-group">
+              <span class="col-sm-4">Order Name:</span>
+              <input type="text"
+                     class="form-control col-sm-6"
+                     [(ngModel)]="orderConfiguration.orderName"
+                     placeholder="Enter order name"/>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="input-group">
+              <span class="col-sm-4">Order Name Suffixes: </span>
+              <div class="col-sm-6">
+                <div class="row" *ngFor="let suffix of orderConfiguration.orderNameSuffixes">
+                  <span class="col-sm-6">Header: <small>{{suffix.header}}</small></span>
+                  <span class="col-sm-6">Default Value: <small>{{(suffix.defaultValue)}}</small></span>
+                </div>
               </div>
             </div>
           </div>

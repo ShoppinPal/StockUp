@@ -57,62 +57,75 @@
                     </div>
                   </div>
                 </div>
-                <i (click)="removeMapping(header.key)" *ngIf="fileHeaders[header.key].parent" class="fa fa-times-circle text-danger right"></i>
+                <i (click)="removeMapping(header.key)" *ngIf="fileHeaders[header.key].parent"
+                   class="fa fa-times-circle text-danger right"></i>
               </td>
             </tr>
             </tbody>
           </table>
         </div>
         <div class="card-footer">
-          <div class="row">
-            <div class="form-group col-sm-12">
-              <div class="input-group">
-                <span>Enter a name for this mapping: &nbsp;&nbsp;</span>
-                <input type="text"
-                       class="form-control col-sm-6"
-                       [(ngModel)]="mappingName"
-                       placeholder="XYZ import setting"/>
+          <div class="form-group row">
+            <div class="input-group">
+              <span class="col-sm-4">Enter a name for this mapping: &nbsp;&nbsp;</span>
+              <input type="text"
+                     class="form-control col-sm-6"
+                     [(ngModel)]="mappingName"
+                     placeholder="XYZ import setting"/>
 
-              </div>
             </div>
           </div>
-          <div class="row">
-            <div class="form-group col-sm-12">
-              <div class="input-group">
-                <span>Group By (Optional) : &nbsp;&nbsp;</span>
-                <select class="form-control col-sm-6" [(ngModel)]="groupBy">
-                  <option value="">Select..</option>
-                  <option *ngFor="let headers of fileHeaders | keyvalue" [value]="headers.key">{{headers.key}}
-                  </option>
-                </select>
-              </div>
+          <div class="form-group row">
+            <div class="input-group">
+              <span class="col-sm-4"> Group By (Optional) : &nbsp;&nbsp;</span>
+              <select class="form-control col-sm-6" [(ngModel)]="groupBy">
+                <option value="">Select..</option>
+                <option *ngFor="let headers of fileHeaders | keyvalue" [value]="headers.key">{{headers.key}}
+                </option>
+              </select>
             </div>
           </div>
-          <div class="row">
-            <div class="form-group col-sm-12">
-              <div class="input-group">
-                <span>Report Status : &nbsp;&nbsp;</span>
-                <select class="form-control col-sm-6" [(ngModel)]="orderStatus" placeholder="Select..">
-                  <option value="" disabled>Select..</option>
-                  <option *ngFor="let states of reportStates | keyvalue" [value]="states.value">{{states.value}}
-                  </option>
-                </select>
-              </div>
+          <div class="form-group row">
+            <div class="input-group">
+              <span class="col-sm-4">Report Status : &nbsp;&nbsp;</span>
+              <select class="form-control col-sm-6" [(ngModel)]="orderStatus" placeholder="Select..">
+                <option value="" disabled>Select..</option>
+                <option *ngFor="let states of reportStates | keyvalue" [value]="states.value">{{states.value}}
+                </option>
+              </select>
             </div>
           </div>
-          <div class="row">
-            <div class="form-group col-sm-12">
-              <div class="input-group">
-                <span>Enter a name for orders: &nbsp;&nbsp;</span>
-                <input type="text"
-                       class="form-control col-sm-6"
-                       [(ngModel)]="orderName"
-                       placeholder="Order Name"/>
-
-              </div>
+          <div class="form-group row">
+            <div class="input-group">
+              <span class="col-sm-4">Enter a name for orders: &nbsp;&nbsp;</span>
+              <input type="text"
+                     class="form-control col-sm-6"
+                     [(ngModel)]="orderName"
+                     placeholder="Order Name"/>
+            </div>
+            <div class="input-group input-group-sm" *ngFor="let suffix of nameSuffixes; let i = index;">
+              <div class="col-sm-4"></div>
+              <select class="form-control col-sm-3" [(ngModel)]="suffix.header">
+                <option value="">Select Header..</option>
+                <option *ngFor="let headers of fileHeaders | keyvalue" [value]="headers.key">{{headers.key}}
+                </option>
+              </select>
+              <input type="text"
+                     class="form-control col-sm-3"
+                     [(ngModel)]="suffix.defaultValue"
+                     placeholder="Default Value"/>
+              <button class="btn btn-link" (click)="removeNameSuffix(i)">
+                <i class="fa fa-times-circle text-danger"></i>
+              </button>
+            </div>
+            <div class="input-group">
+              <div class="col-sm-4"></div>
+              <button class="btn btn-link col-sm-2 text-left" (click)="addNameSuffix()">
+                <i class="fa fa-plus-circle"></i>&nbsp;Add Suffix
+              </button>
             </div>
           </div>
-          <div class="row">
+          <div class="form-group row">
             <div class="col-sm-12">
               <span class="input-group-btn">
                 <button class="btn btn-success" type="button"
@@ -156,12 +169,12 @@
               </td>
               <td>
                 <button class="btn btn-primary" type="submit" (click)="goToFileImportsDetailsPage(config.id)">
-                <i class="fa fa-save"></i> View
+                  <i class="fa fa-save"></i> View
                 </button>
               </td>
               <td>
                 <button class="btn btn-danger" type="submit" (click)="deleteOrderConfig(config.id)">
-                <i class="fa fa-save"></i> Delete
+                  <i class="fa fa-save"></i> Delete
                 </button>
               </td>
             </tr>
