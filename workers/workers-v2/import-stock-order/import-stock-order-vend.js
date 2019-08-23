@@ -144,7 +144,7 @@ let runMe = function (payload, config, taskId, messageId) {
                         let purchaseOrderPayload = {
                             loopbackAccessToken: payload.loopbackAccessToken,
                             orgModelId: ObjectId(orderConfigModel.orgModelId),
-                            reportModelId: ObjectId(eachCreatedOrder.ops[0].reportModelId) //get the reportModelId from lineItem saved
+                            reportModelId: ObjectId(eachCreatedOrder._id) //get the reportModelId from lineItem saved
                         };
                         return generatePurchaseOrderVend.run(purchaseOrderPayload, config, taskId, messageId);
                     }, {
@@ -174,9 +174,7 @@ let runMe = function (payload, config, taskId, messageId) {
                     response,
                     messageId
                 });
-                let createdOrderIds = _.map(createdOrders, function (eachOrder) {
-                   return ObjectId(eachOrder.ops[0]._id);
-                });
+                let createdOrderIds = _.pluck(createdOrders, '_id');
                 logger.debug({
                     message: 'Will update report state according to order config model for these orders',
                     status: orderConfigModel.orderStatus,
@@ -585,8 +583,41 @@ function mapSpreadSheetDataToOrders(db, orderConfigModel, spreadSheetRows, userM
 }
 
 function createOrders(db, orders, messageId) {
+    let createdOrders = [];
     return Promise.map(orders, function (eachOrder) {
-        return db.collection('ReportModel').insert(_.omit(eachOrder, 'lineItems', 'groupBy'))
+        logger.debug({
+            message: 'Will look for supplier\'s virtual store',
+            eachOrder,
+            messageId
+        });
+        return db.collection('StoreModel').findOne({
+            ownerSupplierModelId: ObjectId(eachOrder.supplierModelId)
+        })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not find supplier\'s virtual store',
+                    eachOrder,
+                    messageId
+                });
+                return Promise.reject('Could not find supplier\'s virtual store');
+            })
+            .then(function (storeModelInstance) {
+                if (!storeModelInstance) {
+                    logger.error({
+                        message: 'Could not find supplier\'s virtual store',
+                        eachOrder,
+                        messageId
+                    });
+                    return Promise.reject('Could not find supplier\'s virtual store');
+                }
+                logger.debug({
+                    message: 'Found supplier\'s virtual store',
+                    storeModelInstance,
+                    messageId
+                });
+                eachOrder.deliverFromStoreModelId = ObjectId(storeModelInstance.ownerSupplierModelId);
+                return db.collection('ReportModel').insert(_.omit(eachOrder, 'lineItems', 'groupBy'))
+            })
             .catch(function (error) {
                 logger.error({
                     message: 'Could not create report model',
@@ -601,6 +632,7 @@ function createOrders(db, orders, messageId) {
                     response,
                     messageId
                 });
+                createdOrders.push(response.ops[0]);
                 return db.collection('StockOrderLineitemModel').insertMany(_.map(eachOrder.lineItems, function (eachLineItem) {
                     return _.extend(eachLineItem, {reportModelId: ObjectId(response.ops[0]._id)});
                 }));
@@ -613,5 +645,13 @@ function createOrders(db, orders, messageId) {
                 });
                 return Promise.reject('Could not create line items');
             });
-    });
+    })
+        .then(function (response) {
+            logger.debug({
+                message: 'Saved orders to db successfully',
+                createdOrders,
+                messageId
+            });
+            return Promise.resolve(createdOrders);
+        });
 }
