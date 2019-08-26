@@ -99,6 +99,21 @@
       "type": "belongsTo",
       "model": "OrderConfigModel",
       "foreignKey": "orderConfigModelId"
+    },
+    "approvedByUserModel": {
+      "type": "belongsTo",
+      "model": "UserModel",
+      "foreignKey": "approvedByUserModelId"
+    },
+    "fulfilledByUserModel": {
+      "type": "belongsTo",
+      "model": "UserModel",
+      "foreignKey": "fulfilledByUserModelId"
+    },
+    "receivedByUserModel": {
+      "type": "belongsTo",
+      "model": "UserModel",
+      "foreignKey": "receivedByUserModelId"
     }
   },
   "acls": [

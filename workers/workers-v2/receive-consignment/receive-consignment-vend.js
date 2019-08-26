@@ -205,7 +205,8 @@ var runMe = function (payload, config, taskId, messageId) {
                             _id: ObjectId(reportModelId)
                         }, {
                             $set: {
-                                state: utils.REPORT_STATES.COMPLETE
+                                state: utils.REPORT_STATES.COMPLETE,
+                                receivedByUserModelId: payload.loopbackAccessToken.userId
                             }
                         });
                     }

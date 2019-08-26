@@ -21,12 +21,12 @@
               <p *ngIf="order.transferOrderNumber">Transfer Order Number: <strong>{{order.transferOrderNumber}}</strong>
               </p>
             </div>
-            <!--<div class="form-group col-sm-12">-->
-            <!--<div class="input-group">-->
-            <!--<span>(Upload Min Display Quantities and Shelf Capacities) &nbsp;&nbsp; </span>-->
-            <!--<input type="file" ng2FileSelect [uploader]="uploader"/>-->
-            <!--</div>-->
-            <!--</div>-->
+            <div class="form-group col-sm-6">
+              <p>Deliver To: <strong>{{order.storeModel?.name}}</strong></p>
+              <p>Deliver From: <strong>{{order.deliverFromStoreModel?.name}}</strong></p>
+              <p>Created By: <strong>{{order.userModel?.name}}</strong></p>
+              <p>Approved By: <strong>{{order.approvedByUserModel?.name}}</strong></p>
+            </div>
           </div>
         </div>
         <div class="card-footer">
@@ -127,11 +127,17 @@
                     <thead>
                     <tr>
                       <th></th>
-                      <th class="pointer" (click)="sortColumn = 'productModelName';sortAscending = !sortAscending; getNotFulfilledStockOrderLineItems()">Name
-                        <i [ngClass]="{'cui-sort-ascending': sortAscending === true && sortColumn === 'productModelName', 'cui-sort-descending': sortAscending === false && sortColumn === 'productModelName'}">
+                      <th class="pointer"
+                          (click)="sortColumn = 'productModelName';sortAscending = !sortAscending; getNotFulfilledStockOrderLineItems()">
+                        Name
+                        <i
+                          [ngClass]="{'cui-sort-ascending': sortAscending === true && sortColumn === 'productModelName', 'cui-sort-descending': sortAscending === false && sortColumn === 'productModelName'}">
                         </i></th>
-                      <th class="pointer" (click)="sortColumn = 'productModelSku';sortAscending = !sortAscending; getNotFulfilledStockOrderLineItems()">SKU
-                        <i [ngClass]="{'cui-sort-ascending': sortAscending===true && sortColumn === 'productModelSku', 'cui-sort-descending': sortAscending===false && sortColumn === 'productModelSku'}">
+                      <th class="pointer"
+                          (click)="sortColumn = 'productModelSku';sortAscending = !sortAscending; getNotFulfilledStockOrderLineItems()">
+                        SKU
+                        <i
+                          [ngClass]="{'cui-sort-ascending': sortAscending===true && sortColumn === 'productModelSku', 'cui-sort-descending': sortAscending===false && sortColumn === 'productModelSku'}">
                         </i></th>
                       <th>Order Quantity</th>
                       <th>Fulfilled Quantity</th>
@@ -232,11 +238,17 @@
                     <thead>
                     <tr>
                       <th></th>
-                      <th class="pointer" (click)="sortColumn = 'productModelName';sortAscending = !sortAscending; getFulfilledStockOrderLineItems()">Name
-                        <i [ngClass]="{'cui-sort-ascending': sortAscending === true && sortColumn === 'productModelName', 'cui-sort-descending': sortAscending === false && sortColumn === 'productModelName'}">
+                      <th class="pointer"
+                          (click)="sortColumn = 'productModelName';sortAscending = !sortAscending; getFulfilledStockOrderLineItems()">
+                        Name
+                        <i
+                          [ngClass]="{'cui-sort-ascending': sortAscending === true && sortColumn === 'productModelName', 'cui-sort-descending': sortAscending === false && sortColumn === 'productModelName'}">
                         </i></th>
-                      <th class="pointer" (click)="sortColumn = 'productModelSku';sortAscending = !sortAscending; getFulfilledStockOrderLineItems()">SKU
-                        <i [ngClass]="{'cui-sort-ascending': sortAscending===true && sortColumn === 'productModelSku', 'cui-sort-descending': sortAscending===false && sortColumn === 'productModelSku'}">
+                      <th class="pointer"
+                          (click)="sortColumn = 'productModelSku';sortAscending = !sortAscending; getFulfilledStockOrderLineItems()">
+                        SKU
+                        <i
+                          [ngClass]="{'cui-sort-ascending': sortAscending===true && sortColumn === 'productModelSku', 'cui-sort-descending': sortAscending===false && sortColumn === 'productModelSku'}">
                         </i></th>
                       <th>Order Quantity</th>
                       <th>Fulfilled Quantity</th>

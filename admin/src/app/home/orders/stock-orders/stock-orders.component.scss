@@ -1,16 +1,16 @@
-$green-color: #e6ffed;
+$blue-color: #d2f3ff;
 
 @keyframes backgroundEffect {
-  from {background-color: $green-color;}
-  to {background-color: white;}
+  from {background: $blue-color;}
+  to {background: white;}
 }
 
 @-webkit-keyframes backgroundEffect {
-  from {background-color: $green-color;}
-  to {background-color: white;}
+  from {background: $blue-color;}
+  to {background: white;}
 }
 
-$animation-duration: 6s;
+$animation-duration: 10s;
 
 .backgroundEffectStart {
   animation-name: backgroundEffect;

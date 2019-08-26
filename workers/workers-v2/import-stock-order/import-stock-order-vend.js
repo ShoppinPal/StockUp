@@ -144,7 +144,7 @@ let runMe = function (payload, config, taskId, messageId) {
                         let purchaseOrderPayload = {
                             loopbackAccessToken: payload.loopbackAccessToken,
                             orgModelId: ObjectId(orderConfigModel.orgModelId),
-                            reportModelId: ObjectId(eachCreatedOrder.ops[0].reportModelId) //get the reportModelId from lineItem saved
+                            reportModelId: ObjectId(eachCreatedOrder._id) //get the reportModelId from lineItem saved
                         };
                         return generatePurchaseOrderVend.run(purchaseOrderPayload, config, taskId, messageId);
                     }, {
@@ -170,18 +170,25 @@ let runMe = function (payload, config, taskId, messageId) {
             })
             .then(function (response) {
                 logger.debug({
-                    message: 'Pushed order to Vend, will update report state according to order config model',
+                    message: 'Pushed order to Vend',
                     response,
                     messageId
                 });
-                return Promise.map(createdOrders, function (eachOrder) {
-                    return db.collection('ReportModel').updateOne({
-                        _id: ObjectId(eachOrder._id)
-                    }, {
-                        $set: {
-                            status: orderConfigModel.orderStatus
-                        }
-                    });
+                let createdOrderIds = _.pluck(createdOrders, '_id');
+                logger.debug({
+                    message: 'Will update report state according to order config model for these orders',
+                    status: orderConfigModel.orderStatus,
+                    createdOrderIds,
+                    messageId
+                });
+                return db.collection('ReportModel').updateMany({
+                    _id: {
+                        $in: createdOrderIds
+                    }
+                }, {
+                    $set: {
+                        status: orderConfigModel.orderStatus
+                    }
                 });
             })
             .catch(function (error) {
@@ -386,13 +393,13 @@ function readFileData(req, messageId) {
 
 function mapSpreadSheetDataToOrders(db, orderConfigModel, spreadSheetRows, userModelId, messageId) {
     let reportModelsToCreate = [], lineItemsToCreate = [];
-    let supplierStoreCodeFileHeader = _.findWhere(orderConfigModel.mappings.Supplier, {stockupHeader: 'supplierStoreId'}).fileHeader;
+    let supplierStoreCodeFileHeader = _.findWhere(orderConfigModel.mappings.Store, {stockupHeader: 'supplierStoreId'}).fileHeader;
     let supplierStoreCodes = _.uniq(_.pluck(spreadSheetRows, supplierStoreCodeFileHeader));
     let skuFileHeader = _.findWhere(orderConfigModel.mappings.Product, {stockupHeader: 'sku'}).fileHeader;
     let orderQuantityFileHeader = _.findWhere(orderConfigModel.mappings.Inventory, {stockupHeader: 'orderQuantity'}).fileHeader;
     let fulfilledQuantityFileHeader = _.findWhere(orderConfigModel.mappings.Inventory, {stockupHeader: 'fulfilledQuantity'}).fileHeader;
     let skusToAdd = _.uniq(_.pluck(spreadSheetRows, skuFileHeader));
-    //just to make sure to stringify if any sku contains just numbers
+    //just to make sure to st\ringify if any sku contains just numbers
     let skusToAddStringified = _.map(skusToAdd, function (eachSku) {
         return typeof eachSku === 'string' ? eachSku : JSON.stringify(eachSku);
     });
@@ -438,7 +445,7 @@ function mapSpreadSheetDataToOrders(db, orderConfigModel, spreadSheetRows, userM
             logger.debug({
                 message: 'Found product instances, will find supplier model instances',
                 count: productModelInstances.length,
-                sample: productModelInstances,
+                sample: productModelInstances[0],
                 messageId
             });
             let supplierModelIds = _.uniq(_.pluck(productModelInstances, 'supplierModelId'));
@@ -446,7 +453,6 @@ function mapSpreadSheetDataToOrders(db, orderConfigModel, spreadSheetRows, userM
                 supplierModelId: {
                     $in: supplierModelIds
                 }
-
             }).toArray();
         })
         .then(function (supplierStoreMappings) {
@@ -471,6 +477,7 @@ function mapSpreadSheetDataToOrders(db, orderConfigModel, spreadSheetRows, userM
                         eachSpreadSheetRow.categoryModelName = productFound.categoryModel && productFound.categoryModel.length ? productFound.categoryModel[0].name : 'No Category';
                         eachSpreadSheetRow.supplyPrice = productFound.supply_price;
                         eachSpreadSheetRow.binLocation = productFound.binLocation;
+                        eachSpreadSheetRow.groupBy = eachSpreadSheetRow[orderConfigModel.groupBy];
                         let correspondingSupplierStoreMapping = _.find(supplierStoreMappings, function (eachMapping) {
                             return (
                                     typeof eachSpreadSheetRow[supplierStoreCodeFileHeader] === 'string' ?
@@ -481,7 +488,8 @@ function mapSpreadSheetDataToOrders(db, orderConfigModel, spreadSheetRows, userM
                         eachSpreadSheetRow.storeModelId = correspondingSupplierStoreMapping ? correspondingSupplierStoreMapping.storeModelId : '';
                         let existingOrderIndex = _.findIndex(reportModelsToCreate, function (eachOrder) {
                             return eachSpreadSheetRow.supplierModelId.equals(eachOrder.supplierModelId) &&
-                                eachSpreadSheetRow.storeModelId.equals(eachOrder.storeModelId)
+                                eachSpreadSheetRow.storeModelId.equals(eachOrder.storeModelId) &&
+                                eachSpreadSheetRow.groupBy === eachOrder.groupBy;
                         });
                         let approvedStates = [
                             REPORT_STATES.FULFILMENT_PENDING,
@@ -521,16 +529,27 @@ function mapSpreadSheetDataToOrders(db, orderConfigModel, spreadSheetRows, userM
                             updatedAt: new Date()
                         };
                         if (existingOrderIndex === -1) {
+
+                            let name = orderConfigModel.orderName;
+                            _.each(orderConfigModel.orderNameSuffixes, function (eachSuffix) {
+                                if (eachSpreadSheetRow[eachSuffix.header]) {
+                                    name += '_' + eachSpreadSheetRow[eachSuffix.header];
+                                }
+                                else {
+                                    name += '_' + eachSuffix.defaultValue
+                                }
+                            });
                             let newOrder = {
                                 storeModelId: ObjectId(eachSpreadSheetRow.storeModelId),
                                 supplierModelId: ObjectId(eachSpreadSheetRow.supplierModelId),
-                                name: orderConfigModel.orderName,
+                                name: name,
                                 createdAt: new Date(),
                                 updatedAt: new Date(),
                                 state: orderConfigModel.orderStatus,
                                 orgModelId: ObjectId(orderConfigModel.orgModelId),
                                 userModelId: ObjectId(userModelId),
-                                lineItems: [lineItem]
+                                lineItems: [lineItem],
+                                groupBy: eachSpreadSheetRow[orderConfigModel.groupBy]
                             };
                             reportModelsToCreate.push(newOrder);
                         }
@@ -564,8 +583,41 @@ function mapSpreadSheetDataToOrders(db, orderConfigModel, spreadSheetRows, userM
 }
 
 function createOrders(db, orders, messageId) {
+    let createdOrders = [];
     return Promise.map(orders, function (eachOrder) {
-        return db.collection('ReportModel').insert(_.omit(eachOrder, 'lineItems'))
+        logger.debug({
+            message: 'Will look for supplier\'s virtual store',
+            eachOrder,
+            messageId
+        });
+        return db.collection('StoreModel').findOne({
+            ownerSupplierModelId: ObjectId(eachOrder.supplierModelId)
+        })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not find supplier\'s virtual store',
+                    eachOrder,
+                    messageId
+                });
+                return Promise.reject('Could not find supplier\'s virtual store');
+            })
+            .then(function (storeModelInstance) {
+                if (!storeModelInstance) {
+                    logger.error({
+                        message: 'Could not find supplier\'s virtual store',
+                        eachOrder,
+                        messageId
+                    });
+                    return Promise.reject('Could not find supplier\'s virtual store');
+                }
+                logger.debug({
+                    message: 'Found supplier\'s virtual store',
+                    storeModelInstance,
+                    messageId
+                });
+                eachOrder.deliverFromStoreModelId = ObjectId(storeModelInstance.ownerSupplierModelId);
+                return db.collection('ReportModel').insert(_.omit(eachOrder, 'lineItems', 'groupBy'))
+            })
             .catch(function (error) {
                 logger.error({
                     message: 'Could not create report model',
@@ -580,6 +632,7 @@ function createOrders(db, orders, messageId) {
                     response,
                     messageId
                 });
+                createdOrders.push(response.ops[0]);
                 return db.collection('StockOrderLineitemModel').insertMany(_.map(eachOrder.lineItems, function (eachLineItem) {
                     return _.extend(eachLineItem, {reportModelId: ObjectId(response.ops[0]._id)});
                 }));
@@ -592,5 +645,13 @@ function createOrders(db, orders, messageId) {
                 });
                 return Promise.reject('Could not create line items');
             });
-    });
+    })
+        .then(function (response) {
+            logger.debug({
+                message: 'Saved orders to db successfully',
+                createdOrders,
+                messageId
+            });
+            return Promise.resolve(createdOrders);
+        });
 }

@@ -59,7 +59,7 @@ private userProfile: any;
       limit: limit,
       skip: skip,
       order: 'createdAt DESC',
-      include: ['storeModel', 'userModel', 'supplierModel'],
+      include: ['storeModel', 'userModel', 'supplierModel', 'deliverFromStoreModel'],
     };
 
     let pendingGeneratedReportsCountFilter = {

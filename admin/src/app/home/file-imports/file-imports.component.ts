@@ -31,6 +31,7 @@ export class FileImportsComponent implements OnInit {
   public orderConfigurations: any;
   public groupBy: string;
   public orderName: string;
+  public nameSuffixes: Array<any> = [];
 
   constructor(private orgModelApi: OrgModelApi,
               private containerApi: ContainerApi,
@@ -142,7 +143,9 @@ export class FileImportsComponent implements OnInit {
         name: this.mappingName,
         mappings: this.mappings,
         groupBy: this.groupBy,
-        orderStatus: this.orderStatus
+        orderStatus: this.orderStatus,
+        orderName: this.orderName,
+        orderNameSuffixes: this.nameSuffixes
       })
         .subscribe((data: any) => {
             this.toastr.success('Saved mapping successfully');
@@ -178,6 +181,17 @@ export class FileImportsComponent implements OnInit {
   goToFileImportsDetailsPage(configId) {
     this.loading = true;
     this._router.navigate(['file-imports/file-imports-details/' + configId]);
+  }
+
+  addNameSuffix() {
+    this.nameSuffixes.push({
+      header: '',
+      defaultValue: ''
+    });
+  }
+
+  removeNameSuffix(index) {
+    this.nameSuffixes.splice(index, 1);
   }
 
 
