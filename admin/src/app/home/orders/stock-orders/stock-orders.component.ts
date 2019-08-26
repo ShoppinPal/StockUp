@@ -70,6 +70,7 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
   public orderConfigurations: any;
   public selectedOrderConfigurationId;
   private subscriptions: Subscription[] = [];
+  public REPORT_STATES = constants.REPORT_STATES;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
