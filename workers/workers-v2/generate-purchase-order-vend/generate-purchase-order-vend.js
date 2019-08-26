@@ -116,7 +116,8 @@ var runMe = function (payload, config, taskId, messageId) {
                         _id: ObjectId(reportModelId)
                     }, {
                         $set: {
-                            state: REPORT_STATES.SENDING_TO_SUPPLIER
+                            state: REPORT_STATES.SENDING_TO_SUPPLIER,
+                            approvedByUserModelId: payload.loopbackAccessToken.userId
                         }
                     });
                 })

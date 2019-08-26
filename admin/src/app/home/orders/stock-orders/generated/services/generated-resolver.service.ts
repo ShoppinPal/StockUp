@@ -42,12 +42,29 @@ export class GeneratedResolverService implements Resolve<string> {
           inq: allowedStates
         }
       },
-      include: {
-        relation: 'supplierModel',
-        scope:{
-          fields: ['email']
+      include: [
+        {
+          relation: 'supplierModel',
+          scope: {
+            fields: ['email']
+          }
+        },
+        {
+          relation: 'storeModel'
+        },
+        {
+          relation: 'deliverFromStoreModel',
+          scope: {
+            fields: ['name']
+          }
+        },
+        {
+          relation: 'userModel',
+          scope: {
+            fields: ['name']
+          }
         }
-      }
+      ]
     };
     return this.orgModelApi.getReportModels(this.userProfile.orgModelId, filter).pipe(map((data: any) => {
         if (data.length) {

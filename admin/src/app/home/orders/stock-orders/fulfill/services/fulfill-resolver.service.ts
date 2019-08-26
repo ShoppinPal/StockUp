@@ -40,7 +40,7 @@ export class FulfillResolverService implements Resolve<string> {
           inq: allowedStates
         }
       },
-      include: ['storeModel']
+      include: ['storeModel', 'deliverFromStoreModel', 'userModel', 'approvedByUserModel']
     };
     return this.orgModelApi.getReportModels(this.userProfile.orgModelId, filter).pipe(map((data: any) => {
         if (data.length) {

@@ -11,7 +11,7 @@
             <div class="form-group col-sm-6">
               <p>Name: <strong>{{order.name}}</strong></p>
               <p>Total Items: <strong>{{totalReceivedLineItems+totalNotReceivedLineItems}}</strong></p>
-              <p>Created At: <strong>{{order.created | date: 'y-MM-dd HH:mm'}}</strong></p>
+              <p>Created At: <strong>{{order.createdAt | date: 'y-MM-dd HH:mm'}}</strong></p>
               <p>Status: <strong>{{order.state}}</strong>
                 <button type="button" class="btn btn-link" (click)="getOrderDetails()">
                   <i class="fa fa-refresh"></i>
@@ -19,6 +19,13 @@
               </p>
               <p *ngIf="order.transferOrderNumber">Transfer Order Number: <strong>{{order.transferOrderNumber}}</strong>
               </p>
+            </div>
+            <div class="form-group col-sm-6">
+              <p>Deliver To: <strong>{{order.storeModel?.name}}</strong></p>
+              <p>Deliver From: <strong>{{order.deliverFromStoreModel?.name}}</strong></p>
+              <p>Created By: <strong>{{order.userModel?.name}}</strong></p>
+              <p>Approved By: <strong>{{order.approvedByUserModel?.name}}</strong></p>
+              <p>Fulfilled By: <strong>{{order.fulfilledByUserModel?.name}}</strong></p>
             </div>
           </div>
         </div>

@@ -20,6 +20,11 @@
               <p *ngIf="order.transferOrderNumber">Transfer Order Number: <strong>{{order.transferOrderNumber}}</strong>
               </p>
             </div>
+            <div class="form-group col-sm-6">
+              <p>Deliver To: <strong>{{order.storeModel?.name}}</strong></p>
+              <p>Deliver From: <strong>{{order.deliverFromStoreModel?.name}}</strong></p>
+              <p>Created By: <strong>{{order.userModel?.name}}</strong></p>
+            </div>
           </div>
         </div>
         <div class="card-footer">
