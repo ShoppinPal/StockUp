@@ -690,6 +690,8 @@ module.exports = function (OrgModel) {
             accepts: [
                 {arg: 'id', type: 'string', required: true},
                 {arg: 'reportModelId', type: 'string', required: true},
+                {arg: 'sendEmail', type: 'boolean', required: true},
+                {arg: 'emailData', type: 'object'},
                 {arg: 'res', type: 'object', 'http': {source: 'res'}},
                 {arg: 'options', type: 'object', http: 'optionsFromRequest'}
             ],
@@ -697,24 +699,53 @@ module.exports = function (OrgModel) {
             returns: {arg: 'data', type: 'object', root: true}
         });
 
-        OrgModel.createTransferOrderMSD = function (id, reportModelId, res, options) {
+        OrgModel.createTransferOrderMSD = function (id, reportModelId, sendEmail, emailData, res, options) {
             logger.debug({
                 message: 'Will create transfer order in MSD',
                 reportModelId,
                 options,
                 functionName: 'createTransferOrderMSD'
             });
-            return OrgModel.app.models.ReportModel.createTransferOrderMSD(id, reportModelId, res, options)
-                .catch(function (error) {
-                    logger.error({
-                        message: 'Could not create transfer order in MSD',
-                        reportModelId,
-                        options,
-                        functionName: 'createTransferOrderMSD',
-                        error
+            if (sendEmail === true) {
+                 OrgModel.app.models.ReportModel.sendReportAsEmail(reportModelId, emailData.to, emailData.cc, emailData.bcc, options)
+                    .then(function () {
+                        return OrgModel.app.models.ReportModel.createTransferOrderMSD(id, reportModelId, res, options);
+                    })
+                    .catch(function (error) {
+                        logger.error({
+                            message: 'Could not send Email',
+                            reportModelId,
+                            options,
+                            functionName: 'createTransferOrderMSD',
+                            error
+                        });
+                        //Sending error response without using promise chain
+                        res.status(500).send('Could not email transfer order');
+                        return Promise.reject('Could not email transfer order');
+                    })
+                    .catch(function (error) {
+                        logger.error({
+                            message: 'Could not create transfer order in MSD',
+                            reportModelId,
+                            options,
+                            functionName: 'createTransferOrderMSD',
+                            error
+                        });
+                        return Promise.reject('Could not create transfer order in MSD');
                     });
-                    return Promise.reject('Could not create transfer order in MSD');
-                });
+            } else {
+                 OrgModel.app.models.ReportModel.createTransferOrderMSD(id, reportModelId, res, options)
+                    .catch(function (error) {
+                        logger.error({
+                            message: 'Could not create transfer order in MSD',
+                            reportModelId,
+                            options,
+                            functionName: 'createTransferOrderMSD',
+                            error
+                        });
+                        return Promise.reject('Could not create transfer order in MSD');
+                    });
+            }
         };
 
         OrgModel.remoteMethod('updateAllStockOrderLineItemModels', {
@@ -957,6 +988,8 @@ module.exports = function (OrgModel) {
             accepts: [
                 {arg: 'id', type: 'string', required: true},
                 {arg: 'reportModelId', type: 'string', required: true},
+                {arg: 'sendEmail', type: 'boolean', required: true},
+                {arg: 'emailData', type: 'object'},
                 {arg: 'res', type: 'object', 'http': {source: 'res'}},
                 {arg: 'options', type: 'object', http: 'optionsFromRequest'}
             ],
@@ -964,24 +997,55 @@ module.exports = function (OrgModel) {
             returns: {arg: 'data', type: 'object', root: true}
         });
 
-        OrgModel.createPurchaseOrderVend = function (id, reportModelId, res, options) {
+        OrgModel.createPurchaseOrderVend = function (id, reportModelId, sendEmail, emailData, res, options) {
             logger.debug({
                 message: 'Will create purchase order in Vend',
                 reportModelId,
+                sendEmail,
+                emailData,
                 options,
                 functionName: 'createPurchaseOrderVend'
             });
-            OrgModel.app.models.ReportModel.createPurchaseOrderVend(id, reportModelId, res, options)
-                .catch(function (error) {
-                    logger.error({
-                        message: 'Could not create purchase order in Vend',
-                        reportModelId,
-                        options,
-                        functionName: 'createPurchaseOrderVend',
-                        error
+            if (sendEmail === true) {
+                 OrgModel.app.models.ReportModel.sendReportAsEmail(reportModelId, emailData.to, emailData.cc, emailData.bcc, options)
+                    .catch(function (error) {
+                        logger.error({
+                            message: 'Could not send Email',
+                            reportModelId,
+                            options,
+                            functionName: 'createPurchaseOrderVend',
+                            error
+                        });
+                        //Sending error response without using promise chain
+                        res.status(500).send('Could not email purchase order');
+                        return Promise.reject('Could not email purchase order');
+                    })
+                    .then(function () {
+                       return OrgModel.app.models.ReportModel.createPurchaseOrderVend(id, reportModelId, res, options);
+                    })
+                    .catch(function (error) {
+                        logger.error({
+                            message: 'Could not create purchase order in Vend',
+                            reportModelId,
+                            options,
+                            functionName: 'createPurchaseOrderVend',
+                            error
+                        });
+                        return Promise.reject('Could not create purchase order in Vend');
                     });
-                    return Promise.reject('Could not create purchase order in Vend')
-                });
+            } else {
+                  OrgModel.app.models.ReportModel.createPurchaseOrderVend(id, reportModelId, res, options)
+                    .catch(function (error) {
+                        logger.error({
+                            message: 'Could not create purchase order in Vend',
+                            reportModelId,
+                            options,
+                            functionName: 'createPurchaseOrderVend',
+                            error
+                        });
+                        return Promise.reject('Could not create purchase order in Vend');
+                    });
+            }
         };
 
         OrgModel.remoteMethod('assignRoles', {
