@@ -3,6 +3,7 @@ import {ActivatedRoute} from '@angular/router';
 import {OrgModelApi} from "../../../shared/lb-sdk/services/custom/OrgModel";
 import {UserProfileService} from "../../../shared/services/user-profile.service";
 import {ToastrService} from 'ngx-toastr';
+import {constants} from '../../../shared/constants/constants';
 import {combineLatest} from "rxjs";
 
 @Component({
@@ -17,6 +18,7 @@ export class EditSuppliersComponent implements OnInit {
   public userProfile: any;
   public loading: boolean = false;
   public mappings: any = {};
+  public reportStates: any;
   public storeLocationId: any;
 
   constructor(private _route: ActivatedRoute,
@@ -44,6 +46,7 @@ export class EditSuppliersComponent implements OnInit {
       error => {
         console.log('error', error)
       });
+    this.reportStates = constants.REPORT_STATES
   }
 
   updateSupplierDetails() {

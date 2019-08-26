@@ -1,6 +1,67 @@
 const path = require('path');
 const commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 const logger = require('sp-json-logger')({fileName: 'workers:workers-v2:' + commandName});
+const {
+    approvedStates,
+    fulfilledStates,
+    receivedStates,
+    notApprovedStates,
+    notReceivedStates,
+} = require('../../jobs/utils/utils');
+
+var fulfillAndReceiveConsignment = function(payload, config, taskId, messageId) {
+    'use strict';
+    var Promise = require('bluebird');
+    const ObjectId = require('mongodb').ObjectID;
+    const utils = require('./../../jobs/utils/utils.js');
+    const REPORT_STATES = utils.REPORT_STATES;
+    let reportModel = payload.reportModel,
+        db = payload.db,
+        supplier = payload.supplier;
+    logger.debug({
+        functionName: 'fulfillAndReceiveConsignment',
+        messageId: messageId,
+        message: 'Will update report status to REceive Pending And send to consignment for receive'
+    });
+    return db.collection('ReportModel').update(
+        {
+            _id: ObjectId(reportModel._id),
+            state: REPORT_STATES.FULFILMENT_PENDING
+        },
+        {
+            $set: {
+                state: utils.REPORT_STATES.RECEIVING_PENDING,
+                fulfilledByUserModelId: payload.loopbackAccessToken.userId
+            }
+        }
+    ).catch(function (error) {
+        logger.error({
+            functionName: 'fulfillAndReceiveConsignment',
+            messageId: messageId,
+            error,
+            message: 'Error updating report state to RECEIVING_PENDING'
+        });
+        return Promise.reject('Error updating report state to RECEIVING_PENDING');
+    })
+        .then(function (result) {
+            let receiveConsignmentVend = require('../receive-consignment/receive-consignment-vend');
+            const receiveConsignmentPayload = {
+                orgModelId: payload.orgModelId,
+                reportModelId: reportModel._id,
+                loopbackAccessToken: payload.loopbackAccessToken,
+            };
+            logger.debug({
+                result,
+                messageId: messageId,
+                supplierDefaultState: supplier.reportDefaultState,
+                receiveConsignmentPayload,
+                functionName: 'fulfillAndReceiveConsignment',
+                message: `Will call receive-consignment-vend worker to reach target state of ${supplier.reportDefaultState}`
+            });
+            return receiveConsignmentVend.run(receiveConsignmentPayload, config, taskId, messageId);
+        });
+
+};
 
 
 var runMe = function (payload, config, taskId, messageId) {
@@ -16,7 +77,7 @@ var runMe = function (payload, config, taskId, messageId) {
         const REPORT_STATES = utils.REPORT_STATES;
         var db = null; //database connected
         const rp = require('request-promise');
-        var productInstances, inventoryInstances, reportModel, userRoles;
+        var productInstances, inventoryInstances, reportModel, supplier;
 
         logger.debug({
             messageId: messageId,
@@ -53,27 +114,7 @@ var runMe = function (payload, config, taskId, messageId) {
             .then(function (dbInstance) {
                 db = dbInstance;
                 logger.debug({
-                    message: 'Will look for user role mappings',
-                    userModelId: payload.loopbackAccessToken.userId,
-                    messageId
-                });
-                return db.collection('RoleMapping').find({
-                    principalId: ObjectId(payload.loopbackAccessToken.userId)
-                }).toArray();
-            })
-            .catch(function (error) {
-                logger.error({
-                    message: 'Could not find user\'s role mappings',
-                    messageId,
-                    userModelId: payload.loopbackAccessToken.userId,
-                    error
-                });
-                return Promise.reject('Could not find user\'s role mappings');
-            })
-            .then(function (roleMappings) {
-                logger.debug({
-                    message: 'Found user\'s role mappings, will look for user\'s roles, store and supplier info',
-                    roleMappings,
+                    message: 'will look for user\'s roles, store and supplier info',
                     messageId
                 });
                 return Promise.all([
@@ -82,30 +123,24 @@ var runMe = function (payload, config, taskId, messageId) {
                     }),
                     db.collection('SupplierModel').findOne({
                         _id: ObjectId(payload.supplierModelId)
-                    }),
-                    db.collection('Role').find({
-                        _id: {
-                            $in: _.pluck(roleMappings, 'roleId')
-                        }
-                    }).toArray()
+                    })
                 ]);
             })
             .catch(function (error) {
                 logger.error({
-                    message: 'Could not find roles, store and supplier details',
+                    message: 'Could not find store and supplier details',
                     error,
                     messageId
                 });
                 return Promise.reject('Could not find store and supplier details');
             })
-            .then(function (response) {
-                var storeModelInstance = response[0];
-                var supplierModelInstance = response[1];
-                userRoles = response[2];
+            .spread(function (storeModelInstance, supplierModelInstance) {
+                supplier = supplierModelInstance;
                 if (!storeModelInstance) {
                     logger.error({
                         message: 'Could not find store info, will exit',
-                        response,
+                        storeModelInstance,
+                        supplierModelInstance,
                         messageId
                     });
                     return Promise.reject('Could not find store info, will exit');
@@ -113,14 +148,17 @@ var runMe = function (payload, config, taskId, messageId) {
                 if (!supplierModelInstance) {
                     logger.error({
                         message: 'Could not find supplier info, will exit',
-                        response,
+                        storeModelInstance,
+                        supplierModelInstance,
                         messageId
                     });
                     return Promise.reject('Could not find supplier info, will exit');
                 }
                 logger.debug({
                     message: 'Found supplier and store info, will create a new report model',
-                    response
+                    storeModelInstance,
+                    supplierModelInstance,
+                    messageId
                 });
                 var supplierStoreCode = supplierModelInstance.storeIds ? supplierModelInstance.storeIds[payload.storeModelId] : '';
                 supplierStoreCode = supplierStoreCode ? '#' + supplierStoreCode : '';
@@ -310,6 +348,9 @@ var runMe = function (payload, config, taskId, messageId) {
 
                         if (useRow) {
                             var categoryName = eachProduct.categoryModel && eachProduct.categoryModel.length ? eachProduct.categoryModel[0].name: 'No Category';
+                            let isApproved = supplier.reportDefaultState ? approvedStates.includes(supplier.reportDefaultState): false;
+                            let isFulfilled = supplier.reportDefaultState ? fulfilledStates.includes(supplier.reportDefaultState): false;
+                            let isReceived = supplier.reportDefaultState ? receivedStates.includes(supplier.reportDefaultState): false;
                             var row = {
                                 productModelId: ObjectId(eachProduct._id),
                                 productModelName: eachProduct.name, //need for sorting
@@ -318,17 +359,17 @@ var runMe = function (payload, config, taskId, messageId) {
                                 desiredStockLevel: desiredStockLevel,
                                 orderQuantity: orderQuantity,
                                 originalOrderQuantity: orderQuantity,
-                                fulfilledQuantity: 0,
-                                receivedQuantity: 0,
+                                fulfilledQuantity: isFulfilled ? orderQuantity: 0,
+                                receivedQuantity: isReceived? orderQuantity : 0,
                                 caseQuantity: caseQuantity,
                                 supplyPrice: eachProduct.supply_price,
                                 supplierModelId: ObjectId(eachProduct.supplierModelId),
                                 categoryModelId: ObjectId(eachProduct.categoryModelId),
                                 binLocation: eachProduct.binLocation,
                                 categoryModelName: categoryName,  //need for sorting
-                                approved: false,
-                                fulfilled: false,
-                                received: false,
+                                approved: isApproved,
+                                fulfilled: isFulfilled,
+                                received: isReceived,
                                 reportModelId: ObjectId(reportModel._id),
                                 userModelId: ObjectId(payload.loopbackAccessToken.userId),
                                 createdAt: new Date(),
@@ -378,10 +419,6 @@ var runMe = function (payload, config, taskId, messageId) {
                     message: `Done updating the stock order line item models with required product and inventory info`,
                     response
                 });
-                logger.debug({
-                    messageId: messageId,
-                    message: `Will change the status of report to ${REPORT_STATES.GENERATED}`
-                });
                 if (response === 'ERROR_REPORT') {
                     return Promise.all([
                         db.collection('ReportModel').updateOne({_id: ObjectId(reportModel._id)}, {
@@ -393,14 +430,54 @@ var runMe = function (payload, config, taskId, messageId) {
                     ]);
                 }
                 else {
-                    return Promise.all([
-                        db.collection('ReportModel').updateOne({_id: ObjectId(reportModel._id)}, {
-                        $set: {
-                            state: REPORT_STATES.GENERATED
-                        }
-                    }),
-                        response
-                    ]);
+                    //If no default state is specified then set it to generated
+                    if (!supplier.reportDefaultState) {
+                        logger.debug({
+                            messageId: messageId,
+                            message: `Will change the status of report to ${REPORT_STATES.GENERATED}`
+                        });
+                        return Promise.all([
+                            db.collection('ReportModel').updateOne({_id: ObjectId(reportModel._id)}, {
+                                $set: {
+                                    state: REPORT_STATES.GENERATED
+                                }
+                            }),
+                            response
+                        ]);
+                        //If order is not yet sent to supplier or order is has not been received yet
+                    } else if (notApprovedStates.includes(supplier.reportDefaultState) ||
+                        notReceivedStates.includes(supplier.reportDefaultState)
+                    ) {
+                        logger.debug({
+                            messageId: messageId,
+                            message: `Default Supplier State Found , Will change the status of report to ${supplier.reportDefaultState}`
+                        });
+                        return Promise.all([
+                            db.collection('ReportModel').updateOne({_id: ObjectId(reportModel._id)}, {
+                                $set: {
+                                    state: supplier.reportDefaultState
+                                }
+                            }),
+                            response
+                        ]);
+                    } else {
+                        logger.debug({
+                            messageId: messageId,
+                            supplierDefaultState: supplier.reportDefaultState,
+                            message: `Will call generate-purchase-order-vend worker to reach target state of ${supplier.reportDefaultState}`
+                        });
+                        let generatePurchaseOrderVend = require('../generate-purchase-order-vend/generate-purchase-order-vend');
+                        let purchaseOrderPayload = {
+                            loopbackAccessToken: payload.loopbackAccessToken,
+                            orgModelId: payload.orgModelId,
+                            reportModelId: reportModel._id
+                        };
+                        return Promise.all([
+                             generatePurchaseOrderVend.run(purchaseOrderPayload, config, taskId, messageId),
+                            response
+                        ]);
+
+                    }
                 }
             })
             .catch(function (error) {
@@ -414,8 +491,11 @@ var runMe = function (payload, config, taskId, messageId) {
             .then(function([updateResult, result]){
                 if (result === 'ERROR_REPORT'){
                     return Promise.reject('Error while processing order');
+                } else if(supplier.reportDefaultState === REPORT_STATES.COMPLETE) {
+                   return fulfillAndReceiveConsignment(Object.assign(payload, {reportModel}, {supplier}, {db}), config, taskId, messageId);
                 } else {
                     return Promise.resolve(updateResult);
+
                 }
             })
             .then(function (response) {

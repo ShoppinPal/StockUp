@@ -313,19 +313,23 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
         .subscribe(([event, es]) => {
           console.log(event);
           es.close();
-          this._stockOrdersResolverService.fetchGeneratedStockOrders(1, 0, event.data.reportModelId)
-            .subscribe(reportModel => {
-              const reportIndex = this.generatedOrders.findIndex((report) => report.id === event.data.reportModelId);
-              this.generatedOrders[reportIndex] = reportModel.generatedOrders[0];
-              this.totalGeneratedOrders = reportModel.generatedOrdersCount;
-              this.totalGeneratedOrdersPages = this.totalGeneratedOrders / this.ordersLimitPerPage;
-              if (event.data.success === true) {
-                this.toastr.success('Generated Stock Order Success');
-              } else {
-                this.toastr.error('Error Generating Stock Order');
-              }
-              this.fetchOrderRowCounts();
-            });
+          this.orgModelApi.getReportModels(this.userProfile.orgModelId, {
+            where: {
+              id: event.data.reportModelId
+            },
+            include: ['storeModel', 'userModel', 'supplierModel'],
+          })
+              .subscribe(reportModels => {
+                const reportModel = reportModels[0];
+                const reportIndex = this.generatedOrders.findIndex((report) => report.id === event.data.reportModelId);
+                this.generatedOrders[reportIndex] = reportModel;
+                if (event.data.success === true) {
+                  this.toastr.success('Generated Stock Order Success');
+                } else {
+                  this.toastr.error('Error Generating Stock Order');
+                }
+                this.fetchOrderRowCounts();
+              });
 
         })
     );
