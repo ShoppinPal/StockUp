@@ -29,7 +29,6 @@ export class UserDetailsComponent implements OnInit {
   ngOnInit() {
     this.userProfile = this._userProfileService.getProfileData();
     this._route.data.subscribe((data: any) => {
-        console.log('user route data', data);
         this.user = data.user.user;
         this.stores = data.user.stores;
         for (var i = 0; i < this.user.storeModels.length; i++) {
@@ -88,11 +87,13 @@ export class UserDetailsComponent implements OnInit {
       this.user
     ).subscribe(user => {
       this.loading = false;
+      this.toastr.success('Updated user details successfully');
       this.user = user;
     }, error1 => {
       this.loading = false;
+      this.toastr.error('Error updating user details');
       console.error(error1);
-    })
+    });
   }
 
 }
