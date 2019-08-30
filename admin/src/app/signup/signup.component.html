@@ -12,7 +12,9 @@
               <form novalidate (ngSubmit)="signup()" name="signupForm"
                     class="needs-validation">
                 <div class="input-group mb-3">
-                  <span class="input-group-addon"><i class="icon-basket-loaded"></i></span>
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="icon-basket-loaded"></i></span>
+                  </div>
                   <input type="text"
                          [(ngModel)]="user.orgName"
                          class="form-control"
@@ -23,7 +25,9 @@
                   <span class="org-suffix">.shoppinpal.com</span> <!--todo: make it come from env variable -->
                 </div>
                 <div class="input-group mb-3">
-                  <span class="input-group-addon"><i class="icon-user"></i></span>
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="icon-user"></i></span>
+                  </div>
                   <input type="text"
                          [(ngModel)]="user.email"
                          class="form-control"
@@ -32,7 +36,9 @@
                          required>
                 </div>
                 <div class="input-group mb-4">
-                  <span class="input-group-addon"><i class="icon-lock"></i></span>
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="icon-lock"></i></span>
+                  </div>
                   <input type="password"
                          [(ngModel)]="user.password"
                          class="form-control"
@@ -41,7 +47,9 @@
                          required>
                 </div>
                 <div class="input-group mb-4">
-                  <span class="input-group-addon"><i class="icon-lock"></i></span>
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="icon-lock"></i></span>
+                  </div>
                   <input type="password"
                          [(ngModel)]="confirmPassword"
                          class="form-control"
