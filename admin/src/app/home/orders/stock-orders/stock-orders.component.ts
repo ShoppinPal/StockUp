@@ -63,7 +63,7 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
   public typeaheadNoResults: boolean;
   public categoriesList: Observable<any>;
   public categoriesListLimit: number = 7;
-  public selectedCategoryId: string;
+  public selectedCategoryId: string = '';
   public maxPageDisplay: number = 7;
   public uploader: FileUploader;
   public createSales: boolean = true;

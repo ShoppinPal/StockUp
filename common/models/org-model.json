@@ -591,6 +591,13 @@
       "principalType": "ROLE",
       "principalId": "orgAdmin",
       "permission": "ALLOW",
+      "property": "assignRoles"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
       "property": "assignStoreModelsToUser"
     },
     {
