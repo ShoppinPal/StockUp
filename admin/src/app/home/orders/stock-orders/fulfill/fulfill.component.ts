@@ -7,6 +7,8 @@ import {UserProfileService} from "../../../../shared/services/user-profile.servi
 import {LoopBackAuth} from "../../../../shared/lb-sdk/services/core/auth.service";
 import {constants} from "../../../../shared/constants/constants";
 import {ModalDirective} from 'ngx-bootstrap/modal';
+import {BsModalRef, BsModalService} from "ngx-bootstrap/modal";
+import {DeleteOrderComponent} from "../modals/delete-order/delete-order.component";
 
 @Component({
   selector: 'app-fulfill',
@@ -42,13 +44,15 @@ export class FulfillComponent implements OnInit {
   public sortAscending = true;
   public sortColumn = 'productModelSku';
   showAddProductModal: boolean;
+  public bsModalRef: BsModalRef;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
               private _router: Router,
               private toastr: ToastrService,
               private _userProfileService: UserProfileService,
-              private auth: LoopBackAuth) {
+              private auth: LoopBackAuth,
+              private modalService: BsModalService) {
   }
 
   ngOnInit() {
@@ -383,5 +387,9 @@ export class FulfillComponent implements OnInit {
 
   expanded(event: any): void {
     // console.log(event);
+  }
+
+  openDeleteModal() {
+    this.bsModalRef = this.modalService.show(DeleteOrderComponent);
   }
 }

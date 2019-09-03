@@ -17,6 +17,7 @@ import {AutoFocusDirective} from '../home/products/bin-locations/directives/auto
 import { DebounceKeyUpDirective } from './directives/debounce-key-up/debounce-key-up.directive';
 import {CommentsComponent} from "../home/orders/stock-orders/comments/comments.component";
 import {NgSelectModule} from '@ng-select/ng-select';
+import {DeleteOrderComponent} from "../home/orders/stock-orders/modals/delete-order/delete-order.component";
 
 @NgModule({
   imports: [
@@ -35,13 +36,15 @@ import {NgSelectModule} from '@ng-select/ng-select';
     ModalModule.forRoot(),
     NgSelectModule
   ],
-  declarations: [AutoFocusDirective, DebounceKeyUpDirective, CommentsComponent],
+  declarations: [AutoFocusDirective, DebounceKeyUpDirective, CommentsComponent, DeleteOrderComponent],
+  entryComponents: [DeleteOrderComponent],
   exports: [
     FormsModule,
     BsDropdownModule,
     TypeaheadModule,
     LoadingModule,
     CommentsComponent,
+    DeleteOrderComponent,
     AppAsideModule,
     CollapseModule,
     CommonModule,

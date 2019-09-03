@@ -1,0 +1,15 @@
+<div class="modal-danger" role="document">
+    <div class="modal-header">
+      <h4 class="modal-title">Delete order?</h4>
+      <button type="button" class="close" (click)="bsModalRef.hide()" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to delete this order?</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="bsModalRef.hide()">No</button>
+      <button type="button" class="btn btn-danger" (click)="deleteStockOrder()">Yes, delete!</button>
+    </div>
+</div>
