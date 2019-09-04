@@ -8,7 +8,7 @@ import {LoopBackAuth} from "../../../../shared/lb-sdk/services/core/auth.service
 import {constants} from "../../../../shared/constants/constants";
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {BsModalRef, BsModalService} from "ngx-bootstrap/modal";
-import {DeleteOrderComponent} from "../modals/delete-order/delete-order.component";
+import {DeleteOrderComponent} from "../shared-components/delete-order/delete-order.component";
 
 @Component({
   selector: 'app-fulfill',

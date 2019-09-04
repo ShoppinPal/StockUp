@@ -1,12 +1,12 @@
 import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 import {ToastrService} from 'ngx-toastr';
-import {OrgModelApi} from "../../../../shared/lb-sdk/services/custom/OrgModel";
-import {UserProfileService} from "../../../../shared/services/user-profile.service";
+import {OrgModelApi} from "../../../../../shared/lb-sdk/services/custom/OrgModel";
+import {UserProfileService} from "../../../../../shared/services/user-profile.service";
 
 @Component({
   selector: 'app-comments',
-  templateUrl: './comments.component.html',
-  styleUrls: ['./comments.component.scss']
+  templateUrl: 'comments.component.html',
+  styleUrls: ['comments.component.scss']
 })
 export class CommentsComponent implements OnInit {
 

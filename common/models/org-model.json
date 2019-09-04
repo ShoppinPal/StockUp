@@ -745,26 +745,10 @@
       "property": "__get__commentModels"
     },
     {
-      <
-      <
-      <
-      <
-      <
-      <
-      <
-    HEAD
-    "principalType"
-    :
-    "ROLE",
-    "principalId"
-    :
-    "storeManager",
-    "permission"
-    :
-    "ALLOW",
-    "property"
-    :
-    "__get__schedulerModels"
+      "principalType": "ROLE",
+      "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "__get__schedulerModels"
     },
     {
       "principalType": "ROLE",
