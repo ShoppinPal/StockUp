@@ -96,7 +96,16 @@
                 </div>
               </div>
             </div>
-            <div class="col-sm-6">
+            <div class="col-sm-3">
+              <button type="button"
+                      *ngIf="editable"
+                      class="btn btn-link"
+                      (click)="showAddProductModal = true"
+              >
+                Cant Find? Add Product
+              </button>
+            </div>
+            <div class="col-sm-3">
               <button type="button" class="btn btn-link float-right"
                       (click)="searchSKUText='';getFulfilledStockOrderLineItems();getNotFulfilledStockOrderLineItems()">
                 Clear All Searches
@@ -359,3 +368,5 @@
     </div>
   </div>
 </div>
+
+<app-add-product-modal [order]="order" *ngIf="showAddProductModal" (modalClosed)="showAddProductModal = false;getNotFulfilledStockOrderLineItems();getFulfilledStockOrderLineItems();"></app-add-product-modal>

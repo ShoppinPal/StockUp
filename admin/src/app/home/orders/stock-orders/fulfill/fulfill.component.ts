@@ -41,6 +41,7 @@ export class FulfillComponent implements OnInit {
   public discrepancyOrderItem: any;
   public sortAscending = true;
   public sortColumn = 'productModelSku';
+  showAddProductModal: boolean;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,

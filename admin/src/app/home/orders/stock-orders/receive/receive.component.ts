@@ -44,6 +44,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   public sortAscending = true;
   public sortColumn = 'productModelSku';
+  showAddProductModal: boolean;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
