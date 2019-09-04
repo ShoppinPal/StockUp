@@ -127,5 +127,9 @@
   "CommentModel": {
     "dataSource": "db",
     "public": false
+  },
+  "SchedulerModel": {
+    "dataSource": "db",
+    "public": true
   }
 }

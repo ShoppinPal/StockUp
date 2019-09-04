@@ -122,6 +122,12 @@ export const navItems: NavData[] = [
     url: '/file-imports',
     icon: 'icon-calculator',
     roles: ['orgAdmin']
+  },
+  {
+    name: 'Scheduled Tasks',
+    url: '/schedules',
+    icon: 'icon-loop',
+    roles: ['orgAdmin']
   }
   /*,
    {

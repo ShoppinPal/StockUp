@@ -16,6 +16,7 @@ import {TabsModule} from 'ngx-bootstrap/tabs';
 import {AutoFocusDirective} from '../home/products/bin-locations/directives/auto-focus.directive';
 import { DebounceKeyUpDirective } from './directives/debounce-key-up/debounce-key-up.directive';
 import {CommentsComponent} from "../home/orders/stock-orders/comments/comments.component";
+import {NgSelectModule} from '@ng-select/ng-select';
 
 @NgModule({
   imports: [
@@ -31,7 +32,8 @@ import {CommentsComponent} from "../home/orders/stock-orders/comments/comments.c
     PaginationModule,
     PopoverModule.forRoot(),
     TabsModule,
-    ModalModule.forRoot()
+    ModalModule.forRoot(),
+    NgSelectModule
   ],
   declarations: [AutoFocusDirective, DebounceKeyUpDirective, CommentsComponent],
   exports: [
@@ -48,6 +50,7 @@ import {CommentsComponent} from "../home/orders/stock-orders/comments/comments.c
     PaginationModule,
     PopoverModule,
     TabsModule,
+    NgSelectModule,
     AutoFocusDirective,
     DebounceKeyUpDirective,
     ModalModule

@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { UserModel } from '../../models/UserModel';
 import { Container } from '../../models/Container';
 import { OrgModel } from '../../models/OrgModel';
+import { SchedulerModel } from '../../models/SchedulerModel';
 
 export interface Models { [name: string]: any }
 
@@ -13,6 +14,7 @@ export class SDKModels {
     UserModel: UserModel,
     Container: Container,
     OrgModel: OrgModel,
+    SchedulerModel: SchedulerModel,
     
   };
 

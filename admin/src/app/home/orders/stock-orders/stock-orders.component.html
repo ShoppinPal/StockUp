@@ -50,6 +50,31 @@
                          placeholder="Start typing to search for category"
                   />
                 </div>
+                <div class="form-group col-sm-12">
+                  <div class="input-group">
+                    Schedule Auto Generation?
+                    &nbsp;&nbsp;&nbsp;
+                    <span>No</span>
+                    &nbsp;&nbsp;&nbsp;
+                    <label class="switch switch-3d switch-primary">
+                      <input type="checkbox"
+                             [(ngModel)]="scheduleAutoGeneration"
+                             class="switch-input">
+                      <span class="switch-slider"></span>
+                    </label>
+                    &nbsp;&nbsp;&nbsp;
+                    <span>Yes</span>
+                  </div>
+                  <div *ngIf="scheduleAutoGeneration">
+                    <app-schedule-picker
+                      [(type)]="selectedSchedulingType"
+                      [(hour)]="selectedSchedulingHour"
+                      [(week)]="selectedSchedulingWeek"
+                      [(day)]="selectedSchedulingDay"
+                      [(month)]="selectedSchedulingMonth"
+                    ></app-schedule-picker>
+                  </div>
+                </div>
               </tab>
               <tab heading="Import from File">
                 <div class="form-group">

@@ -98,6 +98,11 @@
       "type": "hasMany",
       "model": "CommentModel",
       "foreignKey": "orgModelId"
+    },
+    "schedulerModels": {
+      "type": "hasMany",
+      "model": "SchedulerModel",
+      "foreignKey": "orgModelId"
     }
   },
   "acls": [
@@ -731,6 +736,42 @@
       "principalId": "storeManager",
       "permission": "ALLOW",
       "property": "__get__commentModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "__get__schedulerModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__get__schedulerModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "__updateById__schedulerModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__updateById__schedulerModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "__count__schedulerModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__count__schedulerModels"
     }
   ],
   "methods": {}
