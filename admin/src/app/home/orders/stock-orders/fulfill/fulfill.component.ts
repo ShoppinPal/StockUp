@@ -390,6 +390,6 @@ export class FulfillComponent implements OnInit {
   }
 
   openDeleteModal() {
-    this.bsModalRef = this.modalService.show(DeleteOrderComponent);
+    this.bsModalRef = this.modalService.show(DeleteOrderComponent, {initialState: {orderId: this.order.id}});
   }
 }

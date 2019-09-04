@@ -7,6 +7,7 @@ declare var Object: any;
 export interface UserModelInterface {
   "id"?: any;
   "emailVerified"?: boolean;
+  "virtual"?: boolean;
   "realm"?: string;
   "username"?: string;
   "challenges"?: any;
@@ -38,6 +39,7 @@ export interface UserModelInterface {
 export class UserModel implements UserModelInterface {
   "id": any;
   "emailVerified": boolean;
+  "virtual": boolean;
   "realm": string;
   "username": string;
   "challenges": any;
@@ -105,6 +107,10 @@ export class UserModel implements UserModelInterface {
           name: 'emailVerified',
           type: 'boolean',
           default: false
+        },
+        "virtual": {
+          name: 'virtual',
+          type: 'boolean'
         },
         "realm": {
           name: 'realm',

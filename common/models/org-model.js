@@ -1374,6 +1374,29 @@ module.exports = function (OrgModel) {
                 });
         };
 
+        OrgModel.remoteMethod('deleteStockOrderVend', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'orderId', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/deleteStockOrderVend', verb: 'delete'},
+            returns: {arg: 'result', type: 'boolean'}
+        });
+
+        OrgModel.deleteStockOrderVend = function (id, orderId, options) {
+            return OrgModel.app.models.ReportModel.deleteStockOrderVend(id, orderId, options)
+                .catch(function (error) {
+                    logger.debug({
+                        message: 'Error deleting vend order',
+                        error,
+                        functionName: 'deleteStockOrderVend',
+                        options
+                    });
+                    return Promise.reject('Error deleting vend order');
+                });
+        };
+
         OrgModel.remoteMethod('listenSSE', {
             accepts: [
                 {arg: 'id', type: 'string', required: true},

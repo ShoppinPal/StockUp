@@ -179,28 +179,28 @@ module.exports = function (ReportModel) {
                     return Promise.reject('Invalid Primary Email: ' + eachEmail);
                 }
             }).then(function () {
-                return Promise.each(ccEmailArray,
-                    function (eachEmail) {
-                        if (!validateEmail(eachEmail)) {
-                            return Promise.reject('Invalid Cc Email: ' + eachEmail);
-                        }
-                    });
-            }).then(function () {
-                return Promise.each(bccEmailArray,
-                    function (eachEmail) {
-                        if (!validateEmail(eachEmail)) {
-                            return Promise.reject('Invalid Bcc Email: ' + eachEmail);
-                        }
-                    });
-            }).catch(function (error) {
-                logger.error({
-                    functionName: 'sendReportAsEmail',
-                    message: 'Email Verification Failed',
-                    error,
-                    options
+            return Promise.each(ccEmailArray,
+                function (eachEmail) {
+                    if (!validateEmail(eachEmail)) {
+                        return Promise.reject('Invalid Cc Email: ' + eachEmail);
+                    }
                 });
-                return Promise.reject(error);
-            })
+        }).then(function () {
+            return Promise.each(bccEmailArray,
+                function (eachEmail) {
+                    if (!validateEmail(eachEmail)) {
+                        return Promise.reject('Invalid Bcc Email: ' + eachEmail);
+                    }
+                });
+        }).catch(function (error) {
+            logger.error({
+                functionName: 'sendReportAsEmail',
+                message: 'Email Verification Failed',
+                error,
+                options
+            });
+            return Promise.reject(error);
+        })
             .then(function () {
                 return ReportModel.findById(id, {
                     include: ['userModel', 'storeConfigModel', 'supplierModel', 'storeModel', 'orgModel']
@@ -232,7 +232,7 @@ module.exports = function (ReportModel) {
                     include: {
                         relation: 'productModel',
                         scope: {
-                            fields:['sku', 'name']
+                            fields: ['sku', 'name']
                         }
                     }
                 });
@@ -384,7 +384,7 @@ module.exports = function (ReportModel) {
     }
 
 
-    ReportModel.generateStockOrderMSD = function (orgModelId, storeModelId, warehouseModelId, categoryModelId, res,  options) {
+    ReportModel.generateStockOrderMSD = function (orgModelId, storeModelId, warehouseModelId, categoryModelId, res, options) {
         logger.debug({
             message: 'Will initiate worker to generate stock order for MSD',
             storeModelId,
@@ -398,7 +398,7 @@ module.exports = function (ReportModel) {
             where: {
                 objectId: storeModelId
             }
-        }) .catch(function (error) {
+        }).catch(function (error) {
             logger.error({
                 message: 'Could not find a store with this id',
                 storeModelId,
@@ -411,7 +411,7 @@ module.exports = function (ReportModel) {
                 storeModelInstance,
             });
             var name;
-            if(!name) {
+            if (!name) {
                 const TODAYS_DATE = new Date();
                 name = storeModelInstance.name + ' - ' + TODAYS_DATE.getFullYear() + '-' + (TODAYS_DATE.getMonth() + 1) + '-' + TODAYS_DATE.getDate();
             }
@@ -430,48 +430,48 @@ module.exports = function (ReportModel) {
                 transferOrderCount: 0
             });
         }).catch(function (error) {
-                logger.error({
-                    error,
-                    message: 'Could not create report model for this store',
-                    storeModelId
-                });
-                return Promise.reject('Could not create report model for this store');
-            })
-
-        .then(function (reportInstance) {
-            res.send({
-                eventType: workerUtils.messageFor.MESSAGE_FOR_API,
-                callId: reportInstance.id,
-                message: 'Stock order generation initiated',
-                data: reportInstance
+            logger.error({
+                error,
+                message: 'Could not create report model for this store',
+                storeModelId
             });
-            var payload = {
-                orgModelId: orgModelId,
-                storeModelId: storeModelId,
-                warehouseModelId: warehouseModelId,
-                categoryModelId: categoryModelId,
-                loopbackAccessToken: options.accessToken,
-                op: 'generateStockOrderMSD',
-                eventType: workerUtils.messageFor.MESSAGE_FOR_API,
-                callId: reportInstance.id,
-                reportModelId: reportInstance.id,
-            };
-            logger.debug({
-                message: 'Report model instance created with STATUS processing',
-                storeModelId,
-                reportInstance,
-                functionName: 'generateStockOrderMSD',
-                options,
-            });
-            logger.debug({
-                message: 'Will initiate worker to generate stock order for Vend',
-                storeModelId,
-                payload,
-                functionName: 'generateStockOrderMSD',
-                options,
-            });
-            return workerUtils.sendPayLoad(payload);
+            return Promise.reject('Could not create report model for this store');
         })
+
+            .then(function (reportInstance) {
+                res.send({
+                    eventType: workerUtils.messageFor.MESSAGE_FOR_API,
+                    callId: reportInstance.id,
+                    message: 'Stock order generation initiated',
+                    data: reportInstance
+                });
+                var payload = {
+                    orgModelId: orgModelId,
+                    storeModelId: storeModelId,
+                    warehouseModelId: warehouseModelId,
+                    categoryModelId: categoryModelId,
+                    loopbackAccessToken: options.accessToken,
+                    op: 'generateStockOrderMSD',
+                    eventType: workerUtils.messageFor.MESSAGE_FOR_API,
+                    callId: reportInstance.id,
+                    reportModelId: reportInstance.id,
+                };
+                logger.debug({
+                    message: 'Report model instance created with STATUS processing',
+                    storeModelId,
+                    reportInstance,
+                    functionName: 'generateStockOrderMSD',
+                    options,
+                });
+                logger.debug({
+                    message: 'Will initiate worker to generate stock order for Vend',
+                    storeModelId,
+                    payload,
+                    functionName: 'generateStockOrderMSD',
+                    options,
+                });
+                return workerUtils.sendPayLoad(payload);
+            })
             .then(function (response) {
                 return Promise.resolve('Stock order generation initiated');
             })
@@ -539,18 +539,18 @@ module.exports = function (ReportModel) {
             options,
         });
         return Promise.all([
-                    ReportModel.app.models.StoreModel.findOne({
-                        where: {
-                            objectId: storeModelId //Defined in store-model.json as id
-                        }
-                    }),
-                    ReportModel.app.models.SupplierModel.findOne({
-                        where: {
-                            id: supplierModelId
-                        }
-                    })
-                ])
-             .catch(function (error) {
+            ReportModel.app.models.StoreModel.findOne({
+                where: {
+                    objectId: storeModelId //Defined in store-model.json as id
+                }
+            }),
+            ReportModel.app.models.SupplierModel.findOne({
+                where: {
+                    id: supplierModelId
+                }
+            })
+        ])
+            .catch(function (error) {
                 logger.error({
                     message: 'Could not find roles, store and supplier details',
                     error
@@ -646,14 +646,14 @@ module.exports = function (ReportModel) {
                         message: 'Order generation in progress'
                     },
                 });
-            logger.debug({
-                message: 'Sent generateStockOrderVend to worker',
-                options,
-                response,
-                functionName: 'generateStockOrderVend'
-            });
+                logger.debug({
+                    message: 'Sent generateStockOrderVend to worker',
+                    options,
+                    response,
+                    functionName: 'generateStockOrderVend'
+                });
 
-            return Promise.resolve();
+                return Promise.resolve();
             })
             .catch(function (error) {
                 logger.error({
@@ -803,7 +803,7 @@ module.exports = function (ReportModel) {
                 return Promise.reject('Could not update report model state to receive');
             })
             .then(function ([countResult, reportModelInstance]) {
-                if (countResult > 0) {
+                if (countResult>0) {
                     logger.debug({
                         message: 'Found Fulfilled Stock Order Items, Will set status to recieve pending ',
                         countResult,
@@ -815,7 +815,7 @@ module.exports = function (ReportModel) {
                         state: REPORT_STATES.RECEIVING_PENDING,
                         fulfilledByUserModelId: options.accessToken.userId
                     });
-                } else {
+                }else {
                     logger.error({
                         message: 'No Stock order items fulfilled',
                         countResult,
@@ -913,7 +913,7 @@ module.exports = function (ReportModel) {
                         functionName: 'createTransferOrderMSD'
                     });
                     return Promise.reject('Transfer order creation in progress');
-                } else {
+                }else {
                     res.send({
                         eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
                         callId: options.accessToken.userId,
@@ -1198,7 +1198,7 @@ module.exports = function (ReportModel) {
             });
     };
 
-    ReportModel.importVendOrderFromFile = function (id, req, res,options) {
+    ReportModel.importVendOrderFromFile = function (id, req, res, options) {
         let orderConfigModelId;
         return readMultiPartFormData(req, options)
             .catch(function (err) {
@@ -1337,9 +1337,9 @@ module.exports = function (ReportModel) {
         })
             .then(function (report) {
                 reportModel = report;
-                if (approvedStates.findIndex(function(state) {
-                    return state === reportModel.state;
-                }) !== -1){
+                if (approvedStates.findIndex(function (state) {
+                        return state === reportModel.state;
+                    }) !== -1) {
                     orderAlreadyApproved = true;
                 }
                 return ReportModel.app.models.StockOrderLineitemModel.find({
@@ -1350,158 +1350,218 @@ module.exports = function (ReportModel) {
                 });
             })
             .then(function (presentLineItems) {
-            logger.debug({
-                functionName: 'addProductToStockOrder',
-                message: 'stockorderline items matching product Id',
-                options,
-                reportModel,
-                presentLineItems
-            });
-                if (presentLineItems.length > 0){
+                logger.debug({
+                    functionName: 'addProductToStockOrder',
+                    message: 'stockorderline items matching product Id',
+                    options,
+                    reportModel,
+                    presentLineItems
+                });
+                if (presentLineItems.length>0) {
                     logger.debug({
                         functionName: 'addProductToStockOrder',
                         message: 'Aborting, product already exists in stock order',
                         options,
                     });
                     return Promise.reject('Product already present in stock order');
-                } else {
+                }else {
                     return Promise.resolve();
                 }
-        }).catch(function (error) {
-            logger.error({
-                functionName: 'addProductToStockOrder',
-                message: 'Error while searching existing product in stock order',
-                options,
-                error
-            });
-            return Promise.reject(error);
-        })
+            }).catch(function (error) {
+                logger.error({
+                    functionName: 'addProductToStockOrder',
+                    message: 'Error while searching existing product in stock order',
+                    options,
+                    error
+                });
+                return Promise.reject(error);
+            })
             .then(function () {
                 logger.debug({
                     functionName: 'addProductToStockOrder',
                     message: 'Will find inventory associated with product, store and org',
                     options,
                 });
-          return ReportModel.app.models.InventoryModel.find({
-              where: {
-                  productModelId: product.id,
-                  orgModelId: id,
-                  storeModelId
-              }
-          });
-        }).then(function (inventoryInstances) {
+                return ReportModel.app.models.InventoryModel.find({
+                    where: {
+                        productModelId: product.id,
+                        orgModelId: id,
+                        storeModelId
+                    }
+                });
+            }).then(function (inventoryInstances) {
                 var row;
 
-                    var useRow = true;
-                    var caseQuantity, quantityOnHand, desiredStockLevel, orderQuantity;
-                    if (product.tags) {
-                        var tagsAsCsv = product.tags.trim();
-                        //logger.debug({ tagsAsCsv: tagsAsCsv });
-                        var tagsArray = tagsAsCsv.split(',');
-                        if (tagsArray && tagsArray.length>0) {
-                            _.each(tagsArray, function (tag) {
-                                tag = tag.trim();
-                                if (tag.length>0) {
-                                    //logger.debug({ tag: tag });
-                                    // http://stackoverflow.com/questions/8993773/javascript-indexof-case-insensitive
-                                    var prefix = 'CaseQuantity:'.toLowerCase();
-                                    if (tag.toLowerCase().indexOf(prefix) === 0) {
-                                        var caseQty = tag.substr(prefix.length);
-                                        //logger.debug({ message: `based on a prefix, adding CaseQuantity: ${caseQty}` });
-                                        caseQuantity = Number(caseQty);
-                                    }
-                                    else {
-                                        //logger.debug({ message: 'ignoring anything without a prefix' });
-                                    }
+                var useRow = true;
+                var caseQuantity, quantityOnHand, desiredStockLevel, orderQuantity;
+                if (product.tags) {
+                    var tagsAsCsv = product.tags.trim();
+                    //logger.debug({ tagsAsCsv: tagsAsCsv });
+                    var tagsArray = tagsAsCsv.split(',');
+                    if (tagsArray && tagsArray.length>0) {
+                        _.each(tagsArray, function (tag) {
+                            tag = tag.trim();
+                            if (tag.length>0) {
+                                //logger.debug({ tag: tag });
+                                // http://stackoverflow.com/questions/8993773/javascript-indexof-case-insensitive
+                                var prefix = 'CaseQuantity:'.toLowerCase();
+                                if (tag.toLowerCase().indexOf(prefix) === 0) {
+                                    var caseQty = tag.substr(prefix.length);
+                                    //logger.debug({ message: `based on a prefix, adding CaseQuantity: ${caseQty}` });
+                                    caseQuantity = Number(caseQty);
                                 }
-                            });
-                        }
+                                else {
+                                    //logger.debug({ message: 'ignoring anything without a prefix' });
+                                }
+                            }
+                        });
                     }
-                    var inventory = _.find(inventoryInstances, function (eachInventory) {
-                        return eachInventory.productModelId.toString() === product.id.toString();
-                    });
-                        quantityOnHand = Number(inventory.inventory_level);
-                        desiredStockLevel = Number(inventory.reorder_point);
-                        orderQuantity = 0;
-                        if (quantityOnHand<0) {
-                            logger.debug({
+                }
+                var inventory = _.find(inventoryInstances, function (eachInventory) {
+                    return eachInventory.productModelId.toString() === product.id.toString();
+                });
+                quantityOnHand = Number(inventory.inventory_level);
+                desiredStockLevel = Number(inventory.reorder_point);
+                orderQuantity = 0;
+                if (quantityOnHand<0) {
+                    logger.debug({
 
-                                message: `TODO: how should negative inventory be handled? DSL minus QOH w/ a negative QOH will lead to a positive! Example: 100 - (-2) = 102`
-                            });
-                        }
-                        if (!_.isNaN(desiredStockLevel) && _.isNumber(desiredStockLevel)) {
-                            orderQuantity = desiredStockLevel - quantityOnHand;
-                            if (orderQuantity>0) {
-                                useRow = true;
-                                if (caseQuantity) {
-                                    if ((orderQuantity % caseQuantity) === 0) {
-                                        //logger.debug({ message: 'NO-OP: orderQuantity is already a multiple of caseQuantity' });
-                                    }
-                                    else {
-                                        orderQuantity = Math.ceil(orderQuantity / caseQuantity) * caseQuantity;
-                                    }
-                                }
+                        message: `TODO: how should negative inventory be handled? DSL minus QOH w/ a negative QOH will lead to a positive! Example: 100 - (-2) = 102`
+                    });
+                }
+                if (!_.isNaN(desiredStockLevel) && _.isNumber(desiredStockLevel)) {
+                    orderQuantity = desiredStockLevel - quantityOnHand;
+                    if (orderQuantity>0) {
+                        useRow = true;
+                        if (caseQuantity) {
+                            if ((orderQuantity % caseQuantity) === 0) {
+                                //logger.debug({ message: 'NO-OP: orderQuantity is already a multiple of caseQuantity' });
                             }
                             else {
-                                logger.debug({
-                                    message: `do not waste time on negative or zero orderQuantity ${product.sku}`
-                                });
-                                useRow = false;
+                                orderQuantity = Math.ceil(orderQuantity / caseQuantity) * caseQuantity;
                             }
                         }
-                        else {
-                            //logger.debug({  message: 'give humans a chance to look over dubious data', dilutedProduct: dilutedProduct });
-                            desiredStockLevel = undefined;
-                            orderQuantity = undefined;
-                            useRow = true;
-                        }
-                        var categoryName = product.categoryModel && product.categoryModel.length ? product.categoryModel[0].name: 'No Category';
-                        row = {
-                            productModelId: product.id,
-                            productModelName: product.name, //need for sorting
-                            productModelSku: product.sku, //need for sorting
-                            storeInventory: quantityOnHand,
-                            desiredStockLevel: desiredStockLevel,
-                            orderQuantity: product.orderQuantity || 0,
-                            originalOrderQuantity: orderQuantity,
-                            fulfilledQuantity: product.fulfilledQuantity || 0,
-                            receivedQuantity: product.receivedQuantity || 0,
-                            caseQuantity: caseQuantity,
-                            supplyPrice: product.supply_price,
-                            supplierModelId: product.supplierModelId,
-                            categoryModelId: product.categoryModelId,
-                            binLocation: product.binLocation,
-                            categoryModelName: categoryName,  //need for sorting
-                            approved: orderAlreadyApproved,
-                            fulfilled: product.fulfilled || false,
-                            received: false,
-                            reportModelId: reportModelId,   
-                            userModelId: options.accessToken.userId,
-                            createdAt: new Date(),
-                            orgModelId: id
-                        };
-                        logger.debug({ row: row});
-                        return Promise.resolve(row);
-                })
+                    }
+                    else {
+                        logger.debug({
+                            message: `do not waste time on negative or zero orderQuantity ${product.sku}`
+                        });
+                        useRow = false;
+                    }
+                }
+                else {
+                    //logger.debug({  message: 'give humans a chance to look over dubious data', dilutedProduct: dilutedProduct });
+                    desiredStockLevel = undefined;
+                    orderQuantity = undefined;
+                    useRow = true;
+                }
+                var categoryName = product.categoryModel && product.categoryModel.length ? product.categoryModel[0].name : 'No Category';
+                row = {
+                    productModelId: product.id,
+                    productModelName: product.name, //need for sorting
+                    productModelSku: product.sku, //need for sorting
+                    storeInventory: quantityOnHand,
+                    desiredStockLevel: desiredStockLevel,
+                    orderQuantity: product.orderQuantity || 0,
+                    originalOrderQuantity: orderQuantity,
+                    fulfilledQuantity: product.fulfilledQuantity || 0,
+                    receivedQuantity: product.receivedQuantity || 0,
+                    caseQuantity: caseQuantity,
+                    supplyPrice: product.supply_price,
+                    supplierModelId: product.supplierModelId,
+                    categoryModelId: product.categoryModelId,
+                    binLocation: product.binLocation,
+                    categoryModelName: categoryName,  //need for sorting
+                    approved: orderAlreadyApproved,
+                    fulfilled: product.fulfilled || false,
+                    received: false,
+                    reportModelId: reportModelId,
+                    userModelId: options.accessToken.userId,
+                    createdAt: new Date(),
+                    orgModelId: id
+                };
+                logger.debug({row: row});
+                return Promise.resolve(row);
+            })
             .then(function (stockOrderLineItem) {
-                    return ReportModel.app.models.StockOrderLineitemModel.create(stockOrderLineItem);
+                return ReportModel.app.models.StockOrderLineitemModel.create(stockOrderLineItem);
             }).catch(function (error) {
-                    logger.error({
-                        functionName: 'addProductToStockOrder',
-                        message: 'Error adding product to report',
-                        options,
-                        error
-                    });
-                    return Promise.reject(error);
+                logger.error({
+                    functionName: 'addProductToStockOrder',
+                    message: 'Error adding product to report',
+                    options,
+                    error
+                });
+                return Promise.reject(error);
             }).then(function (stockOrderInstance) {
                 if (orderAlreadyApproved) {
                     return vendUtils({OrgModel: ReportModel.app.models.OrgModel})
-                        .createStockOrderLineitemForVend(reportModel.storeModel(), reportModel, product,stockOrderInstance,options);
+                        .createStockOrderLineitemForVend(reportModel.storeModel(), reportModel, product, stockOrderInstance, options);
                 }else {
                     return Promise.resolve();
                 }
             });
     };
+
+    ReportModel.deleteStockOrderVend = function (orgModelId, reportModelId, options) {
+        logger.debug({
+            message: 'Looking for stock order',
+            orgModelId,
+            reportModelId,
+            functionName: 'deleteStockOrderVend',
+            options
+        });
+        var reportModelInstance;
+        return ReportModel.findById(reportModelId)
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not find report model instance',
+                    reportModelId,
+                    options,
+                    error,
+                    functionName: 'deleteStockOrderVend'
+                });
+                return Promise.reject('Could not find report model instance');
+            })
+            .then(function (response) {
+                reportModelInstance = response;
+                logger.debug({
+                    message: 'Found report model instance, will delete order from Vend if found',
+                    reportModelInstance,
+                    functionName: 'deleteStockOrderVend',
+                    options
+                });
+                if (!reportModelInstance.vendConsignmentId) {
+                    return Promise.resolve('Vend consignment id not found');
+                }
+                else {
+                    var vendUtils = require('./../../common/utils/vend')({OrgModel: ReportModel.app.models.OrgModel});
+                    return vendUtils.deleteStockOrder(orgModelId, reportModelInstance.vendConsignmentId, options);
+                }
+            })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Deleted stock order from vend, will soft delete from db',
+                    response,
+                    functionName: 'deleteStockOrderVend',
+                    options
+                });
+                return reportModelInstance.updateAttributes({
+                    deletedAt: new Date(),
+                    deletedByUserModelId: options.accessToken.userId
+                });
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not softs delete report model from db',
+                    error,
+                    functionName: 'deleteStockOrderVend',
+                    options
+                });
+                return Promise.reject('Could not soft delete report from db');
+            });
+    }
+
 };
 
 

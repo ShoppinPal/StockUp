@@ -83,6 +83,14 @@ var fetchVendToken = function (orgModelId, options) {
             return Promise.reject('Access token could not be refreshed');
         })
         .then(function (res) {
+            if(!res) {
+                logger.error({
+                    message: 'Received empty token from Vend',
+                    functionName: 'fetchVendToken',
+                    options
+                });
+                return Promise.reject('Received empty token from Vend');
+            }
             if (res !== 'tokenNotExpired') {
                 logger.debug({
                     message: 'Will save the new access token to db',
@@ -90,14 +98,18 @@ var fetchVendToken = function (orgModelId, options) {
                     functionName: 'fetchVendToken',
                     options
                 });
-                return OrgModel.app.models.IntegrationModel.updateAll({
-                    orgModelId: orgModelId
-                }, {
+                let updateResponse = {
                     access_token: res.access_token,
                     expires: res.expires,
                     expires_in: res.expires_in,
                     updatedAt: new Date()
-                });
+                };
+                if(res.refresh_token) {
+                    updateResponse.refresh_token = res.refresh_token;
+                }
+                return OrgModel.app.models.IntegrationModel.updateAll({
+                    orgModelId: orgModelId
+                }, updateResponse);
             }
             else {
                 return Promise.resolve('tokenNotExpired');
@@ -983,40 +995,37 @@ var markStockOrderAsReceived = function (storeModelInstance, reportModelInstance
         });
 };
 
-var deleteStockOrder = function (storeModelInstance, reportModelInstance) {
-    var storeConfigId = storeModelInstance.storeConfigModelToStoreModelId;
-    //log.debug('deleteStockOrder()', 'storeConfigId: ' + storeConfigId);
-    logger.tag('deleteStockOrder()').debug({log: {message: 'deleteStockOrder()', storeConfigId: storeConfigId}});
-    return getVendConnectionInfo(storeConfigId)
+var deleteStockOrder = function (orgModelId, vendConsignmentId, options) {
+    return getVendConnectionInfo(orgModelId, options)
+        .catch(function (error) {
+            logger.error({
+                message: 'Could not fetch integration details of org',
+                error,
+                functionName: 'deleteStockOrder',
+                options
+            });
+            return Promise.reject('Could not fetch integration details of org');
+        })
         .then(function (connectionInfo) {
+            logger.debug({
+                message: 'Found connection info, will delete order from Vend',
+                vendConsignmentId,
+                functionName: 'deleteStockOrder',
+                options
+            });
             var argsForStockOrder = vendSdk.args.consignments.stockOrders.remove();
-            argsForStockOrder.apiId.value = reportModelInstance.vendConsignmentId;
-            return vendSdk.consignments.stockOrders.remove(argsForStockOrder, connectionInfo)
-                .then(function (updatedStockOrder) {
-                    //log.debug('deleteStockOrder()', 'updatedStockOrder', updatedStockOrder);
-                    logger.tag('deleteStockOrder()').debug({log: {updatedStockOrder: updatedStockOrder}});
-                    return Promise.resolve(updatedStockOrder);
-                });
+            argsForStockOrder.apiId.value = vendConsignmentId;
+            return vendSdk.consignments.stockOrders.remove(argsForStockOrder, connectionInfo);
         })
         .catch(function (error) {
-            if (error instanceof Error) {
-                // log.error('deleteStockOrder()',
-                //   'Error deleting the stock order in Vend:',
-                //   '\n', error.name + ':', error.message,
-                //   '\n', error.stack);
-                logger.tag('deleteStockOrder()').error({
-                    err: error,
-                    message: 'Error deleting the stock order in Vend'
-                });
-            }
-            else {
-                //log.error('deleteStockOrder()', 'Error deleting the stock order in Vend:\n' + JSON.stringify(error));
-                logger.tag('deleteStockOrder()').error({
-                    err: error,
-                    message: 'Error deleting the stock order in Vend'
-                });
-            }
-            return Promise.reject('An error occurred while deleting a stock order in Vend.\n' + JSON.stringify(error));
+            logger.error({
+                message: 'Error deleting consignment order in Vend',
+                error,
+                reason: error,
+                options,
+                functionName: 'deleteStockOrder'
+            });
+            return Promise.reject('Error deleting consignment order in Vend');
         });
 };
 

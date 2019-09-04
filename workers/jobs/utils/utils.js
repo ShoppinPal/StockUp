@@ -243,15 +243,19 @@ var fetchVendToken = function (db, orgModelId, messageId) {
                     functionName: 'fetchVendToken',
                     messageId
                 });
+                let updateResponse = {
+                    access_token: res.access_token,
+                    expires: res.expires,
+                    expires_in: res.expires_in,
+                    updatedAt: new Date()
+                };
+                if (res.refresh_token) {
+                    updateResponse.refresh_token = res.refresh_token;
+                }
                 return db.collection('IntegrationModel').updateOne({
                     orgModelId: ObjectId(orgModelId)
                 }, {
-                    $set: {
-                        access_token: res.access_token,
-                        expires: res.expires,
-                        expires_in: res.expires_in,
-                        updatedAt: new Date()
-                    }
+                    $set: updateResponse
                 });
             }
             else {
@@ -634,7 +638,7 @@ var port = process.env.APP_PORT_NUMBER ? ':' + process.env.APP_PORT_NUMBER : '';
 exports.API_URL = process.env.APP_PROTOCOL + '://' + process.env.APP_HOST_NAME + port;
 const notificationPort = process.env.NOTIFICATION_PORT ? ':' + process.env.NOTIFICATION_PORT : '';
 exports.PUBLISH_URL = process.env.NOTIFICATION_PROTOCOL + '://' + process.env.NOTIFICATION_HOST + notificationPort
-    + '/'+ process.env.NOTIFICATION_PATH;
+    + '/' + process.env.NOTIFICATION_PATH;
 
 exports.messageFor = {
     MESSAGE_FOR_CLIENT: 'MESSAGE_FOR_CLIENT',
@@ -660,13 +664,13 @@ exports.workerStatus = {
 };
 
 exports.Notification = function (eventType, messageFor, status, data, id) {
-    this.eventType= eventType;
+    this.eventType = eventType;
     this.messageFor = messageFor;
     this.status = status;
     this.data = data;
-    if (messageFor === exports.messageFor.MESSAGE_FOR_CLIENT){
+    if (messageFor === exports.messageFor.MESSAGE_FOR_CLIENT) {
         this.userId = id;
-    } else if (messageFor === exports.messageFor.MESSAGE_FOR_API){
+    }else if (messageFor === exports.messageFor.MESSAGE_FOR_API) {
         this.callId = id;
     }
 };

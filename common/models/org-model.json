@@ -745,10 +745,26 @@
       "property": "__get__commentModels"
     },
     {
-      "principalType": "ROLE",
-      "principalId": "storeManager",
-      "permission": "ALLOW",
-      "property": "__get__schedulerModels"
+      <
+      <
+      <
+      <
+      <
+      <
+      <
+    HEAD
+    "principalType"
+    :
+    "ROLE",
+    "principalId"
+    :
+    "storeManager",
+    "permission"
+    :
+    "ALLOW",
+    "property"
+    :
+    "__get__schedulerModels"
     },
     {
       "principalType": "ROLE",
@@ -783,6 +799,13 @@
     {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "deleteStockOrderVend"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
       "principalId": "storeManager",
       "permission": "ALLOW",
       "property": "addProductToStockOrder"
@@ -793,6 +816,13 @@
       "principalId": "orgAdmin",
       "permission": "ALLOW",
       "property": "addProductToStockOrder"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "deleteStockOrderVend"
     }
   ],
   "methods": {}
