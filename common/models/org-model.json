@@ -591,6 +591,13 @@
       "principalType": "ROLE",
       "principalId": "orgAdmin",
       "permission": "ALLOW",
+      "property": "assignRoles"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
       "property": "assignStoreModelsToUser"
     },
     {
@@ -776,6 +783,13 @@
     {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "deleteStockOrderVend"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
       "principalId": "storeManager",
       "permission": "ALLOW",
       "property": "addProductToStockOrder"
@@ -786,6 +800,13 @@
       "principalId": "orgAdmin",
       "permission": "ALLOW",
       "property": "addProductToStockOrder"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "deleteStockOrderVend"
     }
   ],
   "methods": {}

@@ -499,56 +499,12 @@ module.exports = function (SyncModel) {
             })
             .then(function (response) {
                 logger.debug({
-                    message: 'Saved stores to db, will create users for them',
+                    message: 'Saved stores to db',
                     response,
                     options,
                     functionName: 'syncVendStores'
                 });
-                var usersToCreate = [];
-                for (var i = 0; i<response.length; i++) {
-                    if (response[i] && response[i][0].email) {
-                        usersToCreate.push({
-                            name: response[i][0].name,
-                            email: response[i][0].email,
-                            password: Math.random().toString(36).slice(-8),
-                            orgModelId: id,
-                            userId: response[i][0].email,
-                            storeModelId: response[i][0].objectId
-                        });
-                    }
-                }
-                logger.debug({
-                    message: 'Will create following users',
-                    usersToCreate,
-                    options,
-                    functionName: 'syncVendStores'
-                });
-                return Promise.map(usersToCreate, function (eachUser) {
-                    return SyncModel.app.models.UserModel.findOrCreate({
-                        where: {
-                            orgModelId: id,
-                            email: eachUser.email
-                        }
-                    }, eachUser);
-                });
-            })
-            .catch(function (error) {
-                logger.error({
-                    message: 'Could not save users to DB',
-                    error,
-                    options,
-                    functionName: 'syncVendStores'
-                });
-                return Promise.reject('Could not save users to DB');
-            })
-            .then(function (response) {
-                logger.debug({
-                    message: 'Saved users to db',
-                    response,
-                    options,
-                    functionName: 'syncVendStores'
-                });
-                return Promise.resolve('Synced stores and created users');
+                return Promise.resolve('Synced stores successfully');
             });
     };
 
@@ -604,7 +560,16 @@ module.exports = function (SyncModel) {
                                 {email: eachUser.email}
                             ]
                         }
-                    }, eachUser);
+                    }, eachUser)
+                        .catch(function (error) {
+                            logger.error({
+                                message: 'Could not create this user, will move on',
+                                eachUser,
+                                error,
+                                options
+                            });
+                            return Promise.resolve(eachUser);
+                        });
                 });
             })
             .catch(function (error) {

@@ -31,15 +31,20 @@
         </div>
         <div class="card-footer">
           <div class="row">
-            <div class="col-sm-3">
+            <div class="col-sm-4">
               <span class="input-group-btn" *ngIf="editable">
-                <button class="btn btn-success" type="button"
+                <button class="btn btn-success btn-block" type="button"
                         (click)="sendDelivery()">Send consignment to {{order.storeModel.name}}</button>
               </span>
             </div>
             <div class="col-sm-3">
               <span class="input-group-btn">
-                <button class="btn btn-primary" type="button" (click)="downloadOrderCSV()">Download CSV</button>
+                <button class="btn btn-primary btn-block" type="button" (click)="downloadOrderCSV()">Download CSV</button>
+              </span>
+            </div>
+            <div class="col-sm-3">
+              <span class="input-group-btn">
+                <button class="btn btn-danger btn-block" type="button" (click)="openDeleteModal()">Delete Order</button>
               </span>
             </div>
           </div>
@@ -68,7 +73,7 @@
                          [selectText]="enableBarcode"
                          (appDebounceKeyUp)="barcodeSearchSKU($event)"
                          placeholder="Scan SKU barcode here or enter text">
-                  <span class="input-group-btn">
+                  <span class="input-group-append">
                     <button class="btn btn-primary" type="button"
                             (click)="searchProductBySku(searchSKUText)">
                       <i class="fa fa-search"></i> Search

@@ -8,9 +8,10 @@ import {LoopBackAuth} from "../../../../shared/lb-sdk/services/core/auth.service
 import {constants} from "../../../../shared/constants/constants";
 import {DatePipe} from '@angular/common';
 import {EventSourceService} from '../../../../shared/services/event-source.service';
-import {BsModalService} from 'ngx-bootstrap';
-import {AddProductModalComponent} from '../shared/add-product-modal/add-product-modal.component';
+import {AddProductModalComponent} from '../shared-components/add-product-modal/add-product-modal.component';
 import Utils from '../../../../shared/constants/utils';
+import {BsModalRef, BsModalService} from "ngx-bootstrap/modal";
+import {DeleteOrderComponent} from "../shared-components/delete-order/delete-order.component";
 
 @Component({
   selector: 'app-generated',
@@ -49,15 +50,17 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     cc: '',
     bcc: '',
   };
-
   public showAddProductModal = false;
+  public bsModalRef: BsModalRef;
+
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
               private _router: Router,
               private toastr: ToastrService,
               private _userProfileService: UserProfileService,
               private _eventSourceService: EventSourceService,
-              private auth: LoopBackAuth) {
+              private auth: LoopBackAuth,
+              private modalService: BsModalService) {
   }
 
   ngOnInit() {
@@ -454,4 +457,9 @@ export class GeneratedComponent implements OnInit, OnDestroy {
         this.toastr.error('Cannot add product to stock order');
       })
   }
+
+  openDeleteModal() {
+    this.bsModalRef = this.modalService.show(DeleteOrderComponent, {initialState: {orderId: this.order.id}});
+  }
+
 }

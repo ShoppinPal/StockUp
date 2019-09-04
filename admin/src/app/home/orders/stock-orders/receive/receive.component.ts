@@ -9,6 +9,9 @@ import {constants} from "../../../../shared/constants/constants";
 import {DatePipe} from '@angular/common';
 import {EventSourceService} from '../../../../shared/services/event-source.service';
 import {ModalDirective} from 'ngx-bootstrap';
+import {BsModalRef, BsModalService} from "ngx-bootstrap/modal";
+import {DeleteOrderComponent} from "../shared-components/delete-order/delete-order.component";
+
 
 @Component({
   selector: 'app-receive',
@@ -45,6 +48,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   public sortAscending = true;
   public sortColumn = 'productModelSku';
   showAddProductModal: boolean;
+  public bsModalRef: BsModalRef;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -52,7 +56,8 @@ export class ReceiveComponent implements OnInit, OnDestroy {
               private toastr: ToastrService,
               private _userProfileService: UserProfileService,
               private _eventSourceService: EventSourceService,
-              private auth: LoopBackAuth) {
+              private auth: LoopBackAuth,
+              private modalService: BsModalService) {
   }
 
   ngOnInit() {
@@ -423,6 +428,10 @@ export class ReceiveComponent implements OnInit, OnDestroy {
 
   expanded(event: any): void {
     // console.log(event);
+  }
+
+  openDeleteModal() {
+    this.bsModalRef = this.modalService.show(DeleteOrderComponent, {initialState: {orderId: this.order.id}});
   }
 }
 

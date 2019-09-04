@@ -15,8 +15,9 @@ import {ModalModule} from 'ngx-bootstrap/modal';
 import {TabsModule} from 'ngx-bootstrap/tabs';
 import {AutoFocusDirective} from '../home/products/bin-locations/directives/auto-focus.directive';
 import { DebounceKeyUpDirective } from './directives/debounce-key-up/debounce-key-up.directive';
-import {CommentsComponent} from "../home/orders/stock-orders/comments/comments.component";
+import {CommentsComponent} from "../home/orders/stock-orders/shared-components/comments/comments.component";
 import {NgSelectModule} from '@ng-select/ng-select';
+import {DeleteOrderComponent} from "../home/orders/stock-orders/shared-components/delete-order/delete-order.component";
 
 @NgModule({
   imports: [
@@ -35,13 +36,15 @@ import {NgSelectModule} from '@ng-select/ng-select';
     ModalModule.forRoot(),
     NgSelectModule
   ],
-  declarations: [AutoFocusDirective, DebounceKeyUpDirective, CommentsComponent],
+  declarations: [AutoFocusDirective, DebounceKeyUpDirective, CommentsComponent, DeleteOrderComponent],
+  entryComponents: [DeleteOrderComponent],
   exports: [
     FormsModule,
     BsDropdownModule,
     TypeaheadModule,
     LoadingModule,
     CommentsComponent,
+    DeleteOrderComponent,
     AppAsideModule,
     CollapseModule,
     CommonModule,

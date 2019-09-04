@@ -71,6 +71,9 @@ private userProfile: any;
           constants.REPORT_STATES.GENERATED,
           constants.REPORT_STATES.APPROVAL_IN_PROCESS
         ]
+      },
+      deletedAt: {
+        exists: false
       }
     };
 
@@ -90,6 +93,9 @@ private userProfile: any;
           constants.REPORT_STATES.FULFILMENT_IN_PROCESS,
           constants.REPORT_STATES.FULFILMENT_FAILURE
         ]
+      },
+      deletedAt: {
+        exists: false
       }
     };
 
@@ -141,6 +147,9 @@ private userProfile: any;
           constants.REPORT_STATES.RECEIVING_PENDING,
           constants.REPORT_STATES.RECEIVING_IN_PROCESS
         ]
+      },
+      deletedAt: {
+        exists: false
       }
     };
 
@@ -154,6 +163,9 @@ private userProfile: any;
           constants.REPORT_STATES.RECEIVING_IN_PROCESS,
           constants.REPORT_STATES.RECEIVING_FAILURE
         ]
+      },
+      deletedAt: {
+        exists: false
       }
     };
 
@@ -202,6 +214,9 @@ private userProfile: any;
           constants.REPORT_STATES.FULFILMENT_PENDING,
           constants.REPORT_STATES.FULFILMENT_IN_PROCESS
         ]
+      },
+      deletedAt: {
+        exists: false
       }
     };
 
@@ -218,6 +233,9 @@ private userProfile: any;
           constants.REPORT_STATES.RECEIVING_IN_PROCESS,
           constants.REPORT_STATES.RECEIVING_FAILURE
         ]
+      },
+      deletedAt: {
+        exists: false
       }
     };
 

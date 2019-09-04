@@ -3,6 +3,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {OrgModelApi} from "../../shared/lb-sdk/services/custom/OrgModel";
 import {ToastrService} from 'ngx-toastr';
 import {Observable, combineLatest} from 'rxjs';
+import {mergeMap} from 'rxjs/operators';
 import {UserProfileService} from "../../shared/services/user-profile.service";
 import {UserModel} from '../../shared/lb-sdk/models';
 import Utils from '../../shared/constants/utils'
@@ -107,22 +108,26 @@ export class UsersComponent implements OnInit {
     }
     this.loading = true;
     this.orgModelApi.createUserModels(this.userProfile.orgModelId, {
-       email: this.newUser.email,
+      email: this.newUser.email,
       name: this.newUser.name,
       password: Math.random().toString(36).slice(-8),
       virtual: true
     })
-      .subscribe(user => {
-      this.newUser = new UserModel();
-      this.loading = false;
-      this.currentPage = 1;
-      this.fetchUsers();
-      this.toastr.success('Virtual user created successfully');
-    }, error => {
-        this.loading = false;
-        console.error(error);
-      this.toastr.error('Virtual user creation failed');
-
-    })
+      .pipe(mergeMap(user => {
+          this.newUser = new UserModel();
+          this.currentPage = 1;
+          return this.orgModelApi.assignRoles(this.userProfile.orgModelId, user.id, ['storeManager']);
+        }
+      ))
+      .subscribe(data => {
+          this.fetchUsers();
+          this.toastr.success('Created user successfully');
+          this.loading = false;
+        },
+        err => {
+          this.toastr.error('Virtual user creation failed');
+          console.log('err', err);
+          this.loading = false;
+        })
   }
 }
