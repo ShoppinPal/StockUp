@@ -49,7 +49,6 @@ export class CategoriesComponent implements OnInit {
       removeAfterUpload: true
     });
     this._route.data.subscribe((data: any) => {
-        console.log(data);
         this.categories = data.categories.categories;
         this.totalCategories = data.categories.count;
         this.totalPages = this.totalCategories / this.categoriesLimitPerPage;

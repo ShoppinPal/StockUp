@@ -1,6 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output, ViewChild, ViewContainerRef} from '@angular/core';
 import {ToastrService} from 'ngx-toastr';
-import {BsModalRef} from 'ngx-bootstrap';
 import {constants} from '../../../../shared/constants/constants';
 import {OrgModelApi} from "../../../../shared/lb-sdk/services/custom/OrgModel";
 import {UserProfileService} from "../../../../shared/services/user-profile.service";

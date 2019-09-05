@@ -31,20 +31,6 @@ import {
 // Import components
 import {AppComponent} from './app.component';
 
-// Import directives
-// import {
-//   NAV_DROPDOWN_DIRECTIVES,
-//   ReplaceDirective,
-//   SIDEBAR_TOGGLE_DIRECTIVES
-// } from './directives';
-
-// const APP_DIRECTIVES = [
-//   NAV_DROPDOWN_DIRECTIVES,
-//   ReplaceDirective,
-//   SIDEBAR_TOGGLE_DIRECTIVES
-// ];
-
-
 // Import routing module
 import {AppRoutingModule} from './app.routing';
 
@@ -94,8 +80,6 @@ import {ToastrModule} from 'ngx-toastr';
   declarations: [
     AppComponent,
     ...APP_CONTAINERS
-    // ,
-    // ...APP_DIRECTIVES
   ],
   exports: [],
   providers: [{

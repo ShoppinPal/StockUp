@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {OrgModelApi} from "../../../../shared/lb-sdk/services/custom/OrgModel";
 import {ActivatedRoute, Router} from '@angular/router';
-import {Observable, combineLatest, Subscription} from 'rxjs';
+import {combineLatest, Subscription} from 'rxjs';
 import {ToastrService} from 'ngx-toastr';
 import {UserProfileService} from "../../../../shared/services/user-profile.service";
 import {LoopBackAuth} from "../../../../shared/lb-sdk/services/core/auth.service";

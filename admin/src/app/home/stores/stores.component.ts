@@ -29,7 +29,6 @@ export class StoresComponent implements OnInit {
   ngOnInit() {
     this.userProfile = this._userProfileService.getProfileData();
     this._route.data.subscribe((data: any) => {
-        console.log(data);
         this.stores = data.stores;
       },
       error => {

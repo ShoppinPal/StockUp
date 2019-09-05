@@ -1,8 +1,8 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {OrgModelApi} from "../../../shared/lb-sdk/services/custom/OrgModel";
 import {ActivatedRoute, Router} from '@angular/router';
-import {Observable, combineLatest, Subscription} from 'rxjs';
-import {debounceTime, map, mergeMap} from 'rxjs/operators';
+import {Observable} from 'rxjs';
+import {map, mergeMap} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
 import {UserProfileService} from "../../../shared/services/user-profile.service";
 import {TypeaheadMatch} from 'ngx-bootstrap';
@@ -10,7 +10,6 @@ import {FileUploader} from 'ng2-file-upload';
 import {LoopBackConfig, LoopBackAuth} from "../../../shared/lb-sdk";
 import {constants} from '../../../shared/constants/constants';
 import {EventSourceService} from '../../../shared/services/event-source.service';
-import {HttpParams} from '@angular/common/http';
 import {SchedulePickerComponent} from "../shared-components/schedule-picker/schedule-picker.component";
 
 
@@ -32,7 +31,6 @@ export class CreateOrderComponent implements OnInit {
   public selectedSupplierId: string = "";
   public searchCategoryText: string;
   public typeaheadLoading: boolean;
-  public typeaheadNoResults: boolean;
   public categoriesList: Observable<any>;
   public categoriesListLimit: number = 7;
   public selectedCategoryId: string = '';
@@ -42,7 +40,6 @@ export class CreateOrderComponent implements OnInit {
   public userStores;
   public orderConfigurations: any;
   public selectedOrderConfigurationId;
-  private subscriptions: Subscription[] = [];
   public REPORT_STATES = constants.REPORT_STATES;
 
 
@@ -137,8 +134,6 @@ export class CreateOrderComponent implements OnInit {
       this.toastr.info('Generating stock order');
       console.log(reportModelData);
       this._router.navigate(['/orders/stock-orders']);
-      // this.generatedOrders.unshift({...reportModelData.data, backgroundEffect: true});
-      // this.waitForStockOrderNotification(reportModelData.callId)
     }, error => {
       this.loading = false;
       this.toastr.error('Error in generating order');
@@ -192,8 +187,6 @@ export class CreateOrderComponent implements OnInit {
           this.toastr.info('Generating stock order');
           console.log(reportModelData);
           this._router.navigate(['/orders/stock-orders']);
-          // this.generatedOrders.unshift({...reportModelData.data, backgroundEffect: true});
-          // this.waitForStockOrderNotification(reportModelData.callId)
         }, error => {
           this.loading = false;
           this.toastr.error('Error in generating order');

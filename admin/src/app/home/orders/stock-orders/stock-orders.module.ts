@@ -8,6 +8,7 @@ import {ReceiveModule} from "./receive/receive.module";
 import {CompleteModule} from "./complete/complete.module";
 import {SchedulePickerModule} from '../shared-components/schedule-picker/schedule-picker.module';
 import {StockOrdersRoutingModule} from './stock-orders-routing.module';
+import {StockOrdersResolverService} from "./services/stock-orders-resolver.service";
 
 @NgModule({
   imports: [
@@ -21,5 +22,6 @@ import {StockOrdersRoutingModule} from './stock-orders-routing.module';
     SchedulePickerModule
   ],
   declarations: [StockOrdersComponent],
+  providers: [StockOrdersResolverService]
 })
 export class StockOrdersModule { }

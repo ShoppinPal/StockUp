@@ -41,7 +41,6 @@ export class UsersComponent implements OnInit {
   ngOnInit() {
     this.userProfile = this._userProfileService.getProfileData();
     this._route.data.subscribe((data: any) => {
-        console.log('user route data', data);
         this.users = data.users.users;
         this.totalUsers = data.users.count;
       },
