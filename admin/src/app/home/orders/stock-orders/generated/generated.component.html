@@ -31,27 +31,42 @@
           <div class="row">
             <div class="col-sm-3" *ngIf="editable">
               <span class="input-group-btn">
-                <button class="btn btn-primary btn-block" type="button" (click)="updateLineItems([], {approved: true})">Approve all</button>
+                <button class="btn btn-primary btn-block" type="button" (click)="updateLineItems([], {approved: true})">
+                <i class="fa fa-check-square-o"></i>
+                  Approve all
+                </button>
               </span>
             </div>
             <div class="col-sm-3">
               <span class="input-group-btn" *ngIf="editable">
                 <button class="btn btn-success btn-block" type="button"
                         (click)="emailModal.show()"
-                        *ngIf="userProfile.integrationType === 'msdynamics' && !creatingTransferOrder">Create Transfer Order</button>
+                        *ngIf="userProfile.integrationType === 'msdynamics' && !creatingTransferOrder">
+                  <i class="fa fa-rocket"></i>
+                  Create Transfer Order
+                </button>
                 <button class="btn btn-success btn-block" type="button"
                         *ngIf="userProfile.integrationType === 'vend'"
-                        (click)="emailModal.show()">Send order to Supplier</button>
+                        (click)="emailModal.show()">
+                  <i class="fa fa-rocket"></i>
+                  Send order to Supplier
+                </button>
               </span>
             </div>
             <div class="col-sm-3">
               <span class="input-group-btn">
-                <button class="btn btn-info text-white btn-block" type="button" (click)="downloadOrderCSV()">Download CSV</button>
+                <button class="btn btn-info text-white btn-block" type="button" (click)="downloadOrderCSV()">
+                <i class="fa fa-cloud-download"></i>
+                  Download CSV
+                </button>
               </span>
             </div>
             <div class="col-sm-3">
               <span class="input-group-btn">
-                <button class="btn btn-danger btn-block" type="button" (click)="openDeleteModal()">Delete Order</button>
+                <button class="btn btn-danger btn-block" type="button" (click)="openDeleteModal()">
+                <i class="fa fa-trash"></i>
+                  Delete Order
+                </button>
               </span>
             </div>
           </div>
@@ -95,7 +110,8 @@
                       class="btn btn-link"
                       (click)="showAddProductModal = true"
                       >
-                Cant Find? Add Product
+                <i class="fa fa-plus-circle"></i>
+                Add Products Manually
               </button>
             </div>
             <div class="col-sm-6">
@@ -200,7 +216,7 @@
                           <td>
                             <button *ngIf="editable" class="btn btn-danger" type="submit"
                                     (click)="approveItem(lineItem)">
-                              <i class="fa fa-save"></i> Approve
+                              <i class="fa fa-check"></i> Approve
                             </button>
                           </td>
                         </ng-container>
@@ -342,7 +358,7 @@
                           <td>
                             <button *ngIf="editable" class="btn btn-danger" type="submit"
                                     (click)="removeItem(lineItem)">
-                              <i class="fa fa-save"></i> Remove
+                              <i class="fa fa-remove"></i> Remove
                             </button>
                           </td>
                         </ng-container>

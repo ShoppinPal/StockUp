@@ -45,7 +45,7 @@ export const navItems: NavData[] = [
   {
     name: 'Categories',
     url: '/products/categories',
-    icon: 'icon-location-pin',
+    icon: 'icon-pie-chart',
     roles: ['orgAdmin']
   },
   {
@@ -56,13 +56,13 @@ export const navItems: NavData[] = [
   {
     name: 'Create Order',
     url: '/orders/create-order',
-    icon: 'icon-close',
+    icon: 'icon-plus',
     roles: ['orgAdmin', 'storeManager']
   },
   {
     name: 'Stock Orders',
     url: '/orders/stock-orders',
-    icon: 'icon-close',
+    icon: 'icon-basket',
     roles: ['orgAdmin', 'storeManager']
   },
   {
@@ -73,7 +73,7 @@ export const navItems: NavData[] = [
   {
     name: 'Suppliers',
     url: '/suppliers',
-    icon: 'icon-close',
+    icon: 'icon-notebook',
     roles: ['orgAdmin']
   },
   {
@@ -108,7 +108,7 @@ export const navItems: NavData[] = [
   {
     name: 'File Imports',
     url: '/file-imports',
-    icon: 'icon-calculator',
+    icon: 'icon-cloud-upload',
     roles: ['orgAdmin']
   },
   {
