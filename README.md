@@ -128,7 +128,6 @@ Standard measures for security like IP whitelisting will be used to allow access
 
         ```
         cd ~/Dropbox && dropbox exclude add rDev/warehouse/node_modules
-        cd ~/Dropbox && dropbox exclude add rDev/warehouse/client/app/bower_components
         cd ~/Dropbox && dropbox exclude add rDev/warehouse-workers/node_modules
         cd ~/Dropbox && dropbox exclude add rDev/warehouse/notification-service/node_modules
         ```

@@ -30,12 +30,6 @@
   "files": {
     "loopback#static": [
       {
-        "params": "$!../.tmp"
-      },
-      {
-        "params": "$!../client/app"
-      },
-      {
         "params": "$!../client/admin"
       }
     ]
