@@ -10,7 +10,7 @@ import {DatePipe} from '@angular/common';
 import {EventSourceService} from '../../../../shared/services/event-source.service';
 import {ModalDirective} from 'ngx-bootstrap';
 import {BsModalRef, BsModalService} from "ngx-bootstrap/modal";
-import {DeleteOrderComponent} from "../shared-components/delete-order/delete-order.component";
+import {DeleteOrderComponent} from "../../shared-components/delete-order/delete-order.component";
 
 
 @Component({

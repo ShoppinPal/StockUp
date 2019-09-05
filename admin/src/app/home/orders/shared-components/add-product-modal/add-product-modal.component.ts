@@ -1,14 +1,14 @@
 import {Component, EventEmitter, Input, OnInit, Output, ViewChild, ViewContainerRef} from '@angular/core';
-import {OrgModelApi} from '../../../../../shared/lb-sdk/services/custom';
 import {ToastrService} from 'ngx-toastr';
-import {UserProfileService} from '../../../../../shared/services/user-profile.service';
 import {BsModalRef} from 'ngx-bootstrap';
-import {constants} from '../../../../../shared/constants/constants';
+import {constants} from '../../../../shared/constants/constants';
+import {OrgModelApi} from "../../../../shared/lb-sdk/services/custom/OrgModel";
+import {UserProfileService} from "../../../../shared/services/user-profile.service";
 
 @Component({
   selector: 'app-add-product-modal',
-  templateUrl: './add-product-modal.component.html',
-  styleUrls: ['./add-product-modal.component.scss']
+  templateUrl: 'add-product-modal.component.html',
+  styleUrls: ['add-product-modal.component.scss']
 })
 export class AddProductModalComponent implements OnInit {
   searchProductSKUText: any;

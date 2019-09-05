@@ -54,6 +54,12 @@ export const navItems: NavData[] = [
     roles: ['orgAdmin', 'storeManager']
   },
   {
+    name: 'Create Order',
+    url: '/orders/create-order',
+    icon: 'icon-close',
+    roles: ['orgAdmin', 'storeManager']
+  },
+  {
     name: 'Stock Orders',
     url: '/orders/stock-orders',
     icon: 'icon-close',
@@ -70,22 +76,11 @@ export const navItems: NavData[] = [
     icon: 'icon-close',
     roles: ['orgAdmin']
   },
-  // {
-  //   name: 'Stuck Orders',
-  //   url: '/orders/stuck-orders',
-  //   icon: 'icon-close',
-  //   roles: ['orgAdmin']
-  // },
   {
     title: true,
     name: 'Settings',
     roles: ['orgAdmin']
   },
-  /*{
-   name: 'Syncing with Vend',
-   url: '/sync-with-vend',
-   icon: 'icon-refresh'
-   },*/
   {
     name: 'Connect ERP/POS',
     url: '/connect',
@@ -97,14 +92,7 @@ export const navItems: NavData[] = [
     url: '/users',
     icon: 'icon-people',
     roles: ['orgAdmin']
-  }
-  /*,
-   {
-   name: 'Worker Settings',
-   url: '/worker-settings',
-   icon: 'icon-settings'
-   }*/
-  ,
+  },
   {
     name: 'Stores',
     url: '/stores',
@@ -129,10 +117,4 @@ export const navItems: NavData[] = [
     icon: 'icon-loop',
     roles: ['orgAdmin']
   }
-  /*,
-   {
-   name: 'Payments',
-   url: '/payments',
-   icon: 'icon-settings'
-   }*/
 ];

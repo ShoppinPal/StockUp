@@ -3,8 +3,8 @@ import * as moment from 'moment';
 
 @Component({
   selector: 'app-schedule-picker',
-  templateUrl: './schedule-picker.component.html',
-  styleUrls: ['./schedule-picker.component.scss']
+  templateUrl: 'schedule-picker.component.html',
+  styleUrls: ['schedule-picker.component.scss']
 })
 export class SchedulePickerComponent implements OnInit {
   public static SCHEDULING_TYPES = {HOURLY: 'Hourly', DAILY: 'Daily', MONTHLY: 'Monthly', WEEKLY: 'Weekly' , YEARLY: 'Yearly'};

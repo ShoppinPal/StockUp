@@ -1,18 +1,14 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {OrgModelApi} from "../../../shared/lb-sdk/services/custom/OrgModel";
 import {ActivatedRoute, Router} from '@angular/router';
-import {Observable, combineLatest, Subscription} from 'rxjs';
-import {debounceTime, map, mergeMap} from 'rxjs/operators';
+import {Observable, Subscription} from 'rxjs';
 import {ToastrService} from 'ngx-toastr';
 import {UserProfileService} from "../../../shared/services/user-profile.service";
-import {TypeaheadMatch} from 'ngx-bootstrap';
 import {FileUploader} from 'ng2-file-upload';
 import {LoopBackConfig, LoopBackAuth} from "../../../shared/lb-sdk";
 import {constants} from '../../../shared/constants/constants';
 import {StockOrdersResolverService} from "./services/stock-orders-resolver.service";
 import {EventSourceService} from '../../../shared/services/event-source.service';
-import {HttpParams} from '@angular/common/http';
-import {SchedulePickerComponent} from "./schedule-picker/schedule-picker.component";
 
 @Component({
   selector: 'app-stock-orders',
@@ -52,18 +48,9 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
 
   public orderName: string;
   public stores: Array<any> = [];
-  public warehouses: Array<any> = [];
   public suppliers: Array<any> = [];
   public ordersLimitPerPage: number = 10;
-  public selectedStoreId: string = "";
-  public selectedWarehouseId: string = "Select...";
-  public selectedSupplierId: string = "";
-  public searchCategoryText: string;
   public typeaheadLoading: boolean;
-  public typeaheadNoResults: boolean;
-  public categoriesList: Observable<any>;
-  public categoriesListLimit: number = 7;
-  public selectedCategoryId: string = '';
   public maxPageDisplay: number = 7;
   public uploader: FileUploader;
   public createSales: boolean = true;
@@ -73,14 +60,6 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   public REPORT_STATES = constants.REPORT_STATES;
 
-
-  public scheduleAutoGeneration: boolean = false;
-  public selectedSchedulingType: string = '';
-  public selectedSchedulingHour: any = -1;
-  public selectedSchedulingDay: any = -1;
-  public selectedSchedulingMonth: any = -1;
-  public selectedSchedulingWeek: any = [];
-  
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
               private _router: Router,
@@ -115,12 +94,6 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
       authToken: this.auth.getAccessTokenId(),
       removeAfterUpload: true
     });
-
-    this.categoriesList = Observable.create((observer: any) => {
-      // Runs on every search
-      observer.next(this.searchCategoryText);
-    })
-      .pipe(mergeMap((token: string) => this.searchCategory(token)));
   }
 
   fetchOrderRowCounts() {
@@ -246,113 +219,8 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
     this._router.navigate(['orders/stock-orders/' + orderState + '/' + id]);
   }
 
-  getFormattedSchedulingData(){
-    let schedulingData: any = {};
-    if( this.scheduleAutoGeneration ) {
-      const validationResult = SchedulePickerComponent.validateSchedulerParameters(
-        this.selectedSchedulingType,
-        this.selectedSchedulingMonth,
-        this.selectedSchedulingWeek,
-        this.selectedSchedulingDay,
-        this.selectedSchedulingHour
-      );
-      if(!validationResult.validated) {
-        this.toastr.error(validationResult.message);
-        return;
-      }
-      schedulingData = SchedulePickerComponent.convertTimeToUTCandAppend(
-        this.selectedSchedulingType,
-        this.selectedSchedulingMonth,
-        this.selectedSchedulingWeek,
-        this.selectedSchedulingDay,
-        this.selectedSchedulingHour);
-    }
-    return schedulingData;
-  }
 
-  generateStockOrderMSD() {
-    this.loading = true;
-    const schedulingData = this.getFormattedSchedulingData();
-    this.orgModelApi.generateStockOrderMSD(
-      this.userProfile.orgModelId,
-      this.selectedStoreId,
-      this.selectedWarehouseId,
-      this.selectedCategoryId,
-      this.scheduleAutoGeneration,
-      this.selectedSchedulingType,
-      schedulingData.day || null,
-      schedulingData.month || null,
-      schedulingData.hour || null,
-      schedulingData.weekDay || null,
-    ).subscribe(reportModelData => {
-      this.loading = false;
-      this.toastr.info('Generating stock order');
-      console.log(reportModelData);
-      this.generatedOrders.unshift({...reportModelData.data, backgroundEffect: true});
-      this.waitForStockOrderNotification(reportModelData.callId)
-    }, error => {
-      this.loading = false;
-      this.toastr.error('Error in generating order');
-    });
-  };
 
-  generateStockOrderVend() {
-    if (this.uploader.queue.length) {
-      console.log('uploading file...', this.uploader);
-      this.uploader.onBuildItemForm = (fileItem: any, form: any)=> {
-        form.append('orderConfigModelId', this.selectedOrderConfigurationId);
-      };
-      this.uploader.uploadAll();
-      this.uploader.onSuccessItem = (item: any, response: any, status: number, headers: any): any => {
-        this.loading = false;
-        this.toastr.info('Importing stock order from file...');
-        this.waitForFileImportWorker();
-      };
-      this.uploader.onErrorItem = (item: any, response: any, status: number, headers: any): any => {
-        this.loading = false;
-        console.log('Error uploading file');
-        console.log('response', response);
-        console.log('status', status);
-        this.toastr.error('Error importing stock order from file');
-      };
-    } else if (this.selectedStoreId) {
-      this.loading = true;
-      let deliverFromStore = this.stores.find(x => x.objectId === this.selectedWarehouseId);
-      if (!deliverFromStore.ownerSupplierModelId) {
-        this.toastr.error('Store transfers are not supported yet');
-        this.loading = false;
-      }
-      else {
-        this.selectedSupplierId = deliverFromStore.ownerSupplierModelId;
-        const schedulingData = this.getFormattedSchedulingData();
-        this.orgModelApi.generateStockOrderVend(
-          this.userProfile.orgModelId,
-          this.selectedStoreId,
-          this.selectedSupplierId,
-          this.orderName || '',
-          this.selectedWarehouseId,
-          this.scheduleAutoGeneration,
-          this.selectedSchedulingType,
-          schedulingData.day || null,
-          schedulingData.month || null,
-          schedulingData.hour || null,
-          schedulingData.weekDay || null,
-        ).subscribe(reportModelData => {
-          this.loading = false;
-          this.toastr.info('Generating stock order');
-          console.log(reportModelData);
-          this.generatedOrders.unshift({...reportModelData.data, backgroundEffect: true});
-          this.waitForStockOrderNotification(reportModelData.callId)
-        }, error => {
-          this.loading = false;
-          this.toastr.error('Error in generating order');
-        })
-      }
-    } else {
-      this.toastr.error('Select a store to deliver from or upload a file to generate order from');
-      return;
-    }
-  };
 
   waitForStockOrderNotification(callId) {
     const EventSourceUrl = `/notification/${callId}/waitForResponseAPI`;
@@ -383,27 +251,7 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
     );
   }
 
-  searchCategory(searchToken) {
-    return this.orgModelApi.getCategoryModels(this.userProfile.orgModelId, {
-      where: {
-        name: {
-          regexp: '/.*' + searchToken + '.*/i'
-        }
-      },
-      limit: this.categoriesListLimit,
-      fields: ['name', 'id']
-    })
-      .pipe(map((data: any) => {
-          return data;
-        },
-        err => {
-          console.log('err', err);
-        }));
-  }
 
-  public typeaheadOnSelect(e: TypeaheadMatch): void {
-    this.selectedCategoryId = e.item.id;
-  }
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(subscription => {
