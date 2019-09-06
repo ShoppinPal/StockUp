@@ -4,7 +4,6 @@ import {ActivatedRoute} from '@angular/router';
 import {Observable, combineLatest} from 'rxjs';
 import {ToastrService} from 'ngx-toastr';
 import {UserProfileService} from '../../../shared/services/user-profile.service';
-import {ContainerApi} from "../../../shared/lb-sdk/services/custom/Container";
 import {FileUploader} from 'ng2-file-upload';
 import {LoopBackConfig, LoopBackAuth} from "../../../shared/lb-sdk";
 
@@ -31,7 +30,6 @@ export class CategoriesComponent implements OnInit {
   public parentCategory: string = "Select...";
 
   constructor(private orgModelApi: OrgModelApi,
-              private containerApi: ContainerApi,
               private _route: ActivatedRoute,
               private toastr: ToastrService,
               private _userProfileService: UserProfileService,

@@ -1,7 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {FileUploader} from "ng2-file-upload";
 import {OrgModelApi} from "../../shared/lb-sdk/services/custom/OrgModel";
-import {ContainerApi} from "../../shared/lb-sdk/services/custom/Container";
 import {ActivatedRoute, Router} from "@angular/router";
 import {ToastrService} from "ngx-toastr";
 import {UserProfileService} from "../../shared/services/user-profile.service";
@@ -34,7 +33,6 @@ export class FileImportsComponent implements OnInit {
   public nameSuffixes: Array<any> = [];
 
   constructor(private orgModelApi: OrgModelApi,
-              private containerApi: ContainerApi,
               private _route: ActivatedRoute,
               private _router: Router,
               private toastr: ToastrService,
