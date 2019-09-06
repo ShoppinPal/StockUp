@@ -10,12 +10,6 @@ module.exports = function (grunt) {
     require('time-grunt')(grunt);
 
     grunt.initConfig({
-        yeoman: {
-            // configurable paths
-            app: require('./bower.json').appPath || 'client/app',
-            api: 'lib/api',
-            dist: 'public'
-        },
         connect: { // only utilizing these settings and NOT the "grunt-contrib-connect": "^0.8.0" task ... right now
             options: {
                 port: 3000,
@@ -25,15 +19,6 @@ module.exports = function (grunt) {
             }
         },
         /* jshint ignore:start */
-        loopback_sdk_angular: { // TODO: run this after localtunnel connects?
-            services: { // default options?
-                options: {
-                    input: './server/server.js',
-                    output: './client/app/scripts/shoppinpal-loopback.js',
-                    ngModuleName: 'shoppinpal-loopback'
-                }
-            }
-        },
         mustache_render: {
             all: {
                 files: [{
@@ -74,31 +59,6 @@ module.exports = function (grunt) {
                 }]
             }
         },
-        // Automatically inject Bower components into the app
-        wiredep: {
-            app: {
-                src: ['<%= yeoman.app %>/index.html'],
-                ignorePath: /\.\.\//
-            },
-            sass: {
-                src: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}'],
-                ignorePath: /(\.\.\/){1,2}bower_components\//
-            }
-        },
-
-        clean: {
-            dist: {
-                files: [{
-                    dot: true,
-                    src: [
-                        '.tmp',
-                        '<%= yeoman.dist %>/*',
-                        '!<%= yeoman.dist %>/.git*'
-                    ]
-                }]
-            },
-            server: '.tmp'
-        },
         jshint: {
             server: {
                 options: {
@@ -108,155 +68,9 @@ module.exports = function (grunt) {
                 files: {
                     src: [
                         'Gruntfile.js',
-                        'server.js',
-                        '<%= yeoman.api %>/{,*/}*.js'
+                        'server.js'
                     ]
                 }
-            },
-            client: {
-                options: {
-                    jshintrc: '<%= yeoman.app %>/.jshintrc',
-                    ignores: [
-                        '<%= yeoman.app %>/scripts/shoppinpal-loopback.js',
-                        '<%= yeoman.app %>/scripts/shoppinpal-utils.js'
-                    ],
-                    reporter: require('jshint-stylish')
-                },
-                files: {
-                    src: '<%= yeoman.app %>/scripts/{,*/}*.js'
-                }
-            }
-        },
-        rev: {
-            dist: {
-                files: {
-                    src: [
-                        '<%= yeoman.dist %>/scripts/{,*/}*.js',
-                        '<%= yeoman.dist %>/styles/{,*/}*.css',
-                        '<%= yeoman.dist %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
-                        '<%= yeoman.dist %>/styles/fonts/*'
-                    ]
-                }
-            }
-        },
-        useminPrepare: {
-            html: '<%= yeoman.app %>/index.html',
-            options: {
-                dest: '<%= yeoman.dist %>'
-            }
-        },
-        usemin: {
-            html: ['<%= yeoman.dist %>/{,*/}*.html'],
-            css: ['<%= yeoman.dist %>/styles/{,*/}*.css'],
-            options: {
-                assetsDirs: ['<%= yeoman.dist %>', '<%= yeoman.dist %>/images']
-            }
-        },
-        imagemin: {
-            dist: {
-                files: [{
-                    expand: true,
-                    cwd: '<%= yeoman.app %>/images',
-                    src: '{,*/}*.{png,jpg,jpeg,gif}',
-                    dest: '<%= yeoman.dist %>/images'
-                }]
-            }
-        },
-        svgmin: {
-            dist: {
-                files: [{
-                    expand: true,
-                    cwd: '<%= yeoman.app %>/images',
-                    src: '{,*/}*.svg',
-                    dest: '<%= yeoman.dist %>/images'
-                }]
-            }
-        },
-        cssmin: {
-            // By default, your `index.html` <!-- Usemin Block --> will take care of
-            // minification. This option is pre-configured if you do not wish to use
-            // Usemin blocks.
-            // dist: {
-            //   files: {
-            //     '<%= yeoman.dist %>/styles/main.css': [
-            //       '.tmp/styles/{,*/}*.css',
-            //       '<%= yeoman.app %>/styles/{,*/}*.css'
-            //     ]
-            //   }
-            // }
-        },
-        htmlmin: {
-            dist: {
-                options: {
-                    collapseWhitespace: true,
-                    conservativeCollapse: true,
-                    collapseBooleanAttributes: true,
-                    removeCommentsFromCDATA: true,
-                    removeOptionalTags: true
-                },
-                files: [{
-                    expand: true,
-                    cwd: '<%= yeoman.app %>',
-                    src: ['*.html', 'views/{,*/}*.html'],
-                    dest: '<%= yeoman.dist %>'
-                }]
-            }
-        },
-        // Put files not handled in other tasks here
-        copy: {
-            dist: {
-                files: [{
-                    expand: true,
-                    dot: true,
-                    cwd: '<%= yeoman.app %>',
-                    dest: '<%= yeoman.dist %>',
-                    src: [
-                        '*.{ico,png,txt}',
-                        '.htaccess',
-                        '*.html',
-                        'views/{,*/}*.html',
-                        'images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
-                        'bower_components/**/*',
-                        'styles/fonts/*',
-                        'scripts/**/*'
-                    ]
-                }, {
-                    expand: true,
-                    cwd: '.tmp/images',
-                    dest: '<%= yeoman.dist %>/images',
-                    src: [
-                        'generated/*'
-                    ]
-                }]
-            },
-            deployment: {
-                files: [{
-                    expand: true,
-                    dot: true,
-                    dest: 'dist',
-                    src: [
-                        '<%= yeoman.dist %>/**'
-                    ]
-                }, {
-                    expand: true,
-                    dest: 'dist',
-                    src: [
-                        'package.json',
-                        'server.js',
-                        'lib/**/*',
-                        'newrelic.js',
-                        'config/*.json',
-                        'scripts/scripts.js'
-                    ]
-                }]
-            }
-        },
-        concurrent: {
-            all: {
-                tasks: [
-                    'imagemin',
-                    'svgmin'
-                ]
             }
         },
         protractor: {
@@ -279,26 +93,6 @@ module.exports = function (grunt) {
             e2e: {
                 configFile: 'karma-e2e.conf.js',
                 singleRun: true
-            }
-        },
-        cdnify: {
-            dist: {
-                html: ['<%= yeoman.dist %>/*.html']
-            }
-        },
-        ngmin: {
-            dist: {
-                files: [{
-                    expand: true,
-                    cwd: '<%= yeoman.dist %>/scripts',
-                    src: '{,*/}*.js',
-                    dest: '<%= yeoman.dist %>/scripts'
-                }]
-            }
-        },
-        uglify: {
-            options: {
-                mangle: false
             }
         },
         env: {
@@ -326,13 +120,7 @@ module.exports = function (grunt) {
                             }
                         }
                     ]
-                },
-                files: [
-                    {
-                        src: '<%= yeoman.app %>/scripts/shoppinpal-constants.js',
-                        dest: '.tmp/scripts/shoppinpal-constants.js'
-                    }
-                ]
+                }
             }
         },
         localtunnel: {
@@ -427,10 +215,7 @@ module.exports = function (grunt) {
             return grunt.task.run([
                 'jshint',
                 'loadConfig:' + env,
-                'loopback_sdk_angular', // TODO: this is eventually called by `build` task too, remove from here?
                 'localtunnel:anyEnv',
-                'clean:server',
-                'concurrent:all',
                 'env:' + env, // TODO: move this to be right after `localtunnel` task? or will it exacerbate the race condition?
                 'build:' + env,
                 'run:' + env,
@@ -445,18 +230,6 @@ module.exports = function (grunt) {
         grunt.option('environment', env);
         grunt.task.run([
             'jshint',
-            //'loadConfig:' + env, // if called from grunt:server, previous work by tasks such as localtunnel:anyEnv and env:<env> will get nuked
-            'loopback_sdk_angular',
-            'clean:dist',
-            'useminPrepare',
-            'concurrent:all',
-            'concat',
-            'copy:dist',
-            'cdnify',
-            //'cssmin',
-            'uglify',
-            'rev',
-            'usemin',
             'replace:all'
         ]);
     });
@@ -481,16 +254,6 @@ module.exports = function (grunt) {
             grunt.task.run([
                 'jshint',
                 'loadConfig:' + env,
-                'loopback_sdk_angular',
-                'clean:dist',
-                'useminPrepare',
-                'concat',
-                'copy:dist',
-                'cdnify',
-                //'cssmin',
-                'uglify',
-                'rev',
-                'usemin',
                 'replace:all'
             ]);
         }
@@ -508,7 +271,6 @@ module.exports = function (grunt) {
         grunt.task.run([
             'jshint',
             'loadConfig:' + env,
-            'loopback_sdk_angular',
             'replace:all'
         ]);
     }
