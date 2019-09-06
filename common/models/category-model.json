@@ -9,6 +9,12 @@
     "name": {
       "type": "string",
       "required": true
+    },
+    "min": {
+      "type": "object"
+    },
+    "max": {
+      "type": "object"
     }
   },
   "validations": [],

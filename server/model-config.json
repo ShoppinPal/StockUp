@@ -36,25 +36,9 @@
     "dataSource": "db",
     "public": false
   },
-  "Application": {
-    "dataSource": "db",
-    "public": false
-  },
   "UserModel": {
     "dataSource": "db",
     "public": true
-  },
-  "TeamModel": {
-    "dataSource": "db",
-    "public": false
-  },
-  "GlobalConfigModel": {
-    "dataSource": "db",
-    "public": false
-  },
-  "StoreConfigModel": {
-    "dataSource": "db",
-    "public": false
   },
   "StoreModel": {
     "dataSource": "db",
@@ -69,14 +53,6 @@
     "public": false
   },
   "SupplierModel": {
-    "dataSource": "db",
-    "public": false
-  },
-  "container": {
-    "dataSource": "storage",
-    "public": true
-  },
-  "StoreMappingModel": {
     "dataSource": "db",
     "public": false
   },
