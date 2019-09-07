@@ -21,6 +21,7 @@
     "grunt-contrib-jshint": "~0.8.0",
     "grunt-contrib-watch": "^0.5.3",
     "grunt-mustache-render": "1.9.2",
+    "grunt-replace": "^0.7.9",
     "html-pdf": "2.2.0",
     "inquirer": "^4.0.1",
     "iron_worker": "0.1.4",
