@@ -59,7 +59,6 @@
     # run this as-is
     dropbox exclude add $SYNC_DEV_HOME/$WAREHOUSE_SYNC_DIR_NAME/.git && \
       dropbox exclude add $SYNC_DEV_HOME/$WAREHOUSE_SYNC_DIR_NAME/node_modules && \
-      dropbox exclude add $SYNC_DEV_HOME/$WAREHOUSE_SYNC_DIR_NAME/client/app/bower_components && \
       dropbox exclude add $SYNC_DEV_HOME/$WAREHOUSE_SYNC_DIR_NAME/docker/volumes && \
       dropbox exclude add $SYNC_DEV_HOME/$WAREHOUSE_SYNC_DIR_NAME/warehouse-workers/.git && \
       dropbox exclude add $SYNC_DEV_HOME/$WAREHOUSE_SYNC_DIR_NAME/warehouse-workers/node_modules

@@ -5,15 +5,15 @@
   "options": {
     "validateUpsert": true
   },
+  "mixins": {
+    "Timestamp": {},
+    "Context": {}
+  },
   "properties": {
     "comment": {
       "type": "string",
       "required": true
     }
-  },
-  "mixins": {
-    "Timestamp": {},
-    "Context": {}
   },
   "validations": [],
   "relations": {

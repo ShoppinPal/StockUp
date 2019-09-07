@@ -1,18 +1,11 @@
 import {NgModule} from '@angular/core';
 import {Routes, RouterModule} from '@angular/router';
-import {SyncWithVendComponent} from './sync-with-vend/sync-with-vend.component';
 import {StoresComponent} from './stores/stores.component';
-import {PaymentsComponent} from './payments/payments.component';
 import {UserResolverService} from './../shared/services/user-resolver.service';
 import {AccessService} from "../shared/services/access.service";
-import {SyncWithVendResolverService} from "./sync-with-vend/services/sync-with-vend-resolver.service";
-import {WorkerSettingsComponent} from "./worker-settings/worker-settings.component";
-import {WorkerSettingsResolverService} from "./worker-settings/services/worker-settings-resolver.service";
-import {SuppliersComponent} from "./suppliers/suppliers.component";
 import {SuppliersResolverService} from "./suppliers/services/suppliers-resolver.service";
 import {ConnectComponent} from "./connect/connect.component";
 import {ConnectResolverService} from "./connect/services/connect-resolver.service";
-import {UsersComponent} from "./users/users.component";
 import {UserManagementResolverService} from "./users/services/user-management-resolver.service";
 import {StoresResolverService} from "./stores/services/stores-resolver.service";
 import {ReorderPointsComponent} from "./reorder-points/reorder-points.component";
@@ -37,16 +30,6 @@ const routes: Routes = [
         pathMatch: 'full'
       },
       {
-        path: 'sync-with-vend',
-        component: SyncWithVendComponent,
-        data: {
-          title: 'Stores'
-        },
-        resolve: {
-          syncModels: SyncWithVendResolverService
-        }
-      },
-      {
         path: 'connect',
         component: ConnectComponent,
         data: {
@@ -64,16 +47,6 @@ const routes: Routes = [
         },
       },
       {
-        path: 'worker-settings',
-        component: WorkerSettingsComponent,
-        data: {
-          title: 'Settings > Worker Settings'
-        },
-        resolve: {
-          workerSettings: WorkerSettingsResolverService
-        }
-      },
-      {
         path: 'stores',
         component: StoresComponent,
         data: {
@@ -81,13 +54,6 @@ const routes: Routes = [
         },
         resolve: {
           stores: StoresResolverService
-        }
-      },
-      {
-        path: 'payments',
-        component: PaymentsComponent,
-        data: {
-          title: 'Payments'
         }
       },
       {
@@ -144,12 +110,10 @@ const routes: Routes = [
   exports: [RouterModule],
   providers: [
     FileImportsResolverService,
-    SyncWithVendResolverService,
     ConnectResolverService,
     SuppliersResolverService,
     StoresResolverService,
-    UserManagementResolverService,
-    WorkerSettingsResolverService
+    UserManagementResolverService
   ]
 })
 export class HomeRoutingModule {

@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import {Routes, RouterModule} from '@angular/router';
 import {AccessService} from "../../shared/services/access.service";
-import {StuckOrdersComponent} from "./stuck-orders/stuck-orders.component";
-import {StockOrdersResolverService} from "./stock-orders/services/stock-orders-resolver.service";
+import {CreateOrderComponent} from "./create-order/create-order.component";
+import {CreateOrderResolverService} from "./create-order/services/create-order-resolver.service";
 
 
 const routes: Routes = [
@@ -25,15 +25,14 @@ const routes: Routes = [
         }
       },
       {
-        path: 'stuck-orders',
-        component: StuckOrdersComponent,
+        path: 'create-order',
+        component: CreateOrderComponent,
         data: {
-          title: 'Stuck Orders'
+          title: 'Create Order'
+        },
+        resolve: {
+          resolverData: CreateOrderResolverService
         }
-        // ,
-        // resolve: {
-        //   stuckOrders: StuckOrdersResolverService
-        // }
       }
     ]
   }

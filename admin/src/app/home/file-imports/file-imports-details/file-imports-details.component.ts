@@ -1,8 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {constants} from "../../../shared/constants/constants";
-import {ContainerApi, OrgModelApi} from "../../../shared/lb-sdk/services/custom";
+import {OrgModelApi} from "../../../shared/lb-sdk/services/custom";
 import {UserProfileService} from "../../../shared/services/user-profile.service";
-import {FileImportsResolverService} from "../services/file-imports-resolver.service";
 import {ActivatedRoute} from "@angular/router";
 import {ToastrService} from "ngx-toastr";
 
@@ -23,11 +22,9 @@ export class FileImportsDetailsComponent implements OnInit {
   public groupBy: string;
 
   constructor(private orgModelApi: OrgModelApi,
-              private containerApi: ContainerApi,
               private _route: ActivatedRoute,
               private toastr: ToastrService,
-              private _userProfileService: UserProfileService,
-              private _fileImportsResolverService: FileImportsResolverService) {
+              private _userProfileService: UserProfileService) {
   }
 
   ngOnInit() {

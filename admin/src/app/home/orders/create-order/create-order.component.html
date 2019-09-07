@@ -1,0 +1,113 @@
+<ngx-loading [show]="loading"></ngx-loading>
+<div class="animated fadeIn">
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="card">
+        <div class="card-header">
+          <strong>Create stock order</strong>
+        </div>
+        <div class="card-body">
+          <div class="row">
+
+            <tabset class="col-sm-12">
+              <tab heading="Create New">
+                <div class="form-group col-sm-12">
+                  <span>Order Name: &nbsp;&nbsp;</span>
+                  <div class="input-group">
+                    <input type="text"
+                           class="form-control"
+                           [(ngModel)]="orderName"
+                           placeholder="Order Name">
+                  </div>
+                </div>
+                <div class="form-group col-sm-12">
+                  <span>Deliver To: &nbsp;&nbsp;</span>
+                  <select class="form-control" [(ngModel)]="selectedStoreId" id="storeName">
+                    <option disabled="disabled" value="">Select..</option>
+                    <option *ngFor="let store of userStores" [value]="store.objectId">{{store.name}}</option>
+                  </select>
+                </div>
+                <div class="form-group col-sm-12">
+                  <span>Deliver From: &nbsp;&nbsp;</span>
+                  <select class="form-control" [(ngModel)]="selectedWarehouseId" id="warehouseName">
+                    <option disabled="disabled" value="Select...">Select..</option>
+                    <option *ngFor="let store of stores" [value]="store.objectId">
+                      {{store.name}}
+                    </option>
+                  </select>
+                </div>
+                <div class="form-group col-sm-12" *ngIf="userProfile.integrationType === 'msdynamics'">
+                  <span>Select category (Optional) : </span>
+                  <input type="text"
+                         class="form-control"
+                         [(ngModel)]="searchCategoryText"
+                         [typeahead]="categoriesList"
+                         [typeaheadAsync]="true"
+                         (typeaheadOnSelect)="typeaheadOnSelect($event)"
+                         typeaheadOptionsLimit="{{categoriesListLimit}}"
+                         typeaheadOptionField="name"
+                         typeaheadMinLength="3"
+                         placeholder="Start typing to search for category"
+                  />
+                </div>
+                <div class="form-group col-sm-12">
+                  <div class="input-group">
+                    Schedule Auto Generation?
+                    &nbsp;&nbsp;&nbsp;
+                    <span>No</span>
+                    &nbsp;&nbsp;&nbsp;
+                    <label class="switch switch-3d switch-primary">
+                      <input type="checkbox"
+                             [(ngModel)]="scheduleAutoGeneration"
+                             class="switch-input">
+                      <span class="switch-slider"></span>
+                    </label>
+                    &nbsp;&nbsp;&nbsp;
+                    <span>Yes</span>
+                  </div>
+                  <div *ngIf="scheduleAutoGeneration">
+                    <app-schedule-picker
+                      [(type)]="selectedSchedulingType"
+                      [(hour)]="selectedSchedulingHour"
+                      [(week)]="selectedSchedulingWeek"
+                      [(day)]="selectedSchedulingDay"
+                      [(month)]="selectedSchedulingMonth"
+                    ></app-schedule-picker>
+                  </div>
+                </div>
+              </tab>
+              <tab heading="Import from File">
+                <div class="form-group">
+                  <div class="form-group">
+                    <span>Select Import File Configuration: &nbsp;&nbsp;</span>
+                    <select class="form-control" [(ngModel)]="selectedOrderConfigurationId">
+                      <option *ngFor="let config of orderConfigurations"
+                              [value]="config.id">{{config.name}}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="input-group">
+                    <span>Import from file: &nbsp;&nbsp;&nbsp;</span>
+                    <input type="file" ng2FileSelect [uploader]="uploader"/>
+                  </div>
+                </div>
+              </tab>
+            </tabset>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="row">
+            <div class="col-sm-12">
+              <span class="input-group-btn">
+                <button class="btn btn-primary" type="button" *ngIf="userProfile.integrationType === 'msdynamics'"
+                        (click)="generateStockOrderMSD()"><i class="fa fa-plus-circle"></i> Generate stock order</button>
+                <button class="btn btn-primary" type="button" *ngIf="userProfile.integrationType === 'vend'"
+                        (click)="generateStockOrderVend()"><i class="fa fa-plus-circle"></i> Generate stock order</button>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!--/.col-->
+  </div><!--/.row-->
+</div>

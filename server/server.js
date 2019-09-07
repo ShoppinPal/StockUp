@@ -1,17 +1,5 @@
 'use strict';
 
-if (process.env.NEW_RELIC_ENABLED && process.env.NEW_RELIC_ENABLED.toLowerCase() === 'true' &&
-    process.env.NEW_RELIC_NO_CONFIG_FILE &&
-    process.env.NEW_RELIC_LICENSE_KEY &&
-    process.env.NEW_RELIC_APP_NAME &&
-    process.env.NEW_RELIC_LOG_LEVEL) {
-    console.log('starting newrelic agent');
-    require('newrelic');
-}
-else {
-    console.log('skipped newrelic agent');
-}
-
 global.Promise = require('bluebird');
 var loopback = require('loopback');
 var boot = require('loopback-boot');
@@ -30,12 +18,6 @@ app.start = function () {
     return app.listen(function () {
         app.emit('started');
         console.log('Web server listening at: %s', app.get('url'));
-
-        app.use('/v1', app.loopback.static(path.resolve(__dirname, './../client/app')));
-
-        app.get('/v1*', function (req, res, next) {
-            res.sendFile('index.html', {root: path.resolve(__dirname, './../client/app')});
-        });
 
         app.use('/v2', app.loopback.static(path.resolve(__dirname, './../client/admin')));
 

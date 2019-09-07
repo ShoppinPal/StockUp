@@ -41,7 +41,6 @@ export class BinLocationsComponent implements OnInit {
   ngOnInit() {
     this.userProfile = this._userProfileService.getProfileData();
     this._route.data.subscribe((data: any) => {
-      console.log(data);
         this.products = data.products.products;
         this.totalProducts = data.products.count;
         this.totalPages = this.totalProducts / this.productsLimitPerPage;

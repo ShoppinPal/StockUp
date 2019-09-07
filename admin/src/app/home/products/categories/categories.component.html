@@ -28,7 +28,10 @@
           <div class="row">
             <div class="col-sm-12">
               <span class="input-group-btn">
-                <button class="btn btn-primary" type="button" (click)="uploadMinMaxFile()">Upload File</button>
+                <button class="btn btn-primary" type="button" (click)="uploadMinMaxFile()">
+                <i class="fa fa-cloud-upload"></i>
+                  Upload File
+                </button>
               </span>
             </div>
           </div>
@@ -100,14 +103,6 @@
             </tr>
             </tbody>
           </table>
-          <!--<ul class="pagination">-->
-            <!--<li class="page-item" *ngFor="let category of categories | paginate: {itemsPerPage: categoriesLimitPerPage,-->
-                                                                 <!--currentPage: currentPage,-->
-                                                                 <!--totalItems: totalCategories}">-->
-            <!--</li>-->
-          <!--</ul>-->
-          <!--<pagination-controls-->
-            <!--(pageChange)="fetchCategories(categoriesLimitPerPage, currentPage*categoriesLimitPerPage); currentPage=$event"></pagination-controls>-->
         </div>
       </div>
     </div>

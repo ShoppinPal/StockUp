@@ -56,5 +56,5 @@ seeds
 /docker/
 client/app/scripts/shoppinpal-loopback.js
 client/admin/
+/admin/src/app/shared/lb-sdk/
 workers/config
-admin/src/app/shared/lb-sdk/

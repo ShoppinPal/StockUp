@@ -28,17 +28,9 @@
     }
   },
   "files": {
-    "loopback#static": [
-      {
-        "params": "$!../.tmp"
-      },
-      {
-        "params": "$!../client/app"
-      },
-      {
-        "params": "$!../client/admin"
-      }
-    ]
+    "loopback#static": {
+      "params": "$!../client/admin"
+    }
   },
   "final": {
     "loopback#urlNotFound": {}
