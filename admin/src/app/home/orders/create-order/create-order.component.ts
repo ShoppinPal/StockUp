@@ -181,7 +181,7 @@ export class CreateOrderComponent implements OnInit {
           schedulingData.day >= 0 ? schedulingData.day : null,
           schedulingData.month >= 0 ? schedulingData.month : null,
           schedulingData.hour >= 0 ? schedulingData.hour : null,
-          schedulingData.weekDay.length > 0 ? schedulingData.weekDay : null,
+          schedulingData.weekDay && schedulingData.weekDay.length > 0 ? schedulingData.weekDay : null,
         ).subscribe(reportModelData => {
           this.loading = false;
           this.toastr.info('Generating stock order');
