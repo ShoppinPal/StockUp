@@ -14,6 +14,7 @@
             <thead>
             <tr>
               <th>Type</th>
+              <th>Name</th>
               <th>Frequency</th>
               <th>Last Run</th>
               <th>Active</th>
@@ -24,6 +25,7 @@
             <tbody>
             <tr *ngFor="let schedule of schedules">
               <td>{{getFormattedJobType(schedule.jobType)}}</td>
+              <td>{{schedule.data.name}}</td>
               <td>{{getFormattedFrequency(schedule)}}</td>
               <td>{{getLocalFormattedTime(schedule.lastGoodRun)}}</td>
               <td>

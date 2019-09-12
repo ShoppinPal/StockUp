@@ -3,6 +3,7 @@ var path = require('path');
 var workerUtils = require('../utils/workers');
 const fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 const logger = require('sp-json-logger')({fileName: 'common:models:' + fileName});
+var CronJob = require('cron').CronJob;
 
 module.exports = function (SchedulerModel) {
 
@@ -18,68 +19,110 @@ module.exports = function (SchedulerModel) {
             }
         );
     });
-    function calculateNextRun(frequency, date, month, hour, weekDay) {
-        var nextDate= new Date();
-        nextDate.setMinutes(0);
-        nextDate.setSeconds(0);
-        nextDate.setMilliseconds(0);
-        var currentDate = new Date();
-        logger.debug({type: "Date ", nextDate, currentDate,frequency, date, month, hour, weekDay});
-        if (frequency === SchedulerModel.FREQUENCY.YEARLY) {
-            nextDate.setMonth(month);
-            nextDate.setHours(hour);
-            nextDate.setDate(date);
-            if (nextDate < currentDate) {
-                nextDate.setFullYear(nextDate.getFullYear() + 1, month, date);
-            }
-            logger.debug({type: "Date ", nextDate, currentDate});
-        } else if (frequency === SchedulerModel.FREQUENCY.MONTHLY) {
-            nextDate.setHours(hour);
-            nextDate.setDate(date);
-            if (nextDate < currentDate) {
-                nextDate.setMonth(nextDate.getMonth() + 1);
-            }
-            logger.debug({type: "Month Date ", nextDate, currentDate});
-        } else if (frequency === SchedulerModel.FREQUENCY.DAILY) {
-            nextDate.setHours(hour);
-            if (nextDate < currentDate) {
-                nextDate.setDate(nextDate.getDate() + 1);
-            }
-            logger.debug({type: "Daily Date ", nextDate, currentDate});
-        } else if (frequency === SchedulerModel.FREQUENCY.WEEKLY) {
-            weekDay = weekDay.sort();
-            var minWeekDay = null;
-            for (let i = 0; i < weekDay.length; i++) {
-                if (weekDay[i] >= currentDate.getDay() && hour > currentDate.getHours()) {
-                    minWeekDay = weekDay[i];
-                    break;
-                }
-            }
-            if (minWeekDay === null && weekDay.length > 0) {
-                minWeekDay = weekDay[0];
-            }
 
-            if (minWeekDay === currentDate.getDay()) {
-                if (hour > currentDate.getHours()) {
-                    nextDate.setHours(hour);
-                } else {
-                    nextDate.setDate(currentDate.getDate() + 7);
-                    nextDate.setHours(hour);
+    SchedulerModel.observe('after save', function (ctx, next) {
+        if (ctx.isNewInstance) {
+            logger.debug({
+                message: 'Will create a new cron job for scheduler instance',
+                instance: ctx.instance,
+                functionName: 'after save'
+            });
+            SchedulerModel.activeCronJobs[ctx.instance.id] = new CronJob(ctx.instance.cronSchedule, function () {
+                logger.debug({
+                    message: 'Executing this cron job',
+                    ctx,
+                    functionName: 'after save'
+                });
+                if (ctx.instance.jobType === SchedulerModel.JOB_TYPES.STOCK_ORDER) {
+                    SchedulerModel.runScheduledStockOrderJob(ctx.instance);
                 }
-            } else if (minWeekDay > currentDate.getDay()) {
-                nextDate.setHours(hour);
-                nextDate.setDate(currentDate.getDate() + (minWeekDay - currentDate.getDay()));
-            } else if (minWeekDay < currentDate.getDay()) {
-                nextDate.setHours(hour);
-                nextDate.setDate(currentDate.getDate() + 7 - (currentDate.getDay() - minWeekDay));
-            }
-            logger.debug({type: "Weekly Date ", nextDate, currentDate});
-        } else if (frequency === SchedulerModel.FREQUENCY.HOURLY) {
-            nextDate.setHours(nextDate.getHours() + 1);
-            logger.debug({type: "Hourly Date ", nextDate, currentDate});
+                else {
+                    logger.debug({
+                        message: 'This job type is not supported yet',
+                        ctx,
+                        functionName: 'after save'
+                    });
+                }
+            }, null, true);
+            next();
         }
-        return nextDate;
+        else {
+            logger.debug({
+                message: 'Updated scheduler instance, will update the cron job accordingly',
+                instance: ctx,
+                functionName: 'after save'
+            });
+            if (ctx.instance && (!ctx.instance.active || ctx.instance.deleted)) {
+                SchedulerModel.activeCronJobs[ctx.instance.id].stop();
+                logger.debug({
+                    message: 'Stopped the cron job for scheduler instance',
+                    instance: ctx.instance,
+                    functionName: 'after save'
+                });
+                next();
+            }
+            else if (ctx.instance && ctx.instance.active && !ctx.instance.deleted) {
+                SchedulerModel.activeCronJobs[ctx.instance.id] = new CronJob(ctx.instance.cronSchedule, function () {
+                    logger.debug({
+                        message: 'Executing this cron job',
+                        instance: ctx.instance,
+                        functionName: 'after save'
+                    });
+                    if (ctx.instance.jobType === SchedulerModel.JOB_TYPES.STOCK_ORDER) {
+                        SchedulerModel.runScheduledStockOrderJob(ctx.instance);
+                    }
+                    else {
+                        logger.debug({
+                            message: 'This job type is not supported yet',
+                            instance: ctx.instance,
+                            functionName: 'after save'
+                        });
+                    }
+                }, null, true);
+                next();
+            }
+        }
+    });
+
+    function calculateCronSchedule(frequency, date, month, hour, weekDay) {
+        try {
+            var cronSchedule;
+            logger.debug({
+                type: "Date",
+                frequency,
+                date,
+                month,
+                hour,
+                weekDay,
+                functionName: 'calculateCronSchedule'
+            });
+            if (frequency === SchedulerModel.FREQUENCY.YEARLY) {
+                cronSchedule = '0 0 ' + hour + ' ' + date + ' ' + month + ' *';
+            }
+            else if (frequency === SchedulerModel.FREQUENCY.MONTHLY) {
+                cronSchedule = '0 0 ' + hour + ' ' + date + ' * *';
+
+            }
+            else if (frequency === SchedulerModel.FREQUENCY.DAILY) {
+                cronSchedule = '0 0  ' + hour + ' * * *';
+            }
+            else if (frequency === SchedulerModel.FREQUENCY.WEEKLY) {
+                cronSchedule = '0 0 ' + hour + ' * * ' + weekDay.toString();
+            }
+            else if (frequency === SchedulerModel.FREQUENCY.HOURLY) {
+                cronSchedule = '0 0 * * * *';
+            }
+            return cronSchedule;
+        }
+        catch (error) {
+            logger.error({
+                error,
+                functionName: 'calculateCronSchedule'
+            });
+            return error;
+        }
     }
+
     SchedulerModel.JOB_TYPES = {
         STOCK_ORDER: 'stock-order'
     };
@@ -91,220 +134,194 @@ module.exports = function (SchedulerModel) {
         HOURLY: 'Hourly',
     };
 
-    SchedulerModel.addSchedule = function(orgModelId, userModelId,jobType, frequency,day, month, hour, weekDay,data){
+    SchedulerModel.addSchedule = function (orgModelId, jobType, frequency, day, month, hour, weekDay, data, options) {
         logger.debug({
-            params: this.arguments,
             message: 'Will Validate Scheduled Job Inputs',
             functionName: 'addSchedule',
-            orgModelId, userModelId,jobType, frequency,day, month, hour, weekDay,data
+            orgModelId,
+            jobType,
+            frequency,
+            day,
+            month,
+            hour,
+            weekDay,
+            data,
+            options
         });
         // Validate Parameters as per frequency
-        if (!frequency){
+        if (!frequency) {
             return Promise.reject('Frequency is required');
         }
-        if (frequency === SchedulerModel.FREQUENCY.YEARLY){
+        if (frequency === SchedulerModel.FREQUENCY.YEARLY) {
             weekDay = undefined;
-            if ( isNaN(day) ||  isNaN(month) || isNaN(hour)){
+            if (isNaN(day) || isNaN(month) || isNaN(hour)) {
                 return Promise.reject('Hour, Month and Day are required');
             }
-        } else if(frequency === SchedulerModel.FREQUENCY.MONTHLY) {
+        }
+        else if (frequency === SchedulerModel.FREQUENCY.MONTHLY) {
             weekDay = undefined;
             month = undefined;
-            if ( isNaN(day) || isNaN(hour)){
+            if (isNaN(day) || isNaN(hour)) {
                 return Promise.reject('Hour and Day are required');
             }
-        } else if(frequency === SchedulerModel.FREQUENCY.DAILY) {
+        }
+        else if (frequency === SchedulerModel.FREQUENCY.DAILY) {
             weekDay = undefined;
             month = undefined;
             day = undefined;
             if (isNaN(hour)) {
                 return Promise.reject('Hour is required');
             }
-        } else if(frequency === SchedulerModel.FREQUENCY.WEEKLY) {
+        }
+        else if (frequency === SchedulerModel.FREQUENCY.WEEKLY) {
             month = undefined;
             day = undefined;
-            if (weekDay.length === 0){
+            if (weekDay.length === 0) {
                 return Promise.reject('WeekDay is required');
             }
-            if (isNaN(hour)){
+            if (isNaN(hour)) {
                 return Promise.reject('Hour is required');
             }
-        } else if (frequency === SchedulerModel.FREQUENCY.HOURLY) {
+        }
+        else if (frequency === SchedulerModel.FREQUENCY.HOURLY) {
             month = undefined;
             day = undefined;
             hour = undefined;
             weekDay = undefined;
-        }else{
+        }
+        else {
             return Promise.reject('Invalid Frequency');
         }
         logger.debug({
-            message: 'Will Create a Scheduled Job',
-            functionName: 'addSchedule'
+            message: 'Will Create a Cron Job',
+            functionName: 'addSchedule',
+            options
         });
+        var cronSchedule = calculateCronSchedule(frequency, day, month, hour, weekDay);
         return SchedulerModel.create({
             day,
             month,
             hour,
             frequency,
-            nextRun: calculateNextRun(frequency, day, month, hour, weekDay),
+            cronSchedule,
             active: true,
             jobType,
             weekDay,
-            userModelId,
             orgModelId,
-            data
-        }).then(function (schedulerModelInstance) {
-            logger.debug({
-                message: 'Created a Scheduled Job',
-                functionName: 'generateStockOrderVend'
-            });
-            return Promise.resolve('Job Scheduled Successfully');
-        }).catch(function (e) {
-            logger.error({
-                e,
-                message: 'Error creating Scheduled Job',
-                functionName: 'addSchedule'
-            });
-            return Promise.reject('Error in scheduling job');
-        });
-    };
-
-    SchedulerModel.runStockOrderJobs = function () {
-        var foundJobs = [];
-        var currentDate = new Date();
-        currentDate.setMilliseconds(0);
-        logger.debug({
-            functionName: 'runStockOrderJobs',
-            date: currentDate
-        });
-        var whereClause = {
-            active: true,
-            deleted: false,
-            jobType: SchedulerModel.JOB_TYPES.STOCK_ORDER,
-            or:[
-                {
-                    nextRun: {
-                        lt: currentDate
-                    }
-                },
-                {
-                    nextRun: currentDate
-                }
-            ]
-        };
-
-        SchedulerModel.find({
-            where: whereClause
+            data,
+            userModelId: options.accessToken.userId
         })
-            .then(function (jobs) {
+            .then(function (schedulerModelInstance) {
                 logger.debug({
-                    message: 'Jobs Result',
-                    functionName: 'runStockOrderJobs',
-                    noOfJobs: jobs.length
-                });
-                foundJobs = jobs;
-                return Promise.map(
-                    jobs,
-                    function (job) {
-                        if (job.data.integrationType === 'vend') {
-                            let {id, storeModelId, supplierModelId, warehouseModelId, options} = job.data;
-                            let payload = {
-                                orgModelId: id,
-                                storeModelId: storeModelId,
-                                supplierModelId: supplierModelId,
-                                warehouseModelId: warehouseModelId,
-                                loopbackAccessToken: options.accessToken,
-                                op: 'generateStockOrderVend'
-                            };
-                            return workerUtils.sendPayLoad(payload)
-                                .then(function (response) {
-                                    logger.debug({
-                                        message: 'Sent generateStockOrderVend to worker',
-                                        options,
-                                        response,
-                                        functionName: 'runStockOrderJobs'
-                                    });
-                                    return Promise.resolve('Stock order generation initiated');
-                                })
-                                .catch(function (error) {
-                                    logger.error({
-                                        message: 'Could not send generateStockOrderVend to worker',
-                                        options,
-                                        error,
-                                        functionName: 'runStockOrderJobs'
-                                    });
-                                    return Promise.reject('Error in creating stock order');
-                                });
-                        } else if (job.data.integrationType === 'msdynamics') {
-                            let {id, storeModelId, warehouseModelId, categoryModelId, options} = job.data;
-                            let payload = {
-                                orgModelId: id,
-                                storeModelId: storeModelId,
-                                warehouseModelId: warehouseModelId,
-                                categoryModelId: categoryModelId,
-                                loopbackAccessToken: options.accessToken,
-                                op: 'generateStockOrderMSD'
-                            };
-                            return workerUtils.sendPayLoad(payload)
-                                .then(function (response) {
-                                    logger.debug({
-                                        message: 'Sent generateStockOrderMSD to worker',
-                                        options,
-                                        response,
-                                        functionName: 'runStockOrderJobs'
-                                    });
-                                    return Promise.resolve('Stock order generation initiated');
-                                })
-                                .catch(function (error) {
-                                    logger.error({
-                                        message: 'Could not send generateStockOrderMSD to worker',
-                                        options,
-                                        error,
-                                        functionName: 'runStockOrderJobs'
-                                    });
-                                    return Promise.reject('Error in creating stock order');
-                                });
-                        }
-                    },
-                    {concurrency: 1}
-                );
-
-            })
-            .catch(function (e) {
-                logger.error({
-                    message: 'Could not Create Stock Orders',
-                    e,
-                    functionName: 'runStockOrderJobs'
-                });
-            })
-            .then(function (data) {
-                logger.debug({
-                    message: 'Stock Orders Job Ran Successfully',
-                    functionName: 'runStockOrderJobs',
-                });
-                return Promise.map(
-                    foundJobs,
-                    function (job) {
-                        return SchedulerModel.updateAll({id: job.id}, {
-                            lastGoodRun: new Date(),
-                            nextRun: calculateNextRun(job.frequency, job.day, job.month, job.hour, job.weekDay)
-                        });
-                    },
-                    {concurrency: 1}
-                );
-            })
-            .then(function (SchedulerModelUpdateInfo) {
-                logger.debug({
-                    message: 'Scheduled Jobs Last Sync Updated',
-                    functionName: 'runStockOrderJobs'
+                    message: 'Created a Scheduled Job',
+                    schedulerModelInstance,
+                    functionName: 'addSchedule',
+                    options
                 });
             })
             .catch(function (e) {
                 logger.error({
-                    message: 'Could not Update Jobs Status',
                     e,
-                    functionName: 'runStockOrderJobs'
+                    message: 'Error creating Scheduled Job',
+                    functionName: 'addSchedule',
+                    options
                 });
+                return Promise.reject('Error in scheduling job');
             });
     };
+
+    SchedulerModel.runScheduledStockOrderJob = function (scheduledJobInstance) {
+        logger.debug({
+            message: 'Will look for the user who created this job',
+            scheduledJobInstance,
+            functionName: 'runScheduledStockOrderJob'
+        });
+        return SchedulerModel.app.models.UserModel.findOne({
+            where: {
+                id: scheduledJobInstance.userModelId
+            }
+        })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not find user who created the job',
+                    error,
+                    functionName: 'runScheduledStockOrderJob'
+                });
+                return Promise.reject('Could not find user who created the job');
+            })
+            .then(function (userModelInstance) {
+                logger.debug({
+                    message: 'Found this user, will create a short-lived access token',
+                    userModelInstance,
+                    functionName: 'runScheduledStockOrderJob'
+                });
+                return userModelInstance.createAccessToken(7200);
+            })
+            .then(function (accessToken) {
+                logger.debug({
+                    message: 'Created a short lived token for user, will create stock order',
+                    functionName: 'runScheduledStockOrderJob'
+                });
+                if (scheduledJobInstance.data.integrationType === 'vend') {
+                    return SchedulerModel.app.models.ReportModel.generateStockOrderVend(
+                        scheduledJobInstance.orgModelId,
+                        scheduledJobInstance.data.storeModelId,
+                        scheduledJobInstance.data.supplierModelId,
+                        scheduledJobInstance.data.name,
+                        scheduledJobInstance.data.warehouseModelId,
+                        undefined,
+                        {accessToken}
+                    )
+                        .catch(function (error) {
+                            logger.error({
+                                message: 'Could not create stock order for vend',
+                                error,
+                                functionName: 'runScheduledStockOrderJob'
+                            });
+                            return Promise.reject('Could not create stock order for vend');
+                        });
+                }
+                else if (job.data.integrationType === 'msdynamics') {
+                    return SchedulerModel.app.models.ReportModel.generateStockOrderMSD(
+                        scheduledJobInstance.orgModelId,
+                        scheduledJobInstance.data.storeModelId,
+                        scheduledJobInstance.data.warehouseModelId,
+                        scheduledJobInstance.data.categoryModelId,
+                        undefined,
+                        {accessToken}
+                    )
+                        .catch(function (error) {
+                            logger.error({
+                                message: 'Could not create stock order for MSD',
+                                error,
+                                functionName: 'runScheduledStockOrderJob'
+                            });
+                            return Promise.reject('Could not create stock order for MSD');
+                        });
+                }
+            })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Created stock order, will update scheduled order time run',
+                    response,
+                    functionName: 'runScheduledStockOrderJob'
+                });
+                return SchedulerModel.updateAll({
+                    id: scheduledJobInstance.id
+                }, {
+                    lastGoodRun: new Date()
+                });
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not update scheduled order run time',
+                    error,
+                    functionName: 'runScheduledStockOrderJob'
+                });
+                return Promise.reject('Could not update scheduled order run time');
+            });
+    };
+
+    SchedulerModel.activeCronJobs = {};
+
 };

@@ -7,49 +7,66 @@ import * as moment from 'moment';
   styleUrls: ['schedule-picker.component.scss']
 })
 export class SchedulePickerComponent implements OnInit {
-  public static SCHEDULING_TYPES = {HOURLY: 'Hourly', DAILY: 'Daily', MONTHLY: 'Monthly', WEEKLY: 'Weekly' , YEARLY: 'Yearly'};
+  public static SCHEDULING_TYPES = {
+    HOURLY: 'Hourly',
+    DAILY: 'Daily',
+    MONTHLY: 'Monthly',
+    WEEKLY: 'Weekly',
+    YEARLY: 'Yearly'
+  };
   public SCHEDULING_TYPE = SchedulePickerComponent.SCHEDULING_TYPES;
   public minutesOffset = Math.abs(new Date().getTimezoneOffset() % 60);
+
   @Input()
   set type(val: string) {
     this.typeChange.emit(val);
     this.selectedSchedulingType = val;
   }
+
   get type() {
     return this.selectedSchedulingType;
   }
+
   @Input()
   set hour(val: string) {
     this.hourChange.emit(val);
     this.selectedSchedulingHour = val;
   }
+
   get hour() {
     return this.selectedSchedulingHour;
   }
+
   @Input()
   set day(val: string) {
     this.dayChange.emit(val);
     this.selectedSchedulingDay = val;
   }
+
   get day() {
     return this.selectedSchedulingDay;
   }
+
   @Input()
   set month(val: string) {
     this.monthChange.emit(val);
     this.selectedSchedulingMonth = val;
   }
+
   get month() {
     return this.selectedSchedulingMonth;
   }
+
   @Input()
   set week(val: string) {
     this.weekChange.emit(val);
     this.selectedSchedulingWeek = val;
   }
+
   get week() {
     return this.selectedSchedulingWeek;
   }
+
   @Output() typeChange = new EventEmitter();
   @Output() hourChange = new EventEmitter();
   @Output() dayChange = new EventEmitter();
@@ -68,21 +85,22 @@ export class SchedulePickerComponent implements OnInit {
 
   static convertTimeToUTCandAppend(Type, Month, Week, Day, Hour) {
     const minutesOffset = -1 * new Date().getTimezoneOffset() % 60;
-    let result = {};
+    let result = {
+      hour: -1,
+      month: -1,
+      day: -1,
+      weekDay: []
+    };
     let date: Date;
     if (Type === this.SCHEDULING_TYPES.YEARLY) {
       date = new Date(null, Month, Day, Hour, minutesOffset);
-      result = {
-        hour: date.getUTCHours(),
-        month: date.getUTCMonth(),
-        day: date.getUTCDate(),
-      };
+      result.hour = date.getUTCHours();
+      result.month = date.getUTCMonth() + 1;
+      result.day = date.getUTCDate();
     } else if (Type === this.SCHEDULING_TYPES.MONTHLY) {
       date = new Date(null, null, Day, Hour, minutesOffset);
-      result = {
-        hour: date.getUTCHours(),
-        day: date.getUTCDate()
-      };
+      result.hour = date.getUTCHours();
+      result.day = date.getUTCDate();
     } else if (Type === this.SCHEDULING_TYPES.WEEKLY) {
       date = new Date();
       date.setHours(Hour);
@@ -91,17 +109,12 @@ export class SchedulePickerComponent implements OnInit {
       Week.forEach(weekDay => {
         date.setDate(new Date().getDate() + (weekDay - new Date().getDay()));
         weekDays.push(date.getUTCDay());
-        console.log(date);
       });
-      result = {
-        hour: date.getUTCHours(),
-        weekDay: weekDays
-      };
+      result.hour = date.getUTCHours();
+      result.weekDay = weekDays;
     } else if (Type === this.SCHEDULING_TYPES.DAILY) {
       date = new Date(null, null, null, Hour, minutesOffset);
-      result = {
-        hour: date.getUTCHours()
-      };
+      result.hour = date.getUTCHours();
     }
     return result;
   }
@@ -111,7 +124,7 @@ export class SchedulePickerComponent implements OnInit {
       return {validated: false, message: 'Frequency is Compulsory'};
     } else {
       if (Type === this.SCHEDULING_TYPES.YEARLY) {
-        if (Month === -1 ||  Day === -1 || Hour === -1) {
+        if (Month === -1 || Day === -1 || Hour === -1) {
           return {validated: false, message: 'Month, Hour And Day are Compulsory'};
         }
       } else if (Type === this.SCHEDULING_TYPES.MONTHLY) {
@@ -130,12 +143,14 @@ export class SchedulePickerComponent implements OnInit {
     }
     return {validated: true, message: ''};
   }
+
   constructor() {
   }
 
   ngOnInit() {
     this.weekNames = moment.weekdays().map((name, index) => ({id: index, name}))
   }
+
   onMonthSelected() {
     this.daysInMonth = moment(Number(this.selectedSchedulingMonth) + 1, 'M').daysInMonth();
   }
