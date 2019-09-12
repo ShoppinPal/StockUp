@@ -627,18 +627,26 @@ module.exports = function (OrgModel) {
             returns: {arg: 'data', type: 'object', root: true}
         });
 
-        OrgModel.generateStockOrderMSD = function (id, storeModelId, warehouseModelId, categoryModelId, scheduled, frequency, day, month, hour,weekDay, res,options) {
-            if (scheduled){
-                return OrgModel.app.models.SchedulerModel.addSchedule(id, options.accessToken.userId,
-                    OrgModel.app.models.SchedulerModel.JOB_TYPES.STOCK_ORDER, frequency,day, month, hour,weekDay, {
+        OrgModel.generateStockOrderMSD = function (id, storeModelId, warehouseModelId, categoryModelId, scheduled, frequency, day, month, hour, weekDay, res, options) {
+            if (scheduled) {
+                return OrgModel.app.models.SchedulerModel.addSchedule(
+                    id,
+                    OrgModel.app.models.SchedulerModel.JOB_TYPES.STOCK_ORDER,
+                    frequency,
+                    day,
+                    month,
+                    hour,
+                    weekDay,
+                    {
                         id,
                         integrationType: 'msdynamics',
                         storeModelId,
                         warehouseModelId,
-                        options: {
-                            accessToken: options.accessToken
-                        }
-                    })
+                        categoryModelId,
+                        undefined,
+                    },
+                    options
+                )
                     .catch(function (error) {
                         logger.error({
                             error,
@@ -647,25 +655,9 @@ module.exports = function (OrgModel) {
                             options
                         });
                         return Promise.reject('Could not schedule job');
-                    }).then(function (result) {
-                        logger.debug({
-                            result,
-                            message: 'Job Scheduled Successfully',
-                            functionName: 'generateStockOrderMSD',
-                            options
-                        });
-                        return OrgModel.app.models.ReportModel.generateStockOrderMSD(id, storeModelId, warehouseModelId, categoryModelId, res, options);
-
-                    }).catch(function (error) {
-                        logger.error({
-                            error,
-                            message: 'Could not initiate stock order generation',
-                            functionName: 'generateStockOrderMSD',
-                            options
-                        });
-                        return Promise.reject('Could not initiate stock order generation');
-                    });
-            } else {
+                    })
+            }
+            else {
                 return OrgModel.app.models.ReportModel.generateStockOrderMSD(id, storeModelId, warehouseModelId, categoryModelId, res, options)
                     .catch(function (error) {
                         logger.error({
@@ -700,19 +692,26 @@ module.exports = function (OrgModel) {
             returns: {arg: 'data', type: 'object', root: true}
         });
 
-        OrgModel.generateStockOrderVend = function (id, storeModelId, supplierModelId, name, warehouseModelId, scheduled, frequency, day, month, hour,weekDay, res, options) {
-            if (scheduled){
-                return OrgModel.app.models.SchedulerModel.addSchedule(id, options.accessToken.userId,
-                    OrgModel.app.models.SchedulerModel.JOB_TYPES.STOCK_ORDER, frequency,day, month, hour ,weekDay , {
+        OrgModel.generateStockOrderVend = function (id, storeModelId, supplierModelId, name, warehouseModelId, scheduled, frequency, day, month, hour, weekDay, res, options) {
+            if (scheduled) {
+                return OrgModel.app.models.SchedulerModel.addSchedule(
+                    id,
+                    OrgModel.app.models.SchedulerModel.JOB_TYPES.STOCK_ORDER,
+                    frequency,
+                    day,
+                    month,
+                    hour,
+                    weekDay,
+                    {
                         id,
                         integrationType: 'vend',
                         storeModelId,
                         supplierModelId,
                         name,
-                        warehouseModelId,
-                        options: {
-                            accessToken: options.accessToken
-                        }                    })
+                        warehouseModelId
+                    },
+                    options
+                )
                     .catch(function (error) {
                         logger.error({
                             error,
@@ -721,26 +720,10 @@ module.exports = function (OrgModel) {
                             options
                         });
                         return Promise.reject('Could not schedule job');
-                    }).then(function (result) {
-                        logger.debug({
-                            result,
-                            message: 'Job Scheduled Successfully',
-                            functionName: 'generateStockOrderMSD',
-                            options
-                        });
-                        return OrgModel.app.models.ReportModel.generateStockOrderVend(id, storeModelId, supplierModelId, name, warehouseModelId, res, options)
-
-                    }).catch(function (error) {
-                        logger.error({
-                            error,
-                            message: 'Could not initiate stock order generation',
-                            functionName: 'generateStockOrderVend',
-                            options
-                        });
-                        return Promise.reject('Could not initiate stock order generation');
                     });
-            } else {
-               return OrgModel.app.models.ReportModel.generateStockOrderVend(id, storeModelId, supplierModelId, name, warehouseModelId, res, options)
+            }
+            else {
+                return OrgModel.app.models.ReportModel.generateStockOrderVend(id, storeModelId, supplierModelId, name, warehouseModelId, res, options)
                     .catch(function (error) {
                         logger.error({
                             error,
@@ -798,7 +781,7 @@ module.exports = function (OrgModel) {
                 functionName: 'createTransferOrderMSD'
             });
             if (sendEmail === true) {
-                 OrgModel.app.models.ReportModel.sendReportAsEmail(reportModelId, emailData.to, emailData.cc, emailData.bcc, options)
+                OrgModel.app.models.ReportModel.sendReportAsEmail(reportModelId, emailData.to, emailData.cc, emailData.bcc, options)
                     .then(function () {
                         return OrgModel.app.models.ReportModel.createTransferOrderMSD(id, reportModelId, res, options);
                     })
@@ -824,8 +807,8 @@ module.exports = function (OrgModel) {
                         });
                         return Promise.reject('Could not create transfer order in MSD');
                     });
-            } else {
-                 OrgModel.app.models.ReportModel.createTransferOrderMSD(id, reportModelId, res, options)
+            }else {
+                OrgModel.app.models.ReportModel.createTransferOrderMSD(id, reportModelId, res, options)
                     .catch(function (error) {
                         logger.error({
                             message: 'Could not create transfer order in MSD',
@@ -1098,7 +1081,7 @@ module.exports = function (OrgModel) {
                 functionName: 'createPurchaseOrderVend'
             });
             if (sendEmail === true) {
-                 OrgModel.app.models.ReportModel.sendReportAsEmail(reportModelId, emailData.to, emailData.cc, emailData.bcc, options)
+                OrgModel.app.models.ReportModel.sendReportAsEmail(reportModelId, emailData.to, emailData.cc, emailData.bcc, options)
                     .catch(function (error) {
                         logger.error({
                             message: 'Could not send Email',
@@ -1112,7 +1095,7 @@ module.exports = function (OrgModel) {
                         return Promise.reject('Could not email purchase order');
                     })
                     .then(function () {
-                       return OrgModel.app.models.ReportModel.createPurchaseOrderVend(id, reportModelId, res, options);
+                        return OrgModel.app.models.ReportModel.createPurchaseOrderVend(id, reportModelId, res, options);
                     })
                     .catch(function (error) {
                         logger.error({
@@ -1124,8 +1107,8 @@ module.exports = function (OrgModel) {
                         });
                         return Promise.reject('Could not create purchase order in Vend');
                     });
-            } else {
-                  OrgModel.app.models.ReportModel.createPurchaseOrderVend(id, reportModelId, res, options)
+            }else {
+                OrgModel.app.models.ReportModel.createPurchaseOrderVend(id, reportModelId, res, options)
                     .catch(function (error) {
                         logger.error({
                             message: 'Could not create purchase order in Vend',
@@ -1350,7 +1333,7 @@ module.exports = function (OrgModel) {
                 });
         };
 
-         OrgModel.remoteMethod('assignStoreToSupplier', {
+        OrgModel.remoteMethod('assignStoreToSupplier', {
             accepts: [
                 {arg: 'id', type: 'string', required: true},
                 {arg: 'storeModelId', type: 'string', required: true},

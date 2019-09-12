@@ -326,12 +326,13 @@ module.exports = function (ReportModel) {
         })
 
             .then(function (reportInstance) {
-                res.send({
-                    eventType: workerUtils.messageFor.MESSAGE_FOR_API,
-                    callId: reportInstance.id,
-                    message: 'Stock order generation initiated',
-                    data: reportInstance
-                });
+                if (res)
+                    res.send({
+                        eventType: workerUtils.messageFor.MESSAGE_FOR_API,
+                        callId: reportInstance.id,
+                        message: 'Stock order generation initiated',
+                        data: reportInstance
+                    });
                 var payload = {
                     orgModelId: orgModelId,
                     storeModelId: storeModelId,
@@ -498,12 +499,13 @@ module.exports = function (ReportModel) {
                     functionName: 'generateStockOrderVend',
                     options,
                 });
-                res.send({
-                    callId: reportInstance.id,
-                    eventType: workerUtils.messageFor.MESSAGE_FOR_API,
-                    message: 'Stock order generation initiated',
-                    data: reportInstance
-                });
+                if (res)
+                    res.send({
+                        callId: reportInstance.id,
+                        eventType: workerUtils.messageFor.MESSAGE_FOR_API,
+                        message: 'Stock order generation initiated',
+                        data: reportInstance
+                    });
                 var payload = {
                     orgModelId: orgModelId,
                     storeModelId: storeModelId,
