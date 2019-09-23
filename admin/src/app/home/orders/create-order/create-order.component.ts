@@ -41,6 +41,7 @@ export class CreateOrderComponent implements OnInit {
   public orderConfigurations: any;
   public selectedOrderConfigurationId;
   public REPORT_STATES = constants.REPORT_STATES;
+  public deliverFrom: string = 'deliverFromSuppliers';
 
 
   public scheduleAutoGeneration: boolean = false;
