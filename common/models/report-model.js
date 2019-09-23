@@ -91,7 +91,7 @@ module.exports = function (ReportModel) {
         })
             .then(function () {
                 return ReportModel.findById(id, {
-                    include: ['userModel', 'storeConfigModel', 'supplierModel', 'storeModel', 'orgModel']
+                    include: ['userModel', 'supplierModel', 'storeModel', 'orgModel']
                 });
             })
             .then(function (reportModelInstance) {

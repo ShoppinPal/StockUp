@@ -109,7 +109,7 @@
                       *ngIf="editable"
                       class="btn btn-link"
                       (click)="showAddProductModal = true"
-                      >
+              >
                 <i class="fa fa-plus-circle"></i>
                 Add Products Manually
               </button>
@@ -405,7 +405,8 @@
 </div>
 
 <!-- Email Modal -->
-<div bsModal [config]="{keyboard: false, backdrop: 'static'}" #emailModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+<div bsModal [config]="{keyboard: false, backdrop: 'static'}" #emailModal="bs-modal" class="modal fade" tabindex="-1"
+     role="dialog" aria-labelledby="myModalLabel"
      aria-hidden="true">
   <div class="modal-dialog modal-success" role="document">
     <div class="modal-content">
@@ -414,36 +415,62 @@
       </div>
       <div class="modal-body">
         <form>
-        <label><input type="checkbox" name="sendEmail" [(ngModel)]="emailModalData.sendEmail"> Send Email  to Supplier</label>
+          <label><input type="checkbox" name="sendEmail" [(ngModel)]="emailModalData.sendEmail"> Send Email to Supplier</label>
           <div *ngIf="emailModalData.sendEmail">
             <p>Multiple Emails can be comma(,) separated</p>
             <div class="form-group col-sm-12">
               <span>To: </span>
-              <input class="form-control" type="email" name="to" [(ngModel)]="emailModalData.to"/>
+              <input class="form-control" type="email" name="to" (ngModelChange)="toEmailValidation()"
+                     [(ngModel)]="emailModalData.to"/>
+              <span class="text-success"
+                    *ngIf="toValidEmailCounter > 0">{{toValidEmailCounter}} valid email(s)</span>
+              <span *ngIf="toValidEmailCounter > 0 && toInvalidEmailCounter > 0"> | </span>
+              <span class="text-danger"
+                    *ngIf="toInvalidEmailCounter > 0">{{toInvalidEmailCounter}} invalid email(s)</span>
             </div>
-          <div class="form-group col-sm-12">
-            <span>Cc: </span>
-            <input class="form-control" type="email" name="cc" [(ngModel)]="emailModalData.cc"/>
-          </div>
+            <div class="form-group col-sm-12">
+              <span>Cc: </span>
+              <input class="form-control" type="email" name="cc" (ngModelChange)="ccEmailValidation()"
+                     [(ngModel)]="emailModalData.cc"/>
+              <span class="text-success"
+                    *ngIf="ccValidEmailCounter > 0">{{ccValidEmailCounter}} valid email(s)</span>
+              <span *ngIf="ccValidEmailCounter > 0 && ccInvalidEmailCounter > 0"> | </span>
+              <span class="text-danger"
+                    *ngIf="ccInvalidEmailCounter > 0">{{ccInvalidEmailCounter}} invalid email(s)</span>
+
+            </div>
             <div class="form-group col-sm-12">
               <span>Bcc: </span>
-              <input class="form-control" type="email" name="bcc" [(ngModel)]="emailModalData.bcc"/>
+              <input class="form-control" type="email" name="bcc" (ngModelChange)="bccEmailValidation()"
+                     [(ngModel)]="emailModalData.bcc"/>
+              <span class="text-success"
+                    *ngIf="bccValidEmailCounter > 0">{{bccValidEmailCounter}} valid email(s)</span>
+              <span *ngIf="bccValidEmailCounter > 0 && bccInvalidEmailCounter > 0"> | </span>
+              <span class="text-danger"
+                    *ngIf="bccInvalidEmailCounter > 0">{{bccInvalidEmailCounter}} invalid email(s)</span>
             </div>
           </div>
         </form>
       </div>
       <div class="modal-footer">
-        <button *ngIf="!(creatingPurchaseOrderVend || creatingTransferOrder)" type="button" class="btn btn-secondary" (click)="emailModal.hide()">Cancel</button>
-        <button [disabled]="creatingPurchaseOrderVend" *ngIf="userProfile.integrationType === 'vend'" type="button" class="btn btn-warning" (click)="createPurchaseOrderVend()">Send order to Supplier
-          <div [ngClass]="{'d-none': !creatingPurchaseOrderVend}" class="spinner-border spinner-border-sm spinner-margins" role="status"></div>
+        <button *ngIf="!(creatingPurchaseOrderVend || creatingTransferOrder)" type="button" class="btn btn-secondary"
+                (click)="emailModal.hide()">Cancel
         </button>
-        <button [disabled]="creatingTransferOrder" *ngIf="userProfile.integrationType === 'msdynamics'" type="button" class="btn btn-warning" (click)="createTransferOrder()">Create Transfer Order
-          <div [ngClass]="{'d-none': !creatingTransferOrder}" class="spinner-border spinner-border-sm spinner-margins" role="status"></div>
+        <button [disabled]="creatingPurchaseOrderVend" *ngIf="userProfile.integrationType === 'vend'" type="button"
+                class="btn btn-warning" (click)="createPurchaseOrderVend()">Send order to Supplier
+          <div [ngClass]="{'d-none': !creatingPurchaseOrderVend}"
+               class="spinner-border spinner-border-sm spinner-margins" role="status"></div>
+        </button>
+        <button [disabled]="creatingTransferOrder" *ngIf="userProfile.integrationType === 'msdynamics'" type="button"
+                class="btn btn-warning" (click)="createTransferOrder()">Create Transfer Order
+          <div [ngClass]="{'d-none': !creatingTransferOrder}" class="spinner-border spinner-border-sm spinner-margins"
+               role="status"></div>
         </button>
       </div>
     </div>
   </div>
 </div>
-  <!-- Email Modal -->
+<!-- Email Modal -->
 
-<app-add-product-modal [order]="order" *ngIf="showAddProductModal" (modalClosed)="showAddProductModal = false;getNotApprovedStockOrderLineItems();getApprovedStockOrderLineItems();"></app-add-product-modal>
+<app-add-product-modal [order]="order" *ngIf="showAddProductModal"
+                       (modalClosed)="showAddProductModal = false;getNotApprovedStockOrderLineItems();getApprovedStockOrderLineItems();"></app-add-product-modal>
