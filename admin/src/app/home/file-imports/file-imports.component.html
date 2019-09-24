@@ -77,7 +77,7 @@
           </div>
           <div class="form-group row">
             <div class="input-group">
-              <span class="col-sm-4"> Group By (Optional) : &nbsp;&nbsp;</span>
+              <span class="col-sm-4"> Split Order By (Optional) : &nbsp;&nbsp;</span>
               <select class="form-control col-sm-6" [(ngModel)]="groupBy">
                 <option value="">Select..</option>
                 <option *ngFor="let headers of fileHeaders | keyvalue" [value]="headers.key">{{headers.key}}
