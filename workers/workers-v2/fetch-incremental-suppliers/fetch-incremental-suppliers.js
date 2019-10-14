@@ -1,16 +1,17 @@
+const path = require('path');
+const commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
+const logger = require('sp-json-logger')({fileName: 'workers:workers-v2:' + commandName});
+var MongoClient = require('mongodb').MongoClient;
+var ObjectId = require('mongodb').ObjectID;
+var _ = require('underscore');
+var Promise = require('bluebird');
+
 var runMe = function (vendConnectionInfo, orgModelId, dataObject) {
 
-    const path = require('path');
-    const commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
-    const logger = require('sp-json-logger')({fileName: 'workers:workers-v2:' + commandName});
     var dbUrl = process.env.DB_URL;
 
     try {
         var utils = require('./../../jobs/utils/utils.js');
-        var MongoClient = require('mongodb').MongoClient;
-        var ObjectId = require('mongodb').ObjectID;
-        var _ = require('underscore');
-        var Promise = require('bluebird');
         var vendSdk = require('vend-nodejs-sdk')({}); //why the {}?
         // var vendConnectionInfo;
         var db = null; //database connected
@@ -97,11 +98,15 @@ var runMe = function (vendConnectionInfo, orgModelId, dataObject) {
                         nRemoved: bulkInsertResponse.nRemoved
                     };
                     logger.debug({
-                        message: 'Bulk insert operation complete',
+                        message: 'Bulk insert operation complete, will assign virtual stores',
                         result: result
                     });
+                    return assignVirtualStores(incrementalSuppliers, suppliersToDelete, orgModelId, db);
+                })
+                .then(function (response) {
                     logger.debug({
-                        message: 'Will go on to update version no. in warehouse'
+                        message: 'Assigned virtual stores, will go on to update version no. in warehouse',
+                        response
                     });
                     return db.collection('SyncModel').updateOne({
                             $and: [
@@ -116,7 +121,6 @@ var runMe = function (vendConnectionInfo, orgModelId, dataObject) {
                         {
                             $set: {
                                 'version': dataObject.versionsBefore,
-                                // 'syncInProcess': false,
                                 'workerTaskId': '',
                                 'lastSyncedAt': new Date()
                             }
@@ -134,23 +138,6 @@ var runMe = function (vendConnectionInfo, orgModelId, dataObject) {
                         logger.debug({
                             message: 'No incremental suppliers found, will exit'
                         });
-                        // return db.collection('SyncModel').updateOne({
-                        //         $and: [
-                        //             {
-                        //                 'orgModelId': ObjectId(payload.orgModelId)
-                        //             },
-                        //             {
-                        //                 'name': 'suppliers'
-                        //             }
-                        //         ],
-                        //     },
-                        //     {
-                        //         $set: {
-                        //             'syncInProcess': false,
-                        //             'workerTaskId': '',
-                        //             'lastSyncedAt': new Date()
-                        //         }
-                        //     });
                         return Promise.resolve();
                     }
                     logger.error({
@@ -197,3 +184,87 @@ var runMe = function (vendConnectionInfo, orgModelId, dataObject) {
 module.exports = {
     run: runMe
 };
+
+function assignVirtualStores(newSuppliers, suppliersToDelete, orgModelId, db) {
+    logger.debug({
+        message: 'Will create virtual stores for new suppliers',
+        newSuppliers
+    });
+    return Promise.all([
+        db.collection('SupplierModel').find({
+            orgModelId: ObjectId(orgModelId),
+            api_id: {
+                $in: _.pluck(newSuppliers, 'id')
+            }
+        }).toArray(),
+        db.collection('SupplierModel').find({
+            orgModelId: ObjectId(orgModelId),
+            api_id: {
+                $in: _.pluck(suppliersToDelete, 'id')
+            }
+        }).toArray(),
+    ])
+        .catch(function (error) {
+            logger.error({
+                message: 'Could not find new supplier instances in db',
+                error
+            });
+            return Promise.reject('Could not find new supplier instances in db');
+        })
+        .spread(function (newSuppliers, deletedSuppliers) {
+            logger.debug({
+                message: 'Found supplier model instances in db',
+                newSuppliers,
+                deletedSuppliers
+            });
+            var batch = db.collection('StoreModel').initializeUnorderedBulkOp();
+            //Add some operations to be executed
+            _.each(newSuppliers, function (eachSupplier) {
+                batch.find({
+                    orgModelId: ObjectId(orgModelId),
+                    ownerSupplierModelId: ObjectId(eachSupplier._id)
+                }).upsert().updateOne({
+                    $set: {
+                        name: eachSupplier.name,
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                        orgModelId: ObjectId(orgModelId),
+                        storeNumber: 'Virtual Store',
+                        ownerSupplierModelId: ObjectId(eachSupplier._id)
+                    }
+                });
+            });
+            _.each(deletedSuppliers, function (eachSupplier) {
+                batch.find({
+                    orgModelId: orgModelId,
+                    ownerSupplierModelId: ObjectId(eachSupplier._id)
+                }).remove({
+                    ownerSupplierModelId: ObjectId(eachSupplier._id)
+                });
+            });
+            //Execute the operations
+            return batch.execute();
+        })
+        .catch(function (error) {
+            logger.error({
+                message: 'Could not create virtual stores for new suppliers',
+                error
+            });
+            return Promise.reject('Could not create virtual stores for new suppliers');
+        })
+        .then(function (batchResponse) {
+            var result = {
+                ok: batchResponse.ok,
+                nInserted: batchResponse.nInserted,
+                nUpserted: batchResponse.nUpserted,
+                nMatched: batchResponse.nMatched,
+                nModified: batchResponse.nModified,
+                nRemoved: batchResponse.nRemoved
+            };
+            logger.debug({
+                message: 'Assigned virtual stores to new suppliers and deleted stores for deleted suppliers',
+                result
+            });
+            return Promise.resolve('Assigned virtual stores to new suppliers and deleted stores for deleted suppliers');
+        });
+}
