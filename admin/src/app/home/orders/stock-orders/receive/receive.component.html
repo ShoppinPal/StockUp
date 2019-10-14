@@ -179,7 +179,7 @@
                           <td class="text-center" (click)="lineItem.isCollapsed = !lineItem.isCollapsed">
                             <button class="btn btn-light">
                               <i class="fa fa-angle-double-down"></i>
-                              <span *ngIf="lineItem.commentModels.length" class="badge badge-pill badge-success">{{lineItem.commentModels.length}}</span>
+                              <span *ngIf="lineItem.commentModels?.length" class="badge badge-pill badge-success">{{lineItem.commentModels?.length}}</span>
                             </button>
                           </td>
                           <td>
@@ -289,7 +289,7 @@
                           <td class="text-center" (click)="lineItem.isCollapsed = !lineItem.isCollapsed">
                             <button class="btn btn-light">
                               <i class="fa fa-angle-double-down"></i>
-                              <span *ngIf="lineItem.commentModels.length" class="badge badge-pill badge-success">{{lineItem.commentModels.length}}</span>
+                              <span *ngIf="lineItem.commentModels?.length" class="badge badge-pill badge-success">{{lineItem.commentModels?.length}}</span>
                             </button>
                           </td>
                           <td>

@@ -267,7 +267,6 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     this.toValidEmailCounter = 0;
     this.toInvalidEmailCounter = 0;
     let toEmailArray = this.emailModalData.to.split(',');
-    console.log(toEmailArray);
     if (toEmailArray.length) {
       toEmailArray.forEach(eachEmail => {
         if (Utils.validateEmail(eachEmail.trim())) {
