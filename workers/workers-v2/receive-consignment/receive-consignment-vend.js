@@ -114,7 +114,7 @@ var runMe = function (payload, config, taskId, messageId) {
                                 received: true
                             }
                         }
-                        );
+                    );
                 })
                 .catch(function (error) {
                     logger.error({
@@ -153,7 +153,12 @@ var runMe = function (payload, config, taskId, messageId) {
                             return utils.updateStockOrderLineitemForVend(db, reportModelInstance, eachLineItem, messageId);
                         }
                         else {
-                            return utils.deleteStockOrderLineitemForVend(db, eachLineItem, messageId);
+                            if (eachLineItem.vendConsignmentProductId) {
+                                return utils.deleteStockOrderLineitemForVend(db, eachLineItem, messageId);
+                            }
+                            else {
+                                return Promise.resolve();
+                            }
                         }
                     });
                 })

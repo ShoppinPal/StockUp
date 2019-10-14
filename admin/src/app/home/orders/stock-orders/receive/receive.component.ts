@@ -102,7 +102,6 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     const filter: any = {
       where: {
         reportModelId: this.order.id,
-        approved: true,
         fulfilled: true,
         receivedQuantity: {
           gt: 0
@@ -125,7 +124,6 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     };
     let countFilter: any = {
       reportModelId: this.order.id,
-      approved: true,
       fulfilled: true,
       receivedQuantity: {
         gt: 0
@@ -164,7 +162,6 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     let filter = {
       where: {
         reportModelId: this.order.id,
-        approved: true,
         fulfilled: true,
         received: false,
         productModelId: productModelId
@@ -185,7 +182,6 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     };
     let countFilter = {
       reportModelId: this.order.id,
-      approved: true,
       fulfilled: true,
       received: false
     };
