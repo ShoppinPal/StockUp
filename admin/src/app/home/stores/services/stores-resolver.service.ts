@@ -18,7 +18,13 @@ export class StoresResolverService {
   }
 
   fetchStores(): Observable<any> {
-    return this.orgModelApi.getStoreModels(this.userProfile.orgModelId).pipe(map((data: any) => {
+    return this.orgModelApi.getStoreModels(this.userProfile.orgModelId, {
+      where: {
+        ownerSupplierModelId: {
+          exists: false
+        }
+      }
+    }).pipe(map((data: any) => {
         return data;
       },
       err => {

@@ -75,6 +75,7 @@ module.exports = function (StockOrderLineitemModel) {
                         }
                     };
                     if (scanType === 'receive') {
+                        delete filter.where.approved; // receivable item may or may not be approved
                         filter.where.fulfilled = true;
                     }
                     logger.debug({

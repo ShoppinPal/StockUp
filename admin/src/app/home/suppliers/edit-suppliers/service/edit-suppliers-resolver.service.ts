@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {OrgModelApi} from "../../../../shared/lb-sdk/services/custom/OrgModel";
 import {ActivatedRouteSnapshot} from '@angular/router';
 import {Observable, combineLatest} from 'rxjs';
@@ -35,7 +35,13 @@ export class EditSuppliersResolverService {
 
     let fetchSupplier = combineLatest(
       this.orgModelApi.getSupplierModels(this.userProfile.orgModelId, filter),
-      this.orgModelApi.getStoreModels(this.userProfile.orgModelId)
+      this.orgModelApi.getStoreModels(this.userProfile.orgModelId, {
+        where: {
+          ownerSupplierModelId: {
+            exists: false
+          }
+        }
+      })
     );
     return fetchSupplier.pipe(map((data: any) => {
         return {

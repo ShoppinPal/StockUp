@@ -27,13 +27,15 @@ module.exports = function (app) {
                     message: 'Creating cron job for job',
                     jobId: eachJob.id
                 });
-                SchedulerModel.activeCronJobs[eachJob.id] = new CronJob(eachJob.cronSchedule, function () {
-                    logger.debug({
-                        message: 'Created cron job for job Id',
-                        jobId: eachJob.id
-                    });
-                    return SchedulerModel.runScheduledStockOrderJob(eachJob);
-                }, null, true);
+                if (!SchedulerModel.activeCronJobs[eachJob.id]) {
+                    SchedulerModel.activeCronJobs[eachJob.id] = new CronJob(eachJob.cronSchedule, function () {
+                        logger.debug({
+                            message: 'Created cron job for job Id',
+                            jobId: eachJob.id
+                        });
+                        return SchedulerModel.runScheduledStockOrderJob(eachJob);
+                    }, null, true);
+                }
             });
         })
         .catch(function (error) {

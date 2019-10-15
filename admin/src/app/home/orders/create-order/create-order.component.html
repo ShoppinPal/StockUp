@@ -28,13 +28,39 @@
                   </select>
                 </div>
                 <div class="form-group col-sm-12">
-                  <span>Deliver From: &nbsp;&nbsp;</span>
-                  <select class="form-control" [(ngModel)]="selectedWarehouseId" id="warehouseName">
-                    <option disabled="disabled" value="Select...">Select..</option>
-                    <option *ngFor="let store of stores" [value]="store.objectId">
-                      {{store.name}}
-                    </option>
-                  </select>
+                  <label class="">Deliver From: &nbsp;&nbsp;</label>
+                  <div class="col-md-9 col-form-label">
+                    <div class="form-group" id="inline-radios">
+                      <input class="form-check-input"
+                             type="radio"
+                             name="deliverFrom"
+                             id="deliverFromSuppliers"
+                             value="deliverFromSuppliers"
+                             [(ngModel)]="deliverFrom">
+                      <label class="form-check-label" for="deliverFromSuppliers">Suppliers  : </label>
+                      <select class="form-control" [(ngModel)]="selectedWarehouseId" [disabled]="deliverFrom !== 'deliverFromSuppliers'">
+                        <option disabled="disabled" value="Select...">Select..</option>
+                        <option *ngFor="let store of stores | supplierStores" [value]="store.objectId">
+                          {{store.name}}
+                        </option>
+                      </select>
+                    </div>
+                    <div class="form-group mr-1">
+                      <input class="form-check-input"
+                             type="radio"
+                             name="deliverFrom"
+                             id="deliverFromStores"
+                             value="deliverFromStores"
+                             [(ngModel)]="deliverFrom">
+                      <label class="form-check-label" for="deliverFromStores">Stores: </label>
+                      <select class="form-control" [(ngModel)]="selectedWarehouseId" [disabled]="deliverFrom !== 'deliverFromStores'">
+                        <option disabled="disabled" value="Select...">Select..</option>
+                        <option *ngFor="let store of stores | orgStores" [value]="store.objectId">
+                          {{store.name}}
+                        </option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
                 <div class="form-group col-sm-12" *ngIf="userProfile.integrationType === 'msdynamics'">
                   <span>Select category (Optional) : </span>
@@ -100,9 +126,11 @@
             <div class="col-sm-12">
               <span class="input-group-btn">
                 <button class="btn btn-primary" type="button" *ngIf="userProfile.integrationType === 'msdynamics'"
-                        (click)="generateStockOrderMSD()"><i class="fa fa-plus-circle"></i> Generate stock order</button>
+                        (click)="generateStockOrderMSD()"><i
+                  class="fa fa-plus-circle"></i> Generate stock order</button>
                 <button class="btn btn-primary" type="button" *ngIf="userProfile.integrationType === 'vend'"
-                        (click)="generateStockOrderVend()"><i class="fa fa-plus-circle"></i> Generate stock order</button>
+                        (click)="generateStockOrderVend()"><i
+                  class="fa fa-plus-circle"></i> Generate stock order</button>
               </span>
             </div>
           </div>

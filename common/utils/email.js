@@ -33,7 +33,6 @@ function sendEmail(emailOptions, options) {
             else {
                 logger.debug({
                     message: 'Email sent successfully',
-                    success,
                     options,
                     functionName: 'sendEmail'
                 });

@@ -187,7 +187,7 @@ let runMe = function (payload, config, taskId, messageId) {
                     }
                 }, {
                     $set: {
-                        status: orderConfigModel.orderStatus
+                        state: orderConfigModel.orderStatus
                     }
                 });
             })
@@ -521,6 +521,7 @@ function mapSpreadSheetDataToOrders(db, orderConfigModel, spreadSheetRows, userM
                             categoryModelId: ObjectId(eachSpreadSheetRow.categoryModelId),
                             categoryModelName: eachSpreadSheetRow.categoryModelName, //need for sorting
                             binLocation: eachSpreadSheetRow.binLocation,
+                            supplyPrice: eachSpreadSheetRow.supplyPrice,
                             approved: isApproved,
                             fulfilled: isFulfilled,
                             received: isReceived,
@@ -622,6 +623,7 @@ function createOrders(db, orders, messageId) {
                 logger.error({
                     message: 'Could not create report model',
                     error,
+                    reason: error,
                     messageId
                 });
                 return Promise.reject('Could not create report model');
@@ -643,7 +645,7 @@ function createOrders(db, orders, messageId) {
                     error,
                     messageId
                 });
-                return Promise.reject('Could not create line items');
+                return Promise.resolve('Could not create line items, move on to next order?');
             });
     })
         .then(function (response) {

@@ -52,6 +52,12 @@ export class GeneratedComponent implements OnInit, OnDestroy {
   };
   public showAddProductModal = false;
   public bsModalRef: BsModalRef;
+  public toValidEmailCounter: number = 0;
+  public toInvalidEmailCounter: number = 0;
+  public ccValidEmailCounter: number = 0;
+  public ccInvalidEmailCounter: number = 0;
+  public bccValidEmailCounter: number = 0;
+  public bccInvalidEmailCounter: number = 0;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -237,14 +243,14 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       this.creatingTransferOrder = true;
       this.loading = true;
       this.orgModelApi.createTransferOrderMSD(
-          this.userProfile.orgModelId,
-          this.order.id,
-          this.emailModalData.sendEmail,
-          {
-            to: this.emailModalData.to.split(','),
-            cc: this.emailModalData.cc? this.emailModalData.cc.split(','): [],
-            bcc: this.emailModalData.bcc? this.emailModalData.bcc.split(','): []
-          }
+        this.userProfile.orgModelId,
+        this.order.id,
+        this.emailModalData.sendEmail,
+        {
+          to: this.emailModalData.to.split(','),
+          cc: this.emailModalData.cc ? this.emailModalData.cc.split(',') : [],
+          bcc: this.emailModalData.bcc ? this.emailModalData.bcc.split(',') : []
+        }
       ).subscribe(transferOrderRequest => {
         this.loading = false;
         this.toastr.info('Creating Transfer Order');
@@ -257,15 +263,61 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     }
   }
 
+  toEmailValidation() {
+    this.toValidEmailCounter = 0;
+    this.toInvalidEmailCounter = 0;
+    let toEmailArray = this.emailModalData.to.split(',');
+    if (toEmailArray.length) {
+      toEmailArray.forEach(eachEmail => {
+        if (Utils.validateEmail(eachEmail.trim())) {
+          this.toValidEmailCounter++;
+        }
+        else {
+          this.toInvalidEmailCounter++;
+        }
+      })
+    }
+  }
+
+  ccEmailValidation() {
+    this.ccValidEmailCounter = 0;
+    this.ccInvalidEmailCounter = 0;
+    let toEmailArray = this.emailModalData.cc.split(',');
+    if (toEmailArray.length) {
+      toEmailArray.forEach(eachEmail => {
+        if (Utils.validateEmail(eachEmail.trim())) {
+          this.ccValidEmailCounter++;
+        }
+        else {
+          this.ccInvalidEmailCounter++;
+        }
+      })
+    }
+  }
+
+  bccEmailValidation() {
+    this.bccValidEmailCounter = 0;
+    this.bccInvalidEmailCounter = 0;
+    let toEmailArray = this.emailModalData.bcc.split(',');
+    if (toEmailArray.length) {
+      toEmailArray.forEach(eachEmail => {
+        if (Utils.validateEmail(eachEmail.trim())) {
+          this.bccValidEmailCounter++;
+        }
+        else {
+          this.bccInvalidEmailCounter++;
+        }
+      })
+    }
+  }
+
   createPurchaseOrderVend() {
     if (!this.totalApprovedLineItems) {
       this.toastr.error('Please approve at least one item to send order to supplier');
     } else {
-      if (this.emailModalData.sendEmail){
+      if (this.emailModalData.sendEmail) {
         if (
-          !Utils.validateEmail(this.emailModalData.to.split(',')) ||
-          !Utils.validateEmail(this.emailModalData.cc.split(',')) ||
-          !Utils.validateEmail(this.emailModalData.bcc.split(','))
+          !Utils.validateEmail(this.emailModalData.to.split(',')) || !Utils.validateEmail(this.emailModalData.cc.split(',')) || !Utils.validateEmail(this.emailModalData.bcc.split(','))
         ) {
           this.toastr.error('Invalid Email');
           return;
@@ -273,18 +325,18 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       }
       this.creatingPurchaseOrderVend = true;
       this.loading = true;
+      this.toastr.info('Creating Purchase Order');
       this.orgModelApi.createPurchaseOrderVend(
-          this.userProfile.orgModelId,
-          this.order.id,
-          this.emailModalData.sendEmail,
-         {
-            to: this.emailModalData.to? this.emailModalData.to.split(',') : [],
-            cc: this.emailModalData.cc? this.emailModalData.cc.split(',') : [],
-            bcc: this.emailModalData.bcc? this.emailModalData.bcc.split(',') : []
-          }
+        this.userProfile.orgModelId,
+        this.order.id,
+        this.emailModalData.sendEmail,
+        {
+          to: this.emailModalData.to ? this.emailModalData.to.split(',') : [],
+          cc: this.emailModalData.cc ? this.emailModalData.cc.split(',') : [],
+          bcc: this.emailModalData.bcc ? this.emailModalData.bcc.split(',') : []
+        }
       ).subscribe(purchaseOrderRequest => {
         this.loading = false;
-        this.toastr.info('Creating Purchase Order');
         this.waitForGeneration(purchaseOrderRequest.callId);
       }, error1 => {
         this.creatingPurchaseOrderVend = false;
@@ -442,20 +494,20 @@ export class GeneratedComponent implements OnInit, OnDestroy {
   }
 
   addProductToStockOrder(productModel: any) {
-      if (!productModel.orderQuantity){
-        this.toastr.error('Order Quantity should be greater than zero');
-        return;
-      }
-      this.orgModelApi.addProductToStockOrder(
-        this.userProfile.orgModelId,
-        this.order.id,
-        this.order.storeModelId,
-        productModel
-      ).subscribe(result => {
-        this.toastr.success('Added product to stock order');
-      }, error => {
-        this.toastr.error('Cannot add product to stock order');
-      })
+    if (!productModel.orderQuantity) {
+      this.toastr.error('Order Quantity should be greater than zero');
+      return;
+    }
+    this.orgModelApi.addProductToStockOrder(
+      this.userProfile.orgModelId,
+      this.order.id,
+      this.order.storeModelId,
+      productModel
+    ).subscribe(result => {
+      this.toastr.success('Added product to stock order');
+    }, error => {
+      this.toastr.error('Cannot add product to stock order');
+    })
   }
 
   openDeleteModal() {

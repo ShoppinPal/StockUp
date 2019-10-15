@@ -5,9 +5,9 @@ export default class Utils {
       let valid: boolean = true;
       email.forEach(mail => {
         if (mail) {
-          valid = re.test(String(mail).toLowerCase())
+          valid = re.test(String(mail.trim()).toLowerCase())
         }
-      })
+      });
       return valid;
     } else {
       return re.test(String(email).toLowerCase());

@@ -61,37 +61,37 @@ module.exports = function (ReportModel) {
         });
         var report, csvArray = [], supplier, emailSubject, totalOrderQuantity = 0, totalSupplyCost = 0, htmlForPdf,
             csvReport;
-        return Promise.each(toEmailArray,
-            function (eachEmail) {
-                if (!validateEmail(eachEmail)) {
-                    return Promise.reject('Invalid Primary Email: ' + eachEmail);
-                }
-            }).then(function () {
-            return Promise.each(ccEmailArray,
-                function (eachEmail) {
-                    if (!validateEmail(eachEmail)) {
+        return Promise.each(toEmailArray, function (eachEmail) {
+            if (!validateEmail(eachEmail.trim())) {
+                return Promise.reject('Invalid Primary Email: ' + eachEmail);
+            }
+        })
+            .then(function () {
+                return Promise.each(ccEmailArray, function (eachEmail) {
+                    if (!validateEmail(eachEmail.trim())) {
                         return Promise.reject('Invalid Cc Email: ' + eachEmail);
                     }
                 });
-        }).then(function () {
-            return Promise.each(bccEmailArray,
-                function (eachEmail) {
-                    if (!validateEmail(eachEmail)) {
+            })
+            .then(function () {
+                return Promise.each(bccEmailArray, function (eachEmail) {
+                    if (!validateEmail(eachEmail.trim())) {
                         return Promise.reject('Invalid Bcc Email: ' + eachEmail);
                     }
                 });
-        }).catch(function (error) {
-            logger.error({
-                functionName: 'sendReportAsEmail',
-                message: 'Email Verification Failed',
-                error,
-                options
-            });
-            return Promise.reject(error);
-        })
+            })
+            .catch(function (error) {
+                logger.error({
+                    functionName: 'sendReportAsEmail',
+                    message: 'Email Verification Failed',
+                    error,
+                    options
+                });
+                return Promise.reject(error);
+            })
             .then(function () {
                 return ReportModel.findById(id, {
-                    include: ['userModel', 'storeConfigModel', 'supplierModel', 'storeModel', 'orgModel']
+                    include: ['userModel', 'supplierModel', 'storeModel', 'orgModel']
                 });
             })
             .then(function (reportModelInstance) {
@@ -202,7 +202,7 @@ module.exports = function (ReportModel) {
                     cc: ccEmailArray.toString(),
                     bcc: bccEmailArray.toString(),
                     subject: emailSubject,
-                    from: report.storeModel().name + '\<' + report.userModel().email + '>',
+                    from: report.storeModel().name + '\<' + (ReportModel.app.get('sendReportsEmail') || process.env.SEND_REPORTS_EMAIL) + '>',
                     mailer: transporter,
                     text: 'Total Order Quantity: ' + totalOrderQuantity + '\n Total Supply Cost: ' + totalSupplyCost,
                     attachments: [
@@ -1207,15 +1207,9 @@ module.exports = function (ReportModel) {
     }
 
     ReportModel.addProductToStockOrder = function (id, reportModelId, storeModelId, product, options) {
-        let approvedStates = [
-            REPORT_STATES.FULFILMENT_PENDING,
-            REPORT_STATES.FULFILMENT_IN_PROCESS,
-            REPORT_STATES.FULFILMENT_FAILURE,
-            REPORT_STATES.RECEIVING_PENDING,
-            REPORT_STATES.RECEIVING_IN_PROCESS,
-            REPORT_STATES.RECEIVING_FAILURE,
-        ];
-        let orderAlreadyApproved = false, reportModel;
+        //follow the flow chart here
+        //https://drive.google.com/open?id=1BtwkPjl7AuEUBHHg2TG57B6Ho0xs6lJY
+        let reportModel, pushToVend = false;
         logger.debug({
             functionName: 'addProductToStockOrder',
             message: 'Will find existing products in stockorderline items',
@@ -1226,17 +1220,21 @@ module.exports = function (ReportModel) {
         })
             .then(function (report) {
                 reportModel = report;
-                if (approvedStates.findIndex(function (state) {
-                        return state === reportModel.state;
-                    }) !== -1) {
-                    orderAlreadyApproved = true;
-                }
                 return ReportModel.app.models.StockOrderLineitemModel.find({
                     where: {
                         productModelId: product.id,
                         reportModelId: reportModelId
                     }
                 });
+            })
+            .catch(function (error) {
+                logger.error({
+                    functionName: 'addProductToStockOrder',
+                    message: 'Error while searching existing product in stock order',
+                    options,
+                    error
+                });
+                return Promise.reject(error);
             })
             .then(function (presentLineItems) {
                 logger.debug({
@@ -1246,41 +1244,147 @@ module.exports = function (ReportModel) {
                     reportModel,
                     presentLineItems
                 });
-                if (presentLineItems.length>0) {
+                if (presentLineItems.length>0) { //product already exists, but in which state?
+
+                    if (REPORT_STATES.APPROVAL_IN_PROCESS === reportModel.state) {
+                        //do nothing
+                        logger.debug({
+                            message: 'Product already exists in order generation state, nothing to do',
+                            options,
+                            functionName: 'addProductToStockOrder'
+                        });
+                        return Promise.reject('Product already exists');
+                    }
+                    else if (REPORT_STATES.FULFILMENT_IN_PROCESS === reportModel.state) {
+                        if (presentLineItems[0].approved) {
+                            //do nothing
+                            logger.debug({
+                                message: 'Product already exists in fulfilment state, nothing to do',
+                                options,
+                                functionName: 'addProductToStockOrder'
+                            });
+                            return Promise.reject('Product already exists');
+                        }
+                        else {
+                            logger.debug({
+                                message: 'Product already exists but was not approved, will approve and push to Vend',
+                                options,
+                                functionName: 'addProductToStockOrder'
+                            });
+                            /**
+                             * a) update state to approved
+                             * b) Push to Vend
+                             */
+                            presentLineItems[0].approved = true;
+                            presentLineItems[0].orderQuantity = 0;
+                            pushToVend = true;
+                            return presentLineItems[0].save();
+                        }
+                    }
+                    else if (REPORT_STATES.RECEIVING_IN_PROCESS === reportModel.state) {
+                        if (presentLineItems[0].fulfilled) {
+                            // do nothing
+                            logger.debug({
+                                message: 'Product already exists in receiving mode, nothing to do',
+                                options,
+                                functionName: 'addProductToStockOrder'
+                            });
+                            return Promise.reject('Product already exists');
+                        }
+                        else {
+                            logger.debug({
+                                message: 'Product already exists, but was not fulfilled. Will set state to fulfilled',
+                                options,
+                                functionName: 'addProductToStockOrder'
+                            });
+                            /**
+                             *  a) update state to fulfilled
+                             */
+                            presentLineItems[0].fulfilled = true;
+                            if (presentLineItems[0].vendConsignmentProductId) {
+                                // do nothing
+                                logger.debug({
+                                    message: 'Product already exists in Vend consignment, no need to push',
+                                    options,
+                                    functionName: 'addProductToStockOrder'
+                                });
+                            }
+                            else {
+                                /**
+                                 * a) Push to Vend
+                                 */
+                                logger.debug({
+                                    message: 'Product doesn\'t exist in Vend consignment, will push to Vend',
+                                    options,
+                                    functionName: 'addProductToStockOrder'
+                                });
+                                pushToVend = true;
+                            }
+                            return presentLineItems[0].save();
+                        }
+                    }
+                }
+                else {
+                    if (REPORT_STATES.FULFILMENT_IN_PROCESS === reportModel.state || REPORT_STATES.RECEIVING_IN_PROCESS === reportModel.state) {
+                        pushToVend = true;
+                    }
                     logger.debug({
-                        functionName: 'addProductToStockOrder',
-                        message: 'Aborting, product already exists in stock order',
+                        message: 'Product not found, will create line item',
                         options,
+                        functionName: 'addProductToStockOrder'
                     });
-                    return Promise.reject('Product already present in stock order');
-                }else {
+                    return createLineItemForStockOrder(product, id, storeModelId, reportModelId, reportModel.state, options);
+                }
+            })
+            .then(function (stockOrderInstance) {
+                if (pushToVend) {
+                    logger.debug({
+                        message: 'Pushing line item to vend consignment',
+                        options,
+                        functionName: 'addProductToStockOrder'
+                    });
+                    return vendUtils({OrgModel: ReportModel.app.models.OrgModel})
+                        .createStockOrderLineitemForVend(reportModel.storeModel(), reportModel, product, stockOrderInstance, options)
+                        .then(function (vendConsignmentProduct) {
+                            logger.debug({
+                                message: 'Added product to vend consignment, will save details to db',
+                                vendConsignmentProduct,
+                                functionName: 'addProductToStockOrder',
+                                options
+                            });
+                            return ReportModel.app.models.StockOrderLineitemModel.updateAll(
+                                {
+                                    id: stockOrderInstance.id
+                                },
+                                {
+                                    vendConsignmentProductId: vendConsignmentProduct.id,
+                                    vendConsignmentProduct: vendConsignmentProduct
+                                }
+                            );
+                        })
+                }
+                else {
                     return Promise.resolve();
                 }
-            }).catch(function (error) {
-                logger.error({
-                    functionName: 'addProductToStockOrder',
-                    message: 'Error while searching existing product in stock order',
-                    options,
-                    error
-                });
-                return Promise.reject(error);
-            })
-            .then(function () {
-                logger.debug({
-                    functionName: 'addProductToStockOrder',
-                    message: 'Will find inventory associated with product, store and org',
-                    options,
-                });
-                return ReportModel.app.models.InventoryModel.find({
-                    where: {
-                        productModelId: product.id,
-                        orgModelId: id,
-                        storeModelId
-                    }
-                });
-            }).then(function (inventoryInstances) {
-                var row;
+            });
+    };
 
+
+    function createLineItemForStockOrder(product, orgModelId, storeModelId, reportModelId, reportModelState, options) {
+        logger.debug({
+            functionName: 'createLineItemForStockOrder',
+            message: 'Will find inventory associated with product, store and org',
+            options,
+        });
+        return ReportModel.app.models.InventoryModel.find({
+            where: {
+                productModelId: product.id,
+                orgModelId: orgModelId,
+                storeModelId
+            }
+        })
+            .then(function (inventoryInstances) {
+                var row;
                 var useRow = true;
                 var caseQuantity, quantityOnHand, desiredStockLevel, orderQuantity;
                 if (product.tags) {
@@ -1314,8 +1418,8 @@ module.exports = function (ReportModel) {
                 orderQuantity = 0;
                 if (quantityOnHand<0) {
                     logger.debug({
-
-                        message: `TODO: how should negative inventory be handled? DSL minus QOH w/ a negative QOH will lead to a positive! Example: 100 - (-2) = 102`
+                        message: `TODO: how should negative inventory be handled? DSL minus QOH w/ a negative QOH will lead to a positive! Example: 100 - (-2) = 102`,
+                        functionName: 'createLineItemForStockOrder'
                     });
                 }
                 if (!_.isNaN(desiredStockLevel) && _.isNumber(desiredStockLevel)) {
@@ -1333,7 +1437,8 @@ module.exports = function (ReportModel) {
                     }
                     else {
                         logger.debug({
-                            message: `do not waste time on negative or zero orderQuantity ${product.sku}`
+                            message: `do not waste time on negative or zero orderQuantity ${product.sku}`,
+                            functionName: 'createLineItemForStockOrder'
                         });
                         useRow = false;
                     }
@@ -1361,36 +1466,36 @@ module.exports = function (ReportModel) {
                     categoryModelId: product.categoryModelId,
                     binLocation: product.binLocation,
                     categoryModelName: categoryName,  //need for sorting
-                    approved: orderAlreadyApproved,
-                    fulfilled: product.fulfilled || false,
+                    approved: false,
+                    fulfilled: false,
                     received: false,
                     reportModelId: reportModelId,
                     userModelId: options.accessToken.userId,
                     createdAt: new Date(),
-                    orgModelId: id
+                    orgModelId: orgModelId
                 };
-                logger.debug({row: row});
+                if (REPORT_STATES.FULFILMENT_IN_PROCESS === reportModelState) {
+                    row.approved = true;
+                }
+                else if (REPORT_STATES.RECEIVING_IN_PROCESS === reportModelState) {
+                    row.fulfilled = true;
+                }
+                logger.debug({row: row, functionName: 'createLineItemForStockOrder'});
                 return Promise.resolve(row);
             })
             .then(function (stockOrderLineItem) {
                 return ReportModel.app.models.StockOrderLineitemModel.create(stockOrderLineItem);
-            }).catch(function (error) {
+            })
+            .catch(function (error) {
                 logger.error({
-                    functionName: 'addProductToStockOrder',
+                    functionName: 'createLineItemForStockOrder',
                     message: 'Error adding product to report',
                     options,
                     error
                 });
                 return Promise.reject(error);
-            }).then(function (stockOrderInstance) {
-                if (orderAlreadyApproved) {
-                    return vendUtils({OrgModel: ReportModel.app.models.OrgModel})
-                        .createStockOrderLineitemForVend(reportModel.storeModel(), reportModel, product, stockOrderInstance, options);
-                }else {
-                    return Promise.resolve();
-                }
             });
-    };
+    }
 
     ReportModel.deleteStockOrderVend = function (orgModelId, reportModelId, options) {
         logger.debug({

@@ -56,5 +56,7 @@ seeds
 /docker/
 client/app/scripts/shoppinpal-loopback.js
 client/admin/
-/admin/src/app/shared/lb-sdk/
 workers/config
+rsync/.exclude-files
+rsync/rsync.sh
+admin/src/app/shared/lb-sdk

@@ -41,6 +41,7 @@ export class CreateOrderComponent implements OnInit {
   public orderConfigurations: any;
   public selectedOrderConfigurationId;
   public REPORT_STATES = constants.REPORT_STATES;
+  public deliverFrom: string = 'deliverFromSuppliers';
 
 
   public scheduleAutoGeneration: boolean = false;
@@ -143,6 +144,7 @@ export class CreateOrderComponent implements OnInit {
   generateStockOrderVend() {
     if (this.uploader.queue.length) {
       console.log('uploading file...', this.uploader);
+      this.loading = true;
       this.toastr.info('Importing stock order from file...');
       this.uploader.onBuildItemForm = (fileItem: any, form: any)=> {
         form.append('orderConfigModelId', this.selectedOrderConfigurationId);
@@ -150,6 +152,7 @@ export class CreateOrderComponent implements OnInit {
       this.uploader.uploadAll();
       this.uploader.onSuccessItem = (item: any, response: any, status: number, headers: any): any => {
         this.loading = false;
+        this.toastr.success('File uploaded, refresh after some time to see new orders');
         this._router.navigate(['/orders/stock-orders']);
         // this.waitForFileImportWorker();
       };
