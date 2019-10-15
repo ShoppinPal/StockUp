@@ -521,6 +521,7 @@ function mapSpreadSheetDataToOrders(db, orderConfigModel, spreadSheetRows, userM
                             categoryModelId: ObjectId(eachSpreadSheetRow.categoryModelId),
                             categoryModelName: eachSpreadSheetRow.categoryModelName, //need for sorting
                             binLocation: eachSpreadSheetRow.binLocation,
+                            supplyPrice: eachSpreadSheetRow.supplyPrice,
                             approved: isApproved,
                             fulfilled: isFulfilled,
                             received: isReceived,
