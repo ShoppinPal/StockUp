@@ -1,3 +1,4 @@
+//query to check duplicate skus
 db.ProductModel.aggregate(
 
   // Pipeline
@@ -38,7 +39,4 @@ db.ProductModel.aggregate(
     }
 
   ]
-
-  // Created with 3T MongoChef, the GUI for MongoDB - http://3t.io/mongochef
-
 );
