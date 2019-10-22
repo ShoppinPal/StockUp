@@ -295,10 +295,15 @@ export class FulfillComponent implements OnInit {
   }
 
   fulfillItem(lineItem) {
-    this.updateLineItems(lineItem, {
-      fulfilledQuantity: lineItem.fulfilledQuantity,
-      fulfilled: true
-    });
+    if (lineItem.fulfilledQuantity > 0) {
+      this.updateLineItems(lineItem, {
+        fulfilledQuantity: lineItem.fulfilledQuantity,
+        fulfilled: true
+      });
+    }
+    else {
+      this.toastr.error('Fulfill quantity cannot be less than 1');
+    }
   }
 
   removeItem(lineItem) {

@@ -295,10 +295,15 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   }
 
   receiveItem(lineItem) {
-    this.updateLineItems(lineItem, {
-      received: true,
-      receivedQuantity: lineItem.receivedQuantity
-    });
+    if (lineItem.receivedQuantity > 0) {
+      this.updateLineItems(lineItem, {
+        received: true,
+        receivedQuantity: lineItem.receivedQuantity
+      });
+    }
+    else {
+      this.toastr.error('Receiving quantity cannot be less than 1');
+    }
   }
 
   removeItem(lineItem) {
