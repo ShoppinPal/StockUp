@@ -375,10 +375,15 @@ export class GeneratedComponent implements OnInit, OnDestroy {
   }
 
   approveItem(lineItem) {
-    this.updateLineItems(lineItem, {
-      approved: true,
-      orderQuantity: lineItem.orderQuantity
-    });
+    if (lineItem.orderQuantity > 0) {
+      this.updateLineItems(lineItem, {
+        approved: true,
+        orderQuantity: lineItem.orderQuantity
+      });
+    }
+    else {
+      this.toastr.error('Quantity cannot be less than 1');
+    }
   }
 
   removeItem(lineItem) {
