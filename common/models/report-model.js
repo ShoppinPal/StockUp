@@ -1426,8 +1426,10 @@ module.exports = function (ReportModel) {
                 var inventory = _.find(inventoryInstances, function (eachInventory) {
                     return eachInventory.productModelId.toString() === product.id.toString();
                 });
-                quantityOnHand = Number(inventory.inventory_level);
-                desiredStockLevel = Number(inventory.reorder_point);
+                if (inventory) {
+                    quantityOnHand = Number(inventory.inventory_level);
+                    desiredStockLevel = Number(inventory.reorder_point);
+                }
                 orderQuantity = 0;
                 if (quantityOnHand<0) {
                     logger.debug({
