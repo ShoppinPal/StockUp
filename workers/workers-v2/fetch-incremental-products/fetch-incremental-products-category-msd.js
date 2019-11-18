@@ -9,7 +9,7 @@ const path = require('path');
 sql.Promise = require('bluebird');
 const _ = require('underscore');
 const Promise = require('bluebird');
-const PRODUCT_TABLE = 'EcoResProductStaging';
+const PRODUCT_TABLE = 'EcoResProductV2Staging';
 const PRODUCTS_PER_PAGE = 1000;
 var commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 
