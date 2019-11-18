@@ -12,7 +12,14 @@ const Promise = require('bluebird');
 const commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 const TODAYS_DATE = new Date();
 const rp = require('request-promise');
-const REPORT_STATES = utils.REPORT_STATES
+const REPORT_STATES = utils.REPORT_STATES;
+/**
+ * One option is a combination of products with VPN > Color > Shade
+ * Need to find out Reorder points at option level
+ * So, let's create options levels with keys as "VPN-Color-Shade"
+ * For example:
+ *  '30782-Pink-Dark'
+ */
 var runMe = function (payload, config, taskId, messageId) {
 
     var orgModelId = payload.orgModelId;
@@ -191,7 +198,30 @@ function generateStockOrder(payload, config, taskId, messageId) {
     var storeModelId = payload.storeModelId;
     var warehouseModelId = payload.warehouseModelId;
     var categoryModelId = payload.categoryModelId;
-    var storeInventory, productModelIds;
+    var optionLevelStoreInventory, productModelIds;
+    //TODO: Size-wise replacements (replace size S with M in order if S is not available)
+    var sizeReplacementArray = [
+        {
+            size: 'S',
+            replacement: 'M'
+        },
+        {
+            size: 'M',
+            replacement: 'S'
+        },
+        {
+            size: 'L',
+            replacement: 'M'
+        },
+        {
+            size: 'XS',
+            replacement: 'S'
+        },
+        {
+            size: 'XL',
+            replacement: 'L'
+        }
+    ];
     logger.debug({
         message: 'Will generate stock order for the following store',
         storeModelId,
@@ -206,7 +236,7 @@ function generateStockOrder(payload, config, taskId, messageId) {
         commandName,
         messageId
     });
-    var reportModel, totalRows, lineItemsToOrder = [], warehouseInventory;
+    var reportModel, totalRows, lineItemsToOrder = [], optionLevelWarehouseInventory;
     return db.collection('StoreModel').findOne({
         _id: ObjectId(storeModelId)
     })
@@ -228,7 +258,7 @@ function generateStockOrder(payload, config, taskId, messageId) {
                 messageId
             });
             var name;
-            if(!payload.name) {
+            if (!payload.name) {
                 name = storeModelInstance.name + ' - ' + TODAYS_DATE.getFullYear() + '-' + (TODAYS_DATE.getMonth() + 1) + '-' + TODAYS_DATE.getDate();
             }
             if (!payload.reportModelId) {
@@ -246,7 +276,7 @@ function generateStockOrder(payload, config, taskId, messageId) {
                     transferOrderNumber: null,
                     transferOrderCount: 0
                 });
-            } else {
+            }else {
                 return Promise.resolve({
                     ops: [
                         {
@@ -307,43 +337,64 @@ function generateStockOrder(payload, config, taskId, messageId) {
                     }
                 },
                 {
+                    $lookup: {
+                        "from": "CategoryModel",
+                        "localField": "categoryModelId",
+                        "foreignField": "_id",
+                        "as": "categoryModel"
+                    }
+                },
+                {
                     $group: {
-                        _id: {productModelId: '$productModelId'},
+                        _id: '$optionLevelKey',
+                        totalProducts: {
+                            $sum: 1
+                        },
+                        productModels: {
+                            $addToSet: {
+                                productModelId: '$productModelId',
+                                inventory_level: '$inventory_level',
+                                reorder_point: '$reorder_point',
+                                reorder_threshold: '$reorder_threshold'
+                            }
+                        },
                         inventory_level: {
                             $sum: '$inventory_level'
                         },
                         reorder_point: {
-                            $first: '$reorder_point'
+                            $sum: '$reorder_point'
                         },
                         reorder_threshold: {
-                            $first: '$reorder_threshold'
+                            $sum: '$reorder_threshold'
+                        },
+                        categoryModel: {
+                            $first: '$categoryModel'
                         }
                     }
                 },
                 {
                     $project: {
                         to_replenish: {
-                            $gt: ['$reorder_threshold', '$inventory_level']
+                            $and: [
+                                {$gt: ['$reorder_threshold', '$inventory_level']},
+                            ]
                         },
+                        optionLevelKey: '$_id',
+                        totalProducts: '$totalProducts',
+                        productModels: '$productModels',
                         inventory_level: '$inventory_level',
                         reorder_point: '$reorder_point',
-                        reorder_threshold: '$reorder_threshold'
+                        reorder_threshold: '$reorder_threshold',
+                        categoryModel: '$categoryModel'
+
                     }
                 },
                 {
                     $match: {
-                        to_replenish: true,
-                        '_id.productModelId': {
-                            $ne: null
-                        }
+                        to_replenish: true
                     }
                 }
             ];
-            if (result.length) {
-                aggregationQuery[0].$match.productModelId = {
-                    $in: _.pluck(result, '_id')
-                };
-            }
             return db.collection('InventoryModel').aggregate(aggregationQuery).toArray();
         })
         .catch(function (error) {
@@ -359,36 +410,37 @@ function generateStockOrder(payload, config, taskId, messageId) {
         })
         .then(function (inventoryModelInstances) {
             logger.debug({
-                message: 'Found inventory model instances with inventory level less than reorder threshold, will look for warehouse inventories',
-                count: inventoryModelInstances.length,
-                commandName,
-                storeModelId,
-                warehouseModelId,
-                inventoryModelInstances: _.sample(inventoryModelInstances),
+                message: 'Found option level inventory model instances with their category data and combined reorder values, will look for warehouse inventory',
+                sampleInventoryModelInstance: _.sample(inventoryModelInstances),
                 orgModelId,
                 messageId
             });
-            productModelIds = _.map(inventoryModelInstances, function (eachInventory) {
-                return ObjectId(eachInventory._id.productModelId);
-            });
-            storeInventory = _.indexBy(inventoryModelInstances, function (eachInventory) {
-                return eachInventory._id.productModelId;
+            optionLevelStoreInventory = _.indexBy(inventoryModelInstances, function (eachInventory) {
+                return eachInventory._id;
             });
             var aggregationQuery = [
                 {
                     $match: {
-                        storeModelId: ObjectId(warehouseModelId),
-                        productModelId: {
-                            $in: productModelIds
-                        }
+                        storeModelId: ObjectId(warehouseModelId)
                     }
                 },
                 {
                     $group: {
-                        _id: {productModelId: '$productModelId'},
+                        _id: '$optionLevelKey',
                         inventory_level: {
                             $sum: '$inventory_level'
-                        }
+                        },
+                        totalProducts: {
+                            $sum: 1
+                        },
+                        productModels: {
+                            $addToSet: {
+                                productModelId: '$productModelId',
+                                inventory_level: '$inventory_level',
+                                reorder_point: '$reorder_point',
+                                reorder_threshold: '$reorder_threshold'
+                            }
+                        },
                     }
                 },
                 {
@@ -399,7 +451,6 @@ function generateStockOrder(payload, config, taskId, messageId) {
                     }
                 }
             ];
-            debugger;
             return db.collection('InventoryModel').aggregate(aggregationQuery).toArray();
         })
         .catch(function (error) {
@@ -423,50 +474,94 @@ function generateStockOrder(payload, config, taskId, messageId) {
                 inventoryModelInstances: _.sample(inventoryModelInstances)
             });
             try {
-                warehouseInventory = _.indexBy(inventoryModelInstances, function (eachInventory) {
-                    return eachInventory._id.productModelId;
+                optionLevelWarehouseInventory = _.indexBy(inventoryModelInstances, function (eachInventory) {
+                    return eachInventory._id;
                 });
                 var skippedLineItems = [];
-                for (var i = 0; i<productModelIds.length; i++) {
+                _.each(optionLevelStoreInventory, function (optionInventory, optionKey) {
 
-                    if (!(warehouseInventory[productModelIds[i]] && warehouseInventory[productModelIds[i]].inventory_level)) {
-                        skippedLineItems.push(productModelIds[i]);
-                    }
-                    else {
-                        var warehouseQuantityOnHand = warehouseInventory[productModelIds[i]].inventory_level;
-                        var storeQuantityOnHand = storeInventory[productModelIds[i]].inventory_level;
-                        var orderQuantity;
-                        if (storeQuantityOnHand>0)
-                            orderQuantity = storeInventory[productModelIds[i]].reorder_point - storeQuantityOnHand;
-                        else
-                            orderQuantity = storeInventory[productModelIds[i]].reorder_point;
-                        orderQuantity = warehouseQuantityOnHand>orderQuantity ? orderQuantity : warehouseQuantityOnHand;
-                        if (orderQuantity>0) {
-                            lineItemsToOrder.push({
-                                reportModelId: ObjectId(reportModel._id),
-                                productModelId: ObjectId(productModelIds[i]),
-                                storeModelId: ObjectId(storeModelId),
-                                orgModelId: ObjectId(orgModelId),
-                                orderQuantity: orderQuantity,
-                                storeInventory: storeQuantityOnHand,
-                                originalOrderQuantity: orderQuantity,
-                                fulfilledQuantity: 0,
-                                receivedQuantity: 0,
-                                fulfilled: false,
-                                received: false,
-                                state: 'unboxed',
-                                approved: false,
-                                createdAt: new Date(),
-                                updatedAt: new Date()
-                            });
+                        if (!(optionLevelWarehouseInventory[optionKey] && optionLevelWarehouseInventory[optionKey].inventory_level)) {
+                            skippedLineItems.push(optionLevelStoreInventory[optionKey]);
                         }
                         else {
-                            skippedLineItems.push(productModelIds[i]);
+                            // var warehouseQuantityOnHand = optionLevelWarehouseInventory[optionKey].inventory_level;
+                            var optionOrderQuantity;
+                            var optionCategoryModel = optionInventory.categoryModel[0];
+                            var MAX, MDQ, maxShelfCapacity;
+                            if (optionCategoryModel &&
+                                optionCategoryModel.min &&
+                                optionCategoryModel.min[storeModelId]>=0 &&
+                                optionCategoryModel.max &&
+                                optionCategoryModel.max[storeModelId]>=0) {
+                                MDQ = optionCategoryModel.min[storeModelId];
+                                maxShelfCapacity = optionCategoryModel.max[storeModelId];
+                                MAX = (optionInventory.reorder_point + MDQ)<maxShelfCapacity ? (optionInventory.reorder_point + MDQ) : maxShelfCapacity;
+                            }
+                            else {
+                                MAX = optionInventory.reorder_point;
+                            }
+                            var storeQuantityOnHand = optionInventory.inventory_level;
+                            if (storeQuantityOnHand>0)
+                                optionOrderQuantity = MAX - storeQuantityOnHand;
+                            else
+                                optionOrderQuantity = MAX;
+                            if (optionOrderQuantity>0) {
+                                /**
+                                 * Let's find out individual order quantities for items under an option,
+                                 * then rationalise it to sum up to optionOrderQuantity
+                                 */
+                                var totalOrderQuantitiesForProducts = _.reduce(optionInventory.productModels, function (memo, num) {
+                                    var orderQuantity = num.reorder_point - (num.inventory_level>0 ? num.inventory_level : 0);//treat negative store inventory as ZERO, as told by client
+                                    return memo + orderQuantity;
+                                }, 0);
+
+                                _.each(optionInventory.productModels, function (eachProduct, index) {
+                                    var productOrderQuantity = eachProduct.reorder_point - (eachProduct.inventory_level>0 ? eachProduct.inventory_level : 0);//treat negative store inventory as ZERO, as told by client
+                                    productOrderQuantity = (productOrderQuantity / totalOrderQuantitiesForProducts) * optionOrderQuantity;
+                                    var warehouseQuantity = _.find(optionLevelWarehouseInventory[optionKey].productModels, function (eachWarehouseProduct) {
+                                            return eachProduct.productModelId.toString() === eachWarehouseProduct.productModelId.toString();
+                                        }).inventory_level || 0;
+                                    productOrderQuantity = warehouseQuantity>productOrderQuantity ? productOrderQuantity : warehouseQuantity;
+                                    logger.debug({
+                                        productModelId: eachProduct.productModelId,
+                                        productOrderQuantity,
+                                        storeQuantityOnHand,
+                                        warehouseQuantity,
+                                        totalOrderQuantitiesForProducts,
+                                        optionOrderQuantity,
+                                        messageId
+                                    });
+                                    lineItemsToOrder.push({
+                                        reportModelId: ObjectId(reportModel._id),
+                                        productModelId: ObjectId(eachProduct.productModelId),
+                                        storeModelId: ObjectId(storeModelId),
+                                        orgModelId: ObjectId(orgModelId),
+                                        orderQuantity: Math.round(productOrderQuantity),
+                                        storeInventory: eachProduct.inventory_level,
+                                        warehouseInventory: warehouseQuantity,
+                                        originalOrderQuantity: Math.round(productOrderQuantity),
+                                        categoryModelId: ObjectId(optionInventory.categoryModel[0]._id),
+                                        categoryModelName: optionInventory.categoryModel[0].name,  //need for sorting
+                                        fulfilledQuantity: 0,
+                                        receivedQuantity: 0,
+                                        fulfilled: false,
+                                        received: false,
+                                        state: 'unboxed',
+                                        approved: false,
+                                        createdAt: new Date(),
+                                        updatedAt: new Date()
+                                    });
+                                });
+                            }
+                            else {
+                                skippedLineItems.push(optionLevelStoreInventory[optionKey]);
+                            }
                         }
                     }
-                }
+                );
             }
-            catch (e) {
+            catch
+                (e) {
                 logger.error({
                     e,
                     error: e,
@@ -487,7 +582,8 @@ function generateStockOrder(payload, config, taskId, messageId) {
             });
             totalRows = lineItemsToOrder.length;
             if (totalRows) {
-                return optimiseQuantitiesByStorePriority(lineItemsToOrder, warehouseInventory, storeModelId, orgModelId, messageId);
+                var warehouseInventoryByProduct = _.flatten(_.pluck(optionLevelWarehouseInventory, 'productModels'));
+                return optimiseQuantitiesByStorePriority(lineItemsToOrder, warehouseInventoryByProduct, storeModelId, orgModelId, messageId);
             }
             else {
                 return Promise.resolve('No items to order');
@@ -512,14 +608,14 @@ function generateStockOrder(payload, config, taskId, messageId) {
                     messageId
                 });
                 return Promise.all([
-                db.collection('ReportModel').updateOne({
-                    _id: ObjectId(reportModel._id)
-                }, {
-                    $set: {
-                        state: REPORT_STATES.PROCESSING_FAILURE,
-                        totalRows: totalRows
-                    }
-                }), result]);
+                    db.collection('ReportModel').updateOne({
+                        _id: ObjectId(reportModel._id)
+                    }, {
+                        $set: {
+                            state: REPORT_STATES.PROCESSING_FAILURE,
+                            totalRows: totalRows
+                        }
+                    }), result]);
             }
             else {
                 logger.debug({
@@ -530,17 +626,17 @@ function generateStockOrder(payload, config, taskId, messageId) {
                 });
                 return Promise.all([
                     db.collection('ReportModel').updateOne({
-                    _id: ObjectId(reportModel._id)
-                }, {
-                    $set: {
-                        state: REPORT_STATES.GENERATED
-                    }
-                })]);
+                        _id: ObjectId(reportModel._id)
+                    }, {
+                        $set: {
+                            state: REPORT_STATES.GENERATED
+                        }
+                    })]);
             }
-        }).then(function([updateResult, result]){
-            if (result === 'ERROR_REPORT'){
+        }).then(function ([updateResult, result]) {
+            if (result === 'ERROR_REPORT') {
                 return Promise.reject('Error while processing order');
-            } else {
+            }else {
                 return Promise.resolve();
             }
         });
@@ -551,12 +647,13 @@ function optimiseQuantitiesByStorePriority(lineItemsToOrder, warehouseInventory,
 
         logger.debug({
             message: 'Will look for same SKUs ordered today for other stores',
+            sampleWarehouseInventory: _.sample(warehouseInventory),
+            sampleLineItemsToOrder: _.sample(lineItemsToOrder),
             commandName,
             messageId
         });
         var todaysDate = new Date();
         todaysDate.setHours(0, 0, 0, 0);
-        debugger;
         //look for any latest report models from other stores generated today
         var aggregateQuery = [
             {
@@ -680,9 +777,15 @@ function optimiseQuantitiesByStorePriority(lineItemsToOrder, warehouseInventory,
                         }
                     }
                 }
+                logger.debug({
+                    sameSKUSGrouped: _.sample(sameSKUsGrouped)
+                });
 
                 var batch = db.collection('StockOrderLineitemModel').initializeUnorderedBulkOp();
                 _.each(_.flatten(_.values(sameSKUsGrouped), true), function (eachLineItem) {
+                    logger.debug({
+                        eachLineItem
+                    });
                     if (eachLineItem._id) {
                         if (eachLineItem.orderQuantity) {
                             batch.find({

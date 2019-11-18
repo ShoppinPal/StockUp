@@ -164,11 +164,12 @@ module.exports = function (ReportModel) {
 
                         totalOrderQuantity += lineItems[i].orderQuantity;
                         totalSupplyCost += lineItems[i].supplyPrice * lineItems[i].orderQuantity;
+                        var supplierCode = supplier ? supplier.api_id: '';
                         csvArray.push({
                             'SKU': lineItems[i].productModel().sku,
                             'Ordered': lineItems[i].orderQuantity,
                             'Product': lineItems[i].productModel().name,
-                            'Supplier Code': supplier.api_id,
+                            'Supplier Code': supplierCode,
                             'Supply cost': lineItems[i].supplyPrice,
                             'Total supply cost': lineItems[i].supplyPrice * lineItems[i].orderQuantity,
                             'Comments': lineItems[i].comments ? lineItems[i].comments.manager_in_process : ''
@@ -177,7 +178,7 @@ module.exports = function (ReportModel) {
                             '<td>' + lineItems[i].productModel().sku + '</td>' +
                             '<td>' + lineItems[i].orderQuantity + '</td>' +
                             '<td>' + lineItems[i].productModel().name + '</td>' +
-                            '<td>' + supplier.api_id + '</td>' +
+                            '<td>' + supplierCode + '</td>' +
                             '<td>' + lineItems[i].supplyPrice + '</td>' +
                             '<td>' + (lineItems[i].supplyPrice * lineItems[i].orderQuantity) + '</td>' +
                             '<td>' + (lineItems[i].comments ? lineItems[i].comments.manager_in_process : '') + '</td>' +

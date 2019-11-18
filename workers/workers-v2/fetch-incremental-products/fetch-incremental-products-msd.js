@@ -9,7 +9,7 @@ const path = require('path');
 sql.Promise = require('bluebird');
 const _ = require('underscore');
 const Promise = require('bluebird');
-const PRODUCT_TABLE = 'EcoResProductVariantStaging';
+const PRODUCT_TABLE = 'HSPRODUCTSYNCTABLEStaging';
 const PRODUCTS_PER_PAGE = 1000;
 // Global variable for logging
 var commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
@@ -156,19 +156,27 @@ function fetchPaginatedProducts(sqlPool, orgModelId, pagesToFetch) {
                     numberOfProducts: incrementalProducts.length
                 });
                 var batch = db.collection('ProductModel').initializeUnorderedBulkOp();
+                var optionKey;
                 _.each(incrementalProducts, function (eachProduct) {
+                    optionKey = '';
+                    if (eachProduct.VPN) {
+                        optionKey += eachProduct.VPN + '-';
+                        optionKey += (eachProduct.ECORESCOLOR || 'NA') + '-';
+                        optionKey += eachProduct.ECORESCONFIGURATION || 'NA';
+                    }
                     batch.find({
-                        api_id: eachProduct.PRODUCTMASTERNUMBER
+                        api_id: eachProduct.ITEMID
                     }).upsert().updateOne({
                         $set: {
-                            api_id: eachProduct.PRODUCTMASTERNUMBER,
-                            name: eachProduct.PRODUCTNAME,
-                            sizeId: eachProduct.PRODUCTSIZEID,
-                            colorId: eachProduct.PRODUCTCOLORID,
-                            styleId: eachProduct.PRODUCTSTYLEID,
-                            configurationId: eachProduct.PRODUCTCONFIGURATIONID,
-                            sku: eachProduct.PRODUCTVARIANTNUMBER,
+                            api_id: eachProduct.ITEMID,
+                            name: eachProduct.NAME,
+                            sizeId: eachProduct.ECORESSIZE,
+                            colorId: eachProduct.ECORESCOLOR,
+                            styleId: eachProduct.ECORESSTYLE,
+                            configurationId: eachProduct.ECORESCONFIGURATION,
+                            // sku: eachProduct.PRODUCTVARIANTNUMBER,
                             orgModelId: ObjectId(orgModelId),
+                            optionLevelKey: optionKey,
                             updated: new Date()
                         }
                     })

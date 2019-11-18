@@ -9,10 +9,7 @@ const path = require('path');
 sql.Promise = require('bluebird');
 const _ = require('underscore');
 const Promise = require('bluebird');
-if (process.env.NODE_ENV === 'production')
-    const PRODUCT_TABLE = 'EcoResProductStaging';
-else
-    const PRODUCT_TABLE = 'EcoResProductV2Staging';
+const PRODUCT_TABLE = 'EcoResProductV2Staging';
 const PRODUCTS_PER_PAGE = 1000;
 var commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 
@@ -191,14 +188,26 @@ function fetchPaginatedProducts(sqlPool, orgModelId, pagesToFetch) {
                 var batch = db.collection('ProductModel').initializeUnorderedBulkOp();
                 _.each(incrementalProducts, function (eachProduct) {
                     var categoryModel = _.findWhere(categoryModelInstances, {name: eachProduct.RETAILPRODUCTCATEGORYNAME});
-                    batch.find({
-                        api_id: eachProduct.PRODUCTNUMBER
-                    }).upsert().updateOne({
-                        $set: {
-                            categoryModelId: categoryModel ? categoryModel._id : null,
-                            updated: new Date()
-                        }
-                    })
+                    if (categoryModel) {
+                        batch.find({
+                            api_id: eachProduct.PRODUCTNUMBER
+                        }).upsert().updateOne({
+                            $set: {
+                                categoryModelId: categoryModel ? categoryModel._id : null,
+                                updated: new Date()
+                            }
+                        });
+                    }
+                    else {
+                        batch.find({
+                            api_id: eachProduct.PRODUCTNUMBER
+                        }).upsert().updateOne({
+                            $set: {
+                                categoryModel: eachProduct.RETAILPRODUCTCATEGORYNAME,
+                                updated: new Date()
+                            }
+                        });
+                    }
                 });
                 return batch.execute();
             })

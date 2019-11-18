@@ -69,11 +69,11 @@ module.exports = function (SyncModel) {
                 var syncModels = [
                     {
                         name: 'products',
-                        tableName: 'EcoResProductVariantStaging'
+                        tableName: 'HSPRODUCTSYNCTABLEStaging'
                     },
                     {
                         name: 'productCategories',
-                        tableName: 'EcoResProductV2Staging'
+                        tableName: 'EcoResProductStaging'
                     },
                     {
                         name: 'inventoryDims',
@@ -399,7 +399,7 @@ module.exports = function (SyncModel) {
                 });
                 if (response && response.length) {
                     return Promise.map(response, function (eachStore) {
-                        if (eachStore.email) {
+                        // if (eachStore.email) { //TODO: why this check?
                             return SyncModel.app.models.StoreModel.findOrCreate({
                                 where: {
                                     storeNumber: eachStore.id,
@@ -412,7 +412,7 @@ module.exports = function (SyncModel) {
                                 email: eachStore.email,
                                 orgModelId: id
                             });
-                        }
+                        // }
                     });
                 }
                 else {

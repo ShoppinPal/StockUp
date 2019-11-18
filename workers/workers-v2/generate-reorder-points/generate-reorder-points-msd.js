@@ -114,7 +114,7 @@ module.exports = {
 function calculateMinMax(orgModelId, storeModelId, messageId) {
     try {
 
-        var inventoryModelInstancesToCalculate = [], productModels, salesModels, orgModelInstance;
+        var productModels, salesModels, orgModelInstance;
         logger.debug({
             message: 'Will calculate min/max for the following store',
             storeModelId,
@@ -271,12 +271,15 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
 
                     var batchCounter = 0, batches = [];
                     _.each(productModels, function (eachProductModel, i) {
-                        console.log('i', i);
                         if (i % 999 === 0) {
-                            console.log('pushing batch', batches.length);
+                            logger.debug({
+                                message: 'pushing batch',
+                                batchNumber: i,
+                                totalBatches: batches.length,
+                                messageId
+                            });
                             batches.push(db.collection('InventoryModel').initializeUnorderedBulkOp());
                         }
-
                         var totalQuantitiesSold = 0;
                         var totalQuantitiesSoldPerDate = {};
                         var totalNumberOfDaysSinceFirstSold;
@@ -286,8 +289,6 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                                 return eachCategoryModel._id.toString() === eachProductModel.categoryModelId.toString();
                             });
                         }
-
-                        // var correspondingCategoryModel = _.findWhere(categoryModelInstances, {_id: ObjectId(eachProductModel.categoryModelId)});
 
                         var productSales = salesGroupedByProducts[eachProductModel._id];
 
@@ -319,28 +320,12 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                             }
                             standardDeviation = Math.pow(averageMinusValueSquareSummation / totalNumberOfDaysSinceFirstSold, 0.5);
                             //tempMin is not of much use here, since we are considering a periodic replenishment system of 1 week for each store
+                            //TODO: need to take the periodic interval into account in tempMax
                             var tempMin = LEAD_TIME_IN_DAYS * (averageDailyDemand + standardDeviation) + (CSL_MULTIPLIER * standardDeviation * Math.pow(LEAD_TIME_IN_DAYS, 0.5));
                             var tempMax = (LEAD_TIME_IN_DAYS + REVIEW_TIME_IN_DAYS) * (averageDailyDemand + standardDeviation) + (CSL_MULTIPLIER * standardDeviation * Math.pow((LEAD_TIME_IN_DAYS + REVIEW_TIME_IN_DAYS), 0.5));
-                            var MIN, MAX, MDQ, maxShelfCapacity;
-                            if (correspondingCategoryModel &&
-                                correspondingCategoryModel.min &&
-                                correspondingCategoryModel.min[storeModelId]>=0 &&
-                                correspondingCategoryModel.max &&
-                                correspondingCategoryModel.max[storeModelId]>=0) {
-                                MDQ = correspondingCategoryModel.min[storeModelId];
-                                maxShelfCapacity = correspondingCategoryModel.max[storeModelId];
-                                MIN = MDQ>tempMin ? MDQ : tempMin;
-                                MAX = (tempMax + MDQ)<maxShelfCapacity ? (tempMax + MDQ) : maxShelfCapacity;
-                            }
-                            else {
-                                MIN = tempMin;
-                                MAX = tempMax;
-                            }
                             logger.debug({
                                 totalQuantitiesSoldPerDate,
                                 arrayOfDatesOfSales,
-                                MDQ: MDQ,
-                                MaxShelfCapacity: maxShelfCapacity,
                                 averageMinusValueSquareSummation,
                                 totalQuantitiesSold,
                                 totalNumberOfDaysSinceFirstSold,
@@ -353,8 +338,6 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                                 productModelId: eachProductModel._id,
                                 tempMax,
                                 tempMin,
-                                MAX,
-                                MIN,
                                 productNumber: (i + 1) + '/' + productModels.length,
                                 productName: eachProductModel.name,
                                 sku: eachProductModel.sku
@@ -370,8 +353,8 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                                     averageDailyDemandCalculationDate: new Date(),
                                     standardDeviationCalculationDate: new Date(),
                                     salesDateRangeInDays: orgModelInstance.salesDateRangeInDays,
-                                    reorder_point: MAX ? Math.round(MAX) : Math.round(tempMax), //reorder quantities to this point
-                                    reorder_threshold: MIN ? Math.round(MIN) : Math.round(tempMin), //reorder quantities if product below this level
+                                    reorder_point: Math.round(tempMax), //reorder quantities to this point
+                                    reorder_threshold: Math.round(tempMin), //reorder quantities if product below this level
                                 }
                             });
                         }
@@ -397,6 +380,7 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                             });
                         }
                     });
+
                     return Promise.map(batches, function (eachBatch, batchNumber) {
                         logger.debug({
                             message: 'Executing batch',

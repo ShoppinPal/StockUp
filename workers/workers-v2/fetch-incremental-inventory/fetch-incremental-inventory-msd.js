@@ -206,11 +206,13 @@ function fetchPaginatedInventorySums(sqlPool, orgModelId, pagesToFetch) {
                             $set: {
                                 inventoryDimId: eachInventory.INVENTDIMID[0],
                                 productModelId: productModelToAttach ? ObjectId(productModelToAttach._id) : null,
+                                categoryModelId: productModelToAttach ? ObjectId(productModelToAttach.categoryModelId) : null,
                                 product_id: eachInventory.ITEMID,
-                                inventory_level: eachInventory.PHYSICALINVENT,
+                                inventory_level: eachInventory.AVAILORDERED,
                                 storeModelId: storeModelToAttach ? ObjectId(storeModelToAttach._id) : null,
                                 outlet_id: storeModelToAttach ? storeModelToAttach.storeNumber : null,
                                 orgModelId: ObjectId(orgModelId),
+                                optionLevelKey: productModelToAttach.optionLevelKey,
                                 updatedAt: new Date()
                             }
                         });
