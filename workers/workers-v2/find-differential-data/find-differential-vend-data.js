@@ -151,7 +151,8 @@ var callFetchDataObjectsWorker = function (syncModels, orgModelId) {
         var dataObjectIndices = {
             suppliers: dataObjectNames.indexOf('suppliers'),
             products: dataObjectNames.indexOf('products'),
-            inventory: dataObjectNames.indexOf('inventory')
+            inventory: dataObjectNames.indexOf('inventory'),
+            sales: dataObjectNames.indexOf('sales')
         };
         /**
          * Do not hamper the order here, it has been put in this way because:
@@ -166,7 +167,6 @@ var callFetchDataObjectsWorker = function (syncModels, orgModelId) {
                         orgModelId,
                         message: 'Calling fetch suppliers worker'
                     });
-                    // var refinedPayload = preparePayloadForWorker(dataObjects[dataObjectIndices.suppliers], payload, messageId);
                     var fetchIncrementalSuppliers = require('./../fetch-incremental-suppliers/fetch-incremental-suppliers');
                     return fetchIncrementalSuppliers.run(vendConnectionInfo, orgModelId, syncModels[dataObjectIndices.suppliers].version);
                 }
@@ -193,9 +193,21 @@ var callFetchDataObjectsWorker = function (syncModels, orgModelId) {
                         orgModelId,
                         message: 'Calling fetch inventory worker'
                     });
-                    // var refinedPayload = preparePayloadForWorker(dataObjects[dataObjectIndices.inventory], payload, messageId);
                     var fetchIncrementalInventory = require('./../fetch-incremental-inventory/fetch-incremental-inventory');
                     return fetchIncrementalInventory.run(vendConnectionInfo, orgModelId, syncModels[dataObjectIndices.inventory].version);
+                }
+                else {
+                    return Promise.resolve();
+                }
+            })
+            .then(function () {
+                if (dataObjectIndices.sales !== -1) {
+                    logger.debug({
+                        orgModelId,
+                        message: 'Calling fetch sales worker'
+                    });
+                    var fetchIncrementalSales = require('./../fetch-incremental-sales/fetch-incremental-sales');
+                    return fetchIncrementalSales.run(vendConnectionInfo, orgModelId, syncModels[dataObjectIndices.sales].version);
                 }
                 else {
                     return Promise.resolve();
