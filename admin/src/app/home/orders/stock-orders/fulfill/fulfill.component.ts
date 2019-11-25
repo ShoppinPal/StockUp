@@ -213,6 +213,7 @@ export class FulfillComponent implements OnInit {
   searchAndIncrementProduct(sku?: string, force: boolean = false) {
     this.discrepancyModal.hide();
     this.loading = true;
+    this.searchSKUFocused = false;
     this.orgModelApi.scanBarcodeStockOrder(this.userProfile.orgModelId,
       'fulfill',
       sku,
@@ -225,8 +226,7 @@ export class FulfillComponent implements OnInit {
         } else {
           this.toastr.success('Row updated');
         }
-        this.searchInputRef.nativeElement.focus();
-        this.searchInputRef.nativeElement.select();
+        this.searchSKUFocused = true;
         this.fulfilledLineItems = [searchedOrderItem];
         this.totalFulfilledLineItems = this.fulfilledLineItems.length;
         if (!searchedOrderItem.fulfilled) {
@@ -238,6 +238,7 @@ export class FulfillComponent implements OnInit {
         this.loading = false;
       }, error => {
         this.loading = false;
+        this.searchSKUFocused = true;
         this.toastr.error(error.message);
         this.notFulfilledLineItems = [];
         this.fulfilledLineItems = [];

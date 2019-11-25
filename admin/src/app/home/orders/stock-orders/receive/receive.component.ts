@@ -213,6 +213,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   searchAndIncrementProduct(sku?: string, force: boolean = false) {
     this.discrepancyModal.hide()
     this.loading = true;
+    this.searchSKUFocused = false;
     this.orgModelApi.scanBarcodeStockOrder(this.userProfile.orgModelId,
       'receive',
       sku,
@@ -225,8 +226,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
         } else {
           this.toastr.success('Row updated');
         }
-        this.searchInputRef.nativeElement.focus();
-        this.searchInputRef.nativeElement.select();
+        this.searchSKUFocused = true;
         this.receivedLineItems = [searchedOrderItem];
         this.totalReceivedLineItems = this.receivedLineItems.length;
         if (!searchedOrderItem.received) {
@@ -239,6 +239,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       }, error => {
         this.loading = false;
         this.toastr.error(error.message);
+        this.searchSKUFocused = true;
         this.notReceivedLineItems = [];
         this.receivedLineItems = [];
         this.totalReceivedLineItems = 0;

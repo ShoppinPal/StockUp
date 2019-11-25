@@ -441,6 +441,7 @@ function markStockOrderAsSent(db, reportModelInstance, messageId) {
 }
 
 function createStockOrderLineitemForVend(db, storeModelInstance, reportModelInstance, stockOrderLineitemModelInstance, messageId) {
+    //TODO: improve this sucky way of checking vend tokens, workers get stuck in case of 20k line items
     return fetchVendToken(db, storeModelInstance.orgModelId, messageId)
         .then(function (token) {
             logger.debug({
