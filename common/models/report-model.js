@@ -679,7 +679,9 @@ module.exports = function (ReportModel) {
                 });
                 return Promise.all([ReportModel.app.models.StockOrderLineitemModel.count({
                     reportModelId: reportModelInstance.id,
-                    fulfilled: true
+                    fulfilledQuantity: {
+                        gt: 0
+                    }
                 }), reportModelInstance]);
             })
             .catch(function (error) {

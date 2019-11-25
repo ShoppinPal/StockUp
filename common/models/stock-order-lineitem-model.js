@@ -35,10 +35,13 @@ module.exports = function (StockOrderLineitemModel) {
             force,
             options
         });
+        let searchPattern = new RegExp(productSku, 'i');
         return StockOrderLineitemModel.app.models.ProductModel.findOne({
             where: {
                 orgModelId,
-                sku: productSku
+                sku: {
+                    like: searchPattern
+                }
             }
         })
             .catch(function (error) {
