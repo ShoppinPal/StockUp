@@ -141,14 +141,20 @@ module.exports = {
 };
 
 function fetchPaginatedSales(sqlPool, orgModelId, pagesToFetch) {
-    var incrementalSales;
+    var incrementalSales, rowIds;
     if (pagesToFetch>0) {
         return sqlPool.request()
             .input('sales_per_page', sql.Int, SALES_PER_PAGE)
             .input('transfer_pending_state', sql.Int, 0)
-            .query('SELECT TOP (@sales_per_page) * FROM ' + SALES_TABLE + ' WHERE STOCKUPTRANSFER = @transfer_pending_state')
+            .query('SELECT TOP (@sales_per_page) WAREHOUSE, TRANSACTIONSTATUS, TRANSACTIONNUMBER, CURRENCY,' +
+                ' SALEISRETURNSALE, NETAMOUNT, GROSSAMOUNT, DISCOUNTAMOUNT, TRANSACTIONDATE, %%physloc%% ROWID ' +
+                ' FROM ' + SALES_TABLE + ' WHERE STOCKUPTRANSFER = @transfer_pending_state')
             .then(function (result) {
                 incrementalSales = result.recordset;
+                rowIds = [];
+                rowIds = _.map(incrementalSales, function (eachSale) {
+                    return '0x' + eachSale.ROWID.toString('hex'); //TODO: find a better way of uniquely recognizing rows
+                });
                 logger.debug({
                     message: 'Fetched sales',
                     pagesToFetch,
@@ -227,10 +233,11 @@ function fetchPaginatedSales(sqlPool, orgModelId, pagesToFetch) {
                 });
                 return sqlPool.request()
                     .input('sales_per_page', sql.Int, SALES_PER_PAGE)
-                    .input('transfer_pending_state', sql.Int, 0)
                     .input('transfer_success_state', sql.Int, 1)
                     .input('transfer_time', sql.DateTime, new Date())
-                    .query('UPDATE TOP (@sales_per_page) ' + SALES_TABLE + ' SET STOCKUPTRANSFER = @transfer_success_state, STOCKUPTRANSFERTIME = @transfer_time WHERE STOCKUPTRANSFER = @transfer_pending_state ');
+                    .query('UPDATE TOP (@sales_per_page) ' + SALES_TABLE +
+                        ' SET STOCKUPTRANSFER = @transfer_success_state, STOCKUPTRANSFERTIME = @transfer_time' +
+                        ' WHERE %%physloc%% IN (' + rowIds + ')');
             })
             .then(function (result) {
                 logger.debug({

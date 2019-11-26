@@ -158,14 +158,22 @@ module.exports = {
 };
 
 function fetchPaginatedSalesLines(sqlPool, orgModelId, pagesToFetch) {
-    var incrementalSalesLines;
+    var incrementalSalesLines, rowIds;
     if (pagesToFetch>0) {
         return sqlPool.request()
             .input('sales_lines_per_page', sql.Int, SALES_LINES_PER_PAGE)
             .input('transfer_pending_state', sql.Int, 0)
-            .query('SELECT TOP (@sales_lines_per_page) * FROM ' + SALES_LINES_TABLE + ' WHERE STOCKUPTRANSFER = @transfer_pending_state')
+            .query('SELECT TOP (@sales_lines_per_page) ITEMID, TRANSACTIONNUMBER, TRANSACTIONSTATUS,' +
+                ' TRANSACTIONNUMBER, LINENUMBER, ISRETURNNOSALE, CURRENCY, NETAMOUNT, TOTALDISCOUNT,' +
+                ' SALESTAXAMOUNT, COSTAMOUNT, QUANTITY, %%physloc%% ROWID' +
+                ' FROM ' + SALES_LINES_TABLE +
+                ' WHERE STOCKUPTRANSFER = @transfer_pending_state')
             .then(function (result) {
                 incrementalSalesLines = result.recordset;
+                rowIds = [];
+                rowIds = _.map(incrementalSalesLines, function (eachSalesLine) {
+                    return '0x' + eachSalesLine.ROWID.toString('hex'); //TODO: find a better way of uniquely recognizing rows
+                });
                 logger.debug({
                     message: 'Fetched sales lines',
                     pagesToFetch,
@@ -290,10 +298,11 @@ function fetchPaginatedSalesLines(sqlPool, orgModelId, pagesToFetch) {
                     });
                     return sqlPool.request()
                         .input('sales_lines_per_page', sql.Int, SALES_LINES_PER_PAGE)
-                        .input('transfer_pending_state', sql.Int, 0)
                         .input('transfer_success_state', sql.Int, 1)
                         .input('transfer_time', sql.DateTime, new Date())
-                        .query('UPDATE TOP (@sales_lines_per_page) ' + SALES_LINES_TABLE + ' SET STOCKUPTRANSFER = @transfer_success_state, STOCKUPTRANSFERTIME = @transfer_time WHERE STOCKUPTRANSFER = @transfer_pending_state ')
+                        .query('UPDATE TOP (@sales_lines_per_page) ' + SALES_LINES_TABLE +
+                            ' SET STOCKUPTRANSFER = @transfer_success_state, STOCKUPTRANSFERTIME = @transfer_time' +
+                            ' WHERE %%physloc%% IN (' + rowIds + ')')
                 }
             })
             .catch(function (error) {
