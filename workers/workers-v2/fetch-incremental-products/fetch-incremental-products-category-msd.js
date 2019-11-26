@@ -142,14 +142,20 @@ module.exports = {
 };
 
 function fetchPaginatedProducts(sqlPool, orgModelId, pagesToFetch) {
-    var incrementalProducts;
+    var incrementalProducts, rowIds;
     if (pagesToFetch>0) {
         return sqlPool.request()
             .input('products_per_page', sql.Int, PRODUCTS_PER_PAGE)
             .input('transfer_pending_state', sql.Int, 0)
-            .query('SELECT TOP (@products_per_page) * FROM ' + PRODUCT_TABLE + ' WHERE STOCKUPTRANSFER = @transfer_pending_state')
+            .query('SELECT TOP (@products_per_page) PRODUCTNUMBER, RETAILPRODUCTCATEGORYNAME, %%physloc%% ROWID' +
+                ' FROM ' + PRODUCT_TABLE +
+                ' WHERE STOCKUPTRANSFER = @transfer_pending_state')
             .then(function (result) {
                 incrementalProducts = result.recordset;
+                rowIds = [];
+                rowIds = _.map(incrementalProducts, function (eachProduct) {
+                    return '0x' + eachProduct.ROWID.toString('hex'); //TODO: find a better way of uniquely recognizing rows
+                });
                 logger.debug({
                     message: 'Fetched products',
                     pagesToFetch,
@@ -226,10 +232,11 @@ function fetchPaginatedProducts(sqlPool, orgModelId, pagesToFetch) {
                 });
                 return sqlPool.request()
                     .input('products_per_page', sql.Int, PRODUCTS_PER_PAGE)
-                    .input('transfer_pending_state', sql.Int, 0)
                     .input('transfer_success_state', sql.Int, 1)
                     .input('transfer_time', sql.DateTime, new Date())
-                    .query('UPDATE TOP (@products_per_page) ' + PRODUCT_TABLE + ' SET STOCKUPTRANSFER = @transfer_success_state, STOCKUPTRANSFERTIME = @transfer_time WHERE STOCKUPTRANSFER = @transfer_pending_state');
+                    .query('UPDATE TOP (@products_per_page) ' + PRODUCT_TABLE +
+                        ' SET STOCKUPTRANSFER = @transfer_success_state, STOCKUPTRANSFERTIME = @transfer_time' +
+                        ' WHERE %%physloc%% IN (' + rowIds + ')');
             })
             .then(function (result) {
                 logger.debug({
