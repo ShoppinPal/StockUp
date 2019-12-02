@@ -35,7 +35,7 @@
     "supertest": "^3.0.0",
     "tracer": "0.8.7",
     "underscore": "1.8.3",
-    "vend-nodejs-sdk": "git+https://github.com/ShoppinPal/vend-nodejs-sdk.git#feature/kamal/v2-versions-and-suppliers-api"
+    "vend-nodejs-sdk": "git+https://github.com/ShoppinPal/vend-nodejs-sdk.git#feature/kamal/users-v2-api"
   },
   "devDependencies": {
     "nodemon": "1.18.3"
