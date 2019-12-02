@@ -107,24 +107,9 @@ var runMe = function (payload, config, taskId, messageId) {
                     storeModelInstance = response[0];
                     supplierModelInstance = response[1];
                     logger.debug({
-                        message: 'Found report, store and supplier instance, will update it\'s state',
+                        message: 'Found report, store and supplier instance, will create an empty purchase order in Vend',
                         response,
                         commandName,
-                        messageId
-                    });
-                    return db.collection('ReportModel').updateOne({
-                        _id: ObjectId(reportModelId)
-                    }, {
-                        $set: {
-                            state: REPORT_STATES.SENDING_TO_SUPPLIER,
-                            approvedByUserModelId: payload.loopbackAccessToken.userId
-                        }
-                    });
-                })
-                .then(function (response) {
-                    logger.debug({
-                        message: 'Updated report model status, create an empty purchase order in Vend',
-                        response,
                         messageId
                     });
                     return utils.createStockOrderForVend(db, storeModelInstance, reportModelInstance, supplierModelInstance, messageId);
@@ -217,8 +202,18 @@ var runMe = function (payload, config, taskId, messageId) {
                         sampleProduct: stockOrderLineItemModelInstances[0],
                         messageId
                     });
-                    return Promise.map(stockOrderLineItemModelInstances, function (eachLineItem) {
-                        return utils.createStockOrderLineitemForVend(db, storeModelInstance, reportModelInstance, eachLineItem, messageId)
+                    return utils.fetchVendToken(db, reportModelInstance.orgModelId, messageId);
+                })
+                .then(function (token) {
+                    logger.debug({
+                        message: 'Fetched vend token, will fetch connection info',
+                        messageId
+                    });
+                    return utils.getVendConnectionInfo(db, reportModelInstance.orgModelId, messageId);
+                })
+                .then(function (connectionInfo) {
+                    return Promise.map(stockOrderLineItemModels, function (eachLineItem) {
+                        return utils.createStockOrderLineitemForVend(db, connectionInfo, storeModelInstance, reportModelInstance, eachLineItem, messageId)
                             .then(function (vendConsignmentProduct) {
                                 logger.debug({
                                     message: 'Added product to vend consignment, will save details to db',
@@ -234,7 +229,7 @@ var runMe = function (payload, config, taskId, messageId) {
                                     }
                                 });
                             })
-                    });
+                    }, {concurrency: 1});
                 })
                 .catch(function (error) {
                     logger.error({

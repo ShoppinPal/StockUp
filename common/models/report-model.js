@@ -164,7 +164,7 @@ module.exports = function (ReportModel) {
 
                         totalOrderQuantity += lineItems[i].orderQuantity;
                         totalSupplyCost += lineItems[i].supplyPrice * lineItems[i].orderQuantity;
-                        var supplierCode = supplier ? supplier.api_id: '';
+                        var supplierCode = supplier ? supplier.api_id : '';
                         csvArray.push({
                             'SKU': lineItems[i].productModel().sku,
                             'Ordered': lineItems[i].orderQuantity,
@@ -569,8 +569,8 @@ module.exports = function (ReportModel) {
             reportModelId: reportModelId,
             loopbackAccessToken: options.accessToken,
             op: 'createPurchaseOrderVend',
-            callId: options.accessToken.userId,
-            eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
+            callId: reportModelId,
+            eventType: workerUtils.messageFor.MESSAGE_FOR_API,
         };
         var report;
         return ReportModel.findById(reportModelId)
@@ -589,28 +589,38 @@ module.exports = function (ReportModel) {
                         functionName: 'createPurchaseOrderVend'
                     });
                     return Promise.reject('Purchase Order already created for this report');
-                }else if (reportModelInstance.state === REPORT_STATES.SENDING_TO_SUPPLIER) {
+                }
+                else if (reportModelInstance.state === REPORT_STATES.SENDING_TO_SUPPLIER) {
                     logger.debug({
                         message: 'Purchase order creation in progress',
                         options,
                         functionName: 'createPurchaseOrderVend'
                     });
                     return Promise.reject('Purchase order creation in progress');
-                }else if (reportModelInstance.state === REPORT_STATES.APPROVAL_IN_PROCESS ||
+                }
+                else if (reportModelInstance.state === REPORT_STATES.APPROVAL_IN_PROCESS ||
                     reportModelInstance.state === REPORT_STATES.ERROR_SENDING_TO_SUPPLIER) {
                     logger.debug({
-                        message: 'Will call createPurchaseOrderVend worker',
+                        message: 'Will update order state and call createPurchaseOrderVend worker',
                         options,
                         functionName: 'createPurchaseOrderVend'
                     });
-                    res.send({
-                        eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
-                        callId: options.accessToken.userId,
-                        message: 'Purchase Order Generation initiated',
-                        data: {}
-                    });
-                    return workerUtils.sendPayLoad(payload);
-                }else {
+                    return ReportModel.updateAll({
+                        id: reportModelId
+                    }, {
+                        state: REPORT_STATES.SENDING_TO_SUPPLIER
+                    })
+                        .then(function (response) {
+                            res.send({
+                                eventType: workerUtils.messageFor.MESSAGE_FOR_API,
+                                callId: reportModelId,
+                                message: 'Purchase Order Generation initiated',
+                                data: {}
+                            });
+                            return workerUtils.sendPayLoad(payload);
+                        });
+                }
+                else {
                     logger.debug({
                         message: 'Only GENERATED orders will be pushed to Vend',
                         options,

@@ -23,9 +23,9 @@ let cleanUsersIfInactive = (sseUsers) => {
         let currenTime = new Date();
 
         logger.debug('cleaning inactive user streams');
-    
+
         for(let i = 0; i < totalKeys; i++) {
-            
+
             if(currenTime - sseUsers[keys[i]].timeStamp >= maxIdleTime) {
                 sseUsers[keys[i]].res.end();
                 delete sseUsers[keys[i]];
@@ -46,6 +46,11 @@ let cleanApiIfInactive = (sseApi) => {
 
             if(currenTime - sseApi[keys[i]].timeStamp >= maxIdleTime) {
                 sseApi[keys[i]].res.end();
+                logger.debug({
+                    message: 'Ended API stream for call id',
+                    callId: keys[i],
+                    functionName: 'cleanApiIfInactive'
+                });
                 delete sseApi[keys[i]];
             }
         }
