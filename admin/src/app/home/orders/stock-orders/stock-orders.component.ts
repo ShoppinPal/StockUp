@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ChangeDetectorRef} from '@angular/core';
 import {OrgModelApi} from "../../../shared/lb-sdk/services/custom/OrgModel";
 import {ActivatedRoute, Router} from '@angular/router';
 import {Observable, Subscription} from 'rxjs';
@@ -65,6 +65,7 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
               private _router: Router,
               private toastr: ToastrService,
               private _userProfileService: UserProfileService,
+              private changeDetector: ChangeDetectorRef,
               private auth: LoopBackAuth,
               private _eventSourceService: EventSourceService,
               private _stockOrdersResolverService: StockOrdersResolverService) {
@@ -136,6 +137,7 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
               this.completedOrders[i].totalRows = orderRowCount ? orderRowCount.receivedRows : 0;
             }
           }
+          this.changeDetector.detectChanges();
         },
         err => {
           console.log('err row counts', err);
@@ -177,14 +179,13 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
   };
 
   populateOrders(stockOrders) {
-
     if (stockOrders.generatedOrders) {
       this.generatedOrders = stockOrders.generatedOrders;
       this.pendingGeneratedOrdersCount = stockOrders.pendingGeneratedOrdersCount;
       this.totalGeneratedOrders = stockOrders.generatedOrdersCount;
       this.totalGeneratedOrdersPages = this.totalGeneratedOrders / this.ordersLimitPerPage;
       this.generatedOrders.forEach(order => {
-        if (order.state === 'Processing') {
+        if (order.state === constants.REPORT_STATES.PROCESSING || order.state === constants.REPORT_STATES.SENDING_TO_SUPPLIER) {
           this.waitForStockOrderNotification(order.id)
         }
       })
@@ -233,16 +234,32 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
             where: {
               id: event.data.reportModelId
             },
-            include: ['storeModel', 'userModel', 'supplierModel'],
+            include: ['storeModel', 'userModel', 'supplierModel', 'deliverFromStoreModel'],
           })
               .subscribe(reportModels => {
                 const reportModel = reportModels[0];
                 const reportIndex = this.generatedOrders.findIndex((report) => report.id === event.data.reportModelId);
                 this.generatedOrders[reportIndex] = reportModel;
-                if (event.data.success === true) {
-                  this.toastr.success('Generated Stock Order Success');
-                } else {
-                  this.toastr.error('Error Generating Stock Order');
+                console.log(reportModel.state, constants.REPORT_STATES.FULFILMENT_PENDING, constants.REPORT_STATES.FULFILMENT_PENDING === reportModel.state);
+                if (reportModel.state === constants.REPORT_STATES.GENERATED) {
+                  this.toastr.success('Generated Stock Order Success', '', {
+                    onActivateTick: true
+                  });
+                }
+                else if (reportModel.state === constants.REPORT_STATES.FULFILMENT_PENDING) {
+                  this.toastr.success('Order submitted for fulfilment successfully', '', {
+                    onActivateTick: true
+                  });
+                }
+                else if(reportModel.state === constants.REPORT_STATES.PROCESSING_FAILURE){
+                  this.toastr.error('Error Generating Stock Order', '', {
+                    onActivateTick: true
+                  });
+                }
+                else if(reportModel.state === constants.REPORT_STATES.ERROR_SENDING_TO_SUPPLIER) {
+                  this.toastr.error('Error in sending order for fulfilment', '', {
+                    onActivateTick: true
+                  });
                 }
                 this.fetchOrderRowCounts();
               });

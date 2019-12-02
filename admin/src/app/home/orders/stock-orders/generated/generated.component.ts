@@ -337,7 +337,11 @@ export class GeneratedComponent implements OnInit, OnDestroy {
         }
       ).subscribe(purchaseOrderRequest => {
         this.loading = false;
-        this.waitForGeneration(purchaseOrderRequest.callId);
+        if (this.emailModalData.sendEmail) {
+          this.toastr.success('Sent email successfully');
+        }
+        this.toastr.info('Pushing purchase order to Vend');
+        this._router.navigate(['/orders/stock-orders']);
       }, error1 => {
         this.creatingPurchaseOrderVend = false;
         this.loading = false;
@@ -412,26 +416,6 @@ export class GeneratedComponent implements OnInit, OnDestroy {
           this.toastr.error('Error updating order state, please refresh');
         });
   };
-
-  waitForGeneration(callId) {
-    const EventSourceUrl = `/notification/${callId}/waitForResponse`;
-    this.subscriptions.push(
-      this._eventSourceService.connectToStream(EventSourceUrl)
-        .subscribe(([event, es]) => {
-          if (event.data.success === true) {
-            es.close();
-            this.creatingPurchaseOrderVend = false;
-            this.creatingTransferOrder = false;
-            this._router.navigate(['/orders/stock-orders']);
-            this.toastr.success('Order sent successfully');
-          } else {
-            this.creatingPurchaseOrderVend = false;
-            this.creatingTransferOrder = false;
-            this.toastr.error('Error in sending order to supplier');
-          }
-        })
-    );
-  }
 
   downloadOrderCSV() {
     this.loading = true;

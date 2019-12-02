@@ -69,7 +69,8 @@ private userProfile: any;
       state: {
         inq: [
           constants.REPORT_STATES.GENERATED,
-          constants.REPORT_STATES.APPROVAL_IN_PROCESS
+          constants.REPORT_STATES.APPROVAL_IN_PROCESS,
+          constants.REPORT_STATES.PROCESSING_FAILURE
         ]
       },
       deletedAt: {

@@ -188,7 +188,6 @@ export class CreateOrderComponent implements OnInit {
         ).subscribe(reportModelData => {
           this.loading = false;
           this.toastr.info('Generating stock order');
-          console.log(reportModelData);
           this._router.navigate(['/orders/stock-orders']);
         }, error => {
           this.loading = false;

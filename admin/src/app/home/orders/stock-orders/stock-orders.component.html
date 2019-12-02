@@ -45,7 +45,7 @@
                      'text-success': order.state === REPORT_STATES.APPROVAL_IN_PROCESS || order.state === REPORT_STATES.GENERATED
                    }">
                     {{order.state}}
-                    <div *ngIf="order.state === 'Processing'" class="spinner-border spinner-border-sm text-success" role="status">
+                    <div *ngIf="order.state === REPORT_STATES.PROCESSING || order.state === REPORT_STATES.SENDING_TO_SUPPLIER" class="spinner-border spinner-border-sm text-success" role="status">
                       <span class="sr-only">Loading...</span>
                     </div>
                   </td>

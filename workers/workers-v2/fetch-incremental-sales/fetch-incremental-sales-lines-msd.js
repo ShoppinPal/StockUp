@@ -164,7 +164,7 @@ function fetchPaginatedSalesLines(sqlPool, orgModelId, pagesToFetch) {
             .input('sales_lines_per_page', sql.Int, SALES_LINES_PER_PAGE)
             .input('transfer_pending_state', sql.Int, 0)
             .query('SELECT TOP (@sales_lines_per_page) ITEMID, TRANSACTIONNUMBER, TRANSACTIONSTATUS,' +
-                ' TRANSACTIONNUMBER, LINENUMBER, ISRETURNNOSALE, CURRENCY, NETAMOUNT, TOTALDISCOUNT,' +
+                ' LINENUMBER, ISRETURNNOSALE, CURRENCY, NETAMOUNT, TOTALDISCOUNT,' +
                 ' SALESTAXAMOUNT, COSTAMOUNT, QUANTITY, %%physloc%% ROWID' +
                 ' FROM ' + SALES_LINES_TABLE +
                 ' WHERE STOCKUPTRANSFER = @transfer_pending_state')

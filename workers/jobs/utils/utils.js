@@ -440,26 +440,14 @@ function markStockOrderAsSent(db, reportModelInstance, messageId) {
         });
 }
 
-function createStockOrderLineitemForVend(db, storeModelInstance, reportModelInstance, stockOrderLineitemModelInstance, messageId) {
-    //TODO: improve this sucky way of checking vend tokens, workers get stuck in case of 20k line items
-    return fetchVendToken(db, storeModelInstance.orgModelId, messageId)
-        .then(function (token) {
-            logger.debug({
-                message: 'Fetched vend token, will fetch connection info',
-                messageId,
-                functionName: 'createStockOrderLineitemForVend'
-            });
-            return getVendConnectionInfo(db, storeModelInstance.orgModelId, messageId);
-        })
-        .then(function (connectionInfo) {
-            var consignmentProduct = {
-                'consignment_id': reportModelInstance.vendConsignmentId,
-                'product_id': stockOrderLineitemModelInstance.product_id,
-                'count': stockOrderLineitemModelInstance.count,
-                'cost': stockOrderLineitemModelInstance.supplyPrice
-            };
-            return vendSdk.consignments.products.create({body: consignmentProduct}, connectionInfo);
-        })
+function createStockOrderLineitemForVend(db, connectionInfo, storeModelInstance, reportModelInstance, stockOrderLineitemModelInstance, messageId) {
+    var consignmentProduct = {
+        'consignment_id': reportModelInstance.vendConsignmentId,
+        'product_id': stockOrderLineitemModelInstance.product_id,
+        'count': stockOrderLineitemModelInstance.count,
+        'cost': stockOrderLineitemModelInstance.supplyPrice
+    };
+    return vendSdk.consignments.products.create({body: consignmentProduct}, connectionInfo)
         .catch(function (error) {
             logger.error({
                 message: 'Error creating consignment product in vend',
