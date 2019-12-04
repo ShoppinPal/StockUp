@@ -19,7 +19,7 @@
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="icon-lock"></i></span>
                 </div>
-                <input type="password" #password class="form-control" placeholder="Password">
+                <input type="password" #password class="form-control" placeholder="Password" (keyup)="onKey($event,username.value, password.value)">
               </div>
               <div class="row mb-2">
                 <div class="col-6">
