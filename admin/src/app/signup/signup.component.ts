@@ -94,7 +94,6 @@ export class SignupComponent implements OnInit {
   onKey(event) {
     if(event.keyCode === '13' && (this.user.password !== undefined && this.user.password !== null && this.confirmPassword !== undefined && this.confirmPassword !== null)) {
       this.signup();
-    } 
+    }
   }
-
 }
