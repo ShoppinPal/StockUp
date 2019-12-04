@@ -76,7 +76,7 @@ export class BinLocationsComponent implements OnInit {
       this.readingBarcode = setTimeout(() => {
         this.searchSKU();
       }, 1000);
-    }
+    } 
   }
 
   /**
@@ -203,5 +203,16 @@ export class BinLocationsComponent implements OnInit {
           console.log('Error in finding product', error);
         });
   }
+
+  /**
+   * @description Function to search if enter button event is being triggered
+   * @param event
+   */
+  keyUpEvent(event) {
+    if(event.keyCode == '13' && !this.enableBarcode) {
+      this.searchSKU();
+    }
+  }
+
 }
 

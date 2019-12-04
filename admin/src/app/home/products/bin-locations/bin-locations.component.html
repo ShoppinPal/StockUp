@@ -18,7 +18,7 @@
                          [(ngModel)]="searchSKUText"
                          placeholder="Scan SKU barcode here or enter text"
                          [appAutoFocus]="searchSKUFocused"
-                         (keyup)="barcodeSearchSKU()">
+                         (keyup)="barcodeSearchSKU()" (keyup)="keyUpEvent($event)">
                   <span class="input-group-btn">
                     <button class="btn btn-primary" type="button" (click)="searchSKU()">
                       <i class="fa fa-search"></i> Search
