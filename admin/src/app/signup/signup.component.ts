@@ -58,6 +58,7 @@ export class SignupComponent implements OnInit {
   }
 
   onKey(event) {
+    // console.log("event.keyCode : ",event.keyCode);
     if(event.keyCode == '13') {
       this.signup();
     }
