@@ -136,4 +136,10 @@ export class CompleteComponent implements OnInit {
     // console.log(event);
   }
 
+   keyUpEvent(event, searchSKUText) {
+    if(event.keyCode == '13' && !this.enableBarcode) {
+      this.searchProductBySku(searchSKUText)
+    }
+  }
+
 }
