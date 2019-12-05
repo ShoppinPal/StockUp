@@ -78,6 +78,7 @@
                          id="searchSKU"
                          [selectText]="enableBarcode"
                          [(ngModel)]="searchSKUText"
+                         (keyup)="keyUpEvent($event, searchSKUText)"
                          [appAutoFocus]="searchSKUFocused"
                          (appDebounceKeyUp)="barcodeSearchSKU($event)"
                          placeholder="Scan SKU barcode here or enter text">
