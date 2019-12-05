@@ -504,7 +504,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
   }
 
   keyUpEvent(event, searchSKUText) {
-    if(event.keyCode == '13' && !this.enableBarcode) {
+    if(event.keyCode == '13') {
       this.searchProductBySku(searchSKUText)
     }
   }
