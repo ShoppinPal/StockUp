@@ -8,11 +8,11 @@ import * as moment from 'moment';
 })
 export class SchedulePickerComponent implements OnInit {
   public static SCHEDULING_TYPES = {
-    HOURLY: 'Hourly',
-    DAILY: 'Daily',
+    YEARLY: 'Yearly',
     MONTHLY: 'Monthly',
     WEEKLY: 'Weekly',
-    YEARLY: 'Yearly'
+    DAILY: 'Daily',
+    HOURLY: 'Hourly',
   };
   public SCHEDULING_TYPE = SchedulePickerComponent.SCHEDULING_TYPES;
   public minutesOffset = Math.abs(new Date().getTimezoneOffset() % 60);
