@@ -80,6 +80,7 @@
                          [appAutoFocus]="searchSKUFocused"
                          [selectText]="enableBarcode"
                          (appDebounceKeyUp)="barcodeSearchSKU($event)"
+                         (keyup)="keyUpEvent($event, searchSKUText)"
                          placeholder="Scan SKU barcode here or enter text">
                   <span class="input-group-append">
                     <button class="btn btn-primary" type="button"
