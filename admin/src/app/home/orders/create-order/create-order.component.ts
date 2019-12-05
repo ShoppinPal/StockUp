@@ -103,6 +103,7 @@ export class CreateOrderComponent implements OnInit {
       );
       if (!validationResult.validated) {
         this.toastr.error(validationResult.message);
+        this.loading = false;
         return;
       }
       schedulingData = SchedulePickerComponent.convertTimeToUTCandAppend(
