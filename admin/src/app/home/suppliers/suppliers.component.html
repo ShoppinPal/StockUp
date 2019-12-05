@@ -14,6 +14,7 @@
                          class="form-control"
                          id="searchSupplier"
                          [(ngModel)]="searchSupplierText"
+                         (keyup)="keyUpEvent($event, searchSupplierText)"
                          placeholder="Enter supplier name">
                     <span class="input-group-append">
                     <button class="btn btn-primary" type="button" (click)="searchSupplier()">
