@@ -61,6 +61,7 @@ export class StoresComponent implements OnInit {
         this.loading = false;
         this.toastr.success('Created store successfully');
         this.fetchStores();
+        this.storeName = '';
       }, err => {
         this.loading = false;
         this.toastr.error('Could not create store');
