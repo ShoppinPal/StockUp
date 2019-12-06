@@ -293,6 +293,7 @@ function sendSlackMessage(title, message, success) {
     var webhookUri = process.env.SLACK_NOTIFICATION_URL;
     var slack = new Slack();
     slack.setWebhook(webhookUri);
+    var emoji = ':gear:';
     if (!success) {
         emoji = ':skull:';
         color = 'danger';

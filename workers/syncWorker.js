@@ -285,5 +285,7 @@ function routeToWorker(syncModels) {
                 });
                 return Promise.resolve('Could not update sync status, will move on');
             });
+    }, {
+        concurrency: 1
     });
 }

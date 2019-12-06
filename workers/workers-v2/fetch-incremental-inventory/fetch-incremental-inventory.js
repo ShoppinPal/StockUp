@@ -85,7 +85,7 @@ var runMe = function (vendConnectionInfo, orgModelId, dataObject) {
                     //Initialize the array of unordered batches
                     var batchesArray = [];
                     batchesArray[0] = db.collection('InventoryModel').initializeUnorderedBulkOp();
-                    var batchCounter = 0, inventoryCounter = 0;
+                    var batchCounter = 0, inventoryCounter = 0, invalidInventoryCounter = 0;
                     //Add some operations to be executed
                     _.each(incrementalInventory, function (eachInventory, iteratee) {
                         var productModelToAttach = _.findWhere(productModelInstances, {api_id: eachInventory.product_id});
@@ -109,6 +109,14 @@ var runMe = function (vendConnectionInfo, orgModelId, dataObject) {
                                 }
                             });
                         }
+                        else {
+                            logger.debug({
+                                message: 'Could not find a store or product for this inventory',
+                                eachInventory,
+                                orgModelId
+                            });
+                            invalidInventoryCounter++;
+                        }
                         process.stdout.write('\033[0G');
                         process.stdout.write('Percentage completed: ' + Math.round((iteratee / incrementalInventory.length) * 100) + '%');
                         iteratee++;
@@ -122,6 +130,11 @@ var runMe = function (vendConnectionInfo, orgModelId, dataObject) {
                                 message: `Batch ${batchCounter} of ${maxBatchSize} inventory ready`
                             });
                         }
+                    });
+                    logger.debug({
+                        message: 'Total invalid inventory count',
+                        invalidInventoryCounter,
+                        orgModelId
                     });
                     var batchSize = (incrementalInventory.length - (batchCounter * maxBatchSize));
                     logger.debug({

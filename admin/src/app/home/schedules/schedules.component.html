@@ -26,7 +26,7 @@
             <tr *ngFor="let schedule of schedules">
               <td>{{getFormattedJobType(schedule.jobType)}}</td>
               <td>{{schedule.data.name}}</td>
-              <td>{{getFormattedFrequency(schedule)}}</td>
+              <td>{{schedule.frequency}}</td>
               <td>{{getLocalFormattedTime(schedule.lastGoodRun)}}</td>
               <td>
                 <div class="input-group">

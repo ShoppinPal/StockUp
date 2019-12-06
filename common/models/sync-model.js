@@ -33,12 +33,12 @@ module.exports = function (SyncModel) {
         })
             .then(function (syncModels) {
                 logger.debug({
-                    message: 'Sync models created',
+                    message: 'Sync models created, will initiate a scheduled inventory check',
                     options,
                     syncModels,
                     functionName: 'initiateVendSync'
                 });
-                return Promise.resolve(syncModels.length);
+                return SyncModel.app.models.SchedulerModel.addSchedule(id, 'checkVendInventory', 'Daily', '', '', 0, '', {}, options);
             })
             .catch(function (error) {
                 // log('initiateSync').error('ERROR', error);
@@ -53,7 +53,6 @@ module.exports = function (SyncModel) {
     };
 
     SyncModel.initiateMSDSync = function (id, options) {
-
         logger.debug({
             message: 'Will look for org\'s integration model for database details',
             functionName: 'initiateMSDSync',

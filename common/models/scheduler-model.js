@@ -33,7 +33,8 @@ module.exports = function (SchedulerModel) {
                     ctx,
                     functionName: 'after save'
                 });
-                if (ctx.instance.jobType === SchedulerModel.JOB_TYPES.STOCK_ORDER) {
+                if (ctx.instance.jobType === SchedulerModel.JOB_TYPES.STOCK_ORDER ||
+                    ctx.instance.jobType === SchedulerModel.JOB_TYPES.CHECK_VEND_INVENTORY) {
                     SchedulerModel.runScheduledStockOrderJob(ctx.instance);
                 }
                 else {
@@ -68,7 +69,8 @@ module.exports = function (SchedulerModel) {
                         instance: ctx.instance,
                         functionName: 'after save'
                     });
-                    if (ctx.instance.jobType === SchedulerModel.JOB_TYPES.STOCK_ORDER) {
+                    if (ctx.instance.jobType === SchedulerModel.JOB_TYPES.STOCK_ORDER ||
+                        ctx.instance.jobType === SchedulerModel.JOB_TYPES.CHECK_VEND_INVENTORY) {
                         SchedulerModel.runScheduledStockOrderJob(ctx.instance);
                     }
                     else {
@@ -104,7 +106,7 @@ module.exports = function (SchedulerModel) {
 
             }
             else if (frequency === SchedulerModel.FREQUENCY.DAILY) {
-                cronSchedule = '0 0  ' + hour + ' * * *';
+                cronSchedule = '0 0 ' + hour + ' * * *';
             }
             else if (frequency === SchedulerModel.FREQUENCY.WEEKLY) {
                 cronSchedule = '0 0 ' + hour + ' * * ' + weekDay.toString();
@@ -124,7 +126,8 @@ module.exports = function (SchedulerModel) {
     }
 
     SchedulerModel.JOB_TYPES = {
-        STOCK_ORDER: 'stock-order'
+        STOCK_ORDER: 'stock-order',
+        CHECK_VEND_INVENTORY: 'checkVendInventory'
     };
     SchedulerModel.FREQUENCY = {
         YEARLY: 'Yearly',
@@ -245,6 +248,7 @@ module.exports = function (SchedulerModel) {
                 logger.error({
                     message: 'Could not find user who created the job',
                     error,
+                    scheduledJobInstance,
                     functionName: 'runScheduledStockOrderJob'
                 });
                 return Promise.reject('Could not find user who created the job');
@@ -253,56 +257,30 @@ module.exports = function (SchedulerModel) {
                 logger.debug({
                     message: 'Found this user, will create a short-lived access token',
                     userModelInstance,
+                    scheduledJobInstance,
                     functionName: 'runScheduledStockOrderJob'
                 });
                 return userModelInstance.createAccessToken(7200);
             })
             .then(function (accessToken) {
                 logger.debug({
-                    message: 'Created a short lived token for user, will create stock order',
-                    functionName: 'runScheduledStockOrderJob'
+                    message: 'Created a short lived token for user, will redirect to corresponding scheduler function',
+                    functionName: 'runScheduledStockOrderJob',
+                    scheduledJobInstance
                 });
-                if (scheduledJobInstance.data.integrationType === 'vend') {
-                    return SchedulerModel.app.models.ReportModel.generateStockOrderVend(
-                        scheduledJobInstance.orgModelId,
-                        scheduledJobInstance.data.storeModelId,
-                        scheduledJobInstance.data.supplierModelId,
-                        scheduledJobInstance.data.name,
-                        scheduledJobInstance.data.warehouseModelId,
-                        undefined,
-                        {accessToken}
-                    )
-                        .catch(function (error) {
-                            logger.error({
-                                message: 'Could not create stock order for vend',
-                                error,
-                                functionName: 'runScheduledStockOrderJob'
-                            });
-                            return Promise.reject('Could not create stock order for vend');
-                        });
+                if (scheduledJobInstance.jobType === SchedulerModel.JOB_TYPES.STOCK_ORDER) {
+                    return runScheduledStockOrder(scheduledJobInstance, accessToken);
                 }
-                else if (job.data.integrationType === 'msdynamics') {
-                    return SchedulerModel.app.models.ReportModel.generateStockOrderMSD(
-                        scheduledJobInstance.orgModelId,
-                        scheduledJobInstance.data.storeModelId,
-                        scheduledJobInstance.data.warehouseModelId,
-                        scheduledJobInstance.data.categoryModelId,
-                        undefined,
-                        {accessToken}
-                    )
-                        .catch(function (error) {
-                            logger.error({
-                                message: 'Could not create stock order for MSD',
-                                error,
-                                functionName: 'runScheduledStockOrderJob'
-                            });
-                            return Promise.reject('Could not create stock order for MSD');
-                        });
+                else if (scheduledJobInstance.jobType === SchedulerModel.JOB_TYPES.CHECK_VEND_INVENTORY) {
+                    return runScheduledCheckVendInventory(scheduledJobInstance, accessToken);
+                }
+                else {
+                    return Promise.resolve('Job type not supported');
                 }
             })
             .then(function (response) {
                 logger.debug({
-                    message: 'Created stock order, will update scheduled order time run',
+                    message: 'Executed scheduled job, will update scheduled order time run',
                     response,
                     functionName: 'runScheduledStockOrderJob'
                 });
@@ -321,6 +299,65 @@ module.exports = function (SchedulerModel) {
                 return Promise.reject('Could not update scheduled order run time');
             });
     };
+
+    function runScheduledStockOrder(scheduledJobInstance, accessToken) {
+        logger.debug({
+            message: 'Will create scheduled stock order',
+            scheduledJobInstance,
+            functionName: 'runScheduledStockOrder'
+        });
+        if (scheduledJobInstance.data.integrationType === 'vend') {
+            return SchedulerModel.app.models.ReportModel.generateStockOrderVend(
+                scheduledJobInstance.orgModelId,
+                scheduledJobInstance.data.storeModelId,
+                scheduledJobInstance.data.supplierModelId,
+                scheduledJobInstance.data.name,
+                scheduledJobInstance.data.warehouseModelId,
+                undefined,
+                {accessToken}
+            )
+                .catch(function (error) {
+                    logger.error({
+                        message: 'Could not create stock order for vend',
+                        error,
+                        functionName: 'runScheduledStockOrder'
+                    });
+                    return Promise.reject('Could not create stock order for vend');
+                });
+        }
+        else if (scheduledJobInstance.data.integrationType === 'msdynamics') {
+            return SchedulerModel.app.models.ReportModel.generateStockOrderMSD(
+                scheduledJobInstance.orgModelId,
+                scheduledJobInstance.data.storeModelId,
+                scheduledJobInstance.data.warehouseModelId,
+                scheduledJobInstance.data.categoryModelId,
+                undefined,
+                {accessToken}
+            )
+                .catch(function (error) {
+                    logger.error({
+                        message: 'Could not create stock order for MSD',
+                        error,
+                        functionName: 'runScheduledStockOrder'
+                    });
+                    return Promise.reject('Could not create stock order for MSD');
+                });
+        }
+    }
+
+    function runScheduledCheckVendInventory(scheduledJobInstance, accessToken) {
+
+        logger.debug({
+            message: 'Will call checkVendInventory worker',
+            scheduledJobInstance,
+            functionName: 'runScheduledCheckVendInventory'
+        });
+        return workerUtils.sendPayLoad({
+            orgModelId: scheduledJobInstance.orgModelId,
+            op: 'checkVendInventory',
+            loopbackAccessToken: accessToken,
+        });
+    }
 
     SchedulerModel.activeCronJobs = {};
 

@@ -13,7 +13,6 @@ module.exports = function (app) {
     return SchedulerModel.find({
         where: {
             active: true,
-            jobType: SchedulerModel.JOB_TYPES.STOCK_ORDER,
             deleted: false
         }
     })
