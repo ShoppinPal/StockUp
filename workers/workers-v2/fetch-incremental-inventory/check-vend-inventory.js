@@ -17,6 +17,7 @@ var runMe = function (payload, config, taskId, messageId) {
         var db = null; //database connected
         var incrementalInventory;
         var maxBatchSize = 1000;
+        var vendConnectionInfo;
         var invalidInventoryCounter = 0, inventoryNotFoundCounter = 0;
         try {
             // process.env['User-Agent'] = taskId + ':' + messageId + ':' + commandName + ':' + payload.domainPrefix;
@@ -60,7 +61,8 @@ var runMe = function (payload, config, taskId, messageId) {
                     });
                     return utils.getVendConnectionInfo(db, orgModelId, messageId);
                 })
-                .then(function (vendConnectionInfo) {
+                .then(function (response) {
+                    vendConnectionInfo = response;
                     var argsForInventory = vendSdk.args.inventory.fetchAll();
                     argsForInventory.after.value = 0;
                     argsForInventory.pageSize.value = maxBatchSize;
@@ -101,7 +103,7 @@ var runMe = function (payload, config, taskId, messageId) {
                                     orgModelId,
                                     messageId
                                 });
-                                _.each(eachChunkOfApiIds, function (eachInventoryApiId) {
+                                return Promise.map(eachChunkOfApiIds, function (eachInventoryApiId) {
                                     var inventoryFound = _.findWhere(inventoryModelInstances, {api_id: eachInventoryApiId});
                                     var vendInventory = _.findWhere(incrementalInventory, {id: eachInventoryApiId});
                                     if (inventoryFound) {
@@ -115,18 +117,45 @@ var runMe = function (payload, config, taskId, messageId) {
                                             });
                                             invalidInventoryCounter++;
                                         }
+                                        return Promise.resolve();
                                     }
                                     else {
                                         logger.debug({
-                                            message: 'Could not find this inventory',
+                                            message: 'Could not find this inventory, will try to see if product is active',
                                             vendInventory,
                                             orgModelId,
                                             messageId
                                         });
-                                        inventoryNotFoundCounter++;
+                                        var argsForProduct = vendSdk.args.products.fetchById();
+                                        argsForProduct.apiId.value = vendInventory.product_id;
+                                        return vendSdk.products.fetchByIdV2(argsForProduct, vendConnectionInfo)
+                                            .then(function (response) {
+                                                var vendProduct = response ? response.data : null;
+                                                if (vendProduct && response.active && !response.deleted_at) {
+                                                    logger.debug({
+                                                        message: 'Found product in vend and is active',
+                                                        vendProduct,
+                                                        messageId,
+                                                        orgModelId,
+                                                        vendInventory
+                                                    });
+                                                    inventoryNotFoundCounter++;
+                                                }
+                                                else {
+                                                    logger.debug({
+                                                        message: 'Product is either inactive or deleted in Vend',
+                                                        vendProduct,
+                                                        messageId,
+                                                        orgModelId,
+                                                        vendInventory
+                                                    });
+                                                }
+                                                return Promise.resolve();
+                                            });
                                     }
+                                }, {
+                                    concurrency: 1
                                 });
-                                return Promise.resolve();
                             })
                     }, {
                         concurrency: 1
@@ -141,13 +170,18 @@ var runMe = function (payload, config, taskId, messageId) {
                         orgModelId,
                         messageId
                     });
+
                     var slackMessage = 'Vend inventory check found: ' +
                         '\n Invalid Inventory Data' + ': ' + invalidInventoryCounter +
                         '\n Inventory Data not found: ' + inventoryNotFoundCounter +
                         '\n orgModelId: ' + orgModelId +
-                        '\n Environment: ' + process.env.NODE_ENV +
+                        '\n Environment: ' + process.env.APP_HOST_NAME +
                         '\n MessageId: ' + messageId;
-                    utils.sendSlackMessage('Check Vend Inventory Worker', slackMessage, true);
+                    var slackSuccess = true;
+                    if(invalidInventoryCounter > 0 || inventoryNotFoundCounter > 0) {
+                        slackSuccess = false;
+                    }
+                    utils.sendSlackMessage('Check Vend Inventory Worker', slackMessage, slackSuccess);
                     return Promise.resolve();
                 })
                 .finally(function () {

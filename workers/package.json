@@ -1,7 +1,7 @@
 {
-  "name": "warehouse-workers",
+  "name": "stockup-workers",
   "version": "1.0.0",
-  "description": "Background workers for the Warehouse webapp",
+  "description": "Background workers for the Stockup webapp",
   "main": "server.js",
   "dependencies": {
     "asking": "0.1.2",
@@ -44,6 +44,6 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
-  "author": "pulkit@shoppinpal.com",
+  "author": "kamal@shoppinpal.com",
   "license": "GNU GENERAL PUBLIC LICENSE Version 2, June 1991"
 }
