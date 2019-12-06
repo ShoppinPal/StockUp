@@ -531,26 +531,28 @@ function generateStockOrder(payload, config, taskId, messageId) {
                                         optionOrderQuantity,
                                         messageId
                                     });
-                                    lineItemsToOrder.push({
-                                        reportModelId: ObjectId(reportModel._id),
-                                        productModelId: ObjectId(eachProduct.productModelId),
-                                        storeModelId: ObjectId(storeModelId),
-                                        orgModelId: ObjectId(orgModelId),
-                                        orderQuantity: Math.round(productOrderQuantity),
-                                        storeInventory: eachProduct.inventory_level,
-                                        warehouseInventory: warehouseQuantity,
-                                        originalOrderQuantity: Math.round(productOrderQuantity),
-                                        categoryModelId: ObjectId(optionInventory.categoryModel[0]._id),
-                                        categoryModelName: optionInventory.categoryModel[0].name,  //need for sorting
-                                        fulfilledQuantity: 0,
-                                        receivedQuantity: 0,
-                                        fulfilled: false,
-                                        received: false,
-                                        state: 'unboxed',
-                                        approved: false,
-                                        createdAt: new Date(),
-                                        updatedAt: new Date()
-                                    });
+                                    if (productOrderQuantity>0) {
+                                        lineItemsToOrder.push({
+                                            reportModelId: ObjectId(reportModel._id),
+                                            productModelId: ObjectId(eachProduct.productModelId),
+                                            storeModelId: ObjectId(storeModelId),
+                                            orgModelId: ObjectId(orgModelId),
+                                            orderQuantity: Math.round(productOrderQuantity),
+                                            storeInventory: eachProduct.inventory_level,
+                                            warehouseInventory: warehouseQuantity,
+                                            originalOrderQuantity: Math.round(productOrderQuantity),
+                                            categoryModelId: ObjectId(optionInventory.categoryModel[0]._id),
+                                            categoryModelName: optionInventory.categoryModel[0].name,  //need for sorting
+                                            fulfilledQuantity: 0,
+                                            receivedQuantity: 0,
+                                            fulfilled: false,
+                                            received: false,
+                                            state: 'unboxed',
+                                            approved: false,
+                                            createdAt: new Date(),
+                                            updatedAt: new Date()
+                                        });
+                                    }
                                 });
                             }
                             else {

@@ -77,7 +77,7 @@ export class SchedulesComponent implements OnInit {
         this.loading = false;
     });
   }
-  
+
   deleteSchedule(schedule: SchedulerModel){
     this.loading = true;
     this._orgModelService.updateByIdSchedulerModels(
@@ -112,22 +112,5 @@ export class SchedulesComponent implements OnInit {
     } else {
       return 'Never'
     }
-  }
-
-  getFormattedFrequency(schedule: any) {
-    let frequencyText = 'Hourly';
-    if (schedule.hour) {
-      frequencyText = 'Daily';
-    }
-    if (schedule.day) {
-      frequencyText = 'Monthly';
-    }
-    if (schedule.month) {
-      frequencyText = 'Yearly';
-    }
-    if(schedule.weekDay) {
-      frequencyText = 'Weekly'
-    }
-    return frequencyText;
   }
 }
