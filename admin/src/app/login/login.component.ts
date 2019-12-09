@@ -14,7 +14,11 @@ export class LoginComponent implements OnInit {
 
   private user: UserModel = new UserModel();
   public loading = false;
-
+  public headerParaData = "The industry’s first and only open source app for automating stock replenishment."
+  public brandonFeedback = "With StockUp we improved accuracy of order fulfilment by 29% and dropped turn around time by half! Our staff was able to receive shipments quickly and restock with such efficiency that our customer service ratings improved month over month for the entire first year of use, as team members were able to get with customers at unprecedented levels. We have been able to stay lean with insights into our ordering and buying while still providing what our customers want. The team at StockUp is easy to work with and understands the substance of business logistics.";
+  public avatarBrandon = 'https://ca.slack-edge.com/T0TM5STB3-U0UGXH61Z-a3aa17546847-512';
+  public brandonName = 'Brandon Lehman,'
+  public brandonDesignation = 'IT & OPS HEAD'
   constructor(private userModelApi: UserModelApi, private _router: Router, private _route: ActivatedRoute) {
     LoopBackConfig.setBaseURL(environment.BASE_URL);
     LoopBackConfig.setApiVersion(environment.API_VERSION);
