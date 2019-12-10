@@ -132,21 +132,6 @@ var runMe = function (orgModelId, syncModels) {
                         message: 'Found following syncModels',
                         syncModelInstances: syncModelInstances
                     });
-                    // payload.vendDataObjects = _.intersection(payload.vendDataObjects, _.pluck(syncModelInstances, 'name'));
-                    // logger.debug({orgModelId,
-                    //     messageId: messageId,
-                    //     commandName: commandName,
-                    //     message: 'Not all properties are set to sync yet, will try to sync only',
-                    //     vendDataObjects: payload.vendDataObjects
-                    // });
-                    // if (!payload.vendDataObjects.length || !syncModelInstances.length) {
-                    //     logger.debug({orgModelId,
-                    //         messageId: messageId,
-                    //         commandName: commandName,
-                    //         message: 'Nothing to sync, will exit'
-                    //     });
-                    //     return Promise.reject('syncStatusSetToFalse');
-                    // }
                     /**
                      * Logic to find which data object versions have changed since
                      * the last sync, only those data objects will be fetched by
@@ -154,13 +139,13 @@ var runMe = function (orgModelId, syncModels) {
                      */
                     var differentialDataObjects = [];
                     _.each(syncModelInstances, function (eachSyncModel) {
-                        if (eachSyncModel.version !== undefined && vendNewDataObjectVersions[eachSyncModel.name] !== eachSyncModel.version) {
+                        // if (eachSyncModel.version !== undefined && vendNewDataObjectVersions[eachSyncModel.name] !== eachSyncModel.version) {
                             differentialDataObjects.push({
                                 name: eachSyncModel.name,
                                 versionsAfter: eachSyncModel.version,
                                 versionsBefore: vendNewDataObjectVersions[eachSyncModel.name]
                             });
-                        }
+                        // }
                     });
                     logger.debug({
                         orgModelId,
@@ -302,8 +287,8 @@ var callFetchDataObjectsWorker = function (dataObjects, orgModelId) {
                         message: 'Calling fetch inventory worker'
                     });
                     // var refinedPayload = preparePayloadForWorker(dataObjects[dataObjectIndices.inventory], payload, messageId);
-                    var fetchIncrementalSuppliers = require('./../fetch-incremental-inventory/fetch-incremental-inventory');
-                    return fetchIncrementalSuppliers.run(vendConnectionInfo, orgModelId, dataObjects[dataObjectIndices.inventory]);
+                    var fetchIncrementalInventory = require('./../fetch-incremental-inventory/fetch-incremental-inventory');
+                    return fetchIncrementalInventory.run(vendConnectionInfo, orgModelId, dataObjects[dataObjectIndices.inventory]);
                 }
                 else {
                     return Promise.resolve();
