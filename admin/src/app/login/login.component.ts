@@ -58,7 +58,7 @@ export class LoginComponent implements OnInit {
 
       var validatePassword = Utils.validatePassword((this.user.password).trim());
       if(!validatePassword) {
-        throw new Error('Minimum 6 characters required');
+        throw new Error('Minimum 6 characters required in password');
       }
       this.loading = true;
       this.userModelApi.login(this.user).subscribe((token: AccessToken) => {
