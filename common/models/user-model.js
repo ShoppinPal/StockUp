@@ -111,10 +111,10 @@ module.exports = function (UserModel) {
                 'orgName': Joi.string().required(),
                 'email': Joi.string().email().required(),
                 'password': Joi.string()
-                    .min(5)
+                    .min(6)
                     .required(),
                 'confirmPassword': Joi.string()
-                    .min(5)
+                    .min(6)
                     .required()
             });
 
