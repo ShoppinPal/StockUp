@@ -121,7 +121,7 @@ export class SuppliersComponent implements OnInit {
 
   keyUpEvent(event, searchSupplierText) {
     if(event.keyCode == '13' && searchSupplierText !== '') {
-      this.searchProductBySku(searchSKUText)
+      this.searchSupplier();
     }
   }
 

@@ -132,7 +132,7 @@ export class UsersComponent implements OnInit {
 
   keyUpEvent(event, searchUserText) {
     if(event.keyCode == '13' && searchUserText !== '') {
-      this.fetchUsers(null, null, searchSKUText);
+      this.fetchUsers(null, null, searchUserText);
     }
   }
 }
