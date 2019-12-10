@@ -112,6 +112,9 @@ module.exports = function (UserModel) {
                 'email': Joi.string().email().required(),
                 'password': Joi.string()
                     .min(5)
+                    .required(),
+                'confirmPassword': Joi.string()
+                    .min(5)
                     .required()
             });
 
