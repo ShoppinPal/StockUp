@@ -63,15 +63,15 @@ export class SignupComponent implements OnInit {
         throw new Error('Invalid confirm password');
       }
       var validateEmail = Utils.singleValidateEmail((this.user.email).trim());
-      if(!validateEmail) {
+      if (!validateEmail) {
         throw new Error('Invalid email');
       }
 
       var validatePassword = Utils.validatePassword((this.user.password).trim());
-      if(!validatePassword) {
+      if (!validatePassword) {
         throw new Error('Minimum 6 characters required in password');
       }
-      if(this.user.password !== this.user.confirmPassword) {
+      if (this.user.password !== this.user.confirmPassword) {
         throw new Error('New password and confirm password must match');
       }
       this.loading = true;
