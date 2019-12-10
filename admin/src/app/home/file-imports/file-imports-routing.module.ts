@@ -17,7 +17,7 @@ const routes: Routes = [
         path: 'file-imports-details/:id',
         component: FileImportsDetailsComponent,
         data: {
-          title: 'Home > File Imports > File Import Configuration'
+          title: 'File Imports / File Import Configuration'
         },
         resolve: {
           data: FileImportsDetailsResolverService

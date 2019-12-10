@@ -38,7 +38,7 @@ import {AppRoutingModule} from './app.routing';
 import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 import {TypeaheadModule, PaginationModule} from 'ngx-bootstrap';
 import {ChartsModule} from 'ng2-charts/ng2-charts';
-import {FormsModule} from '@angular/forms';
+import {FormsModule,ReactiveFormsModule} from '@angular/forms';
 import {LoadingModule, ANIMATION_TYPES} from 'ngx-loading';
 import {SDKBrowserModule} from './shared/lb-sdk/index';
 import {SharedModule} from './shared/shared.module';
@@ -61,6 +61,7 @@ import {ToastrModule} from 'ngx-toastr';
     BsDropdownModule.forRoot(),
     ChartsModule,
     FormsModule,
+    ReactiveFormsModule,
     LoadingModule.forRoot({
       animationType: ANIMATION_TYPES.threeBounce,
       backdropBackgroundColour: '#00000096',

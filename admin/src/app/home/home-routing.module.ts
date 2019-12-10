@@ -81,14 +81,14 @@ const routes: Routes = [
         path: 'reorder-points',
         component: ReorderPointsComponent,
         data: {
-          title: 'Settings / Reorder Points'
+          title: 'Settings  /  Reorder Points'
         }
       },
       {
         path: 'file-imports',
         component: FileImportsComponent,
         data: {
-          title: 'Home > Settings > File Imports'
+          title: 'Settings  /  File Imports'
         },
         resolve: {
           data: FileImportsResolverService
@@ -98,7 +98,7 @@ const routes: Routes = [
         path: 'schedules',
         component: SchedulesComponent,
         data: {
-          title: 'Home > Settings > Schedules'
+          title: 'Settings  /  Schedules'
         }
       }
     ]

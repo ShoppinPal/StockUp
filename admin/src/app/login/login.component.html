@@ -101,11 +101,19 @@
               <ngx-loading [show]="loading"></ngx-loading>
               <h2>Login</h2>
               <p class="text-muted">Sign In to your account</p>
-              <div class="input-group mb-2">
+              <form [formGroup]="angForm">
+              <!-- <div *ngIf="!angForm.controls['name'].invalid" class="input-group mb-2">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="icon-user"></i></span>
                 </div>
-                <input type="text" #username class="form-control" placeholder="Username" required>
+                <input type="email" #username class="form-control" formControlName="name" placeholder="Username" required>
+                <span class="input-group-addon success"><span class="glyphicon glyphicon-ok"></span></span>
+              </div> -->
+              <div class="input-group error-input mb-2">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="icon-user"></i></span>
+                  </div>
+                  <input type="text" #username class="form-control" formControlName="name" placeholder="Username" required>
               </div>
               <div class="input-group mb-2">
                 <div class="input-group-prepend">
@@ -113,7 +121,8 @@
                 </div>
                 <input type="password" #password class="form-control" placeholder="Password" (keyup)="onKey($event,username.value, password.value)" required>
               </div>
-              <div class="row mb-2">
+            </form>
+              <div class="row">
                 <div class="col-6">
                   <button type="button" (click)="fetchInput(username.value, password.value)"
                           class="btn btn-primary px-4">Login
