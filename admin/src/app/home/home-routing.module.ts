@@ -86,13 +86,14 @@ const routes: Routes = [
       },
       {
         path: 'file-imports',
-        component: FileImportsComponent,
+        // component: FileImportsComponent,
         data: {
-          title: 'Settings  /  File Imports'
+          title: 'Settings'
         },
-        resolve: {
-          data: FileImportsResolverService
-        }
+        loadChildren: './file-imports/file-imports.module#FileImportsModule'
+        // resolve: {
+        //   data: FileImportsResolverService
+        // }
       },
       {
         path: 'schedules',
