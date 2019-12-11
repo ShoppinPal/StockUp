@@ -79,10 +79,11 @@ const routes: Routes = [
       },
       {
         path: 'reorder-points',
-        component: ReorderPointsComponent,
+        // component: ReorderPointsComponent,
         data: {
-          title: 'Settings  /  Reorder Points'
-        }
+          title: 'Settings'
+        },
+        loadChildren: './reorder-points/reorder-points.module#ReorderPointsModule'
       },
       {
         path: 'file-imports',
