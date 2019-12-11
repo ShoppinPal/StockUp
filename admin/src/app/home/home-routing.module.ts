@@ -97,10 +97,11 @@ const routes: Routes = [
       },
       {
         path: 'schedules',
-        component: SchedulesComponent,
+        // component: SchedulesComponent,
         data: {
-          title: 'Settings  /  Schedules'
-        }
+          title: 'Settings'
+        },
+        loadChildren: './schedules/schedules.module#SchedulesModule'
       }
     ]
   }
