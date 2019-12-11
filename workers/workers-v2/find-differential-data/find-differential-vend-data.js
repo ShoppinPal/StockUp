@@ -7,7 +7,6 @@ var ObjectId = require('mongodb').ObjectID;
 var _ = require('underscore');
 var utils = require('./../../jobs/utils/utils.js');
 var MongoClient = require('mongodb').MongoClient;
-var vendSdk = require('vend-nodejs-sdk')({}); //why the {}?
 // Global variable for logging
 var dbUrl = process.env.DB_URL;
 var vendConnectionInfo;
@@ -15,7 +14,6 @@ var vendConnectionInfo;
 var runMe = function (orgModelId, syncModels) {
 
     try {
-        var vendNewDataObjectVersions;
 
         try {
             // process.env['User-Agent'] = taskId + ':' + messageId + ':' + commandName + ':' + payload.domainPrefix;
@@ -56,7 +54,7 @@ var runMe = function (orgModelId, syncModels) {
                     });
                     return Promise.reject('Could not fetch vend token');
                 })
-                .then(function(token) {
+                .then(function (token) {
                     logger.debug({
                         message: 'Fetched new vend token, will look for organisation\'s integration model',
                         orgModelId
@@ -93,76 +91,8 @@ var runMe = function (orgModelId, syncModels) {
                         refreshToken: integrationModelInstance.refresh_token,
                         domainPrefix: integrationModelInstance.domain_prefix
                     };
-                    return vendSdk.versions.fetchAll(vendConnectionInfo);
-                })
-                .catch(function (error) {
-                    logger.error({
-                        orgModelId,
-                        message: 'Could not fetch entity versions from Vend',
-                        error
-                    });
-                    return Promise.reject('Could not fetch entity versions from Vend');
-                })
-                .then(function (versions) {
-                    logger.debug({
-                        orgModelId,
-                        message: 'Found latest data object versions from vend',
-                        versions
-                    });
-                    vendNewDataObjectVersions = versions.data;
-                    logger.debug({
-                        orgModelId,
-                        message: 'Will look for properties which are set to sync in database',
-                    });
-                    return db.collection('SyncModel').find({
-                        $and: [{
-                            orgModelId: ObjectId(orgModelId),
+                    return callFetchDataObjectsWorker(syncModels, orgModelId);
 
-                        },
-                            {
-                                name: {
-                                    $in: _.pluck(syncModels, 'name')
-                                }
-                            }],
-                    }).toArray();
-                })
-                .then(function (syncModelInstances) {
-                    logger.debug({
-                        orgModelId,
-                        message: 'Found following syncModels',
-                        syncModelInstances: syncModelInstances
-                    });
-                    /**
-                     * Logic to find which data object versions have changed since
-                     * the last sync, only those data objects will be fetched by
-                     * calling their corresponding fetch-workers
-                     */
-                    var differentialDataObjects = [];
-                    _.each(syncModelInstances, function (eachSyncModel) {
-                        // if (eachSyncModel.version !== undefined && vendNewDataObjectVersions[eachSyncModel.name] !== eachSyncModel.version) {
-                            differentialDataObjects.push({
-                                name: eachSyncModel.name,
-                                versionsAfter: eachSyncModel.version,
-                                versionsBefore: vendNewDataObjectVersions[eachSyncModel.name]
-                            });
-                        // }
-                    });
-                    logger.debug({
-                        orgModelId,
-                        message: 'Some data objects differ in versions, will go on to fetch the required ones',
-                        differentialDataObjects: differentialDataObjects
-                    });
-                    if (differentialDataObjects.length>0) {
-                        return callFetchDataObjectsWorker(differentialDataObjects, orgModelId);
-                    }
-                    else {
-                        logger.debug({
-                            orgModelId,
-                            commandName: commandName,
-                            message: 'Vend data objects are up-to-date in warehouse, ending worker'
-                        });
-                        return Promise.reject('noDifferenceInDataVersions');
-                    }
                 })
                 .then(function (response) {
                     logger.debug({
@@ -173,36 +103,13 @@ var runMe = function (orgModelId, syncModels) {
                     return Promise.resolve();
                 })
                 .catch(function (error) {
-                    if (error === 'noDifferenceInDataVersions') {
-                        return db.collection('SyncModel').updateMany({
-                            orgModelId: ObjectId(orgModelId),
-                        }, {
-                            $set: {
-                                syncInProcess: false,
-                                workerTaskId: '',
-                                lastSyncedAt: new Date()
-                            }
-                        });
-                    }
-                    // else if (error === 'syncStatusSetToFalse') {
-                    //     return Promise.resolve();
-                    // }
-                    else {
-                        logger.error({
-                            orgModelId,
-                            message: 'Could not fetch data',
-                            err: error
-                        });
-                        return Promise.reject(error);
-                    }
-                })
-                .then(function (response) {
-                    logger.debug({
+                    logger.error({
                         orgModelId,
-                        message: 'Everything is already in sync, updated sync models info',
-                        result: response ? response.result || response : ''
+                        message: 'Could not fetch data',
+                        err: error
                     });
-                    return Promise.resolve()
+                    return Promise.reject(error);
+                    // }
                 })
                 .finally(function () {
                     logger.debug({
@@ -237,10 +144,10 @@ var runMe = function (orgModelId, syncModels) {
     }
 };
 
-var callFetchDataObjectsWorker = function (dataObjects, orgModelId) {
+var callFetchDataObjectsWorker = function (syncModels, orgModelId) {
     logger.debug({orgModelId, message: 'inside callFetchDataObjectsWorker()'});
-    if (dataObjects instanceof Array && dataObjects.length>0) {
-        var dataObjectNames = _.pluck(dataObjects, 'name');
+    if (syncModels instanceof Array && syncModels.length>0) {
+        var dataObjectNames = _.pluck(syncModels, 'name');
         var dataObjectIndices = {
             suppliers: dataObjectNames.indexOf('suppliers'),
             products: dataObjectNames.indexOf('products'),
@@ -261,7 +168,7 @@ var callFetchDataObjectsWorker = function (dataObjects, orgModelId) {
                     });
                     // var refinedPayload = preparePayloadForWorker(dataObjects[dataObjectIndices.suppliers], payload, messageId);
                     var fetchIncrementalSuppliers = require('./../fetch-incremental-suppliers/fetch-incremental-suppliers');
-                    return fetchIncrementalSuppliers.run(vendConnectionInfo, orgModelId, dataObjects[dataObjectIndices.suppliers]);
+                    return fetchIncrementalSuppliers.run(vendConnectionInfo, orgModelId, syncModels[dataObjectIndices.suppliers].version);
                 }
                 else {
                     return Promise.resolve();
@@ -274,7 +181,7 @@ var callFetchDataObjectsWorker = function (dataObjects, orgModelId) {
                         message: 'Calling fetch products worker'
                     });
                     var fetchIncrementalProducts = require('./../fetch-incremental-products/fetch-incremental-products');
-                    return fetchIncrementalProducts.run(vendConnectionInfo, orgModelId, dataObjects[dataObjectIndices.products]);
+                    return fetchIncrementalProducts.run(vendConnectionInfo, orgModelId, syncModels[dataObjectIndices.products].version);
                 }
                 else {
                     return Promise.resolve();
@@ -288,7 +195,7 @@ var callFetchDataObjectsWorker = function (dataObjects, orgModelId) {
                     });
                     // var refinedPayload = preparePayloadForWorker(dataObjects[dataObjectIndices.inventory], payload, messageId);
                     var fetchIncrementalInventory = require('./../fetch-incremental-inventory/fetch-incremental-inventory');
-                    return fetchIncrementalInventory.run(vendConnectionInfo, orgModelId, dataObjects[dataObjectIndices.inventory]);
+                    return fetchIncrementalInventory.run(vendConnectionInfo, orgModelId, syncModels[dataObjectIndices.inventory].version);
                 }
                 else {
                     return Promise.resolve();
@@ -300,7 +207,7 @@ var callFetchDataObjectsWorker = function (dataObjects, orgModelId) {
                     commandName: commandName,
                     message: 'Will remove the sync models from database that aren\'t supported yet'
                 });
-                return Promise.map(dataObjects, function (eachDataObject) {
+                return Promise.map(syncModels, function (eachDataObject) {
                     if (_.keys(dataObjectIndices).indexOf(eachDataObject.name) === -1) {
                         logger.debug({
                             orgModelId,
@@ -340,29 +247,6 @@ var callFetchDataObjectsWorker = function (dataObjects, orgModelId) {
             });
     }
 };
-
-// var preparePayloadForWorker = function (eachDataObject, payload, messageId) {
-//     logger.debug({orgModelId,
-//         messageId: messageId,
-//         commandName: commandName,
-//         message: 'inside preparePayloadForWorker()',
-//         eachDataObject: eachDataObject
-//     });
-//     return {
-//         tokenService: payload.tokenService,
-//         clientId: payload.clientId,
-//         clientSecret: payload.clientSecret,
-//         tokenType: payload.tokenType,
-//         accessToken: payload.accessToken,
-//         refreshToken: payload.refreshToken,
-//         domainPrefix: payload.domainPrefix,
-//         loopbackServerUrl: payload.loopbackServerUrl,
-//         loopbackAccessToken: payload.loopbackAccessToken,
-//         versionsAfter: eachDataObject.versionsAfter,
-//         versionsBefore: eachDataObject.versionsBefore,
-//         orgModelId: payload.orgModelId
-//     };
-// };
 
 module.exports = {
     run: runMe

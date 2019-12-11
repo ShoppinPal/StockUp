@@ -7,60 +7,52 @@ var MongoClient = require('mongodb').MongoClient;
 var ObjectId = require('mongodb').ObjectID;
 var _ = require('underscore');
 var Promise = require('bluebird');
-var db = null; //database connected
 var maxBatchSize = 1000;
 var dbUrl = process.env.DB_URL;
+var inventoryBatchNumber = 0;
 
 var runMe = function (vendConnectionInfo, orgModelId, versionsAfter) {
 
-
-    try {
-
-        try {
-            // process.env['User-Agent'] = taskId + ':' + messageId + ':' + commandName + ':' + payload.domainPrefix;
+    var db = null;
+    logger.debug({
+        orgModelId,
+        message: 'This worker will fetch and save incremental inventory from vend to warehouse'
+    });
+    return MongoClient.connect(dbUrl, {promiseLibrary: Promise})
+        .then(function (dbInstance) {
+            db = dbInstance;
             logger.debug({
                 orgModelId,
-                message: 'This worker will fetch and save incremental inventory from vend to warehouse'
+                message: 'Connected to mongodb database',
             });
-            return Promise.resolve()
-                .then(function () {
-                    return fetchInventoryRecursively(vendConnectionInfo, orgModelId, versionsAfter);
-                })
-                .finally(function () {
-                    logger.debug({
-                        orgModelId,
-                        message: 'Closing database connection'
-                    });
-                    if (db) {
-                        return db.close();
-                    }
-                })
-                .catch(function (error) {
-                    logger.error({
-                        orgModelId,
-                        message: 'Could not close db connection',
-                        err: error
-                    });
-                    return Promise.resolve();
-                    //TODO: set a timeout, after which close all listeners
-                });
-        }
-        catch (e) {
-            logger.error({orgModelId, message: '2nd last catch block', err: e});
-            throw e;
-        }
-    }
-    catch (e) {
-        logger.error({orgModelId, message: 'last catch block', err: e});
-        throw e;
-    }
+            return fetchInventoryRecursively(dbInstance, vendConnectionInfo, orgModelId, versionsAfter);
+        })
+        .finally(function () {
+            logger.debug({
+                orgModelId,
+                message: 'Closing database connection'
+            });
+            if (db) {
+                return db.close();
+            }
+        })
+        .catch(function (error) {
+            logger.error({
+                orgModelId,
+                message: 'Could not close db connection',
+                err: error
+            });
+            return Promise.resolve();
+            //TODO: set a timeout, after which close all listeners
+        });
 };
 
 module.exports = {
     run: runMe
 };
 
-function fetchInventoryRecursively(vendConnectionInfo, orgModelId, versionsAfter) {
+function fetchInventoryRecursively(dbInstance, vendConnectionInfo, orgModelId, versionsAfter) {
+    inventoryBatchNumber++;
     var argsForInventory = vendSdk.args.inventory.fetch();
     argsForInventory.after.value = versionsAfter;
     argsForInventory.pageSize.value = maxBatchSize;
@@ -69,6 +61,7 @@ function fetchInventoryRecursively(vendConnectionInfo, orgModelId, versionsAfter
             logger.error({
                 message: 'Could not fetch inventory from Vend',
                 orgModelId,
+                inventoryBatchNumber,
                 error,
                 functionName: 'fetchInventoryRecursively'
             });
@@ -80,22 +73,25 @@ function fetchInventoryRecursively(vendConnectionInfo, orgModelId, versionsAfter
                     message: 'Fetched inventory data from vend, will save to DB',
                     inventoryCount: response.data.length,
                     orgModelId,
+                    inventoryBatchNumber,
                     functionName: 'fetchInventoryRecursively'
                 });
-                return saveInventory(vendConnectionInfo, orgModelId, response);
+                return saveInventory(dbInstance, vendConnectionInfo, orgModelId, response);
             }
             else if (response && response.data && !response.data.length) {
                 logger.debug({
                     message: 'No more inventory to fetch, will exit worker',
                     orgModelId,
+                    inventoryBatchNumber,
                     functionName: 'fetchInventoryRecursively'
                 });
                 return Promise.resolve('noIncrementalInventory');
             }
             else {
                 logger.debug({
-                    message: 'Vend API returning null',
+                    message: 'Vend API returning null response',
                     response,
+                    inventoryBatchNumber,
                     orgModelId,
                     functionName: 'fetchInventoryRecursively'
                 });
@@ -104,45 +100,49 @@ function fetchInventoryRecursively(vendConnectionInfo, orgModelId, versionsAfter
         });
 }
 
-function saveInventory(vendConnectionInfo, orgModelId, inventory) {
-    return MongoClient.connect(dbUrl, {promiseLibrary: Promise})
-        .then(function (dbInstance) {
-            logger.debug({
-                orgModelId,
-                message: 'Connected to mongodb database',
-                functionName: 'saveInventory'
-            });
-            var productIds = _.pluck(inventory.data, 'product_id');
-            var outletIds = _.pluck(inventory.data, 'outlet_id');
-            db = dbInstance;
-            return Promise.all([
-                db.collection('ProductModel').find({
-                    "orgModelId": ObjectId(orgModelId),
-                    "api_id": {
-                        $in: productIds
-                    }
-                }).toArray(),
-                db.collection('StoreModel').find({
-                    "orgModelId": ObjectId(orgModelId),
-                    "storeNumber": {
-                        $in: outletIds
-                    }
-                }).toArray()
-            ]);
-        })
+function saveInventory(dbInstance, vendConnectionInfo, orgModelId, inventory) {
+    var productIds = _.uniq(_.pluck(inventory.data, 'product_id'));
+    var outletIds = _.uniq(_.pluck(inventory.data, 'outlet_id'));
+    var inventoryToDelete = _.filter(inventory.data, function (eachInventory) {
+        return eachInventory.deleted_at !== undefined && eachInventory.deleted_at !== null;
+    });
+    var inventoryToSave = _.difference(inventory.data, inventoryToDelete);
+    logger.debug({
+        message: 'Will look for products and stores to attach to inventory',
+        orgModelId,
+        functionName: 'saveInventory',
+        inventoryToDelete: inventoryToDelete.length,
+        inventoryToSave: inventoryToSave.length,
+        inventoryBatchNumber
+    });
+    return Promise.all([
+        dbInstance.collection('ProductModel').find({
+            "orgModelId": ObjectId(orgModelId),
+            "api_id": {
+                $in: productIds
+            }
+        }).toArray(),
+        dbInstance.collection('StoreModel').find({
+            "orgModelId": ObjectId(orgModelId),
+            "storeNumber": {
+                $in: outletIds
+            }
+        }).toArray()
+    ])
         .then(function (response) {
             var productModelInstances = response[0];
             var storeModelInstances = response[1];
             logger.debug({
                 orgModelId,
                 message: 'Found product and stores in DB, will attach to inventory data',
+                inventoryBatchNumber,
                 productCount: productModelInstances.length,
                 storesCount: storeModelInstances.length,
                 functionName: 'saveInventory'
             });
-            var batch = db.collection('InventoryModel').initializeUnorderedBulkOp();
+            var batch = dbInstance.collection('InventoryModel').initializeUnorderedBulkOp();
             var invalidInventoryCounter = 0;
-            _.each(inventory.data, function (eachInventory) {
+            _.each(inventoryToSave, function (eachInventory) {
                 var productModelToAttach = _.findWhere(productModelInstances, {api_id: eachInventory.product_id});
                 var storeModelToAttach = _.findWhere(storeModelInstances, {storeNumber: eachInventory.outlet_id});
                 if (productModelToAttach && storeModelToAttach) {
@@ -154,8 +154,8 @@ function saveInventory(vendConnectionInfo, orgModelId, inventory) {
                             api_id: eachInventory.id,
                             productModelId: productModelToAttach ? productModelToAttach._id : null,
                             storeModelId: storeModelToAttach ? storeModelToAttach._id : null,
-                            product_id: eachInventory.product_id,
-                            outlet_id: eachInventory.outlet_id,
+                            productModelVendId: eachInventory.product_id,
+                            storeModelVendId: eachInventory.outlet_id,
                             inventory_level: eachInventory.inventory_level,
                             reorder_point: eachInventory.reorder_point,
                             reorder_amount: eachInventory.reorder_amount,
@@ -166,6 +166,7 @@ function saveInventory(vendConnectionInfo, orgModelId, inventory) {
                 }
                 else {
                     logger.debug({
+                        inventoryBatchNumber,
                         message: 'Could not find a store or product for this inventory',
                         eachInventory,
                         orgModelId,
@@ -174,15 +175,25 @@ function saveInventory(vendConnectionInfo, orgModelId, inventory) {
                     invalidInventoryCounter++;
                 }
             });
+            _.each(inventoryToDelete, function (eachInventory) {
+                batch.find({
+                    orgModelId: ObjectId(orgModelId),
+                    api_id: eachInventory.id
+                }).remove({
+                    api_id: eachInventory.id
+                })
+            });
             logger.debug({
                 message: 'Total invalid inventory count',
                 invalidInventoryCounter,
+                inventoryBatchNumber,
                 orgModelId,
                 functionName: 'saveInventory'
             });
             logger.debug({
                 orgModelId,
                 message: 'Attached stores and products, will save inventory to DB',
+                inventoryBatchNumber,
                 functionName: 'saveInventory'
             });
             return executeBatch(batch, orgModelId);
@@ -191,6 +202,7 @@ function saveInventory(vendConnectionInfo, orgModelId, inventory) {
             logger.error({
                 message: 'Could not execute batch operation, will exit',
                 error,
+                inventoryBatchNumber,
                 functionName: 'saveInventory',
                 orgModelId
             });
@@ -200,9 +212,10 @@ function saveInventory(vendConnectionInfo, orgModelId, inventory) {
             logger.debug({
                 message: 'Successfully executed batch of Inventory, will update version number in DB',
                 orgModelId,
+                inventoryBatchNumber,
                 functionName: 'saveInventory'
             });
-            return db.collection('SyncModel').updateOne({
+            return dbInstance.collection('SyncModel').updateOne({
                     $and: [
                         {
                             'orgModelId': ObjectId(orgModelId)
@@ -224,12 +237,13 @@ function saveInventory(vendConnectionInfo, orgModelId, inventory) {
                 message: 'Could not update version number in DB, will stop sync',
                 error,
                 orgModelId,
+                inventoryBatchNumber,
                 functionName: 'saveInventory'
             });
             return Promise.reject('Could not update version number in DB, will stop sync');
         })
         .then(function () {
-            return fetchInventoryRecursively(vendConnectionInfo, orgModelId, inventory.version.max);
+            return fetchInventoryRecursively(dbInstance, vendConnectionInfo, orgModelId, inventory.version.max);
         });
 }
 
@@ -238,6 +252,7 @@ function executeBatch(batch, orgModelId) {
         logger.debug({
             orgModelId,
             message: `Executing batch of inventory`,
+            inventoryBatchNumber,
             functionName: 'executeBatch'
         });
         if (batch.s && batch.s.currentBatch && batch.s.currentBatch.operations) {
@@ -246,6 +261,7 @@ function executeBatch(batch, orgModelId) {
                     logger.error({
                         orgModelId,
                         message: `ERROR in batch`,
+                        inventoryBatchNumber,
                         err: err,
                         functionName: 'executeBatch'
                     });
@@ -255,6 +271,7 @@ function executeBatch(batch, orgModelId) {
                     logger.debug({
                         orgModelId,
                         message: `Successfully executed batch operation`,
+                        inventoryBatchNumber,
                         "nInserted": result.nInserted,
                         "nUpserted": result.nUpserted,
                         "nMatched": result.nMatched,
@@ -269,6 +286,7 @@ function executeBatch(batch, orgModelId) {
         else {
             logger.debug({
                 orgModelId,
+                inventoryBatchNumber,
                 message: `Skipping empty batch`,
                 functionName: 'executeBatch'
             });
