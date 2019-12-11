@@ -48,13 +48,11 @@ const routes: Routes = [
       },
       {
         path: 'stores',
-        component: StoresComponent,
+        // component: StoresComponent,
         data: {
-          title: 'Stores'
+          title: 'Settings'
         },
-        resolve: {
-          stores: StoresResolverService
-        }
+        loadChildren: './stores/stores.module#StoresModule'
       },
       {
         path: 'products',
