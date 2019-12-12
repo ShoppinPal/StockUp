@@ -66,7 +66,7 @@ var runMe = function (payload, config, taskId, messageId) {
                 name: {
                   $in: payload.vendDataObjects
                 }
-              }],
+              }]
           }).toArray();
         })
         .then(function (syncModelInstances) {
@@ -77,30 +77,11 @@ var runMe = function (payload, config, taskId, messageId) {
             logger.debug({ messageId: messageId, commandName: commandName,message:  'Nothing to sync, will exit' });
             return Promise.reject('syncStatusSetToFalse');
           }
-          /**
-           * Logic to find which data object versions have changed since
-           * the last sync, only those data objects will be fetched by
-           * calling their corresponding fetch-workers
-           */
-          var differentialDataObjects = [];
-          _.each(payload.vendDataObjects, function (eachVendDataObject) {
-            var correspondingSyncModelInstance = _.find(syncModelInstances, function (eachSyncModel) {
-              return eachSyncModel.name === eachVendDataObject;
-            });
-            if (correspondingSyncModelInstance.version !== undefined && vendNewDataObjectVersions[eachVendDataObject] !== correspondingSyncModelInstance.version) {
-              differentialDataObjects.push({
-                name: eachVendDataObject,
-                versionsAfter: correspondingSyncModelInstance.version,
-                versionsBefore: vendNewDataObjectVersions[eachVendDataObject]
-              });
-            }
-          });
-          logger.debug({ messageId: messageId, commandName: commandName, message: 'Some data objects differ in versions, will go on to fetch the required ones', differentialDataObjects: differentialDataObjects });
-          if (differentialDataObjects.length>0) {
-            return callFetchDataObjectsWorker(differentialDataObjects, payload, config, taskId, messageId);
+          if (syncModelInstances.length>0) {
+            return callFetchDataObjectsWorker(syncModelInstances, payload, config, taskId, messageId);
           }
           else {
-            logger.debug({ messageId: messageId, commandName: commandName, message: 'Vend data objects are up-to-date in warehouse, ending worker' });
+            logger.debug({ messageId: messageId, commandName: commandName, message: 'Sync models not found in DB, will exit worker' });
             return Promise.reject('noDifferenceInDataVersions');
           }
         })
@@ -109,27 +90,7 @@ var runMe = function (payload, config, taskId, messageId) {
           return Promise.resolve();
         })
         .catch(function (error) {
-          if (error === 'noDifferenceInDataVersions') {
-            return db.collection('SyncModel').updateMany({
-              $and: [
-                {
-                  storeConfigModelId: ObjectId(payload.storeConfigModelId),
-                },
-                {
-                  name: {
-                    $in: payload.vendDataObjects
-                  }
-                }
-              ],
-            }, {
-              $set: {
-                syncInProcess: false,
-                workerTaskId: '',
-                lastSyncedAt: new Date()
-              }
-            });
-          }
-          else if (error === 'syncStatusSetToFalse') {
+          if (error === 'syncStatusSetToFalse') {
             return Promise.resolve();
           }
           else {
@@ -222,12 +183,12 @@ var callFetchDataObjectsWorker = function (dataObjects, payload, config, taskId,
             return db.collection('SyncModel').deleteOne({
               $and: [
                 {
-                  name: eachDataObject.name,
+                  name: eachDataObject.name
                 },
                 {
                   storeConfigModelId: ObjectId(payload.storeConfigModelId)
                 }
-              ],
+              ]
             });
           }
           else {
@@ -258,8 +219,7 @@ var preparePayloadForWorker = function (eachDataObject, payload, messageId) {
     domainPrefix: payload.domainPrefix,
     loopbackServerUrl: payload.loopbackServerUrl,
     loopbackAccessToken: payload.loopbackAccessToken,
-    versionsAfter: eachDataObject.versionsAfter,
-    versionsBefore: eachDataObject.versionsBefore,
+    versionsAfter: eachDataObject.version,
     storeConfigModelId: payload.storeConfigModelId
   };
 };
