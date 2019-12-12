@@ -110,6 +110,7 @@ function fetchProductsRecursively(dbInstance, vendConnectionInfo, payload, messa
   var vendSdk = require('vend-nodejs-sdk')({}); // why the {}?
   var argsForProducts = vendSdk.args.products.fetch();
   argsForProducts.after.value = payload.versionsAfter;
+  argsForProducts.pageSize.value = maxBatchSize;
   argsForProducts.deleted.value = 1; //fetch all deleted products also
   return vendSdk.products.fetch(argsForProducts, vendConnectionInfo)
     .then(function (response) {
