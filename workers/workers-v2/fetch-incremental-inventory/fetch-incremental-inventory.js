@@ -227,8 +227,7 @@ function saveInventory(dbInstance, vendConnectionInfo, orgModelId, inventory) {
                 },
                 {
                     $set: {
-                        'version': inventory.version.max,
-                        'lastSyncedAt': new Date()
+                        'version': inventory.version.max
                     }
                 });
         })

@@ -254,8 +254,7 @@ function saveSuppliers(dbInstance, vendConnectionInfo, orgModelId, suppliers) {
                 },
                 {
                     $set: {
-                        'version': suppliers.version.max,
-                        'lastSyncedAt': new Date()
+                        'version': suppliers.version.max
                     }
                 });
         })

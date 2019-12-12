@@ -269,8 +269,7 @@ function saveProducts(dbInstance, vendConnectionInfo, orgModelId, products) {
                 },
                 {
                     $set: {
-                        'version': products.version.max,
-                        'lastSyncedAt': new Date()
+                        'version': products.version.max
                     }
                 });
         })

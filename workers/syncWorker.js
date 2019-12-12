@@ -250,10 +250,16 @@ function routeToWorker(syncModels) {
                     orgModelId: ObjectId(eachOrg)
                 }, {
                     $set: {
-                        syncInProcess: false
+                        syncInProcess: false,
+                        lastSyncedAt: new Date()
                     }
                 });
             }).then(function (response) {
+                logger.debug({
+                    message: 'Updated syncModels with lastSyncedDate',
+                    response,
+                    eachOrg
+                });
                 var options = {
                     method: 'POST',
                     uri: utils.PUBLISH_URL,
