@@ -113,9 +113,6 @@ module.exports = function (UserModel) {
                 'password': Joi.string()
                     .min(6)
                     .required(),
-                'confirmPassword': Joi.string()
-                    .min(6)
-                    .required()
             });
 
             var orgCreated = {};

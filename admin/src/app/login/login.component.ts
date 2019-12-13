@@ -65,6 +65,11 @@ export class LoginComponent implements OnInit {
         this.loading = false;
         this._router.navigate(['/orders/stock-orders']);
       }, err => {
+        if(err.status == 401) {
+          this.toastr.error('Unauthorized');
+        } else {
+          this.toastr.error('Something went wrong');
+        }
         this.loading = false;
         console.log('Couldn\'t redirect to stores, something went wrong', err);
       });

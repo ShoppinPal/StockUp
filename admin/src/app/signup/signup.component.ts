@@ -18,6 +18,8 @@ export class SignupComponent implements OnInit {
 
   private user: UserModel = new UserModel();
   public loading = false;
+  confirmPassword = '';
+  orgName = ''
 
   constructor(private userModelApi: UserModelApi, private _router: Router, private _route: ActivatedRoute, private toastr: ToastrService) {
     LoopBackConfig.setBaseURL(environment.BASE_URL);
@@ -50,7 +52,7 @@ export class SignupComponent implements OnInit {
 
   private signup(): void {
     try {
-      if (this.user.orgName === undefined || this.user.orgName === null || this.user.orgName === '') {
+      if (this.orgName === undefined || this.orgName === null || this.orgName === '') {
         throw new Error('Invalid organisation name');
       }
       if (this.user.email === undefined || this.user.email === null || this.user.email === '') {
@@ -59,7 +61,7 @@ export class SignupComponent implements OnInit {
       if (this.user.password === undefined || this.user.password === null || this.user.password === '') {
         throw new Error('Invalid password');
       }
-      if (this.user.confirmPassword === undefined || this.user.confirmPassword === null || this.user.confirmPassword === '') {
+      if (this.confirmPassword === undefined || this.confirmPassword === null || this.confirmPassword === '') {
         throw new Error('Invalid confirm password');
       }
       var validateEmail = Utils.singleValidateEmail((this.user.email).trim());
@@ -71,10 +73,11 @@ export class SignupComponent implements OnInit {
       if (!validatePassword) {
         throw new Error('Minimum 6 characters required in password');
       }
-      if (this.user.password !== this.user.confirmPassword) {
+      if (this.user.password !== this.confirmPassword) {
         throw new Error('New password and confirm password must match');
       }
       this.loading = true;
+      this.user.orgName = this.orgName;
       this.userModelApi.signup(this.user).pipe(flatMap((data: any) => {
         return this.userModelApi.login(this.user);
       }))
@@ -89,7 +92,7 @@ export class SignupComponent implements OnInit {
   }
 
   onKey(event) {
-    if(event.keyCode === '13' && (this.user.password !== undefined && this.user.password !== null && this.user.confirmPassword !== undefined && this.user.confirmPassword !== null)) {
+    if(event.keyCode === '13' && (this.user.password !== undefined && this.user.password !== null && this.confirmPassword !== undefined && this.confirmPassword !== null)) {
       this.signup();
     } 
   }
