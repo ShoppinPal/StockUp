@@ -1,15 +1,18 @@
 <ngx-loading [show]="loading"></ngx-loading>
 <app-header
   [navbarBrandRouterLink]="['/orders/stock-orders']"
-  [fixed]="true"
-  [navbarBrandFull]="{src: 'assets/img/logo.png', width: 89, height: 25, alt: 'ShoppinPal Logo'}"
-  [navbarBrandMinimized]="{src: 'assets/img/logo.png', width: 30, height: 30, alt: 'ShoppinPal Logo'}"
+  
+  [navbarBrandFull]="{src: 'assets/img/logo.png', width: 100, height: 25, alt: 'ShoppinPal Logo'}"
+  [navbarBrandMinimized]="{src: 'assets/img/logo.png', width: 40, height: 10, alt: 'ShoppinPal Logo'}"
+  [sidebarToggler]="true"
+  [asideMenuToggler]="false"
   [sidebarToggler]="'lg'"
-  [asideMenuToggler]="'lg'">
+  [asideMenuToggler]="'lg'"
+  >
   <ul class="nav navbar-nav ml-auto">
     <li class="nav-item dropdown" dropdown placement="bottom right">
       <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
-         aria-expanded="false" dropdownToggle (click)="false">
+         aria-expanded="false" dropdownToggle (click)="false" style="padding-right: 10px;">
         <span>{{user.email}}</span>
       </a>
       <div class="dropdown-menu dropdown-menu-right" *dropdownMenu aria-labelledby="simple-dropdown">
