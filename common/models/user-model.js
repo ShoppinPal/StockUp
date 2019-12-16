@@ -389,7 +389,7 @@ module.exports = function (UserModel) {
                     var email = require('../utils/email');
                     var argsForEmail = email.argsForEmail;
                     argsForEmail.to = user.email;
-                    argsForEmail.from = 'kamal@shoppinpal.com';
+                    argsForEmail.from = process.env.VERIFICATION_EMAIL;
                     argsForEmail.subject = 'Invitation from StockUp';
                     user.name = user.name.substr(0, 1).toUpperCase() + user.name.substr(1, user.name.length - 1).toLowerCase();
                     var inviteUserLink = UserModel.app.get('site').baseUrl + '/#/invite-user?accessToken=' + accessToken.id + '&name=' + user.name;
