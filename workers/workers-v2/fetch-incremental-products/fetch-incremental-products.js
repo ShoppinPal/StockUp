@@ -5,16 +5,16 @@ var path = require('path');
 // Global variable for logging
 var commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 var _ = require('underscore');
-
+var MongoClient = require('mongodb').MongoClient;
+var ObjectId = require('mongodb').ObjectID;
+var Promise = require('bluebird');
+var vendSdk = require('vend-nodejs-sdk')({}); // why the {}?
 var runMe = function (payload, config, taskId, messageId) {
 
   var dbUrl = process.env.DB_URL;
 
   try {
     var utils = require('./../../jobs/utils/utils.js');
-    var MongoClient = require('mongodb').MongoClient;
-    var ObjectId = require('mongodb').ObjectID;
-    var Promise = require('bluebird');
     var vendConnectionInfo;
     var db = null; //database connected
     logger.debug({
@@ -107,7 +107,6 @@ module.exports = {
 
 function fetchProductsRecursively(dbInstance, vendConnectionInfo, payload, messageId) {
   productsBatchNumber++;
-  var vendSdk = require('vend-nodejs-sdk')({}); // why the {}?
   var argsForProducts = vendSdk.args.products.fetch();
   argsForProducts.after.value = payload.versionsAfter;
   argsForProducts.pageSize.value = maxBatchSize;
@@ -149,17 +148,17 @@ function fetchProductsRecursively(dbInstance, vendConnectionInfo, payload, messa
     });
 }
 
-function saveProducts(dbInstance, payload, vendConnectionInfo, products, messageId) {
+function saveProducts(db, payload, vendConnectionInfo, products, messageId) {
   var supplierIds = _.uniq(_.pluck(products.data, 'supplier_id'));
-  var productsToDelete = _.filter(fetchedProducts.data, function (eachProduct) {
+  var productsToDelete = _.filter(products.data, function (eachProduct) {
     return eachProduct.deleted_at !== undefined && eachProduct.deleted_at !== null;
   });
   var vendTags;
-  var productsToSave = _.difference(fetchedProducts.data, productsToDelete);
+  var productsToSave = _.difference(products.data, productsToDelete);
   logger.debug({
     messageId: messageId,
     commandName: commandName,
-    message: `Found ${incrementalProducts.length} new products, will filter only required data from them`,
+    message: `Found ${products.data.length} new products, will filter only required data from them`,
     productsBatchNumber,
     functionName: 'saveProducts'
   });
@@ -328,7 +327,7 @@ function saveProducts(dbInstance, payload, vendConnectionInfo, products, message
     })
     .then(function () {
       payload.versionsAfter = products.version.max;
-      return fetchProductsRecursively(dbInstance, vendConnectionInfo, payload, messageId);
+      return fetchProductsRecursively(db, vendConnectionInfo, payload, messageId);
     });
 }
 
