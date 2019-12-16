@@ -155,13 +155,13 @@ function saveInventory(dbInstance, payload, vendConnectionInfo, inventory, messa
   });
   var inventoryToSave = _.difference(inventory.data, inventoryToDelete);
   return Promise.all([
-    db.collection('ProductModel').find({
+    dbInstance.collection('ProductModel').find({
       "storeConfigModelId": ObjectId(payload.storeConfigModelId),
       "api_id": {
         $in: productIds
       }
     }).toArray(),
-    db.collection('StoreModel').find({
+    dbInstance.collection('StoreModel').find({
       "storeConfigModelToStoreModelId": ObjectId(payload.storeConfigModelId),
       "api_id": {
         $in: outletIds
@@ -193,7 +193,7 @@ function saveInventory(dbInstance, payload, vendConnectionInfo, inventory, messa
         functionName: 'saveInventory'
       });
 
-      var batch = db.collection('InventoryModel').initializeUnorderedBulkOp();
+      var batch = dbInstance.collection('InventoryModel').initializeUnorderedBulkOp();
       var invalidInventoryCounter = 0;
       //Add some operations to be executed
       _.each(inventoryToSave, function (eachInventory) {
@@ -262,7 +262,7 @@ function saveInventory(dbInstance, payload, vendConnectionInfo, inventory, messa
           inventoryBatchNumber,
           functionName: 'saveInventory'
       });
-      return db.collection('SyncModel').updateOne({
+      return dbInstance.collection('SyncModel').updateOne({
           $and: [
             {
               'storeConfigModelId': ObjectId(payload.storeConfigModelId)
