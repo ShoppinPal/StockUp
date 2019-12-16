@@ -4,6 +4,9 @@ var inventoryBatchNumber = 0;
 var path = require('path');
 var commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 var _ = require('underscore');
+var MongoClient = require('mongodb').MongoClient;
+var ObjectId = require('mongodb').ObjectID;
+var Promise = require('bluebird');
 
 var runMe = function (payload, config, taskId, messageId) {
 
@@ -11,9 +14,6 @@ var runMe = function (payload, config, taskId, messageId) {
 
   try {
     var utils = require('./../../jobs/utils/utils.js');
-    var MongoClient = require('mongodb').MongoClient;
-    var ObjectId = require('mongodb').ObjectID;
-    var Promise = require('bluebird');
     var db = null; //database connected
     var vendConnectionInfo;
 
