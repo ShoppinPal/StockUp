@@ -4,6 +4,7 @@ var productsBatchNumber = 0;
 var path = require('path');
 // Global variable for logging
 var commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
+var _ = require('underscore');
 
 var runMe = function (payload, config, taskId, messageId) {
 
@@ -13,7 +14,6 @@ var runMe = function (payload, config, taskId, messageId) {
     var utils = require('./../../jobs/utils/utils.js');
     var MongoClient = require('mongodb').MongoClient;
     var ObjectId = require('mongodb').ObjectID;
-    var _ = require('underscore');
     var Promise = require('bluebird');
     var vendConnectionInfo;
     var db = null; //database connected
