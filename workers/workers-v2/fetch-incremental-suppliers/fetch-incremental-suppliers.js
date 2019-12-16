@@ -5,16 +5,15 @@ var path = require('path');
 // Global variable for logging
 var commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 var _ = require('underscore');
-
+var MongoClient = require('mongodb').MongoClient;
+var ObjectId = require('mongodb').ObjectID;
+var Promise = require('bluebird');
 var runMe = function (payload, config, taskId, messageId) {
 
   var dbUrl = process.env.DB_URL;
 
   try {
     var utils = require('./../../jobs/utils/utils.js');
-    var MongoClient = require('mongodb').MongoClient;
-    var ObjectId = require('mongodb').ObjectID;
-    var Promise = require('bluebird');
     var vendConnectionInfo;
     var db = null; //database connected
 
@@ -47,7 +46,7 @@ var runMe = function (payload, config, taskId, messageId) {
           return fetchSuppliersRecursively(db, vendConnectionInfo, payload, messageId);
         })
         .then(function () {
-          logger.debug({ messageId: messageId, commandName: commandName, message: 'Bulk insert operation complete', result: result });
+          logger.debug({ messageId: messageId, commandName: commandName, message: 'Bulk insert operation complete'});
           logger.debug({ messageId: messageId, commandName: commandName, message: 'Will go on to update version no. in warehouse' });
           return db.collection('SyncModel').updateOne({
               $and: [
@@ -165,7 +164,7 @@ function saveSuppliers(dbInstance, payload, vendConnectionInfo, suppliers, messa
   logger.debug({
     messageId: messageId,
     commandName: commandName,
-    message: `Found ${incrementalSuppliers.length} new suppliers, will filter only required data from them`,
+    message: `Found ${suppliers.data.length} new suppliers, will filter only required data from them`,
     suppliersBatchNumber,
     functionName: 'saveSuppliers'
   });
