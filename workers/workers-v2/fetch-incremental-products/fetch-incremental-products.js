@@ -1,6 +1,6 @@
 const logger = require('sp-json-logger');
 const maxBatchSize = 1000;
-var productBatchNumber = 0;
+var productsBatchNumber = 0;
 var path = require('path');
 // Global variable for logging
 var commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
@@ -106,7 +106,7 @@ module.exports = {
 };
 
 function fetchProductsRecursively(dbInstance, vendConnectionInfo, payload, messageId) {
-  productBatchNumber++;
+  productsBatchNumber++;
   var vendSdk = require('vend-nodejs-sdk')({}); // why the {}?
   var argsForProducts = vendSdk.args.products.fetch();
   argsForProducts.after.value = payload.versionsAfter;
