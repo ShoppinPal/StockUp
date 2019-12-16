@@ -24,7 +24,7 @@
     "shoppinpal-warehouse-mongo": "1.0.10",
     "sp-json-logger": "2.0.1",
     "tracer": "0.8.7",
-    "underscore": "1.8.3",
+    "underscore": "1.9.1",
     "loopback-component-storage": "~1.5.1",
     "clear-require": "~1.0.1",
     "mongodb": "2.2.31",
