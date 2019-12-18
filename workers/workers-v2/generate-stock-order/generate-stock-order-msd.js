@@ -377,6 +377,7 @@ function generateStockOrder(payload, config, taskId, messageId) {
                         to_replenish: {
                             $and: [
                                 {$gt: ['$reorder_threshold', '$inventory_level']},
+                                {$gt: ['$reorder_threshold', 0]}
                             ]
                         },
                         optionLevelKey: '$_id',
@@ -412,6 +413,7 @@ function generateStockOrder(payload, config, taskId, messageId) {
             logger.debug({
                 message: 'Found option level inventory model instances with their category data and combined reorder values, will look for warehouse inventory',
                 sampleInventoryModelInstance: _.sample(inventoryModelInstances),
+                toReplenishItemCount: inventoryModelInstances.length,
                 orgModelId,
                 messageId
             });
