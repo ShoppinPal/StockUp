@@ -105,10 +105,6 @@ export class LoginComponent implements OnInit {
       });
   }
 
-  enterEvent(event) {
-    console.log(event.keyCode);
-  }
-
   onKey(event,username: string, password: string) {
     if(event.keyCode == '13' && ((username !== undefined && username !== null && username !== '') && (password !== undefined && password !== null && password !== ''))) {
       this.fetchInput(username,password);
