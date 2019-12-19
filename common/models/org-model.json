@@ -687,6 +687,13 @@
     {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
+      "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "importVendOrderFromFile"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
       "principalId": "orgAdmin",
       "permission": "ALLOW",
       "property": "editSupplierStoreMappings"
