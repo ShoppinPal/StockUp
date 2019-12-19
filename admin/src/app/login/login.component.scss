@@ -40,35 +40,12 @@
 }
 
 .image-header {
-  // text-align: center;
-  // vertical-align: middle;
   position: relative;
   display: table; 
-
-  // position: relative;
-
-  // transform: translate(-50%, -50%);
-
-}
-
-.image-header p {
-  margin: 0;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font: Bold 36px/44px Helvetica Neue;
-  letter-spacing: 0;
-  text-align: center; 
-  vertical-align: middle;
 }
 
 .image-header {
   margin: 0;
-  // position: absolute;
-  // top: 50%;
-  // left: 50%;
-  // transform: translate(-50%, -50%);
   font: Bold 36px/44px Helvetica Neue;
   letter-spacing: 0;
   text-align: center; 
@@ -121,13 +98,10 @@
 }
 
 .login-banner {
-  // width: 720px;
-  // height: 340px;
   position: relative;
   display: block;
   margin-left: auto;
   margin-right: auto;
-  // object-fit: cover;
   text-align: center;
   height:100%;
   width:95%;
@@ -135,10 +109,6 @@
 
 .image-space-div {
   height: 20px;
-}
-
-.error-input {
-
 }
 
 .input-group-addon.primary {
