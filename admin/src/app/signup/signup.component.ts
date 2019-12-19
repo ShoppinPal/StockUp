@@ -58,17 +58,17 @@ export class SignupComponent implements OnInit {
       if (this.user.email === undefined || this.user.email === null || this.user.email === '') {
         throw new Error('Invalid email');
       }
+      var emailValidationBody = [`${this.user.email}`]
+      var validateEmail = Utils.validateEmail((emailValidationBody));
+      if (!validateEmail) {
+        throw new Error('Invalid email');
+      }
       if (this.user.password === undefined || this.user.password === null || this.user.password === '') {
         throw new Error('Invalid password');
       }
       if (this.confirmPassword === undefined || this.confirmPassword === null || this.confirmPassword === '') {
         throw new Error('Invalid confirm password');
       }
-      var validateEmail = Utils.singleValidateEmail((this.user.email).trim());
-      if (!validateEmail) {
-        throw new Error('Invalid email');
-      }
-
       var validatePassword = Utils.validatePassword((this.user.password).trim());
       if (!validatePassword) {
         throw new Error('Minimum 6 characters required in password');
