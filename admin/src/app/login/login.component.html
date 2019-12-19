@@ -123,19 +123,19 @@
               </div>
             </form>
               <div class="row">
-                <div class="col-6">
+                <div class="col-6 login-button">
                   <button type="button" (click)="fetchInput(username.value, password.value)"
                           class="btn btn-primary px-4">Login
                   </button>
                 </div>
               </div>
               <div class="row">
-                <div class="text-left col-sm-6">
+                <div class="text-left col-sm-6 text-left-custom">
                   <a class="new-account" routerLink="/signup" routerLinkActive="active" (click)="loading=true">
                     New user? Create Account
                   </a>
                 </div>
-                <div class="text-right col-sm-6">
+                <div class="text-right col-sm-6 text-right-custom">
                   <a class="new-account" routerLink="/forgot-password" routerLinkActive="active" (click)="loading=true">
                     Forgot Password
                   </a>
