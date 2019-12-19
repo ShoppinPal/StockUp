@@ -48,7 +48,6 @@ const routes: Routes = [
       },
       {
         path: 'stores',
-        // component: StoresComponent,
         data: {
           title: 'Settings'
         },
@@ -77,7 +76,6 @@ const routes: Routes = [
       },
       {
         path: 'reorder-points',
-        // component: ReorderPointsComponent,
         data: {
           title: 'Settings'
         },
@@ -85,18 +83,13 @@ const routes: Routes = [
       },
       {
         path: 'file-imports',
-        // component: FileImportsComponent,
         data: {
           title: 'Settings'
         },
         loadChildren: './file-imports/file-imports.module#FileImportsModule'
-        // resolve: {
-        //   data: FileImportsResolverService
-        // }
       },
       {
         path: 'schedules',
-        // component: SchedulesComponent,
         data: {
           title: 'Settings'
         },

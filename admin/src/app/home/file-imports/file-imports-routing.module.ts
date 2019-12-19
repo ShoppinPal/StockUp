@@ -15,11 +15,6 @@ const routes: Routes = [
       access: AccessService
     },
     children: [
-      // {
-      //   redirectTo: '',
-      //   path: '',
-      //   pathMatch: 'full'
-      // },
       {
         path: '',
         component: FileImportsComponent,
