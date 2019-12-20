@@ -119,4 +119,10 @@ export class SuppliersComponent implements OnInit {
     this._router.navigate(['suppliers/edit/' + supplierId]);
   }
 
+  keyUpEvent(event, searchSupplierText) {
+    if(event.keyCode == '13' && searchSupplierText !== '') {
+      this.searchSupplier();
+    }
+  }
+
 }

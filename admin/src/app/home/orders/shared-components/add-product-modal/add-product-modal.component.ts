@@ -68,7 +68,8 @@ export class AddProductModalComponent implements OnInit {
       this.toastr.success('Added product to stock order');
     }, error => {
       this.loading = false;
-      this.toastr.error('Cannot add product to stock order');
+      // this.toastr.error('Cannot add product to stock order');
+      this.toastr.error('Product already exists in stock order');
     })
   }
 

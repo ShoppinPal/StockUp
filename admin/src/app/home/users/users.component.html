@@ -59,6 +59,7 @@
                          class="form-control"
                          id="searchUser"
                          [(ngModel)]="searchUserText"
+                         (keyup)="keyUpEvent($event, searchUserText)"
                          placeholder="Search user by name or email">
                   <span class="input-group-btn">
                     <button class="btn btn-primary" type="button"

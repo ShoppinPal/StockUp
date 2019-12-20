@@ -111,8 +111,8 @@ module.exports = function (UserModel) {
                 'orgName': Joi.string().required(),
                 'email': Joi.string().email().required(),
                 'password': Joi.string()
-                    .min(5)
-                    .required()
+                    .min(6)
+                    .required(),
             });
 
             var orgCreated = {};

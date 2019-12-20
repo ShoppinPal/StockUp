@@ -20,6 +20,10 @@
     "virtual": {
       "type": "boolean",
       "required": false
+    },
+    "orgName": {
+      "type": "string",
+      "required": false
     }
   },
   "validations": [],

@@ -48,13 +48,10 @@ const routes: Routes = [
       },
       {
         path: 'stores',
-        component: StoresComponent,
         data: {
-          title: 'Stores'
+          title: 'Settings'
         },
-        resolve: {
-          stores: StoresResolverService
-        }
+        loadChildren: './stores/stores.module#StoresModule'
       },
       {
         path: 'products',
@@ -79,27 +76,24 @@ const routes: Routes = [
       },
       {
         path: 'reorder-points',
-        component: ReorderPointsComponent,
         data: {
-          title: 'Settings / Reorder Points'
-        }
+          title: 'Settings'
+        },
+        loadChildren: './reorder-points/reorder-points.module#ReorderPointsModule'
       },
       {
         path: 'file-imports',
-        component: FileImportsComponent,
         data: {
-          title: 'Home > Settings > File Imports'
+          title: 'Settings'
         },
-        resolve: {
-          data: FileImportsResolverService
-        }
+        loadChildren: './file-imports/file-imports.module#FileImportsModule'
       },
       {
         path: 'schedules',
-        component: SchedulesComponent,
         data: {
-          title: 'Home > Settings > Schedules'
-        }
+          title: 'Settings'
+        },
+        loadChildren: './schedules/schedules.module#SchedulesModule'
       }
     ]
   }

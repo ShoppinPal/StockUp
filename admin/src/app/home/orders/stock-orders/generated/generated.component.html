@@ -90,6 +90,7 @@
                          class="form-control"
                          id="searchSKU"
                          [(ngModel)]="searchSKUText"
+                         (keyup)="keyUpEvent($event, searchSKUText)"
                          placeholder="Scan SKU barcode here or enter text">
                   <span class="input-group-append">
                     <button class="btn btn-primary" type="button"

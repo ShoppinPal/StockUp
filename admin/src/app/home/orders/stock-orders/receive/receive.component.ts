@@ -435,6 +435,11 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   openDeleteModal() {
     this.bsModalRef = this.modalService.show(DeleteOrderComponent, {initialState: {orderId: this.order.id}});
   }
+  keyUpEvent(event, searchSKUText) {
+    if(event.keyCode == '13' && !this.enableBarcode && searchSKUText !== '') {
+      this.searchProductBySku(searchSKUText)
+    }
+  }
 }
 
 class box {

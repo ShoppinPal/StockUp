@@ -398,4 +398,11 @@ export class FulfillComponent implements OnInit {
   openDeleteModal() {
     this.bsModalRef = this.modalService.show(DeleteOrderComponent, {initialState: {orderId: this.order.id}});
   }
+
+keyUpEvent(event, searchSKUText) {
+    if(event.keyCode == '13' && !this.enableBarcode) {
+      this.searchProductBySku(searchSKUText)
+    }
+  }
+
 }

@@ -503,4 +503,10 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     this.bsModalRef = this.modalService.show(DeleteOrderComponent, {initialState: {orderId: this.order.id}});
   }
 
+  keyUpEvent(event, searchSKUText) {
+    if(event.keyCode == '13') {
+      this.searchProductBySku(searchSKUText)
+    }
+  }
+
 }

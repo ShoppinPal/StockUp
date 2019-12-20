@@ -124,5 +124,11 @@ export class CategoriesComponent implements OnInit {
     }
   }
 
+   keyUpEvent(event, limit?: number, skip?: number, searchText?: string) {
+    if(event.keyCode == '13') {
+      this.fetchCategories(limit, skip, searchText);
+    }
+  }
+
 
 }
