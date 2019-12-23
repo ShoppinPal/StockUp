@@ -182,7 +182,7 @@ function fetchPaginatedSales(sqlPool, orgModelId, pagesToFetch) {
                 //Add some operations to be executed
                 _.each(incrementalSales, function (eachSales, iteratee) {
                     var storeModelToAttach = _.findWhere(storeModelInstances, {storeNumber: eachSales.WAREHOUSE});
-                    if (storeModelToAttach && eachSales.TRANSACTIONSTATUS === 2) {
+                    if (storeModelToAttach && ( eachSales.TRANSACTIONSTATUS === 2 || eachSales.TRANSACTIONSTATUS === 1 )) {
                         batch.find({
                             transactionNumber: eachSales.TRANSACTIONNUMBER
                         }).upsert().updateOne({
