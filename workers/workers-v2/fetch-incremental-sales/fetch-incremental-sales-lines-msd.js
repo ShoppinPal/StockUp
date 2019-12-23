@@ -12,6 +12,7 @@ const Promise = require('bluebird');
 const SALES_LINES_TABLE = 'RetailTransactionSalesLineStaging';
 const SALES_LINES_PER_PAGE = 1000;
 const commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
+const transactionStatus = require('../constants/sales-constants.json');
 
 var runMe = function (sqlPool, orgModelId, salesLineSyncModel) {
     try {

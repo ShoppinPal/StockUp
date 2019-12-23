@@ -1,0 +1,11 @@
+{
+    "0": "None",
+    "1": "Voided",
+    "2": "Posted",
+    "3": "Concluded",
+    "4": "Cancelled",
+    "5": "On Hold",
+    "6": "Training",
+    "7": "Pending",
+    "8": "Creating sales order in progress"
+}
