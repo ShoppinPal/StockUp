@@ -1,5 +1,5 @@
 v1.6.1 - July 17, 2019
-- Migrating the build process from CircleCI to GCP Cloud Build.
+- Migrating the build process from CircleCI to GCP Cloud Build..
 
 v1.6.0 - Jan 11, 2019
 - Multi-tenant support
