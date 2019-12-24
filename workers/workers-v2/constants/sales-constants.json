@@ -1,0 +1,11 @@
+{
+    "NONE": 0,
+    "VOIDED": 1,
+    "POSTED": 2,
+    "CONCLUDED": 3,
+    "CANCELLED": 4,
+    "ON_HOLD": 5,
+    "TRAINING": 6,
+    "PENDING": 7,
+    "CREATING_SALES_ORDER_IN_PROGRESS": 8
+}

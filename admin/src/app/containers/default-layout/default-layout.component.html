@@ -8,13 +8,13 @@
   [sidebarToggler]="'lg'"
   [asideMenuToggler]="'lg'"
   >
-  <ul class="nav navbar-nav ml-auto" style="padding-right: 10px;">
+  <ul class="nav navbar-nav ml-auto">
     <li class="nav-item dropdown" dropdown placement="bottom right">
       <a class="nav-link dropdown-toggle padding-right" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
          aria-expanded="false" dropdownToggle (click)="false" style="padding-right: 10px;">
         <span>{{user.email}}</span>
       </a>
-      <div class="dropdown-menu dropdown-menu-left" *dropdownMenu aria-labelledby="simple-dropdown">
+      <div class="dropdown-menu dropdown-menu-right" *dropdownMenu aria-labelledby="simple-dropdown">
         <a class="dropdown-item" href="#" (click)="logout()"><i class="fa fa-lock"></i> Logout</a>
       </div>
     </li>
