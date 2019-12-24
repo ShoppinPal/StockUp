@@ -1,11 +1,11 @@
 {
-    "0": "None",
-    "1": "Voided",
-    "2": "Posted",
-    "3": "Concluded",
-    "4": "Cancelled",
-    "5": "On Hold",
-    "6": "Training",
-    "7": "Pending",
-    "8": "Creating sales order in progress"
+    "NONE": "0",
+    "VOIDED": "1",
+    "POSTED": "2",
+    "CONCLUDED": "3",
+    "CANCELLED": "4",
+    "ON_HOLD": "5",
+    "TRAINING": "6",
+    "PENDING": "7",
+    "CREATING_SALES_ORDER_IN_PROGRESS": "8"
 }

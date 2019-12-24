@@ -12,6 +12,7 @@ const Promise = require('bluebird');
 const SALES_TABLE = 'RetailTransactionStaging';
 const SALES_PER_PAGE = 1000;
 const commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
+const transactionStatus = require('../constants/sales-constants.json');
 
 var runMe = function (sqlPool, orgModelId, salesSyncModel) {
     try {
@@ -182,7 +183,7 @@ function fetchPaginatedSales(sqlPool, orgModelId, pagesToFetch) {
                 //Add some operations to be executed
                 _.each(incrementalSales, function (eachSales, iteratee) {
                     var storeModelToAttach = _.findWhere(storeModelInstances, {storeNumber: eachSales.WAREHOUSE});
-                    if (storeModelToAttach && ( eachSales.TRANSACTIONSTATUS === 2 || eachSales.TRANSACTIONSTATUS === 0 )) {
+                    if (storeModelToAttach && ( eachSales.TRANSACTIONSTATUS === transactionStatus.POSTED || eachSales.TRANSACTIONSTATUS === transactionStatus.NONE )) {
                         batch.find({
                             transactionNumber: eachSales.TRANSACTIONNUMBER
                         }).upsert().updateOne({

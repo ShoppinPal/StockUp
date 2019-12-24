@@ -17,7 +17,6 @@ const transactionStatus = require('../constants/sales-constants.json');
 var runMe = function (sqlPool, orgModelId, salesLineSyncModel) {
     try {
         // Global variable for logging
-
         logger.debug({
             commandName: commandName,
             argv: process.argv,
@@ -229,7 +228,7 @@ function fetchPaginatedSalesLines(sqlPool, orgModelId, pagesToFetch) {
                 _.each(incrementalSalesLines, function (eachSalesLine, iteratee) {
                     var salesModelToAttach = _.findWhere(salesModelInstances, {transactionNumber: eachSalesLine.TRANSACTIONNUMBER});
                     var productModelToAttach = _.findWhere(productModelInstances, {api_id: eachSalesLine.ITEMID});
-                    if (salesModelToAttach && ( eachSalesLine.TRANSACTIONSTATUS === 2 || eachSalesLine.TRANSACTIONSTATUS === 0 )) {
+                    if (salesModelToAttach && ( eachSalesLine.TRANSACTIONSTATUS === transactionStatus.POSTED || eachSalesLine.TRANSACTIONSTATUS === transactionStatus.NONE )) {
                         batch.find({
                             $and: [{
                                 transactionNumber: eachSalesLine.TRANSACTIONNUMBER
