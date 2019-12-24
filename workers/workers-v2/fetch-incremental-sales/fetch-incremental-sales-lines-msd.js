@@ -12,7 +12,7 @@ const Promise = require('bluebird');
 const SALES_LINES_TABLE = 'RetailTransactionSalesLineStaging';
 const SALES_LINES_PER_PAGE = 1000;
 const commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
-const transactionStatus = require('../constants/sales-constants.json');
+const transactionConstants = require('../constants/sales-constants.json');
 
 var runMe = function (sqlPool, orgModelId, salesLineSyncModel) {
     try {
@@ -228,7 +228,9 @@ function fetchPaginatedSalesLines(sqlPool, orgModelId, pagesToFetch) {
                 _.each(incrementalSalesLines, function (eachSalesLine, iteratee) {
                     var salesModelToAttach = _.findWhere(salesModelInstances, {transactionNumber: eachSalesLine.TRANSACTIONNUMBER});
                     var productModelToAttach = _.findWhere(productModelInstances, {api_id: eachSalesLine.ITEMID});
-                    if (salesModelToAttach && ( eachSalesLine.TRANSACTIONSTATUS === transactionStatus.POSTED || eachSalesLine.TRANSACTIONSTATUS === transactionStatus.NONE )) {
+                    if (salesModelToAttach && 
+                    ( eachSalesLine.TRANSACTIONSTATUS === transactionConstants.TRANSACTION_STATUS.POSTED || 
+                    eachSalesLine.TRANSACTIONSTATUS === transactionConstants.TRANSACTION_STATUS.NONE )) {
                         batch.find({
                             $and: [{
                                 transactionNumber: eachSalesLine.TRANSACTIONNUMBER
