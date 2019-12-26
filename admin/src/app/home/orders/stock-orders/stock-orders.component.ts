@@ -72,6 +72,7 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.loading = true;
     this.userProfile = this._userProfileService.getProfileData();
     this.userStores = this.userProfile.storeModels;
     this._route.data.subscribe((data: any) => {
@@ -82,6 +83,7 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
         if (this.orderConfigurations && this.orderConfigurations.length > 0) {
           this.selectedOrderConfigurationId = this.orderConfigurations[0].id;
         }
+        this.loading = false;
       },
       error => {
         console.log('error', error)
