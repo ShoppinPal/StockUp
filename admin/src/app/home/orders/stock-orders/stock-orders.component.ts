@@ -86,6 +86,8 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
         this.loading = false;
       },
       error => {
+        this.loading = false;
+          this.toastr.error('Some error occurred');
         console.log('error', error)
       });
 
