@@ -20,6 +20,7 @@ export class SignupComponent implements OnInit {
   public loading = false;
   confirmPassword = '';
   orgName = ''
+  public headerParaData = "The industry’s first and only open source app for automating stock replenishment."
 
   constructor(private userModelApi: UserModelApi, private _router: Router, private _route: ActivatedRoute, private toastr: ToastrService) {
     LoopBackConfig.setBaseURL(environment.BASE_URL);
