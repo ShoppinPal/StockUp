@@ -543,8 +543,8 @@ function generateStockOrder(payload, config, taskId, messageId) {
                                             storeInventory: eachProduct.inventory_level,
                                             warehouseInventory: warehouseQuantity,
                                             originalOrderQuantity: Math.round(productOrderQuantity),
-                                            categoryModelId: ObjectId(optionInventory.categoryModel[0]._id),
-                                            categoryModelName: optionInventory.categoryModel[0].name,  //need for sorting
+                                            categoryModelId: optionCategoryModel ? ObjectId(optionCategoryModel._id) : '',
+                                            categoryModelName: optionCategoryModel ? optionCategoryModel.name : '',  //need for sorting
                                             fulfilledQuantity: 0,
                                             receivedQuantity: 0,
                                             fulfilled: false,

@@ -388,7 +388,7 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                             messageId
                         });
                         return eachBatch.execute();
-                    });
+                    }, {concurrency: 1});
                 }
                 else {
                     return Promise.resolve('No reorder points to update');

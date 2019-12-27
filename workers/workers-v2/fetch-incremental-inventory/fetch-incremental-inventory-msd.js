@@ -153,6 +153,8 @@ function fetchPaginatedInventorySums(sqlPool, orgModelId, pagesToFetch) {
                 ' JOIN ' + INVENTORY_DIM_TABLE + ' as InDim ' +
                 ' ON InSum.INVENTDIMID = InDim.INVENTDIMID ' +
                 ' WHERE InSum.STOCKUPTRANSFER = @transfer_pending_state AND InDim.INVENTSITEID = InDim.INVENTLOCATIONID')
+            //TODO: Remove this condition from query and set it in code so that these rows can be marked as synced
+            //TODO: InDim.INVENTSITEID = InDim.INVENTLOCATIONID'
             .then(function (result) {
                 incrementalInventory = result.recordset;
                 var incrementalItemIDs = _.pluck(incrementalInventory, 'ITEMID');
