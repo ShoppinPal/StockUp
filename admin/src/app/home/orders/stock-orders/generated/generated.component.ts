@@ -113,7 +113,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       };
       if(productModelIds && productModelIds.length) {
         whereFilter['productModelId'] = {
-          inq : productModelIds 
+          inq : productModelIds
         };
       }
     let filter = {
@@ -170,7 +170,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       };
       if(productModelIds && productModelIds.length) {
         whereFilter['productModelId'] = {
-          inq : productModelIds 
+          inq : productModelIds
         };
       }
     let filter = {
@@ -234,8 +234,6 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       var productModelIds = data.map(function filterProductIds(eachProduct) {
         return eachProduct.id;
       });
-      // console.log('id array products check for rsync', productModelIds);
-      // console.log('prodcutModelIds', productModelIds);
       this.getApprovedStockOrderLineItems(100, 0, productModelIds);
       this.getNotApprovedStockOrderLineItems(100, 0, productModelIds);
     }
