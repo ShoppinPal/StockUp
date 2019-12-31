@@ -64,6 +64,11 @@ export class LoginComponent implements OnInit {
       this.userModelApi.login(this.user).subscribe((token: AccessToken) => {
         this.loading = false;
         this._router.navigate(['/orders/stock-orders']);
+        setTimeout(() => {
+          this.toastr.success('Successfully Logged In', '', {
+          onActivateTick: true
+        });          
+        },(1500));
       }, err => {
         if(err.status == 401) {
           this.toastr.error('Unauthorized');
@@ -78,12 +83,6 @@ export class LoginComponent implements OnInit {
         this.toastr.error(error);
     }
   }
-
-  validateEmail(email) {
-    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(String(email).toLowerCase());
-  }
-
 
   ngOnInit() {
     this.getRouteData()
