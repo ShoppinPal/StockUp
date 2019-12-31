@@ -513,7 +513,10 @@ function generateStockOrder(payload, config, taskId, messageId) {
                                  * then rationalise it to sum up to optionOrderQuantity
                                  */
                                 var totalOrderQuantitiesForProducts = _.reduce(optionInventory.productModels, function (memo, num) {
-                                    var orderQuantity = num.reorder_point - (num.inventory_level>0 ? num.inventory_level : 0);//treat negative store inventory as ZERO, as told by client
+                                    var orderQuantity = 0;                                    
+                                    if(num.reorder_point > 0) {
+                                        orderQuantity = num.reorder_point - (num.inventory_level>0 ? num.inventory_level : 0);//treat negative store inventory as ZERO, as told by client
+                                    }
                                     return memo + orderQuantity;
                                 }, 0);
 
