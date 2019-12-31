@@ -513,7 +513,10 @@ function generateStockOrder(payload, config, taskId, messageId) {
                                  * then rationalise it to sum up to optionOrderQuantity
                                  */
                                 var totalOrderQuantitiesForProducts = _.reduce(optionInventory.productModels, function (memo, num) {
-                                    var orderQuantity = num.reorder_point - (num.inventory_level>0 ? num.inventory_level : 0);//treat negative store inventory as ZERO, as told by client
+                                    var orderQuantity = 0;                                    
+                                    if(num.reorder_point > 0) {
+                                        orderQuantity = num.reorder_point - (num.inventory_level>0 ? num.inventory_level : 0);//treat negative store inventory as ZERO, as told by client
+                                    }
                                     return memo + orderQuantity;
                                 }, 0);
 
@@ -543,8 +546,8 @@ function generateStockOrder(payload, config, taskId, messageId) {
                                             storeInventory: eachProduct.inventory_level,
                                             warehouseInventory: warehouseQuantity,
                                             originalOrderQuantity: Math.round(productOrderQuantity),
-                                            categoryModelId: ObjectId(optionInventory.categoryModel[0]._id),
-                                            categoryModelName: optionInventory.categoryModel[0].name,  //need for sorting
+                                            categoryModelId: optionCategoryModel ? ObjectId(optionCategoryModel._id) : '',
+                                            categoryModelName: optionCategoryModel ? optionCategoryModel.name : '',  //need for sorting
                                             fulfilledQuantity: 0,
                                             receivedQuantity: 0,
                                             fulfilled: false,

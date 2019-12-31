@@ -193,7 +193,9 @@ function fetchPaginatedProducts(sqlPool, orgModelId, pagesToFetch) {
                 });
                 var batch = db.collection('ProductModel').initializeUnorderedBulkOp();
                 _.each(incrementalProducts, function (eachProduct) {
-                    var categoryModel = _.findWhere(categoryModelInstances, {name: eachProduct.RETAILPRODUCTCATEGORYNAME});
+                    var categoryModel = _.find(categoryModelInstances, function (eachCategory) {
+                        return eachCategory.name.toLowerCase() === eachProduct.RETAILPRODUCTCATEGORYNAME.toLowerCase()
+                    });
                     if (categoryModel) {
                         batch.find({
                             api_id: eachProduct.PRODUCTNUMBER
