@@ -101,18 +101,23 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     }
   }
 
-  getApprovedStockOrderLineItems(limit?: number, skip?: number, productModelId?: string) {
+  getApprovedStockOrderLineItems(limit?: number, skip?: number, productModelIds?: Array<string>) {
     if (!(limit && skip)) {
       limit = 100;
       skip = 0;
     }
     let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
-    let filter = {
-      where: {
+    let whereFilter = {
         reportModelId: this.order.id,
-        approved: true,
-        productModelId: productModelId
-      },
+        approved: false
+      };
+      if(productModelIds && productModelIds.length) {
+        whereFilter['productModelId'] = {
+          inq : productModelIds 
+        };
+      }
+    let filter = {
+      where: whereFilter,
       include: [
         {
           relation: 'productModel'
@@ -132,8 +137,8 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       reportModelId: this.order.id,
       approved: true
     };
-    if (productModelId)
-      countFilter['productModelId'] = productModelId;
+    if (productModelIds && productModelIds.length)
+      countFilter['productModelId'] = {inq: productModelIds};
     this.loading = true;
     let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
@@ -153,18 +158,23 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       });
   }
 
-  getNotApprovedStockOrderLineItems(limit?: number, skip?: number, productModelId?: string) {
+  getNotApprovedStockOrderLineItems(limit?: number, skip?: number, productModelIds?: Array<string>) {
     if (!(limit && skip)) {
       limit = 100;
       skip = 0;
     }
     let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
-    let filter = {
-      where: {
+    let whereFilter = {
         reportModelId: this.order.id,
-        approved: false,
-        productModelId: productModelId
-      },
+        approved: false
+      };
+      if(productModelIds && productModelIds.length) {
+        whereFilter['productModelId'] = {
+          inq : productModelIds 
+        };
+      }
+    let filter = {
+      where: whereFilter,
       include: [
         {
           relation: 'productModel'
@@ -184,8 +194,8 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       reportModelId: this.order.id,
       approved: false
     };
-    if (productModelId)
-      countFilter['productModelId'] = productModelId;
+    if (productModelIds && productModelIds.length)
+      countFilter['productModelId'] = {inq: productModelIds};
     this.loading = true;
     let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
@@ -209,9 +219,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.orgModelApi.getProductModels(this.userProfile.orgModelId, {
       where: {
-        sku: {
-          like: sku
-        }
+        sku: sku
       }
     })
       .subscribe((data) => {
@@ -221,8 +229,12 @@ export class GeneratedComponent implements OnInit, OnDestroy {
 
   loadStockItemsByProducts(data: any) {
     if (data.length) {
-      this.getApprovedStockOrderLineItems(1, 0, data[0].id);
-      this.getNotApprovedStockOrderLineItems(1, 0, data[0].id);
+      var productModelIds = data.map(function filterProductIds(eachProduct) {
+        return eachProduct.id;
+      });
+      console.log('prodcutModelIds', productModelIds);
+      this.getApprovedStockOrderLineItems(100, 0, productModelIds);
+      this.getNotApprovedStockOrderLineItems(100, 0, productModelIds);
     }
     else {
       this.loading = false;
