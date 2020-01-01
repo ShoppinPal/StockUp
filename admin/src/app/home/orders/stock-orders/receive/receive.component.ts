@@ -108,7 +108,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       };
       if(productModelIds && productModelIds.length) {
         whereFilter['productModelId'] = {
-          inq : productModelIds 
+          inq : productModelIds
         };
       }
     const filter: any = {
@@ -171,7 +171,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       };
       if(productModelIds && productModelIds.length) {
         whereFilter['productModelId'] = {
-          inq : productModelIds 
+          inq : productModelIds
         };
       }
     let filter = {
