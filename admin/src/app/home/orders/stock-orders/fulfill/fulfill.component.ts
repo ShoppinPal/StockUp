@@ -91,9 +91,9 @@ export class FulfillComponent implements OnInit {
       limit = 100;
       skip = 0;
     }
-    // if (!productModelId) {
-    //   this.searchSKUText = ''
-    // }
+    if (!productModelIds) {
+      this.searchSKUText = ''
+    }
     let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
     let whereFilter = {
         reportModelId: this.order.id,
@@ -157,9 +157,9 @@ export class FulfillComponent implements OnInit {
       limit = 100;
       skip = 0;
     }
-    // if (!productModelId) {
-    //   this.searchSKUText = ''
-    // }
+    if (!productModelIds) {
+      this.searchSKUText = ''
+    }
     let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
     let whereFilter = {
         reportModelId: this.order.id,
