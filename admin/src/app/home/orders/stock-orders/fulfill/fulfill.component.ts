@@ -86,24 +86,26 @@ export class FulfillComponent implements OnInit {
   }
 
 
-  getFulfilledStockOrderLineItems(limit?: number, skip?: number, productModelId?: string) {
+  getFulfilledStockOrderLineItems(limit?: number, skip?: number, productModelIds?: Array<string>) {
     if (!(limit && skip)) {
       limit = 100;
       skip = 0;
     }
-    if (!productModelId) {
-      this.searchSKUText = ''
-    }
+    // if (!productModelId) {
+    //   this.searchSKUText = ''
+    // }
     let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
-    const filter: any = {
-      where: {
+    let whereFilter = {
         reportModelId: this.order.id,
-        approved: true,
-        fulfilledQuantity: {
-          gt: 0
-        },
-        productModelId: productModelId
-      },
+        approved: false
+      };
+      if(productModelIds && productModelIds.length) {
+        whereFilter['productModelId'] = {
+          inq : productModelIds 
+        };
+      }
+    const filter: any = {
+      where: whereFilter,
       include: [
         {
           relation: 'productModel'
@@ -119,15 +121,15 @@ export class FulfillComponent implements OnInit {
       skip: skip,
       order: 'binLocation ' + sortOrder + ', ' + this.sortColumn + ' ' + sortOrder
     };
-    let countFilter: any = {
+    let countFilter = {
       reportModelId: this.order.id,
       approved: true,
       fulfilledQuantity: {
         gt: 0
       }
     };
-    if (productModelId)
-      countFilter['productModelId'] = productModelId;
+    if (productModelIds && productModelIds.length)
+      countFilter['productModelId'] = {inq: productModelIds};
     this.loading = true;
     let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
@@ -147,22 +149,26 @@ export class FulfillComponent implements OnInit {
       });
   }
 
-  getNotFulfilledStockOrderLineItems(limit?: number, skip?: number, productModelId?: string) {
+  getNotFulfilledStockOrderLineItems(limit?: number, skip?: number, productModelIds?: Array<string>) {
     if (!(limit && skip)) {
       limit = 100;
       skip = 0;
     }
-    if (!productModelId) {
-      this.searchSKUText = ''
-    }
+    // if (!productModelId) {
+    //   this.searchSKUText = ''
+    // }
     let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
-    let filter = {
-      where: {
+    let whereFilter = {
         reportModelId: this.order.id,
-        approved: true,
-        fulfilled: false,
-        productModelId: productModelId
-      },
+        approved: false
+      };
+      if(productModelIds && productModelIds.length) {
+        whereFilter['productModelId'] = {
+          inq : productModelIds 
+        };
+      }
+    let filter = {
+      where: whereFilter,
       include: [
         {
           relation: 'productModel',
@@ -185,8 +191,8 @@ export class FulfillComponent implements OnInit {
       approved: true,
       fulfilled: false
     };
-    if (productModelId)
-      countFilter['productModelId'] = productModelId;
+    if (productModelIds && productModelIds.length)
+      countFilter['productModelId'] = {inq: productModelIds};
     this.loading = true;
     let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
@@ -249,14 +255,19 @@ export class FulfillComponent implements OnInit {
 
   searchProductBySku(sku?: string) {
     this.loading = true;
+    var pattern = new RegExp('.*'+sku+'.*', "i"); /* case-insensitive RegExp search */
+    var filterData = pattern.toString();
     this.orgModelApi.getProductModels(this.userProfile.orgModelId, {
       where: {
-        sku: sku
+        sku: { "regexp": filterData }
       }
     }).subscribe((data: any) => {
       if (data.length) {
-        this.getFulfilledStockOrderLineItems(1, 0, data[0].id);
-        this.getNotFulfilledStockOrderLineItems(1, 0, data[0].id);
+        var productModelIds = data.map(function filterProductIds(eachProduct) {
+          return eachProduct.id;
+        });
+        this.getFulfilledStockOrderLineItems(100, 0, productModelIds);
+        this.getNotFulfilledStockOrderLineItems(100, 0, productModelIds);
       }
       else {
         this.loading = false;
