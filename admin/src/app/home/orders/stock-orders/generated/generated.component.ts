@@ -217,13 +217,15 @@ export class GeneratedComponent implements OnInit, OnDestroy {
 
   searchProductBySku(sku?: string) {
     this.loading = true;
+    var pattern = new RegExp('.*'+sku+'.*', "i"); /* case-insensitive RegExp search */
+    var filterData = pattern.toString();
     this.orgModelApi.getProductModels(this.userProfile.orgModelId, {
       where: {
-        sku: sku
+        sku: { "regexp": filterData }
       }
     })
       .subscribe((data) => {
-        this.loadStockItemsByProducts(data)
+        this.loadStockItemsByProducts(data);
       })
   }
 
@@ -232,7 +234,8 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       var productModelIds = data.map(function filterProductIds(eachProduct) {
         return eachProduct.id;
       });
-      console.log('prodcutModelIds', productModelIds);
+      // console.log('id array products check for rsync', productModelIds);
+      // console.log('prodcutModelIds', productModelIds);
       this.getApprovedStockOrderLineItems(100, 0, productModelIds);
       this.getNotApprovedStockOrderLineItems(100, 0, productModelIds);
     }
