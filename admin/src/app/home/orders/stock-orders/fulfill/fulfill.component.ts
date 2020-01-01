@@ -104,7 +104,7 @@ export class FulfillComponent implements OnInit {
       };
       if(productModelIds && productModelIds.length) {
         whereFilter['productModelId'] = {
-          inq : productModelIds 
+          inq : productModelIds
         };
       }
     const filter: any = {
@@ -168,7 +168,7 @@ export class FulfillComponent implements OnInit {
       };
       if(productModelIds && productModelIds.length) {
         whereFilter['productModelId'] = {
-          inq : productModelIds 
+          inq : productModelIds
         };
       }
     let filter = {
