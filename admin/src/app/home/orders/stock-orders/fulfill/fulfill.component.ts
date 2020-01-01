@@ -97,7 +97,10 @@ export class FulfillComponent implements OnInit {
     let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
     let whereFilter = {
         reportModelId: this.order.id,
-        approved: false
+        approved: true,
+        fulfilledQuantity: {
+          gt: 0
+        }
       };
       if(productModelIds && productModelIds.length) {
         whereFilter['productModelId'] = {
@@ -160,7 +163,8 @@ export class FulfillComponent implements OnInit {
     let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
     let whereFilter = {
         reportModelId: this.order.id,
-        approved: false
+        approved: true,
+        fulfilled: false
       };
       if(productModelIds && productModelIds.length) {
         whereFilter['productModelId'] = {

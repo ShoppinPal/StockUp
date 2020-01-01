@@ -89,25 +89,30 @@ export class ReceiveComponent implements OnInit, OnDestroy {
 
   }
 
-  getReceivedStockOrderLineItems(limit?: number, skip?: number, productModelId?: string) {
+  getReceivedStockOrderLineItems(limit?: number, skip?: number, productModelIds?: Array<string>) {
 
     if (!(limit && skip)) {
       limit = 100;
       skip = 0;
     }
-    if (!productModelId) {
+    if (!productModelIds) {
       this.searchSKUText = ''
     }
     let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
-    const filter: any = {
-      where: {
+    let whereFilter = {
         reportModelId: this.order.id,
         fulfilled: true,
         receivedQuantity: {
           gt: 0
-        },
-        productModelId: productModelId
-      },
+        }
+      };
+      if(productModelIds && productModelIds.length) {
+        whereFilter['productModelId'] = {
+          inq : productModelIds 
+        };
+      }
+    const filter: any = {
+      where: whereFilter,
       include: [
         {
           relation: 'productModel',
@@ -122,15 +127,15 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       skip: skip,
       order: 'categoryModelName ' + sortOrder + ', ' + this.sortColumn + ' ' + sortOrder
     };
-    let countFilter: any = {
+    let countFilter = {
       reportModelId: this.order.id,
       fulfilled: true,
       receivedQuantity: {
         gt: 0
       }
     };
-    if (productModelId)
-      countFilter['productModelId'] = productModelId;
+    if (productModelIds && productModelIds.length)
+      countFilter['productModelId'] = {inq: productModelIds};
     this.loading = true;
     let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
@@ -150,22 +155,27 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       });
   }
 
-  getNotReceivedStockOrderLineItems(limit?: number, skip?: number, productModelId?: string) {
+  getNotReceivedStockOrderLineItems(limit?: number, skip?: number, productModelIds?: Array<string>) {
     if (!(limit && skip)) {
       limit = 100;
       skip = 0;
     }
-    if (!productModelId) {
+    if (!productModelIds) {
       this.searchSKUText = ''
     }
     let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
-    let filter = {
-      where: {
+    let whereFilter = {
         reportModelId: this.order.id,
         fulfilled: true,
-        received: false,
-        productModelId: productModelId
-      },
+        received: false
+      };
+      if(productModelIds && productModelIds.length) {
+        whereFilter['productModelId'] = {
+          inq : productModelIds 
+        };
+      }
+    let filter = {
+      where: whereFilter,
       include: [
         {
           relation: 'productModel',
@@ -185,8 +195,8 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       fulfilled: true,
       received: false
     };
-    if (productModelId)
-      countFilter['productModelId'] = productModelId;
+    if (productModelIds && productModelIds.length)
+      countFilter['productModelId'] = {inq: productModelIds};
     this.loading = true;
     let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
@@ -249,14 +259,19 @@ export class ReceiveComponent implements OnInit, OnDestroy {
 
   searchProductBySku(sku?: string) {
     this.loading = true;
+    var pattern = new RegExp('.*'+sku+'.*', "i"); /* case-insensitive RegExp search */
+    var filterData = pattern.toString();
     this.orgModelApi.getProductModels(this.userProfile.orgModelId, {
       where: {
-        sku: sku
+        sku: { "regexp": filterData }
       }
     }).subscribe((data: any) => {
       if (data.length) {
-        this.getReceivedStockOrderLineItems(1, 0, data[0].id);
-        this.getNotReceivedStockOrderLineItems(1, 0, data[0].id);
+        var productModelIds = data.map(function filterProductIds(eachProduct) {
+        return eachProduct.id;
+      });
+        this.getReceivedStockOrderLineItems(100, 0, productModelIds);
+        this.getNotReceivedStockOrderLineItems(100, 0, productModelIds);
       }
       else {
         this.loading = false;
