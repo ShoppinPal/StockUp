@@ -19,7 +19,7 @@ Sentry.init({ dsn: sentryData });
 app.use(Sentry.Handlers.requestHandler());
 // The error handler must be before any other error middleware
 app.use(Sentry.Handlers.errorHandler());
-Sentry.captureMessage('Hello, world!');
+Sentry.captureMessage('Web Server');
 // boot scripts mount components like REST API
 boot(app, __dirname);
 

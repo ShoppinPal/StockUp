@@ -12,13 +12,12 @@ let SSE = require('express-sse');
 let authUsers = require('./middleware/authUsers');
 const Sentry = require('@sentry/node');
 var sentryData = process.env.STOCKUP_WEB
-console.log("sentryData : ",sentryData);
 Sentry.init({ dsn: sentryData });
 // The request handler must be the first middleware on the app
 app.use(Sentry.Handlers.requestHandler());
 // The error handler must be before any other error middleware
 app.use(Sentry.Handlers.errorHandler());
-
+Sentry.captureMessage('Notification Server');
 
 
 app.use(cors());
