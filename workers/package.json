@@ -4,6 +4,7 @@
   "description": "Background workers for the Stockup webapp",
   "main": "server.js",
   "dependencies": {
+    "@sentry/node": "^5.10.2",
     "asking": "0.1.2",
     "aws-sdk": "2.123.0",
     "bluebird": "2.9.30",
