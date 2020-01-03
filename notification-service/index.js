@@ -11,14 +11,20 @@ const logger = require('sp-json-logger')({fileName: + 'notification-service' + f
 let SSE = require('express-sse');
 let authUsers = require('./middleware/authUsers');
 const Sentry = require('@sentry/node');
-var sentryData = process.env.STOCKUP_WEB
-Sentry.init({ dsn: sentryData });
+var sentryDNS = process.env.STOCKUP_SENTRY_WEB_AND_NOTIFICATION_DNS;
+
+Sentry.init({ dsn: sentryDNS });
 // The request handler must be the first middleware on the app
 app.use(Sentry.Handlers.requestHandler());
 // The error handler must be before any other error middleware
 app.use(Sentry.Handlers.errorHandler());
-Sentry.captureMessage('Notification Server');
+Sentry.captureMessage('Sentry initiated at Notification Server');
 
+logger.debug({
+    message: 'Sentry initiated at Notification Server',
+    env: process.env.APP_HOST_NAME,
+    sentryDNS: sentryDNS
+});
 
 app.use(cors());
 app.use(bodyParser.json());

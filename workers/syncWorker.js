@@ -16,15 +16,15 @@ const FAILURE = 1;
 const syncInterval = 300;
 
 const Sentry = require('@sentry/node');
-var sentryData = process.env.STOCKUP_WORKER_V3;
+var sentryDNS = process.env.STOCKUP_SENTRY_WORKER_V3_DNS;
 
-Sentry.init({ dsn: sentryData });
+Sentry.init({ dsn: sentryDNS });
 Sentry.captureMessage('Sentry initiated at sync worker');
 
 logger.debug({
     message: 'Sentry initiated at sync worker',
     env: process.env.VM_EXTERNAL_IP,
-    sentryDNS: sentryData
+    sentryDNS: sentryDNS
 });
 
 logger.debug({
