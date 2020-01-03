@@ -9,7 +9,17 @@ var boot = require('loopback-boot');
 //     http://docs.strongloop.com/display/public/LB/Working+with+LoopBack+objects
 var app = module.exports = loopback();
 var path = require('path');
+const Sentry = require('@sentry/node');
+var sentryData = process.env.STOCKUP_WEB;
+console.log("sentryData : ",sentryData);
+// Sentry.init({ dsn: sentryData });
+Sentry.init({ dsn: sentryData });
 
+// The request handler must be the first middleware on the app
+app.use(Sentry.Handlers.requestHandler());
+// The error handler must be before any other error middleware
+app.use(Sentry.Handlers.errorHandler());
+Sentry.captureMessage('Hello, world!');
 // boot scripts mount components like REST API
 boot(app, __dirname);
 
