@@ -109,7 +109,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
     let whereFilter = {
         reportModelId: this.order.id,
-        approved: false
+        approved: true
       };
       if(productModelIds && productModelIds.length) {
         whereFilter['productModelId'] = {
