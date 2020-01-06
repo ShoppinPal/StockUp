@@ -60,7 +60,7 @@ export class CompleteComponent implements OnInit {
       };
       if(productModelIds && productModelIds.length) {
         whereFilter['productModelId'] = {
-          inq : productModelIds 
+          inq : productModelIds
         };
       }
     let filter = {
