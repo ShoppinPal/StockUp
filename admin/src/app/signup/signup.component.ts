@@ -59,6 +59,8 @@ export class SignupComponent implements OnInit {
       if (this.user.email === undefined || this.user.email === null || this.user.email === '') {
         throw new Error('Invalid email');
       }
+      this.orgName = this.orgName.toLowerCase();
+      this.user.email = this.user.email.toLowerCase();
       var emailValidationBody = [`${this.user.email}`]
       var validateEmail = Utils.validateEmail((emailValidationBody));
       if (!validateEmail) {
