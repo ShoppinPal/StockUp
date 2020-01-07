@@ -91,7 +91,7 @@ export class FulfillComponent implements OnInit {
       limit = 100;
       skip = 0;
     }
-    if (!productModelIds && productModelIds.length) {
+    if ((productModelIds !== undefined && productModelIds !== null) && (!productModelIds && productModelIds.length > 0)) {
       this.searchSKUText = ''
     }
     let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
@@ -157,7 +157,7 @@ export class FulfillComponent implements OnInit {
       limit = 100;
       skip = 0;
     }
-    if (!productModelIds && productModelIds.length) {
+    if ((productModelIds !== undefined && productModelIds !== null) && (!productModelIds && productModelIds.length > 0)) {
       this.searchSKUText = ''
     }
     let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
@@ -397,6 +397,7 @@ export class FulfillComponent implements OnInit {
    */
   barcodeSearchSKU($event: any) {
     if (this.enableBarcode && this.searchSKUText !== '') {
+      console.log("this.searchSKUText  :  ",this.searchSKUText);
       this.searchAndIncrementProduct(this.searchSKUText);
       $event.target.select();
     }

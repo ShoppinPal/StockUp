@@ -24,6 +24,7 @@ export class CompleteComponent implements OnInit {
   public totalLineItems: number;
   public sortAscending = true;
   public sortColumn = 'productModelSku';
+  public searchSKUText = '';
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -50,8 +51,8 @@ export class CompleteComponent implements OnInit {
       limit = 100;
       skip = 0;
     }
-    if (!productModelIds && productModelIds.length) {
-      this.searchSKUText = ''
+    if ((productModelIds !== undefined && productModelIds !== null) && (!productModelIds && productModelIds.length > 0)) {
+      this.searchSKUText = '';
     }
     let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
     let whereFilter = {
@@ -82,8 +83,8 @@ export class CompleteComponent implements OnInit {
     let countFilter = {
       reportModelId: this.order.id
     };
-    if (productModelId)
-      countFilter['productModelId'] = productModelId;
+    if (productModelIds && productModelIds.length)
+      countFilter['productModelId'] = {inq: productModelIds};
     this.loading = true;
     let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),

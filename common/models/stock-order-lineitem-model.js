@@ -35,13 +35,13 @@ module.exports = function (StockOrderLineitemModel) {
             force,
             options
         });
-        let searchPattern = new RegExp(productSku, 'i');
+        // let searchPattern = new RegExp(productSku, 'i');
+        var pattern = new RegExp('.*'+productSku+'.*', "i"); /* case-insensitive RegExp search */
+        var filterData = pattern.toString();
         return StockOrderLineitemModel.app.models.ProductModel.findOne({
             where: {
-                orgModelId,
-                sku: {
-                    like: searchPattern
-                }
+                orgModelId: orgModelId,
+                sku: { "regexp": filterData }
             }
         })
             .catch(function (error) {
@@ -151,7 +151,7 @@ module.exports = function (StockOrderLineitemModel) {
                         });
                         return Promise.all([Promise.resolve({showDiscrepancyAlert: true}), Promise.resolve(orderLineItem.id)]);
                     }
-                }else {
+                } else {
                     logger.debug({
                         functionName: 'scanBarcodeStockOrder',
                         message: 'Force "true" received will increment forcefully',
