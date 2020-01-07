@@ -421,7 +421,7 @@
             <p>Multiple Emails can be comma(,) separated</p>
             <div class="form-group col-sm-12">
               <span>To: </span>
-              <input class="form-control" type="email" name="to" (ngModelChange)="toEmailValidation()"
+              <input class="form-control" type="email" name="sendTo" (ngModelChange)="toEmailValidation()" (keyup)="toEmailEmpty()"
                      [(ngModel)]="emailModalData.to"/>
               <span class="text-success"
                     *ngIf="toValidEmailCounter > 0">{{toValidEmailCounter}} valid email(s)</span>
@@ -431,7 +431,7 @@
             </div>
             <div class="form-group col-sm-12">
               <span>Cc: </span>
-              <input class="form-control" type="email" name="cc" (ngModelChange)="ccEmailValidation()"
+              <input class="form-control" type="email" name="cc" (ngModelChange)="ccEmailValidation()" (keyup)="ccEmailEmpty()"
                      [(ngModel)]="emailModalData.cc"/>
               <span class="text-success"
                     *ngIf="ccValidEmailCounter > 0">{{ccValidEmailCounter}} valid email(s)</span>
@@ -442,7 +442,7 @@
             </div>
             <div class="form-group col-sm-12">
               <span>Bcc: </span>
-              <input class="form-control" type="email" name="bcc" (ngModelChange)="bccEmailValidation()"
+              <input class="form-control" type="email" name="bcc" (ngModelChange)="bccEmailValidation()" (keyup)="bccEmailEmpty()"
                      [(ngModel)]="emailModalData.bcc"/>
               <span class="text-success"
                     *ngIf="bccValidEmailCounter > 0">{{bccValidEmailCounter}} valid email(s)</span>

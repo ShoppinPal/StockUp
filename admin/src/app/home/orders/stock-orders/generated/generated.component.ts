@@ -75,7 +75,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
 
     this._route.data.subscribe((data: any) => {
         this.order = data.stockOrderDetails[0];
-        this.emailModalData.to = this.order.supplierModel ? this.order.supplierModel.email : '';
+        this.emailModalData.to = this.order.supplierModel ? ( this.order.supplierModel.email ? this.order.supplierModel.email : '') : '';
         this.getNotApprovedStockOrderLineItems();
         this.getApprovedStockOrderLineItems();
       },
@@ -280,6 +280,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
   toEmailValidation() {
     this.toValidEmailCounter = 0;
     this.toInvalidEmailCounter = 0;
+    this.emailModalData.to = this.emailModalData.to + ' ';
     let toEmailArray = this.emailModalData.to.split(',');
     if (toEmailArray.length) {
       toEmailArray.forEach(eachEmail => {
@@ -293,9 +294,18 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     }
   }
 
+  toEmailEmpty() {
+    this.emailModalData.to = this.emailModalData.to.trim();
+    if (this.emailModalData.to === '') {
+      this.toValidEmailCounter = 0;
+      this.toInvalidEmailCounter = 0;
+    }
+  }
+ 
   ccEmailValidation() {
     this.ccValidEmailCounter = 0;
     this.ccInvalidEmailCounter = 0;
+    this.emailModalData.cc = this.emailModalData.cc + ' ';
     let toEmailArray = this.emailModalData.cc.split(',');
     if (toEmailArray.length) {
       toEmailArray.forEach(eachEmail => {
@@ -309,9 +319,18 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     }
   }
 
+  ccEmailEmpty() {
+    this.emailModalData.cc = this.emailModalData.cc.trim();
+    if (this.emailModalData.cc === '') {
+      this.ccValidEmailCounter = 0;
+      this.ccInvalidEmailCounter = 0;
+    }
+  }
+
   bccEmailValidation() {
     this.bccValidEmailCounter = 0;
     this.bccInvalidEmailCounter = 0;
+    this.emailModalData.bcc = this.emailModalData.bcc + ' ';
     let toEmailArray = this.emailModalData.bcc.split(',');
     if (toEmailArray.length) {
       toEmailArray.forEach(eachEmail => {
@@ -322,6 +341,14 @@ export class GeneratedComponent implements OnInit, OnDestroy {
           this.bccInvalidEmailCounter++;
         }
       })
+    }
+  }
+
+   bccEmailEmpty() {
+    this.emailModalData.bcc = this.emailModalData.bcc.trim();
+    if (this.emailModalData.bcc === '') {
+      this.bccValidEmailCounter = 0;
+      this.bccInvalidEmailCounter = 0;
     }
   }
 
