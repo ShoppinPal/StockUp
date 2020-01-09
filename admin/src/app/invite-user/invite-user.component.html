@@ -29,13 +29,16 @@
                 <input type="password" [(ngModel)]="password" class="form-control" placeholder="Enter new password">
               </div>
               <div class="row">
-                <div class="col-6">
+                <div class="col-8">
                   <button type="button" (click)="setPassword()"
-                          class="btn btn-primary px-4">Sign In
+                          class="btn btn-primary px-4">Reset Password and Login
                   </button>
                 </div>
               </div>
-              <div class="row text-center">
+              <div class="text-button-space-div">
+      
+              </div>
+              <div class="row">
                 <div class="col-12">
                   <a routerLink="/login" routerLinkActive="active" (click)="loading=true">Already have an account? Login</a>
                 </div>
