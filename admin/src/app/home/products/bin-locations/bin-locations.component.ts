@@ -169,6 +169,10 @@ export class BinLocationsComponent implements OnInit {
    * @param searchText
    */
   searchSKU() {
+    try {
+    if (this.searchSKUText === undefined || this.searchSKUText === null || this.searchSKUText === '') {
+      throw new Error('SKU is a required field');
+    }
     this.loading = true;
     var pattern = new RegExp('.*'+this.searchSKUText+'.*', "i"); /* case-insensitive RegExp search */
     var filterData = pattern.toString();
@@ -186,8 +190,10 @@ export class BinLocationsComponent implements OnInit {
             this.totalProducts = 1;
             this.searchSKUFocused = false;
             this.foundSKU = true;
+            this.searchSKUText = '';
           }
           else if(data.length > 1) {
+            this.searchSKUText = '';
             this.searchedProduct = data;
             this.totalPages = 1;
             this.totalProducts = 2;
@@ -204,6 +210,9 @@ export class BinLocationsComponent implements OnInit {
           this.loading = false;
           console.log('Error in finding product', error);
         });
+    } catch (error) {
+        this.toastr.error(error);
+    }
   }
 
   /**
