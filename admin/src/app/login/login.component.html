@@ -1,5 +1,5 @@
-<div class="app flex-row">
-      <div class="row col-md-8 w-100" style="background-color:white">
+<div *ngIf="innerWidth > 769" class="app flex-row">
+      <div class="row col-md-7 col-sm-6 col-lg-8 col-xl-8 w-100" style="background-color:white">
         <div class="container h-100 w-100">
             <div class="row-3 h-25 w-100 image-header">
               {{headerParaData}}
@@ -7,12 +7,18 @@
             <div class="image-space-div">
 
             </div>
-            <div class="row-6 h-50 w-100 mb-4 justify-content-center align-items-center">
+            <div *ngIf="innerWidth < 768" class="row-6 h-50 w-100 mb-4 justify-content-center align-items-center">
+              <img class="mb-4 login-banner justify-content-center align-items-center" src="assets/img/img_login_banner_2.png" alt="">
+            </div>
+            <div *ngIf="innerWidth == 768" class="row-6 h-50 w-100 mb-4 justify-content-center align-items-center">
+              <img class="mb-4 login-banner justify-content-center align-items-center" src="assets/img/img_login_banner_2.png" alt="">
+            </div>
+            <div *ngIf="innerWidth > 768" class="row-6 h-50 w-100 mb-4 justify-content-center align-items-center">
               <img class="mb-4 login-banner justify-content-center align-items-center" src="assets/img/img_login_banner.png" alt="">
             </div>
         </div>
       </div>
-      <div class="row w-100 col-md-4 justify-content-center align-items-center row-two">
+      <div class="row w-100 col-md-5 col-sm-6 col-lg-4 col-xl-4 justify-content-center align-items-center row-two">
       <div class="justify-content-center w-100">
         <div class="d-flex justify-content-center">
           <div class="logo-avatar">
@@ -72,4 +78,70 @@
         </div>
       </div> 
     </div>
+</div>
+
+<div class="row justify-content-center align-items-center row-two">
+<div *ngIf="innerWidth < 769" class="app flex-row">
+<div class="justify-content-center w-100">
+  <div style="height:30%">
+
+  </div>
+  <div class="d-flex justify-content-center">
+    <div class="logo-avatar">
+        <img class="logo-image" src="assets/img/favicon.png" alt="">
+    </div>
+      <div class="header-space-div"></div>
+      <div>
+        <h1 align="center" style="color: #FFFFFF;">
+          StockUp
+        </h1>
+    </div>
+  </div>
+  <div class="header-card-space-div">
+
+  </div>
+  <div class="card-group">
+    <div class="card mb-2">
+      <div class="card-body">
+        <ngx-loading [show]="loading"></ngx-loading>
+        <h2>Login</h2>
+        <p class="text-muted">Sign In to your account</p>
+        <form [formGroup]="angForm">
+        <div class="input-group error-input mb-2">
+            <div class="input-group-prepend">
+              <span class="input-group-text"><i class="icon-user"></i></span>
+            </div>
+            <input type="text" #username class="form-control" formControlName="name" placeholder="Username" required>
+        </div>
+        <div class="input-group mb-2">
+          <div class="input-group-prepend">
+            <span class="input-group-text"><i class="icon-lock"></i></span>
+          </div>
+          <input type="password" #password class="form-control" placeholder="Password" (keyup)="onKey($event,username.value, password.value)" required>
+        </div>
+      </form>
+        <div class="row">
+          <div class="col-6 login-button">
+            <button type="button" (click)="fetchInput(username.value, password.value)"
+                    class="btn btn-primary px-4">Login
+            </button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="text-left col-sm-6 text-left-custom">
+            <a class="new-account" routerLink="/signup" routerLinkActive="active" (click)="loading=true">
+              New user? Create Account
+            </a>
+          </div>
+          <div class="text-right col-sm-6 text-right-custom">
+            <a class="new-account" routerLink="/forgot-password" routerLinkActive="active" (click)="loading=true">
+              Forgot Password
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 
+</div>
 </div>
