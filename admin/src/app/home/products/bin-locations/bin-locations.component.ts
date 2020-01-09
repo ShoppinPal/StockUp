@@ -170,9 +170,11 @@ export class BinLocationsComponent implements OnInit {
    */
   searchSKU() {
     this.loading = true;
+    var pattern = new RegExp('.*'+this.searchSKUText+'.*', "i"); /* case-insensitive RegExp search */
+    var filterData = pattern.toString();
     let filter = {
       where: {
-        sku: this.searchSKUText
+        sku: { "regexp": filterData }
       }
     };
     this.orgModelApi.getProductModels(this.userProfile.orgModelId, filter)

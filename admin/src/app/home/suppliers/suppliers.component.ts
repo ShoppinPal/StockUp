@@ -87,11 +87,11 @@ export class SuppliersComponent implements OnInit {
    */
   searchSupplier() {
     this.loading = true;
+    var pattern = new RegExp('.*'+this.searchSupplierText+'.*', "i"); /* case-insensitive RegExp search */
+    var filterData = pattern.toString();
     let filter = {
       where: {
-        name: {
-          like: this.searchSupplierText
-        }
+        name: { "regexp": filterData }
       }
     };
     this.orgModelApi.getSupplierModels(this.userProfile.orgModelId, filter)
