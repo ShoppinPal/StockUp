@@ -143,6 +143,9 @@ export class CreateOrderComponent implements OnInit {
   };
 
   generateStockOrderVend() {
+    try{
+      console.log("this.uploader.queue   :   ",this.uploader);
+      throw new Error(this.uploader.queue.length);
     if (this.uploader.queue.length) {
       console.log('uploading file...', this.uploader);
       this.loading = true;
@@ -198,6 +201,9 @@ export class CreateOrderComponent implements OnInit {
     } else {
       this.toastr.error('Select a store to deliver from or upload a file to generate order from');
       return;
+    }
+    } catch(e) {
+      this.toastr.error(e);
     }
   };
 
