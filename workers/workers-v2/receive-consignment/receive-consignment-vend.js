@@ -155,9 +155,10 @@ var runMe = function (payload, config, taskId, messageId) {
                         else {
                             if (eachLineItem.vendConsignmentProductId && !eachLineItem.vendDeletedAt) {
                                 return utils.deleteStockOrderLineitemForVend(db, eachLineItem, messageId)
-                                    .then(function () {
+                                    .then(function (response) {
                                         logger.debug({
-                                            message: 'Will update vend deleted status in DB',
+                                            message: 'Deleted line item from Vend, will update vend deleted status in DB',
+                                            response,
                                             messageId,
                                             eachLineItem
                                         });
