@@ -153,8 +153,41 @@ var runMe = function (payload, config, taskId, messageId) {
                             return utils.updateStockOrderLineitemForVend(db, reportModelInstance, eachLineItem, messageId);
                         }
                         else {
-                            if (eachLineItem.vendConsignmentProductId) {
-                                return utils.deleteStockOrderLineitemForVend(db, eachLineItem, messageId);
+                            if (eachLineItem.vendConsignmentProductId && !eachLineItem.vendDeletedAt) {
+                                return utils.deleteStockOrderLineitemForVend(db, eachLineItem, messageId)
+                                    .then(function (response) {
+                                        logger.debug({
+                                            message: 'Deleted line item from Vend, will update vend deleted status in DB',
+                                            response,
+                                            messageId,
+                                            eachLineItem
+                                        });
+                                        return db.collection('StockOrderLineitemModel').updateOne({
+                                            _id: ObjectId(eachLineItem._id)
+                                        }, {
+                                            $set: {
+                                                vendDeletedAt: new Date()
+                                            }
+                                        })
+                                            .catch(function (error) {
+                                                logger.error({
+                                                    message: 'Could not update vend deleted status in DB',
+                                                    error,
+                                                    messageId,
+                                                    eachLineItem
+                                                });
+                                                return Promise.reject('Could not update vend deleted status in DB');
+                                            })
+                                            .then(function (response) {
+                                                logger.debug({
+                                                    message: 'Updated vend deleted status in DB',
+                                                    eachLineItem,
+                                                    messageId,
+                                                    response
+                                                });
+                                                return Promise.resolve('Updated vend deleted status in DB');
+                                            });
+                                    })
                             }
                             else {
                                 return Promise.resolve();

@@ -78,6 +78,10 @@
     "supplyPrice": {
       "type": "number",
       "required": false
+    },
+    "vendDeletedAt": {
+      "type": "date",
+      "required": false
     }
   },
   "validations": [],
