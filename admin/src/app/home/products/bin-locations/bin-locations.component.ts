@@ -190,10 +190,8 @@ export class BinLocationsComponent implements OnInit {
             this.totalProducts = 1;
             this.searchSKUFocused = false;
             this.foundSKU = true;
-            this.searchSKUText = '';
           }
           else if(data.length > 1) {
-            this.searchSKUText = '';
             this.searchedProduct = data;
             this.totalPages = 1;
             this.totalProducts = 2;

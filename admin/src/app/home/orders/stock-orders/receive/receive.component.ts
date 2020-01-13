@@ -95,7 +95,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       limit = 100;
       skip = 0;
     }
-    if ((productModelIds !== undefined && productModelIds !== null) && (!productModelIds && productModelIds.length)) {
+    if ((productModelIds !== undefined && productModelIds !== null) && (!productModelIds && !productModelIds.length)) {
       this.searchSKUText = ''
     }
     let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
@@ -160,7 +160,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       limit = 100;
       skip = 0;
     }
-    if ((productModelIds !== undefined && productModelIds !== null) && (!productModelIds && productModelIds.length)) {
+    if ((productModelIds !== undefined && productModelIds !== null) && (!productModelIds && !productModelIds.length)) {
       this.searchSKUText = ''
     }
     let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
