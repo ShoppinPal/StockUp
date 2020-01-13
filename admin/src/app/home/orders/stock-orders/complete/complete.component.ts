@@ -51,7 +51,7 @@ export class CompleteComponent implements OnInit {
       limit = 100;
       skip = 0;
     }
-    if ((productModelIds !== undefined && productModelIds !== null) && (!productModelIds && productModelIds.length > 0)) {
+    if ((productModelIds !== undefined && productModelIds !== null) && (!productModelIds && productModelIds.length)) {
       this.searchSKUText = '';
     }
     let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
