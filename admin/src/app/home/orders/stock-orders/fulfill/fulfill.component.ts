@@ -353,6 +353,7 @@ export class FulfillComponent implements OnInit {
     this.orgModelApi.sendConsignmentDelivery(this.userProfile.orgModelId, this.order.id)
       .subscribe((data: any) => {
         this.toastr.success('Sent consignment successfully');
+        this.loading = false;
         this._router.navigate(['/orders/stock-orders']);
       }, err => {
         this.toastr.error('Error sending consignment');

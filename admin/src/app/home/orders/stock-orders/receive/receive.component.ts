@@ -360,6 +360,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
         this.order.id
       ).subscribe(recieveRequest => {
         this.toastr.info('Receiving consignment...');
+        this._router.navigate(['/orders/stock-orders']);
         this.loading = false;
         this.waitForRecieveWorker(recieveRequest.callId);
       }, error => {

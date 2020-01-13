@@ -36,12 +36,13 @@ module.exports = function (StockOrderLineitemModel) {
             options
         });
         // let searchPattern = new RegExp(productSku, 'i');
-        var pattern = new RegExp('.*'+productSku+'.*', "i"); /* case-insensitive RegExp search */
-        var filterData = pattern.toString();
+        // var pattern = new RegExp('.*'+productSku+'.*', "i"); /* case-insensitive RegExp search */
+        // var filterData = pattern.toString();
         return StockOrderLineitemModel.app.models.ProductModel.findOne({
             where: {
-                orgModelId: orgModelId,
-                sku: { "regexp": filterData }
+                orgModelId,
+                // sku: { "regexp": filterData }
+                sku: productSku
             }
         })
             .catch(function (error) {
