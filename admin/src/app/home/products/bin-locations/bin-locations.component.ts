@@ -178,8 +178,11 @@ export class BinLocationsComponent implements OnInit {
       throw new Error('SKU is a required field');
     }
     this.loading = true;
+    // var pattern = new RegExp('.*'+this.searchSKUText+'.*', "i"); /* case-insensitive RegExp search */
+    // var filterData = pattern.toString();
     let filter = {
       where: {
+        // sku: { "regexp": filterData }
         sku: this.searchSKUText
       }
     };

@@ -107,11 +107,11 @@ export class CompleteComponent implements OnInit {
 
   searchProductBySku(sku?: string) {
     this.loading = true;
-    // var pattern = new RegExp('.*'+sku+'.*', "i"); /* case-insensitive RegExp search */
-    // var filterData = pattern.toString();
+    var pattern = new RegExp('.*'+sku+'.*', "i"); /* case-insensitive RegExp search */
+    var filterData = pattern.toString();
     this.orgModelApi.getProductModels(this.userProfile.orgModelId, {
       where: {
-        sku: sku
+        sku: { "regexp": filterData }
       }
     }).subscribe((data: any) => {
       if (data.length) {
@@ -153,9 +153,6 @@ export class CompleteComponent implements OnInit {
 
    keyUpEvent(event, searchSKUText) {
     if(event.keyCode == '13') {
-      searchSKUText = searchSKUText.replace(this.searchEntry,'');
-      this.searchEntry = searchSKUText;
-      this.searchSKUText = searchSKUText;
       this.searchProductBySku(searchSKUText)
     }
   }

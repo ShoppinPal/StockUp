@@ -217,7 +217,6 @@ export class GeneratedComponent implements OnInit, OnDestroy {
   }
 
   searchProductBySku(sku?: string) {
-    console.log("searchProductBySku");
     this.loading = true;
     var pattern = new RegExp('.*'+sku+'.*', "i"); /* case-insensitive RegExp search */
     var filterData = pattern.toString();
@@ -520,9 +519,6 @@ export class GeneratedComponent implements OnInit, OnDestroy {
 
   keyUpEvent(event, searchSKUText) {
     if(event.keyCode == '13') {
-      searchSKUText = searchSKUText.replace(this.searchEntry,'');
-      this.searchEntry = searchSKUText;
-      this.searchSKUText = searchSKUText;
       this.searchProductBySku(searchSKUText)
     }
   }
