@@ -27,7 +27,6 @@ export class BinLocationsComponent implements OnInit {
   public readingBarcode: any;
   public enableBarcode: boolean = true;
   public searchSKUText: string;
-  public searchEntry: '';
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -178,14 +177,26 @@ export class BinLocationsComponent implements OnInit {
       throw new Error('SKU is a required field');
     }
     this.loading = true;
-    // var pattern = new RegExp('.*'+this.searchSKUText+'.*', "i"); /* case-insensitive RegExp search */
-    // var filterData = pattern.toString();
-    let filter = {
-      where: {
-        // sku: { "regexp": filterData }
-        sku: this.searchSKUText
-      }
-    };
+    var pattern = new RegExp('.*'+this.searchSKUText+'.*', "i"); /* case-insensitive RegExp search */
+    var filterData = pattern.toString();
+    // if (this.enableBarcode) {
+    //   var filter = {
+    //     where: {
+    //       sku: this.searchSKUText
+    //     }
+    //   };
+    // } else {
+    //   var filter = {
+    //     where: {
+    //       sku: { "regexp": filterData }
+    //     }
+    //   };
+    // }
+    var filter = {
+        where: {
+          sku: this.searchSKUText
+        }
+      };
     this.orgModelApi.getProductModels(this.userProfile.orgModelId, filter)
       .subscribe((data: Array<any>) => {
           this.loading = false;
