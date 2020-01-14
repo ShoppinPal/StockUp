@@ -58,6 +58,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
   public ccInvalidEmailCounter: number = 0;
   public bccValidEmailCounter: number = 0;
   public bccInvalidEmailCounter: number = 0;
+  public searchEntry = '';
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -216,6 +217,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
   }
 
   searchProductBySku(sku?: string) {
+    console.log("searchProductBySku");
     this.loading = true;
     var pattern = new RegExp('.*'+sku+'.*', "i"); /* case-insensitive RegExp search */
     var filterData = pattern.toString();
@@ -518,6 +520,9 @@ export class GeneratedComponent implements OnInit, OnDestroy {
 
   keyUpEvent(event, searchSKUText) {
     if(event.keyCode == '13') {
+      searchSKUText = searchSKUText.replace(this.searchEntry,'');
+      this.searchEntry = searchSKUText;
+      this.searchSKUText = searchSKUText;
       this.searchProductBySku(searchSKUText)
     }
   }

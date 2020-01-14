@@ -27,6 +27,7 @@ export class BinLocationsComponent implements OnInit {
   public readingBarcode: any;
   public enableBarcode: boolean = true;
   public searchSKUText: string;
+  public searchEntry: '';
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -70,8 +71,11 @@ export class BinLocationsComponent implements OnInit {
    * calls the search sku function
    * @param searchText
    */
-  barcodeSearchSKU() {
-    if (this.enableBarcode) {
+  barcodeSearchSKU(event) {
+    if (this.enableBarcode && event.keyCode == '13') {
+      this.searchSKUText = this.searchSKUText.replace(this.searchEntry,'');
+      this.searchEntry = this.searchSKUText;
+      this.searchSKUText = this.searchSKUText;
       clearTimeout(this.readingBarcode);
       this.readingBarcode = setTimeout(() => {
         this.searchSKU();

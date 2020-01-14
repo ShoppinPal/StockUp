@@ -25,6 +25,7 @@ export class CompleteComponent implements OnInit {
   public sortAscending = true;
   public sortColumn = 'productModelSku';
   public searchSKUText = '';
+  public searchEntry = '';
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -106,11 +107,11 @@ export class CompleteComponent implements OnInit {
 
   searchProductBySku(sku?: string) {
     this.loading = true;
-    var pattern = new RegExp('.*'+sku+'.*', "i"); /* case-insensitive RegExp search */
-    var filterData = pattern.toString();
+    // var pattern = new RegExp('.*'+sku+'.*', "i"); /* case-insensitive RegExp search */
+    // var filterData = pattern.toString();
     this.orgModelApi.getProductModels(this.userProfile.orgModelId, {
       where: {
-        api_id: { "regexp": filterData }
+        sku: sku
       }
     }).subscribe((data: any) => {
       if (data.length) {
@@ -152,6 +153,9 @@ export class CompleteComponent implements OnInit {
 
    keyUpEvent(event, searchSKUText) {
     if(event.keyCode == '13') {
+      searchSKUText = searchSKUText.replace(this.searchEntry,'');
+      this.searchEntry = searchSKUText;
+      this.searchSKUText = searchSKUText;
       this.searchProductBySku(searchSKUText)
     }
   }

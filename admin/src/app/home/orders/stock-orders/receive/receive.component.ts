@@ -434,7 +434,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
    * @param searchText
    */
   barcodeSearchSKU($event) {
-    if (this.enableBarcode && this.searchSKUText !== '') {
+    if (this.enableBarcode && this.searchSKUText !== '' && $event.keyCode == '13') {
       this.searchAndIncrementProduct(this.searchSKUText);
       $event.target.select();
     }
