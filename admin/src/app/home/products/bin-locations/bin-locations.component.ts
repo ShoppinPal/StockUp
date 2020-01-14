@@ -72,9 +72,6 @@ export class BinLocationsComponent implements OnInit {
    */
   barcodeSearchSKU(event) {
     if (this.enableBarcode && event.keyCode == '13') {
-      this.searchSKUText = this.searchSKUText.replace(this.searchEntry,'');
-      this.searchEntry = this.searchSKUText;
-      this.searchSKUText = this.searchSKUText;
       clearTimeout(this.readingBarcode);
       this.readingBarcode = setTimeout(() => {
         this.searchSKU();
@@ -179,24 +176,19 @@ export class BinLocationsComponent implements OnInit {
     this.loading = true;
     var pattern = new RegExp('.*'+this.searchSKUText+'.*', "i"); /* case-insensitive RegExp search */
     var filterData = pattern.toString();
-    // if (this.enableBarcode) {
-    //   var filter = {
-    //     where: {
-    //       sku: this.searchSKUText
-    //     }
-    //   };
-    // } else {
-    //   var filter = {
-    //     where: {
-    //       sku: { "regexp": filterData }
-    //     }
-    //   };
-    // }
-    var filter = {
+    if (this.enableBarcode) {
+      var filter = {
         where: {
           sku: this.searchSKUText
         }
       };
+    } else {
+      var filter = {
+        where: {
+          sku: { "regexp": filterData }
+        }
+      };
+    }
     this.orgModelApi.getProductModels(this.userProfile.orgModelId, filter)
       .subscribe((data: Array<any>) => {
           this.loading = false;
@@ -207,7 +199,14 @@ export class BinLocationsComponent implements OnInit {
             this.searchSKUFocused = false;
             this.foundSKU = true;
           }
-          else if(data.length > 1) {
+          else if(data.length > 1 && !this.enableBarcode) {
+            this.searchedProduct = data;
+            this.totalPages = 1;
+            this.totalProducts = 2;
+            this.searchSKUFocused = false;
+            this.foundSKU = true;
+            this.toastr.success('Found SKU in database');
+          } else if(data.length > 1 && this.enableBarcode) {
             this.searchedProduct = data;
             this.totalPages = 1;
             this.totalProducts = 2;
