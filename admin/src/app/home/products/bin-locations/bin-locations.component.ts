@@ -76,7 +76,7 @@ export class BinLocationsComponent implements OnInit {
       this.readingBarcode = setTimeout(() => {
         this.searchSKU();
       }, 1000);
-    } 
+    }
   }
 
   /**
@@ -170,60 +170,60 @@ export class BinLocationsComponent implements OnInit {
    */
   searchSKU() {
     try {
-    if (this.searchSKUText === undefined || this.searchSKUText === null || this.searchSKUText === '') {
-      throw new Error('SKU is a required field');
-    }
-    this.loading = true;
-    var pattern = new RegExp('.*'+this.searchSKUText+'.*', "i"); /* case-insensitive RegExp search */
-    var filterData = pattern.toString();
-    if (this.enableBarcode) {
+      if (this.searchSKUText === undefined || this.searchSKUText === null || this.searchSKUText === '') {
+        throw new Error('SKU is a required field');
+      }
+      this.loading = true;
+      var pattern = new RegExp('.*' + this.searchSKUText + '.*', "i");
+      /* case-insensitive RegExp search */
+      var filterData = pattern.toString();
       var filter = {
         where: {
-          sku: this.searchSKUText
+          sku: ''
         }
       };
-    } else {
-      var filter = {
-        where: {
-          sku: { "regexp": filterData }
-        }
-      };
+      if (this.enableBarcode) {
+        filter.where.sku = this.searchSKUText;
+      } else {
+        filter.where.sku['regexp'] = filterData
+      }
+      this.orgModelApi.getProductModels(this.userProfile.orgModelId, filter)
+        .subscribe((data: Array<any>) => {
+            this.loading = false;
+            if (data.length === 1) {
+              this.searchedProduct = data;
+              this.totalPages = 1;
+              this.totalProducts = 1;
+              this.searchSKUFocused = false;
+              this.foundSKU = true;
+            }
+            else if (data.length > 1 && !this.enableBarcode) {
+              this.searchedProduct = data;
+              this.totalPages = 1;
+              this.totalProducts = 2;
+              this.searchSKUFocused = false;
+              this.foundSKU = true;
+              this.toastr.success('Found SKU in database');
+            } else if (data.length > 1 && this.enableBarcode) {
+              this.searchedProduct = data;
+              this.totalPages = 1;
+              this.totalProducts = 2;
+              this.searchSKUFocused = false;
+              this.foundSKU = true;
+              this.toastr.error('Found duplicate SKU in database, please make SKUs unique before updating bin locations', 'Duplicate SKU');
+            }
+            else {
+              this.toastr.error('Couldn\'t find SKU ' + this.searchSKUText + ' in database, try syncing products', 'SKU not found');
+            }
+          },
+          error => {
+            this.loading = false;
+            console.log('Error in finding product', error);
+          });
     }
-    this.orgModelApi.getProductModels(this.userProfile.orgModelId, filter)
-      .subscribe((data: Array<any>) => {
-          this.loading = false;
-          if (data.length === 1) {
-            this.searchedProduct = data;
-            this.totalPages = 1;
-            this.totalProducts = 1;
-            this.searchSKUFocused = false;
-            this.foundSKU = true;
-          }
-          else if(data.length > 1 && !this.enableBarcode) {
-            this.searchedProduct = data;
-            this.totalPages = 1;
-            this.totalProducts = 2;
-            this.searchSKUFocused = false;
-            this.foundSKU = true;
-            this.toastr.success('Found SKU in database');
-          } else if(data.length > 1 && this.enableBarcode) {
-            this.searchedProduct = data;
-            this.totalPages = 1;
-            this.totalProducts = 2;
-            this.searchSKUFocused = false;
-            this.foundSKU = true;
-            this.toastr.error('Found duplicate SKU in database, please make SKUs unique before updating bin locations', 'Duplicate SKU');
-          }
-          else {
-            this.toastr.error('Couldn\'t find SKU '+this.searchSKUText+' in database, try syncing products', 'SKU not found');
-          }
-        },
-        error => {
-          this.loading = false;
-          console.log('Error in finding product', error);
-        });
-    } catch (error) {
-        this.toastr.error(error);
+
+    catch (error) {
+      this.toastr.error(error);
     }
   }
 
@@ -232,7 +232,7 @@ export class BinLocationsComponent implements OnInit {
    * @param event
    */
   keyUpEvent(event) {
-    if(event.keyCode == '13' && !this.enableBarcode) {
+    if (event.keyCode == '13' && !this.enableBarcode) {
       this.searchSKU();
     }
   }
