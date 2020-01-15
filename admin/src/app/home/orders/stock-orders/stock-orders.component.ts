@@ -113,8 +113,9 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
       if (this.completedOrders && this.completedOrders[i])
         orderIds.push(this.completedOrders[i].id);
     }
-    this.orgModelApi.fetchOrderRowCounts(this.userProfile.orgModelId, orderIds)
-      .subscribe((rowCounts: any) => {
+    if(orderIds.length > 0) {
+      this.orgModelApi.fetchOrderRowCounts(this.userProfile.orgModelId, orderIds)
+        .subscribe((rowCounts: any) => {
           for (var i = 0; i < this.ordersLimitPerPage; i++) {
             if (this.generatedOrders && this.generatedOrders[i]) {
               let orderRowCount = rowCounts.find(eachRowCount => {
@@ -146,6 +147,7 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
         err => {
           console.log('err row counts', err);
         });
+    }
   }
 
   fetchOrders = (orderType: string, limit?: number, skip?: number) => {
