@@ -62,17 +62,19 @@ export class UsersComponent implements OnInit {
       skip: skip || 0
     };
     let countFilter = {};
+    var pattern = new RegExp('.*'+this.searchUserText+'.*', "i"); /* case-insensitive RegExp search */
+    var filterData = pattern.toString();
     if (searchUserText) {
       filter['where'] = countFilter = {
         or: [
           {
             name: {
-              like: searchUserText
+              regexp: filterData
             }
           },
           {
             email: {
-              like: searchUserText
+              regexp: filterData
             }
           }
         ]

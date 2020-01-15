@@ -29,7 +29,7 @@ export class StoresComponent implements OnInit {
   ngOnInit() {
     this.userProfile = this._userProfileService.getProfileData();
     this._route.data.subscribe((data: any) => {
-        this.stores = data.stores;
+        this.stores = data.data;
       },
       error => {
         console.log('error', error)
