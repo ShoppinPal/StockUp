@@ -24,6 +24,8 @@ export class CompleteComponent implements OnInit {
   public totalLineItems: number;
   public sortAscending = true;
   public sortColumn = 'productModelSku';
+  public searchSKUText = '';
+  public searchEntry = '';
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -45,17 +47,25 @@ export class CompleteComponent implements OnInit {
       });
   }
 
-  getStockOrderLineItems(limit?: number, skip?: number, productModelId?: string) {
+  getStockOrderLineItems(limit?: number, skip?: number, productModelIds?: Array<string>) {
     if (!(limit && skip)) {
       limit = 100;
       skip = 0;
     }
+    if ((productModelIds !== undefined && productModelIds !== null) && (!productModelIds && !productModelIds.length)) {
+      this.searchSKUText = '';
+    }
     let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
-    let filter = {
-      where: {
+    let whereFilter = {
         reportModelId: this.order.id,
-        productModelId: productModelId
-      },
+      };
+      if(productModelIds && productModelIds.length) {
+        whereFilter['productModelId'] = {
+          inq : productModelIds
+        };
+      }
+    let filter = {
+      where: whereFilter,
       include: [
         {
           relation: 'productModel'
@@ -74,8 +84,8 @@ export class CompleteComponent implements OnInit {
     let countFilter = {
       reportModelId: this.order.id
     };
-    if (productModelId)
-      countFilter['productModelId'] = productModelId;
+    if (productModelIds && productModelIds.length)
+      countFilter['productModelId'] = {inq: productModelIds};
     this.loading = true;
     let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
@@ -97,13 +107,18 @@ export class CompleteComponent implements OnInit {
 
   searchProductBySku(sku?: string) {
     this.loading = true;
+    var pattern = new RegExp('.*'+sku+'.*', "i"); /* case-insensitive RegExp search */
+    var filterData = pattern.toString();
     this.orgModelApi.getProductModels(this.userProfile.orgModelId, {
       where: {
-        api_id: sku
+        sku: { "regexp": filterData }
       }
     }).subscribe((data: any) => {
       if (data.length) {
-        this.getStockOrderLineItems(1, 0, data[0].id);
+        var productModelIds = data.map(function filterProductIds(eachProduct) {
+          return eachProduct.id;
+        });
+        this.getStockOrderLineItems(100, 0, productModelIds);
       }
       else {
         this.loading = false;

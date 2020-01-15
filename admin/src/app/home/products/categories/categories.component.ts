@@ -71,16 +71,16 @@ export class CategoriesComponent implements OnInit {
       where: {}
     };
     if (searchText) {
+      var pattern = new RegExp('.*'+searchText+'.*', "i"); /* case-insensitive RegExp search */
+      var filterData = pattern.toString();
       filter.where = {
-        name: {
-          like: searchText
-        }
+        name: { "regexp": filterData }
       }
     }
     let fetchCategories = combineLatest(
       this.orgModelApi.getCategoryModels(this.userProfile.orgModelId, filter),
       this.orgModelApi.countCategoryModels(this.userProfile.orgModelId));
-    fetchCategories.subscribe((data: any) => {
+      fetchCategories.subscribe((data: any) => {
         this.loading = false;
         this.categories = data[0];
         this.totalCategories = data[1].count;

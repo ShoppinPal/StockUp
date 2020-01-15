@@ -58,6 +58,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
   public ccInvalidEmailCounter: number = 0;
   public bccValidEmailCounter: number = 0;
   public bccInvalidEmailCounter: number = 0;
+  public searchEntry = '';
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -101,18 +102,23 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     }
   }
 
-  getApprovedStockOrderLineItems(limit?: number, skip?: number, productModelId?: string) {
+  getApprovedStockOrderLineItems(limit?: number, skip?: number, productModelIds?: Array<string>) {
     if (!(limit && skip)) {
       limit = 100;
       skip = 0;
     }
     let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
-    let filter = {
-      where: {
+    let whereFilter = {
         reportModelId: this.order.id,
-        approved: true,
-        productModelId: productModelId
-      },
+        approved: true
+      };
+      if(productModelIds && productModelIds.length) {
+        whereFilter['productModelId'] = {
+          inq : productModelIds
+        };
+      }
+    let filter = {
+      where: whereFilter,
       include: [
         {
           relation: 'productModel'
@@ -132,8 +138,8 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       reportModelId: this.order.id,
       approved: true
     };
-    if (productModelId)
-      countFilter['productModelId'] = productModelId;
+    if (productModelIds && productModelIds.length)
+      countFilter['productModelId'] = {inq: productModelIds};
     this.loading = true;
     let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
@@ -153,18 +159,23 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       });
   }
 
-  getNotApprovedStockOrderLineItems(limit?: number, skip?: number, productModelId?: string) {
+  getNotApprovedStockOrderLineItems(limit?: number, skip?: number, productModelIds?: Array<string>) {
     if (!(limit && skip)) {
       limit = 100;
       skip = 0;
     }
     let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
-    let filter = {
-      where: {
+    let whereFilter = {
         reportModelId: this.order.id,
-        approved: false,
-        productModelId: productModelId
-      },
+        approved: false
+      };
+      if(productModelIds && productModelIds.length) {
+        whereFilter['productModelId'] = {
+          inq : productModelIds
+        };
+      }
+    let filter = {
+      where: whereFilter,
       include: [
         {
           relation: 'productModel'
@@ -184,8 +195,8 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       reportModelId: this.order.id,
       approved: false
     };
-    if (productModelId)
-      countFilter['productModelId'] = productModelId;
+    if (productModelIds && productModelIds.length)
+      countFilter['productModelId'] = {inq: productModelIds};
     this.loading = true;
     let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
@@ -207,22 +218,25 @@ export class GeneratedComponent implements OnInit, OnDestroy {
 
   searchProductBySku(sku?: string) {
     this.loading = true;
+    var pattern = new RegExp('.*'+sku+'.*', "i"); /* case-insensitive RegExp search */
+    var filterData = pattern.toString();
     this.orgModelApi.getProductModels(this.userProfile.orgModelId, {
       where: {
-        sku: {
-          like: sku
-        }
+        sku: { "regexp": filterData }
       }
     })
       .subscribe((data) => {
-        this.loadStockItemsByProducts(data)
+        this.loadStockItemsByProducts(data);
       })
   }
 
   loadStockItemsByProducts(data: any) {
     if (data.length) {
-      this.getApprovedStockOrderLineItems(1, 0, data[0].id);
-      this.getNotApprovedStockOrderLineItems(1, 0, data[0].id);
+      var productModelIds = data.map(function filterProductIds(eachProduct) {
+        return eachProduct.id;
+      });
+      this.getApprovedStockOrderLineItems(100, 0, productModelIds);
+      this.getNotApprovedStockOrderLineItems(100, 0, productModelIds);
     }
     else {
       this.loading = false;

@@ -70,7 +70,7 @@ export class BinLocationsComponent implements OnInit {
    * calls the search sku function
    * @param searchText
    */
-  barcodeSearchSKU() {
+  barcodeSearchSKU(event) {
     if (this.enableBarcode) {
       clearTimeout(this.readingBarcode);
       this.readingBarcode = setTimeout(() => {
@@ -169,12 +169,26 @@ export class BinLocationsComponent implements OnInit {
    * @param searchText
    */
   searchSKU() {
+    try {
+    if (this.searchSKUText === undefined || this.searchSKUText === null || this.searchSKUText === '') {
+      throw new Error('SKU is a required field');
+    }
     this.loading = true;
-    let filter = {
-      where: {
-        sku: this.searchSKUText
-      }
-    };
+    var pattern = new RegExp('.*'+this.searchSKUText+'.*', "i"); /* case-insensitive RegExp search */
+    var filterData = pattern.toString();
+    if (this.enableBarcode) {
+      var filter = {
+        where: {
+          sku: this.searchSKUText
+        }
+      };
+    } else {
+      var filter = {
+        where: {
+          sku: { "regexp": filterData }
+        }
+      };
+    }
     this.orgModelApi.getProductModels(this.userProfile.orgModelId, filter)
       .subscribe((data: Array<any>) => {
           this.loading = false;
@@ -185,7 +199,14 @@ export class BinLocationsComponent implements OnInit {
             this.searchSKUFocused = false;
             this.foundSKU = true;
           }
-          else if(data.length > 1) {
+          else if(data.length > 1 && !this.enableBarcode) {
+            this.searchedProduct = data;
+            this.totalPages = 1;
+            this.totalProducts = 2;
+            this.searchSKUFocused = false;
+            this.foundSKU = true;
+            this.toastr.success('Found SKU in database');
+          } else if(data.length > 1 && this.enableBarcode) {
             this.searchedProduct = data;
             this.totalPages = 1;
             this.totalProducts = 2;
@@ -195,13 +216,15 @@ export class BinLocationsComponent implements OnInit {
           }
           else {
             this.toastr.error('Couldn\'t find SKU '+this.searchSKUText+' in database, try syncing products', 'SKU not found');
-            this.searchSKUText = '';
           }
         },
         error => {
           this.loading = false;
           console.log('Error in finding product', error);
         });
+    } catch (error) {
+        this.toastr.error(error);
+    }
   }
 
   /**
