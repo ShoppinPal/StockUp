@@ -71,7 +71,7 @@ export class BinLocationsComponent implements OnInit {
    * @param searchText
    */
   barcodeSearchSKU(event) {
-    if (this.enableBarcode && event.keyCode == '13') {
+    if (this.enableBarcode) {
       clearTimeout(this.readingBarcode);
       this.readingBarcode = setTimeout(() => {
         this.searchSKU();
@@ -216,7 +216,6 @@ export class BinLocationsComponent implements OnInit {
           }
           else {
             this.toastr.error('Couldn\'t find SKU '+this.searchSKUText+' in database, try syncing products', 'SKU not found');
-            this.searchSKUText = '';
           }
         },
         error => {
