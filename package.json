@@ -4,6 +4,7 @@
   "dependencies": {
     "@mean-expert/loopback-component-realtime": "1.0.0-rc.9.6",
     "@mean-expert/loopback-sdk-builder": "2.3.1",
+    "@sentry/node": "5.10.2",
     "aws-sdk": "2.325.0",
     "bluebird": "2.9.14",
     "commander": "^2.9.0",

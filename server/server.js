@@ -3,12 +3,28 @@
 global.Promise = require('bluebird');
 var loopback = require('loopback');
 var boot = require('loopback-boot');
+var logger = require('sp-json-logger')();
 
 // HINT(s):
 //   Getting the app object:
 //     http://docs.strongloop.com/display/public/LB/Working+with+LoopBack+objects
 var app = module.exports = loopback();
 var path = require('path');
+const Sentry = require('@sentry/node');
+var sentryDNS = process.env.STOCKUP_SENTRY_WEB_AND_NOTIFICATION_DNS;
+// Sentry.init({ dsn: sentryData });
+Sentry.init({ dsn: sentryDNS });
+// The request handler must be the first middleware on the app
+app.use(Sentry.Handlers.requestHandler());
+// The error handler must be before any other error middleware
+app.use(Sentry.Handlers.errorHandler());
+Sentry.captureMessage('Sentry initiated at Web Server');
+
+logger.debug({
+    message: 'Sentry initiated at Web Server',
+    env: process.env.VM_EXTERNAL_IP,
+    sentryDNS: sentryDNS
+});
 
 // boot scripts mount components like REST API
 boot(app, __dirname);

@@ -10,6 +10,17 @@ var clearRequire = require('clear-require');
 var SUCCESS = 0;
 var FAILURE = 1;
 
+const Sentry = require('@sentry/node');
+var sentryDNS = process.env.STOCKUP_SENTRY_WORKER_V2_DNS;
+
+Sentry.init({ dsn: sentryDNS });
+Sentry.captureMessage('Sentry initiated at sqs worker');
+
+logger.debug({
+    message: 'Sentry initiated at sqs worker',
+    env: process.env.APP_HOST_NAME,
+    sentryDNS: sentryDNS
+});
 
 var sqs = new AWS.SQS({
     region: process.env.AWS_SQS_REGION,
