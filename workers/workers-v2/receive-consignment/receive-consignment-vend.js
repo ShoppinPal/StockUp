@@ -194,8 +194,8 @@ var runMe = function (payload, config, taskId, messageId) {
                                     return Promise.resolve();
                                 }
                             }
-                        }
-                    })), {concurrency: 1});
+                        })
+                    }, {concurrency: 1});
                 })
                 .catch(function (error) {
                     logger.error({
