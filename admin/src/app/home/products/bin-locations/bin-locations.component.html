@@ -18,7 +18,7 @@
                          [(ngModel)]="searchSKUText"
                          placeholder="Scan SKU barcode here or enter text"
                          [appAutoFocus]="searchSKUFocused"
-                         (keyup)="barcodeSearchSKU()">
+                         (keyup)="barcodeSearchSKU($event)" (keyup)="keyUpEvent($event)">
                   <span class="input-group-btn">
                     <button class="btn btn-primary" type="button" (click)="searchSKU()">
                       <i class="fa fa-search"></i> Search
@@ -40,15 +40,16 @@
                            [(ngModel)]="enableBarcode"
                            (ngModelChange)="changeScanMode()"
                            class="switch-input">
-                    <span class="switch-label"></span>
-                    <span class="switch-handle"></span>
+                    <span class="switch-slider"></span>
                   </label>
                   <span> &nbsp;&nbsp; Barcode Scanning</span>
                 </div>
               </div>
             </div>
             <div class="col-sm-6">
-              <button type="button" class="btn btn-link float-right" (click)="searchSKUText='';fetchProducts(0,0)">Clear All Searches</button>
+              <button type="button" class="btn btn-link float-right" (click)="searchSKUText='';fetchProducts(0,0)">Clear
+                All Searches
+              </button>
             </div>
           </div>
         </div>
@@ -81,7 +82,7 @@
               <td>{{product.sku}}</td>
               <td>
                 <input type="text"
-                       class="form-control-sm"
+                       class="form-control form-control-sm"
                        placeholder="Scan bin location"
                        (keyup)="barcodeSaveBinLocation(product)"
                        [(ngModel)]="product.binLocation"
@@ -98,14 +99,6 @@
             </tr>
             </tbody>
           </table>
-          <ul class="pagination">
-            <li class="page-item" *ngFor="let page of products | paginate: {itemsPerPage: 10,
-                                                                 currentPage: currentPage,
-                                                                 totalItems: totalProducts}">
-            </li>
-          </ul>
-          <pagination-controls
-            (pageChange)="fetchProducts(productsLimitPerPage, currentPage); currentPage=$event"></pagination-controls>
         </div>
       </div>
     </div>

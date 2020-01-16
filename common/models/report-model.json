@@ -30,7 +30,7 @@
     },
     "outlet": {
       "type": "object",
-      "required": true
+      "required": false
     },
     "totalRows": {
       "type": "number",
@@ -58,17 +58,62 @@
     "userModel": {
       "type": "belongsTo",
       "model": "UserModel",
-      "foreignKey": "userModelToReportModelId"
+      "foreignKey": "userModelId"
     },
     "stockOrderLineitemModels": {
       "type": "hasMany",
       "model": "StockOrderLineitemModel",
-      "foreignKey": "reportId"
+      "foreignKey": "reportModelId"
     },
     "storeConfigModel": {
       "type": "belongsTo",
       "model": "StoreConfigModel",
       "foreignKey": "storeConfigModelId"
+    },
+    "orgModel": {
+      "type": "belongsTo",
+      "model": "OrgModel",
+      "foreignKey": ""
+    },
+    "storeModel": {
+      "type": "belongsTo",
+      "model": "StoreModel",
+      "foreignKey": "storeModelId"
+    },
+    "categoryModel": {
+      "type": "belongsTo",
+      "model": "CategoryModel",
+      "foreignKey": "categoryModelId"
+    },
+    "supplierModel": {
+      "type": "belongsTo",
+      "model": "SupplierModel",
+      "foreignKey": "supplierModelId"
+    },
+    "deliverFromStoreModel": {
+      "type": "belongsTo",
+      "model": "StoreModel",
+      "foreignKey": "deliverFromStoreModelId"
+    },
+    "orderConfigModel": {
+      "type": "belongsTo",
+      "model": "OrderConfigModel",
+      "foreignKey": "orderConfigModelId"
+    },
+    "approvedByUserModel": {
+      "type": "belongsTo",
+      "model": "UserModel",
+      "foreignKey": "approvedByUserModelId"
+    },
+    "fulfilledByUserModel": {
+      "type": "belongsTo",
+      "model": "UserModel",
+      "foreignKey": "fulfilledByUserModelId"
+    },
+    "receivedByUserModel": {
+      "type": "belongsTo",
+      "model": "UserModel",
+      "foreignKey": "receivedByUserModelId"
     }
   },
   "acls": [

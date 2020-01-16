@@ -1,88 +1,99 @@
 import {NgModule} from '@angular/core';
 import {Routes, RouterModule} from '@angular/router';
-import {SyncWithVendComponent} from './sync-with-vend/sync-with-vend.component';
 import {StoresComponent} from './stores/stores.component';
-import {PaymentsComponent} from './payments/payments.component';
-import {ProductsComponent} from './products/products.component';
 import {UserResolverService} from './../shared/services/user-resolver.service';
 import {AccessService} from "../shared/services/access.service";
-import {SyncWithVendResolverService} from "./sync-with-vend/services/sync-with-vend-resolver.service";
-import {OrdersComponent} from "./orders/orders.component";
-import {WorkerSettingsComponent} from "./worker-settings/worker-settings.component";
-import {WorkerSettingsResolverService} from "./worker-settings/services/worker-settings-resolver.service";
-import {SuppliersComponent} from "./suppliers/suppliers.component";
 import {SuppliersResolverService} from "./suppliers/services/suppliers-resolver.service";
+import {ConnectComponent} from "./connect/connect.component";
+import {ConnectResolverService} from "./connect/services/connect-resolver.service";
+import {UserManagementResolverService} from "./users/services/user-management-resolver.service";
+import {StoresResolverService} from "./stores/services/stores-resolver.service";
+import {ReorderPointsComponent} from "./reorder-points/reorder-points.component";
+import {FileImportsComponent} from "./file-imports/file-imports.component";
+import {FileImportsResolverService} from "./file-imports/services/file-imports-resolver.service";
+import {SchedulesComponent} from "./schedules/schedules.component";
 
 const routes: Routes = [
   {
     path: '',
     resolve: {
-      user: UserResolverService,
-      access: AccessService
+      access: AccessService,
+      user: UserResolverService
+    },
+    data: {
+      title: 'Home'
     },
     children: [
       {
         path: '',
-        redirectTo: '/products/bin-locations',
+        redirectTo: '/orders/stock-orders',
         pathMatch: 'full'
       },
       {
-        path: 'sync-with-vend',
-        component: SyncWithVendComponent,
+        path: 'connect',
+        component: ConnectComponent,
         data: {
-          title: 'Home > Stores'
+          title: 'Connect'
         },
         resolve: {
-          syncModels: SyncWithVendResolverService
+          integration: ConnectResolverService
         }
       },
       {
-        path: 'worker-settings',
-        component: WorkerSettingsComponent,
+        path: 'users',
+        loadChildren: './users/users.module#UsersModule',
         data: {
-          title: 'Home > Settings > Worker Settings'
+          title: 'Users'
         },
-        resolve: {
-          workerSettings: WorkerSettingsResolverService
-        }
       },
       {
         path: 'stores',
-        component: StoresComponent,
         data: {
-          title: 'Home > Stores'
-        }
-      },
-      {
-        path: 'payments',
-        component: PaymentsComponent,
-        data: {
-          title: 'Home > Payments'
-        }
+          title: 'Settings'
+        },
+        loadChildren: './stores/stores.module#StoresModule'
       },
       {
         path: 'products',
-        component: ProductsComponent,
+        loadChildren: './products/products.module#ProductsModule',
         data: {
-          title: 'Home > Products'
+          title: 'Products'
         }
       },
       {
         path: 'orders',
-        component: OrdersComponent,
+        loadChildren: './orders/orders.module#OrdersModule',
         data: {
-          title: 'Home > Orders'
+          title: 'Orders'
         }
       },
       {
         path: 'suppliers',
-        component: SuppliersComponent,
         data: {
-          title: 'Home > Suppliers'
+          title: 'Suppliers'
         },
-        resolve: {
-          suppliers: SuppliersResolverService
-        }
+        loadChildren: './suppliers/suppliers.module#SuppliersModule'
+      },
+      {
+        path: 'reorder-points',
+        data: {
+          title: 'Settings'
+        },
+        loadChildren: './reorder-points/reorder-points.module#ReorderPointsModule'
+      },
+      {
+        path: 'file-imports',
+        data: {
+          title: 'Settings'
+        },
+        loadChildren: './file-imports/file-imports.module#FileImportsModule'
+      },
+      {
+        path: 'schedules',
+        data: {
+          title: 'Settings'
+        },
+        loadChildren: './schedules/schedules.module#SchedulesModule'
       }
     ]
   }
@@ -91,7 +102,13 @@ const routes: Routes = [
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
-  providers: [SyncWithVendResolverService, SuppliersResolverService, WorkerSettingsResolverService]
+  providers: [
+    FileImportsResolverService,
+    ConnectResolverService,
+    SuppliersResolverService,
+    StoresResolverService,
+    UserManagementResolverService
+  ]
 })
 export class HomeRoutingModule {
 }

@@ -6,32 +6,31 @@
       "params": [
         "state"
       ]
-    },
-    "./middleware/userContext": {}
+    }
   },
   "initial": {
-    "compression": {}
+    "compression": {
+      "enabled": false
+    }
   },
   "session": {},
   "auth": {},
-  "parse": {},
+  "parse": {
+    "body-parser#raw": {
+      "params": {
+        "limit": "50mb"
+      }
+    }
+  },
   "routes:before": {
     "./middleware/accessLogger": {
       "paths": "/api/*"
     }
   },
   "files": {
-    "loopback#static": [
-      {
-        "params": "$!../.tmp"
-      },
-      {
-        "params": "$!../client/app"
-      },
-      {
-        "params": "$!../client/admin"
-      }
-    ]
+    "loopback#static": {
+      "params": "$!../client/admin"
+    }
   },
   "final": {
     "loopback#urlNotFound": {}

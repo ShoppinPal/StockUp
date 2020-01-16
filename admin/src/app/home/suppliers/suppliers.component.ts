@@ -1,8 +1,8 @@
 import {Component, OnInit} from '@angular/core';
-import {StoreConfigModelApi} from "../../shared/lb-sdk/services/custom/StoreConfigModel";
+import {OrgModelApi} from "../../shared/lb-sdk/services/custom/OrgModel";
 import {UserProfileService} from "../../shared/services/user-profile.service";
-import {ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs';
+import {ActivatedRoute, Router} from '@angular/router';
+import {Observable, combineLatest} from 'rxjs';
 import {ToastrService} from 'ngx-toastr';
 
 @Component({
@@ -18,14 +18,16 @@ export class SuppliersComponent implements OnInit {
   public suppliers: Array<any>;
   public totalSuppliers: number;
   public totalPages: number;
+  public maxPageDisplay: number = 7;
   public currentPage: number = 1;
   public searchedSupplier: Array<any>;
   public foundSupplier: boolean = false;
   public suppliersLimitPerPage: number = 10;
   public searchSupplierText: string;
 
-  constructor(private storeConfigModelApi: StoreConfigModelApi,
+  constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
+              private _router: Router,
               private toastr: ToastrService,
               private _userProfileService: UserProfileService) {
   }
@@ -64,9 +66,9 @@ export class SuppliersComponent implements OnInit {
       limit: limit || 10,
       skip: skip || 0
     };
-    let fetchSuppliers = Observable.combineLatest(
-      this.storeConfigModelApi.getSupplierModels(this.userProfile.storeConfigModelId, filter),
-      this.storeConfigModelApi.countSupplierModels(this.userProfile.storeConfigModelId));
+    let fetchSuppliers = combineLatest(
+      this.orgModelApi.getSupplierModels(this.userProfile.orgModelId, filter),
+      this.orgModelApi.countSupplierModels(this.userProfile.orgModelId));
     fetchSuppliers.subscribe((data: any) => {
         this.loading = false;
         this.suppliers = data[0];
@@ -85,14 +87,14 @@ export class SuppliersComponent implements OnInit {
    */
   searchSupplier() {
     this.loading = true;
+    var pattern = new RegExp('.*'+this.searchSupplierText+'.*', "i"); /* case-insensitive RegExp search */
+    var filterData = pattern.toString();
     let filter = {
       where: {
-        name: {
-          like: this.searchSupplierText
-        }
+        name: { "regexp": filterData }
       }
     };
-    this.storeConfigModelApi.getSupplierModels(this.userProfile.storeConfigModelId, filter)
+    this.orgModelApi.getSupplierModels(this.userProfile.orgModelId, filter)
       .subscribe((data: Array<any>) => {
           this.loading = false;
           if (data.length) {
@@ -110,6 +112,17 @@ export class SuppliersComponent implements OnInit {
           this.loading = false;
           console.log('Error in finding supplier', error);
         });
+  }
+
+  goToSupplierDetailsPage(supplierId) {
+    this.loading = true;
+    this._router.navigate(['suppliers/edit/' + supplierId]);
+  }
+
+  keyUpEvent(event, searchSupplierText) {
+    if(event.keyCode == '13' && searchSupplierText !== '') {
+      this.searchSupplier();
+    }
   }
 
 }

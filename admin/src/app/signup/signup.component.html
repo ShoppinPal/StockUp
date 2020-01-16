@@ -1,0 +1,111 @@
+<div class="app flex-row">
+  <div class="row col-md-6 col-sm-6 col-lg-8 col-xl-8 w-100" style="background-color:white">
+    <div class="container h-100 w-100">
+        <div class="row-3 h-25 w-100 image-header">
+          {{headerParaData}}
+        </div>
+        <div class="image-space-div">
+
+        </div>
+        <!-- <div class="row-6 h-50 w-100 mb-4 justify-content-center align-items-center">
+          <img class="mb-4 login-banner justify-content-center align-items-center" src="assets/img/img_login_banner.png" alt="">
+        </div> -->
+        <div *ngIf="innerWidth < 768" class="row-6 h-50 w-100 mb-4 justify-content-center align-items-center">
+          <img class="mb-4 login-banner justify-content-center align-items-center" src="assets/img/img_login_banner_2.png" alt="">
+        </div>
+        <div *ngIf="innerWidth == 768" class="row-6 h-50 w-100 mb-4 justify-content-center align-items-center">
+          <img class="mb-4 login-banner justify-content-center align-items-center" src="assets/img/img_login_banner_2.png" alt="">
+        </div>
+        <div *ngIf="innerWidth > 768" class="row-6 h-50 w-100 mb-4 justify-content-center align-items-center">
+          <img class="mb-4 login-banner justify-content-center align-items-center" src="assets/img/img_login_banner.png" alt="">
+        </div>
+    </div>
+  </div>
+  <div class="row w-100 col-md-6 col-sm-6 col-lg-4 col-xl-4 justify-content-center align-items-center row-two">
+  <div class="justify-content-center w-100">
+    <div class="d-flex justify-content-center">
+      <div class="logo-avatar">
+          <img class="logo-image" src="assets/img/favicon.png" alt="">
+      </div>
+        <div class="header-space-div"></div>
+        <div>
+          <h1 align="center" style="color: #FFFFFF;">
+            StockUp
+          </h1>
+      </div>
+    </div>
+    <div class="header-card-space-div">
+
+    </div>
+    <div class="card-group">
+      <div class="card p-4">
+        <div class="card-body">
+          <ngx-loading [show]="loading"></ngx-loading>
+          <h1>Sign Up</h1>
+          <p class="text-muted">Create a new account</p>
+          <form novalidate (ngSubmit)="signup()" name="signupForm"
+                class="needs-validation">
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="icon-basket-loaded"></i></span>
+              </div>
+              <input type="text"
+                     [(ngModel)]="orgName"
+                     class="form-control"
+                     placeholder="Organisation name"
+                     name="orgName"
+                     (blur)="findExistingOrganisation(user.orgName)"
+                     required>
+              <span class="org-suffix">.shoppinpal.com</span> <!--todo: make it come from env variable -->
+            </div>
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="icon-user"></i></span>
+              </div>
+              <input type="text"
+                     [(ngModel)]="user.email"
+                     class="form-control"
+                     placeholder="Email address"
+                     name="email"
+                     required>
+            </div>
+            <div class="input-group mb-4">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="icon-lock"></i></span>
+              </div>
+              <input type="password"
+                     [(ngModel)]="user.password"
+                     class="form-control"
+                     placeholder="Create New Password"
+                     name="password"
+                     required>
+            </div>
+            <div class="input-group mb-4">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="icon-lock"></i></span>
+              </div>
+              <input type="password"
+                     [(ngModel)]="confirmPassword"
+                     class="form-control"
+                     placeholder="Confirm New Password"
+                     name="confirmPassword"
+                     (keyup)="onKey($event)"
+                     required>
+            </div>
+            <div class="row">
+              <div class="col-6 signup-button">
+                <button type="submit" class="btn btn-primary px-4">Signup</button>
+              </div>
+            </div>
+            <div class="row text-center">
+              <div class="col-12">
+                <a routerLink="/login" routerLinkActive="active" (click)="loading=true">Already a user? Login</a>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div> 
+</div>
+</div>

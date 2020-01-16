@@ -24,11 +24,11 @@ done
 #}
 _setup_config() {
   ENVIRONMENT=$1
-  ../node_modules/grunt-cli/bin/grunt configsetup:${ENVIRONMENT}
+  ./node_modules/grunt-cli/bin/grunt configsetup:${ENVIRONMENT}
 }
 _deploy_setup() {
   ENVIRONMENT=$1
-  ../node_modules/grunt-cli/bin/grunt deploy:${ENVIRONMENT}
+  ./node_modules/grunt-cli/bin/grunt deploy:${ENVIRONMENT}
 }
 
 if [ "$1" = 'node' -a -z "$wantHelp" ]; then
@@ -58,14 +58,14 @@ if [ "$1" = 'node' -a -z "$wantHelp" ]; then
         #_generate_config ${NODE_ENV}
   #fi
   # Change uid and gid of node user so it matches ownership of current dir
-  MAP_NODE_UID=$PWD
-  uid=$(stat -c '%u' "$MAP_NODE_UID")
-  gid=$(stat -c '%g' "$MAP_NODE_UID")
-  usermod -u $uid node 2> /dev/null && {
-    groupmod -g $gid node 2> /dev/null || usermod -a -G $gid node
-  }
-  chown -R node:node .
-  exec gosu node "$@"
+#  MAP_NODE_UID=$PWD
+#  uid=$(stat -c '%u' "$MAP_NODE_UID")
+#  gid=$(stat -c '%g' "$MAP_NODE_UID")
+#  usermod -u $uid node 2> /dev/null && {
+#    groupmod -g $gid node 2> /dev/null || usermod -a -G $gid node
+#  }
+#  chown -R node:node .
+#  exec gosu node "$@"
 
 fi
 exec "$@"

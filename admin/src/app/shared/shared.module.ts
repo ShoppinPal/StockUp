@@ -3,16 +3,60 @@ import {ModuleWithProviders, NgModule} from '@angular/core';
 import {UserProfileService} from './services/user-profile.service';
 import {AccessService} from './services/access.service';
 import {UserResolverService} from './services/user-resolver.service';
-
-import {AsideToggleDirective} from '../directives';
+import {TypeaheadModule, BsDropdownModule} from 'ngx-bootstrap';
+import {LoadingModule} from 'ngx-loading';
+import {FormsModule} from '@angular/forms';
+import {AppAsideModule} from '@coreui/angular';
+import {FileUploadModule} from 'ng2-file-upload';
+import {CollapseModule} from 'ngx-bootstrap/collapse';
+import {PopoverModule} from 'ngx-bootstrap/popover';
+import {PaginationModule} from 'ngx-bootstrap/pagination';
+import {ModalModule} from 'ngx-bootstrap/modal';
+import {TabsModule} from 'ngx-bootstrap/tabs';
+import {AutoFocusDirective} from '../home/products/bin-locations/directives/auto-focus.directive';
+import { DebounceKeyUpDirective } from './directives/debounce-key-up/debounce-key-up.directive';
+import {CommentsComponent} from "../home/orders/shared-components/comments/comments.component";
+import {NgSelectModule} from '@ng-select/ng-select';
+import {DeleteOrderComponent} from "../home/orders/shared-components/delete-order/delete-order.component";
 
 @NgModule({
   imports: [
-    CommonModule
+    AppAsideModule,
+    BsDropdownModule,
+    CommonModule,
+    FormsModule,
+    LoadingModule,
+    FileUploadModule,
+    TypeaheadModule,
+    CollapseModule,
+    FileUploadModule,
+    PaginationModule,
+    PopoverModule.forRoot(),
+    TabsModule,
+    ModalModule.forRoot(),
+    NgSelectModule
   ],
-  declarations: [AsideToggleDirective],
+  declarations: [AutoFocusDirective, DebounceKeyUpDirective, CommentsComponent, DeleteOrderComponent],
+  entryComponents: [DeleteOrderComponent],
   exports: [
-    AsideToggleDirective
+    FormsModule,
+    BsDropdownModule,
+    TypeaheadModule,
+    LoadingModule,
+    CommentsComponent,
+    DeleteOrderComponent,
+    AppAsideModule,
+    CollapseModule,
+    CommonModule,
+    FileUploadModule,
+    TypeaheadModule,
+    PaginationModule,
+    PopoverModule,
+    TabsModule,
+    NgSelectModule,
+    AutoFocusDirective,
+    DebounceKeyUpDirective,
+    ModalModule
   ]
 })
 

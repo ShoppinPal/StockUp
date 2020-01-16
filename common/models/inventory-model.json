@@ -29,15 +29,20 @@
   },
   "validations": [],
   "relations": {
-    "storeConfigModel": {
+    "storeModel": {
       "type": "belongsTo",
-      "model": "StoreConfigModel",
-      "foreignKey": "storeConfigModelId"
+      "model": "StoreModel",
+      "foreignKey": "storeModelId"
     },
     "productModel": {
       "type": "belongsTo",
       "model": "ProductModel",
       "foreignKey": "productModelId"
+    },
+    "orgModel": {
+      "type": "belongsTo",
+      "model": "OrgModel",
+      "foreignKey": "orgModelId"
     }
   },
   "acls": [],

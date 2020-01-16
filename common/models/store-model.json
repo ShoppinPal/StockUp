@@ -3,8 +3,11 @@
   "base": "PersistedModel",
   "idInjection": false,
   "mixins": {
-    "Utils": true
+    "Timestamp": {},
+    "Context": {},
+    "CurrentUser": {}
   },
+  "injectOptionsFromRemoteContext": true,
   "properties": {
     "objectId": {
       "type": "number",
@@ -14,11 +17,6 @@
     "name": {
       "type": "string",
       "required": true
-    },
-    "isWarehouse": {
-      "type": "boolean",
-      "required": true,
-      "default": false
     },
     "phone": {
       "type": "string"
@@ -39,8 +37,7 @@
       "type": "string"
     },
     "country": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "location": {
       "type": "GeoPoint"
@@ -51,8 +48,7 @@
       ]
     },
     "api_id": {
-      "type": "string",
-      "required": true
+      "type": "string"
     },
     "registerId": {
       "type": "string"
@@ -69,15 +65,57 @@
   },
   "validations": [],
   "relations": {
-    "userModel": {
-      "type": "belongsTo",
+    "userModels": {
+      "type": "hasMany",
       "model": "UserModel",
-      "foreignKey": "userModelToStoreModelId"
+      "foreignKey": "storeModelId",
+      "through": "UserStoreMapping"
     },
     "storeConfigModel": {
       "type": "belongsTo",
       "model": "StoreConfigModel",
       "foreignKey": "storeConfigModelToStoreModelId"
+    },
+    "orgModel": {
+      "type": "belongsTo",
+      "model": "OrgModel",
+      "foreignKey": ""
+    },
+    "salesModels": {
+      "type": "hasMany",
+      "model": "SalesModel",
+      "foreignKey": "storeModelId"
+    },
+    "salesLineItemsModels": {
+      "type": "hasMany",
+      "model": "SalesLineItemsModel",
+      "foreignKey": "storeModelId"
+    },
+    "reportModels": {
+      "type": "hasMany",
+      "model": "ReportModel",
+      "foreignKey": "storeModelId"
+    },
+    "fulfillReportModels": {
+      "type": "hasMany",
+      "model": "ReportModel",
+      "foreignKey": "deliverFromStoreModelId"
+    },
+    "supplierModels": {
+      "type": "hasMany",
+      "model": "SupplierModel",
+      "foreignKey": "storeModelId",
+      "through": "SupplierStoreMapping"
+    },
+    "supplierStoreMappings": {
+      "type": "hasMany",
+      "model": "SupplierStoreMapping",
+      "foreignKey": "storeModelId"
+    },
+    "ownerSupplierModel": {
+      "type": "belongsTo",
+      "model": "SupplierModel",
+      "foreignKey": "ownerSupplierModelId"
     }
   },
   "acls": [

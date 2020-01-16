@@ -1,0 +1,60 @@
+{
+  "name": "SalesLineItemsModel",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "quantity": {
+      "type": "number"
+    },
+    "isReturnSale": {
+      "type": "boolean",
+      "default": false
+    },
+    "netAmount": {
+      "type": "number"
+    },
+    "grossAmount": {
+      "type": "number"
+    },
+    "discountAmount": {
+      "type": "number"
+    },
+    "taxAmount": {
+      "type": "number"
+    },
+    "costPrice": {
+      "type": "number"
+    },
+    "salesDate": {
+      "type": "date"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "salesModel": {
+      "type": "belongsTo",
+      "model": "SalesModel",
+      "foreignKey": "salesModelId"
+    },
+    "storeModel": {
+      "type": "belongsTo",
+      "model": "StoreModel",
+      "foreignKey": "storeModelId"
+    },
+    "productModel": {
+      "type": "belongsTo",
+      "model": "ProductModel",
+      "foreignKey": "productModelId"
+    },
+    "orgModel": {
+      "type": "belongsTo",
+      "model": "OrgModel",
+      "foreignKey": "orgModelId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

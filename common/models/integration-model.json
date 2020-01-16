@@ -1,0 +1,55 @@
+{
+  "name": "IntegrationModel",
+  "description": "Organisation hasMany integrationModel only because it throws an error with hasOne relation in case of org.integrationModels()",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "mixins": {
+    "Timestamp": {},
+    "Context": {}
+  },
+  "hidden": [
+    "access_token",
+    "refresh_token"
+  ],
+  "properties": {
+    "type": {
+      "type": "string",
+      "required": true
+    },
+    "access_token": {
+      "type": "string",
+      "required": true
+    },
+    "refresh_token": {
+      "type": "string",
+      "required": true
+    },
+    "domain_prefix": {
+      "type": "string"
+    },
+    "token_type": {
+      "type": "string",
+      "default": "Bearer"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "orgModel": {
+      "type": "belongsTo",
+      "model": "OrgModel",
+      "foreignKey": "orgModelId"
+    }
+  },
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    }
+  ],
+  "methods": {}
+}
