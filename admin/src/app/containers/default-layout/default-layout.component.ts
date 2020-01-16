@@ -83,6 +83,7 @@ export class DefaultLayoutComponent implements OnDestroy {
         this._router.navigate(['/login']);
       }),
       err => {
+        this._router.navigate(['/login']);
         console.log('Couldn\'t logout due to error', err);
       });
   };

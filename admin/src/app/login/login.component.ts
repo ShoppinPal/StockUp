@@ -24,6 +24,7 @@ export class LoginComponent implements OnInit {
   public brandonName = 'Brandon Lehman,'
   public brandonDesignation = 'IT & OPS HEAD'
   angForm: FormGroup;
+  public innerWidth;
 
   constructor(private userModelApi: UserModelApi, private _router: Router, private _route: ActivatedRoute, private fb: FormBuilder, private toastr: ToastrService) {
     LoopBackConfig.setBaseURL(environment.BASE_URL);
@@ -86,6 +87,8 @@ export class LoginComponent implements OnInit {
 
   ngOnInit() {
     this.getRouteData()
+    this.innerWidth = window.innerWidth;
+    // console.log(this.innerWidth);
   }
 
   getRouteData() {

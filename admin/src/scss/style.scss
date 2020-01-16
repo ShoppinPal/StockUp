@@ -6,3 +6,13 @@
 
 // If you want to add something do it here
 @import "custom";
+
+@import "~@coreui/coreui/scss/bootstrap";
+
+.input-group-text {
+    padding: 0.375rem 0.3rem !important
+  }
+
+.navbar {
+  padding: 0 0;
+}

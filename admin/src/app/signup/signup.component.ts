@@ -21,6 +21,7 @@ export class SignupComponent implements OnInit {
   confirmPassword = '';
   orgName = ''
   public headerParaData = "The industry’s first and only open source app for automating stock replenishment."
+  public innerWidth;
 
   constructor(private userModelApi: UserModelApi, private _router: Router, private _route: ActivatedRoute, private toastr: ToastrService) {
     LoopBackConfig.setBaseURL(environment.BASE_URL);
@@ -29,6 +30,7 @@ export class SignupComponent implements OnInit {
 
   ngOnInit() {
     this.getRouteData();
+    this.innerWidth = window.innerWidth;
   }
 
   getRouteData() {
