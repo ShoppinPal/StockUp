@@ -1,5 +1,5 @@
 {
-  "name": "shoppinpal-warehouse-mongo",
+  "name": "stockup",
   "version": "1.6.0",
   "dependencies": {
     "@mean-expert/loopback-component-realtime": "1.0.0-rc.9.6",

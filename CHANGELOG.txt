@@ -2,11 +2,23 @@ v1.6.1 - July 17, 2019
 - Migrating the build process from CircleCI to GCP Cloud Build..
 
 v1.6.0 - Jan 11, 2019
+- Official release for StockUp (previously warehouse)
 - Multi-tenant support
 - Signup feature
-- MSD sync
+- Supports Microsoft Dynamics Finance & Operations
 - Min/max algorithm to generate reorder points
-- Revised app with Angular 4
+- Revised app with Angular 7
+- Scan to receive
+- Sentry support
+- Moved order scheduling to app (previously handled by devops manually)
+- Dynamic file imports (by csv/xls file header mapping)
+- Introduced buyer/vendor portals
+- Worker notifications
+- User management
+- Approval screens for generated/receiving/fulfilling orders
+- Supplier management
+- One-click connect with Vend & MSD
+- Stores permissions to users
 
 v1.5.8 - Dec 21, 2018
 - PDF, CSV shouldn't contain items with 0 order quantity
