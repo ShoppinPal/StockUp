@@ -1,175 +1,337 @@
-var runMe = function (payload, config, taskId, messageId) {
+const path = require('path');
+const commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
+const logger = require('sp-json-logger')({fileName: 'workers:workers-v2:' + commandName});
+var MongoClient = require('mongodb').MongoClient;
+var ObjectId = require('mongodb').ObjectID;
+var _ = require('underscore');
+var Promise = require('bluebird');
+var dbUrl = process.env.DB_URL;
+var utils = require('./../../jobs/utils/utils.js');
+var vendSdk = require('vend-nodejs-sdk')({}); //why the {}?
+var suppliersBatchNumber = 0;
+var maxBatchSize = 1000;
 
-  const logger = require('sp-json-logger');
-  var dbUrl = process.env.DB_URL;
+var runMe = function (vendConnectionInfo, orgModelId, versionsAfter) {
 
-  try {
-    var utils = require('./../../jobs/utils/utils.js');
-    var path = require('path');
-    var MongoClient = require('mongodb').MongoClient;
-    var ObjectId = require('mongodb').ObjectID;
-    var _ = require('underscore');
-    var Promise = require('bluebird');
-    var vendSdk = require('vend-nodejs-sdk')({}); //why the {}?
-    var vendConnectionInfo;
     var db = null; //database connected
-    var incrementalSuppliers, suppliersToDelete;
-
-    // Global variable for logging
-    var commandName = path.basename(__filename, '.js'); // gives the filename without the .js extension
-
     logger.debug({
-      messageId: messageId,
-      commandName: commandName,
-      payload: payload,
-      config: config,
-      taskId: taskId,
-      argv: process.argv
+        orgModelId,
+        message: 'This worker will fetch and save incremental suppliers from vend to warehouse'
     });
-
-    try {
-      process.env['User-Agent'] = taskId + ':' + messageId + ':' + commandName + ':' + payload.domainPrefix;
-      logger.debug({ messageId: messageId, commandName: commandName, message: 'This worker will fetch and save incremental suppliers from vend to warehouse' });
-      return utils.savePayloadConfigToFiles(payload)
-        .then(function () {
-          //TODO: remove these relative paths
-          var nconf = require('./../../node_modules/nconf/lib/nconf');
-          nconf.file('client', {file: 'config/client.json'})
-          //.file('settings', { file: 'config/settings.json' }) // NOTE: useful for quicker testing
-            .file('oauth', {file: 'config/oauth.json'});
-          logger.debug({ messageId: messageId, commandName: commandName, nconf: nconf.get() });
-          vendConnectionInfo = utils.loadOauthTokens();
-          var argsForSuppliers = vendSdk.args.suppliers.fetch();
-          argsForSuppliers.after.value = payload.versionsAfter;
-          argsForSuppliers.deleted.value = 1; //fetch all deleted suppliers also
-          return vendSdk.suppliers.fetch(argsForSuppliers, vendConnectionInfo);
-        })
-        .then(function (fetchedSuppliers) {
-          if (!fetchedSuppliers.data.length) {
-            return Promise.reject('noIncrementalSuppliers');
-          }
-          suppliersToDelete = _.filter(fetchedSuppliers.data, function (eachSupplier) {
-            return eachSupplier.deleted_at !== undefined && eachSupplier.deleted_at !== null;
-          });
-          incrementalSuppliers = _.difference(fetchedSuppliers.data, suppliersToDelete);
-          logger.debug({ messageId: messageId, commandName: commandName, message: `Found ${suppliersToDelete.length} deleted suppliers, will delete them from the database` });
-          logger.debug({ messageId: messageId, commandName: commandName, message: `Found ${incrementalSuppliers.length} new suppliers, will filter only required data from them` });
-          return MongoClient.connect(dbUrl, {promiseLibrary: Promise});
-        })
+    return MongoClient.connect(dbUrl, {promiseLibrary: Promise})
         .then(function (dbInstance) {
-          logger.debug({messageId: messageId, commandName: commandName, message: 'Connected to mongodb database, will download suppliers into database'});
-          db = dbInstance;
-          //Initialize the unordered batch
-          var batch = db.collection('SupplierModel').initializeUnorderedBulkOp();
-          //Add some operations to be executed
-          _.each(incrementalSuppliers, function (eachSupplier) {
-            batch.find({
-              api_id: eachSupplier.id
-            }).upsert().updateOne({
-              $set: {
-                name: eachSupplier.name,
-                api_id: eachSupplier.id,
-                description: eachSupplier.description,
-                storeConfigModelId: ObjectId(payload.storeConfigModelId)
-              }
+            db = dbInstance;
+            logger.debug({
+                orgModelId,
+                message: 'Connected to mongodb database',
             });
-          });
-          _.each(suppliersToDelete, function (eachSupplier) {
-            batch.find({
-              api_id: eachSupplier.id
-            }).remove({
-              api_id: eachSupplier.id
-            })
-          });
-
-          //Execute the operations
-          return batch.execute();
-        })
-        .then(function (bulkInsertResponse) {
-          var result = {
-            ok: bulkInsertResponse.ok,
-            nInserted: bulkInsertResponse.nInserted,
-            nUpserted: bulkInsertResponse.nUpserted,
-            nMatched: bulkInsertResponse.nMatched,
-            nModified: bulkInsertResponse.nModified,
-            nRemoved: bulkInsertResponse.nRemoved
-          };
-          logger.debug({ messageId: messageId, commandName: commandName, message: 'Bulk insert operation complete', result: result });
-          logger.debug({ messageId: messageId, commandName: commandName, message: 'Will go on to update version no. in warehouse' });
-          return db.collection('SyncModel').updateOne({
-              $and: [
-                {
-                  'storeConfigModelId': ObjectId(payload.storeConfigModelId)
-                },
-                {
-                  'name': 'suppliers'
-                }
-              ],
-            },
-            {
-              $set: {
-                'version': payload.versionsBefore,
-                'syncInProcess': false,
-                'workerTaskId': '',
-                'lastSyncedAt': new Date()
-              }
-            });
-        })
-        .then(function (response) {
-          logger.debug({ messageId: messageId, commandName: commandName, message: 'Updates suppliers version number in warehouse', result: response ? response.result || response : '' });
-          return Promise.resolve();
-        })
-        .catch(function (error) {
-          if (error === 'noIncrementalSuppliers') {
-            logger.debug({ messageId: messageId, commandName: commandName, message: 'No incremental suppliers found, will exit' });
-            return db.collection('SyncModel').updateOne({
-                $and: [
-                  {
-                    'storeConfigModelId': ObjectId(payload.storeConfigModelId)
-                  },
-                  {
-                    'name': 'suppliers'
-                  }
-                ],
-              },
-              {
-                $set: {
-                  'syncInProcess': false,
-                  'workerTaskId': '',
-                  'lastSyncedAt': new Date()
-                }
-              });
-          }
-          logger.error({ messageId: messageId, commandName: commandName, message: 'Could not fetch and save suppliers', err: error });
-          return Promise.reject(error);
-        })
-        .then(function (response) {
-          logger.debug({ messageId: messageId, commandName: commandName, message: 'Updated sync model for suppliers', result: response ? response.result || response: '' });
-          return Promise.resolve();
+            return fetchSuppliersRecursively(dbInstance, vendConnectionInfo, orgModelId, versionsAfter);
         })
         .finally(function () {
-          logger.debug({ messageId: messageId, commandName: commandName, message: 'Closing database connection' });
-          if (db) {
-            return db.close();
-          }
+            logger.debug({
+                orgModelId,
+                message: 'Closing database connection'
+            });
+            if (db) {
+                return db.close();
+            }
         })
         .catch(function (error) {
-          logger.error({ messageId: messageId, commandName: commandName, message: 'Could not close db connection', err: error });
-          return Promise.resolve();
-          //TODO: set a timeout, after which close all listeners
+            logger.error({
+                orgModelId,
+                message: 'Could not close db connection',
+                err: error
+            });
+            return Promise.resolve();
         });
-    }
-    catch (e) {
-      logger.error({ messageId: messageId, commandName: commandName, message: '2nd last catch block', err: e });
-      throw e;
-    }
-  }
-  catch (e) {
-    logger.error({ messageId: messageId, message: 'last catch block', err: e });
-    throw e;
-  }
 };
 
 module.exports = {
-  run: runMe
+    run: runMe
 };
+
+function assignVirtualStores(newSuppliers, suppliersToDelete, orgModelId, db) {
+    logger.debug({
+        message: 'Will create virtual stores for new suppliers and delete for deleted suppliers',
+        orgModelId,
+        newSuppliers,
+        suppliersToDelete,
+        functionName: 'assignVirtualStores'
+    });
+    return Promise.all([
+        db.collection('SupplierModel').find({
+            orgModelId: ObjectId(orgModelId),
+            api_id: {
+                $in: _.pluck(newSuppliers, 'id')
+            }
+        }).toArray(),
+        db.collection('SupplierModel').find({
+            orgModelId: ObjectId(orgModelId),
+            api_id: {
+                $in: _.pluck(suppliersToDelete, 'id')
+            }
+        }).toArray(),
+    ])
+        .catch(function (error) {
+            logger.error({
+                orgModelId,
+                message: 'Could not find new supplier instances in db',
+                error,
+                functionName: 'assignVirtualStores'
+            });
+            return Promise.reject('Could not find new supplier instances in db');
+        })
+        .spread(function (newSuppliers, deletedSuppliers) {
+            logger.debug({
+                orgModelId,
+                message: 'Found supplier model instances in db',
+                newSuppliers,
+                deletedSuppliers,
+                functionName: 'assignVirtualStores'
+            });
+            var batch = db.collection('StoreModel').initializeUnorderedBulkOp();
+            //Add some operations to be executed
+            _.each(newSuppliers, function (eachSupplier) {
+                batch.find({
+                    orgModelId: ObjectId(orgModelId),
+                    ownerSupplierModelId: ObjectId(eachSupplier._id)
+                }).upsert().updateOne({
+                    $set: {
+                        name: eachSupplier.name,
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                        orgModelId: ObjectId(orgModelId),
+                        storeNumber: 'Virtual Store',
+                        ownerSupplierModelId: ObjectId(eachSupplier._id)
+                    }
+                });
+            });
+            _.each(deletedSuppliers, function (eachSupplier) {
+                batch.find({
+                    orgModelId: orgModelId,
+                    ownerSupplierModelId: ObjectId(eachSupplier._id)
+                }).remove({
+                    ownerSupplierModelId: ObjectId(eachSupplier._id)
+                });
+            });
+            //Execute the operations
+            return executeBatch(batch, orgModelId);
+        })
+        .catch(function (error) {
+            logger.error({
+                message: 'Could not create virtual stores for new suppliers',
+                error
+            });
+            return Promise.reject('Could not create virtual stores for new suppliers');
+        })
+        .then(function () {
+            logger.debug({
+                message: 'Assigned virtual stores to new suppliers and deleted stores for deleted suppliers',
+                orgModelId,
+                suppliersBatchNumber,
+                functionName: 'assignVirtualStores'
+            });
+            return Promise.resolve('Assigned virtual stores to new suppliers and deleted stores for deleted suppliers');
+        });
+}
+
+function fetchSuppliersRecursively(dbInstance, vendConnectionInfo, orgModelId, versionsAfter) {
+    suppliersBatchNumber++;
+    var argsForSuppliers = vendSdk.args.suppliers.fetch();
+    argsForSuppliers.after.value = versionsAfter;
+    argsForSuppliers.deleted.value = 1; //fetch all deleted suppliers also
+    argsForSuppliers.pageSize.value = maxBatchSize;
+    return vendSdk.suppliers.fetch(argsForSuppliers, vendConnectionInfo)
+        .catch(function (error) {
+            logger.error({
+                message: 'Could not fetch suppliers from Vend',
+                orgModelId,
+                suppliersBatchNumber,
+                error,
+                functionName: 'fetchSuppliersRecursively'
+            });
+            return Promise.reject('Could not fetch suppliers from Vend');
+        })
+        .then(function (response) {
+            if (response && response.data && response.data.length) {
+                logger.debug({
+                    message: 'Fetched suppliers data from vend, will save to DB',
+                    suppliersCount: response.data.length,
+                    orgModelId,
+                    suppliersBatchNumber,
+                    functionName: 'fetchSuppliersRecursively'
+                });
+                return saveSuppliers(dbInstance, vendConnectionInfo, orgModelId, response);
+            }
+            else if (response && response.data && !response.data.length) {
+                logger.debug({
+                    message: 'No more suppliers to fetch, will exit worker',
+                    orgModelId,
+                    suppliersBatchNumber,
+                    functionName: 'fetchSuppliersRecursively'
+                });
+                return Promise.resolve('noIncrementalSuppliers');
+            }
+            else {
+                logger.debug({
+                    message: 'Vend API returning null response',
+                    response,
+                    suppliersBatchNumber,
+                    orgModelId,
+                    functionName: 'fetchSuppliersRecursively'
+                });
+                return Promise.reject();
+            }
+        });
+}
+
+function saveSuppliers(dbInstance, vendConnectionInfo, orgModelId, suppliers) {
+    var suppliersToDelete = _.filter(suppliers.data, function (eachSupplier) {
+        return eachSupplier.deleted_at !== undefined && eachSupplier.deleted_at !== null;
+    });
+    var suppliersToSave = _.difference(suppliers.data, suppliersToDelete);
+    logger.debug({
+        message: `Found deleted and incremental suppliers`,
+        orgModelId,
+        suppliersBatchNumber,
+        suppliersToSave: suppliersToSave.length,
+        suppliersToDelete: suppliersToDelete.length,
+        functionName: 'saveSuppliers'
+    });
+    //Initialize the unordered batch
+    var batch = dbInstance.collection('SupplierModel').initializeUnorderedBulkOp();
+    //Add some operations to be executed
+    _.each(suppliersToSave, function (eachSupplier) {
+        batch.find({
+            orgModelId: ObjectId(orgModelId),
+            api_id: eachSupplier.id
+        }).upsert().updateOne({
+            $set: {
+                name: eachSupplier.name,
+                api_id: eachSupplier.id,
+                orgModelId: ObjectId(orgModelId),
+                updatedAt: new Date()
+            }
+        });
+    });
+    _.each(suppliersToDelete, function (eachSupplier) {
+        batch.find({
+            orgModelId: orgModelId,
+            api_id: eachSupplier.id
+        }).remove({
+            api_id: eachSupplier.id
+        })
+    });
+
+    //Execute the operations
+    return executeBatch(batch, orgModelId)
+        .catch(function (error) {
+            logger.error({
+                message: 'Could not execute batch operation, will exit',
+                error,
+                suppliersBatchNumber,
+                functionName: 'saveSuppliers',
+                orgModelId
+            });
+            return Promise.reject();
+        })
+        .then(function () {
+            logger.debug({
+                message: 'Successfully executed batch of Suppliers, will update version number in DB',
+                orgModelId,
+                suppliersBatchNumber,
+                functionName: 'saveSuppliers'
+            });
+            return dbInstance.collection('SyncModel').updateOne({
+                    $and: [
+                        {
+                            'orgModelId': ObjectId(orgModelId)
+                        },
+                        {
+                            'name': 'suppliers'
+                        }
+                    ],
+                },
+                {
+                    $set: {
+                        'version': suppliers.version.max
+                    }
+                });
+        })
+        .catch(function (error) {
+            logger.error({
+                message: 'Could not update version number in DB, will stop sync',
+                error,
+                orgModelId,
+                suppliersBatchNumber,
+                functionName: 'saveSuppliers'
+            });
+            return Promise.reject('Could not update version number in DB, will stop sync');
+        })
+        .then(function () {
+            logger.debug({
+                message: 'Will create/delete virtual stores for suppliers',
+                suppliersBatchNumber,
+                functionName: 'saveSuppliers',
+                orgModelId,
+            });
+            return assignVirtualStores(suppliersToSave, suppliersToDelete, orgModelId, dbInstance);
+        })
+        .then(function () {
+            logger.debug({
+                message: 'Created/deleted virtual stores for suppliers successfully, will fetch another batch',
+                suppliersBatchNumber,
+                functionName: 'saveSuppliers',
+                orgModelId
+            });
+            return fetchSuppliersRecursively(dbInstance, vendConnectionInfo, orgModelId, suppliers.version.max);
+        });
+}
+
+function executeBatch(batch, orgModelId) {
+    return new Promise(function (resolve, reject) {
+        logger.debug({
+            orgModelId,
+            message: `Executing batch of suppliers`,
+            suppliersBatchNumber,
+            functionName: 'executeBatch'
+        });
+        if (batch.s && batch.s.currentBatch && batch.s.currentBatch.operations) {
+            batch.execute(function (err, result) {
+                if (err) {
+                    logger.error({
+                        orgModelId,
+                        message: `ERROR in batch`,
+                        suppliersBatchNumber,
+                        err: err,
+                        functionName: 'executeBatch'
+                    });
+                    reject(err);
+                }
+                else {
+                    logger.debug({
+                        orgModelId,
+                        message: `Successfully executed batch operation`,
+                        suppliersBatchNumber,
+                        "nInserted": result.nInserted,
+                        "nUpserted": result.nUpserted,
+                        "nMatched": result.nMatched,
+                        "nModified": result.nModified,
+                        "nRemoved": result.nRemoved,
+                        functionName: 'executeBatch'
+                    });
+                    resolve('Executed');
+                }
+            });
+        }
+        else {
+            logger.debug({
+                orgModelId,
+                suppliersBatchNumber,
+                message: `Skipping empty batch`,
+                functionName: 'executeBatch'
+            });
+            resolve('Skipped');
+        }
+    });
+}

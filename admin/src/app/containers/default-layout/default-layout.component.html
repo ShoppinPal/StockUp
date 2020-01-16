@@ -1,0 +1,41 @@
+<ngx-loading [show]="loading"></ngx-loading>
+<app-header
+  [navbarBrandRouterLink]="['/orders/stock-orders']"
+  [fixed]="true"
+  [navbarBrandFull]="{src: 'assets/img/SU_Logo.png', width: 100, height: 25, alt: 'ShoppinPal Logo'}"
+  [navbarBrandMinimized]="{src: 'assets/img/SU_Logo.png', width: 40, height: 10, alt: 'ShoppinPal Logo'}"
+  [asideMenuToggler]="false"
+  [mobileAsideMenuToggler]="false"
+  [sidebarToggler]="'lg'"
+  [asideMenuToggler]="'lg'"
+  >
+  <ul class="nav navbar-nav ml-auto">
+    <li class="nav-item dropdown" dropdown placement="bottom right">
+      <a class="nav-link dropdown-toggle padding-right" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+         aria-expanded="false" dropdownToggle (click)="false" style="padding-right: 10px;">
+        <span>{{user.email}}</span>
+      </a>
+      <div class="dropdown-menu dropdown-menu-right" *dropdownMenu aria-labelledby="simple-dropdown">
+        <a class="dropdown-item" href="#" (click)="logout()"><i class="fa fa-lock"></i> Logout</a>
+      </div>
+    </li>
+  </ul>
+</app-header>
+<div class="app-body">
+  <app-sidebar [fixed]="true" [display]="'lg'">
+    <app-sidebar-nav [navItems]="navItems" [perfectScrollbar] [disabled]="sidebarMinimized"></app-sidebar-nav>
+    <app-sidebar-minimizer></app-sidebar-minimizer>
+  </app-sidebar>
+  <!-- Main content -->
+  <main class="main">
+    <cui-breadcrumb></cui-breadcrumb>
+    <div class="container-fluid">
+      <!-- breaking change 'cui-breadcrumb' -->
+      <router-outlet></router-outlet>
+    </div><!-- /.container-fluid -->
+  </main>
+</div>
+<app-footer>
+  <span><a href="https://stockup.online">Stockup</a> &copy; 2018</span>
+  <span class="ml-auto">Powered by <a href="https://shoppinpal.com">Shoppinpal</a></span>
+</app-footer>

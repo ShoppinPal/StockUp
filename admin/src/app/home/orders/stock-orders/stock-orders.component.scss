@@ -1,0 +1,25 @@
+$blue-color: #d2f3ff;
+
+@keyframes backgroundEffect {
+  from {background: $blue-color;}
+  to {background: white;}
+}
+
+@-webkit-keyframes backgroundEffect {
+  from {background: $blue-color;}
+  to {background: white;}
+}
+
+$animation-duration: 10s;
+
+.backgroundEffectStart {
+  animation-name: backgroundEffect;
+  animation-duration: $animation-duration;
+  -webkit-animation-name: backgroundEffect;
+  -webkit-animation-duration: $animation-duration;
+}
+
+.table-wrapper{
+  max-width: 100%;
+  overflow-x: auto;
+}

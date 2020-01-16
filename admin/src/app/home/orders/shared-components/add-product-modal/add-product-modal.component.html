@@ -1,0 +1,113 @@
+<div bsModal #addProductModal="bs-modal" [config]="{ show: true }" (onHide)="modalClosed.emit(false)"
+     class="modal fade " tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="card">
+            <div class="card-header">
+              <strong>Add Products</strong>
+              <button type="button" class="close" (click)="addProductModal.hide()" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="card-body">
+              <ngx-loading [show]="loading"></ngx-loading>
+              <div class="row">
+                <div class="col-sm-12">
+                  <div class="form-group">
+                    <div class="input-group">
+                      <input type="text"
+                             class="form-control"
+                             id="addProductSearchSKU"
+                             [(ngModel)]="searchProductSKUText"
+                             placeholder="Enter SKU">
+                      <span class="input-group-btn">
+                    <button class="btn btn-primary" type="button"
+                            (click)="searchProductBySku(searchProductSKUText)">
+                      <i class="fa fa-search"></i> Search
+                    </button>
+                  </span>
+                    </div>
+                  </div>
+                </div>
+              </div><!--/.row-->
+            </div>
+            <div class="card-footer">
+              <div class="row">
+                <div class="pull-right">
+                  <button type="button" class="btn btn-link float-right"
+                          (click)="searchProductSKUText='';searchedProductsData=[];">
+                    Clear All Searches
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div><!--/.col-->
+      </div><!--/.row-->
+      <div class="row">
+        <div class="col-sm-12">
+          <table class="table table-hover">
+            <thead>
+            <tr>
+              <th>Name</th>
+              <th>SKU</th>
+              <th>Order Quantity</th>
+              <th>Add</th>
+            </tr>
+            </thead>
+            <tbody>
+            <ng-container *ngFor="let productModel of searchedProductsData; let i = index">
+              <tr>
+                <td>
+                  {{productModel.name}}
+                  <br/>
+                  <small *ngIf="userProfile.integrationType === 'msdynamics'">
+                    ({{productModel.sizeId}} : {{productModel.colorId}} :
+                    {{productModel.styleId}} : {{productModel.configurationId}})
+                  </small>
+                </td>
+                <td *ngIf="userProfile.integrationType==='msdynamics'">{{productModel.api_id}}</td>
+                <td *ngIf="userProfile.integrationType==='vend'">{{productModel.sku}}</td>
+                <td>
+                  <div class="form-group">
+                    <div class="input-group">
+                      <div class="input-group-prepend pointer"
+                           (click)="productModel.quantity = (productModel.quantity || 0) - 1">
+                                <span class="input-group-text">
+                                  <i class="fa fa-minus-circle quantity-icon text-danger"></i>
+                                </span>
+                      </div>
+                      <input type="number"
+                             class="input-order-quantity form-control-sm form-control text-center"
+                             [(ngModel)]="productModel.quantity"/>
+                      <div class="input-group-append pointer"
+                           (click)="productModel.quantity = (productModel.quantity || 0) + 1">
+                                <span class="input-group-text">
+                                  <i class="fa fa-plus-circle quantity-icon text-success"></i>
+                                </span>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <button class="btn btn-primary" type="submit"
+                          (click)="addProductToStockOrder(productModel)">
+                    <i class="fa fa-check"></i> Add
+                  </button>
+                </td>
+              </tr>
+            </ng-container>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" (click)="addProductModal.hide()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

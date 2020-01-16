@@ -4,8 +4,6 @@ import {BinLocationsComponent} from './bin-locations.component';
 import {SharedModule} from '../../../shared/shared.module';
 import {BinLocationsFiltersModule} from './bin-locations-filters/bin-locations-filters.module';
 import {LoadingModule} from 'ngx-loading';
-import {NgxPaginationModule} from 'ngx-pagination';
-import {AutoFocusDirective} from './directives/auto-focus.directive';
 import {FormsModule} from '@angular/forms';
 
 @NgModule({
@@ -14,10 +12,9 @@ import {FormsModule} from '@angular/forms';
     FormsModule,
     SharedModule,
     BinLocationsFiltersModule,
-    LoadingModule,
-    NgxPaginationModule
+    LoadingModule
   ],
-  declarations: [BinLocationsComponent, AutoFocusDirective]
+  declarations: [BinLocationsComponent]
 })
 export class BinLocationsModule {
 }

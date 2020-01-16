@@ -2,7 +2,7 @@
 
 var Promise = require('bluebird');
 var AWS = require('aws-sdk');
-const logger = require('sp-json-logger');
+const logger = require('sp-json-logger')();
 
 
 var runMe = function () {

@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import {StoreConfigModelApi} from "../../../shared/lb-sdk/services/custom/StoreConfigModel";
+import {OrgModelApi} from "../../../shared/lb-sdk/services/custom/OrgModel";
 import {ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs';
+import {Observable, combineLatest} from 'rxjs';
+import {map} from 'rxjs/operators';
 import {UserProfileService} from "../../../shared/services/user-profile.service";
 
 @Injectable()
@@ -11,7 +12,7 @@ export class SuppliersResolverService {
   private count: number;
   private userProfile: any = this._userProfileService.getProfileData();
 
-  constructor(private storeConfigModelApi: StoreConfigModelApi,
+  constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
               private _userProfileService: UserProfileService) {
   }
@@ -25,10 +26,10 @@ export class SuppliersResolverService {
       limit: 10,
       skip: skip || 0
     };
-    let fetchSuppliers = Observable.combineLatest(
-      this.storeConfigModelApi.getSupplierModels(this.userProfile.storeConfigModelId, filter),
-      this.storeConfigModelApi.countSupplierModels(this.userProfile.storeConfigModelId));
-    return fetchSuppliers.map((data: any) => {
+    let fetchSuppliers = combineLatest(
+      this.orgModelApi.getSupplierModels(this.userProfile.orgModelId, filter),
+      this.orgModelApi.countSupplierModels(this.userProfile.orgModelId));
+    return fetchSuppliers.pipe(map((data: any) => {
         // this.loading = false;
         this.suppliers = data[0];
         this.count = data[1].count;
@@ -39,7 +40,7 @@ export class SuppliersResolverService {
       },
       err => {
         console.log('Couldn\'t load suppliers', err);
-      });
+      }));
   };
 
 }

@@ -57,3 +57,7 @@ seeds
 client/app/scripts/shoppinpal-loopback.js
 client/admin/
 workers/config
+rsync/.exclude-files
+rsync/rsync.sh
+/admin/src/app/shared/lb-sdk
+rsync.sh

@@ -7,7 +7,10 @@
       "./models"
     ],
     "mixins": [
-      "../common/mixins"
+      "loopback/common/mixins",
+      "loopback/server/mixins",
+      "../common/mixins",
+      "./mixins"
     ]
   },
   "User": {
@@ -33,46 +36,23 @@
     "dataSource": "db",
     "public": false
   },
-  "Application": {
-    "dataSource": "db",
-    "public": false
-  },
   "UserModel": {
-    "dataSource": "db"
-  },
-  "TeamModel": {
-    "dataSource": "db",
-    "public": false
-  },
-  "GlobalConfigModel": {
-    "dataSource": "db",
-    "public": true
-  },
-  "StoreConfigModel": {
     "dataSource": "db",
     "public": true
   },
   "StoreModel": {
     "dataSource": "db",
-    "public": true
+    "public": false
   },
   "ReportModel": {
     "dataSource": "db",
-    "public": true
+    "public": false
   },
   "StockOrderLineitemModel": {
     "dataSource": "db",
-    "public": true
+    "public": false
   },
   "SupplierModel": {
-    "dataSource": "db",
-    "public": true
-  },
-  "container": {
-    "dataSource": "storage",
-    "public": true
-  },
-  "StoreMappingModel": {
     "dataSource": "db",
     "public": false
   },
@@ -87,5 +67,45 @@
   "InventoryModel": {
     "dataSource": "db",
     "public": false
+  },
+  "OrgModel": {
+    "dataSource": "db",
+    "public": true
+  },
+  "IntegrationModel": {
+    "dataSource": "db",
+    "public": false
+  },
+  "SalesModel": {
+    "dataSource": "db",
+    "public": false
+  },
+  "SalesLineItemsModel": {
+    "dataSource": "db",
+    "public": false
+  },
+  "CategoryModel": {
+    "dataSource": "db",
+    "public": false
+  },
+  "UserStoreMapping": {
+    "dataSource": "db",
+    "public": false
+  },
+  "OrderConfigModel": {
+    "dataSource": "db",
+    "public": false
+  },
+  "SupplierStoreMapping": {
+    "dataSource": "db",
+    "public": false
+  },
+  "CommentModel": {
+    "dataSource": "db",
+    "public": false
+  },
+  "SchedulerModel": {
+    "dataSource": "db",
+    "public": true
   }
 }

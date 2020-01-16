@@ -1,7 +1,8 @@
 import {Injectable} from '@angular/core';
 import {UserProfile} from '../models/userProfile';
 import {UserModelApi} from '../lb-sdk/services';
-import {Observable} from "rxjs/Observable";
+import {Observable, of} from "rxjs";
+import {map} from "rxjs/operators";
 import {LoopBackAuth} from '../lb-sdk/services';
 
 @Injectable()
@@ -10,7 +11,8 @@ export class UserProfileService {
   private User: any;
 
   constructor(private _userModelApi: UserModelApi,
-              protected auth: LoopBackAuth) {}
+              protected auth: LoopBackAuth) {
+  }
 
   public isUserAuthenticated(): Observable<boolean> {
     return Observable.create(observer => {
@@ -61,17 +63,23 @@ export class UserProfileService {
   }
 
   public refreshUserProfile(): Observable<any> {
-    return this._userModelApi.profile(this.auth.getCurrentUserId())
-      .map((user) => {
-        this.User = new UserProfile(user.profileData);
-        this.User.isAuthenticated = true;
-        return this.User;
-      })
-      .catch(error => {
-        this.User = new UserProfile({});
-        this.User.isAuthenticated = false;
-        return Observable.of(this.User);
-      });
+    if (this.auth.getCurrentUserId()) {
+      return this._userModelApi.profile(this.auth.getCurrentUserId())
+        .pipe(map((user) => {
+          this.User = new UserProfile(user.profileData);
+          this.User.isAuthenticated = true;
+          return this.User;
+        }, err => {
+          this.User = new UserProfile({});
+          this.User.isAuthenticated = false;
+          return of(this.User);
+        }));
+    }
+    else {
+      this.User = new UserProfile({});
+      this.User.isAuthenticated = false;
+      return of(this.User);
+    }
   }
 
   isUserAuthorised(): boolean {

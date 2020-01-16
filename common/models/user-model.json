@@ -2,11 +2,28 @@
   "name": "UserModel",
   "base": "User",
   "idInjection": true,
+  "mixins": {
+    "Timestamp": {},
+    "Context": {}
+  },
+  "injectOptionsFromRemoteContext": true,
   "properties": {
     "id": {
       "type": "string",
       "id": true,
       "generated": true
+    },
+    "emailVerified": {
+      "type": "boolean",
+      "default": false
+    },
+    "virtual": {
+      "type": "boolean",
+      "required": false
+    },
+    "orgName": {
+      "type": "string",
+      "required": false
     }
   },
   "validations": [],
@@ -34,12 +51,13 @@
     "storeModels": {
       "type": "hasMany",
       "model": "StoreModel",
-      "foreignKey": "userModelToStoreModelId"
+      "foreignKey": "userModelId",
+      "through": "UserStoreMapping"
     },
     "reportModels": {
       "type": "hasMany",
       "model": "ReportModel",
-      "foreignKey": "userModelToReportModelId"
+      "foreignKey": "userModelId"
     },
     "stockOrderLineitemModels": {
       "type": "hasMany",
@@ -51,27 +69,51 @@
       "model": "Role",
       "foreignKey": "principalId",
       "through": "RoleMapping"
+    },
+    "orgModel": {
+      "type": "belongsTo",
+      "model": "OrgModel",
+      "foreignKey": ""
+    },
+    "commentModels": {
+      "type": "hasMany",
+      "model": "CommentModel",
+      "foreignKey": "userModelId"
     }
   },
   "acls": [
     {
       "accessType": "*",
       "principalType": "ROLE",
-      "principalId": "$owner",
-      "permission": "ALLOW"
-    },
-    {
-      "accessType": "*",
-      "principalType": "ROLE",
-      "principalId": "admin",
-      "permission": "ALLOW"
+      "principalId": "$everyone",
+      "permission": "DENY"
     },
     {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
-      "principalId": "teamMember",
+      "principalId": "$authenticated",
       "permission": "ALLOW",
       "property": "profile"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "signup"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "__get__orgModel"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "setPassword"
     }
   ],
   "methods": {}

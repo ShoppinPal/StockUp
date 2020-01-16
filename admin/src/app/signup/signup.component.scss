@@ -1,0 +1,84 @@
+.org-suffix {
+  position: relative;
+  background: aliceblue;
+  padding: 6px;
+  border: 1px solid #c2cfd6;
+  border-left: none;
+}
+
+.logo-avatar {
+  width: 40px;
+  height: 39px;
+  opacity: 1;
+  border-radius: 5px;
+}
+
+.logo-image {
+  width: 40px;
+  height: 39px;
+  border-radius: 3px;
+
+}
+
+.header-text {
+  width: 133px;
+  height: 35px;
+  color: #FFFFFF;
+  opacity: 1;
+  font: W4 32px/54px Hiragino Maru Gothic ProN;
+  letter-spacing: 0;
+  text-align: center;
+}
+
+.header-space-div {
+width: 5px;
+}
+
+.header-card-space-div {
+height: 20px;
+}
+
+.login-banner {
+  position: relative;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  height:100%;
+  width:95%;
+}
+
+.image-space-div {
+  height: 20px;
+}
+
+.image-header {
+  position: relative;
+  display: table; 
+}
+
+.image-header {
+  margin: 0;
+  font: Bold 36px/44px Helvetica Neue;
+  letter-spacing: 0;
+  text-align: center; 
+  vertical-align: middle;
+  font-stretch: expanded;
+  margin-top: 45px;
+}
+
+.row-two {
+  background: #3B3B3B 0% 0% no-repeat padding-box;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.row {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.col-6.signup-button {
+  padding-left: 0;
+}
+

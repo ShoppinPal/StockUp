@@ -1,0 +1,184 @@
+<ngx-loading [show]="loading"></ngx-loading>
+<div class="animated fadeIn">
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="card">
+        <div class="card-header">
+          <strong>Stock order details</strong>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="form-group col-sm-6">
+              <p>Name: <strong>{{order.name}}</strong></p>
+              <p>Total Items: <strong>{{totalLineItems}}</strong></p>
+              <p>Created At: <strong>{{order.created | date: 'y-MM-dd HH:mm'}}</strong></p>
+              <p>Status: <strong>{{order.state}}</strong>
+                <!--<span *ngIf="order.state === reportStates.PUSHING_TO_MSD">({{order.percentagePushedToMSD || 0 | number : '1.2-2'}})%</span></strong>-->
+                <button type="button" class="btn btn-link" (click)="getOrderDetails()">
+                  <i class="fa fa-refresh"></i>
+                </button>
+              </p>
+              <p *ngIf="order.transferOrderNumber">Transfer Order Number: <strong>{{order.transferOrderNumber}}</strong>
+              </p>
+            </div>
+            <div class="form-group col-sm-6">
+              <p>Deliver To: <strong>{{order.storeModel?.name}}</strong></p>
+              <p>Deliver From: <strong>{{order.deliverFromStoreModel?.name}}</strong></p>
+              <p>Created By: <strong>{{order.userModel?.name}}</strong></p>
+              <p>Approved By: <strong>{{order.approvedByUserModel?.name}}</strong></p>
+              <p>Fulfilled By: <strong>{{order.fulfilledByUserModel?.name}}</strong></p>
+              <p>Received By: <strong>{{order.receivedByUserModel?.name}}</strong></p>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="row">
+            <div class="col-sm-3">
+              <span class="input-group-btn">
+                <button class="btn btn-primary" type="button" (click)="downloadOrderCSV()">Download CSV</button>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!--/.col-->
+  </div><!--/.row-->
+
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="card">
+        <div class="card-header">
+          <strong>Search products</strong>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-12">
+              <div class="form-group">
+                <div class="input-group">
+                  <input type="text"
+                         class="form-control"
+                         id="searchSKU"
+                         [(ngModel)]="searchSKUText"
+                         (keyup)="keyUpEvent($event, searchSKUText)"
+                         placeholder="Scan SKU barcode here or enter text">
+                  <span class="input-group-append">
+                    <button class="btn btn-primary" type="button"
+                            (click)="searchProductBySku(searchSKUText)">
+                      <i class="fa fa-search"></i> Search
+                    </button>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div><!--/.row-->
+        </div>
+        <div class="card-footer">
+          <div class="row">
+            <div class="col-sm-6">
+              <button type="button" class="btn btn-link"
+                      (click)="searchSKUText='';getStockOrderLineItems()">
+                Clear All Searches
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!--/.col-->
+  </div><!--/.row-->
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="card-header">
+          <i class="fa fa-cubes"></i> Stock order items
+          <button type="button" class="btn btn-link float-right">
+            <i class="fa fa-filter fa-2x"></i>
+          </button>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-12">
+              <table class="table table-hover">
+                <thead>
+                <tr>
+                  <th></th>
+                  <th class="pointer" (click)="sortColumn = 'productModelName';sortAscending = !sortAscending; getStockOrderLineItems()">Name
+                        <i [ngClass]="{'cui-sort-ascending': sortAscending === true && sortColumn === 'productModelName', 'cui-sort-descending': sortAscending === false && sortColumn === 'productModelName'}">
+                        </i></th>
+                      <th class="pointer" (click)="sortColumn = 'productModelSku';sortAscending = !sortAscending; getStockOrderLineItems()">SKU
+                        <i [ngClass]="{'cui-sort-ascending': sortAscending===true && sortColumn === 'productModelSku', 'cui-sort-descending': sortAscending===false && sortColumn === 'productModelSku'}">
+                        </i></th>
+                  <th>Order Quantity</th>
+                  <th>Fulfilled Quantity</th>
+                  <th>Received Quantity</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                <ng-container *ngFor="let lineItem of lineItems; let i = index;">
+                  <tr class="bg-light text-primary"
+                      *ngIf="lineItem.categoryModelName !== lineItems[i-1]?.categoryModelName">
+                    <td colspan="6"><strong>{{lineItem.categoryModelName || 'No Category'}}</strong></td>
+                  </tr>
+                  <tr>
+                    <ng-container *ngIf="lineItem.productModel">
+                      <td class="text-center" (click)="lineItem.isCollapsed = !lineItem.isCollapsed">
+                        <button class="btn btn-light">
+                          <i class="fa fa-angle-double-down"></i>
+                          <span *ngIf="lineItem.commentModels?.length" class="badge badge-pill badge-success">{{lineItem.commentModels?.length}}</span>
+                        </button>
+                      </td>
+                      <td>
+                        {{lineItem.productModel.name}}
+                        <br/>
+                        <small *ngIf="userProfile.integrationType === 'msdynamics'">({{lineItem.productModel.sizeId}} : {{lineItem.productModel.colorId}} :
+                          {{lineItem.productModel.styleId}} : {{lineItem.productModel.configurationId}})
+                        </small>
+                      </td>
+                      <td *ngIf="userProfile.integrationType==='msdynamics'">{{lineItem.productModel.api_id}}</td>
+                      <td *ngIf="userProfile.integrationType==='vend'">{{lineItem.productModel.sku}}</td>
+                      <td>
+                        {{lineItem.orderQuantity}}
+                      </td>
+                      <td>{{lineItem.fulfilledQuantity}}</td>
+                      <td>{{lineItem.receivedQuantity}}</td>
+                    </ng-container>
+                  </tr>
+                  <tr class="no-border">
+                        <td colspan="5" class="no-padding no-border-top">
+                          <div class="padding-15"
+                               (collapsed)="collapsed($event)"
+                               (expanded)="expanded($event)"
+                               [collapse]="lineItem.isCollapsed">
+                            <app-comments
+                              [comments]="lineItem.commentModels"
+                              [stockOrderLineitemModelId]="lineItem.id"
+                              [canAddComment]="editable"
+                              (onCommentAdded)="lineItem.commentModels.push($event)"
+                            ></app-comments>
+                          </div>
+                        </td>
+                      </tr>
+                </ng-container>
+                </tbody>
+              </table>
+
+              <pagination [totalItems]="totalLineItems"
+                          [(ngModel)]="currentPage"
+                          [maxSize]="maxPageDisplay"
+                          [rotate]="false"
+                          [boundaryLinks]="true"
+                          (pageChanged)="getStockOrderLineItems(lineItemsLimitPerPage, ($event.page - 1) * lineItemsLimitPerPage)"
+                          [itemsPerPage]="lineItemsLimitPerPage">
+              </pagination>
+
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <!--/.col-->
+  </div>
+</div>

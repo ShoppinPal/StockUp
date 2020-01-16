@@ -1,63 +1,120 @@
-export const navigation = [
+interface NavAttributes {
+  [propName: string]: any;
+}
+interface NavWrapper {
+  attributes: NavAttributes;
+  element: string;
+}
+interface NavBadge {
+  text: string;
+  variant: string;
+}
+interface NavLabel {
+  class?: string;
+  variant: string;
+}
+
+export interface NavData {
+  name?: string;
+  url?: string;
+  icon?: string;
+  roles: Array<string>;
+  badge?: NavBadge;
+  title?: boolean;
+  children?: NavData[];
+  variant?: string;
+  attributes?: NavAttributes;
+  divider?: boolean;
+  class?: string;
+  label?: NavLabel;
+  wrapper?: NavWrapper;
+}
+
+export const navItems: NavData[] = [
   {
     title: true,
-    name: 'Products'
+    name: 'Products',
+    roles: ['orgAdmin']
   },
   {
     name: 'Bin Locations',
     url: '/products/bin-locations',
-    icon: 'icon-location-pin'
-  }
-  ,
+    icon: 'icon-location-pin',
+    roles: ['orgAdmin']
+  },
+  {
+    name: 'Categories',
+    url: '/products/categories',
+    icon: 'icon-pie-chart',
+    roles: ['orgAdmin']
+  },
   {
     title: true,
-    name: 'Suppliers'
+    name: 'Orders',
+    roles: ['orgAdmin', 'storeManager']
+  },
+  {
+    name: 'Create Order',
+    url: '/orders/create-order',
+    icon: 'icon-plus',
+    roles: ['orgAdmin', 'storeManager']
+  },
+  {
+    name: 'Stock Orders',
+    url: '/orders/stock-orders',
+    icon: 'icon-basket',
+    roles: ['orgAdmin', 'storeManager']
+  },
+  {
+    title: true,
+    name: 'Suppliers',
+    roles: ['orgAdmin']
   },
   {
     name: 'Suppliers',
     url: '/suppliers',
-    icon: 'icon-close',
-    badge: {
-      variant: 'success',
-      text: 'new'
-    }
+    icon: 'icon-notebook',
+    roles: ['orgAdmin']
   },
   {
     title: true,
-    name: 'Orders'
+    name: 'Settings',
+    roles: ['orgAdmin']
   },
   {
-    name: 'Stuck Orders',
-    url: '/orders/stuck-orders',
-    icon: 'icon-close',
-    badge: {
-      variant: 'success',
-      text: 'new'
-    }
+    name: 'Connect ERP/POS',
+    url: '/connect',
+    icon: 'icon-refresh',
+    roles: ['orgAdmin']
   },
   {
-    title: true,
-    name: 'Settings'
+    name: 'User Management',
+    url: '/users',
+    icon: 'icon-people',
+    roles: ['orgAdmin']
   },
-  {
-    name: 'Syncing with Vend',
-    url: '/sync-with-vend',
-    icon: 'icon-refresh'
-  },
-  {
-    name: 'Worker Settings',
-    url: '/worker-settings',
-    icon: 'icon-settings'
-  }
-  /*,
   {
     name: 'Stores',
     url: '/stores',
-    icon: 'icon-settings'
+    icon: 'icon-settings',
+    roles: ['orgAdmin']
   },
   {
-    name: 'Payments',
-    url: '/payments',
-    icon: 'icon-settings'
-  }*/
+    name: 'Reorder Points',
+    url: '/reorder-points',
+    icon: 'icon-calculator',
+    roles: ['orgAdmin']
+  },
+  {
+    name: 'File Imports',
+    url: '/file-imports',
+    icon: 'icon-cloud-upload',
+    roles: ['orgAdmin']
+  },
+  {
+    name: 'Scheduled Tasks',
+    url: '/schedules',
+    icon: 'icon-loop',
+    roles: ['orgAdmin']
+  }
 ];

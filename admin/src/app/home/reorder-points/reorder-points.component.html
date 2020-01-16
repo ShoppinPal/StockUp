@@ -1,0 +1,42 @@
+<ngx-loading [show]="loading"></ngx-loading>
+<div class="animated fadeIn">
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="card">
+        <div class="card-header">
+          <strong>Reorder Points Settings</strong>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="form-group col-sm-12">
+              <div class="input-group">
+                <span>Enter sales date range to calculate reorder points: &nbsp;&nbsp;</span>
+                <input type="number"
+                       class="form-control col-sm-1"
+                       [(ngModel)]="salesDateRange"
+                       placeholder="0"/>
+                <div class="input-group-append">
+                  <span class="input-group-text">&nbsp;&nbsp;days</span>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="card-footer">
+          <div class="row">
+            <div class="col-sm-12">
+              <span class="input-group-btn">
+                <button class="btn btn-primary" type="button"
+                        (click)="saveReorderPointSettings()">Save</button>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!--/.col-->
+  </div><!--/.row-->
+</div>
+
+

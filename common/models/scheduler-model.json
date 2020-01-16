@@ -1,0 +1,95 @@
+{
+  "name": "SchedulerModel",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "month": {
+      "type": "any"
+    },
+    "day": {
+      "type": "any"
+    },
+    "hour": {
+      "type": "any"
+    },
+    "weekDay": {
+      "type": "any"
+    },
+    "jobType": {
+      "type": "string",
+      "required": true
+    },
+    "frequency": {
+      "type": "string",
+      "required": true
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "deleted": {
+      "type": "boolean",
+      "default": false
+    },
+    "lastGoodRun": {
+      "type": "date",
+      "default": null
+    },
+    "nextRun": {
+      "type": "date",
+      "default": null
+    },
+    "data": {
+      "type": "object",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "orgModel": {
+      "type": "belongsTo",
+      "model": "OrgModel",
+      "foreignKey": ""
+    },
+    "userModel": {
+      "type": "belongsTo",
+      "model": "UserModel",
+      "foreignKey": "userModelId"
+    },
+    "deletedByUserModel": {
+      "type": "belongsTo",
+      "model": "UserModel",
+      "foreignKey": "deletedByUserModelId"
+    }
+  },
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "create"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "admin",
+      "permission": "ALLOW"
+    }
+  ],
+  "methods": {}
+}

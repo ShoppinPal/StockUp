@@ -1,0 +1,38 @@
+{
+  "name": "CommentModel",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "mixins": {
+    "Timestamp": {},
+    "Context": {}
+  },
+  "properties": {
+    "comment": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "orgModel": {
+      "type": "belongsTo",
+      "model": "OrgModel",
+      "foreignKey": "orgModelId"
+    },
+    "stockOrderLineitemModel": {
+      "type": "belongsTo",
+      "model": "StockOrderLineitemModel",
+      "foreignKey": "stockOrderLineitemModelId"
+    },
+    "userModel": {
+      "type": "belongsTo",
+      "model": "UserModel",
+      "foreignKey": "userModelId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

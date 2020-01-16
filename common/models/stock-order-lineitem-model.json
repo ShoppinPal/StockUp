@@ -17,7 +17,7 @@
     },
     "sku": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "name": {
       "type": "string",
@@ -78,6 +78,10 @@
     "supplyPrice": {
       "type": "number",
       "required": false
+    },
+    "vendDeletedAt": {
+      "type": "date",
+      "required": false
     }
   },
   "validations": [],
@@ -96,6 +100,21 @@
       "type": "belongsTo",
       "model": "ProductModel",
       "foreignKey": "productModelId"
+    },
+    "categoryModel": {
+      "type": "belongsTo",
+      "model": "CategoryModel",
+      "foreignKey": "categoryModelId"
+    },
+    "orgModel": {
+      "type": "belongsTo",
+      "model": "OrgModel",
+      "foreignKey": ""
+    },
+    "commentModels": {
+      "type": "hasMany",
+      "model": "CommentModel",
+      "foreignKey": "stockOrderLineitemModelId"
     }
   },
   "acls": [

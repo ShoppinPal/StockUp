@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
-import {StoreConfigModelApi} from '../../../shared/lb-sdk';
+import {OrgModelApi} from '../../../shared/lb-sdk';
 import {ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs';
+import {Observable, combineLatest} from 'rxjs';
 import {ToastrService} from 'ngx-toastr';
 import {UserProfileService} from '../../../shared/services/user-profile.service';
 
@@ -28,7 +28,7 @@ export class BinLocationsComponent implements OnInit {
   public enableBarcode: boolean = true;
   public searchSKUText: string;
 
-  constructor(private storeConfigModelApi: StoreConfigModelApi,
+  constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
               private toastr: ToastrService,
               private _userProfileService: UserProfileService) {
@@ -70,7 +70,7 @@ export class BinLocationsComponent implements OnInit {
    * calls the search sku function
    * @param searchText
    */
-  barcodeSearchSKU() {
+  barcodeSearchSKU(event) {
     if (this.enableBarcode) {
       clearTimeout(this.readingBarcode);
       this.readingBarcode = setTimeout(() => {
@@ -112,13 +112,14 @@ export class BinLocationsComponent implements OnInit {
       limit: limit || 10,
       skip: skip || 0
     };
-    let fetchProducts = Observable.combineLatest(
-      this.storeConfigModelApi.getProductModels(this.userProfile.storeConfigModelId, filter),
-      this.storeConfigModelApi.countProductModels(this.userProfile.storeConfigModelId));
+    let fetchProducts = combineLatest(
+      this.orgModelApi.getProductModels(this.userProfile.orgModelId, filter),
+      this.orgModelApi.countProductModels(this.userProfile.orgModelId));
     fetchProducts.subscribe((data: any) => {
         this.loading = false;
         this.products = data[0];
         this.totalProducts = data[1].count;
+
         this.totalPages = Math.floor(this.totalProducts / 100);
       },
       err => {
@@ -143,7 +144,7 @@ export class BinLocationsComponent implements OnInit {
       product.error = 'Please enter bin location';
     }
     else {
-      this.storeConfigModelApi.updateBinLocation(this.userProfile.storeConfigModelId, product.id, product.binLocation.toLowerCase())
+      this.orgModelApi.updateBinLocation(this.userProfile.orgModelId, product.id, product.binLocation.toLowerCase())
         .subscribe((data: any) => {
             this.toastr.success('Updated bin location successfully');
             this.loading = false;
@@ -168,39 +169,73 @@ export class BinLocationsComponent implements OnInit {
    * @param searchText
    */
   searchSKU() {
-    this.loading = true;
-    let filter = {
-      where: {
-        sku: this.searchSKUText
+    try {
+      if (this.searchSKUText === undefined || this.searchSKUText === null || this.searchSKUText === '') {
+        throw new Error('SKU is a required field');
       }
-    };
-    this.storeConfigModelApi.getProductModels(this.userProfile.storeConfigModelId, filter)
-      .subscribe((data: Array<any>) => {
-          this.loading = false;
-          if (data.length === 1) {
-            this.searchedProduct = data;
-            this.totalPages = 1;
-            this.totalProducts = 1;
-            this.searchSKUFocused = false;
-            this.foundSKU = true;
-          }
-          else if(data.length > 1) {
-            this.searchedProduct = data;
-            this.totalPages = 1;
-            this.totalProducts = 2;
-            this.searchSKUFocused = false;
-            this.foundSKU = true;
-            this.toastr.error('Found duplicate SKU in database, please make SKUs unique before updating bin locations', 'Duplicate SKU');
-          }
-          else {
-            this.toastr.error('Couldn\'t find SKU '+this.searchSKUText+' in database, try syncing products', 'SKU not found');
-            this.searchSKUText = '';
-          }
-        },
-        error => {
-          this.loading = false;
-          console.log('Error in finding product', error);
-        });
+      this.loading = true;
+      var pattern = new RegExp('.*' + this.searchSKUText + '.*', "i");
+      /* case-insensitive RegExp search */
+      var filterData = pattern.toString();
+      var filter = {
+        where: {
+          sku: ''
+        }
+      };
+      if (this.enableBarcode) {
+        filter.where.sku = this.searchSKUText;
+      } else {
+        filter.where.sku['regexp'] = filterData
+      }
+      this.orgModelApi.getProductModels(this.userProfile.orgModelId, filter)
+        .subscribe((data: Array<any>) => {
+            this.loading = false;
+            if (data.length === 1) {
+              this.searchedProduct = data;
+              this.totalPages = 1;
+              this.totalProducts = 1;
+              this.searchSKUFocused = false;
+              this.foundSKU = true;
+            }
+            else if (data.length > 1 && !this.enableBarcode) {
+              this.searchedProduct = data;
+              this.totalPages = 1;
+              this.totalProducts = 2;
+              this.searchSKUFocused = false;
+              this.foundSKU = true;
+              this.toastr.success('Found SKU in database');
+            } else if (data.length > 1 && this.enableBarcode) {
+              this.searchedProduct = data;
+              this.totalPages = 1;
+              this.totalProducts = 2;
+              this.searchSKUFocused = false;
+              this.foundSKU = true;
+              this.toastr.error('Found duplicate SKU in database, please make SKUs unique before updating bin locations', 'Duplicate SKU');
+            }
+            else {
+              this.toastr.error('Couldn\'t find SKU ' + this.searchSKUText + ' in database, try syncing products', 'SKU not found');
+            }
+          },
+          error => {
+            this.loading = false;
+            console.log('Error in finding product', error);
+          });
+    }
+
+    catch (error) {
+      this.toastr.error(error);
+    }
   }
+
+  /**
+   * @description Function to search if enter button event is being triggered
+   * @param event
+   */
+  keyUpEvent(event) {
+    if (event.keyCode == '13' && !this.enableBarcode) {
+      this.searchSKU();
+    }
+  }
+
 }
 

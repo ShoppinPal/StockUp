@@ -1,0 +1,235 @@
+<ngx-loading [show]="loading"></ngx-loading>
+<div class="animated fadeIn">
+  <div class="row">
+    <div class="col-sm-6 col-md-4" *ngIf="!integration.length || integration[0].type==='msdynamics'">
+      <div class="card border-primary">
+        <div class="card-header">
+          MS Dynamics 365
+        </div>
+        <div class="card-body text-center">
+          <div class="connect-logo">
+            <img class="img-responsive" src="./assets/img/msdynamics.png" alt="Connect with MS Dynamics"/>
+          </div>
+
+          <div class="form-group col-sm-12" *ngIf="integration.length">
+            <span>Select Company: &nbsp;&nbsp;</span>
+            <select class="form-control" [(ngModel)]="selectedCompany" id="companyName"
+                    [disabled]="integration[0].dataAreaId">
+              <option *ngFor="let company of integration[0].companies" [ngValue]="company.value"
+                      [selected]="company.value == integration[0].dataAreaId">{{company.value}} - {{company.name}}
+              </option>
+            </select>
+          </div>
+
+          <button type="button" (click)="connect('msdynamics')" *ngIf="!integration.length" class="btn btn-primary">
+            Connect
+          </button>
+          <button type="button"
+                  *ngIf="integration.length && integration[0].type === 'msdynamics' && !integration[0].dataAreaId"
+                  class="btn btn-primary"
+                  (click)="saveCompany()">Save Company
+          </button>
+        </div>
+      </div>
+    </div><!--/.col-->
+    <div class="col-sm-6 col-md-4" *ngIf="!integration.length || integration[0].type==='vend'">
+      <div class="card border-success">
+        <div class="card-header">
+          Vend POS
+        </div>
+        <div class="card-body text-center">
+          <div class="cconnect-logo">
+            <img class="img-responsive" src="./assets/img/vend.png" alt="Connect with Vend"/>
+          </div>
+          <button type="button" (click)="connect('vend')" *ngIf="!integration.length" class="btn btn-success">Connect
+          </button>
+          <button type="button" [disabled]="integration.length && integration[0].type === 'vend'"
+                  *ngIf="integration.length && integration[0].type === 'vend'" class="btn btn-success">Connected
+          </button>
+          <button type="button" *ngIf="integration.length && integration[0].type === 'vend' && !syncModels"
+                  class="btn btn-primary"
+                  (click)="initiateVendSync()">
+            Start Sync
+          </button>
+          <button type="button" *ngIf="integration.length && integration[0].type === 'vend' && syncModels"
+                  class="btn btn-primary"
+                  (click)="initiateVendSync()">
+            Stop Sync
+          </button>
+        </div>
+      </div>
+    </div>
+  </div><!--/.row-->
+  <div class="row">
+    <div class="col-sm-12" *ngIf="integration.length">
+      <div class="card">
+        <div class="card-header">
+          Sync Data - One time
+        </div>
+        <div class="card-body text-center">
+          <table class="table table-hover table-striped table-align-middle mb-0" *ngIf="integration.length">
+            <thead>
+            <th>Data object</th>
+            <th>Fetch</th>
+            </thead>
+            <tbody>
+            <tr>
+              <td>
+                Users
+              </td>
+              <td>
+                <button type="button"
+                        *ngIf="integration.length && integration[0].type === 'msdynamics'"
+                        [disabled]="!integration[0].dataAreaId"
+                        class="btn btn-primary"
+                        (click)="syncMSDUsers()">Sync Users
+                </button>
+                <button type="button"
+                        *ngIf="integration.length && integration[0].type === 'vend'"
+                        class="btn btn-primary"
+                        (click)="syncVendUsers()">Sync Users
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Stores
+              </td>
+              <td>
+                <button type="button"
+                        *ngIf="integration.length && integration[0].type === 'msdynamics'"
+                        [disabled]="!integration[0].dataAreaId"
+                        class="btn btn-primary"
+                        (click)="syncMSDStores()">Sync Stores
+                </button>
+                <button type="button"
+                        *ngIf="integration.length && integration[0].type === 'vend'"
+                        class="btn btn-primary"
+                        (click)="syncVendStores()">Sync Stores
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Product Categories
+              </td>
+              <td>
+                <button type="button"
+                        *ngIf="integration.length && integration[0].type === 'msdynamics'"
+                        [disabled]="!integration[0].dataAreaId"
+                        class="btn btn-primary"
+                        (click)="syncMSDCategories()">Sync Product Categories
+                </button>
+                <button type="button"
+                        *ngIf="integration.length && integration[0].type === 'vend'"
+                        class="btn btn-primary"
+                        (click)="syncVendProductTypes()">Sync Product Types
+                </button>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-12" *ngIf="integration.length">
+      <div class="card">
+        <div class="card-header">
+          Sync Data - Auto sync
+        </div>
+        <div class="card-body text-center">
+          <div class="form-group" *ngIf="integration && integration[0].type=='msdynamics'">
+            <div class="input-group">
+              <input type="text"
+                     class="form-control"
+                     id="databaseName"
+                     [disabled]="integration[0].databaseValid"
+                     [(ngModel)]="integration[0].databaseName"
+                     placeholder="Enter the database name">
+              <span class="input-group-btn">
+                     <button type="button"
+                             *ngIf="integration.length && integration[0].type === 'msdynamics' && !syncModels && integration[0].dataAreaId && !integration[0].databaseValid"
+                             class="btn btn-success"
+                             (click)="validateMSSQLDatabase()"> <i class="fa fa-refresh"></i> Validate Database
+                     </button>
+                     <button type="button"
+                             *ngIf="integration.length && integration[0].type === 'msdynamics' && !syncModels && integration[0].dataAreaId"
+                             class="btn btn-success"
+                             [disabled]="!integration[0].databaseValid"
+                             (click)="initiateMSDSync()"> <i class="fa fa-refresh"></i> Start Sync
+                     </button>
+                     <button type="button"
+                             *ngIf="integration.length && integration[0].type === 'msdynamics' && syncModels"
+                             class="btn btn-danger"
+                             (click)="stopMSDSync()"><i class="fa fa-refresh"></i> Stop Sync
+                     </button>
+                  </span>
+            </div>
+          </div>
+          <table class="table table-hover table-striped table-align-middle mb-0" *ngIf="integration.length">
+            <thead>
+            <th>Data object</th>
+            <th>Sync Status</th>
+            <th>Last Synced</th>
+            </thead>
+            <tbody>
+            <tr>
+              <td>
+                Products
+              </td>
+              <td>
+                <label class="switch switch-3d switch-primary">
+                  <input type="checkbox" class="switch-input" [ngModel]="checkSync('products')" disabled>
+                  <span class="switch-slider"></span>
+                </label>
+                <div [ngClass]="{'d-none': !syncing.products}" class="spinner-border spinner-border-sm spinner-margins" role="status">
+                  <span class="sr-only">Loading...</span>
+                </div>
+              </td>
+              <td>
+                {{getSyncObject('products')?.lastSyncedAt | date: 'medium'}}
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Inventory
+              </td>
+              <td>
+                <label class="switch switch-3d switch-primary">
+                  <input type="checkbox" class="switch-input" [ngModel]="checkSync('inventory')" disabled>
+                  <span class="switch-slider"></span>
+                </label>
+                <div [ngClass]="{'d-none': !syncing.inventory}" class="spinner-border spinner-border-sm spinner-margins" role="status">
+                  <span class="sr-only">Loading...</span>
+                </div>
+              </td>
+              <td>
+                {{getSyncObject('inventory')?.lastSyncedAt | date: 'medium'}}
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Suppliers
+              </td>
+              <td>
+                <label class="switch switch-3d switch-primary">
+                  <input type="checkbox" class="switch-input" [ngModel]="checkSync('suppliers')" disabled>
+                  <span class="switch-slider"></span>
+                </label>
+                <div [ngClass]="{'d-none': !syncing.suppliers}" class="spinner-border spinner-border-sm spinner-margins" role="status">
+                  <span class="sr-only">Loading...</span>
+                </div>
+              </td>
+              <td>
+                {{getSyncObject('suppliers')?.lastSyncedAt | date: 'medium'}}
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
