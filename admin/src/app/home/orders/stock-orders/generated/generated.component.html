@@ -421,7 +421,7 @@
             <p>Multiple Emails can be comma(,) separated</p>
             <div class="form-group col-sm-12">
               <span>To: </span>
-              <input class="form-control" type="email" name="sendTo" (ngModelChange)="toEmailValidation()" (keyup)="toEmailEmpty()"
+              <input class="form-control" type="email" name="to" (ngModelChange)="toEmailValidation()" (keyup)="toEmailEmpty()"
                      [(ngModel)]="emailModalData.to"/>
               <span class="text-success"
                     *ngIf="toValidEmailCounter > 0">{{toValidEmailCounter}} valid email(s)</span>
