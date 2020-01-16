@@ -24,7 +24,7 @@ exports.config = {
             }
         }
     ],
-    seleniumAddress: 'http://127.0.0.1:4444/wd/hub',
+    seleniumAddress: 'http://selenium:4444/wd/hub',
     specs: ['./module/auth/tests/01_signup.js'],
     jasmineNodeOpts: {
         defaultTimeoutInterval: 1000 * 60 * 10
