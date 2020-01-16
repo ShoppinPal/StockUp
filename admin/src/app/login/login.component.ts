@@ -38,7 +38,7 @@ export class LoginComponent implements OnInit {
   }
 
   fetchInput(username: string, password: string) {
-    this.user.email = username;
+    this.user.email = username.toLowerCase();
     this.user.password = password;
     this.signin();
   }
