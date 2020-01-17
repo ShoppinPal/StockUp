@@ -149,7 +149,7 @@ var runMe = function (payload, config, taskId, messageId) {
                         messageId
                     });
                     return Promise.map(stockOrderLineItemModels, function (eachLineItem) {
-                        return Promise.delay(1000).then(function(eachLineItem){
+                        return Promise.delay(1000).then(function(){
                             if (eachLineItem.receivedQuantity) {
                                 return utils.updateStockOrderLineitemForVend(db, reportModelInstance, eachLineItem, messageId);
                             }
