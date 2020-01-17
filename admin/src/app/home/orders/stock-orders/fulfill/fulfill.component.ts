@@ -397,8 +397,7 @@ export class FulfillComponent implements OnInit {
    * calls the search sku function
    */
   barcodeSearchSKU($event: any) {
-    if (this.enableBarcode && this.searchSKUText !== '' && $event.keyCode == '13') {
-      console.log("this.searchSKUText  :  ",this.searchSKUText);
+    if (this.enableBarcode && this.searchSKUText !== '') {
       this.searchAndIncrementProduct(this.searchSKUText);
       $event.target.select();
     }
