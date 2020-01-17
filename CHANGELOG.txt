@@ -1,5 +1,6 @@
-v1.6.1 - July 17, 2019
-- Migrating the build process from CircleCI to GCP Cloud Build..
+v1.6.1 - Jan 17, 2020
+- Fixed scan for some scanners
+- Consecutive Vend api calls have intervals of 1 second
 
 v1.6.0 - Jan 11, 2019
 - Official release for StockUp (previously warehouse)

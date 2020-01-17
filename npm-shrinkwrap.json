@@ -1,6 +1,6 @@
 {
-  "name": "shoppinpal-warehouse-mongo",
-  "version": "1.5.11",
+  "name": "StockUp",
+  "version": "1.6.1",
   "lockfileVersion": 1,
   "requires": true,
   "dependencies": {
