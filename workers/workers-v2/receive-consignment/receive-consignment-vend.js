@@ -148,7 +148,7 @@ var runMe = function (payload, config, taskId, messageId) {
                         response,
                         messageId
                     });
-                    return Promise.map(stockOrderLineItemModels, (function (eachLineItem) {
+                    return Promise.map(stockOrderLineItemModels, function (eachLineItem) {
                         return Promise.delay(1000).then(function(eachLineItem){
                             if (eachLineItem.receivedQuantity) {
                                 return utils.updateStockOrderLineitemForVend(db, reportModelInstance, eachLineItem, messageId);
@@ -194,7 +194,7 @@ var runMe = function (payload, config, taskId, messageId) {
                                     return Promise.resolve();
                                 }
                             }
-                        })
+                        });
                     }, {concurrency: 1});
                 })
                 .catch(function (error) {

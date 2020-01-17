@@ -140,15 +140,13 @@ let runMe = function (payload, config, taskId, messageId) {
                         messageId
                     });
                     return Promise.map(createdOrders, function (eachCreatedOrder) {
-                        return Promise.delay(1000).then(function (eachCreatedOrder) { 
-                            let generatePurchaseOrderVend = require('../generate-purchase-order-vend/generate-purchase-order-vend');
-                            let purchaseOrderPayload = {
-                                loopbackAccessToken: payload.loopbackAccessToken,
-                                orgModelId: ObjectId(orderConfigModel.orgModelId),
-                                reportModelId: ObjectId(eachCreatedOrder._id) //get the reportModelId from lineItem saved
-                            };
-                            return generatePurchaseOrderVend.run(purchaseOrderPayload, config, taskId, messageId);
-                        })
+                        let generatePurchaseOrderVend = require('../generate-purchase-order-vend/generate-purchase-order-vend');
+                        let purchaseOrderPayload = {
+                            loopbackAccessToken: payload.loopbackAccessToken,
+                            orgModelId: ObjectId(orderConfigModel.orgModelId),
+                            reportModelId: ObjectId(eachCreatedOrder._id) //get the reportModelId from lineItem saved
+                        };
+                        return generatePurchaseOrderVend.run(purchaseOrderPayload, config, taskId, messageId);
                     }, {
                         concurrency: 1 //don't want to refresh vend access token for all orders
                     });
@@ -338,7 +336,7 @@ function readSpreadSheetFromS3(s3Bucket, s3BucketKey, messageId) {
     };
     return new Promise(function (resolve, reject) {
         s3.getObject(params).createReadStream()
-            .pipe(excel({enclosedChar:'"'}))
+            .pipe(excel({enclosedChar: '"'}))
             .on('data', function (rows) {
                 if (rows)
                     spreadSheetRows.push(rows);

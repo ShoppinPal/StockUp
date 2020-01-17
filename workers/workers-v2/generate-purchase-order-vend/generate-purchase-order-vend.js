@@ -213,8 +213,11 @@ var runMe = function (payload, config, taskId, messageId) {
                 })
                 .then(function (connectionInfo) {
                     return Promise.map(stockOrderLineItemModels, function (eachLineItem) {
-                        return utils.createStockOrderLineitemForVend(db, connectionInfo, storeModelInstance, reportModelInstance, eachLineItem, messageId)
-                            return Promise.delay(1000).then(function (vendConsignmentProduct) {
+                        return Promise.delay(1000)
+                            .then(function (eachLineItem) {
+                                return utils.createStockOrderLineitemForVend(db, connectionInfo, storeModelInstance, reportModelInstance, eachLineItem, messageId);
+                            })
+                            .then(function (vendConsignmentProduct) {
                                 logger.debug({
                                     message: 'Added product to vend consignment, will save details to db',
                                     vendConsignmentProduct,
