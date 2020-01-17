@@ -336,7 +336,7 @@ function readSpreadSheetFromS3(s3Bucket, s3BucketKey, messageId) {
     };
     return new Promise(function (resolve, reject) {
         s3.getObject(params).createReadStream()
-            .pipe(excel({enclosedChar:'"'}))
+            .pipe(excel({enclosedChar: '"'}))
             .on('data', function (rows) {
                 if (rows)
                     spreadSheetRows.push(rows);
