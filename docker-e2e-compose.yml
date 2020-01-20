@@ -45,8 +45,6 @@ services:
       - type: bind
         source: .
         target: /apps/warehouse
-    depends_on:
-      - db
 
   worker2:
     image: shoppinpal/node:6.10
@@ -89,14 +87,6 @@ services:
         AZURE_SQL_USER: sa
         AZURE_SQL_PASSWORD: xyzpassword
         AZURE_SQL_SERVER: mssql
-  db:
-    image: mongo:3.2
-    ports:
-      - "27020:27017"
-    volumes:
-      - type: bind
-        source: ./docker/volumes/mongo
-        target: /data/db
 
   mssql:
     image: microsoft/mssql-server-linux

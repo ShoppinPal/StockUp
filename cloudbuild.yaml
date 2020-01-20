@@ -1,23 +1,43 @@
 steps:
+
+- name: 'gcr.io/cloud-builders/docker'
+  id: create mongo
+  args: ['run', '-d', '--name=db', '--network=cloudbuild', 'mongo']
+
+- id: 'application dependency'
+  name: node:6.10
+  entrypoint: npm
+  args: ['install']
+
+- id: 'run sdk'
+  name: node:6.10
+  entrypoint: npm
+  args: ['run', 'angular2-sdk']
+
 - id: 'admin dependency'
   name: node:10.15.3
   entrypoint: npm
   dir: 'admin'
   args: ['install']
-- id: 'application dependency'
-  name: node:6.10
+
+- id: 'admin build'
+  name: node:10.15.3
   entrypoint: npm
-  args: ['install']
+  dir: 'admin'
+  args: ['run', 'admin']  
+
 - id: 'workers dependency'
   name: node:6.10
   entrypoint: npm
   dir: 'workers'
   args: ['install']
+
 - id: 'notification dependency'
   name: node:8.16
   entrypoint: npm
   dir: 'notification-service'
   args: ['install']
+
 - id: 'all-services-up'
   name: docker/compose:1.24.0
   entrypoint: 'sh'
@@ -26,6 +46,7 @@ steps:
   - |
     docker-compose -f docker-e2e-compose.yml up -d
   waitFor: ['admin dependency','application dependency','workers dependency', 'notification dependency']
+
 - name: node:6.10
   id: Run-e2e-tests
   entrypoint: 'sh'
@@ -37,4 +58,47 @@ steps:
     sleep 60
     protractor ./e2e/conf.js --baseUrl http://web:3000 --verbose
   waitFor: ['all-services-up']
+
+- id: Docker Hub login
+  name: gcr.io/cloud-builders/docker
+  entrypoint: /bin/bash
+  args:
+  - -ceux
+  - |
+    docker login --username $_DOCKER_USER --password $_DOCKER_PASS
+  waitFor: ['Run-e2e-tests']
+
+- id: Create Docker image
+  name: gcr.io/cloud-builders/docker
+  entrypoint: /bin/bash
+  args:
+  - -ceux
+  - |
+    ./scripts/build/image $(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g')
+  waitFor: ['Run-e2e-tests']
+
+- id: Try running the tests
+  name: gcr.io/cloud-builders/docker
+  entrypoint: /bin/bash
+  args:
+  - -ceux
+  - |
+    docker run -d --name=warehouse -p 3000:3000 -e "MONGOLAB_URI=mongodb://mongo-local:27017/test" -e "NODE_ENV=staging" shoppinpal/warehouse:$(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g')
+  waitFor: ['Run-e2e-tests']
+
+- id: Deploy warehouse
+  name: gcr.io/cloud-builders/docker
+  entrypoint: /bin/bash
+  args:
+  - -ceux
+  - |
+    if [ "${BRANCH_NAME}" == "develop" ]; then
+    ./scripts/deploy.sh $(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g') $SHORT_SHA $BRANCH_NAME
+    elif [ "${BRANCH_NAME}" == "master" ]; then
+    ./scripts/deploy.sh $(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g') $SHORT_SHA $BRANCH_NAME
+    elif [[ "${BRANCH_NAME}" =~ ^release.* ]]; then
+    ./scripts/deploy.sh $(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g') $SHORT_SHA $BRANCH_NAME
+    fi
+  waitFor: ['Run-e2e-tests']
+  
 timeout: 12600s

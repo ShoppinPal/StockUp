@@ -15,8 +15,12 @@ var authFunctions = new AuthFunctions();
     })
     });
     it('should assert user login and not allow unregistered user to login', function(){
+        browser.getTitle().then(function(title){
+            console.log("Web page title is:" +title)
+        })
         console.log('On stockup page');
         authFunctions.login(authData);
-        browser.sleep(5000);
+        console.log('Login Tried for invalid data check');
+        // browser.sleep(5000);
     });
 });
