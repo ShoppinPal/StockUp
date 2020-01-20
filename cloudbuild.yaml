@@ -66,16 +66,16 @@ steps:
   - -ceux
   - |
     docker login --username $_DOCKER_USER --password $_DOCKER_PASS
-  waitFor: ['Run-e2e-tests']
+  branches: ['^release.*, 'develop', 'master']
 
-- id: Create Docker image
+  - id: Create Docker image
   name: gcr.io/cloud-builders/docker
   entrypoint: /bin/bash
   args:
   - -ceux
   - |
     ./scripts/build/image $(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g')
-  waitFor: ['Run-e2e-tests']
+  branches: ['^release.*, 'develop', 'master']
 
 - id: Try running the tests
   name: gcr.io/cloud-builders/docker
@@ -83,8 +83,8 @@ steps:
   args:
   - -ceux
   - |
-    docker run -d --name=warehouse -p 3000:3000 -e "MONGOLAB_URI=mongodb://mongo-local:27017/test" -e "NODE_ENV=staging" shoppinpal/warehouse:$(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g')
-  waitFor: ['Run-e2e-tests']
+    docker run -d --name=warehouse -p 3000:3000 -e "MONGOLAB_URI=mongodb://db:27017/test" -e "NODE_ENV=staging" shoppinpal/warehouse:$(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g')
+  branches: ['^release.*, 'develop', 'master']
 
 - id: Deploy warehouse
   name: gcr.io/cloud-builders/docker
@@ -99,6 +99,6 @@ steps:
     elif [[ "${BRANCH_NAME}" =~ ^release.* ]]; then
     ./scripts/deploy.sh $(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g') $SHORT_SHA $BRANCH_NAME
     fi
-  waitFor: ['Run-e2e-tests']
-  
+  branches: ['^release.*, 'develop', 'master']
+
 timeout: 12600s
