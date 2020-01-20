@@ -68,7 +68,7 @@ steps:
     docker login --username $_DOCKER_USER --password $_DOCKER_PASS
   branches: ['^release.*', 'develop', 'master']
 
-  - id: Create Docker image
+- id: Create Docker image
   name: gcr.io/cloud-builders/docker
   entrypoint: /bin/bash
   args:
