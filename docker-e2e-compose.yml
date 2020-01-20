@@ -1,0 +1,145 @@
+version: "3.2"
+services:
+  admin:
+    image: node:10.15.3
+    working_dir: /apps/warehouse/admin
+    command: npm run start
+    ports:
+      - "4200:4200"
+    volumes:
+      - type: bind
+        source: .
+        target: /apps/warehouse
+
+  web:
+    image: shoppinpal/node:6.10
+    working_dir: /apps/warehouse
+    entrypoint: ./dev-entrypoint.sh
+    ports:
+      - "3000:3000"
+    environment:
+        NODE_ENV: local
+        AWS_SQS_REGION: "us-west-2"
+        AWS_SQS_URL: "http://goaws:4100/queue/local-queue1"
+        AWS_SQS_URL_2: "http://goaws:4100/queue/local-queue2"
+        AWS_SQS_ACCESS_KEY_ID: stockup
+        AWS_SQS_SECRET_ACCESS_KEY: stockup
+        GENERATE_STOCK_ORDER_WORKER: generateStockOrderSeriallyWithPaging
+        GENERATE_SALES: generateSales
+        IMPORT_STOCK_ORDER_TO_POS: addProductsToVendConsignment
+        IMPORT_STOCK_ORDER_TO_WAREHOUSE: importStockOrderUsingCache
+        IMPORT_STOCK_ORDER_TO_WAREHOUSE_WITHOUT_SUPPLIER: importStockOrderUsingCacheWithoutSupplier
+        REMOVE_UNFULFILLED_PRODUCTS_WORKER: removeUnfulfilledProductsFromStockOrder
+        REMOVE_UNRECEIVED_PRODUCTS_WORKER: removeUnreceivedProductsFromStockOrder
+        STOCK_ORDER_WORKER: generateStockOrder
+        FIND_DIFFERENTIAL_VEND_DATA_WORKER: findDifferentialVendData
+        SCHEME: http
+        WORKER_TYPE: AWS
+        MONGOLAB_URI: mongodb://db:27017/warehouse-local
+        SP_PRETTY_PRINT: "true"
+        MSSQL_USER: sa
+        MSSQL_PASSWORD: xyzpassword
+        MSSQL_SERVER: mssql
+    command: ./node_modules/nodemon/bin/nodemon.js server/server.js
+    volumes:
+      - type: bind
+        source: .
+        target: /apps/warehouse
+
+  worker2:
+    image: shoppinpal/node:6.10
+    working_dir: /apps/workers
+    command: node sqsWorker.js
+    volumes:
+      - type: bind
+        source: ./workers
+        target: /apps/workers
+    restart: always
+    environment:
+        SP_PRETTY_PRINT: "true"
+        DB_URL: mongodb://db:27017/warehouse-local
+        AWS_SQS_REGION: "us-west-2"
+        AWS_SQS_URL: "http://goaws:4100/queue/local-queue1"
+        AWS_SQS_URL_2: "http://goaws:4100/queue/local-queue2"
+        AWS_SQS_ACCESS_KEY_ID: stockup
+        AWS_SQS_SECRET_ACCESS_KEY: stockup
+        WORKERS_VERSION: v2
+        AZURE_SQL_USER: sa
+        AZURE_SQL_PASSWORD: xyzpassword
+        AZURE_SQL_SERVER: mssql
+        WORKER_MAX_RETRIES: "50"
+        WORKER_RETRY_DELAY_IN_MS: "500"
+
+  sync-engine:
+    image: shoppinpal/node:6.10
+    working_dir: /apps/workers
+    command: node syncWorker.js
+    volumes:
+      - type: bind
+        source: ./workers
+        target: /apps/workers
+    restart: always
+    environment:
+        SP_PRETTY_PRINT: "true"
+        DB_URL: mongodb://db:27017/warehouse-local
+        WORKER_SYNC_RETRIES: "100"
+        WORKER_SYNC_RETRY_INTERVAL_IN_SECONDS: "30"
+        AZURE_SQL_USER: sa
+        AZURE_SQL_PASSWORD: xyzpassword
+        AZURE_SQL_SERVER: mssql
+
+  mssql:
+    image: microsoft/mssql-server-linux
+    volumes:
+      - type: bind
+        source: ./docker/volumes/mssql
+        target: /var/opt/mssql
+    environment:
+        ACCEPT_EULA: "Y"
+        SA_PASSWORD: xyzpassword
+    ports:
+     - "1433:1433"
+
+  notification:
+    image: "node:8.16"
+    volumes:
+      - './notification-service:/notification-service'
+    working_dir: /notification-service
+    command: node index.js
+#    command: ./node_modules/nodemon/bin/nodemon.js index.js
+    environment:
+        REDIS_PORT: "6379"
+        REDIS_HOST: redis
+        REDIS_PASSWORD: password
+        REDIS_WORKER_CHANNEL: workerChannel
+        SP_PRETTY_PRINT: "true"
+        MAX_API_CALL_IDLE_TIME: "400"
+        MAX_USER_IDLE_TIME: "30"
+    ports:
+      - "3001:3001"
+    depends_on:
+      - redis
+
+  redis:
+    image: "bitnami/redis:4.0"
+    environment:
+      - REDIS_PASSWORD=password
+      - REDIS_EXTRA_FLAGS=--maxmemory 100mb
+    ports:
+      - 6379:6379
+
+  goaws:
+    image: "pafortin/goaws"
+    ports:
+      - "4100:4100"
+
+  selenium:
+    image: "selenium/standalone-chrome-debug"
+    ports: 
+      - "4444:4444"
+      - "5900:5900" 
+
+networks:
+    default:
+        external:
+            name: cloudbuild
