@@ -66,7 +66,6 @@ steps:
   - -ceux
   - |
     docker login --username $_DOCKER_USER --password $_DOCKER_PASS
-  branches: ['^release.*', 'develop', 'master']
 
 - id: Create Docker image
   name: gcr.io/cloud-builders/docker
@@ -74,17 +73,14 @@ steps:
   args:
   - -ceux
   - |
+    if [ "${BRANCH_NAME}" == "develop" ]; then
     ./scripts/build/image $(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g')
-  branches: ['^release.*', 'develop', 'master']
+    elif [ "${BRANCH_NAME}" == "master" ]; then
+    ./scripts/build/image $(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g')
+    elif [[ "${BRANCH_NAME}" =~ ^release.* ]]; then
+    ./scripts/build/image $(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g')
+    fi
 
-- id: Try running the tests
-  name: gcr.io/cloud-builders/docker
-  entrypoint: /bin/bash
-  args:
-  - -ceux
-  - |
-    docker run -d --name=warehouse -p 3000:3000 -e "MONGOLAB_URI=mongodb://db:27017/test" -e "NODE_ENV=staging" shoppinpal/warehouse:$(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g')
-  branches: ['^release.*', 'develop', 'master']
 
 - id: Deploy warehouse
   name: gcr.io/cloud-builders/docker
@@ -99,6 +95,5 @@ steps:
     elif [[ "${BRANCH_NAME}" =~ ^release.* ]]; then
     ./scripts/deploy.sh $(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g') $SHORT_SHA $BRANCH_NAME
     fi
-  branches: ['^release.*', 'develop', 'master']
 
 timeout: 12600s
