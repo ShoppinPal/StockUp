@@ -15,7 +15,7 @@ module.exports = function (SyncModel) {
             options,
             functionName: 'initiateVendSync'
         });
-        var syncModels = ['products', 'suppliers', 'inventory'];
+        var syncModels = ['products', 'suppliers', 'inventory', 'sales'];
         return Promise.map(syncModels, function (eachSyncModel) {
             return SyncModel.findOrCreate({
                 where: {
@@ -33,12 +33,12 @@ module.exports = function (SyncModel) {
         })
             .then(function (syncModels) {
                 logger.debug({
-                    message: 'Sync models created, will initiate a scheduled inventory check',
+                    message: 'Sync models created',
                     options,
                     syncModels,
                     functionName: 'initiateVendSync'
                 });
-                return SyncModel.app.models.SchedulerModel.addSchedule(id, 'checkVendInventory', 'Daily', '', '', 0, '', {}, options);
+                return Promise.resolve('Sync models created');
             })
             .catch(function (error) {
                 // log('initiateSync').error('ERROR', error);

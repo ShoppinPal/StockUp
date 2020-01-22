@@ -8,14 +8,14 @@ var ObjectId = require('mongodb').ObjectID;
 var _ = require('underscore');
 var Promise = require('bluebird');
 var vendSdk = require('vend-nodejs-sdk')({}); // why the {}?
-var productsBatchNumber = 0;
+var productsBatchNumber;
 
 var runMe = function (vendConnectionInfo, orgModelId, versionsAfter) {
 
     var db = null;
     logger.debug({
         orgModelId,
-        message: 'This worker will fetch and save incremental products from vend to warehouse'
+        message: 'This worker will fetch and save incremental products from vend to StockUp'
     });
     return MongoClient.connect(dbUrl, {promiseLibrary: Promise})
         .then(function (dbInstance) {
@@ -24,6 +24,7 @@ var runMe = function (vendConnectionInfo, orgModelId, versionsAfter) {
                 orgModelId,
                 message: 'Connected to mongodb database',
             });
+            productsBatchNumber = 0;
             return fetchProductsRecursively(dbInstance, vendConnectionInfo, orgModelId, versionsAfter);
         })
         .finally(function () {

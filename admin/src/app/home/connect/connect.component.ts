@@ -80,7 +80,6 @@ export class ConnectComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.orgModelApi.fetchAuthorizationUrl(this.userProfile.orgModelId, integrationType)
       .subscribe((data: any) => {
-          console.log('fetched auth url', data.authorizationUrl);
           window.location.href = data.authorizationUrl;
         },
         err => {
