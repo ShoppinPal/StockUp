@@ -49,7 +49,7 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
   public orderName: string;
   public stores: Array<any> = [];
   public suppliers: Array<any> = [];
-  public ordersLimitPerPage: number = 10;
+  public ordersLimitPerPage: number = 100;
   public typeaheadLoading: boolean;
   public maxPageDisplay: number = 7;
   public uploader: FileUploader;
