@@ -49,7 +49,7 @@ export class CompleteComponent implements OnInit {
 
   getStockOrderLineItems(limit?: number, skip?: number, productModelIds?: Array<string>) {
     if (!(limit && skip)) {
-      limit = 100;
+      limit = this.lineItemsLimitPerPage || 100;
       skip = 0;
     }
     if ((productModelIds !== undefined && productModelIds !== null) && (!productModelIds && !productModelIds.length)) {

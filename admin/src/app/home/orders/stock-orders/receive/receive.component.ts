@@ -91,7 +91,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
 
   getReceivedStockOrderLineItems(limit?: number, skip?: number, productModelIds?: Array<string>) {
     if (!(limit && skip)) {
-      limit = this.lineItemsLimitPerPage;
+      limit = this.lineItemsLimitPerPage || 10;
       skip = 0;
     }
     if ((productModelIds !== undefined && productModelIds !== null) && (!productModelIds && !productModelIds.length)) {
@@ -156,7 +156,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
 
   getNotReceivedStockOrderLineItems(limit?: number, skip?: number, productModelIds?: Array<string>) {
     if (!(limit && skip)) {
-      limit = this.lineItemsLimitPerPage;
+      limit = this.lineItemsLimitPerPage || 10;
       skip = 0;
     }
     if ((productModelIds !== undefined && productModelIds !== null) && (!productModelIds && !productModelIds.length)) {

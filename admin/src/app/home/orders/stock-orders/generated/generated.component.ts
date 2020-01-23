@@ -104,7 +104,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
 
   getApprovedStockOrderLineItems(limit?: number, skip?: number, productModelIds?: Array<string>) {
     if (!(limit && skip)) {
-      limit = this.lineItemsLimitPerPage;
+      limit = this.lineItemsLimitPerPage || 10;
       skip = 0;
     }
     let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
@@ -161,7 +161,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
 
   getNotApprovedStockOrderLineItems(limit?: number, skip?: number, productModelIds?: Array<string>) {
     if (!(limit && skip)) {
-      limit = this.lineItemsLimitPerPage;
+      limit = this.lineItemsLimitPerPage || 10;
       skip = 0;
     }
     let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
