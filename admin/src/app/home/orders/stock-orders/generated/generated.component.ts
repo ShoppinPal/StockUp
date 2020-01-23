@@ -104,7 +104,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
 
   getApprovedStockOrderLineItems(limit?: number, skip?: number, productModelIds?: Array<string>) {
     if (!(limit && skip)) {
-      limit = 100;
+      limit = this.lineItemsLimitPerPage;
       skip = 0;
     }
     let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
@@ -161,7 +161,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
 
   getNotApprovedStockOrderLineItems(limit?: number, skip?: number, productModelIds?: Array<string>) {
     if (!(limit && skip)) {
-      limit = 100;
+      limit = this.lineItemsLimitPerPage;
       skip = 0;
     }
     let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
@@ -235,8 +235,8 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       var productModelIds = data.map(function filterProductIds(eachProduct) {
         return eachProduct.id;
       });
-      this.getApprovedStockOrderLineItems(100, 0, productModelIds);
-      this.getNotApprovedStockOrderLineItems(100, 0, productModelIds);
+      this.getApprovedStockOrderLineItems(this.lineItemsLimitPerPage, 0, productModelIds);
+      this.getNotApprovedStockOrderLineItems(this.lineItemsLimitPerPage, 0, productModelIds);
     }
     else {
       this.loading = false;
@@ -301,7 +301,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       this.toInvalidEmailCounter = 0;
     }
   }
- 
+
   ccEmailValidation() {
     this.ccValidEmailCounter = 0;
     this.ccInvalidEmailCounter = 0;
