@@ -213,7 +213,7 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
 
     if (stockOrders.completedOrders) {
       this.completedOrders = stockOrders.completedOrders;
-      this.totalCompletedOrders = stockOrders.totalCompletedOrders;
+      this.totalCompletedOrders = stockOrders.completedOrdersCount;
       this.totalCompletedOrdersPages = this.totalCompletedOrders / this.ordersLimitPerPage;
     }
 
