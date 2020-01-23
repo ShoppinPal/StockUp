@@ -14,6 +14,7 @@ export class ReorderPointsComponent implements OnInit {
   public userProfile: any;
   public loading: boolean = false;
   public salesDateRange: number;
+  public stockUpReorderPoints: boolean;
 
   constructor(private orgModelApi: OrgModelApi,
               private userModelApi: UserModelApi,
@@ -26,6 +27,7 @@ export class ReorderPointsComponent implements OnInit {
     this.userModelApi.getOrgModel(this.userProfile.userId)
       .subscribe((data: any) => {
           this.salesDateRange = data.salesDateRangeInDays;
+          this.stockUpReorderPoints = data.stockUpReorderPoints;
         }
         , err => {
           console.log('Could not fetch org details');
@@ -35,7 +37,8 @@ export class ReorderPointsComponent implements OnInit {
   saveReorderPointSettings() {
     this.loading = true;
     this.orgModelApi.updateOrgSettings(this.userProfile.orgModelId, {
-      salesDateRangeInDays: this.salesDateRange
+      salesDateRangeInDays: this.salesDateRange,
+      stockUpReorderPoints: this.stockUpReorderPoints
     })
       .subscribe(data => {
         this.loading = false;

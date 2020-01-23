@@ -353,8 +353,8 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                                     averageDailyDemandCalculationDate: new Date(),
                                     standardDeviationCalculationDate: new Date(),
                                     salesDateRangeInDays: orgModelInstance.salesDateRangeInDays,
-                                    reorder_point: Math.round(tempMax), //reorder quantities to this point
-                                    reorder_threshold: Math.round(tempMin), //reorder quantities if product below this level
+                                    stockUpReorderPoint: Math.round(tempMax), //reorder quantities to this point
+                                    stockUpReorderThreshold: Math.round(tempMin), //reorder quantities if product below this level
                                 }
                             });
                         }

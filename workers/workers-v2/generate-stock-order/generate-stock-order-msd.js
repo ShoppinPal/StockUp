@@ -354,18 +354,18 @@ function generateStockOrder(payload, config, taskId, messageId) {
                             $addToSet: {
                                 productModelId: '$productModelId',
                                 inventory_level: '$inventory_level',
-                                reorder_point: '$reorder_point',
-                                reorder_threshold: '$reorder_threshold'
+                                reorder_point: '$stockUpReorderPoint',
+                                reorder_threshold: '$stockUpReorderThreshold'
                             }
                         },
                         inventory_level: {
                             $sum: '$inventory_level'
                         },
                         reorder_point: {
-                            $sum: '$reorder_point'
+                            $sum: '$stockUpReorderPoint'
                         },
                         reorder_threshold: {
-                            $sum: '$reorder_threshold'
+                            $sum: '$stockUpReorderThreshold'
                         },
                         categoryModel: {
                             $first: '$categoryModel'
@@ -439,8 +439,8 @@ function generateStockOrder(payload, config, taskId, messageId) {
                             $addToSet: {
                                 productModelId: '$productModelId',
                                 inventory_level: '$inventory_level',
-                                reorder_point: '$reorder_point',
-                                reorder_threshold: '$reorder_threshold'
+                                reorder_point: '$stockUpReorderPoint',
+                                reorder_threshold: '$stockUpReorderThreshold'
                             }
                         },
                     }
@@ -513,7 +513,7 @@ function generateStockOrder(payload, config, taskId, messageId) {
                                  * then rationalise it to sum up to optionOrderQuantity
                                  */
                                 var totalOrderQuantitiesForProducts = _.reduce(optionInventory.productModels, function (memo, num) {
-                                    var orderQuantity = 0;                                    
+                                    var orderQuantity = 0;
                                     if(num.reorder_point > 0) {
                                         orderQuantity = num.reorder_point - (num.inventory_level>0 ? num.inventory_level : 0);//treat negative store inventory as ZERO, as told by client
                                     }
