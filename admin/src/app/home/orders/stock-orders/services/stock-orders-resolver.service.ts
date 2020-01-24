@@ -9,6 +9,7 @@ import {FileImportsResolverService} from "../../../file-imports/services/file-im
 @Injectable()
 export class StockOrdersResolverService {
 private userProfile: any;
+  private ordersMaxLimit = 100;
 
   constructor(private orgModelApi: OrgModelApi,
               private _userProfileService: UserProfileService,
@@ -53,7 +54,7 @@ private userProfile: any;
   };
 
   fetchGeneratedStockOrders = (limit?: number, skip?: number, reportModelId ?: string): Observable<any> => {
-    limit = limit || 10;
+    limit = this.ordersMaxLimit || limit || 10;
     skip = skip || 0;
     let filter = {
       limit: limit,
@@ -130,7 +131,7 @@ private userProfile: any;
   };
 
   fetchReceiveStockOrders = (limit?: number, skip?: number): Observable<any> => {
-    limit = limit || 10;
+    limit = this.ordersMaxLimit || limit || 10;
     skip = skip || 0;
     let filter = {
       limit: limit,
@@ -197,7 +198,7 @@ private userProfile: any;
   };
 
   fetchFulfillStockOrders = (limit?: number, skip?: number): Observable<any> => {
-    limit = limit || 10;
+    limit = this.ordersMaxLimit || limit || 10;
     skip = skip || 0;
     let filter = {
       limit: limit,
@@ -267,7 +268,7 @@ private userProfile: any;
   };
 
   fetchCompletedStockOrders = (limit?: number, skip?: number): Observable<any> => {
-    limit = limit || 10;
+    limit = this.ordersMaxLimit || limit || 10;
     skip = skip || 0;
     let filter = {
       limit: limit,

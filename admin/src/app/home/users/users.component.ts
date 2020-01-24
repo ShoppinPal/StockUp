@@ -27,7 +27,7 @@ export class UsersComponent implements OnInit {
   public users: Array<any>;
   public totalUsers: number;
   public totalPages: number;
-  public usersLimitPerPage: number = 10;
+  public usersLimitPerPage: number = 100;
   public currentPage: number = 1;
   public searchUserText: string;
   public foundUser: boolean = false;
@@ -58,7 +58,7 @@ export class UsersComponent implements OnInit {
     this.searchedUser = null;
     this.loading = true;
     let filter = {
-      limit: limit || 10,
+      limit: this.usersLimitPerPage || limit || 10,
       skip: skip || 0
     };
     let countFilter = {};

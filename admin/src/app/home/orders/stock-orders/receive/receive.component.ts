@@ -90,9 +90,8 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   }
 
   getReceivedStockOrderLineItems(limit?: number, skip?: number, productModelIds?: Array<string>) {
-
     if (!(limit && skip)) {
-      limit = 100;
+      limit = this.lineItemsLimitPerPage || 10;
       skip = 0;
     }
     if ((productModelIds !== undefined && productModelIds !== null) && (!productModelIds && !productModelIds.length)) {
@@ -157,7 +156,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
 
   getNotReceivedStockOrderLineItems(limit?: number, skip?: number, productModelIds?: Array<string>) {
     if (!(limit && skip)) {
-      limit = 100;
+      limit = this.lineItemsLimitPerPage || 10;
       skip = 0;
     }
     if ((productModelIds !== undefined && productModelIds !== null) && (!productModelIds && !productModelIds.length)) {
@@ -270,8 +269,8 @@ export class ReceiveComponent implements OnInit, OnDestroy {
         var productModelIds = data.map(function filterProductIds(eachProduct) {
         return eachProduct.id;
       });
-        this.getReceivedStockOrderLineItems(100, 0, productModelIds);
-        this.getNotReceivedStockOrderLineItems(100, 0, productModelIds);
+        this.getReceivedStockOrderLineItems(this.lineItemsLimitPerPage, 0, productModelIds);
+        this.getNotReceivedStockOrderLineItems(this.lineItemsLimitPerPage, 0, productModelIds);
       }
       else {
         this.loading = false;

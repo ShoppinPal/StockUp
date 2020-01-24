@@ -11,6 +11,7 @@ export class UserManagementResolverService {
   private users: any;
   private count: number;
   private userProfile: any = this._userProfileService.getProfileData();
+  private maxUsersPerPage = 100;
 
   constructor(private orgModelApi: OrgModelApi,
               private _router: Router,
@@ -23,7 +24,7 @@ export class UserManagementResolverService {
 
   fetchUsers(limit?: number, skip?: number): Observable<any> {
     let filter = {
-      limit: 10,
+      limit: this.maxUsersPerPage || limit || 10,
       skip: skip || 0,
       include: 'roles'
     };

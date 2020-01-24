@@ -245,13 +245,14 @@
                     </tbody>
                   </table>
 
-                  <pagination [totalItems]="totalNotFulfilledLineItems"
-                              [(ngModel)]="currentPageNotApproved"
+                  <pagination [totalItems]="totalNotReceivedLineItems"
+                              [(ngModel)]="currentPageNotReceived"
                               [maxSize]="maxPageDisplay"
                               [rotate]="false"
                               [boundaryLinks]="true"
-                              (pageChanged)="getNotFulfilledStockOrderLineItems(lineItemsLimitPerPage, ($event.page - 1) * lineItemsLimitPerPage)"
-                              [itemsPerPage]="lineItemsLimitPerPage"></pagination>
+                              (pageChanged)="getNotReceivedStockOrderLineItems(lineItemsLimitPerPage, ($event.page - 1) * lineItemsLimitPerPage)"
+                              [itemsPerPage]="lineItemsLimitPerPage">
+                  </pagination>
 
                 </tab>
 
@@ -335,12 +336,12 @@
                     </tbody>
                   </table>
 
-                  <pagination [totalItems]="totalApprovedLineItems"
-                              [(ngModel)]="currentPageApproved"
+                  <pagination [totalItems]="totalReceivedLineItems"
+                              [(ngModel)]="currentPageReceived"
                               [maxSize]="maxPageDisplay"
                               [rotate]="false"
                               [boundaryLinks]="true"
-                              (pageChanged)="getApprovedStockOrderLineItems(lineItemsLimitPerPage, ($event.page - 1) * lineItemsLimitPerPage)"
+                              (pageChanged)="getReceivedLineItems(lineItemsLimitPerPage, ($event.page - 1) * lineItemsLimitPerPage)"
                               [itemsPerPage]="lineItemsLimitPerPage">
                   </pagination>
 

@@ -22,7 +22,7 @@ export class SuppliersComponent implements OnInit {
   public currentPage: number = 1;
   public searchedSupplier: Array<any>;
   public foundSupplier: boolean = false;
-  public suppliersLimitPerPage: number = 10;
+  public suppliersLimitPerPage: number = 100;
   public searchSupplierText: string;
 
   constructor(private orgModelApi: OrgModelApi,
@@ -63,7 +63,7 @@ export class SuppliersComponent implements OnInit {
     this.searchedSupplier = null;
     this.loading = true;
     let filter = {
-      limit: limit || 10,
+      limit: this.suppliersLimitPerPage || limit || 10,
       skip: skip || 0
     };
     let fetchSuppliers = combineLatest(
@@ -73,7 +73,7 @@ export class SuppliersComponent implements OnInit {
         this.loading = false;
         this.suppliers = data[0];
         this.totalSuppliers = data[1].count;
-        this.totalPages = Math.floor(this.totalSuppliers / 100);
+        this.totalPages = Math.floor(this.totalSuppliers / this.suppliersLimitPerPage);
       },
       err => {
         this.loading = false;
