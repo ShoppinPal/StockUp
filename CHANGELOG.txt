@@ -1,3 +1,6 @@
+v1.6.2 - Jan 24, 2020
+- Fix pagination issues for UI
+
 v1.6.1 - Jan 17, 2020
 - Fixed scan for some scanners
 - Consecutive Vend api calls have intervals of 1 second
