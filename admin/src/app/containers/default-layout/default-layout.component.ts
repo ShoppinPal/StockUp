@@ -30,6 +30,7 @@ export class DefaultLayoutComponent implements OnDestroy {
   public user: any;
   public loading = false;
   public userProfile: any = this._userProfileService.getProfileData();
+  private appVersion = environment.APP_VERSION;
 
   constructor(private userModelApi: UserModelApi,
               private _userProfileService: UserProfileService,
