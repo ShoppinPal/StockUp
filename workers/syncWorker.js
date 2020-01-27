@@ -19,7 +19,6 @@ const Sentry = require('@sentry/node');
 var sentryDNS = process.env.STOCKUP_SENTRY_WORKER_V3_DNS;
 
 Sentry.init({ dsn: sentryDNS });
-Sentry.captureMessage('Sentry initiated at sync worker');
 
 logger.debug({
     message: 'Sentry initiated at sync worker',
