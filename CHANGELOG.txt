@@ -1,3 +1,9 @@
+v1.6.5 - Jan 27, 2020
+- Sentry capture message removed
+
+v1.6.4 - Jan 24, 2020
+- Hotfix/v1.6.4 types node version fix for angular-cli
+
 v1.6.3 - Jan 24, 2020
 - Display app version in UI
 
