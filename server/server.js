@@ -18,7 +18,6 @@ Sentry.init({ dsn: sentryDNS });
 app.use(Sentry.Handlers.requestHandler());
 // The error handler must be before any other error middleware
 app.use(Sentry.Handlers.errorHandler());
-Sentry.captureMessage('Sentry initiated at Web Server');
 
 logger.debug({
     message: 'Sentry initiated at Web Server',

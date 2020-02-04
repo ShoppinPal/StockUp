@@ -11,6 +11,7 @@ export class SuppliersResolverService {
   private suppliers: any;
   private count: number;
   private userProfile: any = this._userProfileService.getProfileData();
+  private maxSuppliersPerPage = 100;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -23,7 +24,7 @@ export class SuppliersResolverService {
 
   fetchSuppliers(limit?: number, skip?: number): Observable<any> {
     let filter = {
-      limit: 10,
+      limit: this.maxSuppliersPerPage || limit || 10,
       skip: skip || 0
     };
     let fetchSuppliers = combineLatest(

@@ -88,7 +88,7 @@ export class FulfillComponent implements OnInit {
 
   getFulfilledStockOrderLineItems(limit?: number, skip?: number, productModelIds?: Array<string>) {
     if (!(limit && skip)) {
-      limit = 100;
+      limit = this.lineItemsLimitPerPage || 10;
       skip = 0;
     }
     if ((productModelIds !== undefined && productModelIds !== null) && (!productModelIds && !productModelIds.length)) {
@@ -154,7 +154,7 @@ export class FulfillComponent implements OnInit {
 
   getNotFulfilledStockOrderLineItems(limit?: number, skip?: number, productModelIds?: Array<string>) {
     if (!(limit && skip)) {
-      limit = 100;
+      limit = this.lineItemsLimitPerPage || 10;
       skip = 0;
     }
     if ((productModelIds !== undefined && productModelIds !== null) && (!productModelIds && !productModelIds.length)) {
@@ -270,8 +270,8 @@ export class FulfillComponent implements OnInit {
         var productModelIds = data.map(function filterProductIds(eachProduct) {
           return eachProduct.id;
         });
-        this.getFulfilledStockOrderLineItems(100, 0, productModelIds);
-        this.getNotFulfilledStockOrderLineItems(100, 0, productModelIds);
+        this.getFulfilledStockOrderLineItems(this.lineItemsLimitPerPage, 0, productModelIds);
+        this.getNotFulfilledStockOrderLineItems(this.lineItemsLimitPerPage, 0, productModelIds);
       }
       else {
         this.loading = false;

@@ -49,7 +49,7 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
   public orderName: string;
   public stores: Array<any> = [];
   public suppliers: Array<any> = [];
-  public ordersLimitPerPage: number = 10;
+  public ordersLimitPerPage: number = 100;
   public typeaheadLoading: boolean;
   public maxPageDisplay: number = 7;
   public uploader: FileUploader;
@@ -152,7 +152,7 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
 
   fetchOrders = (orderType: string, limit?: number, skip?: number) => {
     this.loading = true;
-    limit = limit || 10;
+    limit = this.ordersLimitPerPage || limit || 10;
     skip = skip || 0;
     let fetchOrder;
     if (orderType === 'generated') {
@@ -213,7 +213,7 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
 
     if (stockOrders.completedOrders) {
       this.completedOrders = stockOrders.completedOrders;
-      this.totalCompletedOrders = stockOrders.totalCompletedOrders;
+      this.totalCompletedOrders = stockOrders.completedOrdersCount;
       this.totalCompletedOrdersPages = this.totalCompletedOrders / this.ordersLimitPerPage;
     }
 
@@ -273,8 +273,6 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
         })
     );
   }
-
-
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(subscription => {

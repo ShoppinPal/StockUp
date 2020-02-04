@@ -67,8 +67,7 @@
                           [rotate]="false"
                           [boundaryLinks]="true"
                           (pageChanged)="fetchOrders('generated', ordersLimitPerPage, ($event.page - 1) * ordersLimitPerPage)"
-                          [itemsPerPage]="lineItemsLimitPerPage">
-
+                          [itemsPerPage]="ordersLimitPerPage">
               </pagination>
             </tab>
             <tab>
@@ -118,7 +117,7 @@
                           [rotate]="false"
                           [boundaryLinks]="true"
                           (pageChanged)="fetchOrders('receive', ordersLimitPerPage, ($event.page - 1) * ordersLimitPerPage)"
-                          [itemsPerPage]="lineItemsLimitPerPage">
+                          [itemsPerPage]="ordersLimitPerPage">
               </pagination>
             </tab>
             <tab>
@@ -168,7 +167,7 @@
                           [rotate]="false"
                           [boundaryLinks]="true"
                           (pageChanged)="fetchOrders('fulfill', ordersLimitPerPage, ($event.page - 1) * ordersLimitPerPage)"
-                          [itemsPerPage]="lineItemsLimitPerPage">
+                          [itemsPerPage]="ordersLimitPerPage">
               </pagination>
             </tab>
             <tab class="table-wrapper" heading="Completed">
@@ -214,7 +213,7 @@
                           [rotate]="false"
                           [boundaryLinks]="true"
                           (pageChanged)="fetchOrders('complete', ordersLimitPerPage, ($event.page - 1) * ordersLimitPerPage)"
-                          [itemsPerPage]="lineItemsLimitPerPage">
+                          [itemsPerPage]="ordersLimitPerPage">
               </pagination>
             </tab>
           </tabset>
