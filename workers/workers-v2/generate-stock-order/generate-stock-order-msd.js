@@ -304,8 +304,8 @@ function generateStockOrder(payload, config, taskId, messageId) {
                 commandName,
                 messageId
             });
-            var generateReorderPointsMSD = require('./../generate-reorder-points/generate-reorder-points-msd');
-            return generateReorderPointsMSD.run(payload, config, taskId, messageId);
+            var generateReorderPoints = require('./../generate-reorder-points/generate-reorder-points');
+            return generateReorderPoints.run(payload, config, taskId, messageId);
         })
         .then(function (result) {
             logger.debug({

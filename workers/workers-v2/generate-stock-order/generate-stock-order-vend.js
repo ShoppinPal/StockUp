@@ -214,8 +214,8 @@ var runMe = function (payload, config, taskId, messageId) {
                     messageId
                 });
                 if (toGenerateReorderPoints) {
-                    var generateReorderPointsMSD = require('./../generate-reorder-points/generate-reorder-points-msd');
-                    return generateReorderPointsMSD.run(payload, config, taskId, messageId);
+                    var generateReorderPoints = require('./../generate-reorder-points/generate-reorder-points');
+                    return generateReorderPoints.run(payload, config, taskId, messageId);
                 }
                 else {
                     logger.debug({
