@@ -107,7 +107,7 @@ function saveSales(dbInstance, vendConnectionInfo, orgModelId, sales) {
         return eachSale.deleted_at !== undefined && eachSale.deleted_at !== null;
     });
     var salesToSave = _.difference(sales.data, salesToDelete);
-    let salesLineItemsToUpdate = [], salesLineItemsToDelete = [];
+    let salesLineItemsToUpdate = [], salesLineItemsToDelete = [], storeModelInstances = [];
     logger.debug({
         orgModelId,
         message: 'Will look for stores and products to attach to sales',
@@ -125,7 +125,7 @@ function saveSales(dbInstance, vendConnectionInfo, orgModelId, sales) {
         }
     }).toArray()
         .then(function (response) {
-            let storeModelInstances = response;
+            storeModelInstances = response;
             logger.debug({
                 orgModelId,
                 message: 'Found and stores in DB, will attach to sales',
@@ -160,6 +160,7 @@ function saveSales(dbInstance, vendConnectionInfo, orgModelId, sales) {
                      */
                     _.each(eachSales.line_items, function (eachLineItem) {
                         eachLineItem.sales_id = eachSales.id;
+                        eachLineItem.outlet_id = eachSales.outlet_id;
                         salesLineItemsToUpdate.push(eachLineItem);
                     });
                 }
@@ -238,12 +239,9 @@ function saveSales(dbInstance, vendConnectionInfo, orgModelId, sales) {
             });
             let batch = dbInstance.collection('SalesLineItemsModel').initializeUnorderedBulkOp();
             _.each(salesLineItemsToUpdate, function (eachLineItem) {
-                var productModelToAttach = _.findWhere(response[0], function (eachProduct) {
-                    return eachProduct.api_id === eachLineItem.product_id;
-                });
-                var salesModelToAttach = _.findWhere(response[1], function (eachSales) {
-                    return eachSales.api_id === eachLineItem.sales_id;
-                });
+                var productModelToAttach = _.findWhere(response[0], {api_id: eachLineItem.product_id});
+                var salesModelToAttach = _.findWhere(response[1],{api_id: eachLineItem.sales_id});
+                var storeModelToAttach = _.findWhere(storeModelInstances, {storeNumber: eachLineItem.outlet_id});
                 batch.find({
                     orgModelId: ObjectId(orgModelId),
                     api_id: eachLineItem.id
@@ -253,7 +251,7 @@ function saveSales(dbInstance, vendConnectionInfo, orgModelId, sales) {
                         storeModelId: salesModelToAttach ? ObjectId(salesModelToAttach.storeModelId) : null,
                         productModelId: productModelToAttach ? ObjectId(productModelToAttach._id) : null,
                         salesModelId: salesModelToAttach ? ObjectId(salesModelToAttach._id) : null,
-                        outlet_id: salesModelToAttach ? salesModelToAttach.outlet_id : null,
+                        outlet_id: storeModelToAttach ? storeModelToAttach.outlet_id : null,
                         product_id: eachLineItem.product_id,
                         sales_id: eachLineItem.sales_id,
                         salesDate: salesModelToAttach ? salesModelToAttach.salesDate : null,

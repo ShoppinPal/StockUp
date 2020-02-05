@@ -371,8 +371,8 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                                 $set: {
                                     averageDailyDemand: null,
                                     standardDeviation: null,
-                                    reorder_point: null,
-                                    reorder_threshold: null,
+                                    stockUpReorderPoint: null,
+                                    stockUpReorderThreshold: null,
                                     salesDateRangeInDays: orgModelInstance.salesDateRangeInDays,
                                     averageDailyDemandCalculationDate: new Date(),
                                     standardDeviationCalculationDate: new Date()

@@ -343,8 +343,8 @@ var runMe = function (payload, config, taskId, messageId) {
                             var quantityOnHand = Number(inventory.inventory_level);
                             var desiredStockLevel, thresholdStockLevel;
                             if (toGenerateReorderPoints) {
-                                desiredStockLevel = Number(inventory.stockUpReorderPoint);
-                                thresholdStockLevel = Number(inventory.stockUpReorderThreshold);
+                                desiredStockLevel = inventory.stockUpReorderPoint;
+                                thresholdStockLevel = inventory.stockUpReorderThreshold;
                             }
                             else {
                                 desiredStockLevel = Number(inventory.reorder_point);
@@ -361,7 +361,7 @@ var runMe = function (payload, config, taskId, messageId) {
                                     orderQuantity = desiredStockLevel - quantityOnHand;
                                 }
                                 else {
-                                    if(quantityOnHand < thresholdStockLevel) {
+                                    if (quantityOnHand<thresholdStockLevel) {
                                         orderQuantity = desiredStockLevel - quantityOnHand;
                                     }
                                 }
@@ -394,6 +394,9 @@ var runMe = function (payload, config, taskId, messageId) {
                                 desiredStockLevel = undefined;
                                 orderQuantity = undefined;
                                 useRow = true;
+                                if(toGenerateReorderPoints){
+                                    useRow = false;
+                                }
                             }
                         }
 
