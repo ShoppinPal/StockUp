@@ -861,14 +861,14 @@ module.exports = function (ReportModel) {
             options,
             functionName: 'fetchOrderRowCounts'
         });
-        if (!(orderIds instanceof Array) || orderIds.length<1 || orderIds.length>100) {
+        if (!(orderIds instanceof Array) || orderIds.length<1 || orderIds.length>400) {
             logger.debug({
-                message: 'OrderIds should be a valid array of 1 to 100 length',
+                message: 'OrderIds should be a valid array of 1 to 400 length',
                 orderIds,
                 options,
                 functionName: 'fetchOrderRowCounts'
             });
-            return Promise.reject('OrderIds should be a valid array of 1 to 100 length');
+            return Promise.reject('OrderIds should be a valid array of 1 to 400 length');
         }
 
         //https://github.com/strongloop/loopback/issues/890#issuecomment-66581628
