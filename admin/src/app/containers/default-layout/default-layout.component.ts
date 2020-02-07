@@ -31,6 +31,7 @@ export class DefaultLayoutComponent implements OnDestroy {
   public loading = false;
   public userProfile: any = this._userProfileService.getProfileData();
   private appVersion = environment.APP_VERSION;
+  public isSmallDevice = false;
 
   constructor(private userModelApi: UserModelApi,
               private _userProfileService: UserProfileService,
@@ -65,6 +66,9 @@ export class DefaultLayoutComponent implements OnDestroy {
   ngOnInit() {
     this.getRouteData();
     this.subscribeForRouteEvents();
+    if (window.screen.width < 992) { // 992 above is desktops and laptops
+      this.isSmallDevice = true;
+    }
   }
 
   getRouteData() {
@@ -92,7 +96,7 @@ export class DefaultLayoutComponent implements OnDestroy {
 
   private subscribeForRouteEvents() {
     this._router.events.subscribe((event: RouterEvent) => {
-        this.navigationInterceptor(event);
+      this.navigationInterceptor(event);
     })
   }
 
@@ -101,9 +105,9 @@ export class DefaultLayoutComponent implements OnDestroy {
       this.loading = true
     }
     if (
-        event instanceof NavigationEnd ||
-        event instanceof NavigationCancel ||
-        event instanceof NavigationError
+      event instanceof NavigationEnd ||
+      event instanceof NavigationCancel ||
+      event instanceof NavigationError
     ) {
       this.loading = false
     }
