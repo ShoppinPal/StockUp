@@ -16,21 +16,75 @@ module.exports = function (SyncModel) {
             functionName: 'initiateVendSync'
         });
         var syncModels = ['products', 'suppliers', 'inventory', 'sales'];
-        return Promise.map(syncModels, function (eachSyncModel) {
-            return SyncModel.findOrCreate({
-                where: {
-                    name: eachSyncModel,
-                    orgModelId: id
-                }
-            }, {
-                name: eachSyncModel,
-                version: 0,
-                syncType: 'vend',
-                orgModelId: id,
-                syncInProcess: false,
-                lastSyncedAt: new Date(1970) // some old date so that sync-engine picks it up immediately
-            });
-        })
+        return SyncModel.syncVendStores(id, options)
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not sync vend stores',
+                    error,
+                    options,
+                    functionName: 'initiateVendSync'
+                });
+                return Promise.reject('Could not sync vend stores');
+            })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Synced vend stores, will sync users',
+                    response,
+                    options,
+                    functionName: 'initiateVendSync'
+                });
+                return SyncModel.syncVendUsers(id, options);
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not sync vend users',
+                    error,
+                    options,
+                    functionName: 'initiateVendSync'
+                });
+                return Promise.reject('Could not sync vend users');
+            })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Synced vend users, will sync vend product types',
+                    response,
+                    options,
+                    functionName: 'initiateVendSync'
+                });
+                return SyncModel.syncVendProductTypes(id, options);
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not sync vend product types',
+                    options,
+                    error,
+                    functionName: 'initiateVendSync'
+                });
+                return Promise.reject('Could not sync vend product types');
+            })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Synced vend product types',
+                    response,
+                    options,
+                    functionName: 'initiateVendSync'
+                });
+                return Promise.map(syncModels, function (eachSyncModel) {
+                    return SyncModel.findOrCreate({
+                        where: {
+                            name: eachSyncModel,
+                            orgModelId: id
+                        }
+                    }, {
+                        name: eachSyncModel,
+                        version: 0,
+                        syncType: 'vend',
+                        orgModelId: id,
+                        syncInProcess: false,
+                        lastSyncedAt: new Date(1970) // some old date so that sync-engine picks it up immediately
+                    });
+                });
+            })
             .then(function (syncModels) {
                 logger.debug({
                     message: 'Sync models created',
@@ -399,18 +453,18 @@ module.exports = function (SyncModel) {
                 if (response && response.length) {
                     return Promise.map(response, function (eachStore) {
                         // if (eachStore.email) { //TODO: why this check?
-                            return SyncModel.app.models.StoreModel.findOrCreate({
-                                where: {
-                                    storeNumber: eachStore.id,
-                                    orgModelId: id
-                                }
-                            }, {
-                                name: eachStore.name,
-                                currency: eachStore.currency,
+                        return SyncModel.app.models.StoreModel.findOrCreate({
+                            where: {
                                 storeNumber: eachStore.id,
-                                email: eachStore.email,
                                 orgModelId: id
-                            });
+                            }
+                        }, {
+                            name: eachStore.name,
+                            currency: eachStore.currency,
+                            storeNumber: eachStore.id,
+                            email: eachStore.email,
+                            orgModelId: id
+                        });
                         // }
                     });
                 }
