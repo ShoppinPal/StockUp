@@ -251,7 +251,7 @@ function saveSales(dbInstance, vendConnectionInfo, orgModelId, sales) {
                         storeModelId: salesModelToAttach ? ObjectId(salesModelToAttach.storeModelId) : null,
                         productModelId: productModelToAttach ? ObjectId(productModelToAttach._id) : null,
                         salesModelId: salesModelToAttach ? ObjectId(salesModelToAttach._id) : null,
-                        outlet_id: storeModelToAttach ? storeModelToAttach.outlet_id : null,
+                        outlet_id: salesModelToAttach ? salesModelToAttach.outlet_id: null,
                         product_id: eachLineItem.product_id,
                         sales_id: eachLineItem.sales_id,
                         salesDate: salesModelToAttach ? salesModelToAttach.salesDate : null,

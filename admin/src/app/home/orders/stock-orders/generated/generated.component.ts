@@ -589,7 +589,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       //first decide no. of days to display in graph
       this.salesRangeDates = [];
       let millisecondsInDay = 24 * 60 * 60 * 1000;
-      for (let i = this.graphNumberOfDays; i > 0; i--) {
+      for (let i = this.graphNumberOfDays - 1; i >= 0; i--) {
         let date = new Date(this.order.createdAt) - (i * millisecondsInDay);
         this.salesRangeDates.push(new Date(date));
       }
