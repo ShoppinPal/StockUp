@@ -15,6 +15,15 @@
     "name": {
       "type": "string",
       "required": true
+    },
+    "salesDateRangeInDays" : {
+      "type": "number",
+      "required": false
+    },
+    "stockUpReorderPoints" : {
+      "type": "boolean",
+      "required": true,
+      "default": true
     }
   },
   "validations": [],

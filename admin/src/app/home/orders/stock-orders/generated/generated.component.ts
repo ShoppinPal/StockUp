@@ -1,8 +1,9 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {OrgModelApi} from "../../../../shared/lb-sdk/services/custom/OrgModel";
 import {ActivatedRoute, Router} from '@angular/router';
 import {combineLatest, Subscription} from 'rxjs';
 import {ToastrService} from 'ngx-toastr';
+import {Color, BaseChartDirective, Label} from 'ng2-charts';
 import {UserProfileService} from "../../../../shared/services/user-profile.service";
 import {LoopBackAuth} from "../../../../shared/lb-sdk/services/core/auth.service";
 import {constants} from "../../../../shared/constants/constants";
@@ -59,6 +60,31 @@ export class GeneratedComponent implements OnInit, OnDestroy {
   public bccValidEmailCounter: number = 0;
   public bccInvalidEmailCounter: number = 0;
   public searchEntry = '';
+  public salesRangeDates = [];
+  public lineChartData: Array<any> = [{
+    data: [0, 0, 0, 0, 0, 0, 0],
+    label: 'Sales History'
+  }];
+  public lineChartLabels: Array<Label>;
+  public lineChartOptions: any = {
+    responsive: true
+  };
+  public lineChartColours: Array<any> = [
+    { // green
+      backgroundColor: '#4dbd74b5',
+      borderColor: '#4dbd74',
+      pointBackgroundColor: 'rgba(148,159,177,1)',
+      pointBorderColor: '#fff',
+      pointHoverBackgroundColor: '#fff',
+      pointHoverBorderColor: 'rgba(148,159,177,0.8)'
+    }
+  ];
+  public lineChartLegend = true;
+  public lineChartType = 'line';
+  public loadingGraph: boolean = false;
+  public graphNumberOfDays: number = 7;
+
+  @ViewChild(BaseChartDirective, {static: false}) chart: BaseChartDirective;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -109,14 +135,14 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     }
     let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
     let whereFilter = {
-        reportModelId: this.order.id,
-        approved: true
+      reportModelId: this.order.id,
+      approved: true
+    };
+    if (productModelIds && productModelIds.length) {
+      whereFilter['productModelId'] = {
+        inq: productModelIds
       };
-      if(productModelIds && productModelIds.length) {
-        whereFilter['productModelId'] = {
-          inq : productModelIds
-        };
-      }
+    }
     let filter = {
       where: whereFilter,
       include: [
@@ -166,14 +192,14 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     }
     let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
     let whereFilter = {
-        reportModelId: this.order.id,
-        approved: false
+      reportModelId: this.order.id,
+      approved: false
+    };
+    if (productModelIds && productModelIds.length) {
+      whereFilter['productModelId'] = {
+        inq: productModelIds
       };
-      if(productModelIds && productModelIds.length) {
-        whereFilter['productModelId'] = {
-          inq : productModelIds
-        };
-      }
+    }
     let filter = {
       where: whereFilter,
       include: [
@@ -218,11 +244,12 @@ export class GeneratedComponent implements OnInit, OnDestroy {
 
   searchProductBySku(sku?: string) {
     this.loading = true;
-    var pattern = new RegExp('.*'+sku+'.*', "i"); /* case-insensitive RegExp search */
+    var pattern = new RegExp('.*' + sku + '.*', "i");
+    /* case-insensitive RegExp search */
     var filterData = pattern.toString();
     this.orgModelApi.getProductModels(this.userProfile.orgModelId, {
       where: {
-        sku: { "regexp": filterData }
+        sku: {"regexp": filterData}
       }
     })
       .subscribe((data) => {
@@ -250,7 +277,6 @@ export class GeneratedComponent implements OnInit, OnDestroy {
   };
 
   createTransferOrder() {
-    console.log('submitting');
     if (!this.totalApprovedLineItems) {
       this.toastr.error('Please approve at least one item to create Transfer Order in MSD');
     } else {
@@ -344,7 +370,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     }
   }
 
-   bccEmailEmpty() {
+  bccEmailEmpty() {
     this.emailModalData.bcc = this.emailModalData.bcc.trim();
     if (this.emailModalData.bcc === '') {
       this.bccValidEmailCounter = 0;
@@ -411,7 +437,6 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       .subscribe((res: any) => {
           this.getApprovedStockOrderLineItems();
           this.getNotApprovedStockOrderLineItems();
-          console.log('approved', res);
         },
         err => {
           console.log('err', err);
@@ -545,9 +570,127 @@ export class GeneratedComponent implements OnInit, OnDestroy {
   }
 
   keyUpEvent(event, searchSKUText) {
-    if(event.keyCode == '13') {
+    if (event.keyCode == '13') {
       this.searchProductBySku(searchSKUText)
     }
+  }
+
+  changeGraphNumberOfDays(event, lineItem) {
+    if (event.keyCode == '13') {
+      this.fetchSalesHistory(lineItem)
+    }
+  }
+
+  fetchSalesHistory(lineItem) {
+    if (this.order.stockUpReorderPoints) {
+      this.loadingGraph = true;
+      //first decide no. of days to display in graph
+      this.salesRangeDates = [];
+      let millisecondsInDay = 24 * 60 * 60 * 1000;
+      for (let i = this.graphNumberOfDays; i > 0; i--) {
+        let date = new Date(this.order.createdAt) - (i * millisecondsInDay);
+        this.salesRangeDates.push(new Date(date));
+      }
+      this.lineChartLabels = this.salesRangeDates.map(x => x.getUTCDate() + '/' + (x.getUTCMonth() + 1));
+
+      //fetch data for the no. of days decided
+      this.lineChartData[0].data.length = 0;
+      let millisecondsInDay = 24 * 60 * 60 * 1000;
+      let firstDateOfSaleInRange = new Date(new Date(this.order.createdAt) - (this.graphNumberOfDays * millisecondsInDay));
+      this.orgModelApi.getSalesLineItemsModels(this.userProfile.orgModelId, {
+        where: {
+          productModelId: lineItem.productModelId,
+          salesDate: {
+            gte: firstDateOfSaleInRange,
+            lte: new Date(this.order.createdAt),
+          },
+          isReturnSale: 0,
+          storeModelId: this.order.storeModelId
+        },
+        order: 'salesDate DESC',
+      }).subscribe(result => {
+          //if no sales data found for specified range, find the last-most sale
+          if (!result.length) {
+            this.orgModelApi.getSalesLineItemsModels(this.userProfile.orgModelId, {
+              where: {
+                productModelId: lineItem.productModelId,
+                storeModelId: this.order.storeModelId,
+                isReturnSale: 0
+              },
+              order: 'salesDate DESC',
+              limit: 1
+            })
+              .subscribe(sale => {
+                  if (sale.length) {
+                    let salesDate = new Date(sale[0].salesDate);
+                    let salesDateLabel = salesDate.getUTCDate() + '/' + (salesDate.getUTCMonth() + 1) + '/' + salesDate.getFullYear().toString().substr(-2);
+                    //if dates displayed are more than normal, possibly because of last graph's
+                    //last-most displayed sale, then replace that one with this, otherwise just add
+                    //a new date label
+                    if (this.lineChartLabels.length > this.graphNumberOfDays) {
+                      this.lineChartLabels[0] = salesDateLabel;
+                      this.salesRangeDates[0] = salesDate;
+                    }
+                    else {
+                      this.lineChartLabels.unshift(salesDateLabel);
+                      this.salesRangeDates.unshift(salesDate);
+                    }
+                    this.updateSalesGraph(sale);
+                  }
+                },
+                err => {
+                  console.log('error fetching sales data');
+                  this.toastr.error('Error fetching sales data for ' + lineItem.productModelSku);
+                });
+          }
+          else {
+            this.updateSalesGraph(result);
+          }
+        },
+        err => {
+          console.log('error fetching sales data');
+          this.toastr.error('Error fetching sales data for ' + lineItem.productModelSku);
+        });
+    }
+  }
+
+  updateSalesGraph(sales) {
+    let perDateSales = [];
+    this.loadingGraph = false;
+    this.salesRangeDates.map((eachDate, index) => {
+      let totalQuantities = 0;
+      sales.map((eachSale) => {
+        if (this.compareDateOfSales(eachDate, new Date(eachSale.salesDate))) {
+          totalQuantities += eachSale.quantity;
+        }
+      });
+      perDateSales.push(totalQuantities);
+    });
+    this.lineChartData[0].data = perDateSales;
+    //timeout because updating chart data and updating the chart shouldn't be async
+    setTimeout(()=> {
+      this.chart.update({
+        duration: 800,
+        easing: 'easeOutBounce'
+      });
+    }, 100);
+  }
+
+  compareDateOfSales(date1, date2) {
+    if (date1.getDate() === date2.getDate()
+      && date1.getMonth() === date2.getMonth()
+      && date1.getFullYear() === date2.getFullYear()) {
+      return true;
+    }
+    return false;
+  }
+
+  public chartClicked(e: any): void {
+    console.log(e);
+  }
+
+  public chartHovered(e: any): void {
+    console.log(e);
   }
 
 }

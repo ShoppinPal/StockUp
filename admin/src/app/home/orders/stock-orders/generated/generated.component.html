@@ -142,7 +142,7 @@
               <tabset>
                 <tab heading="Not Approved ({{totalNotApprovedLineItems}})">
 
-                  <table class="table table-hover table-responsive">
+                  <table class="table table-hover table-responsive-md">
                     <thead>
                     <tr>
                       <th></th>
@@ -192,7 +192,7 @@
                           <td *ngIf="userProfile.integrationType==='vend'">{{lineItem.productModel.sku}}</td>
                           <td *ngIf="editable">
                             <div class="form-group">
-                              <div class="input-group">
+                              <div class="input-group quantity-input">
                                 <div class="input-group-prepend pointer"
                                      (click)="lineItem.orderQuantity = lineItem.orderQuantity - (lineItem.caseQuantity || 1)">
                                 <span class="input-group-text">
@@ -212,7 +212,55 @@
                             </div>
                           </td>
                           <td *ngIf="!editable">{{lineItem.orderQuantity}}</td>
-                          <td>{{lineItem.originalOrderQuantity}}</td>
+                          <td class="quantity-input text-right">
+                            {{lineItem.originalOrderQuantity}}
+                            <ng-template #popTemplate>
+                              <div *ngIf="order.stockUpReorderPoints" class="form-inline">
+                                <div class="input-group">
+                                  <label for="graphNumberOfDays">No. of Days: </label> &nbsp;
+                                  <input type="number" id="graphNumberOfDays"
+                                         class="form-control-sm form-control text-left col-4"
+                                         (keyup)="changeGraphNumberOfDays($event, lineItem)"
+                                         [(ngModel)]="graphNumberOfDays"/>
+                                  <span class="input-group-append">
+                                  <button class="btn btn-info btn-sm text-white" type="submit"
+                                          (click)="fetchSalesHistory(lineItem)">
+                                    <i class="fa fa-search"></i>
+                                  </button>
+                                </span>
+                                </div>
+                              </div>
+                              <div *ngIf="loadingGraph" class="graph-loading text-center">
+                                <span>Loading Graph Data...</span></div>
+                              <div class="chart-wrapper"
+                                   *ngIf="order.stockUpReorderPoints && !loadingGraph">
+                                <canvas baseChart class="chart"
+                                        [datasets]="lineChartData"
+                                        [labels]="lineChartLabels"
+                                        [options]="lineChartOptions"
+                                        [colors]="lineChartColours"
+                                        [legend]="lineChartLegend"
+                                        [chartType]="lineChartType">
+                                </canvas>
+                              </div>
+                              <div>
+                                <code *ngIf="order.stockUpReorderPoints">Calculated Reorder Point :
+                                  {{lineItem.orderQuantity+lineItem.storeInventory}}</code>
+                                <br/>
+                                <small><code>Reorder Point - Store Inventory = Order Quantity</code></small>
+                                <br/>
+                                <code>({{lineItem.orderQuantity+lineItem.storeInventory}}) -
+                                  ({{lineItem.storeInventory}}) = {{lineItem.orderQuantity}}</code>
+                              </div>
+                            </ng-template>
+                            <button type="button" class="btn btn-link no-padding"
+                                    [popover]="popTemplate"
+                                    popoverTitle="Why {{lineItem.originalOrderQuantity}} quantities?"
+                                    (onShown)="fetchSalesHistory(lineItem)"
+                                    [outsideClick]="true">
+                              <i class="fa fa-info-circle" style="font-size: 15px"></i>
+                            </button>
+                          </td>
                           <td>{{lineItem.storeInventory}}</td>
                           <td>
                             <button *ngIf="editable" class="btn btn-danger" type="submit"
@@ -354,6 +402,52 @@
                           </td>
                           <td>
                             {{lineItem.originalOrderQuantity}}
+                            <ng-template #popTemplate>
+                              <div *ngIf="order.stockUpReorderPoints" class="form-inline">
+                                <div class="input-group">
+                                  <label for="graphNumberOfDays2">No. of Days: </label> &nbsp;
+                                  <input type="number" id="graphNumberOfDays2"
+                                         class="form-control-sm form-control text-left col-4"
+                                         (keyup)="changeGraphNumberOfDays($event, lineItem)"
+                                         [(ngModel)]="graphNumberOfDays"/>
+                                  <span class="input-group-append">
+                                  <button class="btn btn-info btn-sm text-white" type="submit"
+                                          (click)="fetchSalesHistory(lineItem)">
+                                    <i class="fa fa-search"></i>
+                                  </button>
+                                </span>
+                                </div>
+                              </div>
+                              <div *ngIf="loadingGraph" class="graph-loading text-center">
+                                <span>Loading Graph Data...</span></div>
+                              <div class="chart-wrapper"
+                                   *ngIf="order.stockUpReorderPoints && !loadingGraph">
+                                <canvas baseChart class="chart"
+                                        [datasets]="lineChartData"
+                                        [labels]="lineChartLabels"
+                                        [options]="lineChartOptions"
+                                        [colors]="lineChartColours"
+                                        [legend]="lineChartLegend"
+                                        [chartType]="lineChartType">
+                                </canvas>
+                              </div>
+                              <div>
+                                <code *ngIf="order.stockUpReorderPoints">Calculated Reorder Point :
+                                  {{lineItem.orderQuantity+lineItem.storeInventory}}</code>
+                                <br/>
+                                <small><code>Reorder Point - Store Inventory = Order Quantity</code></small>
+                                <br/>
+                                <code>({{lineItem.orderQuantity+lineItem.storeInventory}}) -
+                                  ({{lineItem.storeInventory}}) = {{lineItem.orderQuantity}}</code>
+                              </div>
+                            </ng-template>
+                            <button type="button" class="btn btn-link no-padding"
+                                    [popover]="popTemplate"
+                                    popoverTitle="Why {{lineItem.originalOrderQuantity}} quantities?"
+                                    (onShown)="fetchSalesHistory(lineItem)"
+                                    [outsideClick]="true">
+                              <i class="fa fa-info-circle" style="font-size: 15px"></i>
+                            </button>
                           </td>
                           <td>{{lineItem.storeInventory}}</td>
                           <td>
@@ -421,7 +515,8 @@
             <p>Multiple Emails can be comma(,) separated</p>
             <div class="form-group col-sm-12">
               <span>To: </span>
-              <input class="form-control" type="email" name="to" (ngModelChange)="toEmailValidation()" (keyup)="toEmailEmpty()"
+              <input class="form-control" type="email" name="to" (ngModelChange)="toEmailValidation()"
+                     (keyup)="toEmailEmpty()"
                      [(ngModel)]="emailModalData.to"/>
               <span class="text-success"
                     *ngIf="toValidEmailCounter > 0">{{toValidEmailCounter}} valid email(s)</span>
@@ -431,7 +526,8 @@
             </div>
             <div class="form-group col-sm-12">
               <span>Cc: </span>
-              <input class="form-control" type="email" name="cc" (ngModelChange)="ccEmailValidation()" (keyup)="ccEmailEmpty()"
+              <input class="form-control" type="email" name="cc" (ngModelChange)="ccEmailValidation()"
+                     (keyup)="ccEmailEmpty()"
                      [(ngModel)]="emailModalData.cc"/>
               <span class="text-success"
                     *ngIf="ccValidEmailCounter > 0">{{ccValidEmailCounter}} valid email(s)</span>
@@ -442,7 +538,8 @@
             </div>
             <div class="form-group col-sm-12">
               <span>Bcc: </span>
-              <input class="form-control" type="email" name="bcc" (ngModelChange)="bccEmailValidation()" (keyup)="bccEmailEmpty()"
+              <input class="form-control" type="email" name="bcc" (ngModelChange)="bccEmailValidation()"
+                     (keyup)="bccEmailEmpty()"
                      [(ngModel)]="emailModalData.bcc"/>
               <span class="text-success"
                     *ngIf="bccValidEmailCounter > 0">{{bccValidEmailCounter}} valid email(s)</span>

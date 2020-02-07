@@ -10,8 +10,8 @@
       "type": "number"
     },
     "isReturnSale": {
-      "type": "boolean",
-      "default": false
+      "type": "number",
+      "default": 0
     },
     "netAmount": {
       "type": "number"

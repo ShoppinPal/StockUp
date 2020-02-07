@@ -195,7 +195,7 @@
                           <td>{{lineItem.orderQuantity}}</td>
                           <td *ngIf="editable">
                             <div class="form-group">
-                              <div class="input-group">
+                              <div class="input-group quantity-input">
                                 <div *ngIf="!enableBarcode" class="input-group-prepend pointer"
                                      (click)="lineItem.fulfilledQuantity = lineItem.fulfilledQuantity - 1">
                                 <span class="input-group-text">
