@@ -136,7 +136,7 @@
             <i class="fa fa-filter fa-2x"></i>
           </button>
         </div>
-        <div class="card-body card-flex">
+        <div class="card-body" [ngClass]="{'card-flex': isSmallDevice}">
           <div class="row">
             <div class="col-sm-12">
               <tabset>

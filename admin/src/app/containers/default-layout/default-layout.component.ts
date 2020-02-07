@@ -16,7 +16,7 @@ import {LoopBackConfig}        from '../../shared/lb-sdk/lb.config';
 import {SDKStorage} from '../../shared/lb-sdk';
 import {UserProfileService} from "../../shared/services/user-profile.service";
 import {animate, style, transition, trigger} from '@angular/animations';
-
+import {SharedDataService} from '../../shared/services/shared-data.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -38,6 +38,7 @@ export class DefaultLayoutComponent implements OnDestroy {
               private _router: Router,
               private _route: ActivatedRoute,
               private localStorage: SDKStorage,
+              private sharedDataService: SharedDataService,
               @Inject(DOCUMENT) _document?: any) {
 
     this.changes = new MutationObserver((mutations) => {
@@ -55,6 +56,10 @@ export class DefaultLayoutComponent implements OnDestroy {
         return this.userProfile.roles.indexOf(role) !== -1;
       });
     });
+    if (window.screen.width < 992) { // 992 above is desktops and laptops
+      this.isSmallDevice = true;
+      this.sharedDataService.setIsSmallDevice(true);
+    }
 
   }
 
@@ -66,9 +71,6 @@ export class DefaultLayoutComponent implements OnDestroy {
   ngOnInit() {
     this.getRouteData();
     this.subscribeForRouteEvents();
-    if (window.screen.width < 992) { // 992 above is desktops and laptops
-      this.isSmallDevice = true;
-    }
   }
 
   getRouteData() {

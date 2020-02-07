@@ -13,6 +13,7 @@ import {AddProductModalComponent} from '../../shared-components/add-product-moda
 import Utils from '../../../../shared/constants/utils';
 import {BsModalRef, BsModalService} from "ngx-bootstrap/modal";
 import {DeleteOrderComponent} from "../../shared-components/delete-order/delete-order.component";
+import {SharedDataService} from '../../../../shared/services/shared-data.service';
 
 @Component({
   selector: 'app-generated',
@@ -83,6 +84,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
   public lineChartType = 'line';
   public loadingGraph: boolean = false;
   public graphNumberOfDays: number = 7;
+  public isSmallDevice = this.sharedDataService.getIsSmallDevice();
 
   @ViewChild(BaseChartDirective, {static: false}) chart: BaseChartDirective;
 
@@ -93,12 +95,12 @@ export class GeneratedComponent implements OnInit, OnDestroy {
               private _userProfileService: UserProfileService,
               private _eventSourceService: EventSourceService,
               private auth: LoopBackAuth,
-              private modalService: BsModalService) {
+              private modalService: BsModalService,
+              private sharedDataService: SharedDataService) {
   }
 
   ngOnInit() {
     this.userProfile = this._userProfileService.getProfileData();
-
     this._route.data.subscribe((data: any) => {
         this.order = data.stockOrderDetails[0];
         this.emailModalData.to = this.order.supplierModel ? ( this.order.supplierModel.email ? this.order.supplierModel.email : '') : '';
