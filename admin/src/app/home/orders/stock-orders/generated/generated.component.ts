@@ -86,7 +86,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
   public graphNumberOfDays: number = 7;
   public isSmallDevice = this.sharedDataService.getIsSmallDevice();
 
-  @ViewChild(BaseChartDirective, {static: false}) chart: BaseChartDirective;
+  @ViewChild(BaseChartDirective) chart: BaseChartDirective;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -589,16 +589,16 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       //first decide no. of days to display in graph
       this.salesRangeDates = [];
       let millisecondsInDay = 24 * 60 * 60 * 1000;
+      let orderCeatedAt:any = new Date(this.order.createdAt);
       for (let i = this.graphNumberOfDays - 1; i >= 0; i--) {
-        let date = new Date(this.order.createdAt) - (i * millisecondsInDay);
+        let date = orderCeatedAt - (i * millisecondsInDay);
         this.salesRangeDates.push(new Date(date));
       }
       this.lineChartLabels = this.salesRangeDates.map(x => x.getUTCDate() + '/' + (x.getUTCMonth() + 1));
 
       //fetch data for the no. of days decided
       this.lineChartData[0].data.length = 0;
-      let millisecondsInDay = 24 * 60 * 60 * 1000;
-      let firstDateOfSaleInRange = new Date(new Date(this.order.createdAt) - (this.graphNumberOfDays * millisecondsInDay));
+      let firstDateOfSaleInRange = new Date(orderCeatedAt - (this.graphNumberOfDays * millisecondsInDay));
       this.orgModelApi.getSalesLineItemsModels(this.userProfile.orgModelId, {
         where: {
           productModelId: lineItem.productModelId,
