@@ -40,7 +40,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   public creatingPurchaseOrderVend: boolean = false;
   public reportStates: any = constants.REPORT_STATES;
   public isWarehouser: boolean = false;
-  public editable: boolean;
+  public editable: boolean = false;
   public searchSKUFocused: boolean = true;
   public enableBarcode: boolean = true;
   public discrepancyOrderItem: any;
@@ -339,7 +339,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       .subscribe((data: any) => {
           this.order = data[0];
           //fetch line items only if the report status changes from executing to generated
-          if (this.order.state === this.reportStates.GENERATED && previousState !== this.reportStates.GENERATED) {
+          if (this.order.state !== previousState) {
             this.getNotReceivedStockOrderLineItems();
             this.getReceivedStockOrderLineItems();
           }

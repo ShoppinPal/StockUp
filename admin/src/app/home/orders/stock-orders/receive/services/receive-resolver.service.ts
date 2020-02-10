@@ -28,6 +28,7 @@ export class ReceiveResolverService implements Resolve<string>{
     let allowedStates = [
       constants.REPORT_STATES.RECEIVING_PENDING,
       constants.REPORT_STATES.RECEIVING_IN_PROCESS,
+      constants.REPORT_STATES.SUBMITTING_RECEIVALS,
       constants.REPORT_STATES.RECEIVING_FAILURE,
     ];
     let filter = {

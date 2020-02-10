@@ -388,26 +388,34 @@ module.exports = function (ReportModel) {
 
     ReportModel.receiveConsignment = function (orgModelId, reportModelId, res, options) {
         logger.debug({
-            message: 'Will initiate worker to receive order in Vend',
+            message: 'Will change stock order state to submitting receivals',
             reportModelId,
             functionName: 'receiveConsignment',
             options,
         });
-        var payload = {
-            orgModelId: orgModelId,
-            reportModelId: reportModelId,
-            loopbackAccessToken: options.accessToken,
-            op: 'receiveConsignment',
-            eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
-            callId: options.accessToken.userId,
-        };
-        res.send({
-            eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
-            callId: options.accessToken.userId,
-            message: 'Receive Consignment Initiated',
-            data: {}
-        });
-        return workerUtils.sendPayLoad(payload)
+        return ReportModel.updateAll({
+            id: reportModelId
+        }, {
+            state: REPORT_STATES.SUBMITTING_RECEIVALS
+        })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Changed stock order state to submitting receivals, will initiate worker to receive order in Vend',
+                    response,
+                    reportModelId,
+                    functionName: 'receiveConsignment',
+                    options,
+                });
+                var payload = {
+                    orgModelId: orgModelId,
+                    reportModelId: reportModelId,
+                    loopbackAccessToken: options.accessToken,
+                    op: 'receiveConsignment',
+                    eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
+                    callId: options.accessToken.userId,
+                };
+                return workerUtils.sendPayLoad(payload);
+            })
             .then(function (response) {
                 logger.debug({
                     message: 'Sent receiveConsignment operation to worker',

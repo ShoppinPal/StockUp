@@ -31,7 +31,7 @@
         </div>
         <div class="card-footer">
           <div class="row">
-            <div class="col-sm-3">
+            <div class="col-sm-3" *ngIf="editable">
               <span class="input-group-btn" *ngIf="editable">
                 <button class="btn btn-success btn-block" type="button" (click)="receiveConsignment()">
                   <i class="fa fa-dropbox"></i>
@@ -166,7 +166,7 @@
                       <th>Delivered Quantity</th>
                       <th>Received Quantity</th>
                       <th>Store Inventory</th>
-                      <th>Receive</th>
+                      <th *ngIf="editable">Receive</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -218,7 +218,7 @@
                             </div>
                           </td>
                           <td>{{lineItem.storeInventory}}</td>
-                          <td>
+                          <td *ngIf="editable">
                             <button *ngIf="!enableBarcode" class="btn btn-danger" type="submit"
                                     (click)="receiveItem(lineItem)">
                               <i class="fa fa-check"></i> Receive
@@ -276,8 +276,7 @@
                       <th>Ordered Quantity</th>
                       <th>Delivered Quantity</th>
                       <th>Received Quantity</th>
-                      <th>Remove</th>
-
+                      <th *ngIf="editable">Remove</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -309,7 +308,7 @@
                           </td>
                           <td>{{lineItem.fulfilledQuantity}}</td>
                           <td>{{lineItem.receivedQuantity}}</td>
-                          <td>
+                          <td *ngIf="editable">
                             <button *ngIf="!enableBarcode" class="btn btn-danger" type="submit"
                                     (click)="removeItem(lineItem)">
                               <i class="fa fa-remove"></i> Remove
