@@ -140,13 +140,13 @@
             <i class="fa fa-filter fa-2x"></i>
           </button>
         </div>
-        <div class="card-body">
+        <div class="card-body" [ngClass]="{'card-flex': isSmallDevice}">
           <div class="row">
             <div class="col-sm-12">
               <tabset>
                 <tab heading="Not Received ({{totalNotReceivedLineItems}})">
 
-                  <table class="table table-hover">
+                  <table class="table table-responsive-md table-hover">
                     <thead>
                     <tr>
                       <th></th>
@@ -198,7 +198,7 @@
                           <td>{{lineItem.fulfilledQuantity}}</td>
                           <td>
                             <div class="form-group">
-                              <div class="input-group">
+                              <div class="input-group quantity-input">
                                 <div *ngIf="!enableBarcode" class="input-group-prepend pointer"
                                      (click)="lineItem.receivedQuantity = lineItem.receivedQuantity - 1">
                                 <span class="input-group-text">
@@ -257,7 +257,7 @@
                 </tab>
 
                 <tab heading="Received ({{totalReceivedLineItems}})">
-                  <table class="table table-hover">
+                  <table class="table table-responsive-md table-hover">
                     <thead>
                     <tr>
                       <th></th>

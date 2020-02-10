@@ -9,7 +9,7 @@ var _ = require('underscore');
 var Promise = require('bluebird');
 var maxBatchSize = 1000;
 var dbUrl = process.env.DB_URL;
-var inventoryBatchNumber = 0;
+var inventoryBatchNumber;
 
 var runMe = function (vendConnectionInfo, orgModelId, versionsAfter) {
 
@@ -25,6 +25,7 @@ var runMe = function (vendConnectionInfo, orgModelId, versionsAfter) {
                 orgModelId,
                 message: 'Connected to mongodb database',
             });
+            inventoryBatchNumber = 0;
             return fetchInventoryRecursively(dbInstance, vendConnectionInfo, orgModelId, versionsAfter);
         })
         .finally(function () {

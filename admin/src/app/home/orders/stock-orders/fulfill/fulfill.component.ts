@@ -9,6 +9,7 @@ import {constants} from "../../../../shared/constants/constants";
 import {ModalDirective} from 'ngx-bootstrap/modal';
 import {BsModalRef, BsModalService} from "ngx-bootstrap/modal";
 import {DeleteOrderComponent} from "../../shared-components/delete-order/delete-order.component";
+import {SharedDataService} from '../../../../shared/services/shared-data.service';
 
 @Component({
   selector: 'app-fulfill',
@@ -45,6 +46,7 @@ export class FulfillComponent implements OnInit {
   public sortColumn = 'productModelSku';
   showAddProductModal: boolean;
   public bsModalRef: BsModalRef;
+  public isSmallDevice = this.sharedDataService.getIsSmallDevice();
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -52,7 +54,8 @@ export class FulfillComponent implements OnInit {
               private toastr: ToastrService,
               private _userProfileService: UserProfileService,
               private auth: LoopBackAuth,
-              private modalService: BsModalService) {
+              private modalService: BsModalService,
+              private sharedDataService: SharedDataService) {
   }
 
   ngOnInit() {
@@ -96,17 +99,17 @@ export class FulfillComponent implements OnInit {
     }
     let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
     let whereFilter = {
-        reportModelId: this.order.id,
-        approved: true,
-        fulfilledQuantity: {
-          gt: 0
-        }
-      };
-      if(productModelIds && productModelIds.length) {
-        whereFilter['productModelId'] = {
-          inq : productModelIds
-        };
+      reportModelId: this.order.id,
+      approved: true,
+      fulfilledQuantity: {
+        gt: 0
       }
+    };
+    if (productModelIds && productModelIds.length) {
+      whereFilter['productModelId'] = {
+        inq: productModelIds
+      };
+    }
     const filter: any = {
       where: whereFilter,
       include: [
@@ -162,15 +165,15 @@ export class FulfillComponent implements OnInit {
     }
     let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
     let whereFilter = {
-        reportModelId: this.order.id,
-        approved: true,
-        fulfilled: false
+      reportModelId: this.order.id,
+      approved: true,
+      fulfilled: false
+    };
+    if (productModelIds && productModelIds.length) {
+      whereFilter['productModelId'] = {
+        inq: productModelIds
       };
-      if(productModelIds && productModelIds.length) {
-        whereFilter['productModelId'] = {
-          inq : productModelIds
-        };
-      }
+    }
     let filter = {
       where: whereFilter,
       include: [
@@ -259,11 +262,12 @@ export class FulfillComponent implements OnInit {
 
   searchProductBySku(sku?: string) {
     this.loading = true;
-    var pattern = new RegExp('.*'+sku+'.*', "i"); /* case-insensitive RegExp search */
+    var pattern = new RegExp('.*' + sku + '.*', "i");
+    /* case-insensitive RegExp search */
     var filterData = pattern.toString();
     this.orgModelApi.getProductModels(this.userProfile.orgModelId, {
       where: {
-        sku: { "regexp": filterData }
+        sku: {"regexp": filterData}
       }
     }).subscribe((data: any) => {
       if (data.length) {
@@ -415,8 +419,8 @@ export class FulfillComponent implements OnInit {
     this.bsModalRef = this.modalService.show(DeleteOrderComponent, {initialState: {orderId: this.order.id}});
   }
 
-keyUpEvent(event, searchSKUText) {
-    if(event.keyCode == '13' && !this.enableBarcode) {
+  keyUpEvent(event, searchSKUText) {
+    if (event.keyCode == '13' && !this.enableBarcode) {
       this.searchProductBySku(searchSKUText)
     }
   }

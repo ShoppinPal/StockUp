@@ -9,7 +9,7 @@ const {
     notReceivedStates,
 } = require('../../jobs/utils/utils');
 
-var fulfillAndReceiveConsignment = function(payload, config, taskId, messageId) {
+var fulfillAndReceiveConsignment = function (payload, config, taskId, messageId) {
     'use strict';
     var Promise = require('bluebird');
     const ObjectId = require('mongodb').ObjectID;
@@ -78,6 +78,7 @@ var runMe = function (payload, config, taskId, messageId) {
         var db = null; //database connected
         const rp = require('request-promise');
         var productInstances, inventoryInstances, reportModel, supplier;
+        var toGenerateReorderPoints = false;
 
         logger.debug({
             messageId: messageId,
@@ -123,6 +124,9 @@ var runMe = function (payload, config, taskId, messageId) {
                     }),
                     db.collection('SupplierModel').findOne({
                         _id: ObjectId(payload.supplierModelId)
+                    }),
+                    db.collection('OrgModel').findOne({
+                        _id: ObjectId(payload.orgModelId)
                     })
                 ]);
             })
@@ -134,13 +138,12 @@ var runMe = function (payload, config, taskId, messageId) {
                 });
                 return Promise.reject('Could not find store and supplier details');
             })
-            .spread(function (storeModelInstance, supplierModelInstance) {
+            .spread(function (storeModelInstance, supplierModelInstance, orgModelInstance) {
                 supplier = supplierModelInstance;
                 if (!storeModelInstance) {
                     logger.error({
                         message: 'Could not find store info, will exit',
-                        storeModelInstance,
-                        supplierModelInstance,
+                        storeModelId: payload.storeModelId,
                         messageId
                     });
                     return Promise.reject('Could not find store info, will exit');
@@ -148,23 +151,32 @@ var runMe = function (payload, config, taskId, messageId) {
                 if (!supplierModelInstance) {
                     logger.error({
                         message: 'Could not find supplier info, will exit',
-                        storeModelInstance,
-                        supplierModelInstance,
+                        supplierModelId: payload.supplierModelId,
                         messageId
                     });
                     return Promise.reject('Could not find supplier info, will exit');
                 }
+                if (!orgModelInstance) {
+                    logger.error({
+                        message: 'Could not find organisation info, will exit',
+                        orgModelId: payload.orgModelId,
+                        messageId
+                    });
+                    return Promise.reject('Could not find organisation info, will exit');
+                }
                 logger.debug({
-                    message: 'Found supplier and store info, will create a new report model',
+                    message: 'Found supplier, org and store info, will create a new report model',
                     storeModelInstance,
                     supplierModelInstance,
+                    orgModelInstance,
                     messageId
                 });
+                toGenerateReorderPoints = orgModelInstance.stockUpReorderPoints;
                 var supplierStoreCode = supplierModelInstance.storeIds ? supplierModelInstance.storeIds[payload.storeModelId] : '';
                 supplierStoreCode = supplierStoreCode ? '#' + supplierStoreCode : '';
                 var TODAYS_DATE = new Date();
                 var name = payload.name || storeModelInstance.name + ' - ' + supplierStoreCode + ' ' + supplierModelInstance.name + ' - ' + TODAYS_DATE.getFullYear() + '-' + (TODAYS_DATE.getMonth() + 1) + '-' + TODAYS_DATE.getDate();
-                if (payload.reportModelId){
+                if (payload.reportModelId) {
                     return Promise.resolve({
                         ops: [
                             {
@@ -193,13 +205,33 @@ var runMe = function (payload, config, taskId, messageId) {
                 });
                 return Promise.reject('Could not create a report model');
             })
+            .then(function (result) {
+                reportModel = result.ops[0];
+                logger.debug({
+                    message: 'Created report model instance for store, will generate new reorder points',
+                    result,
+                    commandName,
+                    messageId
+                });
+                if (toGenerateReorderPoints) {
+                    var generateReorderPoints = require('./../generate-reorder-points/generate-reorder-points');
+                    return generateReorderPoints.run(payload, config, taskId, messageId);
+                }
+                else {
+                    logger.debug({
+                        message: 'Reorder points calculation set to false for org, will move on',
+                        messageId
+                    });
+                    return Promise.resolve('Reorder points calculation set to false for org, will move on');
+                }
+            })
             .then(function (response) {
                 logger.debug({
                     messageId: messageId,
                     response,
-                    message: `Created report model, Will look for products belonging to supplier ID ${payload.supplierModelId}`
+                    message: `Created reorder points, Will look for products belonging to supplier ID ${payload.supplierModelId}`
                 });
-                reportModel = response.ops[0];
+                // reportModel = response.ops[0];
                 return db.collection('ProductModel').aggregate([
                     {
                         $match: {
@@ -309,7 +341,14 @@ var runMe = function (payload, config, taskId, messageId) {
                         }
                         else {
                             var quantityOnHand = Number(inventory.inventory_level);
-                            var desiredStockLevel = Number(inventory.reorder_point);
+                            var desiredStockLevel, thresholdStockLevel;
+                            if (toGenerateReorderPoints) {
+                                desiredStockLevel = inventory.stockUpReorderPoint;
+                                thresholdStockLevel = inventory.stockUpReorderThreshold;
+                            }
+                            else {
+                                desiredStockLevel = Number(inventory.reorder_point);
+                            }
                             var orderQuantity = 0;
                             if (quantityOnHand<0) {
                                 logger.debug({
@@ -318,7 +357,14 @@ var runMe = function (payload, config, taskId, messageId) {
                                 });
                             }
                             if (!_.isNaN(desiredStockLevel) && _.isNumber(desiredStockLevel)) {
-                                orderQuantity = desiredStockLevel - quantityOnHand;
+                                if (!toGenerateReorderPoints) {
+                                    orderQuantity = desiredStockLevel - quantityOnHand;
+                                }
+                                else {
+                                    if (quantityOnHand<thresholdStockLevel) {
+                                        orderQuantity = desiredStockLevel - quantityOnHand;
+                                    }
+                                }
                                 if (orderQuantity>0) {
                                     useRow = true;
                                     if (caseQuantity) {
@@ -339,18 +385,26 @@ var runMe = function (payload, config, taskId, messageId) {
                                 }
                             }
                             else {
-                                //logger.debug({ messageId: messageId, message: 'give humans a chance to look over dubious data', dilutedProduct: dilutedProduct });
+                                logger.debug({
+                                    message: 'Could not fetch stockup reorder point',
+                                    eachProduct,
+                                    inventory,
+                                    messageId
+                                });
                                 desiredStockLevel = undefined;
                                 orderQuantity = undefined;
                                 useRow = true;
+                                if(toGenerateReorderPoints){
+                                    useRow = false;
+                                }
                             }
                         }
 
                         if (useRow) {
-                            var categoryName = eachProduct.categoryModel && eachProduct.categoryModel.length ? eachProduct.categoryModel[0].name: 'No Category';
-                            let isApproved = supplier.reportDefaultState ? approvedStates.includes(supplier.reportDefaultState): false;
-                            let isFulfilled = supplier.reportDefaultState ? fulfilledStates.includes(supplier.reportDefaultState): false;
-                            let isReceived = supplier.reportDefaultState ? receivedStates.includes(supplier.reportDefaultState): false;
+                            var categoryName = eachProduct.categoryModel && eachProduct.categoryModel.length ? eachProduct.categoryModel[0].name : 'No Category';
+                            let isApproved = supplier.reportDefaultState ? approvedStates.includes(supplier.reportDefaultState) : false;
+                            let isFulfilled = supplier.reportDefaultState ? fulfilledStates.includes(supplier.reportDefaultState) : false;
+                            let isReceived = supplier.reportDefaultState ? receivedStates.includes(supplier.reportDefaultState) : false;
                             var row = {
                                 productModelId: ObjectId(eachProduct._id),
                                 productModelName: eachProduct.name, //need for sorting
@@ -359,8 +413,8 @@ var runMe = function (payload, config, taskId, messageId) {
                                 desiredStockLevel: desiredStockLevel,
                                 orderQuantity: orderQuantity,
                                 originalOrderQuantity: orderQuantity,
-                                fulfilledQuantity: isFulfilled ? orderQuantity: 0,
-                                receivedQuantity: isReceived? orderQuantity : 0,
+                                fulfilledQuantity: isFulfilled ? orderQuantity : 0,
+                                receivedQuantity: isReceived ? orderQuantity : 0,
                                 caseQuantity: caseQuantity,
                                 supplyPrice: eachProduct.supply_price,
                                 supplierModelId: ObjectId(eachProduct.supplierModelId),
@@ -422,10 +476,10 @@ var runMe = function (payload, config, taskId, messageId) {
                 if (response === 'ERROR_REPORT') {
                     return Promise.all([
                         db.collection('ReportModel').updateOne({_id: ObjectId(reportModel._id)}, {
-                        $set: {
-                            state: REPORT_STATES.PROCESSING_FAILURE
-                        }
-                    }),
+                            $set: {
+                                state: REPORT_STATES.PROCESSING_FAILURE
+                            }
+                        }),
                         response
                     ]);
                 }
@@ -445,7 +499,7 @@ var runMe = function (payload, config, taskId, messageId) {
                             response
                         ]);
                         //If order is not yet sent to supplier or order is has not been received yet
-                    } else if (notApprovedStates.includes(supplier.reportDefaultState) ||
+                    }else if (notApprovedStates.includes(supplier.reportDefaultState) ||
                         notReceivedStates.includes(supplier.reportDefaultState)
                     ) {
                         logger.debug({
@@ -460,7 +514,7 @@ var runMe = function (payload, config, taskId, messageId) {
                             }),
                             response
                         ]);
-                    } else {
+                    }else {
                         logger.debug({
                             messageId: messageId,
                             supplierDefaultState: supplier.reportDefaultState,
@@ -473,7 +527,7 @@ var runMe = function (payload, config, taskId, messageId) {
                             reportModelId: reportModel._id
                         };
                         return Promise.all([
-                             generatePurchaseOrderVend.run(purchaseOrderPayload, config, taskId, messageId),
+                            generatePurchaseOrderVend.run(purchaseOrderPayload, config, taskId, messageId),
                             response
                         ]);
 
@@ -488,12 +542,12 @@ var runMe = function (payload, config, taskId, messageId) {
                 });
                 return Promise.reject('Could not update report status');
             })
-            .then(function([updateResult, result]){
-                if (result === 'ERROR_REPORT'){
+            .then(function ([updateResult, result]) {
+                if (result === 'ERROR_REPORT') {
                     return Promise.reject('Error while processing order');
-                } else if(supplier.reportDefaultState === REPORT_STATES.COMPLETE) {
-                   return fulfillAndReceiveConsignment(Object.assign(payload, {reportModel}, {supplier}, {db}), config, taskId, messageId);
-                } else {
+                }else if (supplier.reportDefaultState === REPORT_STATES.COMPLETE) {
+                    return fulfillAndReceiveConsignment(Object.assign(payload, {reportModel}, {supplier}, {db}), config, taskId, messageId);
+                }else {
                     return Promise.resolve(updateResult);
 
                 }
@@ -507,12 +561,12 @@ var runMe = function (payload, config, taskId, messageId) {
                         'Authorization': payload.loopbackAccessToken.id
                     },
                     body: new utils.Notification(
-                           utils.workerType.GENERATE_STOCK_ORDER_VEND,
-                           payload.eventType,
-                           utils.workerStatus.SUCCESS,
-                            {success: true, reportModelId: payload.reportModelId},
-                            payload.callId
-                        )
+                        utils.workerType.GENERATE_STOCK_ORDER_VEND,
+                        payload.eventType,
+                        utils.workerStatus.SUCCESS,
+                        {success: true, reportModelId: payload.reportModelId},
+                        payload.callId
+                    )
 
                 };
                 logger.debug({
