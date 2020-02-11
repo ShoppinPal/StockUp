@@ -307,7 +307,7 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                             }
 
                             var millisecondsPerDay = 24 * 60 * 60 * 1000;
-                            totalNumberOfDaysSinceFirstSold = Math.round((TODAYS_DATE - new Date(firstSale)) / millisecondsPerDay);
+                            totalNumberOfDaysSinceFirstSold = Math.round((TODAYS_DATE - new Date(firstSale)) / millisecondsPerDay) || 1;
                             var averageDailyDemand = totalQuantitiesSold / totalNumberOfDaysSinceFirstSold;
                             var standardDeviation;
                             var averageMinusValueSquareSummation = 0; //sigma of (x minus x bar)^2
@@ -353,8 +353,8 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                                     averageDailyDemandCalculationDate: new Date(),
                                     standardDeviationCalculationDate: new Date(),
                                     salesDateRangeInDays: orgModelInstance.salesDateRangeInDays,
-                                    reorder_point: Math.round(tempMax), //reorder quantities to this point
-                                    reorder_threshold: Math.round(tempMin), //reorder quantities if product below this level
+                                    stockUpReorderPoint: Math.round(tempMax), //reorder quantities to this point
+                                    stockUpReorderThreshold: Math.round(tempMin), //reorder quantities if product below this level
                                 }
                             });
                         }
@@ -371,8 +371,8 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                                 $set: {
                                     averageDailyDemand: null,
                                     standardDeviation: null,
-                                    reorder_point: null,
-                                    reorder_threshold: null,
+                                    stockUpReorderPoint: null,
+                                    stockUpReorderThreshold: null,
                                     salesDateRangeInDays: orgModelInstance.salesDateRangeInDays,
                                     averageDailyDemandCalculationDate: new Date(),
                                     standardDeviationCalculationDate: new Date()

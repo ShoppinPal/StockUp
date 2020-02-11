@@ -9,21 +9,25 @@ import {FormsModule} from '@angular/forms';
 import {AppAsideModule} from '@coreui/angular';
 import {FileUploadModule} from 'ng2-file-upload';
 import {CollapseModule} from 'ngx-bootstrap/collapse';
+import {ChartsModule} from 'ng2-charts';
 import {PopoverModule} from 'ngx-bootstrap/popover';
 import {PaginationModule} from 'ngx-bootstrap/pagination';
 import {ModalModule} from 'ngx-bootstrap/modal';
 import {TabsModule} from 'ngx-bootstrap/tabs';
+import {TooltipModule} from 'ngx-bootstrap/tooltip';
 import {AutoFocusDirective} from '../home/products/bin-locations/directives/auto-focus.directive';
 import { DebounceKeyUpDirective } from './directives/debounce-key-up/debounce-key-up.directive';
 import {CommentsComponent} from "../home/orders/shared-components/comments/comments.component";
 import {NgSelectModule} from '@ng-select/ng-select';
 import {DeleteOrderComponent} from "../home/orders/shared-components/delete-order/delete-order.component";
+import {SharedDataService} from "./services/shared-data.service";
 
 @NgModule({
   imports: [
     AppAsideModule,
     BsDropdownModule,
     CommonModule,
+    ChartsModule,
     FormsModule,
     LoadingModule,
     FileUploadModule,
@@ -33,6 +37,7 @@ import {DeleteOrderComponent} from "../home/orders/shared-components/delete-orde
     PaginationModule,
     PopoverModule.forRoot(),
     TabsModule,
+    TooltipModule,
     ModalModule.forRoot(),
     NgSelectModule
   ],
@@ -42,6 +47,7 @@ import {DeleteOrderComponent} from "../home/orders/shared-components/delete-orde
     FormsModule,
     BsDropdownModule,
     TypeaheadModule,
+    ChartsModule,
     LoadingModule,
     CommentsComponent,
     DeleteOrderComponent,
@@ -53,6 +59,7 @@ import {DeleteOrderComponent} from "../home/orders/shared-components/delete-orde
     PaginationModule,
     PopoverModule,
     TabsModule,
+    TooltipModule,
     NgSelectModule,
     AutoFocusDirective,
     DebounceKeyUpDirective,
@@ -64,7 +71,7 @@ export class SharedModule {
   static forRoot(): ModuleWithProviders {
     return {
       ngModule: SharedModule,
-      providers: [UserProfileService, AccessService, UserResolverService]
+      providers: [UserProfileService, AccessService, UserResolverService, SharedDataService]
     };
   }
 }

@@ -518,13 +518,13 @@ function routeToWorker(payload, config, taskId, messageId, receiptHandle) {
                     return Promise.reject('Internal Server Error');
                 });
         }
-        else if (payload.op === 'generateReorderPointsMSD') {
+        else if (payload.op === 'generateReorderPoints') {
             logger.tag('Routed').info({
                 messageId: messageId,
-                message: 'routed to generateReorderPointsMSD'
+                message: 'routed to generateReorderPoints'
             });
-            var generateReorderPointsMSD = require('./workers-v2/generate-reorder-points/generate-reorder-points-msd');
-            return generateReorderPointsMSD.run(payload, config, taskId, messageId)
+            var generateReorderPoints = require('./workers-v2/generate-reorder-points/generate-reorder-points');
+            return generateReorderPoints.run(payload, config, taskId, messageId)
                 .then(function () {
                     logger.debug({messageId: messageId, message: 'generated reorder points successfully'});
                     return Promise.resolve(receiptHandle);

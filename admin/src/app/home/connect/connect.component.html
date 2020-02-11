@@ -67,7 +67,7 @@
           Sync Data - One time
         </div>
         <div class="card-body text-center">
-          <table class="table table-hover table-striped table-align-middle mb-0" *ngIf="integration.length">
+          <table class="table table-hover table-responsive-md table-striped table-align-middle mb-0" *ngIf="integration.length">
             <thead>
             <th>Data object</th>
             <th>Fetch</th>
@@ -168,7 +168,7 @@
                   </span>
             </div>
           </div>
-          <table class="table table-hover table-striped table-align-middle mb-0" *ngIf="integration.length">
+          <table class="table table-hover table-responsive-md table-striped table-align-middle mb-0" *ngIf="integration.length">
             <thead>
             <th>Data object</th>
             <th>Sync Status</th>
@@ -224,6 +224,23 @@
               </td>
               <td>
                 {{getSyncObject('suppliers')?.lastSyncedAt | date: 'medium'}}
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Sales
+              </td>
+              <td>
+                <label class="switch switch-3d switch-primary">
+                  <input type="checkbox" class="switch-input" [ngModel]="checkSync('sales')" disabled>
+                  <span class="switch-slider"></span>
+                </label>
+                <div [ngClass]="{'d-none': !syncing.sales}" class="spinner-border spinner-border-sm spinner-margins" role="status">
+                  <span class="sr-only">Loading...</span>
+                </div>
+              </td>
+              <td>
+                {{getSyncObject('sales')?.lastSyncedAt | date: 'medium'}}
               </td>
             </tr>
             </tbody>

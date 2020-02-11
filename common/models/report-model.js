@@ -282,50 +282,61 @@ module.exports = function (ReportModel) {
             options,
         });
 
-        return ReportModel.app.models.StoreModel.findOne({
-            where: {
-                objectId: storeModelId
-            }
-        }).catch(function (error) {
-            logger.error({
-                message: 'Could not find a store with this id',
-                storeModelId,
-                error,
-            });
-            return Promise.reject('Could not find a store with this id');
-        }).then(function (storeModelInstance) {
-            logger.debug({
-                message: 'Found store, will create a report model',
-                storeModelInstance,
-            });
-            var name;
-            if (!name) {
-                const TODAYS_DATE = new Date();
-                name = storeModelInstance.name + ' - ' + TODAYS_DATE.getFullYear() + '-' + (TODAYS_DATE.getMonth() + 1) + '-' + TODAYS_DATE.getDate();
-            }
-            return ReportModel.create({
-                name: name,
-                orgModelId,
-                userModelId: options.accessToken.userId, // explicitly setup the foreignKeys for related models
-                storeModelId,
-                categoryModelId,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                state: REPORT_STATES.PROCESSING,
-                deliverFromStoreModelId: warehouseModelId,
-                percentagePushedToMSD: 0,
-                transferOrderNumber: null,
-                transferOrderCount: 0
-            });
-        }).catch(function (error) {
-            logger.error({
-                error,
-                message: 'Could not create report model for this store',
-                storeModelId
-            });
-            return Promise.reject('Could not create report model for this store');
-        })
+        return Promise.all([
+            ReportModel.app.models.StoreModel.findOne({
+                where: {
+                    objectId: storeModelId
+                }
+            }),
+            ReportModel.app.models.OrgModel.findOne({
+                where: {
+                    id: orgModelId
+                }
+            })
+        ])
 
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not find a store with this id',
+                    storeModelId,
+                    error,
+                });
+                return Promise.reject('Could not find a store with this id');
+            })
+            .spread(function (storeModelInstance, orgModelInstance) {
+                logger.debug({
+                    message: 'Found store, will create a report model',
+                    storeModelInstance,
+                });
+                var name;
+                if (!name) {
+                    const TODAYS_DATE = new Date();
+                    name = storeModelInstance.name + ' - ' + TODAYS_DATE.getFullYear() + '-' + (TODAYS_DATE.getMonth() + 1) + '-' + TODAYS_DATE.getDate();
+                }
+                return ReportModel.create({
+                    name: name,
+                    orgModelId,
+                    userModelId: options.accessToken.userId, // explicitly setup the foreignKeys for related models
+                    storeModelId,
+                    categoryModelId,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                    state: REPORT_STATES.PROCESSING,
+                    deliverFromStoreModelId: warehouseModelId,
+                    percentagePushedToMSD: 0,
+                    transferOrderNumber: null,
+                    transferOrderCount: 0,
+                    stockUpReorderPoints: orgModelInstance.stockUpReorderPoints
+                });
+            })
+            .catch(function (error) {
+                logger.error({
+                    error,
+                    message: 'Could not create report model for this store',
+                    storeModelId
+                });
+                return Promise.reject('Could not create report model for this store');
+            })
             .then(function (reportInstance) {
                 if (res)
                     res.send({
@@ -377,26 +388,34 @@ module.exports = function (ReportModel) {
 
     ReportModel.receiveConsignment = function (orgModelId, reportModelId, res, options) {
         logger.debug({
-            message: 'Will initiate worker to receive order in Vend',
+            message: 'Will change stock order state to submitting receivals',
             reportModelId,
             functionName: 'receiveConsignment',
             options,
         });
-        var payload = {
-            orgModelId: orgModelId,
-            reportModelId: reportModelId,
-            loopbackAccessToken: options.accessToken,
-            op: 'receiveConsignment',
-            eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
-            callId: options.accessToken.userId,
-        };
-        res.send({
-            eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
-            callId: options.accessToken.userId,
-            message: 'Receive Consignment Initiated',
-            data: {}
-        });
-        return workerUtils.sendPayLoad(payload)
+        return ReportModel.updateAll({
+            id: reportModelId
+        }, {
+            state: REPORT_STATES.SUBMITTING_RECEIVALS
+        })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Changed stock order state to submitting receivals, will initiate worker to receive order in Vend',
+                    response,
+                    reportModelId,
+                    functionName: 'receiveConsignment',
+                    options,
+                });
+                var payload = {
+                    orgModelId: orgModelId,
+                    reportModelId: reportModelId,
+                    loopbackAccessToken: options.accessToken,
+                    op: 'receiveConsignment',
+                    eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
+                    callId: options.accessToken.userId,
+                };
+                return workerUtils.sendPayLoad(payload);
+            })
             .then(function (response) {
                 logger.debug({
                     message: 'Sent receiveConsignment operation to worker',
@@ -436,6 +455,11 @@ module.exports = function (ReportModel) {
             ReportModel.app.models.SupplierModel.findOne({
                 where: {
                     id: supplierModelId
+                }
+            }),
+            ReportModel.app.models.OrgModel.findOne({
+                where: {
+                    id: orgModelId
                 }
             })
         ])
@@ -481,7 +505,8 @@ module.exports = function (ReportModel) {
                     orgModelId: orgModelId,
                     deliverFromStoreModelId: warehouseModelId,
                     createdAt: new Date(),
-                    updatedAt: new Date()
+                    updatedAt: new Date(),
+                    stockUpReorderPoints: response[2].stockUpReorderPoints
                 });
             })
             .catch(function (error) {
@@ -827,7 +852,7 @@ module.exports = function (ReportModel) {
             })
             .catch(function (error) {
                 logger.error({
-                    message: 'Could not send generateStockOrderMSD to worker',
+                    message: 'Could not send createTransferOrderMSD to worker',
                     options,
                     error,
                     functionName: 'createTransferOrderMSD'
@@ -1426,8 +1451,10 @@ module.exports = function (ReportModel) {
                 var inventory = _.find(inventoryInstances, function (eachInventory) {
                     return eachInventory.productModelId.toString() === product.id.toString();
                 });
-                quantityOnHand = Number(inventory.inventory_level);
-                desiredStockLevel = Number(inventory.reorder_point);
+                if (inventory) {
+                    quantityOnHand = Number(inventory.inventory_level);
+                    desiredStockLevel = Number(inventory.reorder_point);
+                }
                 orderQuantity = 0;
                 if (quantityOnHand<0) {
                     logger.debug({

@@ -11,7 +11,7 @@ import {EventSourceService} from '../../../../shared/services/event-source.servi
 import {ModalDirective} from 'ngx-bootstrap';
 import {BsModalRef, BsModalService} from "ngx-bootstrap/modal";
 import {DeleteOrderComponent} from "../../shared-components/delete-order/delete-order.component";
-
+import {SharedDataService} from '../../../../shared/services/shared-data.service';
 
 @Component({
   selector: 'app-receive',
@@ -40,7 +40,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   public creatingPurchaseOrderVend: boolean = false;
   public reportStates: any = constants.REPORT_STATES;
   public isWarehouser: boolean = false;
-  public editable: boolean;
+  public editable: boolean = false;
   public searchSKUFocused: boolean = true;
   public enableBarcode: boolean = true;
   public discrepancyOrderItem: any;
@@ -49,6 +49,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   public sortColumn = 'productModelSku';
   showAddProductModal: boolean;
   public bsModalRef: BsModalRef;
+  public isSmallDevice = this.sharedDataService.getIsSmallDevice();
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -57,7 +58,8 @@ export class ReceiveComponent implements OnInit, OnDestroy {
               private _userProfileService: UserProfileService,
               private _eventSourceService: EventSourceService,
               private auth: LoopBackAuth,
-              private modalService: BsModalService) {
+              private modalService: BsModalService,
+              private sharedDataService: SharedDataService) {
   }
 
   ngOnInit() {
@@ -99,17 +101,17 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     }
     let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
     let whereFilter = {
-        reportModelId: this.order.id,
-        fulfilled: true,
-        receivedQuantity: {
-          gt: 0
-        }
-      };
-      if(productModelIds && productModelIds.length) {
-        whereFilter['productModelId'] = {
-          inq : productModelIds
-        };
+      reportModelId: this.order.id,
+      fulfilled: true,
+      receivedQuantity: {
+        gt: 0
       }
+    };
+    if (productModelIds && productModelIds.length) {
+      whereFilter['productModelId'] = {
+        inq: productModelIds
+      };
+    }
     const filter: any = {
       where: whereFilter,
       include: [
@@ -164,15 +166,15 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     }
     let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
     let whereFilter = {
-        reportModelId: this.order.id,
-        fulfilled: true,
-        received: false
+      reportModelId: this.order.id,
+      fulfilled: true,
+      received: false
+    };
+    if (productModelIds && productModelIds.length) {
+      whereFilter['productModelId'] = {
+        inq: productModelIds
       };
-      if(productModelIds && productModelIds.length) {
-        whereFilter['productModelId'] = {
-          inq : productModelIds
-        };
-      }
+    }
     let filter = {
       where: whereFilter,
       include: [
@@ -258,17 +260,18 @@ export class ReceiveComponent implements OnInit, OnDestroy {
 
   searchProductBySku(sku?: string) {
     this.loading = true;
-    var pattern = new RegExp('.*'+sku+'.*', "i"); /* case-insensitive RegExp search */
+    var pattern = new RegExp('.*' + sku + '.*', "i");
+    /* case-insensitive RegExp search */
     var filterData = pattern.toString();
     this.orgModelApi.getProductModels(this.userProfile.orgModelId, {
       where: {
-        sku: { "regexp": filterData }
+        sku: {"regexp": filterData}
       }
     }).subscribe((data: any) => {
       if (data.length) {
         var productModelIds = data.map(function filterProductIds(eachProduct) {
-        return eachProduct.id;
-      });
+          return eachProduct.id;
+        });
         this.getReceivedStockOrderLineItems(this.lineItemsLimitPerPage, 0, productModelIds);
         this.getNotReceivedStockOrderLineItems(this.lineItemsLimitPerPage, 0, productModelIds);
       }
@@ -336,7 +339,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       .subscribe((data: any) => {
           this.order = data[0];
           //fetch line items only if the report status changes from executing to generated
-          if (this.order.state === this.reportStates.GENERATED && previousState !== this.reportStates.GENERATED) {
+          if (this.order.state !== previousState) {
             this.getNotReceivedStockOrderLineItems();
             this.getReceivedStockOrderLineItems();
           }
@@ -450,8 +453,9 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   openDeleteModal() {
     this.bsModalRef = this.modalService.show(DeleteOrderComponent, {initialState: {orderId: this.order.id}});
   }
+
   keyUpEvent(event, searchSKUText) {
-    if(event.keyCode == '13' && !this.enableBarcode && searchSKUText !== '') {
+    if (event.keyCode == '13' && !this.enableBarcode && searchSKUText !== '') {
       this.searchProductBySku(searchSKUText)
     }
   }

@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {SchedulerModel} from '../../shared/lb-sdk/models';
-import {OrgModelApi, SchedulerModelApi} from '../../shared/lb-sdk/services/custom';
+import {OrgModelApi} from '../../shared/lb-sdk/services/custom';
 import {UserProfileService} from '../../shared/services/user-profile.service';
 import * as moment from 'moment';
 import {ToastrService} from "ngx-toastr";
@@ -12,7 +11,7 @@ import {combineLatest} from "rxjs";
   styleUrls: ['./schedules.component.scss']
 })
 export class SchedulesComponent implements OnInit {
-  public schedules: SchedulerModel[];
+  public schedules: Array<any> = [];
   public loading = false;
   public userProfile: any;
   public limitPerPage: any = 10;
@@ -59,7 +58,7 @@ export class SchedulesComponent implements OnInit {
         })
   }
 
-  updateScheduleActive(schedule: SchedulerModel) {
+  updateScheduleActive(schedule) {
     this.loading = true;
     this._orgModelService.updateByIdSchedulerModels(
       this.userProfile.orgModelId,
@@ -78,7 +77,7 @@ export class SchedulesComponent implements OnInit {
     });
   }
 
-  deleteSchedule(schedule: SchedulerModel){
+  deleteSchedule(schedule){
     this.loading = true;
     this._orgModelService.updateByIdSchedulerModels(
       this.userProfile.orgModelId,

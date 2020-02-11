@@ -163,6 +163,7 @@ private userProfile: any;
         inq: [
           constants.REPORT_STATES.RECEIVING_PENDING,
           constants.REPORT_STATES.RECEIVING_IN_PROCESS,
+          constants.REPORT_STATES.SUBMITTING_RECEIVALS,
           constants.REPORT_STATES.RECEIVING_FAILURE
         ]
       },

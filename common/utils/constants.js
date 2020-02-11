@@ -11,6 +11,7 @@ module.exports = {
         FULFILMENT_FAILURE: "Fulfilment failure",
         RECEIVING_PENDING: "Receiving pending",
         RECEIVING_IN_PROCESS: "Receiving in process",
+        SUBMITTING_RECEIVALS: "Submitting Receivals",
         RECEIVING_FAILURE: "Receiving failure",
         COMPLETE: "Complete"
     }

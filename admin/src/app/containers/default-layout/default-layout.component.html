@@ -29,7 +29,7 @@
   <!-- Main content -->
   <main class="main">
     <cui-breadcrumb></cui-breadcrumb>
-    <div class="container-fluid">
+    <div [ngClass]="{'container-fluid': !isSmallDevice, 'container-flex': isSmallDevice}">
       <!-- breaking change 'cui-breadcrumb' -->
       <router-outlet></router-outlet>
     </div><!-- /.container-fluid -->

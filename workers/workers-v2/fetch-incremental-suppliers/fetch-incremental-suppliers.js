@@ -8,7 +8,7 @@ var Promise = require('bluebird');
 var dbUrl = process.env.DB_URL;
 var utils = require('./../../jobs/utils/utils.js');
 var vendSdk = require('vend-nodejs-sdk')({}); //why the {}?
-var suppliersBatchNumber = 0;
+var suppliersBatchNumber;
 var maxBatchSize = 1000;
 
 var runMe = function (vendConnectionInfo, orgModelId, versionsAfter) {
@@ -25,6 +25,7 @@ var runMe = function (vendConnectionInfo, orgModelId, versionsAfter) {
                 orgModelId,
                 message: 'Connected to mongodb database',
             });
+            suppliersBatchNumber = 0;
             return fetchSuppliersRecursively(dbInstance, vendConnectionInfo, orgModelId, versionsAfter);
         })
         .finally(function () {

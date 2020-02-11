@@ -10,6 +10,24 @@
           <div class="row">
             <div class="form-group col-sm-12">
               <div class="input-group">
+                Reorder point calculation through StockUp?
+                &nbsp;&nbsp;&nbsp;
+                <span>No</span>
+                &nbsp;&nbsp;&nbsp;
+                <label class="switch switch-3d switch-primary">
+                  <input type="checkbox"
+                         [(ngModel)]="stockUpReorderPoints"
+                         class="switch-input">
+                  <span class="switch-slider"></span>
+                </label>
+                &nbsp;&nbsp;&nbsp;
+                <span>Yes</span>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group col-sm-12">
+              <div class="input-group">
                 <span>Enter sales date range to calculate reorder points: &nbsp;&nbsp;</span>
                 <input type="number"
                        class="form-control col-sm-1"
