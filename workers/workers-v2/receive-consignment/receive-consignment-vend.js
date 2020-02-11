@@ -128,7 +128,7 @@ var runMe = function (payload, config, taskId, messageId) {
                 })
                 .then(function (response) {
                     logger.debug({
-                        message: 'Updated Status to received',
+                        message: 'Updated line items Status to received',
                         count: response.length,
                         response,
                         commandName,
@@ -138,7 +138,7 @@ var runMe = function (payload, config, taskId, messageId) {
                         _id: ObjectId(reportModelId)
                     }, {
                         $set: {
-                            state: utils.REPORT_STATES.RECEIVING_IN_PROCESS
+                            state: utils.REPORT_STATES.SUBMITTING_RECEIVALS
                         }
                     });
                 })
