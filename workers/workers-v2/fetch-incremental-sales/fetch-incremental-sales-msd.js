@@ -147,7 +147,7 @@ function fetchPaginatedSales(sqlPool, orgModelId, pagesToFetch) {
         return sqlPool.request()
             .input('sales_per_page', sql.Int, SALES_PER_PAGE)
             .input('transfer_pending_state', sql.Int, 0)
-            .query('SELECT TOP (@sales_per_page) WAREHOUSE, TRANSACTIONSTATUS, TRANSACTIONNUMBER, CURRENCY,' +
+            .query('SELECT TOP (@sales_per_page) WAREHOUSE, TRANSACTIONSTATUS, TRANSACTIONTYPE, TRANSACTIONNUMBER, CURRENCY,' +
                 ' SALEISRETURNSALE, NETAMOUNT, GROSSAMOUNT, DISCOUNTAMOUNT, TRANSACTIONDATE, %%physloc%% ROWID ' +
                 ' FROM ' + SALES_TABLE + ' WHERE STOCKUPTRANSFER = @transfer_pending_state')
             .then(function (result) {
@@ -183,10 +183,10 @@ function fetchPaginatedSales(sqlPool, orgModelId, pagesToFetch) {
                 //Add some operations to be executed
                 _.each(incrementalSales, function (eachSales, iteratee) {
                     var storeModelToAttach = _.findWhere(storeModelInstances, {storeNumber: eachSales.WAREHOUSE});
-                    if (storeModelToAttach && 
-                    ( eachSales.TRANSACTIONSTATUS === transactionConstants.TRANSACTION_STATUS.POSTED || 
-                    eachSales.TRANSACTIONSTATUS === transactionConstants.TRANSACTION_STATUS.NONE ) && 
-                    ( eachSales.TRANSACTIONTYPE === transactionConstants.TRANSACTION_TYPE.SALES )) {
+                    if (storeModelToAttach &&
+                        ( eachSales.TRANSACTIONSTATUS === transactionConstants.TRANSACTION_STATUS.POSTED ||
+                        eachSales.TRANSACTIONSTATUS === transactionConstants.TRANSACTION_STATUS.NONE ) &&
+                        ( eachSales.TRANSACTIONTYPE === transactionConstants.TRANSACTION_TYPE.SALES )) {
                         batch.find({
                             transactionNumber: eachSales.TRANSACTIONNUMBER
                         }).upsert().updateOne({
