@@ -766,7 +766,7 @@ function optimiseQuantitiesByStorePriority(lineItemsToOrder, warehouseInventory,
                             messageId,
                             commandName
                         });
-                        if (totalQuantitiesOrderedByAllStores>warehouseInventory[groupedProductModelIDs[i]].inventory_level) {
+                        if (warehouseInventory[groupedProductModelIDs[i]] && totalQuantitiesOrderedByAllStores>warehouseInventory[groupedProductModelIDs[i]].inventory_level) {
                             newTotalQuantitiesOrderedByAllStores = 0;
                             _.each(sameSKUsGrouped[groupedProductModelIDs[i]], function (eachSKU) {
                                 var orderQuantity = (eachSKU.originalOrderQuantity / totalQuantitiesOrderedByAllStores) * warehouseInventory[groupedProductModelIDs[i]].inventory_level;

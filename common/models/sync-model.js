@@ -126,7 +126,7 @@ module.exports = function (SyncModel) {
                     },
                     {
                         name: 'productCategories',
-                        tableName: 'EcoResProductStaging'
+                        tableName: 'EcoResProductV2Staging'
                     },
                     {
                         name: 'inventoryDims',
