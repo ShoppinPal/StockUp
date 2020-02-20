@@ -1,5 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output, ViewChild, ViewContainerRef} from '@angular/core';
 import {ToastrService} from 'ngx-toastr';
+import {Observable, combineLatest} from 'rxjs';
+import {map} from 'rxjs/operators';
 import {constants} from '../../../../shared/constants/constants';
 import {OrgModelApi} from "../../../../shared/lb-sdk/services/custom/OrgModel";
 import {UserProfileService} from "../../../../shared/services/user-profile.service";
@@ -14,32 +16,47 @@ export class AddProductModalComponent implements OnInit {
   searchedProductsData: any[];
   userProfile;
   loading: boolean;
-  @Input()order;
+  @Input() order;
   @Output() modalClosed = new EventEmitter();
-  constructor(
-    private _userProfileService: UserProfileService,
-    private orgModelApi: OrgModelApi,
-    private toastr: ToastrService
-  ) { }
+
+  constructor(private _userProfileService: UserProfileService,
+              private orgModelApi: OrgModelApi,
+              private toastr: ToastrService) {
+  }
 
   ngOnInit() {
     this.userProfile = this._userProfileService.getProfileData();
   }
 
+  /**
+   * find the exact search match and also
+   * similar sku matches
+   * @param sku
+   */
   searchProductBySku(sku?: string) {
+    var pattern = new RegExp('.*' + sku + '.*', "i");
+    /* case-insensitive RegExp search */
+    var filterData = pattern.toString();
     this.loading = true;
-    this.orgModelApi.getProductModels(this.userProfile.orgModelId, {
-      limit: 10,
-      where: {
-        sku: {
-          like: sku
+    combineLatest(
+      this.orgModelApi.getProductModels(this.userProfile.orgModelId, {
+        limit: 1,
+        where: {
+          sku: sku
         }
-      }
-    })
-      .subscribe((data) => {
-        this.searchedProductsData = data;
-        this.loading = false;
-      }, error => this.loading = false)
+      }),
+      this.orgModelApi.getProductModels(this.userProfile.orgModelId, {
+        limit: 10,
+        where: {
+          sku: {
+            "regexp": filterData
+          }
+        }
+      })
+    ).subscribe((data: any) => {
+      this.searchedProductsData = data[0].concat(data[1]);
+      this.loading = false;
+    }, error => this.loading = false);
   }
 
   addProductToStockOrder(productModel: any) {
@@ -47,15 +64,17 @@ export class AddProductModalComponent implements OnInit {
       this.toastr.error('Quantity should be greater than zero');
       return;
     }
-    const {FULFILMENT_IN_PROCESS , FULFILMENT_PENDING, FULFILMENT_FAILURE,
-      RECEIVING_PENDING, RECEIVING_IN_PROCESS, RECEIVING_FAILURE} = constants.REPORT_STATES;
-    if ([FULFILMENT_IN_PROCESS, FULFILMENT_PENDING, FULFILMENT_FAILURE ].indexOf(this.order.state) > -1) {
-        productModel.fulfilledQuantity = productModel.quantity;
+    const {
+      FULFILMENT_IN_PROCESS, FULFILMENT_PENDING, FULFILMENT_FAILURE,
+      RECEIVING_PENDING, RECEIVING_IN_PROCESS, RECEIVING_FAILURE
+    } = constants.REPORT_STATES;
+    if ([FULFILMENT_IN_PROCESS, FULFILMENT_PENDING, FULFILMENT_FAILURE].indexOf(this.order.state) > -1) {
+      productModel.fulfilledQuantity = productModel.quantity;
     } else if ([RECEIVING_PENDING, RECEIVING_IN_PROCESS, RECEIVING_FAILURE].indexOf(this.order.state) > -1) {
-        productModel.receivedQuantity = productModel.quantity;
-        productModel.fulfilled = true;
+      productModel.receivedQuantity = productModel.quantity;
+      productModel.fulfilled = true;
     } else {
-        productModel.orderQuantity = productModel.quantity;
+      productModel.orderQuantity = productModel.quantity;
     }
     this.loading = true;
     this.orgModelApi.addProductToStockOrder(
