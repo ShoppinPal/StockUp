@@ -1,3 +1,8 @@
+v1.6.8 - Feb 20, 2020
+- Fixed order generation algorithm for MSD, added comments in code
+- Fixed #421 - Product search
+- Copy MSD products' api_id to sku
+
 v1.6.7 - Feb 10, 2020
 - Replenishment algorithm for Vend
 - Sales sync
