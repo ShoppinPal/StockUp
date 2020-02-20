@@ -252,6 +252,7 @@ module.exports = function (OrgModel) {
                     .catch(function (error) {
                         logger.error({
                             error,
+                            reason:error,
                             message: 'Error in validating access token from state param',
                             functionName: 'handleMSDToken'
                         });
