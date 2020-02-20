@@ -829,8 +829,12 @@ function generateOrderQuantities(reportModel, storeModelId, orgModelId, optionLe
                          * if the required order quantity is available in warehouse.
                          * This could be in decimals, which we will roundOff later on
                          * to avoid multiple roundOffs and maintain accuracy.
+                         *
+                         * Also consider inventory as 0 if it's negative.
+                         * TODO: -ve inventory option should go as an option in UI
                          */
-                        var productOrderQuantity = ((eachProduct.reorder_point / optionInventory.reorder_point) * MAX) - eachProduct.inventory_level;
+                        var productInventory = eachProduct.inventory_level >= 0 ? eachProduct.inventory_level : 0;
+                        var productOrderQuantity = ((eachProduct.reorder_point / optionInventory.reorder_point) * MAX) - productInventory;
                         var warehouseQuantity = _.find(optionLevelWarehouseInventory[optionKey].productModels, function (eachWarehouseProduct) {
                                 return eachProduct.productModelId.toString() === eachWarehouseProduct.productModelId.toString();
                             }).inventory_level || 0;
