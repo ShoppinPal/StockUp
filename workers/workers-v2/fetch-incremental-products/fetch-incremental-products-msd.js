@@ -181,7 +181,7 @@ function fetchPaginatedProducts(sqlPool, orgModelId, pagesToFetch) {
                             colorId: eachProduct.ECORESCOLOR,
                             styleId: eachProduct.ECORESSTYLE,
                             configurationId: eachProduct.ECORESCONFIGURATION,
-                            // sku: eachProduct.PRODUCTVARIANTNUMBER,
+                            sku: eachProduct.ITEMID,
                             orgModelId: ObjectId(orgModelId),
                             optionLevelKey: optionKey,
                             updated: new Date()
