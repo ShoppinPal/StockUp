@@ -283,7 +283,7 @@ var getVendUsers = function (orgModelId, options) {
             logger.debug({
                 message: 'Found connection info, will fetch vend users',
                 functionName: 'getVendUsers',
-                connectionInfo,
+                connectionInfo: connectionInfo.domainPrefix,
                 options
             });
             var argsForUsers = vendSdk.args.users.fetchAll();
@@ -331,7 +331,7 @@ var getVendSuppliers = function (orgModelId, options) {
             logger.debug({
                 message: 'Found connection info, will fetch vend users',
                 functionName: 'getVendUsers',
-                connectionInfo,
+                connectionInfo: connectionInfo.domainPrefix,
                 options
             });
             var argsForSuppliers = vendSdk.args.suppliers.fetch();
@@ -458,7 +458,7 @@ var createStockOrderForVend = function (storeModelInstance, reportModelInstance,
                 message: 'Fetched connection info for vend, will create order in vend',
                 options,
                 argsForStockOrder,
-                connectionInfo,
+                connectionInfo: connectionInfo.domainPrefix,
                 functionName: 'createStockOrderForVend'
             });
             return vendSdk.consignments.stockOrders.create(argsForStockOrder, connectionInfo);

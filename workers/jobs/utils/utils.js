@@ -353,7 +353,10 @@ function getVendConnectionInfo(db, orgModelId) {
                 client_id: integrationModelInstance.client_id,
                 client_secret: integrationModelInstance.client_secret,
                 accessToken: integrationModelInstance.access_token,
-                refreshToken: integrationModelInstance.refresh_token
+                refreshToken: integrationModelInstance.refresh_token,
+                vendTokenService: process.env.VEND_TOKEN_SERVICE,
+                vendClientId: process.env.VEND_CLIENT_ID,
+                vendClientSecret: process.env.VEND_CLIENT_SECRET
             };
             return Promise.resolve(connectionInfo);
         });
@@ -387,7 +390,7 @@ function createStockOrderForVend(db, storeModelInstance, reportModelInstance, su
                 message: 'Fetched connection info for vend, will create order in vend',
                 messageId,
                 argsForStockOrder,
-                connectionInfo,
+                connectionInfo:connectionInfo.domainPrefix,
                 functionName: 'createStockOrderForVend'
             });
             return vendSdk.consignments.stockOrders.create(argsForStockOrder, connectionInfo);
