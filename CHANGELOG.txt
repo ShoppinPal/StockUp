@@ -1,3 +1,6 @@
+v1.6.9 - Feb 27, 2020
+- Fixed vend auth failure bug #420
+
 v1.6.8 - Feb 20, 2020
 - Fixed order generation algorithm for MSD, added comments in code
 - Fixed #421 - Product search
