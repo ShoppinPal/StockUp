@@ -697,7 +697,7 @@ function findWarehouseInventory(warehouseModelId, messageId) {
                 productModels: {
                     $addToSet: {
                         productModelId: '$productModelId',
-                        inventory_level: '$inventory_level',
+                        inventory_level: '$physical_inventory_level',
                         reorder_point: '$stockUpReorderPoint',
                         reorder_threshold: '$stockUpReorderThreshold'
                     }

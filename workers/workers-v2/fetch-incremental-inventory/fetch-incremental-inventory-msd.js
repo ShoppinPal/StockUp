@@ -148,7 +148,8 @@ function fetchPaginatedInventorySums(sqlPool, orgModelId, pagesToFetch) {
         return sqlPool.request()
             .input('inventory_per_page', sql.Int, INVENTORY_PER_PAGE)
             .input('transfer_pending_state', sql.Int, 0)
-            .query('SELECT TOP (@inventory_per_page) ITEMID, INVENTSITEID, InSum.INVENTDIMID, AVAILORDERED, InSum.%%physloc%% ROWID' +
+            .query('SELECT TOP (@inventory_per_page) ITEMID, INVENTSITEID, InSum.INVENTDIMID, AVAILORDERED,' +
+                ' InSum.%%physloc%% ROWID, AVAILPHYSICAL' +
                 ' FROM ' + INVENTORY_SUM_TABLE + ' AS InSum ' +
                 ' JOIN ' + INVENTORY_DIM_TABLE + ' as InDim ' +
                 ' ON InSum.INVENTDIMID = InDim.INVENTDIMID ' +
@@ -219,6 +220,7 @@ function fetchPaginatedInventorySums(sqlPool, orgModelId, pagesToFetch) {
                                 categoryModelId: productModelToAttach ? ObjectId(productModelToAttach.categoryModelId) : null,
                                 product_id: eachInventory.ITEMID,
                                 inventory_level: eachInventory.AVAILORDERED,
+                                physical_inventory_level: eachInventory.AVAILPHYSICAL,
                                 storeModelId: storeModelToAttach ? ObjectId(storeModelToAttach._id) : null,
                                 outlet_id: storeModelToAttach ? storeModelToAttach.storeNumber : null,
                                 orgModelId: ObjectId(orgModelId),
