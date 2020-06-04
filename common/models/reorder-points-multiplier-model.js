@@ -36,6 +36,59 @@ module.exports = function (ReorderPointsMultiplierModel) {
                     options
                 });
                 multiplier = result.fields.multiplier;
+                logger.debug({
+                    message: 'Will look for existing multipliers for these skus',
+                    csvData,
+                    functionName: 'uploadReorderPointsMultiplierFile',
+                    options
+                });
+                return ReorderPointsMultiplierModel.find({
+                    where: {
+                        orgModelId: id,
+                        isActive: true
+                    }
+                });
+            })
+            .then(function (multipliers) {
+                logger.debug({
+                    message: 'Found existing reorder point multipliers',
+                    multipliers,
+                    functionName: 'uploadReorderPointsMultiplierFile',
+                    options
+                });
+
+                /**
+                 * If there are SKUs in any of the existing multiplier settings,
+                 * then we can't add this multiplier coz there will be conflicts
+                 * of multiplier
+                 */
+                let conflict = false, conflictSKU, conflictMultiplier;
+
+                for (let i = 0; i<multipliers.length; i++) {
+                    for (let j = 0; j<multipliers[i].productSKUs.length; j++) {
+                        if (csvData.indexOf(multipliers[i].productSKUs[j]) !== -1) {
+                            conflict = true;
+                            conflictSKU = multipliers[i].productSKUs[j];
+                            conflictMultiplier = multipliers[i];
+                            break;
+                        }
+                    }
+                }
+                if (conflict) {
+                    logger.debug({
+                        message: 'One of the product SKUs already present in another multiplier, cannot go on',
+                        conflictSKU,
+                        conflictMultiplier,
+                        functionName: 'uploadReorderPointsMultiplierFile',
+                        options
+                    });
+                    return Promise.reject('One of the product SKUs already present in another multiplier, cannot go on');
+                }
+                logger.debug({
+                    message: 'No sku conflicts found in multipliers, will go on to check products',
+                    functionName: 'uploadReorderPointsMultiplierFile',
+                    options
+                });
                 return ReorderPointsMultiplierModel.app.models.ProductModel.find({
                     where: {
                         orgModelId: id,
