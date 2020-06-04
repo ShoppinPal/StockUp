@@ -13,6 +13,10 @@
       "type": "number",
       "required": true
     },
+    "productSKUs": {
+      "type": "array",
+      "required": true
+    },
     "storageBucket": {
       "type": "string"
     },

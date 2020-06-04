@@ -16,11 +16,11 @@
       "type": "string",
       "required": true
     },
-    "salesDateRangeInDays" : {
+    "salesDateRangeInDays": {
       "type": "number",
       "required": false
     },
-    "stockUpReorderPoints" : {
+    "stockUpReorderPoints": {
       "type": "boolean",
       "required": true,
       "default": true
@@ -375,6 +375,13 @@
       "principalId": "orgAdmin",
       "permission": "ALLOW",
       "property": "stopMSDSync"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "uploadReorderPointsMultiplierFile"
     },
     {
       "accessType": "EXECUTE",

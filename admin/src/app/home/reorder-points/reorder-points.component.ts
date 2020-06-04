@@ -18,7 +18,7 @@ export class ReorderPointsComponent implements OnInit {
   public salesDateRange: number;
   public stockUpReorderPoints: boolean;
   public uploader: FileUploader;
-  public multiplier: number;
+  public reorderPointsMultiplier: number;
 
   constructor(private orgModelApi: OrgModelApi,
               private userModelApi: UserModelApi,
@@ -34,10 +34,10 @@ export class ReorderPointsComponent implements OnInit {
      * Reorder points multiplier file upload
      * @type {string}
      */
-    let reorderPointsMultiplerUrl: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
-      "/OrgModels/" + this.userProfile.orgModelId + "/uploadReorderPointsMultiplier";
+    let reorderPointsMultiplierUrl: string = LoopBackConfig.getPath() + "/" + LoopBackConfig.getApiVersion() +
+      "/OrgModels/" + this.userProfile.orgModelId + "/uploadReorderPointsMultiplierFile";
     this.uploader = new FileUploader({
-      url: reorderPointsMultiplerUrl,
+      url: reorderPointsMultiplierUrl,
       autoUpload: false,
       authToken: this.auth.getAccessTokenId(),
       removeAfterUpload: true
@@ -71,10 +71,18 @@ export class ReorderPointsComponent implements OnInit {
   }
 
   uploadMinMaxFile() {
+    if (!this.reorderPointsMultiplier) {
+      this.toastr.error('Enter a value for multiplier');
+      return;
+    }
+    else if (!this.uploader.queue.length) {
+      this.toastr.error('Upload a file first');
+      return;
+    }
     this.loading = true;
     console.log('uploading file...', this.uploader);
     this.uploader.onBuildItemForm = (fileItem: any, form: any) => {
-      form.append('multiplier', this.multiplier);
+      form.append('multiplier', this.reorderPointsMultiplier);
     };
     this.uploader.uploadAll();
     this.uploader.onSuccessItem = (item: any, response: any, status: number, headers: any): any => {
@@ -91,7 +99,7 @@ export class ReorderPointsComponent implements OnInit {
       console.log('error uploading file');
       console.log('response', response);
       console.log('status', status);
-      this.toastr.error(response);
+      this.toastr.error('Error uploading file');
     };
   }
 
