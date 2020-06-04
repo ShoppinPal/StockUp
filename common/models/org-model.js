@@ -1439,5 +1439,25 @@ module.exports = function (OrgModel) {
                 });
         };
 
+        OrgModel.remoteMethod('downloadSampleReorderPointsMultiplierFile', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/downloadSampleReorderPointsMultiplierFile', verb: 'GET'},
+            returns: {arg: 'csvReportUrl', type: 'string', root: true}
+        });
+
+        OrgModel.downloadSampleReorderPointsMultiplierFile = function (id, options) {
+            return OrgModel.app.models.ReorderPointsMultiplierModel.downloadSampleFile(id, options)
+                .catch(function (error) {
+                    logger.error({
+                        error,
+                        options,
+                        functionName: 'downloadSampleReorderPointsMultiplierFile'
+                    });
+                    return Promise.reject(error);
+                });
+        };
     });
 };

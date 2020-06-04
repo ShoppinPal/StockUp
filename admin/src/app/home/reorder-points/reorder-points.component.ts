@@ -95,4 +95,20 @@ export class ReorderPointsComponent implements OnInit {
     };
   }
 
+  downloadSampleMultiplierFile() {
+    this.loading = true;
+    this.orgModelApi.downloadSampleReorderPointsMultiplierFile(this.userProfile.orgModelId).subscribe((data) => {
+      const link = document.createElement('a');
+      link.href = data;
+      link.download = 'Stockup Reorder Points Multiplier Sample';
+      link.click();
+      this.loading = false;
+    }, err => {
+      this.loading = false;
+      this.toastr.error('Error downloading file');
+      console.log(err);
+    })
+  }
+
+
 }

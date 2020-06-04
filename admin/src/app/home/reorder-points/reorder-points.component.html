@@ -80,7 +80,7 @@
                 <input type="file" ng2FileSelect [uploader]="uploader"/>
               </div>
               <div class="input-group">
-                <a href="">Click here</a> <span>&nbsp; to Download sample file</span>
+                (<button class="btn btn-link no-padding" (click)="downloadSampleMultiplierFile()">Click here</button>&nbsp;<span> to Download sample file</span>)
               </div>
             </div>
           </div>
@@ -116,6 +116,7 @@
               <th>Multiplier</th>
               <th>File</th>
               <th>Status</th>
+              <th>Save</th>
               <th>Delete</th>
             </tr>
             </thead>
@@ -123,19 +124,24 @@
             <tr>
               <td>Winter Products</td>
               <td>
-                <span>1.5x</span>
+                <input type="text"
+                       placeholder="0, 1.0, 1.5, etc."
+                       class="form-control form-control-sm"
+                       required
+                />
               </td>
-              <td><a href="">Download File</a></td>
+              <td><button class="btn btn-link" (click)="downloadSampleMultiplierFile()">Download File</button></td>
               <td>
-
                 <label class="switch switch-3d switch-primary">
                   <input type="checkbox"
-
                          class="switch-input">
                   <span class="switch-slider"></span>
                 </label>
-
-
+              </td>
+              <td>
+                <button class="btn btn-primary" type="submit">
+                  <i class="fa fa-package"></i> Save
+                </button>
               </td>
               <td>
                 <button class="btn btn-danger" type="submit">
