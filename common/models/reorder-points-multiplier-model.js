@@ -6,6 +6,7 @@ const fileName = path.basename(__filename, '.js'); // gives the filename without
 const logger = require('sp-json-logger')({fileName: 'common:models:' + fileName});
 var aws = require('aws-sdk');
 const _ = require('underscore');
+const CustomException = require('../utils/exceptions');
 
 module.exports = function (ReorderPointsMultiplierModel) {
 
@@ -16,7 +17,7 @@ module.exports = function (ReorderPointsMultiplierModel) {
             functionName: 'uploadReorderPointsMultiplierFile',
             options
         });
-        let csvData, multiplier;
+        let csvData, multiplier, name;
         return csvUtils.parseCSVToJson(req, options)
             .then(function (result) {
                 logger.debug({
@@ -36,6 +37,7 @@ module.exports = function (ReorderPointsMultiplierModel) {
                     options
                 });
                 multiplier = result.fields.multiplier;
+                name = result.fields.name;
                 logger.debug({
                     message: 'Will look for existing multipliers for these skus',
                     csvData,
@@ -82,7 +84,7 @@ module.exports = function (ReorderPointsMultiplierModel) {
                         functionName: 'uploadReorderPointsMultiplierFile',
                         options
                     });
-                    return Promise.reject('One of the product SKUs already present in another multiplier, cannot go on');
+                    throw new CustomException(conflictSKU + ' is already present in multiplier: ' + conflictMultiplier.name + ', cannot go on', 400);
                 }
                 logger.debug({
                     message: 'No sku conflicts found in multipliers, will go on to check products',
@@ -111,9 +113,10 @@ module.exports = function (ReorderPointsMultiplierModel) {
                         functionName: 'uploadReorderPointsMultiplierFile',
                         options
                     });
-                    return Promise.reject('Could not find one or more products in database');
+                    throw new CustomException('Could not find one or more products in database', 400);
                 }
                 return ReorderPointsMultiplierModel.create({
+                    name: name,
                     multiplier: multiplier,
                     productSKUs: csvData,
                     orgModelId: id
@@ -126,7 +129,7 @@ module.exports = function (ReorderPointsMultiplierModel) {
                     options,
                     functionName: 'uploadReorderPointsMultiplierFile'
                 });
-                return Promise.reject('Could not upload reorder points multiplier');
+                return Promise.reject(error instanceof CustomException ? error : 'Some error occurred');
             });
 
     };

@@ -4,6 +4,7 @@ import {Routes, RouterModule} from '@angular/router';
 import {UserResolverService} from "../../shared/services/user-resolver.service";
 import {AccessService} from "../../shared/services/access.service";
 import {ReorderPointsComponent} from "./reorder-points.component";
+import {ReorderPointsResolverService} from "./services/reorder-points-resolver.service";
 
 const routes: Routes = [
   {
@@ -18,6 +19,9 @@ const routes: Routes = [
         component: ReorderPointsComponent,
         data: {
           title: 'Reorder Points'
+        },
+        resolve: {
+          data: ReorderPointsResolverService
         }
       }
     ]

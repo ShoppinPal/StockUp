@@ -112,6 +112,11 @@
       "type": "hasMany",
       "model": "SchedulerModel",
       "foreignKey": "orgModelId"
+    },
+    "reorderPointsMultiplierModels": {
+      "type": "hasMany",
+      "model": "ReorderPointsMultiplierModel",
+      "foreignKey": "orgModelId"
     }
   },
   "acls": [
@@ -389,6 +394,18 @@
       "principalId": "orgAdmin",
       "permission": "ALLOW",
       "property": "downloadSampleReorderPointsMultiplierFile"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__get__reorderPointsMultiplierModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__count__reorderPointsMultiplierModels"
     },
     {
       "accessType": "EXECUTE",

@@ -1463,7 +1463,7 @@ module.exports = function (OrgModel) {
                         functionName: 'uploadReorderPointsMultiplierFile',
                         options
                     });
-                    return Promise.reject('Error processing reorder points multiplier file');
+                    return Promise.reject(error);
                 });
         };
 
