@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, TemplateRef} from '@angular/core';
 import {UserProfileService} from "../../shared/services/user-profile.service";
 import {ToastrService} from "ngx-toastr";
 import {OrgModelApi} from "../../shared/lb-sdk/services/custom/OrgModel";
@@ -7,6 +7,7 @@ import {FileUploader} from 'ng2-file-upload';
 import {LoopBackConfig, LoopBackAuth} from "../../shared/lb-sdk";
 import {ActivatedRoute} from "@angular/router";
 import {combineLatest} from "rxjs";
+import {BsModalService, BsModalRef, ModalOptions} from "ngx-bootstrap";
 
 @Component({
   selector: 'app-reorder-points',
@@ -29,11 +30,15 @@ export class ReorderPointsComponent implements OnInit {
   public foundReorderPointsMultiplier = false;
   public searchedReorderPointsMultiplier: Array<any> = null;
   public searchedReorderPointsMultiplierText: string;
+  public bsModalRef: BsModalRef;
+  public deleteMultiplierId: any = null;
+
 
   constructor(private orgModelApi: OrgModelApi,
               private userModelApi: UserModelApi,
               private _route: ActivatedRoute,
               private toastr: ToastrService,
+              private modalService: BsModalService,
               private _userProfileService: UserProfileService,
               private auth: LoopBackAuth) {
   }
@@ -120,6 +125,7 @@ export class ReorderPointsComponent implements OnInit {
     };
     this.uploader.uploadAll();
     this.uploader.onSuccessItem = (item: any, response: any, status: number, headers: any): any => {
+      this.fetchReorderPointsMultipliers(100, 0);
       this.loading = false;
       if (response && response.result) {
         this.toastr.success(response.result);
@@ -130,10 +136,7 @@ export class ReorderPointsComponent implements OnInit {
     };
     this.uploader.onErrorItem = (item: any, response: any, status: number, headers: any): any => {
       this.loading = false;
-      console.log('error uploading file');
-      console.log('response', JSON.parse(response));
       let error = JSON.parse(response);
-      console.log('status', status);
       let errorMessage;
       if (error.error && error.error.message) {
         errorMessage = error.error.message;
@@ -206,4 +209,50 @@ export class ReorderPointsComponent implements OnInit {
       this.fetchReorderPointsMultipliers(100, 0, searchText);
     }
   }
+
+  updateReorderPointsMultiplier(multiplier) {
+    this.loading = true;
+    this.orgModelApi.updateByIdReorderPointsMultiplierModels(this.userProfile.orgModelId, multiplier.id, multiplier)
+      .subscribe((data: any) => {
+          console.log('updated', data);
+          this.loading = false;
+          this.toastr.success('Updated multiplier details successfully');
+        },
+        err => {
+          console.log('error', err);
+          this.fetchReorderPointsMultipliers(100, 0);
+          this.loading = false;
+          let errorMessage = 'Some error occurred';
+          console.log('error', err);
+          if (err.message) {
+            errorMessage = err.message;
+          }
+          this.toastr.error(errorMessage, 'Error updating multiplier details');
+          // this.toastr.error('Error updating multiplier details');
+        });
+  }
+
+  deleteReorderPointsMultiplier(multiplierId) {
+    this.loading = true;
+    this.orgModelApi.destroyByIdReorderPointsMultiplierModels(this.userProfile.orgModelId, multiplierId)
+      .subscribe((data: any) => {
+          this.deleteMultiplierId = null;
+          this.loading = false;
+          this.fetchReorderPointsMultipliers(100, 0);
+          this.toastr.success('Deleted multiplier details successfully');
+          this.bsModalRef.hide();
+        },
+        err => {
+          console.log('error', err);
+          this.loading = false;
+          this.toastr.error('Error deleting multiplier details');
+        });
+  }
+
+  openDeleteModal(deleteMultiplierTemplate: TemplateRef<any>, multiplier) {
+    console.log('multiplierId', multiplier.id);
+    this.deleteMultiplierId = multiplier.id;
+    this.bsModalRef = this.modalService.show(deleteMultiplierTemplate);
+  }
+
 }

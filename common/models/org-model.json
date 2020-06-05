@@ -408,6 +408,18 @@
       "property": "__count__reorderPointsMultiplierModels"
     },
     {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__updateById__reorderPointsMultiplierModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__destroyById__reorderPointsMultiplierModels"
+    },
+    {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
       "principalId": "orgAdmin",

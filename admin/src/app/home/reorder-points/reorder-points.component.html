@@ -160,7 +160,8 @@
                 />
               </td>
               <td>
-                <button class="btn btn-link" (click)="downloadMultiplierFile()">Download File</button>
+                <button class="btn btn-link" (click)="downloadMultiplierFile()">Download File <i
+                  class="fa fa-download"></i></button>
               </td>
               <td>
                 <label class="switch switch-3d switch-primary">
@@ -171,12 +172,14 @@
                 </label>
               </td>
               <td>
-                <button class="btn btn-primary" type="submit">
-                  <i class="fa fa-package"></i> Save
+                <button class="btn btn-primary" type="submit"
+                        (click)="updateReorderPointsMultiplier(reorderPointsMultiplier)">
+                  <i class="fa fa-save"></i> Save
                 </button>
               </td>
               <td>
-                <button class="btn btn-danger" type="submit">
+                <button class="btn btn-danger" type="submit"
+                        (click)="openDeleteModal(deleteMultiplierTemplate, reorderPointsMultiplier)">
                   <i class="fa fa-trash"></i> Delete
                 </button>
               </td>
@@ -191,3 +194,21 @@
 </div>
 
 
+<ng-template #deleteMultiplierTemplate>
+  <div class="modal-danger" role="document">
+    <div class="modal-header">
+      <h4 class="modal-title">Delete multiplier?</h4>
+      <button type="button" class="close" (click)="bsModalRef.hide()" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to delete this multiplier rule?</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="bsModalRef.hide()">No</button>
+      <button type="button" class="btn btn-danger" (click)="deleteReorderPointsMultiplier(deleteMultiplierId)">Yes, delete!
+      </button>
+    </div>
+  </div>
+</ng-template>
