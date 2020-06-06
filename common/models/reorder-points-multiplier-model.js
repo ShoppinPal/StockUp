@@ -20,7 +20,7 @@ module.exports = function (ReorderPointsMultiplierModel) {
         if (ctx.instance) {
             currentInstance = ctx.instance;
         }
-        else if (ctx.data.isActive) {
+        else if (ctx.data.isActive && ctx.data.isActive!== ctx.currentInstance.isActive) {
             currentInstance = ctx.currentInstance;
         }
         if (currentInstance) {
@@ -46,7 +46,7 @@ module.exports = function (ReorderPointsMultiplierModel) {
 
                     for (let i = 0; i<multipliers.length; i++) {
                         for (let j = 0; j<multipliers[i].productSKUs.length; j++) {
-                            if (currentInstance.productSKUs.indexOf(multipliers[i].productSKUs[j]) !== -1) {
+                            if (currentInstance.productSKUs.indexOf(multipliers[i].productSKUs[j].trim()) !== -1) {
                                 conflict = true;
                                 conflictSKU = multipliers[i].productSKUs[j];
                                 conflictMultiplier = multipliers[i];
@@ -85,13 +85,19 @@ module.exports = function (ReorderPointsMultiplierModel) {
                         functionName: 'uploadReorderPointsMultiplierFile',
                         options: ctx.options
                     });
-                    if (res.length !== currentInstance.productSKUs.length) {
+
+                    let skusNotFound = _.reject(currentInstance.productSKUs, function (eachSKU) {
+                       return _.findWhere(res, {sku: eachSKU.trim()});
+                    });
+
+                    if (skusNotFound.length) {
                         logger.error({
                             message: 'Could not find one or more products in database',
                             functionName: 'uploadReorderPointsMultiplierFile',
+                            skusNotFound,
                             options: ctx.options
                         });
-                        throw new CustomException('Could not find one or more products in database', 400);
+                        throw new CustomException('Could not find products: '+skusNotFound.toString()+'  in database', 400);
                     }
                 });
         }
