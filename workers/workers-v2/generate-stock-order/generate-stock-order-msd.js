@@ -614,7 +614,7 @@ function findStoreInventoryToReplenish(storeModelId, categoryModelId, messageId)
                         productModels: {
                             $addToSet: {
                                 productModelId: '$productModelId',
-                                inventory_level: '$inventory_level',
+                                inventory_level: '$physical_inventory_level',
                                 reorder_point: '$stockUpReorderPoint',
                                 reorder_threshold: '$stockUpReorderThreshold'
                             }
@@ -697,7 +697,7 @@ function findWarehouseInventory(warehouseModelId, messageId) {
                 productModels: {
                     $addToSet: {
                         productModelId: '$productModelId',
-                        inventory_level: '$physical_inventory_level',
+                        inventory_level: '$inventory_level',
                         reorder_point: '$stockUpReorderPoint',
                         reorder_threshold: '$stockUpReorderThreshold'
                     }
@@ -821,7 +821,6 @@ function generateOrderQuantities(reportModel, storeModelId, orgModelId, optionLe
                      }, 0);*/
 
                     _.each(optionInventory.productModels, function (eachProduct, index) {
-
                         // var productOrderQuantity = eachProduct.reorder_point - (eachProduct.inventory_level>0 ? eachProduct.inventory_level : 0);//treat negative store inventory as ZERO, as told by client
                         /**
                          * Rationalise the reorder point of each item in optionLevel
@@ -835,9 +834,10 @@ function generateOrderQuantities(reportModel, storeModelId, orgModelId, optionLe
                          */
                         var productInventory = eachProduct.inventory_level >= 0 ? eachProduct.inventory_level : 0;
                         var productOrderQuantity = ((eachProduct.reorder_point / optionInventory.reorder_point) * MAX) - productInventory;
-                        var warehouseQuantity = _.find(optionLevelWarehouseInventory[optionKey].productModels, function (eachWarehouseProduct) {
+                        var warehouseInventory = _.find(optionLevelWarehouseInventory[optionKey].productModels, function (eachWarehouseProduct) {
                                 return eachProduct.productModelId.toString() === eachWarehouseProduct.productModelId.toString();
-                            }).inventory_level || 0;
+                            });
+                        var warehouseQuantity = warehouseInventory ? warehouseInventory.inventory_level : 0;
                         /**
                          * Don't order more than what's available in warehouse
                          */
