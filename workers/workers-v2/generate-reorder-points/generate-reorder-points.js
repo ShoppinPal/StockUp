@@ -14,6 +14,9 @@ const LEAD_TIME_IN_DAYS = 1;
 const REVIEW_TIME_IN_DAYS = 1;
 const CSL_MULTIPLIER = 1.03; //NORMSINV(0.85) 85% success rate
 const TODAYS_DATE = new Date();
+TODAYS_DATE.setHours(0);
+TODAYS_DATE.setMinutes(0);
+TODAYS_DATE.setSeconds(0);
 var runMe = function (payload, config, taskId, messageId) {
 
     var orgModelId = payload.orgModelId;
@@ -121,7 +124,7 @@ module.exports = {
 function calculateMinMax(orgModelId, storeModelId, messageId) {
     try {
 
-        var productModels, salesModels, orgModelInstance;
+        var productModels, salesModels, orgModelInstance, reorderPointsMultipliers;
         logger.debug({
             message: 'Will calculate min/max for the following store',
             storeModelId,
@@ -129,18 +132,18 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
             commandName
         });
         logger.debug({
-            message: 'Looking for inventory models of the store',
+            message: 'Looking for orgModel and reorderPointsMultiplier',
             storeModelId,
             orgModelId,
             commandName
         });
         return Promise.all([
-            db.collection('InventoryModel').find({
-                storeModelId: ObjectId(storeModelId)
-            }).toArray(),
             db.collection('OrgModel').findOne({
                 _id: ObjectId(orgModelId)
-            })
+            }),
+            db.collection('ReorderPointsMultiplierModel').find({
+                $and: [{orgModelId: ObjectId(orgModelId)}, {isActive: true}]
+            }).toArray()
         ])
             .catch(function (error) {
                 logger.error({
@@ -153,104 +156,106 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                 return Promise.reject(error);
             })
             .then(function (response) {
-                var inventoryModelInstances = response[0];
-                orgModelInstance = response[1];
+                orgModelInstance = response[0];
+                reorderPointsMultipliers = response[1];
                 logger.debug({
-                    message: 'Found inventory model instances, will fetch products and sales history',
+                    message: 'Found orgModel and reorderMultiplier models, will look for productModels',
+                    response,
+                    messageId,
+                    commandName,
+                    orgModelId,
+                    storeModelId
+                });
+                return db.collection('InventoryModel').distinct('productModelId', {
+                    $and: [
+                        {
+                            storeModelId: ObjectId(storeModelId)
+                        },
+                        {
+                            $or: [
+                                {
+                                    standardDeviationCalculationDate: {
+                                        $lt: TODAYS_DATE
+                                    }
+                                },
+                                {
+                                    salesDateRangeInDays: {
+                                        $ne: orgModelInstance.salesDateRangeInDays
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                });
+            })
+            .then(function (response) {
+                let productModelIds = response;
+                logger.debug({
+                    message: 'Found Distinct productModelIds , will fetch products and sales history',
                     orgModelInstance,
-                    count: inventoryModelInstances.length,
+                    count: productModelIds.length,
                     commandName,
                     storeModelId,
                     orgModelId
                 });
 
-                /**
-                 * Do not calculate reorder points for inventory models
-                 * that already have reorder points calculated today
-                 */
-                let productModelIds = productModelIdsToCalculate(inventoryModelInstances, orgModelInstance.salesDateRangeInDays);
+                if (productModelIds && productModelIds.length) {
+                    var salesDateFrom = new Date();
+                    salesDateFrom.setDate(salesDateFrom.getDate() - (orgModelInstance.salesDateRangeInDays || 30));
+                    return Promise.all([
+                        db.collection('ProductModel').find({
+                            _id: {$in: productModelIds}
+                        }).toArray(),
+                        db.collection('SalesLineItemsModel').find({
+                            $and: [
+                                {
+                                    storeModelId: ObjectId(storeModelId)
+                                },
+                                {
+                                    productModelId: {
+                                        $in: productModelIds
+                                    }
+                                },
+                                {
+                                    salesDate: {
+                                        $lte: TODAYS_DATE
+                                    }
+                                },
+                                {
+                                    salesDate: {
+                                        $gte: salesDateFrom
+                                    }
+                                }
+                            ]
+                        }).toArray()
+                    ])
+                        .catch(function (error) {
+                            logger.error({
+                                message: 'Could not find product and sales models',
+                                error,
+                                messageId
+                            });
+                            return Promise.reject('Could not find product and sales models');
+                        })
+                        .then(function (response) {
+                            logger.debug({
+                                message: 'Found sales and product models, will create reorder points',
+                                productCount: response[0].length,
+                                salesCount: response[1].length,
+                                messageId
+                            });
+                            productModels = response[0];
+                            salesModels = response[1];
+                            var salesGroupedByProducts = _.groupBy(salesModels, 'productModelId');
 
-                var salesDateFrom = new Date();
-                salesDateFrom.setDate(salesDateFrom.getDate() - (orgModelInstance.salesDateRangeInDays || 30));
-
-                return Promise.all([
-                    db.collection('ProductModel').find({
-                        _id: {
-                            $in: productModelIds
-                        }
-                    }).toArray(),
-                    db.collection('SalesLineItemsModel').find({
-                        $and: [
-                            {
-                                storeModelId: ObjectId(storeModelId)
-                            },
-                            {
-                                productModelId: {
-                                    $in: productModelIds
-                                }
-                            },
-                            {
-                                salesDate: {
-                                    $lte: TODAYS_DATE
-                                }
-                            },
-                            {
-                                salesDate: {
-                                    $gte: salesDateFrom
-                                }
+                            if (productModels && productModels.length) {
+                                let batches = createReorderPointBatches(productModels, salesGroupedByProducts, reorderPointsMultipliers, storeModelId, orgModelInstance.salesDateRangeInDays, messageId);
+                                return updateReorderPoints(batches, messageId);
                             }
-                        ]
-                    }).toArray()
-                ]);
-            })
-            .catch(function (error) {
-                logger.error({
-                    message: 'Could not find product and sales models',
-                    error,
-                    messageId
-                });
-                return Promise.reject('Could not find product and sales models');
-            })
-            .then(function (response) {
-                logger.debug({
-                    message: 'Found sales and product models, will look for category models',
-                    productCount: response[0].length,
-                    salesCount: response[1].length,
-                    messageId
-                });
-                productModels = response[0];
-                salesModels = response[1];
-                var categoryModelIds = [];
-                for (var i = 0; i<response[0].length; i++) {
-                    categoryModelIds.push(ObjectId(response[0][i].categoryModelId));
-                }
-                categoryModelIds = _.uniq(categoryModelIds);
-                return db.collection('CategoryModel').find({
-                    _id: {
-                        $in: categoryModelIds
-                    }
-                }).toArray();
-            })
-            .catch(function (error) {
-                logger.error({
-                    message: 'Could not find category models',
-                    error,
-                    messageId
-                });
-                return Promise.reject('Could not find category models');
-            })
-            .then(function (categoryModelInstances) {
-                logger.debug({
-                    message: 'Found category models',
-                    count: categoryModelInstances.length,
-                    messageId
-                });
-
-                var salesGroupedByProducts = _.groupBy(salesModels, 'productModelId');
-
-                if (productModels && productModels.length) {
-                    let batches = createReorderPointBatches(productModels, categoryModelInstances, salesGroupedByProducts, orgModelInstance.salesDateRangeInDays, messageId);
-                    return updateReorderPoints(batches, messageId);
+                            else {
+                                return Promise.resolve('No reorder points to update');
+                            }
+                        })
                 }
                 else {
                     return Promise.resolve('No reorder points to update');
@@ -279,57 +284,30 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
 }
 
 /**
- * Filter products that have not reorder points calculated already
- * for inventory models today
- * TODO: This could be entirely covered in an aggregation query, figure out how to do so
- * @param inventoryModelInstances
- * @param salesDateRangeInDays
- * @return {*}
- */
-function productModelIdsToCalculate(inventoryModelInstances, salesDateRangeInDays) {
-    var allProductModelIds = _.map(_.filter(_.pluck(inventoryModelInstances, 'productModelId'), function (eachProductModelId) {
-        return eachProductModelId !== undefined;
-    }), function (eachProductModelId) {
-        if (eachProductModelId)
-            return eachProductModelId.toString();
-    });
-    var inventoriesCalculatedToday = _.filter(inventoryModelInstances, function (eachInventory) {
-        var calculatedToday = eachInventory.standardDeviationCalculationDate &&
-            eachInventory.standardDeviationCalculationDate.getDate() === TODAYS_DATE.getDate() &&
-            eachInventory.standardDeviationCalculationDate.getMonth() === TODAYS_DATE.getMonth() &&
-            eachInventory.standardDeviationCalculationDate.getYear() === TODAYS_DATE.getYear() &&
-            eachInventory.salesDateRangeInDays === salesDateRangeInDays;
-        return calculatedToday;
-    });
-    var productModelIdsCalculatedToday = _.map(_.pluck(inventoriesCalculatedToday, 'productModelId'), function (eachProductModelId) {
-        if (eachProductModelId)
-            return eachProductModelId.toString();
-    });
-
-    var productModelIdsToCalculate = _.difference(allProductModelIds, productModelIdsCalculatedToday);
-
-    if (!productModelIdsToCalculate.length) {
-        return Promise.resolve([0, 0]);
-    }
-    var productModelIds = _.map(productModelIdsToCalculate, function (eachProductModelId) {
-        if (eachProductModelId)
-            return ObjectId(eachProductModelId);
-    });
-    return productModelIds;
-}
-
-/**
  * Calculate min/max for each product in the store
  * that has sales in the salesDateRange defined for the org
  * @param productModels
- * @param categoryModelInstances
  * @param salesGroupedByProducts
+ * @param reorderPointsMultipliers
+ * @param storeModelId
+ * @param salesDateRangeInDays
  * @param messageId
  * @return {Array}
  */
-function createReorderPointBatches(productModels, categoryModelInstances, salesGroupedByProducts, salesDateRangeInDays, messageId) {
+function createReorderPointBatches(productModels, salesGroupedByProducts, reorderPointsMultipliers, storeModelId, salesDateRangeInDays, messageId) {
 
     var batchCounter = 0, batches = [];
+
+    let productSKUsWithMultipliers = {};
+
+    _.each(reorderPointsMultipliers, function (eachMultiplier) {
+        _.each(eachMultiplier.productSKUs, function (eachSKU) {
+            productSKUsWithMultipliers[eachSKU] = eachMultiplier.multiplier;
+        });
+    });
+
+    console.log('salesGroupedByProducts', salesGroupedByProducts);
+
     _.each(productModels, function (eachProductModel, i) {
         if (i % 999 === 0) {
             logger.debug({
@@ -347,7 +325,17 @@ function createReorderPointBatches(productModels, categoryModelInstances, salesG
                 standardDeviation,
                 tempMin,
                 tempMax
-            } = calculateProductReorderPoint(eachProductModel, categoryModelInstances, salesGroupedByProducts, messageId);
+            } = calculateProductReorderPoint(eachProductModel, productSales, messageId);
+
+            if (productSKUsWithMultipliers.hasOwnProperty(eachProductModel.sku)) {
+                logger.debug({
+                    message: 'Applying multiplier to product',
+                    eachProductModel,
+                    multiplier: productSKUsWithMultipliers[eachProductModel.sku],
+                    messageId
+                });
+                tempMax = tempMax * productSKUsWithMultipliers[eachProductModel.sku];
+            }
 
             batches[batches.length - 1].find({
                 productModelId: ObjectId(eachProductModel._id),
@@ -365,11 +353,6 @@ function createReorderPointBatches(productModels, categoryModelInstances, salesG
             });
         }
         else {
-            logger.debug({
-                message: 'There is no previous sales data available, will set reorder points to null',
-                product: eachProductModel._id,
-                inventoryNumber: (i + 1) + '/' + productModels.length
-            });
             batches[batches.length - 1].find({
                 productModelId: ObjectId(eachProductModel._id),
                 storeModelId: ObjectId(storeModelId)
@@ -415,17 +398,10 @@ function updateReorderPoints(batches, messageId) {
  * @param messageId
  * @return {{averageDailyDemand: number, standardDeviation: (number|*), tempMin: number, tempMax: number}}
  */
-function calculateProductReorderPoint(eachProductModel, categoryModelInstances, productSales, messageId) {
+function calculateProductReorderPoint(eachProductModel, productSales, messageId) {
     var totalQuantitiesSold = 0;
     var totalQuantitiesSoldPerDate = {};
     var totalNumberOfDaysSinceFirstSold;
-
-  /*  if (eachProductModel.categoryModelId) {
-        var correspondingCategoryModel = _.find(categoryModelInstances, function (eachCategoryModel) {
-            return eachCategoryModel._id.toString() === eachProductModel.categoryModelId.toString();
-        });
-    }
-*/
 
     var firstSale = productSales[0].salesDate;
 
@@ -464,15 +440,11 @@ function calculateProductReorderPoint(eachProductModel, categoryModelInstances, 
         totalQuantitiesSold,
         totalNumberOfDaysSinceFirstSold,
         commandName,
-        storeModelId,
-        orgModelId,
-        // correspondingCategoryModel,
         averageDailyDemand,
         standardDeviation,
         productModelId: eachProductModel._id,
         tempMax,
         tempMin,
-        // productNumber: (i + 1) + '/' + productModels.length,
         productName: eachProductModel.name,
         sku: eachProductModel.sku,
         messageId
