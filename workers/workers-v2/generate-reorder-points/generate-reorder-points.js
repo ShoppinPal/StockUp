@@ -166,27 +166,40 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                     orgModelId,
                     storeModelId
                 });
-                return db.collection('InventoryModel').distinct('productModelId', {
-                    $and: [
-                        {
-                            storeModelId: ObjectId(storeModelId)
-                        },
-                        {
-                            $or: [
-                                {
-                                    standardDeviationCalculationDate: {
-                                        $lt: TODAYS_DATE
+
+                let distinctProductModelQuery = {
+                    storeModelId: ObjectId(storeModelId)
+                };
+
+                /**
+                 * If there's no need to re-calculate the reorder points for this store
+                 * coz it might have been generated already today
+                 */
+                if (!orgModelInstance.recalculateReorderPointsEveryTime) {
+                    distinctProductModelQuery = {
+                        $and: [
+                            {
+                                storeModelId: ObjectId(storeModelId)
+                            },
+                            {
+                                $or: [
+                                    {
+                                        standardDeviationCalculationDate: {
+                                            $lt: TODAYS_DATE
+                                        }
+                                    },
+                                    {
+                                        salesDateRangeInDays: {
+                                            $ne: orgModelInstance.salesDateRangeInDays
+                                        }
                                     }
-                                },
-                                {
-                                    salesDateRangeInDays: {
-                                        $ne: orgModelInstance.salesDateRangeInDays
-                                    }
-                                }
-                            ]
-                        }
-                    ]
-                });
+                                ]
+                            }
+                        ]
+                    };
+                }
+
+                return db.collection('InventoryModel').distinct('productModelId', distinctProductModelQuery);
             })
             .then(function (response) {
                 let productModelIds = response;

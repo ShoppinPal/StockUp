@@ -32,7 +32,7 @@ export class ReorderPointsComponent implements OnInit {
   public searchedReorderPointsMultiplierText: string;
   public bsModalRef: BsModalRef;
   public deleteMultiplierId: any = null;
-
+  public recalculateReorderPointsEveryTime: boolean;
 
   constructor(private orgModelApi: OrgModelApi,
               private userModelApi: UserModelApi,
@@ -56,7 +56,7 @@ export class ReorderPointsComponent implements OnInit {
       url: reorderPointsMultiplierUrl,
       autoUpload: false,
       authToken: this.auth.getAccessTokenId(),
-      removeAfterUpload: true
+      removeAfterUpload: false
     });
 
 
@@ -79,6 +79,7 @@ export class ReorderPointsComponent implements OnInit {
       .subscribe((data: any) => {
           this.salesDateRange = data.salesDateRangeInDays;
           this.stockUpReorderPoints = data.stockUpReorderPoints;
+          this.recalculateReorderPointsEveryTime = data.recalculateReorderPointsEveryTime;
         }
         , err => {
           console.log('Could not fetch org details');
@@ -89,7 +90,8 @@ export class ReorderPointsComponent implements OnInit {
     this.loading = true;
     this.orgModelApi.updateOrgSettings(this.userProfile.orgModelId, {
       salesDateRangeInDays: this.salesDateRange,
-      stockUpReorderPoints: this.stockUpReorderPoints
+      stockUpReorderPoints: this.stockUpReorderPoints,
+      recalculateReorderPointsEveryTime: this.recalculateReorderPointsEveryTime
     })
       .subscribe(data => {
         this.loading = false;
@@ -104,7 +106,7 @@ export class ReorderPointsComponent implements OnInit {
   /**
    * Upload a multiplier file
    */
-  uploadMinMaxFile() {
+  uploadMultiplierFile(multiplierForm) {
     if (!this.multiplierName) {
       this.toastr.error('Enter a name for this multiplier setting');
       return;
@@ -127,6 +129,10 @@ export class ReorderPointsComponent implements OnInit {
     this.uploader.onSuccessItem = (item: any, response: any, status: number, headers: any): any => {
       this.fetchReorderPointsMultipliers(100, 0);
       this.loading = false;
+      this.uploader.clearQueue();
+      multiplierForm.resetForm();
+      //noinspection TypeScriptUnresolvedVariable
+      document.getElementById('multiplierFile').value = '';
       if (response && response.result) {
         this.toastr.success(response.result);
       }

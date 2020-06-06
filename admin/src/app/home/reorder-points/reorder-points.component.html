@@ -40,6 +40,24 @@
               </div>
             </div>
           </div>
+          <div class="row">
+            <div class="form-group col-sm-12">
+              <div class="input-group">
+                Calculate reorder points every time order is generated for the day?
+                &nbsp;&nbsp;&nbsp;
+                <span>No</span>
+                &nbsp;&nbsp;&nbsp;
+                <label class="switch switch-3d switch-primary">
+                  <input type="checkbox"
+                         [(ngModel)]="recalculateReorderPointsEveryTime"
+                         class="switch-input">
+                  <span class="switch-slider"></span>
+                </label>
+                &nbsp;&nbsp;&nbsp;
+                <span>Yes</span>
+              </div>
+            </div>
+          </div>
 
         </div>
         <div class="card-footer">
@@ -57,56 +75,60 @@
         <div class="card-header">
           <strong>Reorder Points Multiplier</strong>
         </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="form-group col-sm-12">
-              <div class="input-group">
-                <span>Name of this multiplier: &nbsp;&nbsp;</span>
-                <input type="text"
-                       class="form-control col-sm-4"
-                       [(ngModel)]="multiplierName"
-                       placeholder="Winter SKUs, Outdated SKUs, etc."/>
-              </div>
-            </div>
-            <div class="form-group col-sm-12">
-              <div class="input-group">
-                <span>Enter Reorder-Points multiplier (0, 0.5, 1, 1.2, etc.): &nbsp;&nbsp;</span>
-                <input type="number"
-                       class="form-control col-sm-1"
-                       [(ngModel)]="reorderPointsMultiplier"
-                       placeholder="0"/>
-                <div class="input-group-append">
-                  <span class="input-group-text">&nbsp;&nbsp;times</span>
+        <form #multiplierForm="ngForm">
+          <div class="card-body">
+            <div class="row">
+              <div class="form-group col-sm-12">
+                <div class="input-group">
+                  <span>Name of this multiplier: &nbsp;&nbsp;</span>
+                  <input type="text"
+                         class="form-control col-sm-4"
+                         name="multiplierName"
+                         [(ngModel)]="multiplierName"
+                         placeholder="Winter SKUs, Outdated SKUs, etc."/>
                 </div>
+              </div>
+              <div class="form-group col-sm-12">
+                <div class="input-group">
+                  <span>Enter Reorder-Points multiplier (0, 0.5, 1, 1.2, etc.): &nbsp;&nbsp;</span>
+                  <input type="number"
+                         class="form-control col-sm-1"
+                         name="reorderPointsMultiplier"
+                         [(ngModel)]="reorderPointsMultiplier"
+                         placeholder="0"/>
+                  <div class="input-group-append">
+                    <span class="input-group-text">&nbsp;&nbsp;times</span>
+                  </div>
 
+                </div>
               </div>
             </div>
-          </div>
-          <div class="row">
-            <div class="form-group col-sm-12">
-              <div class="input-group">
-                <span>Upload list of SKUs to apply this multiplier to: &nbsp;&nbsp; </span>
-                <input type="file" ng2FileSelect [uploader]="uploader"/>
-              </div>
-              <div class="input-group">
-                (
-                <button class="btn btn-link no-padding" (click)="downloadSampleMultiplierFile()">Click here</button>
-                &nbsp;<span> to Download sample file</span>)
+            <div class="row">
+              <div class="form-group col-sm-12">
+                <div class="input-group">
+                  <span>Upload list of SKUs to apply this multiplier to: &nbsp;&nbsp; </span>
+                  <input type="file" id="multiplierFile" name="multiplierFile" ng2FileSelect [uploader]="uploader"/>
+                </div>
+                <div class="input-group">
+                  (
+                  <button class="btn btn-link no-padding" (click)="downloadSampleMultiplierFile()">Click here</button>
+                  &nbsp;<span> to Download sample file</span>)
+                </div>
               </div>
             </div>
-          </div>
 
-        </div>
-        <div class="card-footer">
-          <div class="row">
-            <div class="col-sm-12">
+          </div>
+          <div class="card-footer">
+            <div class="row">
+              <div class="col-sm-12">
               <span class="input-group-btn">
                 <button class="btn btn-primary" type="button"
-                        (click)="uploadMinMaxFile()">Upload file</button>
+                        (click)="uploadMultiplierFile(multiplierForm)">Upload file</button>
               </span>
+              </div>
             </div>
           </div>
-        </div>
+        </form>
       </div>
     </div><!--/.col-->
   </div><!--/.row-->
@@ -207,7 +229,8 @@
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-secondary" (click)="bsModalRef.hide()">No</button>
-      <button type="button" class="btn btn-danger" (click)="deleteReorderPointsMultiplier(deleteMultiplierId)">Yes, delete!
+      <button type="button" class="btn btn-danger" (click)="deleteReorderPointsMultiplier(deleteMultiplierId)">Yes,
+        delete!
       </button>
     </div>
   </div>

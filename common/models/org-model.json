@@ -24,6 +24,11 @@
       "type": "boolean",
       "required": true,
       "default": true
+    },
+    "recalculateReorderPointsEveryTime": {
+      "type": "boolean",
+      "required": true,
+      "default": false
     }
   },
   "validations": [],
