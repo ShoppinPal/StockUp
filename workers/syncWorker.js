@@ -94,19 +94,6 @@ function runSyncJobs() {
                         retryCount
                     });
                     return routeToWorker(syncModelInstances);
-                    //
-                    //
-                    //
-                    //
-                    // var batch = db.collection('SyncModel').initializeUnorderedBulkOp();
-                    // _.each(syncModelInstances, function (eachSyncModel) {
-                    //     batch.find(eachSyncModel).updateOne({
-                    //         $set: {
-                    //             lastSyncedAt: new Date()
-                    //         }
-                    //     });
-                    // });
-                    // return batch.execute();
                 }
                 else {
                     logger.debug({
@@ -180,42 +167,6 @@ function routeToWorker(syncModels) {
                     functionName: 'routeToWorker',
                     eachOrg
                 });
-            }).then(function (response) {
-                logger.debug({
-                    message: 'Will notify status of sync',
-                    syncModels: orgSyncModels[eachOrg],
-                    functionName: 'routeToWorker'
-                });
-                var options = {
-                    method: 'POST',
-                    uri: utils.PUBLISH_URL,
-                    json: true,
-                    body: []
-
-                };
-                orgSyncModels[eachOrg].forEach(syncModel => {
-                    options.body.push(new utils.Notification(
-                        syncModel.name,
-                        utils.messageFor.MESSAGE_FOR_API,
-                        utils.workerStatus.PROCESSING,
-                        {loading: true, orgId: eachOrg},
-                        syncModel._id
-                    ));
-                });
-                logger.debug({
-                    message: 'Notified Users',
-                    options
-                });
-                return rp(options);
-            })
-            .catch(function (error) {
-                logger.error({
-                    message: 'Could not Notify Users.Will Move On',
-                    error,
-                    eachOrg,
-                    functionName: 'routeToWorker'
-                });
-                // return Promise.reject('Could not notify users ');
             })
             .then(function (response) {
                 logger.debug({
@@ -265,33 +216,6 @@ function routeToWorker(syncModels) {
                         lastSyncedAt: new Date()
                     }
                 });
-            }).then(function (response) {
-                logger.debug({
-                    message: 'Updated syncModels with lastSyncedDate',
-                    response,
-                    eachOrg
-                });
-                var options = {
-                    method: 'POST',
-                    uri: utils.PUBLISH_URL,
-                    json: true,
-                    body: []
-
-                };
-                orgSyncModels[eachOrg].forEach(syncModel => {
-                    options.body.push(new utils.Notification(
-                        syncModel.name,
-                        utils.messageFor.MESSAGE_FOR_API,
-                        utils.workerStatus.SUCCESS,
-                        {loading: false, orgId: eachOrg},
-                        syncModel._id
-                    ));
-                });
-                logger.debug({
-                    message: 'Notified Users',
-                    options
-                });
-                return rp(options);
             })
             .catch(function (error) {
                 logger.error({
