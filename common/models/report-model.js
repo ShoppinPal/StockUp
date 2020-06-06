@@ -91,22 +91,38 @@ module.exports = function (ReportModel) {
             })
             .then(function () {
                 return ReportModel.findById(id, {
-                    include: ['userModel', 'supplierModel', 'storeModel', 'orgModel']
+                    include: ['userModel', 'storeModel', 'orgModel', {
+                        relation: 'supplierModel',
+                        scope: {
+                            include: {
+                                relation: 'supplierStoreMappings'
+                            }
+                        }
+                    }]
                 });
             })
             .then(function (reportModelInstance) {
                 report = reportModelInstance;
                 const supplierInstance = reportModelInstance.supplierModel();
                 supplier = supplierInstance;
+                var supplierStoreMappings = supplierInstance.supplierStoreMappings();
                 logger.debug({
                     message: 'Found this supplier',
                     supplier: supplierInstance,
+                    supplierStoreMappings,
                     store: report.storeModel(),
                     orgName: report.orgModel().name,
                     functionName: 'sendReportAsEmail',
                     options
                 });
-                emailSubject = 'Order #' + report.storeModel().name + ' from ' + report.orgModel().name;
+                var supplierStoreCode = '';
+                if (supplierStoreMappings.length) {
+                    var supplierStore = supplierStoreMappings.find(function (eachMapping) {
+                        return eachMapping.storeModelId.toString() === reportModelInstance.storeModelId.toString();
+                    });
+                    supplierStoreCode = supplierStore ? supplierStore.storeCode : '';
+                }
+                emailSubject = 'Order #' + supplierStoreCode + '-' + report.storeModel().name + ' from ' + report.orgModel().name;
                 logger.debug({
                     functionName: 'sendReportAsEmail',
                     message: 'Will look for stock line items for the report',
@@ -120,7 +136,7 @@ module.exports = function (ReportModel) {
                     include: {
                         relation: 'productModel',
                         scope: {
-                            fields: ['sku', 'name']
+                            fields: ['sku', 'name', 'supplierCode']
                         }
                     }
                 });
@@ -164,7 +180,7 @@ module.exports = function (ReportModel) {
 
                         totalOrderQuantity += lineItems[i].orderQuantity;
                         totalSupplyCost += lineItems[i].supplyPrice * lineItems[i].orderQuantity;
-                        var supplierCode = supplier ? supplier.api_id : '';
+                        var supplierCode = lineItems[i].productModel().supplierCode;
                         csvArray.push({
                             'SKU': lineItems[i].productModel().sku,
                             'Ordered': lineItems[i].orderQuantity,

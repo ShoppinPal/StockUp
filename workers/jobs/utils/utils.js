@@ -348,13 +348,14 @@ function getVendConnectionInfo(db, orgModelId) {
                 functionName: 'getVendConnectionInfo',
                 orgModelId
             });
+            let tokenService = 'https://' + integrationModelInstance.domain_prefix + process.env.VEND_TOKEN_SERVICE;
             var connectionInfo = {
                 domainPrefix: integrationModelInstance.domain_prefix,
                 client_id: integrationModelInstance.client_id,
                 client_secret: integrationModelInstance.client_secret,
                 accessToken: integrationModelInstance.access_token,
                 refreshToken: integrationModelInstance.refresh_token,
-                vendTokenService: process.env.VEND_TOKEN_SERVICE,
+                vendTokenService: tokenService,
                 vendClientId: process.env.VEND_CLIENT_ID,
                 vendClientSecret: process.env.VEND_CLIENT_SECRET
             };
@@ -390,7 +391,7 @@ function createStockOrderForVend(db, storeModelInstance, reportModelInstance, su
                 message: 'Fetched connection info for vend, will create order in vend',
                 messageId,
                 argsForStockOrder,
-                connectionInfo:connectionInfo.domainPrefix,
+                connectionInfo: connectionInfo.domainPrefix,
                 functionName: 'createStockOrderForVend'
             });
             return vendSdk.consignments.stockOrders.create(argsForStockOrder, connectionInfo);
@@ -518,7 +519,7 @@ function markStockOrderAsReceived(db, reportModelInstance, messageId) {
             logger.debug({
                 message: 'Fetched vend token, will fetch connection info',
                 messageId,
-                functionName: 'updateStockOrderLineitemForVend'
+                functionName: 'markStockOrderAsReceived'
             });
             return getVendConnectionInfo(db, reportModelInstance.orgModelId, messageId);
         })
