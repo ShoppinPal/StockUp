@@ -16,14 +16,19 @@
       "type": "string",
       "required": true
     },
-    "salesDateRangeInDays" : {
+    "salesDateRangeInDays": {
       "type": "number",
       "required": false
     },
-    "stockUpReorderPoints" : {
+    "stockUpReorderPoints": {
       "type": "boolean",
       "required": true,
       "default": true
+    },
+    "recalculateReorderPointsEveryTime": {
+      "type": "boolean",
+      "required": true,
+      "default": false
     }
   },
   "validations": [],
@@ -111,6 +116,11 @@
     "schedulerModels": {
       "type": "hasMany",
       "model": "SchedulerModel",
+      "foreignKey": "orgModelId"
+    },
+    "reorderPointsMultiplierModels": {
+      "type": "hasMany",
+      "model": "ReorderPointsMultiplierModel",
       "foreignKey": "orgModelId"
     }
   },
@@ -375,6 +385,44 @@
       "principalId": "orgAdmin",
       "permission": "ALLOW",
       "property": "stopMSDSync"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "uploadReorderPointsMultiplierFile"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "downloadSampleReorderPointsMultiplierFile"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__get__reorderPointsMultiplierModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__count__reorderPointsMultiplierModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__updateById__reorderPointsMultiplierModels"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "__destroyById__reorderPointsMultiplierModels"
     },
     {
       "accessType": "EXECUTE",

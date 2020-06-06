@@ -8,9 +8,7 @@ var Joi = Promise.promisifyAll(require('joi'));
 var validate = Promise.promisify(require('joi').validate);
 var vendSdk = require('vend-nodejs-sdk')({});
 const rp = require('request-promise');
-const papaparse = require('papaparse');
-const fs = require('fs');
-const multiparty = require("multiparty");
+const csvUtils = require('../utils/csvUtils');
 
 module.exports = function (CategoryModel) {
 
@@ -21,10 +19,10 @@ module.exports = function (CategoryModel) {
             options
         });
         var csvData, parentCategory, storeModels, csvStoreColumnPositions = {}, minColPosition, maxColPosition, failedCategories = [];
-        return parseCSVToJson(req, options)
+        return csvUtils.parseCSVToJson(req, options)
             .then(function (result) {
                 csvData = result.csvData;
-                parentCategory = result.parentCategory;
+                parentCategory = result.fields.parentCategory[0];
                 //capture starting column numbers of min and max headers
                 minColPosition = csvData.data[0].indexOf('min');
                 maxColPosition = csvData.data[0].indexOf('max');
@@ -159,44 +157,5 @@ module.exports = function (CategoryModel) {
             });
 
     };
-
-    function parseCSVToJson(req, options) {
-        return new Promise(function (resolve, reject) {
-            var form = new multiparty.Form();
-            form.parse(req, function (err, fields, files) {
-                if (err) {
-                    logger.error({
-                        message: 'Error in parsing form data',
-                        functionName: 'parseCSVToJson',
-                        options
-                    });
-                    reject(err);
-                }
-                else {
-                    //TODO: add file and fields validation
-                    logger.debug({
-                        message: 'Received the following file, will parse it to json',
-                        files,
-                        fields,
-                        functionName: 'parseCSVToJson',
-                        options
-                    });
-                    var fileData = fs.readFileSync(files.file[0].path, 'utf8');
-                    var csvData = papaparse.parse(fileData);
-                    logger.debug({
-                        message: 'Parsed file to json',
-                        csvData,
-                        functionName: 'parseCSVToJson',
-                        options
-                    });
-                    resolve({
-                        csvData: csvData,
-                        parentCategory: fields.parentCategory[0]
-                    });
-                }
-            });
-        });
-
-    }
 
 };

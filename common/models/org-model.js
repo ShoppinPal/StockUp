@@ -1439,5 +1439,54 @@ module.exports = function (OrgModel) {
                 });
         };
 
+        OrgModel.remoteMethod('uploadReorderPointsMultiplierFile', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'req', type: 'object', 'http': {source: 'req'}},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/uploadReorderPointsMultiplierFile', verb: 'post'},
+            returns: {arg: 'result', type: 'string'}
+        });
+
+        OrgModel.uploadReorderPointsMultiplierFile = function (id, req, options, cb) {
+            logger.debug({
+                message: 'Will upload reorder points multiplier file for products',
+                functionName: 'uploadReorderPointsMultiplierFile',
+                options
+            });
+            return OrgModel.app.models.ReorderPointsMultiplierModel.uploadReorderPointsMultiplierFile(id, req, options)
+                .catch(function (error) {
+                    logger.debug({
+                        message: 'Error processing reorder points multiplier file',
+                        error,
+                        functionName: 'uploadReorderPointsMultiplierFile',
+                        options
+                    });
+                    return Promise.reject(error);
+                });
+        };
+
+        OrgModel.remoteMethod('downloadSampleReorderPointsMultiplierFile', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/downloadSampleReorderPointsMultiplierFile', verb: 'GET'},
+            returns: {arg: 'csvReportUrl', type: 'string', root: true}
+        });
+
+        OrgModel.downloadSampleReorderPointsMultiplierFile = function (id, options) {
+            return OrgModel.app.models.ReorderPointsMultiplierModel.downloadSampleFile(id, options)
+                .catch(function (error) {
+                    logger.error({
+                        error,
+                        options,
+                        functionName: 'downloadSampleReorderPointsMultiplierFile'
+                    });
+                    return Promise.reject(error);
+                });
+        };
+
     });
 };

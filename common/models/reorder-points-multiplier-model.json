@@ -1,0 +1,50 @@
+{
+  "name": "ReorderPointsMultiplierModel",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "id": {
+      "type": "string",
+      "id": true,
+      "generated": true
+    },
+    "name": {
+      "type": "string"
+    },
+    "multiplier": {
+      "type": "number",
+      "required": true
+    },
+    "productSKUs": {
+      "type": "array",
+      "required": true
+    },
+    "storageBucket": {
+      "type": "string"
+    },
+    "storageKey": {
+      "type": "string"
+    },
+    "fileUrl": {
+      "type": "string"
+    },
+    "isActive": {
+      "type": "boolean",
+      "required": true,
+      "default": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "orgModel": {
+      "type": "belongsTo",
+      "model": "OrgModel",
+      "foreignKey": "orgModelId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

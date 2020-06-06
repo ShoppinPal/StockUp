@@ -107,5 +107,9 @@
   "SchedulerModel": {
     "dataSource": "db",
     "public": true
+  },
+  "ReorderPointsMultiplierModel": {
+    "dataSource": "db",
+    "public": false
   }
 }
