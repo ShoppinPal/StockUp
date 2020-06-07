@@ -107,7 +107,7 @@
               <div class="form-group col-sm-12">
                 <div class="input-group">
                   <span>Upload list of SKUs to apply this multiplier to: &nbsp;&nbsp; </span>
-                  <input type="file" id="multiplierFile" name="multiplierFile" ng2FileSelect [uploader]="uploader"/>
+                  <input type="file" id="multiplierFile" (change)="validateFileFormat($event)" name="multiplierFile" ng2FileSelect [uploader]="uploader"/>
                 </div>
                 <div class="input-group">
                   (

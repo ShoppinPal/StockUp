@@ -8,6 +8,7 @@ import {LoopBackConfig, LoopBackAuth} from "../../shared/lb-sdk";
 import {ActivatedRoute} from "@angular/router";
 import {combineLatest} from "rxjs";
 import {BsModalService, BsModalRef, ModalOptions} from "ngx-bootstrap";
+import {FileChangeEvent} from "@angular/compiler-cli/src/perform_watch";
 
 @Component({
   selector: 'app-reorder-points',
@@ -149,6 +150,16 @@ export class ReorderPointsComponent implements OnInit {
       }
       this.toastr.error(errorMessage, 'Error uploading file');
     };
+  }
+
+  validateFileFormat(fileEvent: any) {
+    const file = fileEvent.target.files[0];
+    if(file.type !== 'text/csv') {
+      this.toastr.error('Only csv files are supported');
+      //noinspection TypeScriptUnresolvedVariable
+      document.getElementById('multiplierFile').value = '';
+      this.uploader.clearQueue();
+    }
   }
 
   /**
