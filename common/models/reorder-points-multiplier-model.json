@@ -5,6 +5,11 @@
   "options": {
     "validateUpsert": true
   },
+  "mixins": {
+    "Timestamp": {},
+    "Context": {},
+    "CurrentUser": {}
+  },
   "properties": {
     "id": {
       "type": "string",

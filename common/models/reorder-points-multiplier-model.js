@@ -7,8 +7,11 @@ const logger = require('sp-json-logger')({fileName: 'common:models:' + fileName}
 var aws = require('aws-sdk');
 const _ = require('underscore');
 const CustomException = require('../utils/exceptions');
+const fileUtils = require('../utils/fileUtils');
+const papaparse = require('papaparse');
 
 module.exports = function (ReorderPointsMultiplierModel) {
+
 
     /**
      * Check if the products are valid and not already
@@ -20,7 +23,7 @@ module.exports = function (ReorderPointsMultiplierModel) {
         if (ctx.instance) {
             currentInstance = ctx.instance;
         }
-        else if (ctx.data.isActive && ctx.data.isActive!== ctx.currentInstance.isActive) {
+        else if (ctx.data.isActive && ctx.data.isActive !== ctx.currentInstance.isActive) {
             currentInstance = ctx.currentInstance;
         }
         if (currentInstance) {
@@ -87,7 +90,7 @@ module.exports = function (ReorderPointsMultiplierModel) {
                     });
 
                     let skusNotFound = _.reject(currentInstance.productSKUs, function (eachSKU) {
-                       return _.findWhere(res, {sku: eachSKU.trim()});
+                        return _.findWhere(res, {sku: eachSKU.trim()});
                     });
 
                     if (skusNotFound.length) {
@@ -97,7 +100,7 @@ module.exports = function (ReorderPointsMultiplierModel) {
                             skusNotFound,
                             options: ctx.options
                         });
-                        throw new CustomException('Could not find products: '+skusNotFound.toString()+'  in database', 400);
+                        throw new CustomException('Could not find products: ' + skusNotFound.toString() + '  in database', 400);
                     }
                 });
         }
@@ -107,13 +110,51 @@ module.exports = function (ReorderPointsMultiplierModel) {
 
 
     ReorderPointsMultiplierModel.uploadReorderPointsMultiplierFile = function (id, req, options) {
+        const s3 = new aws.S3({
+            apiVersion: '2006-03-01',
+            region: ReorderPointsMultiplierModel.app.get('awsS3Region'),
+            accessKeyId: ReorderPointsMultiplierModel.app.get('awsAccessKeyId'),
+            secretAccessKey: ReorderPointsMultiplierModel.app.get('awsSecretAccessKey')
+        });
         logger.debug({
             message: 'Received file',
             functionName: 'uploadReorderPointsMultiplierFile',
             options
         });
-        let csvData, multiplier, name;
-        return csvUtils.parseCSVToJson(req, options)
+        let csvData, multiplier, name, fileData, storageBucket, storageKey, fileUrl;
+
+        return fileUtils.readFileData(req, options)
+            .then(function (response) {
+                logger.debug({
+                    message: 'Read file data',
+                    filePath: response.filePath,
+                    fields: response.fields,
+                    functionName: 'uploadReorderPointsMultiplierFile',
+                    options
+                });
+                fileData = response.fileData;
+                name = response.fields['name'][0];
+                multiplier = response.fields['multiplier'][0];
+                var params = {
+                    Bucket: ReorderPointsMultiplierModel.app.get('awsS3ReorderPointsMultiplierBucket'),
+                    Key: name + '-' + Date.now() + '.csv',
+                    Body: response.fileData
+                };
+                var uploadAsync = Promise.promisify(s3.upload, s3);
+                return uploadAsync(params);
+            })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Uploaded file to s3',
+                    response,
+                    functionName: 'uploadReorderPointsMultiplierFile',
+                    options
+                });
+                storageBucket = response.Bucket;
+                storageKey = response.Key;
+                fileUrl = response.Location;
+                return papaparse.parse(fileData);
+            })
             .then(function (result) {
                 logger.debug({
                     message: 'JSON data for multiplier',
@@ -121,7 +162,7 @@ module.exports = function (ReorderPointsMultiplierModel) {
                     functionName: 'uploadReorderPointsMultiplierFile',
                     options
                 });
-                let flattenedSKUs = _.flatten(result.csvData.data);
+                let flattenedSKUs = _.flatten(result.data);
                 csvData = _.filter(flattenedSKUs, function (item) {
                     return item !== '' && item !== 'SKUs'; //because first row is the header "SKUs"
                 });
@@ -131,8 +172,6 @@ module.exports = function (ReorderPointsMultiplierModel) {
                     functionName: 'uploadReorderPointsMultiplierFile',
                     options
                 });
-                multiplier = result.fields.multiplier;
-                name = result.fields.name;
                 logger.debug({
                     message: 'Will look for existing multipliers for these skus',
                     csvData,
@@ -143,7 +182,10 @@ module.exports = function (ReorderPointsMultiplierModel) {
                     name: name,
                     multiplier: multiplier,
                     productSKUs: csvData,
-                    orgModelId: id
+                    orgModelId: id,
+                    storageBucket,
+                    storageKey,
+                    fileUrl
                 });
             })
             .catch(function (error) {
@@ -159,16 +201,16 @@ module.exports = function (ReorderPointsMultiplierModel) {
     };
 
     ReorderPointsMultiplierModel.downloadSampleFile = function (orgModelId, options) {
-        logger.debug({
-            message: 'Will download sample CSV file',
-            options,
-            functionName: 'downloadSampleFile'
-        });
-        var s3 = new aws.S3({
+        const s3 = new aws.S3({
             apiVersion: '2006-03-01',
             region: ReorderPointsMultiplierModel.app.get('awsS3Region'),
             accessKeyId: ReorderPointsMultiplierModel.app.get('awsAccessKeyId'),
             secretAccessKey: ReorderPointsMultiplierModel.app.get('awsSecretAccessKey')
+        });
+        logger.debug({
+            message: 'Will download sample CSV file',
+            options,
+            functionName: 'downloadSampleFile'
         });
         var s3Bucket = ReorderPointsMultiplierModel.app.get('awsS3ReorderPointsMultiplierBucket');
         var params = {
@@ -184,6 +226,45 @@ module.exports = function (ReorderPointsMultiplierModel) {
                     reason: error,
                     options,
                     functionName: 'downloadSampleFile'
+                });
+                return Promise.reject('Could not get signed url for reorder points multiplier file');
+            });
+    };
+
+    ReorderPointsMultiplierModel.downloadReorderPointsMultiplierFile = function (orgModelId, multiplierId, options) {
+        const s3 = new aws.S3({
+            apiVersion: '2006-03-01',
+            region: ReorderPointsMultiplierModel.app.get('awsS3Region'),
+            accessKeyId: ReorderPointsMultiplierModel.app.get('awsAccessKeyId'),
+            secretAccessKey: ReorderPointsMultiplierModel.app.get('awsSecretAccessKey')
+        });
+        logger.debug({
+            message: 'Will download CSV file',
+            options,
+            functionName: 'downloadReorderPointsMultiplierFile'
+        });
+        return ReorderPointsMultiplierModel.findById(multiplierId)
+            .then(function (multiplier) {
+                logger.debug({
+                    message: 'Found multiplier model',
+                    multiplier,
+                    options,
+                    functionName: 'downloadReorderPointsMultiplierFile'
+                });
+                var params = {
+                    Bucket: multiplier.storageBucket,
+                    Key: multiplier.storageKey
+                };
+                var url = s3.getSignedUrl('getObject', params);
+                return Promise.resolve(url);
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not get signed url for reorder points multiplier file',
+                    error,
+                    reason: error,
+                    options,
+                    functionName: 'downloadReorderPointsMultiplierFile'
                 });
                 return Promise.reject('Could not get signed url for reorder points multiplier file');
             });

@@ -8,6 +8,7 @@ import {LoopBackConfig, LoopBackAuth} from "../../shared/lb-sdk";
 import {ActivatedRoute} from "@angular/router";
 import {combineLatest} from "rxjs";
 import {BsModalService, BsModalRef, ModalOptions} from "ngx-bootstrap";
+import {FileChangeEvent} from "@angular/compiler-cli/src/perform_watch";
 
 @Component({
   selector: 'app-reorder-points',
@@ -151,6 +152,16 @@ export class ReorderPointsComponent implements OnInit {
     };
   }
 
+  validateFileFormat(fileEvent: any) {
+    const file = fileEvent.target.files[0];
+    if(file.type !== 'text/csv') {
+      this.toastr.error('Only csv files are supported');
+      //noinspection TypeScriptUnresolvedVariable
+      document.getElementById('multiplierFile').value = '';
+      this.uploader.clearQueue();
+    }
+  }
+
   /**
    * Allow downloading a sample file for reorder-points
    * multiplication
@@ -161,6 +172,20 @@ export class ReorderPointsComponent implements OnInit {
       const link = document.createElement('a');
       link.href = data;
       link.download = 'Stockup Reorder Points Multiplier Sample';
+      link.click();
+      this.loading = false;
+    }, err => {
+      this.loading = false;
+      this.toastr.error('Error downloading file');
+      console.log(err);
+    })
+  }
+
+  downloadMultiplierFile(multiplierId) {
+    this.loading = true;
+    this.orgModelApi.downloadReorderPointsMultiplierFile(this.userProfile.orgModelId, multiplierId).subscribe((data) => {
+      const link = document.createElement('a');
+      link.href = data;
       link.click();
       this.loading = false;
     }, err => {
