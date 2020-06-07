@@ -605,7 +605,7 @@ module.exports = function (OrgModel) {
                         functionName: 'uploadMinMaxFile',
                         options
                     });
-                    return Promise.reject(false);
+                    return Promise.reject('Failed');
                 })
         };
 
@@ -1505,6 +1505,27 @@ module.exports = function (OrgModel) {
                         error,
                         options,
                         functionName: 'downloadReorderPointsMultiplierFile'
+                    });
+                    return Promise.reject(error);
+                });
+        };
+
+         OrgModel.remoteMethod('downloadMinMaxFile', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/downloadMinMaxFile', verb: 'GET'},
+            returns: {arg: 'csvReportUrl', type: 'string', root: true}
+        });
+
+        OrgModel.downloadMinMaxFile = function (id, multiplierId, options) {
+            return OrgModel.app.models.CategoryModel.downloadMinMaxFile(id, options)
+                .catch(function (error) {
+                    logger.error({
+                        error,
+                        options,
+                        functionName: 'downloadMinMaxFile'
                     });
                     return Promise.reject(error);
                 });
