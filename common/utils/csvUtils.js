@@ -4,44 +4,26 @@ const fileName = path.basename(__filename, '.js'); // gives the filename without
 const logger = require('sp-json-logger')({fileName: 'common:utils:' + fileName});
 const multiparty = require("multiparty");
 const papaparse = require('papaparse');
+const fileUtils = require('./fileUtils');
 
 function parseCSVToJson(req, options) {
-    return new Promise(function (resolve, reject) {
-        var form = new multiparty.Form();
-        form.parse(req, function (err, fields, files) {
-            if (err) {
-                logger.error({
-                    message: 'Error in parsing form data',
-                    functionName: 'parseCSVToJson',
-                    options
-                });
-                reject(err);
+    return fileUtils.readFileData(req, options)
+        .then(function (response) {
+            var csvData = papaparse.parse(response.fileData);
+            return {
+                csvData: csvData,
+                fields: response.fields
             }
-            else {
-                //TODO: add file and fields validation
-                logger.debug({
-                    message: 'Received the following file, will parse it to json',
-                    files,
-                    fields,
-                    functionName: 'parseCSVToJson',
-                    options
-                });
-                var fileData = fs.readFileSync(files.file[0].path, 'utf8');
-                var csvData = papaparse.parse(fileData);
-                logger.debug({
-                    message: 'Parsed file to json',
-                    csvData,
-                    functionName: 'parseCSVToJson',
-                    options
-                });
-                resolve({
-                    csvData: csvData,
-                    fields: fields
-                });
-            }
+        })
+        .catch(function (error) {
+            logger.error({
+                message: 'Could not parse csv file',
+                error,
+                options,
+                functionName: 'parseCSVToJson'
+            });
+            return Promise.reject('Could not parse csv data');
         });
-    });
-
 }
 
 module.exports = {

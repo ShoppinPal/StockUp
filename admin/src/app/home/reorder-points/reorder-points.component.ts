@@ -170,6 +170,20 @@ export class ReorderPointsComponent implements OnInit {
     })
   }
 
+  downloadMultiplierFile(multiplierId) {
+    this.loading = true;
+    this.orgModelApi.downloadReorderPointsMultiplierFile(this.userProfile.orgModelId, multiplierId).subscribe((data) => {
+      const link = document.createElement('a');
+      link.href = data;
+      link.click();
+      this.loading = false;
+    }, err => {
+      this.loading = false;
+      this.toastr.error('Error downloading file');
+      console.log(err);
+    })
+  }
+
 
   fetchReorderPointsMultipliers(limit?: number, skip?: number, searchText?: string) {
     if (!(limit && skip)) {
