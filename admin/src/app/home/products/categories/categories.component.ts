@@ -6,6 +6,7 @@ import {ToastrService} from 'ngx-toastr';
 import {UserProfileService} from '../../../shared/services/user-profile.service';
 import {FileUploader} from 'ng2-file-upload';
 import {LoopBackConfig, LoopBackAuth} from "../../../shared/lb-sdk";
+import {UserModelApi} from "../../../shared/lb-sdk/services/custom/UserModel";
 
 @Component({
   selector: 'app-categories',
@@ -28,8 +29,10 @@ export class CategoriesComponent implements OnInit {
   public searchedCategory: Array<any>;
   public uploader: FileUploader;
   public parentCategory: string = "Select...";
+  public minMaxLastUploadedAt: Date;
 
   constructor(private orgModelApi: OrgModelApi,
+              private userModelApi: UserModelApi,
               private _route: ActivatedRoute,
               private toastr: ToastrService,
               private _userProfileService: UserProfileService,
@@ -47,6 +50,7 @@ export class CategoriesComponent implements OnInit {
       removeAfterUpload: true
     });
     this._route.data.subscribe((data: any) => {
+        console.log('data', data);
         this.categories = data.categories.categories;
         this.totalCategories = data.categories.count;
         this.totalPages = this.totalCategories / this.categoriesLimitPerPage;
@@ -54,6 +58,17 @@ export class CategoriesComponent implements OnInit {
       error => {
         console.log('error', error)
       });
+
+    this.userModelApi.getOrgModel(this.userProfile.userId)
+      .subscribe((data: any) => {
+      console.log('data', data);
+          if (data.minMaxFile) {
+            this.minMaxLastUploadedAt = data.minMaxFile.uploadedAt;
+          }
+        }
+        , err => {
+          console.log('Could not fetch org details');
+        });
   }
 
   fetchCategories(limit?: number, skip?: number, searchText?: string) {
@@ -71,16 +86,17 @@ export class CategoriesComponent implements OnInit {
       where: {}
     };
     if (searchText) {
-      var pattern = new RegExp('.*'+searchText+'.*', "i"); /* case-insensitive RegExp search */
+      var pattern = new RegExp('.*' + searchText + '.*', "i");
+      /* case-insensitive RegExp search */
       var filterData = pattern.toString();
       filter.where = {
-        name: { "regexp": filterData }
+        name: {"regexp": filterData}
       }
     }
     let fetchCategories = combineLatest(
       this.orgModelApi.getCategoryModels(this.userProfile.orgModelId, filter),
       this.orgModelApi.countCategoryModels(this.userProfile.orgModelId));
-      fetchCategories.subscribe((data: any) => {
+    fetchCategories.subscribe((data: any) => {
         this.loading = false;
         this.categories = data[0];
         this.totalCategories = data[1].count;
@@ -119,16 +135,32 @@ export class CategoriesComponent implements OnInit {
         console.log('error uploading file');
         console.log('response', response);
         console.log('status', status);
-        this.toastr.error(response);
+        this.toastr.error('Error uploading file');
       };
     }
   }
 
-   keyUpEvent(event, limit?: number, skip?: number, searchText?: string) {
-    if(event.keyCode == '13') {
+  keyUpEvent(event, limit?: number, skip?: number, searchText?: string) {
+    if (event.keyCode == '13') {
       this.fetchCategories(limit, skip, searchText);
     }
   }
 
+  /**
+   * last uploaded min max file
+   */
+  downloadMinMaxFile() {
+    this.loading = true;
+    this.orgModelApi.downloadMinMaxFile(this.userProfile.orgModelId).subscribe((data) => {
+      const link = document.createElement('a');
+      link.href = data;
+      link.click();
+      this.loading = false;
+    }, err => {
+      this.loading = false;
+      this.toastr.error('Error downloading file');
+      console.log(err);
+    })
+  }
 
 }

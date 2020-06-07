@@ -408,6 +408,13 @@
       "property": "downloadSampleReorderPointsMultiplierFile"
     },
     {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
+      "property": "downloadMinMaxFile"
+    },
+    {
       "principalType": "ROLE",
       "principalId": "orgAdmin",
       "permission": "ALLOW",
