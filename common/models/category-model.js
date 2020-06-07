@@ -11,7 +11,6 @@ const rp = require('request-promise');
 const csvUtils = require('../utils/csvUtils');
 
 module.exports = function (CategoryModel) {
-
     CategoryModel.uploadMinMaxFile = function (id, req, options) {
         logger.debug({
             message: 'Received file',
