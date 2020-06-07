@@ -112,7 +112,7 @@ export class ReorderPointsComponent implements OnInit {
       this.toastr.error('Enter a name for this multiplier setting');
       return;
     }
-    else if (!this.reorderPointsMultiplier) {
+    else if (this.reorderPointsMultiplier == null) {
       this.toastr.error('Enter a value for multiplier');
       return;
     }
@@ -132,8 +132,8 @@ export class ReorderPointsComponent implements OnInit {
       this.loading = false;
       this.uploader.clearQueue();
       multiplierForm.resetForm();
-      //noinspection TypeScriptUnresolvedVariable
-      document.getElementById('multiplierFile').value = '';
+      let fileElement: HTMLInputElement = document.getElementById('multiplierFile') as HTMLInputElement;
+      fileElement.value = '';
       if (response && response.result) {
         this.toastr.success(response.result);
       }
@@ -154,10 +154,10 @@ export class ReorderPointsComponent implements OnInit {
 
   validateFileFormat(fileEvent: any) {
     const file = fileEvent.target.files[0];
-    if(file.type !== 'text/csv') {
+    if (file.type !== 'text/csv') {
       this.toastr.error('Only csv files are supported');
-      //noinspection TypeScriptUnresolvedVariable
-      document.getElementById('multiplierFile').value = '';
+      let fileElement: HTMLInputElement = document.getElementById('multiplierFile') as HTMLInputElement;
+      fileElement.value = '';
       this.uploader.clearQueue();
     }
   }
