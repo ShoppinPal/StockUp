@@ -116,6 +116,10 @@ export class ReorderPointsComponent implements OnInit {
       this.toastr.error('Enter a value for multiplier');
       return;
     }
+    else if(this.reorderPointsMultiplier < 0) {
+      this.toastr.error('Multiplier value cannot be negative');
+      return;
+    }
     else if (!this.uploader.queue.length) {
       this.toastr.error('Upload a file first');
       return;
