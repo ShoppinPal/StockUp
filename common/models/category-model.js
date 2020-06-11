@@ -4,13 +4,11 @@ const path = require('path');
 const fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 const logger = require('sp-json-logger')({fileName: 'common:models:' + fileName});
 var _ = require('underscore');
-var Joi = Promise.promisifyAll(require('joi'));
-var validate = Promise.promisify(require('joi').validate);
-var vendSdk = require('vend-nodejs-sdk')({});
 const rp = require('request-promise');
+const csvUtils = require('../utils/csvUtils');
+const fileUtils = require('../utils/fileUtils');
 const papaparse = require('papaparse');
-const fs = require('fs');
-const multiparty = require("multiparty");
+const aws = require('aws-sdk');
 
 module.exports = function (CategoryModel) {
 
@@ -20,11 +18,55 @@ module.exports = function (CategoryModel) {
             functionName: 'uploadMinMaxFile',
             options
         });
-        var csvData, parentCategory, storeModels, csvStoreColumnPositions = {}, minColPosition, maxColPosition, failedCategories = [];
-        return parseCSVToJson(req, options)
+        var parentCategory, storeModels, csvStoreColumnPositions = {}, minColPosition, maxColPosition, failedCategories = [], successMsg;
+
+
+        const s3 = new aws.S3({
+            apiVersion: '2006-03-01',
+            region: CategoryModel.app.get('awsS3Region'),
+            accessKeyId: CategoryModel.app.get('awsAccessKeyId'),
+            secretAccessKey: CategoryModel.app.get('awsSecretAccessKey')
+        });
+        logger.debug({
+            message: 'Received file',
+            functionName: 'uploadReorderPointsMultiplierFile',
+            options
+        });
+        let csvData, fileData, storageBucket, storageKey, fileUrl;
+
+        return fileUtils.readFileData(req, options)
+            .then(function (response) {
+                logger.debug({
+                    message: 'Read file data',
+                    filePath: response.filePath,
+                    fields: response.fields,
+                    functionName: 'uploadMinMaxFile',
+                    options
+                });
+                fileData = response.fileData;
+                parentCategory = response.fields['parentCategory'][0];
+                var params = {
+                    Bucket: CategoryModel.app.get('awsS3ReorderPointsMultiplierBucket'),
+                    Key: parentCategory + '-' + Date.now() + '.csv',
+                    Body: response.fileData
+                };
+                var uploadAsync = Promise.promisify(s3.upload, s3);
+                return uploadAsync(params);
+            })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Uploaded file to s3',
+                    response,
+                    functionName: 'uploadReorderPointsMultiplierFile',
+                    options
+                });
+                storageBucket = response.Bucket;
+                storageKey = response.Key;
+                fileUrl = response.Location;
+                return papaparse.parse(fileData);
+            })
             .then(function (result) {
-                csvData = result.csvData;
-                parentCategory = result.parentCategory;
+                csvData = result;
                 //capture starting column numbers of min and max headers
                 minColPosition = csvData.data[0].indexOf('min');
                 maxColPosition = csvData.data[0].indexOf('max');
@@ -146,7 +188,15 @@ module.exports = function (CategoryModel) {
                     functionName: 'uploadMinMaxFile',
                     options
                 });
-                return Promise.resolve('Updated ' + successCount + ' categories out of total ' + result.length + ' categories uploaded');
+                successMsg = 'Updated ' + successCount + ' categories out of total ' + result.length + ' categories uploaded';
+                return CategoryModel.app.models.OrgModel.updateAll({id: id}, {
+                    minMaxFile: {
+                        storageKey: storageKey,
+                        storageBucket: storageBucket,
+                        fileUrl: fileUrl,
+                        uploadedAt: new Date()
+                    }
+                });
             })
             .catch(function (error) {
                 logger.error({
@@ -156,47 +206,53 @@ module.exports = function (CategoryModel) {
                     error
                 });
                 return Promise.reject('Error in parsing form data');
+            })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Updated min max upload details in org model',
+                    response,
+                    functionName: 'uploadMinMaxFile',
+                    options
+                });
+                return Promise.resolve(successMsg);
             });
 
     };
 
-    function parseCSVToJson(req, options) {
-        return new Promise(function (resolve, reject) {
-            var form = new multiparty.Form();
-            form.parse(req, function (err, fields, files) {
-                if (err) {
-                    logger.error({
-                        message: 'Error in parsing form data',
-                        functionName: 'parseCSVToJson',
-                        options
-                    });
-                    reject(err);
-                }
-                else {
-                    //TODO: add file and fields validation
-                    logger.debug({
-                        message: 'Received the following file, will parse it to json',
-                        files,
-                        fields,
-                        functionName: 'parseCSVToJson',
-                        options
-                    });
-                    var fileData = fs.readFileSync(files.file[0].path, 'utf8');
-                    var csvData = papaparse.parse(fileData);
-                    logger.debug({
-                        message: 'Parsed file to json',
-                        csvData,
-                        functionName: 'parseCSVToJson',
-                        options
-                    });
-                    resolve({
-                        csvData: csvData,
-                        parentCategory: fields.parentCategory[0]
-                    });
-                }
-            });
+    CategoryModel.downloadMinMaxFile = function (orgModelId, options) {
+        const s3 = new aws.S3({
+            apiVersion: '2006-03-01',
+            region: CategoryModel.app.get('awsS3Region'),
+            accessKeyId: CategoryModel.app.get('awsAccessKeyId'),
+            secretAccessKey: CategoryModel.app.get('awsSecretAccessKey')
         });
+        return CategoryModel.app.models.OrgModel.findById(orgModelId)
+            .then(function (orgModel) {
+                logger.debug({
+                    message: 'Will download min/max CSV file',
+                    options,
+                    functionName: 'downloadMinMaxFile'
+                });
+                var s3Bucket = orgModel.minMaxFile.storageBucket;
+                var s3Key = orgModel.minMaxFile.storageKey;
+                var params = {
+                    Bucket: s3Bucket,
+                    Key: s3Key
+                };
+                var url = s3.getSignedUrl('getObject', params);
+                return Promise.resolve(url);
 
-    }
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not get signed url for min/max file',
+                    error,
+                    reason: error,
+                    options,
+                    functionName: 'downloadMinMaxFile'
+                });
+                return Promise.reject('Could not get signed url for min/max multiplier file');
+            });
+    };
 
 };

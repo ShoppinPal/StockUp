@@ -14,6 +14,9 @@ const LEAD_TIME_IN_DAYS = 1;
 const REVIEW_TIME_IN_DAYS = 1;
 const CSL_MULTIPLIER = 1.03; //NORMSINV(0.85) 85% success rate
 const TODAYS_DATE = new Date();
+TODAYS_DATE.setHours(0);
+TODAYS_DATE.setMinutes(0);
+TODAYS_DATE.setSeconds(0);
 var runMe = function (payload, config, taskId, messageId) {
 
     var orgModelId = payload.orgModelId;
@@ -111,10 +114,17 @@ module.exports = {
     run: runMe
 };
 
+/**
+ * Calculate and store min/max values for each product
+ * @param orgModelId
+ * @param storeModelId
+ * @param messageId
+ * @return {Promise.<TResult>}
+ */
 function calculateMinMax(orgModelId, storeModelId, messageId) {
     try {
 
-        var productModels, salesModels, orgModelInstance;
+        var productModels, salesModels, orgModelInstance, reorderPointsMultipliers;
         logger.debug({
             message: 'Will calculate min/max for the following store',
             storeModelId,
@@ -122,18 +132,18 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
             commandName
         });
         logger.debug({
-            message: 'Looking for inventory models of the store',
+            message: 'Looking for orgModel and reorderPointsMultiplier',
             storeModelId,
             orgModelId,
             commandName
         });
         return Promise.all([
-            db.collection('InventoryModel').find({
-                storeModelId: ObjectId(storeModelId)
-            }).toArray(),
             db.collection('OrgModel').findOne({
                 _id: ObjectId(orgModelId)
-            })
+            }),
+            db.collection('ReorderPointsMultiplierModel').find({
+                $and: [{orgModelId: ObjectId(orgModelId)}, {isActive: true}]
+            }).toArray()
         ])
             .catch(function (error) {
                 logger.error({
@@ -146,56 +156,68 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                 return Promise.reject(error);
             })
             .then(function (response) {
-                    var inventoryModelInstances = response[0];
-                    orgModelInstance = response[1];
-                    logger.debug({
-                        message: 'Found inventory model instances, will fetch products and sales history',
-                        orgModelInstance,
-                        count: inventoryModelInstances.length,
-                        commandName,
-                        storeModelId,
-                        orgModelId
-                    });
+                orgModelInstance = response[0];
+                reorderPointsMultipliers = response[1];
+                logger.debug({
+                    message: 'Found orgModel and reorderMultiplier models, will look for productModels',
+                    response,
+                    messageId,
+                    commandName,
+                    orgModelId,
+                    storeModelId
+                });
 
-                    /**
-                     * Do not calculate reorder points for inventory models
-                     * that already have reorder points calculated today
-                     */
-                    var allProductModelIds = _.map(_.filter(_.pluck(inventoryModelInstances, 'productModelId'), function (eachProductModelId) {
-                        return eachProductModelId !== undefined;
-                    }), function (eachProductModelId) {
-                        if (eachProductModelId)
-                            return eachProductModelId.toString();
-                    });
-                    var inventoriesCalculatedToday = _.filter(inventoryModelInstances, function (eachInventory) {
-                        var calculatedToday = eachInventory.standardDeviationCalculationDate &&
-                            eachInventory.standardDeviationCalculationDate.getDate() === TODAYS_DATE.getDate() &&
-                            eachInventory.standardDeviationCalculationDate.getMonth() === TODAYS_DATE.getMonth() &&
-                            eachInventory.standardDeviationCalculationDate.getYear() === TODAYS_DATE.getYear() &&
-                            eachInventory.salesDateRangeInDays === orgModelInstance.salesDateRangeInDays;
-                        return calculatedToday;
-                    });
-                    var productModelIdsCalculatedToday = _.map(_.pluck(inventoriesCalculatedToday, 'productModelId'), function (eachProductModelId) {
-                        if (eachProductModelId)
-                            return eachProductModelId.toString();
-                    });
+                let distinctProductModelQuery = {
+                    storeModelId: ObjectId(storeModelId)
+                };
 
-                    var productModelIdsToCalculate = _.difference(allProductModelIds, productModelIdsCalculatedToday);
+                /**
+                 * If there's no need to re-calculate the reorder points for this store
+                 * coz it might have been generated already today
+                 */
+                if (!orgModelInstance.recalculateReorderPointsEveryTime) {
+                    distinctProductModelQuery = {
+                        $and: [
+                            {
+                                storeModelId: ObjectId(storeModelId)
+                            },
+                            {
+                                $or: [
+                                    {
+                                        standardDeviationCalculationDate: {
+                                            $lt: TODAYS_DATE
+                                        }
+                                    },
+                                    {
+                                        salesDateRangeInDays: {
+                                            $ne: orgModelInstance.salesDateRangeInDays
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    };
+                }
 
-                    if (!productModelIdsToCalculate.length) {
-                        return Promise.resolve([0, 0]);
-                    }
-                    var productModelIds = _.map(productModelIdsToCalculate, function (eachProductModelId) {
-                        if (eachProductModelId)
-                            return ObjectId(eachProductModelId);
-                    });
+                return db.collection('InventoryModel').distinct('productModelId', distinctProductModelQuery);
+            })
+            .then(function (response) {
+                let productModelIds = response;
+                logger.debug({
+                    message: 'Found Distinct productModelIds , will fetch products and sales history',
+                    orgModelInstance,
+                    count: productModelIds.length,
+                    commandName,
+                    storeModelId,
+                    orgModelId
+                });
+
+                if (productModelIds && productModelIds.length) {
                     var salesDateFrom = new Date();
                     salesDateFrom.setDate(salesDateFrom.getDate() - (orgModelInstance.salesDateRangeInDays || 30));
                     return Promise.all([
                         db.collection('ProductModel').find({
-                            _id: {
-                                $in: productModelIds
-                            }
+                            _id: {$in: productModelIds}
                         }).toArray(),
                         db.collection('SalesLineItemsModel').find({
                             $and: [
@@ -219,176 +241,34 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
                                 }
                             ]
                         }).toArray()
-                    ]);
-                }
-            )
-            .catch(function (error) {
-                logger.error({
-                    message: 'Could not find product and sales models',
-                    error,
-                    messageId
-                });
-                return Promise.reject('Could not find product and sales models');
-            })
-            .then(function (response) {
-                logger.debug({
-                    message: 'Found sales and product models, will look for category models',
-                    productCount: response[0].length,
-                    salesCount: response[1].length,
-                    messageId
-                });
-                productModels = response[0];
-                salesModels = response[1];
-                var categoryModelIds = [];
-                for (var i = 0; i<response[0].length; i++) {
-                    categoryModelIds.push(ObjectId(response[0][i].categoryModelId));
-                }
-                categoryModelIds = _.uniq(categoryModelIds);
-                return db.collection('CategoryModel').find({
-                    _id: {
-                        $in: categoryModelIds
-                    }
-                }).toArray();
-            })
-            .catch(function (error) {
-                logger.error({
-                    message: 'Could not find category models',
-                    error,
-                    messageId
-                });
-                return Promise.reject('Could not find category models');
-            })
-            .then(function (categoryModelInstances) {
-                logger.debug({
-                    message: 'Found category models',
-                    count: categoryModelInstances.length,
-                    messageId
-                });
-
-                var salesGroupedByProducts = _.groupBy(salesModels, 'productModelId');
-
-                if (productModels && productModels.length) {
-
-                    var batchCounter = 0, batches = [];
-                    _.each(productModels, function (eachProductModel, i) {
-                        if (i % 999 === 0) {
-                            logger.debug({
-                                message: 'pushing batch',
-                                batchNumber: i,
-                                totalBatches: batches.length,
+                    ])
+                        .catch(function (error) {
+                            logger.error({
+                                message: 'Could not find product and sales models',
+                                error,
                                 messageId
                             });
-                            batches.push(db.collection('InventoryModel').initializeUnorderedBulkOp());
-                        }
-                        var totalQuantitiesSold = 0;
-                        var totalQuantitiesSoldPerDate = {};
-                        var totalNumberOfDaysSinceFirstSold;
-
-                        if (eachProductModel.categoryModelId) {
-                            var correspondingCategoryModel = _.find(categoryModelInstances, function (eachCategoryModel) {
-                                return eachCategoryModel._id.toString() === eachProductModel.categoryModelId.toString();
-                            });
-                        }
-
-                        var productSales = salesGroupedByProducts[eachProductModel._id];
-
-                        if (productSales) {
-                            var firstSale = productSales[0].salesDate;
-
-                            for (var j = 0, jLen = productSales.length; j<jLen; j++) {
-                                firstSale = productSales[j].salesDate<firstSale ? productSales[j].salesDate : firstSale;
-                                totalQuantitiesSold += productSales[j].quantity;
-                                if (!totalQuantitiesSoldPerDate[productSales[j].salesDate]) {
-                                    totalQuantitiesSoldPerDate[productSales[j].salesDate] = productSales[j].quantity;
-                                }
-                                else {
-                                    totalQuantitiesSoldPerDate[productSales[j].salesDate] += productSales[j].quantity;
-                                }
-                            }
-
-                            var millisecondsPerDay = 24 * 60 * 60 * 1000;
-                            totalNumberOfDaysSinceFirstSold = Math.round((TODAYS_DATE - new Date(firstSale)) / millisecondsPerDay) || 1;
-                            var averageDailyDemand = totalQuantitiesSold / totalNumberOfDaysSinceFirstSold;
-                            var standardDeviation;
-                            var averageMinusValueSquareSummation = 0; //sigma of (x minus x bar)^2
-                            var arrayOfDatesOfSales = Object.keys(totalQuantitiesSoldPerDate);
-                            for (var j = 0; j<arrayOfDatesOfSales.length; j++) {
-                                averageMinusValueSquareSummation += Math.pow(totalQuantitiesSoldPerDate[arrayOfDatesOfSales[j]] - averageDailyDemand, 2);
-                            }
-                            for (var j = 0; j<totalNumberOfDaysSinceFirstSold - arrayOfDatesOfSales.length; j++) {
-                                averageMinusValueSquareSummation += Math.pow(0 - averageDailyDemand, 2);
-                            }
-                            standardDeviation = Math.pow(averageMinusValueSquareSummation / totalNumberOfDaysSinceFirstSold, 0.5);
-                            //tempMin is not of much use here, since we are considering a periodic replenishment system of 1 week for each store
-                            //TODO: need to take the periodic interval into account in tempMax
-                            var tempMin = LEAD_TIME_IN_DAYS * (averageDailyDemand + standardDeviation) + (CSL_MULTIPLIER * standardDeviation * Math.pow(LEAD_TIME_IN_DAYS, 0.5));
-                            var tempMax = (LEAD_TIME_IN_DAYS + REVIEW_TIME_IN_DAYS) * (averageDailyDemand + standardDeviation) + (CSL_MULTIPLIER * standardDeviation * Math.pow((LEAD_TIME_IN_DAYS + REVIEW_TIME_IN_DAYS), 0.5));
+                            return Promise.reject('Could not find product and sales models');
+                        })
+                        .then(function (response) {
                             logger.debug({
-                                totalQuantitiesSoldPerDate,
-                                arrayOfDatesOfSales,
-                                averageMinusValueSquareSummation,
-                                totalQuantitiesSold,
-                                totalNumberOfDaysSinceFirstSold,
-                                commandName,
-                                storeModelId,
-                                orgModelId,
-                                correspondingCategoryModel,
-                                averageDailyDemand,
-                                standardDeviation,
-                                productModelId: eachProductModel._id,
-                                tempMax,
-                                tempMin,
-                                productNumber: (i + 1) + '/' + productModels.length,
-                                productName: eachProductModel.name,
-                                sku: eachProductModel.sku
+                                message: 'Found sales and product models, will create reorder points',
+                                productCount: response[0].length,
+                                salesCount: response[1].length,
+                                messageId
                             });
+                            productModels = response[0];
+                            salesModels = response[1];
+                            var salesGroupedByProducts = _.groupBy(salesModels, 'productModelId');
 
-                            batches[batches.length - 1].find({
-                                productModelId: ObjectId(eachProductModel._id),
-                                storeModelId: ObjectId(storeModelId)
-                            }).update({
-                                $set: {
-                                    averageDailyDemand: averageDailyDemand,
-                                    standardDeviation: standardDeviation,
-                                    averageDailyDemandCalculationDate: new Date(),
-                                    standardDeviationCalculationDate: new Date(),
-                                    salesDateRangeInDays: orgModelInstance.salesDateRangeInDays,
-                                    stockUpReorderPoint: Math.round(tempMax), //reorder quantities to this point
-                                    stockUpReorderThreshold: Math.round(tempMin), //reorder quantities if product below this level
-                                }
-                            });
-                        }
-                        else {
-                            logger.debug({
-                                message: 'There is no previous sales data available, will set reorder points to null',
-                                product: eachProductModel._id,
-                                inventoryNumber: (i + 1) + '/' + productModels.length
-                            });
-                            batches[batches.length - 1].find({
-                                productModelId: ObjectId(eachProductModel._id),
-                                storeModelId: ObjectId(storeModelId)
-                            }).update({
-                                $set: {
-                                    averageDailyDemand: null,
-                                    standardDeviation: null,
-                                    stockUpReorderPoint: null,
-                                    stockUpReorderThreshold: null,
-                                    salesDateRangeInDays: orgModelInstance.salesDateRangeInDays,
-                                    averageDailyDemandCalculationDate: new Date(),
-                                    standardDeviationCalculationDate: new Date()
-                                }
-                            });
-                        }
-                    });
-
-                    return Promise.map(batches, function (eachBatch, batchNumber) {
-                        logger.debug({
-                            message: 'Executing batch',
-                            batchNumber,
-                            messageId
-                        });
-                        return eachBatch.execute();
-                    }, {concurrency: 1});
+                            if (productModels && productModels.length) {
+                                let batches = createReorderPointBatches(productModels, salesGroupedByProducts, reorderPointsMultipliers, storeModelId, orgModelInstance.salesDateRangeInDays, messageId);
+                                return updateReorderPoints(batches, messageId);
+                            }
+                            else {
+                                return Promise.resolve('No reorder points to update');
+                            }
+                        })
                 }
                 else {
                     return Promise.resolve('No reorder points to update');
@@ -414,4 +294,178 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
     catch (e) {
         throw new Error(e);
     }
+}
+
+/**
+ * Calculate min/max for each product in the store
+ * that has sales in the salesDateRange defined for the org
+ * @param productModels
+ * @param salesGroupedByProducts
+ * @param reorderPointsMultipliers
+ * @param storeModelId
+ * @param salesDateRangeInDays
+ * @param messageId
+ * @return {Array}
+ */
+function createReorderPointBatches(productModels, salesGroupedByProducts, reorderPointsMultipliers, storeModelId, salesDateRangeInDays, messageId) {
+
+    var batchCounter = 0, batches = [];
+
+    let productSKUsWithMultipliers = {};
+
+    _.each(reorderPointsMultipliers, function (eachMultiplier) {
+        _.each(eachMultiplier.productSKUs, function (eachSKU) {
+            productSKUsWithMultipliers[eachSKU] = eachMultiplier.multiplier;
+        });
+    });
+
+    console.log('salesGroupedByProducts', salesGroupedByProducts);
+
+    _.each(productModels, function (eachProductModel, i) {
+        if (i % 999 === 0) {
+            logger.debug({
+                message: 'pushing batch',
+                batchNumber: i,
+                totalBatches: batches.length,
+                messageId
+            });
+            batches.push(db.collection('InventoryModel').initializeUnorderedBulkOp());
+        }
+        var productSales = salesGroupedByProducts[eachProductModel._id];
+        if (productSales) {
+            let {
+                averageDailyDemand,
+                standardDeviation,
+                tempMin,
+                tempMax
+            } = calculateProductReorderPoint(eachProductModel, productSales, messageId);
+
+            if (productSKUsWithMultipliers.hasOwnProperty(eachProductModel.sku)) {
+                logger.debug({
+                    message: 'Applying multiplier to product',
+                    eachProductModel,
+                    multiplier: productSKUsWithMultipliers[eachProductModel.sku],
+                    messageId
+                });
+                tempMax = tempMax * productSKUsWithMultipliers[eachProductModel.sku];
+            }
+
+            batches[batches.length - 1].find({
+                productModelId: ObjectId(eachProductModel._id),
+                storeModelId: ObjectId(storeModelId)
+            }).update({
+                $set: {
+                    averageDailyDemand: averageDailyDemand,
+                    standardDeviation: standardDeviation,
+                    averageDailyDemandCalculationDate: new Date(),
+                    standardDeviationCalculationDate: new Date(),
+                    salesDateRangeInDays: salesDateRangeInDays,
+                    stockUpReorderPoint: Math.round(tempMax), //reorder quantities to this point
+                    stockUpReorderThreshold: Math.round(tempMin), //reorder quantities if product below this level
+                }
+            });
+        }
+        else {
+            batches[batches.length - 1].find({
+                productModelId: ObjectId(eachProductModel._id),
+                storeModelId: ObjectId(storeModelId)
+            }).update({
+                $set: {
+                    averageDailyDemand: null,
+                    standardDeviation: null,
+                    stockUpReorderPoint: null,
+                    stockUpReorderThreshold: null,
+                    salesDateRangeInDays: salesDateRangeInDays,
+                    averageDailyDemandCalculationDate: new Date(),
+                    standardDeviationCalculationDate: new Date()
+                }
+            });
+        }
+    });
+    return batches;
+}
+
+/**
+ * Update reorder points for each batch of products
+ * @param batches
+ * @return {*}
+ */
+function updateReorderPoints(batches, messageId) {
+    return Promise.map(batches, function (eachBatch, batchNumber) {
+        logger.debug({
+            message: 'Executing batch',
+            batchNumber,
+            messageId
+        });
+        return eachBatch.execute();
+    }, {concurrency: 1});
+
+}
+
+/**
+ * Calculate averageDailyDemand, standardDeviation, Min & Max for
+ * each product based on its sales
+ * @param eachProductModel
+ * @param categoryModelInstances
+ * @param productSales
+ * @param messageId
+ * @return {{averageDailyDemand: number, standardDeviation: (number|*), tempMin: number, tempMax: number}}
+ */
+function calculateProductReorderPoint(eachProductModel, productSales, messageId) {
+    var totalQuantitiesSold = 0;
+    var totalQuantitiesSoldPerDate = {};
+    var totalNumberOfDaysSinceFirstSold;
+
+    var firstSale = productSales[0].salesDate;
+
+    for (var j = 0, jLen = productSales.length; j<jLen; j++) {
+        firstSale = productSales[j].salesDate<firstSale ? productSales[j].salesDate : firstSale;
+        totalQuantitiesSold += productSales[j].quantity;
+        if (!totalQuantitiesSoldPerDate[productSales[j].salesDate]) {
+            totalQuantitiesSoldPerDate[productSales[j].salesDate] = productSales[j].quantity;
+        }
+        else {
+            totalQuantitiesSoldPerDate[productSales[j].salesDate] += productSales[j].quantity;
+        }
+    }
+
+    var millisecondsPerDay = 24 * 60 * 60 * 1000;
+    totalNumberOfDaysSinceFirstSold = Math.round((TODAYS_DATE - new Date(firstSale)) / millisecondsPerDay) || 1;
+    var averageDailyDemand = totalQuantitiesSold / totalNumberOfDaysSinceFirstSold;
+    var standardDeviation;
+    var averageMinusValueSquareSummation = 0; //sigma of (x minus x bar)^2
+    var arrayOfDatesOfSales = Object.keys(totalQuantitiesSoldPerDate);
+    for (var j = 0; j<arrayOfDatesOfSales.length; j++) {
+        averageMinusValueSquareSummation += Math.pow(totalQuantitiesSoldPerDate[arrayOfDatesOfSales[j]] - averageDailyDemand, 2);
+    }
+    for (var j = 0; j<totalNumberOfDaysSinceFirstSold - arrayOfDatesOfSales.length; j++) {
+        averageMinusValueSquareSummation += Math.pow(0 - averageDailyDemand, 2);
+    }
+    standardDeviation = Math.pow(averageMinusValueSquareSummation / totalNumberOfDaysSinceFirstSold, 0.5);
+    //tempMin is not of much use here, since we are considering a periodic replenishment system of 1 week for each store
+    //TODO: need to take the periodic interval into account in tempMax
+    var tempMin = LEAD_TIME_IN_DAYS * (averageDailyDemand + standardDeviation) + (CSL_MULTIPLIER * standardDeviation * Math.pow(LEAD_TIME_IN_DAYS, 0.5));
+    var tempMax = (LEAD_TIME_IN_DAYS + REVIEW_TIME_IN_DAYS) * (averageDailyDemand + standardDeviation) + (CSL_MULTIPLIER * standardDeviation * Math.pow((LEAD_TIME_IN_DAYS + REVIEW_TIME_IN_DAYS), 0.5));
+    logger.debug({
+        totalQuantitiesSoldPerDate,
+        arrayOfDatesOfSales,
+        averageMinusValueSquareSummation,
+        totalQuantitiesSold,
+        totalNumberOfDaysSinceFirstSold,
+        commandName,
+        averageDailyDemand,
+        standardDeviation,
+        productModelId: eachProductModel._id,
+        tempMax,
+        tempMin,
+        productName: eachProductModel.name,
+        sku: eachProductModel.sku,
+        messageId
+    });
+    return {
+        averageDailyDemand,
+        standardDeviation,
+        tempMin,
+        tempMax
+    };
 }

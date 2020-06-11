@@ -605,7 +605,7 @@ module.exports = function (OrgModel) {
                         functionName: 'uploadMinMaxFile',
                         options
                     });
-                    return Promise.reject(false);
+                    return Promise.reject('Failed');
                 })
         };
 
@@ -1436,6 +1436,98 @@ module.exports = function (OrgModel) {
                         options
                     });
                     return Promise.reject('Cannot add product to stock order');
+                });
+        };
+
+        OrgModel.remoteMethod('uploadReorderPointsMultiplierFile', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'req', type: 'object', 'http': {source: 'req'}},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/uploadReorderPointsMultiplierFile', verb: 'post'},
+            returns: {arg: 'result', type: 'string'}
+        });
+
+        OrgModel.uploadReorderPointsMultiplierFile = function (id, req, options, cb) {
+            logger.debug({
+                message: 'Will upload reorder points multiplier file for products',
+                functionName: 'uploadReorderPointsMultiplierFile',
+                options
+            });
+            return OrgModel.app.models.ReorderPointsMultiplierModel.uploadReorderPointsMultiplierFile(id, req, options)
+                .catch(function (error) {
+                    logger.debug({
+                        message: 'Error processing reorder points multiplier file',
+                        error,
+                        functionName: 'uploadReorderPointsMultiplierFile',
+                        options
+                    });
+                    return Promise.reject(error);
+                });
+        };
+
+        OrgModel.remoteMethod('downloadSampleReorderPointsMultiplierFile', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/downloadSampleReorderPointsMultiplierFile', verb: 'GET'},
+            returns: {arg: 'csvReportUrl', type: 'string', root: true}
+        });
+
+        OrgModel.downloadSampleReorderPointsMultiplierFile = function (id, options) {
+            return OrgModel.app.models.ReorderPointsMultiplierModel.downloadSampleFile(id, options)
+                .catch(function (error) {
+                    logger.error({
+                        error,
+                        options,
+                        functionName: 'downloadSampleReorderPointsMultiplierFile'
+                    });
+                    return Promise.reject(error);
+                });
+        };
+
+        OrgModel.remoteMethod('downloadReorderPointsMultiplierFile', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'multiplierId', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/downloadReorderPointsMultiplierFile', verb: 'GET'},
+            returns: {arg: 'csvReportUrl', type: 'string', root: true}
+        });
+
+        OrgModel.downloadReorderPointsMultiplierFile = function (id, multiplierId, options) {
+            return OrgModel.app.models.ReorderPointsMultiplierModel.downloadReorderPointsMultiplierFile(id, multiplierId, options)
+                .catch(function (error) {
+                    logger.error({
+                        error,
+                        options,
+                        functionName: 'downloadReorderPointsMultiplierFile'
+                    });
+                    return Promise.reject(error);
+                });
+        };
+
+         OrgModel.remoteMethod('downloadMinMaxFile', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/downloadMinMaxFile', verb: 'GET'},
+            returns: {arg: 'csvReportUrl', type: 'string', root: true}
+        });
+
+        OrgModel.downloadMinMaxFile = function (id, multiplierId, options) {
+            return OrgModel.app.models.CategoryModel.downloadMinMaxFile(id, options)
+                .catch(function (error) {
+                    logger.error({
+                        error,
+                        options,
+                        functionName: 'downloadMinMaxFile'
+                    });
+                    return Promise.reject(error);
                 });
         };
 
