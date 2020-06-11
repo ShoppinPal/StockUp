@@ -43,6 +43,27 @@
     <div class="col-sm-12">
       <div class="card">
         <div class="card-header">
+          <strong>Download Last min/max file</strong>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-12">
+              <span class="input-group-btn" *ngIf="minMaxLastUploadedAt">
+                <button class="btn btn-link" type="button" (click)="downloadMinMaxFile()">
+                <i class="fa fa-cloud-download"></i>
+                  Download last uploaded file (uploaded on {{minMaxLastUploadedAt | date: 'y-MM-dd HH:mm'}})
+                </button>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!--/.col-->
+  </div><!--/.row-->
+  <!--<div class="row">
+    <div class="col-sm-12">
+      <div class="card">
+        <div class="card-header">
           <strong>Search Category</strong>
         </div>
         <div class="card-body">
@@ -64,11 +85,11 @@
                 </div>
               </div>
             </div>
-          </div><!--/.row-->
+          </div>&lt;!&ndash;/.row&ndash;&gt;
         </div>
       </div>
-    </div><!--/.col-->
-  </div><!--/.row-->
+    </div>&lt;!&ndash;/.col&ndash;&gt;
+  </div>&lt;!&ndash;/.row&ndash;&gt;
   <div class="row">
     <div class="col-lg-12">
       <div class="card">
@@ -107,6 +128,6 @@
         </div>
       </div>
     </div>
-    <!--/.col-->
-  </div>
+    &lt;!&ndash;/.col&ndash;&gt;
+  </div>-->
 </div>
