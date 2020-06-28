@@ -36,7 +36,7 @@ module.exports = function (ReorderPointsMultiplierModel) {
                 .then(function (multipliers) {
                     logger.debug({
                         message: 'Found existing reorder point multipliers',
-                        multipliers,
+                        total: multipliers ? multipliers.length : '',
                         functionName: 'uploadReorderPointsMultiplierFile',
                         options: ctx.options
                     });
@@ -60,47 +60,45 @@ module.exports = function (ReorderPointsMultiplierModel) {
                     if (conflict) {
                         logger.debug({
                             message: 'One of the product SKUs already present in another multiplier, cannot go on',
-                            conflictSKU,
-                            conflictMultiplier,
                             functionName: 'uploadReorderPointsMultiplierFile',
                             options: ctx.options
                         });
-                        throw new CustomException(conflictSKU + ' is already present in multiplier: ' + conflictMultiplier.name + ', cannot go on', 400);
+                        throw new CustomException(conflictSKU.length + ' SKU(s) already present in multiplier: ' + conflictMultiplier.name + ', cannot go on', 400);
                     }
                     logger.debug({
                         message: 'No sku conflicts found in multipliers, will go on to check products',
+                        conflictSKU: conflictSKU ? conflictSKU.length : '',
                         functionName: 'uploadReorderPointsMultiplierFile',
                         options: ctx.options
                     });
-                    return ReorderPointsMultiplierModel.app.models.ProductModel.find({
-                        where: {
-                            orgModelId: currentInstance.orgModelId,
-                            sku: {
-                                inq: currentInstance.productSKUs
-                            }
+                    return ReorderPointsMultiplierModel.app.models.ProductModel.count({
+                        orgModelId: currentInstance.orgModelId,
+                        sku: {
+                            inq: currentInstance.productSKUs
                         }
                     });
                 })
                 .then(function (res) {
                     logger.debug({
-                        message: 'Found product models',
-                        res,
+                        message: 'Found product models, will check for invalid product SKUs',
+                        count: res,
+                        toFind: currentInstance.productSKUs.length,
                         functionName: 'uploadReorderPointsMultiplierFile',
                         options: ctx.options
                     });
 
-                    let skusNotFound = _.reject(currentInstance.productSKUs, function (eachSKU) {
-                        return _.findWhere(res, {sku: eachSKU.trim()});
-                    });
-
-                    if (skusNotFound.length) {
+                    if (res !== currentInstance.productSKUs.length) {
+                        let productsNotFound = currentInstance.productSKUs.length - res;
                         logger.error({
                             message: 'Could not find one or more products in database',
                             functionName: 'uploadReorderPointsMultiplierFile',
-                            skusNotFound,
+                            count: productsNotFound,
                             options: ctx.options
                         });
-                        throw new CustomException('Could not find products: ' + skusNotFound.toString() + '  in database', 400);
+                        throw new CustomException('Could not find ' + productsNotFound + ' products in database', 400);
+                    }
+                    else {
+                        return Promise.resolve();
                     }
                 });
         }
@@ -158,7 +156,7 @@ module.exports = function (ReorderPointsMultiplierModel) {
             .then(function (result) {
                 logger.debug({
                     message: 'JSON data for multiplier',
-                    result,
+                    count: result.data.length,
                     functionName: 'uploadReorderPointsMultiplierFile',
                     options
                 });
@@ -168,13 +166,12 @@ module.exports = function (ReorderPointsMultiplierModel) {
                 });
                 logger.debug({
                     message: 'CSV Data transformed into product SKUs',
-                    csvData,
+                    count: csvData.length,
                     functionName: 'uploadReorderPointsMultiplierFile',
                     options
                 });
                 logger.debug({
                     message: 'Will look for existing multipliers for these skus',
-                    csvData,
                     functionName: 'uploadReorderPointsMultiplierFile',
                     options
                 });
