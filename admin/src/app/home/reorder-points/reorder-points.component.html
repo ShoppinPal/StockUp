@@ -165,6 +165,7 @@
               <th>Multiplier</th>
               <th>File</th>
               <th>Status</th>
+              <th>Created At</th>
               <th>Save</th>
               <th>Delete</th>
             </tr>
@@ -193,6 +194,7 @@
                   <span class="switch-slider"></span>
                 </label>
               </td>
+              <td>{{reorderPointsMultiplier.createdAt | date: 'y-MM-dd HH:mm'}}</td>
               <td>
                 <button class="btn btn-primary" type="submit"
                         (click)="updateReorderPointsMultiplier(reorderPointsMultiplier)">
