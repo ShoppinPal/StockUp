@@ -53,6 +53,12 @@
       "type": "belongsTo",
       "model": "CategoryModel",
       "foreignKey": "categoryModelId"
+    },
+    "reorderPointsMultiplierModels": {
+      "type": "hasMany",
+      "model": "ReorderPointsMultiplierModel",
+      "foreignKey": "productModelId",
+      "through": "ProductsReorderPointsMultiplierMappings"
     }
   },
   "acls": [],
