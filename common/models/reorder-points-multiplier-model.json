@@ -23,10 +23,6 @@
       "type": "number",
       "required": true
     },
-    "productSKUs": {
-      "type": "array",
-      "required": true
-    },
     "storageBucket": {
       "type": "string"
     },
@@ -48,6 +44,12 @@
       "type": "belongsTo",
       "model": "OrgModel",
       "foreignKey": "orgModelId"
+    },
+    "productModels": {
+      "type": "hasMany",
+      "model": "ProductModel",
+      "foreignKey": "reorderPointsMultiplierModelId",
+      "through": "ProductsReorderPointsMultiplierMappings"
     }
   },
   "acls": [],

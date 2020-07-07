@@ -1,0 +1,24 @@
+{
+  "name": "ProductsReorderPointsMultiplierMappings",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {},
+  "validations": [],
+  "relations": {
+    "productModel": {
+      "type": "belongsTo",
+      "model": "ProductModel",
+      "foreignKey": "productModelId"
+    },
+    "reorderPointsMultiplierModel": {
+      "type": "belongsTo",
+      "model": "ReorderPointsMultiplierModel",
+      "foreignKey": "reorderPointsMultiplierModelId"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

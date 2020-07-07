@@ -141,8 +141,13 @@ function calculateMinMax(orgModelId, storeModelId, messageId) {
             db.collection('OrgModel').findOne({
                 _id: ObjectId(orgModelId)
             }),
+            /**
+             * Only find multipliers with value ZERO(0), will calculate their reorder points
+             * to be also ZERO(0). All other multipliers will be dealt after their product
+             * SKUs have suggestedOrderQuantities in the generate-stock-order-* scripts.
+             */
             db.collection('ReorderPointsMultiplierModel').find({
-                $and: [{orgModelId: ObjectId(orgModelId)}, {isActive: true}]
+                $and: [{orgModelId: ObjectId(orgModelId)}, {isActive: true}, {multiplier: 0}]
             }).toArray()
         ])
             .catch(function (error) {
@@ -318,8 +323,6 @@ function createReorderPointBatches(productModels, salesGroupedByProducts, reorde
             productSKUsWithMultipliers[eachSKU] = eachMultiplier.multiplier;
         });
     });
-
-    console.log('salesGroupedByProducts', salesGroupedByProducts);
 
     _.each(productModels, function (eachProductModel, i) {
         if (i % 999 === 0) {
