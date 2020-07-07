@@ -17,7 +17,7 @@ steps:
       args:
       - -ceux
       - |
-        docker run -d --name=warehouse -p 3000:3000 -e "MONGOLAB_URI=mongodb://mongo-local:27017/test" -e "NODE_ENV=staging" shoppinpal/warehouse:$(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g')
+        docker run -d --name=warehouse -p 3000:3000 -e "MONGOLAB_URI=mongodb://mongo-local:27017/test" -e "NODE_ENV=staging" gcr.io/warehouse-build/warehouse:$(grep version package.json | head -1 | tr -s ' ' | awk '{ print $2 }' | sed 's/[",]//g')
  
     - id: Deploy warehouse
       name: gcr.io/cloud-builders/docker
