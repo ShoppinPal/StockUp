@@ -5,6 +5,7 @@ const MongoClient = require('mongodb').MongoClient;
 const ObjectId = require('mongodb').ObjectID;
 var db = null; //database connected
 const utils = require('./../../jobs/utils/utils.js');
+const queries = require('../../utils/queries');
 const path = require('path');
 sql.Promise = require('bluebird');
 const _ = require('underscore');
@@ -182,28 +183,6 @@ function generateStockOrder(payload, config, taskId, messageId) {
     var categoryModelId = payload.categoryModelId;
     var optionLevelStoreInventory, productModelIds;
     //TODO: Size-wise replacements (replace size S with M in order if S is not available)
-    /*var sizeReplacementArray = [
-     {
-     size: 'S',
-     replacement: 'M'
-     },
-     {
-     size: 'M',
-     replacement: 'S'
-     },
-     {
-     size: 'L',
-     replacement: 'M'
-     },
-     {
-     size: 'XS',
-     replacement: 'S'
-     },
-     {
-     size: 'XL',
-     replacement: 'L'
-     }
-     ];*/
     logger.debug({
         message: 'Will generate stock order for the following store',
         storeModelId,
@@ -261,12 +240,25 @@ function generateStockOrder(payload, config, taskId, messageId) {
                 sampleInventoryModelInstance: _.sample(inventoryModelInstances),
                 toReplenishItemCount: inventoryModelInstances.length,
                 orgModelId,
+                inventoryModelInstances,
                 messageId
             });
+            let productModelIds = _.chain(inventoryModelInstances).pluck('productModels').flatten().pluck('productModelId').value();
             optionLevelStoreInventory = _.indexBy(inventoryModelInstances, function (eachInventory) {
-                return eachInventory._id;
+                return eachInventory._id;  //here _id is the $optionLevelKey as configured in findStoreInventoryToReplenish()
             });
-            return findWarehouseInventory(warehouseModelId, messageId);
+            return queries.findWarehouseInventory(warehouseModelId, productModelIds, db);
+        })
+        .catch(function (error) {
+            logger.error({
+                message: 'Could not find the inventory model instances of the warehouse, will exit',
+                error,
+                commandName,
+                orgModelId,
+                storeModelId,
+                messageId
+            });
+            return Promise.reject(error);
         })
         .then(function (inventoryModelInstances) {
             logger.debug({
@@ -591,140 +583,18 @@ function findStoreInventoryToReplenish(storeModelId, categoryModelId, messageId)
                 commandName,
                 messageId
             });
-            var aggregationQuery = [
-                {
-                    $match: {
-                        storeModelId: ObjectId(storeModelId)
-                    }
-                },
-                {
-                    $lookup: {
-                        "from": "CategoryModel",
-                        "localField": "categoryModelId",
-                        "foreignField": "_id",
-                        "as": "categoryModel"
-                    }
-                },
-                {
-                    $group: {
-                        _id: '$optionLevelKey',
-                        totalProducts: {
-                            $sum: 1
-                        },
-                        productModels: {
-                            $addToSet: {
-                                productModelId: '$productModelId',
-                                inventory_level: '$physical_inventory_level',
-                                reorder_point: '$stockUpReorderPoint',
-                                reorder_threshold: '$stockUpReorderThreshold'
-                            }
-                        },
-                        inventory_level: {
-                            $sum: '$inventory_level'
-                        },
-                        reorder_point: {
-                            $sum: '$stockUpReorderPoint'
-                        },
-                        reorder_threshold: {
-                            $sum: '$stockUpReorderThreshold'
-                        },
-                        categoryModel: {
-                            $first: '$categoryModel'
-                        }
-                    }
-                },
-                {
-                    $project: {
-                        to_replenish: {
-                            $and: [
-                                {$gt: ['$reorder_threshold', '$inventory_level']},
-                                {$gt: ['$reorder_threshold', 0]}
-                            ]
-                        },
-                        optionLevelKey: '$_id',
-                        totalProducts: '$totalProducts',
-                        productModels: '$productModels',
-                        inventory_level: '$inventory_level',
-                        reorder_point: '$reorder_point',
-                        reorder_threshold: '$reorder_threshold',
-                        categoryModel: '$categoryModel'
-
-                    }
-                },
-                {
-                    $match: {
-                        to_replenish: true
-                    }
-                }
-            ];
-            return db.collection('InventoryModel').aggregate(aggregationQuery, {allowDiskUse: true}).toArray();
+            return queries.getAggregatedStoreInventory(storeModelId, db);
         })
         .catch(function (error) {
             logger.error({
                 message: 'Could not find the inventory model instances of the store, will exit',
                 error,
                 commandName,
-                orgModelId,
                 storeModelId,
                 messageId
             });
             return Promise.reject(error);
         });
-}
-
-/**
- * Find inventory available in warehouse to replenish
- * @param warehouseModelId
- * @param messageId
- * @return {Promise.<T>}
- */
-function findWarehouseInventory(warehouseModelId, messageId) {
-    var aggregationQuery = [
-        {
-            $match: {
-                storeModelId: ObjectId(warehouseModelId)
-            }
-        },
-        {
-            $group: {
-                _id: '$optionLevelKey',
-                inventory_level: {
-                    $sum: '$inventory_level'
-                },
-                totalProducts: {
-                    $sum: 1
-                },
-                productModels: {
-                    $addToSet: {
-                        productModelId: '$productModelId',
-                        inventory_level: '$inventory_level',
-                        reorder_point: '$stockUpReorderPoint',
-                        reorder_threshold: '$stockUpReorderThreshold'
-                    }
-                },
-            }
-        },
-        {
-            $match: {
-                inventory_level: {
-                    $gt: 0
-                }
-            }
-        }
-    ];
-    return db.collection('InventoryModel').aggregate(aggregationQuery).toArray()
-        .catch(function (error) {
-            logger.error({
-                message: 'Could not find the inventory model instances of the warehouse, will exit',
-                error,
-                commandName,
-                orgModelId,
-                storeModelId,
-                messageId
-            });
-            return Promise.reject(error);
-        });
-
 }
 
 /**
@@ -753,7 +623,6 @@ function generateOrderQuantities(reportModel, storeModelId, orgModelId, optionLe
              * Only continue if warehouse has inventory for the selected optionLevel item
              */
             else {
-                // var warehouseQuantityOnHand = optionLevelWarehouseInventory[optionKey].inventory_level;
                 var optionOrderQuantity;
                 var optionCategoryModel = optionInventory.categoryModel[0];
                 var MAX, MDQ, maxShelfCapacity;
@@ -787,7 +656,6 @@ function generateOrderQuantities(reportModel, storeModelId, orgModelId, optionLe
                     else {
                         MAX = maxShelfCapacity;
                     }
-                    // MAX = (optionInventory.reorder_point + MDQ)<maxShelfCapacity ? (optionInventory.reorder_point + MDQ) : maxShelfCapacity;
                 }
                 else {
                     MAX = optionInventory.reorder_point;
@@ -808,20 +676,7 @@ function generateOrderQuantities(reportModel, storeModelId, orgModelId, optionLe
                  * only (+ve) order quantities
                  */
                 if (optionOrderQuantity>0) {
-                    /**
-                     * Let's find out individual order quantities for items under an option,
-                     * then rationalise it to sum up to optionOrderQuantity
-                     */
-                    /*var totalOrderQuantitiesForProducts = _.reduce(optionInventory.productModels, function (memo, num) {
-                     var orderQuantity = 0;
-                     if(num.reorder_point > 0) {
-                     orderQuantity = num.reorder_point - (num.inventory_level>0 ? num.inventory_level : 0);//treat negative store inventory as ZERO, as told by client
-                     }
-                     return memo + orderQuantity;
-                     }, 0);*/
-
                     _.each(optionInventory.productModels, function (eachProduct, index) {
-                        // var productOrderQuantity = eachProduct.reorder_point - (eachProduct.inventory_level>0 ? eachProduct.inventory_level : 0);//treat negative store inventory as ZERO, as told by client
                         /**
                          * Rationalise the reorder point of each item in optionLevel
                          * to meet the required order quantity and checking
@@ -830,27 +685,27 @@ function generateOrderQuantities(reportModel, storeModelId, orgModelId, optionLe
                          * to avoid multiple roundOffs and maintain accuracy.
                          *
                          * Also consider inventory as 0 if it's negative.
-                         * TODO: -ve inventory option should go as an option in UI
+                         * TODO: to consider/leave -ve inventory option should go as an option in UI
                          */
-                        var productInventory = eachProduct.inventory_level >= 0 ? eachProduct.inventory_level : 0;
-                        var productOrderQuantity = ((eachProduct.reorder_point / optionInventory.reorder_point) * MAX) - productInventory;
+                        var productSuggestedOrderQuantity = ((eachProduct.reorder_point / optionInventory.reorder_point) * MAX);
+
+                        /**
+                         * Check product reorderPointsMultipliers and generate suggestedOrderQuantity based on that
+                         */
+                        if (eachProduct.hasOwnProperty('multiplier') && eachProduct.multiplier !== null) {
+                            productSuggestedOrderQuantity *= eachProduct.multiplier;
+                        }
+
+                        var productInventory = eachProduct.inventory_level>=0 ? eachProduct.inventory_level : 0; //treating negative store inventory as ZERO for now
+                        var productOrderQuantity = productSuggestedOrderQuantity - productInventory;
                         var warehouseInventory = _.find(optionLevelWarehouseInventory[optionKey].productModels, function (eachWarehouseProduct) {
-                                return eachProduct.productModelId.toString() === eachWarehouseProduct.productModelId.toString();
-                            });
+                            return eachProduct.productModelId.toString() === eachWarehouseProduct.productModelId.toString();
+                        });
                         var warehouseQuantity = warehouseInventory ? warehouseInventory.inventory_level : 0;
                         /**
                          * Don't order more than what's available in warehouse
                          */
                         productOrderQuantity = warehouseQuantity>productOrderQuantity ? productOrderQuantity : warehouseQuantity;
-                        logger.debug({
-                            productModelId: eachProduct.productModelId,
-                            productOrderQuantity,
-                            storeQuantityOnHand,
-                            warehouseQuantity,
-                            // totalOrderQuantitiesForProducts,
-                            optionOrderQuantity,
-                            messageId
-                        });
                         /**
                          * Products with only (+ve) orderQuantity should be ordered.
                          * Need to push categoryDetails to help UI in sorting by category.
@@ -866,7 +721,7 @@ function generateOrderQuantities(reportModel, storeModelId, orgModelId, optionLe
                                 warehouseInventory: warehouseQuantity,
                                 originalOrderQuantity: Math.round(productOrderQuantity),
                                 categoryModelId: optionCategoryModel ? ObjectId(optionCategoryModel._id) : '',
-                                categoryModelName: optionCategoryModel ? optionCategoryModel.name : '',  //need for sorting
+                                categoryModelName: optionCategoryModel ? optionCategoryModel.name : '',  //need for sorting in UI, DO NOT REMOVE
                                 fulfilledQuantity: 0,
                                 receivedQuantity: 0,
                                 fulfilled: false,
@@ -883,6 +738,12 @@ function generateOrderQuantities(reportModel, storeModelId, orgModelId, optionLe
                  * Skip the optionLevel items that have (-ve) order quantities
                  */
                 else {
+                    logger.debug({
+                        message: 'This has negative option order quantity',
+                        optionKey,
+                        optionOrderQuantity,
+                        messageId
+                    });
                     skippedLineItems.push(optionLevelStoreInventory[optionKey]);
                 }
             }
