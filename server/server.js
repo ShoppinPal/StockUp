@@ -4,7 +4,6 @@ global.Promise = require('bluebird');
 var loopback = require('loopback');
 var boot = require('loopback-boot');
 var logger = require('sp-json-logger')();
-
 // HINT(s):
 //   Getting the app object:
 //     http://docs.strongloop.com/display/public/LB/Working+with+LoopBack+objects
