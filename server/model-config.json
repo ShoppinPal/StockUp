@@ -111,5 +111,9 @@
   "ReorderPointsMultiplierModel": {
     "dataSource": "db",
     "public": false
+  },
+  "ProductsReorderPointsMultiplierMappings": {
+    "dataSource": "db",
+    "public": false
   }
 }

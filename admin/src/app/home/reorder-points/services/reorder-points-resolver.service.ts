@@ -20,7 +20,9 @@ export class ReorderPointsResolverService {
   resolve(): Observable<any> {
     return combineLatest(
       this.orgModelApi.countReorderPointsMultiplierModels(this.userProfile.orgModelId),
-      this.orgModelApi.getReorderPointsMultiplierModels(this.userProfile.orgModelId)
+      this.orgModelApi.getReorderPointsMultiplierModels(this.userProfile.orgModelId, {
+        fields: ['id', 'isActive', 'createdAt', 'name', 'multiplier']
+      })
     )
       .pipe(map((data: any) => {
           this.reorderPointsMultiplierModelsCount = data[0];

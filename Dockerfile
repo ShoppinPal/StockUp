@@ -17,7 +17,7 @@ COPY . /apps/warehouse
 WORKDIR /apps/warehouse/notification-service
 RUN npm install
 
-FROM node:6.11.1
+FROM shoppinpal/node:6.10
 ENV MONGOLAB_URI=mongodb://admin:c64e8e7b05a6d35@35.200.175.36:27017/warehouse-local
 RUN sed -i '2d' /etc/apt/sources.list && apt-get -y update && apt-get -y dist-upgrade
 RUN chown -R node:node /usr/local
@@ -39,7 +39,7 @@ RUN mkdir -p /apps/warehouse
 RUN chown -R node:node /apps/warehouse
 WORKDIR /apps/warehouse
 COPY package.json /apps/warehouse/package.json
-#COPY npm-shrinkwrap.json /apps/warehouse/npm-shrinkwrap.json
+COPY npm-shrinkwrap.json /apps/warehouse/npm-shrinkwrap.json
 RUN npm install --production && npm install grunt-cli
 #RUN npm install -g bower
 #RUN mv /apps/warehouse/node_modules /apps/node_modules

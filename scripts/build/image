@@ -8,4 +8,4 @@ if [ -z "$1" ]; then
 fi
 
 TAG=$1
-docker build -t shoppinpal/warehouse:$TAG .
+docker build -t gcr.io/warehouse-build/warehouse:$TAG .
