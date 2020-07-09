@@ -1,3 +1,6 @@
+v1.6.11 - Jul 7, 2020
+- Reorder points multiplier fixes - Issue #447
+
 v1.6.10 - Jun 7, 2020
 - Reorder points multiplier feature
 - Removed sync worker notifications

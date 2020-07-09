@@ -5,4 +5,4 @@ set -ex
 _SOURCE_TAG=$1
 _DEST_TAG=$2
 
-docker tag shoppinpal/warehouse:${_SOURCE_TAG} shoppinpal/warehouse:${_DEST_TAG}
+docker tag gcr.io/warehouse-build/warehouse:${_SOURCE_TAG} gcr.io/warehouse-build/warehouse:${_DEST_TAG}
