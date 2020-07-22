@@ -1,3 +1,6 @@
+v1.6.12 - Jul 22, 2020
+- MSD Stores sync and token refresh fix
+
 v1.6.11 - Jul 7, 2020
 - Reorder points multiplier fixes - Issue #447
 
