@@ -19,6 +19,11 @@
       "type": "string",
       "required": true
     },
+    "isActive": {
+      "type": "boolean",
+      "default": true,
+      "required": true
+    },
     "access_token": {
       "type": "string",
       "required": true

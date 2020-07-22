@@ -362,7 +362,7 @@ module.exports = function (SyncModel) {
             functionName: 'syncMSDStores'
         });
         var MSDUtil = require('./../utils/msd')({GlobalOrgModel: SyncModel.app.models.OrgModel});
-        return MSDUtil.fetchMSDData(id, 'OperationalSites', 'dataAreaId')
+        return MSDUtil.fetchMSDData(id, 'Warehouses', 'dataAreaId')
             .catch(function (error) {
                 logger.error({
                     error,
@@ -376,16 +376,16 @@ module.exports = function (SyncModel) {
                 if (stores.value && stores.value.length) {
                     logger.debug({
                         message: 'Found stores from MSD, will save to DB',
-                        numberOfUsers: stores.value.length,
+                        numberOfStores: stores.value.length,
                         functionName: 'syncMSDStores'
                     });
                     var storesToCreate = [];
                     for (var i = 0; i<stores.value.length; i++) {
-                        if (stores.value[i].SiteName.length) {
+                        //Filter out Transit type warehouses and store only Standard ones
+                        if (stores.value[i].WarehouseType === 'Standard') {
                             storesToCreate.push({
-                                name: stores.value[i].SiteName,
-                                timeZone: stores.value[i].SiteTimezone,
-                                storeNumber: stores.value[i].SiteId,
+                                name: stores.value[i].WarehouseName,
+                                storeNumber: stores.value[i].WarehouseId,
                                 city: stores.value[i].PrimaryAddressCity,
                                 orgModelId: id
                             });
