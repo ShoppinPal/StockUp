@@ -413,7 +413,8 @@ function mapSpreadSheetDataToOrders(db, orderConfigModel, spreadSheetRows, userM
         supplierStoreCodes,
         suppliersCount: supplierStoreCodes.length,
         skuCount: skusToAdd.length,
-        skusToAddStringified
+        skusToAddStringified,
+        messageId
     });
     return db.collection('ProductModel').aggregate([
         {

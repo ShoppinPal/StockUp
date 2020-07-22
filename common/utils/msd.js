@@ -54,15 +54,6 @@ var refreshMSDToken = function (orgModelId, options) {
             });
             return rp(options);
         })
-        .catch(function (error) {
-            logger.error({
-                message: 'Could not fetch new MSD Token',
-                requestError: error,
-                orgModelId,
-                functionName: 'refreshMSDToken'
-            });
-            return Promise.reject('Could not fetch new MSD Token');
-        })
         .then(function (token) {
             logger.debug({
                 message: 'Fetched new MSD access token',
@@ -91,8 +82,16 @@ var refreshMSDToken = function (orgModelId, options) {
                 orgModelId: orgModelId
             }, {
                 isActive: false
-            });
-            return Promise.reject('Could not update refresh token for Org');
+            })
+                .then(function (response) {
+                    logger.debug({
+                        message: 'Marked account integration as inactive',
+                        response,
+                        orgModelId,
+                        functionName: 'refreshMSDToken'
+                    });
+                    return Promise.reject('Could not update refresh token for Org');
+                });
         })
         .then(function (result) {
             logger.debug({
@@ -102,6 +101,15 @@ var refreshMSDToken = function (orgModelId, options) {
                 functionName: 'refreshMSDToken'
             });
             return Promise.resolve(newAccessToken);
+        })
+        .catch(function (error) {
+            logger.error({
+                message: 'Could not fetch new MSD Token',
+                reason: error,
+                orgModelId,
+                functionName: 'refreshMSDToken'
+            });
+            return Promise.reject('Could not fetch new MSD Token');
         });
 };
 
