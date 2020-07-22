@@ -215,13 +215,12 @@ module.exports = function (OrgModel) {
                         code: code,
                         redirect_uri: OrgModel.app.get('site').baseUrl + '/api/OrgModels/handleMSDToken',
                         client_secret: msdConfig.client_secret,
-                        resource: 'https://lmmyuat.sandbox.operations.dynamics.com/'
+                        resource: msdConfig.resource_url
                     }
                 })
                     .then(function (response) {
                         logger.debug({
                             message: 'Fetched access token and refresh token, will store in org model',
-                            response: JSON.parse(response),
                             functionName: 'handleMSDToken'
                         });
                         response = JSON.parse(response);
@@ -261,7 +260,6 @@ module.exports = function (OrgModel) {
                     .then(function (accessToken) {
                         logger.debug({
                             message: 'Found access token current user',
-                            accessToken,
                             functionName: 'handleMSDToken'
                         });
                         return OrgModel.app.models.UserModel.findById(accessToken.userId);
@@ -274,7 +272,21 @@ module.exports = function (OrgModel) {
                         });
                         msdToken.orgModelId = userModelInstance.orgModelId;
                         msdToken.expires_on = 0;
-                        return OrgModel.app.models.IntegrationModel.create(msdToken);
+                        msdToken.isActive = true;
+                        return OrgModel.app.models.IntegrationModel.findOne({where: {orgModelId: userModelInstance.orgModelId}});
+                    })
+                    .then(function (integrationModelInstance) {
+                        logger.debug({
+                            message: 'Found integration instance',
+                            integrationModelInstance,
+                            functionName: 'handleMSDToken'
+                        });
+                        if(!integrationModelInstance) {
+                            return OrgModel.app.models.IntegrationModel.create(msdToken);
+                        }
+                        else {
+                            return integrationModelInstance.updateAttributes(msdToken);
+                        }
                     })
                     .catch(function (error) {
                         logger.error({

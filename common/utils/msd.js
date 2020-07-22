@@ -67,7 +67,6 @@ var refreshMSDToken = function (orgModelId, options) {
             logger.debug({
                 message: 'Fetched new MSD access token',
                 orgModelId,
-                token,
                 functionName: 'refreshMSDToken'
             });
             newAccessToken = token.access_token;
@@ -87,6 +86,11 @@ var refreshMSDToken = function (orgModelId, options) {
                 error,
                 orgModelId,
                 functionName: 'refreshMSDToken'
+            });
+            return GlobalOrgModel.app.models.IntegrationModel.updateAll({
+                orgModelId: orgModelId
+            }, {
+                isActive: false
             });
             return Promise.reject('Could not update refresh token for Org');
         })
@@ -168,7 +172,6 @@ var fetchMSDData = function (orgModelId, dataTable, companyIdentifierKey, option
             if (token !== 'tokenNotExpired') {
                 logger.debug({
                     message: 'Will use the new token to fetch data from MSD',
-                    token,
                     options,
                     functionName: 'fetchMSDData'
                 });
@@ -291,7 +294,6 @@ var pushMSDData = function (orgModelId, dataTable, data, options) {
             if (token !== 'tokenNotExpired') {
                 logger.debug({
                     message: 'Will use the new token to fetch data from MSD',
-                    token,
                     options,
                     functionName: 'pushMSDData'
                 });
