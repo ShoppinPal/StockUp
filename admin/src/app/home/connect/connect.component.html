@@ -24,6 +24,12 @@
           <button type="button" (click)="connect('msdynamics')" *ngIf="!integration.length" class="btn btn-primary">
             Connect
           </button>
+          <div *ngIf="!integration[0].isActive">
+            <span class="text-danger"> Account Disconnected</span> <br/>
+            <button type="button" (click)="connect('msdynamics')" class="btn btn-primary">
+              Reconnect
+            </button>
+          </div>
           <button type="button"
                   *ngIf="integration.length && integration[0].type === 'msdynamics' && !integration[0].dataAreaId"
                   class="btn btn-primary"
@@ -67,7 +73,8 @@
           Sync Data - One time
         </div>
         <div class="card-body text-center">
-          <table class="table table-hover table-responsive-md table-striped table-align-middle mb-0" *ngIf="integration.length">
+          <table class="table table-hover table-responsive-md table-striped table-align-middle mb-0"
+                 *ngIf="integration.length">
             <thead>
             <th>Data object</th>
             <th>Fetch</th>
@@ -168,7 +175,8 @@
                   </span>
             </div>
           </div>
-          <table class="table table-hover table-responsive-md table-striped table-align-middle mb-0" *ngIf="integration.length">
+          <table class="table table-hover table-responsive-md table-striped table-align-middle mb-0"
+                 *ngIf="integration.length">
             <thead>
             <th>Data object</th>
             <th>Sync Status</th>
@@ -184,7 +192,8 @@
                   <input type="checkbox" class="switch-input" [ngModel]="checkSync('products')" disabled>
                   <span class="switch-slider"></span>
                 </label>
-                <div [ngClass]="{'d-none': !syncing.products}" class="spinner-border spinner-border-sm spinner-margins" role="status">
+                <div [ngClass]="{'d-none': !syncing.products}" class="spinner-border spinner-border-sm spinner-margins"
+                     role="status">
                   <span class="sr-only">Loading...</span>
                 </div>
               </td>
@@ -201,7 +210,8 @@
                   <input type="checkbox" class="switch-input" [ngModel]="checkSync('inventory')" disabled>
                   <span class="switch-slider"></span>
                 </label>
-                <div [ngClass]="{'d-none': !syncing.inventory}" class="spinner-border spinner-border-sm spinner-margins" role="status">
+                <div [ngClass]="{'d-none': !syncing.inventory}" class="spinner-border spinner-border-sm spinner-margins"
+                     role="status">
                   <span class="sr-only">Loading...</span>
                 </div>
               </td>
@@ -218,7 +228,8 @@
                   <input type="checkbox" class="switch-input" [ngModel]="checkSync('suppliers')" disabled>
                   <span class="switch-slider"></span>
                 </label>
-                <div [ngClass]="{'d-none': !syncing.suppliers}" class="spinner-border spinner-border-sm spinner-margins" role="status">
+                <div [ngClass]="{'d-none': !syncing.suppliers}" class="spinner-border spinner-border-sm spinner-margins"
+                     role="status">
                   <span class="sr-only">Loading...</span>
                 </div>
               </td>
@@ -235,7 +246,8 @@
                   <input type="checkbox" class="switch-input" [ngModel]="checkSync('sales')" disabled>
                   <span class="switch-slider"></span>
                 </label>
-                <div [ngClass]="{'d-none': !syncing.sales}" class="spinner-border spinner-border-sm spinner-margins" role="status">
+                <div [ngClass]="{'d-none': !syncing.sales}" class="spinner-border spinner-border-sm spinner-margins"
+                     role="status">
                   <span class="sr-only">Loading...</span>
                 </div>
               </td>

@@ -240,7 +240,6 @@ function generateStockOrder(payload, config, taskId, messageId) {
                 sampleInventoryModelInstance: _.sample(inventoryModelInstances),
                 toReplenishItemCount: inventoryModelInstances.length,
                 orgModelId,
-                inventoryModelInstances,
                 messageId
             });
             let productModelIds = _.chain(inventoryModelInstances).pluck('productModels').flatten().pluck('productModelId').value();
