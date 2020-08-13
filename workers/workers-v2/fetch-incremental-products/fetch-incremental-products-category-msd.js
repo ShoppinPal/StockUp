@@ -52,6 +52,14 @@ var runMe = function (sqlPool, orgModelId, productCategorySyncModel) {
                         message: 'Connected to Mongo DB',
                         commandName
                     });
+                    return require('../fetch-incremental-category/fetch-category-msd').run(orgModelId);
+                })
+                .then(function (result) {
+                    logger.debug({
+                        message: 'Saved categories master data, will fetch products category data now',
+                        result,
+                        commandName
+                    });
                     var pagesToFetch = Math.ceil(productCategorySyncModel.rowCount / PRODUCTS_PER_PAGE);
                     logger.debug({
                         message: 'Found the count of total products to insert/update',

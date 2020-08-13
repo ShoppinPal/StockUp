@@ -321,7 +321,7 @@ module.exports = function (SyncModel) {
                         return SyncModel.app.models.CategoryModel.findOrCreate({
                             where: {
                                 orgModelId: id,
-                                name: eachCategory.CategoryName
+                                name: eachCategory.name
                             }
                         }, eachCategory);
                     });
