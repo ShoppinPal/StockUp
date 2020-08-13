@@ -148,18 +148,16 @@ function fetchPaginatedInventorySums(sqlPool, orgModelId, pagesToFetch) {
         return sqlPool.request()
             .input('inventory_per_page', sql.Int, INVENTORY_PER_PAGE)
             .input('transfer_pending_state', sql.Int, 0)
-            .query('SELECT TOP (@inventory_per_page) ITEMID, INVENTSITEID, InSum.INVENTDIMID, AVAILORDERED,' +
+            .query('SELECT TOP (@inventory_per_page) ITEMID, INVENTLOCATIONID, INVENTSITEID, InSum.INVENTDIMID, AVAILORDERED,' +
                 ' InSum.%%physloc%% ROWID, AVAILPHYSICAL' +
                 ' FROM ' + INVENTORY_SUM_TABLE + ' AS InSum ' +
                 ' JOIN ' + INVENTORY_DIM_TABLE + ' as InDim ' +
                 ' ON InSum.INVENTDIMID = InDim.INVENTDIMID ' +
-                ' WHERE InSum.STOCKUPTRANSFER = @transfer_pending_state AND InDim.INVENTSITEID = InDim.INVENTLOCATIONID')
-            //TODO: Remove this condition from query and set it in code so that these rows can be marked as synced
-            //TODO: InDim.INVENTSITEID = InDim.INVENTLOCATIONID'
+                ' WHERE InSum.STOCKUPTRANSFER = @transfer_pending_state')
             .then(function (result) {
                 incrementalInventory = result.recordset;
                 var incrementalItemIDs = _.pluck(incrementalInventory, 'ITEMID');
-                var incrementalStoreNumbers = _.pluck(incrementalInventory, 'INVENTSITEID');
+                var incrementalStoreNumbers = _.pluck(incrementalInventory, 'INVENTLOCATIONID');
                 rowIds = [];
                 rowIds = _.map(incrementalInventory, function (eachInventory) {
                     return '0x' + eachInventory.ROWID.toString('hex'); //TODO: find a better way of uniquely recognizing rows
@@ -208,7 +206,7 @@ function fetchPaginatedInventorySums(sqlPool, orgModelId, pagesToFetch) {
                 //Add some operations to be executed
                 _.each(incrementalInventory, function (eachInventory, iteratee) {
                     var productModelToAttach = _.findWhere(productModelInstances, {api_id: eachInventory.ITEMID});
-                    var storeModelToAttach = _.findWhere(storeModelInstances, {storeNumber: eachInventory.INVENTSITEID});
+                    var storeModelToAttach = _.findWhere(storeModelInstances, {storeNumber: eachInventory.INVENTLOCATIONID});
                     if (productModelToAttach && storeModelToAttach) {
                         batch.find({
                             inventoryDimId: eachInventory.INVENTDIMID,
@@ -219,8 +217,8 @@ function fetchPaginatedInventorySums(sqlPool, orgModelId, pagesToFetch) {
                                 productModelId: productModelToAttach ? ObjectId(productModelToAttach._id) : null,
                                 categoryModelId: productModelToAttach ? ObjectId(productModelToAttach.categoryModelId) : null,
                                 product_id: eachInventory.ITEMID,
-                                inventory_level: eachInventory.AVAILORDERED,
-                                physical_inventory_level: eachInventory.AVAILPHYSICAL,
+                                inventory_level: eachInventory.AVAILORDERED, //this is current inventory for warehouses
+                                physical_inventory_level: eachInventory.AVAILPHYSICAL, //this is current inventory for stores
                                 storeModelId: storeModelToAttach ? ObjectId(storeModelToAttach._id) : null,
                                 outlet_id: storeModelToAttach ? storeModelToAttach.storeNumber : null,
                                 orgModelId: ObjectId(orgModelId),
@@ -246,7 +244,7 @@ function fetchPaginatedInventorySums(sqlPool, orgModelId, pagesToFetch) {
                     message: `Batch of inventory ready`,
                     pagesToFetch
                 });
-                if (incrementalInventory.length) {
+                if (incrementalInventory.length && batch.s && batch.s.currentBatch && batch.s.currentBatch.operations) {
                     return batch.execute();
                 }
                 else {
@@ -259,21 +257,16 @@ function fetchPaginatedInventorySums(sqlPool, orgModelId, pagesToFetch) {
                     message: 'Bulk insert operation complete',
                     bulkInsertResponse
                 });
-                if (bulkInsertResponse !== 'noIncrementalInventory') {
-                    logger.debug({
-                        message: 'Will delete the inserted/updated inventory from Azure SQL'
-                    });
-                    return sqlPool.request()
-                        .input('inventory_per_page', sql.Int, INVENTORY_PER_PAGE)
-                        .input('transfer_success_state', sql.Int, 1)
-                        .input('transfer_time', sql.DateTime, new Date())
-                        .query('UPDATE TOP (@inventory_per_page) ' + INVENTORY_SUM_TABLE +
-                            ' SET STOCKUPTRANSFER = @transfer_success_state, STOCKUPTRANSFERTIME = @transfer_time ' +
-                            ' WHERE %%physloc%% IN (' + rowIds + ')');
-                }
-                else {
-                    return Promise.resolve('noIncrementalInventory');
-                }
+                logger.debug({
+                    message: 'Will delete the inserted/updated inventory from Azure SQL'
+                });
+                return sqlPool.request()
+                    .input('inventory_per_page', sql.Int, INVENTORY_PER_PAGE)
+                    .input('transfer_success_state', sql.Int, 1)
+                    .input('transfer_time', sql.DateTime, new Date())
+                    .query('UPDATE TOP (@inventory_per_page) ' + INVENTORY_SUM_TABLE +
+                        ' SET STOCKUPTRANSFER = @transfer_success_state, STOCKUPTRANSFERTIME = @transfer_time ' +
+                        ' WHERE %%physloc%% IN (' + rowIds + ')');
             })
             .then(function (result) {
                 logger.debug({
