@@ -111,7 +111,9 @@ module.exports = function (CategoryModel) {
                     options
                 });
                 return CategoryModel.app.models.StoreModel.find({
-                    orgModelId: id
+                    where: {
+                        orgModelId: id
+                    }
                 });
             })
             .then(function (storeModelInstances) {
@@ -125,40 +127,43 @@ module.exports = function (CategoryModel) {
                 var categoryMinMaxValues = [];
                 for (var i = 2; i<csvData.data.length; i++) {
                     //make category name like Ladies.Activewear.Bottoms.Bottoms
-                    var categoryName = parentCategory + '.' + csvData.data[i][1] + '.' + csvData.data[i][2] + '.' + csvData.data[i][3] + '.' + csvData.data[i][3];
-                    var categoryMinMaxObject = {};
-                    categoryMinMaxObject[categoryName] = {
-                        min: {},
-                        max: {}
-                    };
-                    for (var j = 0; j<storeModelInstances.length; j++) {
-                        //find store min/max column position from csv
-                        if (storeModelInstances[j].shortName && csvStoreColumnPositions[storeModelInstances[j].shortName]) {
-                            var storeMinColumnPosition = csvStoreColumnPositions[storeModelInstances[j].shortName].min;
-                            var storeMaxColumnPosition = csvStoreColumnPositions[storeModelInstances[j].shortName].max;
-                            if (storeMinColumnPosition) {
-                                categoryMinMaxObject[categoryName].min[storeModelInstances[j].id] = Number.parseInt(csvData.data[i][storeMinColumnPosition]);
-                            }
-                            if (storeMaxColumnPosition) {
-                                categoryMinMaxObject[categoryName].max[storeModelInstances[j].id] = Number.parseInt(csvData.data[i][storeMaxColumnPosition]);
+                    if (csvData.data[i][1] && csvData.data[i][2] && csvData.data[i][3]) {
+                        var categoryName = parentCategory + '.' + csvData.data[i][1] + '.' + csvData.data[i][2] + '.' + csvData.data[i][3] + '.' + csvData.data[i][3];
+                        var categoryMinMaxObject = {};
+                        categoryMinMaxObject[categoryName] = {
+                            min: {},
+                            max: {}
+                        };
+                        for (var j = 0; j<storeModelInstances.length; j++) {
+                            //find store min/max column position from csv
+                            if (storeModelInstances[j].shortName && csvStoreColumnPositions[storeModelInstances[j].shortName]) {
+                                var storeMinColumnPosition = csvStoreColumnPositions[storeModelInstances[j].shortName].min;
+                                var storeMaxColumnPosition = csvStoreColumnPositions[storeModelInstances[j].shortName].max;
+                                if (storeMinColumnPosition) {
+                                    categoryMinMaxObject[categoryName].min[storeModelInstances[j].id] = Number.parseInt(csvData.data[i][storeMinColumnPosition]);
+                                }
+                                if (storeMaxColumnPosition) {
+                                    categoryMinMaxObject[categoryName].max[storeModelInstances[j].id] = Number.parseInt(csvData.data[i][storeMaxColumnPosition]);
+                                }
                             }
                         }
+                        categoryMinMaxValues.push(categoryMinMaxObject);
                     }
-                    categoryMinMaxValues.push(categoryMinMaxObject);
                 }
                 logger.debug({
                     message: 'Configured min/max data according to store names and categories, will update the categories now',
-                    categoryMinMaxValues,
+                    categoryMinMaxValues: _.sample(categoryMinMaxValues),
                     totalCategories: categoryMinMaxValues.length,
                     functionName: 'uploadMinMaxFile',
                     options
                 });
 
                 return Promise.map(categoryMinMaxValues, function (eachCategoryMinMaxValue) {
-                    var regexPattern = new RegExp(Object.keys(eachCategoryMinMaxValue)[0], 'i');
+
                     return CategoryModel.updateAll({
                         name: {
-                            like: regexPattern
+                            like: Object.keys(eachCategoryMinMaxValue)[0],
+                            options: 'i'
                         },
                         orgModelId: id
                     }, eachCategoryMinMaxValue[Object.keys(eachCategoryMinMaxValue)[0]])
