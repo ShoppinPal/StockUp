@@ -15,7 +15,7 @@
     "errorhandler": "1.4.0",
     "excel-stream": "~1.1.1",
     "express": "4.14.0",
-    "kerberos": "0.0.23",
+    "kerberos": "1.0.0",
     "log-prefix": "0.0.0",
     "loopback": "2.18.0",
     "loopback-boot": "2.8.1",
