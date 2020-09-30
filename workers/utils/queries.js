@@ -30,7 +30,10 @@ function getAggregatedStoreInventory(storeModelId, db) {
             }
         },
         {
-            $unwind: '$productsReorderPointsMultiplierMapping'
+            $unwind: {
+                "path": "$productsReorderPointsMultiplierMapping",
+                "preserveNullAndEmptyArrays": true
+            }
         },
         {
             $lookup: {
