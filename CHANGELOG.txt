@@ -1,3 +1,7 @@
+v1.6.15 - Oct 8, 2020
+- CSV file upload fix
+- MSD Inventory attributes fix
+
 v1.6.14 - Sep 30, 2020
 - MSD Order generation fix
 
