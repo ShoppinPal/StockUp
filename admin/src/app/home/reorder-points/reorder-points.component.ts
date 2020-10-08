@@ -159,14 +159,15 @@ export class ReorderPointsComponent implements OnInit {
   validateFileFormat(fileEvent: any) {
     const file = fileEvent.target.files[0];
     //file.type not found in windows machines, so work with the file extension
-    let fileType;
-    let fileType = file.name.split('.');
-    fileType = fileType[fileType.length - 1].toLowerCase();
-    if (fileType !== 'csv') {
-      this.toastr.error('Only csv files are supported');
-      let fileElement: HTMLInputElement = document.getElementById('multiplierFile') as HTMLInputElement;
-      fileElement.value = '';
-      this.uploader.clearQueue();
+    if(file.name) {
+      let fileType = file.name.split('.');
+      fileType = fileType[fileType.length - 1].toLowerCase();
+      if (fileType !== 'csv') {
+        this.toastr.error('Only csv files are supported');
+        let fileElement: HTMLInputElement = document.getElementById('multiplierFile') as HTMLInputElement;
+        fileElement.value = '';
+        this.uploader.clearQueue();
+      }
     }
   }
 
