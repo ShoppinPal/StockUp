@@ -116,7 +116,7 @@ export class ReorderPointsComponent implements OnInit {
       this.toastr.error('Enter a value for multiplier');
       return;
     }
-    else if(this.reorderPointsMultiplier < 0) {
+    else if (this.reorderPointsMultiplier < 0) {
       this.toastr.error('Multiplier value cannot be negative');
       return;
     }
@@ -158,7 +158,11 @@ export class ReorderPointsComponent implements OnInit {
 
   validateFileFormat(fileEvent: any) {
     const file = fileEvent.target.files[0];
-    if (file.type !== 'text/csv') {
+    //file.type not found in windows machines, so work with the file extension
+    let fileType;
+    let fileType = file.name.split('.');
+    fileType = fileType[fileType.length - 1].toLowerCase();
+    if (fileType !== 'csv') {
       this.toastr.error('Only csv files are supported');
       let fileElement: HTMLInputElement = document.getElementById('multiplierFile') as HTMLInputElement;
       fileElement.value = '';
