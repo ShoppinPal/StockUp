@@ -175,7 +175,7 @@ var runMe = function (payload, config, taskId, messageId) {
                         "ReceivingAddressDescription": storeModelInstance.name,
                         "ShippingAddressCountryRegionISOCode": "MY",
                         "ReceivingAddressDistrictName": "",
-                        "ShippingWarehouseId": "9991006",
+                        "ShippingWarehouseId": "9981006",
                         "ShippingAddressZipCode": "42000",
                         "AreLinesAutomaticallyReservedByDefault": "No",
                         "ShippingAddressStreetNumber": "",
