@@ -1,5 +1,5 @@
 const ObjectId = require('mongodb').ObjectID;
-
+const _ = require('underscore');
 /**
  * Find store inventory needed to be replenished
  * @param storeModelId
@@ -52,7 +52,7 @@ function getAggregatedStoreInventory(storeModelId, db) {
                 productModels: {
                     $addToSet: {
                         productModelId: '$productModelId',
-                        inventory_level: '$physical_inventory_level',
+                        inventory_level: '$inventory_level',
                         reorder_point: '$stockUpReorderPoint',
                         reorder_threshold: '$stockUpReorderThreshold',
                         multiplier: {
@@ -72,7 +72,7 @@ function getAggregatedStoreInventory(storeModelId, db) {
                     }
                 },
                 inventory_level: {
-                    $sum: '$physical_inventory_level'
+                    $sum: '$inventory_level'
                 },
                 reorder_point: {
                     $sum: '$stockUpReorderPoint'
@@ -120,11 +120,14 @@ function getAggregatedStoreInventory(storeModelId, db) {
  * @return {Promise.<T>}
  */
 function findWarehouseInventory(warehouseModelId, productModelIds, db) {
+    let productModelObjectIds = _.map(productModelIds, function (eachProductModelId) {
+        return ObjectId(eachProductModelId);
+    });
     var aggregationQuery = [
         {
             $match: {
                 productModelId: {
-                    $in: productModelIds
+                    $in: productModelObjectIds
                 },
                 storeModelId: ObjectId(warehouseModelId)
             }
