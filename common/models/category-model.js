@@ -10,6 +10,7 @@ const fileUtils = require('../utils/fileUtils');
 const papaparse = require('papaparse');
 const aws = require('aws-sdk');
 
+
 module.exports = function (CategoryModel) {
 
     CategoryModel.uploadMinMaxFile = function (id, req, options) {
