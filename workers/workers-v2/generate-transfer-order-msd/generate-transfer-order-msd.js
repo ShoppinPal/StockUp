@@ -300,7 +300,7 @@ var runMe = function (payload, config, taskId, messageId) {
                                 "ReceivingLedgerDimensionDisplayValue": "",
                                 "IntrastatCommodityCode": "",
                                 "ShippingLedgerDimensionDisplayValue": "",
-                                "ShippingWarehouseLocationId": "9991006",
+                                "ShippingWarehouseLocationId": "9981006",
                                 "TransferCatchWeightQuantity": 0,
                                 "AllowedOverdeliveryPercentage": 100,
                                 "ProductStyleId": "NA"
