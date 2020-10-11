@@ -849,21 +849,42 @@ module.exports = function (ReportModel) {
                         functionName: 'createTransferOrderMSD'
                     });
                     return Promise.reject('Transfer Order already created for this report');
-                }else if (reportModelInstance.state === REPORT_STATES.SENDING_TO_SUPPLIER) {
+                }else if (reportModelInstance.state === REPORT_STATES.PUSHING_TO_MSD) {
                     logger.debug({
                         message: 'Transfer order creation in progress',
                         options,
                         functionName: 'createTransferOrderMSD'
                     });
                     return Promise.reject('Transfer order creation in progress');
-                }else {
-                    res.send({
-                        eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
-                        callId: options.accessToken.userId,
-                        message: 'Transfer Order Generation initiated',
-                        data: {}
+                }else if (reportModelInstance.state === REPORT_STATES.APPROVAL_IN_PROCESS ||
+                    reportModelInstance.state === REPORT_STATES.ERROR_PUSHING_TO_MSD) {
+                    logger.debug({
+                        message: 'Will update order state and call createTransferOrderMSD worker',
+                        options,
+                        functionName: 'createTransferOrderMSD'
                     });
-                    return workerUtils.sendPayLoad(payload);
+                    return ReportModel.updateAll({
+                        id: reportModelId
+                    }, {
+                        state: REPORT_STATES.PUSHING_TO_MSD
+                    })
+                        .then(function (response) {
+                            res.send({
+                                eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
+                                callId: options.accessToken.userId,
+                                message: 'Transfer Order Generation initiated',
+                                data: {}
+                            });
+                            return workerUtils.sendPayLoad(payload);
+                        });
+                }
+                else {
+                    logger.debug({
+                        message: 'Only GENERATED orders will be pushed to MSD',
+                        options,
+                        functionName: 'createTransferOrderMSD'
+                    });
+                    return Promise.reject('Only GENERATED orders will be pushed to MSD');
                 }
             })
             .catch(function (error) {

@@ -8,7 +8,7 @@ import {FileImportsResolverService} from "../../../file-imports/services/file-im
 
 @Injectable()
 export class StockOrdersResolverService {
-private userProfile: any;
+  private userProfile: any;
   private ordersMaxLimit = 100;
 
   constructor(private orgModelApi: OrgModelApi,
@@ -16,8 +16,8 @@ private userProfile: any;
               private _fileImportsResolverService: FileImportsResolverService) {
   }
 
-  resolve = ():Observable<any> => {
-   this.userProfile = this._userProfileService.getProfileData();
+  resolve = (): Observable<any> => {
+    this.userProfile = this._userProfileService.getProfileData();
     return combineLatest(
       this.fetchGeneratedStockOrders(),
       this.fetchReceiveStockOrders(),
@@ -89,6 +89,8 @@ private userProfile: any;
           constants.REPORT_STATES.GENERATED,
           constants.REPORT_STATES.APPROVAL_IN_PROCESS,
           constants.REPORT_STATES.PROCESSING_FAILURE,
+          constants.REPORT_STATES.PUSHING_TO_MSD,
+          constants.REPORT_STATES.ERROR_PUSHING_TO_MSD,
           constants.REPORT_STATES.SENDING_TO_SUPPLIER,
           constants.REPORT_STATES.ERROR_SENDING_TO_SUPPLIER,
           constants.REPORT_STATES.FULFILMENT_PENDING,
@@ -107,7 +109,7 @@ private userProfile: any;
       }
     };
 
-    if (reportModelId){
+    if (reportModelId) {
       generatedReportsFilter.where['id'] = reportModelId
     }
     let fetchOrders = combineLatest(
@@ -305,9 +307,9 @@ private userProfile: any;
     };
 
     let fetchOrders = combineLatest(
-        this.orgModelApi.getReportModels(this.userProfile.orgModelId, completeReportsFilter),
-        this.orgModelApi.countReportModels(this.userProfile.orgModelId, completeReportsCountFilter)
-      );
+      this.orgModelApi.getReportModels(this.userProfile.orgModelId, completeReportsFilter),
+      this.orgModelApi.countReportModels(this.userProfile.orgModelId, completeReportsCountFilter)
+    );
     return fetchOrders.pipe(map((data: any) => {
         return {
           completedOrders: data[0],
