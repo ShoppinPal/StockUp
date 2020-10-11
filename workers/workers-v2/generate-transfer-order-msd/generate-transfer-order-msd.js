@@ -268,7 +268,7 @@ var runMe = function (payload, config, taskId, messageId) {
                                 "TransferOrderNumber": createdTransferOrder.TransferOrderNumber,
                                 "ProductConfigurationId": productsGrouped[stockOrderLineItemModels[i].productModelId][0].configurationId,
                                 "IntrastatCostAmount": 0,
-                                "LineNumber": i+1,
+                                "LineNumber": i + 1,
                                 "ATPBackwardDemandTimeFenceDays": 0,
                                 "IsATPIncludingPlannedOrders": false,
                                 "ATPDelayedDemandOffsetDays": 0,
@@ -334,8 +334,24 @@ var runMe = function (payload, config, taskId, messageId) {
                         messageId,
                         reportModelId
                     });
-                    return Promise.reject('Could not push line items to transfer order in MSD');
+                    return db.collection('ReportModel').updateOne({
+                        _id: ObjectId(reportModelId)
+                    }, {
+                        $set: {
+                            state: utils.REPORT_STATES.ERROR_PUSHING_TO_MSD
+                        }
+                    })
+                        .then(function (response) {
+                            logger.debug({
+                                message: 'Updated order status to ERROR PUSHING TO MSD',
+                                reportModelId,
+                                messageId,
+                                response
+                            });
+                            return Promise.reject('Could not push line items to transfer order in MSD');
+                        });
                 })
+
                 .then(function (result) {
                     logger.debug({
                         message: 'Pushed transfer order lines to transfer order in MSD, will update Report Model',
@@ -350,7 +366,7 @@ var runMe = function (payload, config, taskId, messageId) {
                         $set: {
                             transferOrderNumber: createdTransferOrder.TransferOrderNumber,
                             transferOrderCount: result,
-                            state: utils.REPORT_STATES.PUSHED_TO_MSD
+                            state: utils.REPORT_STATES.FULFILMENT_PENDING
                         }
                     });
                 })

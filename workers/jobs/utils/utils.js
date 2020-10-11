@@ -592,6 +592,8 @@ exports.REPORT_STATES = {
     "APPROVAL_IN_PROCESS": "Approval in Process",
     "SENDING_TO_SUPPLIER": "Sending to Supplier",
     "ERROR_SENDING_TO_SUPPLIER": "Error sending to Supplier",
+    "PUSHING_TO_MSD": "Pushing to MSD",
+    "ERROR_PUSHING_TO_MSD": "Error Pushing to MSD",
     "FULFILMENT_PENDING": "Fulfilment pending",
     "FULFILMENT_IN_PROCESS": "Fulfilment in Process",
     "FULFILMENT_FAILURE": "Fulfilment failure",
