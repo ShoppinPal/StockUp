@@ -31,6 +31,8 @@ export class GeneratedResolverService implements Resolve<string> {
       constants.REPORT_STATES.PROCESSING_FAILURE,
       constants.REPORT_STATES.SENDING_TO_SUPPLIER,
       constants.REPORT_STATES.ERROR_SENDING_TO_SUPPLIER,
+      constants.REPORT_STATES.PUSHING_TO_MSD,
+      constants.REPORT_STATES.ERROR_PUSHING_TO_MSD,
       constants.REPORT_STATES.FULFILMENT_PENDING,
       constants.REPORT_STATES.FULFILMENT_IN_PROCESS,
       constants.REPORT_STATES.FULFILMENT_FAILURE

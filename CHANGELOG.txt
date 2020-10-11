@@ -1,3 +1,6 @@
+v1.6.17 - Oct 11, 2020
+- MSD Transfer order & Order states fix
+
 v1.6.16 - Oct 8, 2020
 - Angular fix
 

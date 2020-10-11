@@ -296,6 +296,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       ).subscribe(transferOrderRequest => {
         this.loading = false;
         this.toastr.info('Creating Transfer Order');
+        this._router.navigate(['/orders/stock-orders']);
         // this.waitForGeneration(transferOrderRequest.callId);
       }, error1 => {
         this.loading = false;
