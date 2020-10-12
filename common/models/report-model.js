@@ -133,12 +133,21 @@ module.exports = function (ReportModel) {
                         reportModelId: id,
                         approved: true
                     },
-                    include: {
-                        relation: 'productModel',
-                        scope: {
-                            fields: ['sku', 'name', 'supplierCode']
-                        }
-                    }
+                    include: [
+                        {
+                            relation: 'productModel',
+                            scope: {
+                                fields: ['sku', 'name', 'supplierCode']
+                            }
+                        },
+                        {
+                            relation: 'commentModels',
+                            scope: {
+                                fields: ['comment']
+                            }
+                        },
+
+                    ]
                 });
             })
             .then(function (lineItems) {
@@ -171,6 +180,7 @@ module.exports = function (ReportModel) {
                 htmlForPdf += '<h5>' + emailSubject + '</h5>';
                 logger.debug({
                     functionName: 'sendReportAsEmail',
+                    lineItems,
                     message: 'Found ' + lineItems.length + ' line items for the report, will convert to csv',
                     options
                 });
@@ -181,6 +191,11 @@ module.exports = function (ReportModel) {
                         totalOrderQuantity += lineItems[i].orderQuantity;
                         totalSupplyCost += lineItems[i].supplyPrice * lineItems[i].orderQuantity;
                         var supplierCode = lineItems[i].productModel().supplierCode;
+                        let comments = lineItems[i].commentModels() ? _.pluck(lineItems[i].commentModels(), 'comment').join('\n*') : '';
+                        if (comments) {
+                            comments = '*' + comments;
+                        }
+                        comments = comments || '';
                         csvArray.push({
                             'SKU': lineItems[i].productModel().sku,
                             'Ordered': lineItems[i].orderQuantity,
@@ -188,7 +203,7 @@ module.exports = function (ReportModel) {
                             'Supplier Code': supplierCode,
                             'Supply cost': lineItems[i].supplyPrice,
                             'Total supply cost': lineItems[i].supplyPrice * lineItems[i].orderQuantity,
-                            'Comments': lineItems[i].comments ? lineItems[i].comments.manager_in_process : ''
+                            'Comments': comments
                         });
                         htmlForPdf += '<tr>' +
                             '<td>' + lineItems[i].productModel().sku + '</td>' +
@@ -197,7 +212,7 @@ module.exports = function (ReportModel) {
                             '<td>' + supplierCode + '</td>' +
                             '<td>' + lineItems[i].supplyPrice + '</td>' +
                             '<td>' + (lineItems[i].supplyPrice * lineItems[i].orderQuantity) + '</td>' +
-                            '<td>' + (lineItems[i].comments ? lineItems[i].comments.manager_in_process : '') + '</td>' +
+                            '<td>' + (comments) + '</td>' +
                             '</tr>';
                     }
                 }
