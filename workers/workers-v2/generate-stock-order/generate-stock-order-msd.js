@@ -290,7 +290,7 @@ function generateStockOrder(payload, config, taskId, messageId) {
                 commandName,
                 messageId
             });
-            return Promise.resolve('ERROR_REPORT');
+            return Promise.resolve('ERROR_REPORT'); //TODO: why resolve promise here? There was no alert when the job failed
         })
         .then(function (result) {
             if (result === 'ERROR_REPORT') {
@@ -329,7 +329,7 @@ function generateStockOrder(payload, config, taskId, messageId) {
         }).then(function ([updateResult, result]) {
             if (result === 'ERROR_REPORT') {
                 return Promise.reject('Error while processing order');
-            }else {
+            } else {
                 return Promise.resolve();
             }
         });
@@ -373,7 +373,7 @@ function optimiseQuantitiesByStorePriority(lineItemsToOrder, warehouseInventory,
                     messageId
                 });
                 var groupedProductModelIDs = Object.keys(sameSKUsGrouped);
-                for (var i = 0; i<groupedProductModelIDs.length; i++) {
+                for (var i = 0; i < groupedProductModelIDs.length; i++) {
 
                     let warehouseStock = warehouseInventory[groupedProductModelIDs[i]];
 
@@ -431,7 +431,7 @@ function distributeByWarehouseAvailability(products, warehouseInventory, message
      * the demands of all stores due to limited availability of stock in warehouse.
      * If warehouse has enough to supply to all stores, then keep going.
      */
-    if (warehouseInventory && currentTotalQuantities>warehouseInventory) {
+    if (warehouseInventory && currentTotalQuantities > warehouseInventory) {
         let newTotalQuantities = 0;
 
         /**
@@ -458,10 +458,10 @@ function distributeByWarehouseAvailability(products, warehouseInventory, message
          * follow similar method for other products until total quantity
          * comes down to equal warehouseInventory
          */
-        if (newTotalQuantities>warehouseInventory) {
+        if (newTotalQuantities > warehouseInventory) {
 
             let totalSurplus = newTotalQuantities - warehouseInventory;
-            for (let i = productsSortedByRoundOffs.length - 1; i>=0, totalSurplus != 0; i--) {
+            for (let i = productsSortedByRoundOffs.length - 1; i >= 0, totalSurplus != 0; i--) {
                 productsSortedByRoundOffs[i].orderQuantity--;
                 totalSurplus--;
             }
@@ -609,7 +609,7 @@ function findStoreInventoryToReplenish(storeModelId, categoryModelId, messageId)
 function generateOrderQuantities(reportModel, storeModelId, orgModelId, optionLevelStoreInventory, optionLevelWarehouseInventory, messageId) {
 
     try {
-        var skippedLineItems = [], lineItemsToOrder = [];
+        var skippedLineItems = [], lineItemsToOrder = [], skip1 = 0, skip2 = 0, skip3 = 0;
         _.each(optionLevelStoreInventory, function (optionInventory, optionKey) {
             /**
              * If warehouse doesn't have inventory for any optionLevel item,
@@ -617,6 +617,7 @@ function generateOrderQuantities(reportModel, storeModelId, orgModelId, optionLe
              */
             if (!(optionLevelWarehouseInventory[optionKey] && optionLevelWarehouseInventory[optionKey].inventory_level)) {
                 skippedLineItems.push(optionLevelStoreInventory[optionKey]);
+                skip1++;
             }
             /**
              * Only continue if warehouse has inventory for the selected optionLevel item
@@ -624,47 +625,24 @@ function generateOrderQuantities(reportModel, storeModelId, orgModelId, optionLe
             else {
                 var optionOrderQuantity;
                 var optionCategoryModel = optionInventory.categoryModel[0];
-                var MAX, MDQ, maxShelfCapacity;
-                /**
-                 *
-                 * Let's calculate MAX inventory to be present in the store from
-                 * option's category model since categories have MDQs and MSFs defined
-                 * for each store.
-                 *
-                 * MDQ = Minimum Display Quantity, that should always be present in a store
-                 *
-                 * MSF = Maximum Shelf Capacity, beyond this quantity store cannot store an item
-                 *
-                 * We will decrease the inventory already present in store from below calculated MAX
-                 * to calculate the order quantities later.
-                 *
-                 */
-                if (optionCategoryModel &&
-                    optionCategoryModel.min &&
-                    optionCategoryModel.min[storeModelId]>=0 &&
-                    optionCategoryModel.max &&
-                    optionCategoryModel.max[storeModelId]>=0) {
-                    MDQ = optionCategoryModel.min[storeModelId];
-                    maxShelfCapacity = optionCategoryModel.max[storeModelId];
-                    if (optionInventory.reorder_point<MDQ) {
-                        MAX = MDQ;
-                    }
-                    else if (optionInventory.reorder_point>=MDQ && optionInventory.reorder_point<=maxShelfCapacity) {
-                        MAX = optionInventory.reorder_point;
-                    }
-                    else {
-                        MAX = maxShelfCapacity;
-                    }
-                }
-                else {
-                    MAX = optionInventory.reorder_point;
-                }
+                var MAX;
+
+                MAX = optionInventory.categoryMax || optionInventory.reorder_point;
+
+                logger.debug({
+                    max: MAX,
+                    storeInventory: optionInventory.inventory_level,
+                    optionInventory,
+                    optionKey
+                });
+
+
                 /**
                  * Let's find the orderQuantity at option level now
                  * by decreasing the quantity already present in store
                  */
                 var storeQuantityOnHand = optionInventory.inventory_level;
-                if (storeQuantityOnHand>0)
+                if (storeQuantityOnHand > 0)
                     optionOrderQuantity = MAX - storeQuantityOnHand;
                 else
                     optionOrderQuantity = MAX;
@@ -674,8 +652,9 @@ function generateOrderQuantities(reportModel, storeModelId, orgModelId, optionLe
                  * need to find out the cases. Right now let's deal with
                  * only (+ve) order quantities
                  */
-                if (optionOrderQuantity>0) {
+                if (optionOrderQuantity > 0) {
                     _.each(optionInventory.productModels, function (eachProduct, index) {
+
                         /**
                          * Rationalise the reorder point of each item in optionLevel
                          * to meet the required order quantity and checking
@@ -686,7 +665,7 @@ function generateOrderQuantities(reportModel, storeModelId, orgModelId, optionLe
                          * Also consider inventory as 0 if it's negative.
                          * TODO: to consider/leave -ve inventory option should go as an option in UI
                          */
-                        var productSuggestedOrderQuantity = ((eachProduct.reorder_point / optionInventory.reorder_point) * MAX);
+                        var productSuggestedOrderQuantity = ((eachProduct.reorder_point / optionInventory.reorder_point) * optionOrderQuantity);
 
                         /**
                          * Check product reorderPointsMultipliers and generate suggestedOrderQuantity based on that
@@ -695,8 +674,8 @@ function generateOrderQuantities(reportModel, storeModelId, orgModelId, optionLe
                             productSuggestedOrderQuantity *= eachProduct.multiplier;
                         }
 
-                        var productInventory = eachProduct.inventory_level>=0 ? eachProduct.inventory_level : 0; //treating negative store inventory as ZERO for now
-                        var productOrderQuantity = productSuggestedOrderQuantity - productInventory;
+                        var productInventory = eachProduct.inventory_level >= 0 ? eachProduct.inventory_level : 0; //treating negative store inventory as ZERO for now
+                        // var productOrderQuantity = productSuggestedOrderQuantity - productInventory;
                         var warehouseInventory = _.find(optionLevelWarehouseInventory[optionKey].productModels, function (eachWarehouseProduct) {
                             return eachProduct.productModelId.toString() === eachWarehouseProduct.productModelId.toString();
                         });
@@ -704,12 +683,21 @@ function generateOrderQuantities(reportModel, storeModelId, orgModelId, optionLe
                         /**
                          * Don't order more than what's available in warehouse
                          */
-                        productOrderQuantity = warehouseQuantity>productOrderQuantity ? productOrderQuantity : warehouseQuantity;
+                        var productOrderQuantity = warehouseQuantity > productSuggestedOrderQuantity ? productSuggestedOrderQuantity : warehouseQuantity;
+
+                        logger.debug({
+                            eachProduct,
+                            productSuggestedOrderQuantity,
+                            productInventory,
+                            warehouseInventory,
+                            productOrderQuantity,
+                            warehouseQuantity
+                        });
                         /**
                          * Products with only (+ve) orderQuantity should be ordered.
                          * Need to push categoryDetails to help UI in sorting by category.
                          */
-                        if (productOrderQuantity>0) {
+                        if (productOrderQuantity > 0) {
                             lineItemsToOrder.push({
                                 reportModelId: ObjectId(reportModel._id),
                                 productModelId: ObjectId(eachProduct.productModelId),
@@ -731,6 +719,9 @@ function generateOrderQuantities(reportModel, storeModelId, orgModelId, optionLe
                                 updatedAt: new Date()
                             });
                         }
+                        else {
+                            skip3++;
+                        }
                     });
                 }
                 /**
@@ -744,6 +735,7 @@ function generateOrderQuantities(reportModel, storeModelId, orgModelId, optionLe
                         messageId
                     });
                     skippedLineItems.push(optionLevelStoreInventory[optionKey]);
+                    skip2++;
                 }
             }
 
@@ -758,6 +750,9 @@ function generateOrderQuantities(reportModel, storeModelId, orgModelId, optionLe
             message: 'Prepared to push these items to stock order',
             count: lineItemsToOrder.length,
             commandName,
+            warehouseInventoryNotFound: skip1,
+            orderQuantityNegative: skip2,
+            productOrderQuantityNegatice: skip3,
             messageId
         });
         return {
