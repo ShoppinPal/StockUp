@@ -36,6 +36,12 @@ function getAggregatedStoreInventory(storeModelId, db) {
             }
         },
         {
+            $unwind: {
+                "path": "$categoryModel",
+                "preserveNullAndEmptyArrays": true
+            }
+        },
+        {
             $lookup: {
                 from: 'ReorderPointsMultiplierModel',
                 localField: "productsReorderPointsMultiplierMapping.reorderPointsMultiplierModelId",
@@ -82,16 +88,45 @@ function getAggregatedStoreInventory(storeModelId, db) {
                 },
                 categoryModel: {
                     $first: '$categoryModel'
-                }
+                },
+                categoryMin: {
+                    $first: {
+                        $filter: {
+                            input: {$objectToArray: "$categoryModel.min"},
+                            as: 'min',
+                            cond: {$eq: ["$$min.k", {$toString: "$$ROOT.storeModelId"}]}
+                        }
+                    }
+                },
+                categoryMax: {
+                    $first: {
+                        $filter: {
+                            input: {"$objectToArray": "$categoryModel.max"},
+                            as: 'max',
+                            cond: {"$eq": ["$$max.k", {$toString: "$$ROOT.storeModelId"}]}
+                        }
+                    }
+                },
             }
         },
-
+        {
+            $unwind: {
+                "path": "$categoryMin",
+                "preserveNullAndEmptyArrays": true
+            }
+        },
+        {
+            $unwind: {
+                "path": "$categoryMax",
+                "preserveNullAndEmptyArrays": true
+            }
+        },
         {
             $project: {
                 to_replenish: {
                     $and: [
-                        {$gt: ['$reorder_threshold', '$inventory_level']},
-                        {$gt: ['$reorder_threshold', 0]}
+                        {$gt: ['$categoryMin.v', '$inventory_level']},
+                        {$gt: ['$reorder_point', 0]}
                     ]
                 },
                 optionLevelKey: '$_id',
@@ -100,7 +135,10 @@ function getAggregatedStoreInventory(storeModelId, db) {
                 inventory_level: '$inventory_level',
                 reorder_point: '$reorder_point',
                 reorder_threshold: '$reorder_threshold',
-                categoryModel: '$categoryModel'
+                categoryModel: '$categoryModel',
+                "categoryMin" : '$categoryMin.v',
+                "categoryMax" : '$categoryMax.v',
+                "storeModelId" : "$storeModelId"
             }
         },
         {
