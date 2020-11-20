@@ -363,8 +363,8 @@ function createReorderPointBatches(productModels, salesGroupedByProducts, reorde
                     averageDailyDemandCalculationDate: new Date(),
                     standardDeviationCalculationDate: new Date(),
                     salesDateRangeInDays: salesDateRangeInDays,
-                    stockUpReorderPoint: Math.round(tempMax), //reorder quantities to this point
-                    stockUpReorderThreshold: Math.round(tempMin), //reorder quantities if product below this level
+                    stockUpReorderPoint: tempMax, //reorder quantities to this point
+                    stockUpReorderThreshold: tempMin, //reorder quantities if product below this level
                 }
             });
         }
@@ -409,7 +409,6 @@ function updateReorderPoints(batches, messageId) {
  * Calculate averageDailyDemand, standardDeviation, Min & Max for
  * each product based on its sales
  * @param eachProductModel
- * @param categoryModelInstances
  * @param productSales
  * @param messageId
  * @return {{averageDailyDemand: number, standardDeviation: (number|*), tempMin: number, tempMax: number}}
@@ -450,6 +449,8 @@ function calculateProductReorderPoint(eachProductModel, productSales, messageId)
     var tempMin = LEAD_TIME_IN_DAYS * (averageDailyDemand + standardDeviation) + (CSL_MULTIPLIER * standardDeviation * Math.pow(LEAD_TIME_IN_DAYS, 0.5));
     var tempMax = (LEAD_TIME_IN_DAYS + REVIEW_TIME_IN_DAYS) * (averageDailyDemand + standardDeviation) + (CSL_MULTIPLIER * standardDeviation * Math.pow((LEAD_TIME_IN_DAYS + REVIEW_TIME_IN_DAYS), 0.5));
     logger.debug({
+        //TODO:also print inventory here, will be helpful in triaging
+
         totalQuantitiesSoldPerDate,
         arrayOfDatesOfSales,
         averageMinusValueSquareSummation,

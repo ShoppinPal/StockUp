@@ -1,4 +1,7 @@
-v1.6.18 - Oct 12, 2002
+v1.6.19 - Nov 21, 2020
+- Change MSD replenishment algo to give weightage to Category min/max
+
+v1.6.18 - Oct 12, 2020
 - Add order comments to CSV/PDFs in email
 
 v1.6.17 - Oct 11, 2020
