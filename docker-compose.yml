@@ -1,6 +1,6 @@
 version: "3.2"
 services:
-  admin:
+    admin:
     image: node:10.15.3
     working_dir: /apps/warehouse/admin
     command: npm run start
@@ -69,25 +69,42 @@ services:
       - memcache
 
   sync-engine:
-    image: shoppinpal/node:6.10
-    working_dir: /apps/workers
-    command: node syncWorker.js
-    volumes:
-      - type: bind
-        source: ./workers
-        target: /apps/workers
-    restart: always
-    env_file: syncWorker.env
+      image: shoppinpal/node:6.10
+      working_dir: /apps/workers
+      command: node syncWorker.js
+      volumes:
+          -   type: bind
+              source: ./workers
+              target: /apps/workers
+      restart: always
+      env_file: syncWorker.env
 
-  db:
-    image: mongo:3.2
-    ports:
-      - "27020:27017"
-    volumes:
-      - type: bind
-        source: ./docker/volumes/mongo
-        target: /data/db
-  memcache:
+    pos-sync:
+        image: shoppinpal/node:6.10
+        ports:
+            - "3002"
+        working_dir: /apps/stockup-pos-integration-service
+        command: ./node_modules/nodemon/bin/nodemon.js index.js
+        volumes:
+            -   type: bind
+                source: ./stockup-pos-integration-service
+                target: /apps/stockup-pos-integration-service
+            -   type: bind
+                source: ./common
+                target: /apps/stockup-pos-integration-service/common
+        restart: always
+        env_file:
+            - stockup-poc-integration-service.env
+
+    db:
+        image: mongo:3.2
+        ports:
+            - "27020:27017"
+        volumes:
+            -   type: bind
+                source: ./docker/volumes/mongo
+                target: /data/db
+    memcache:
     image: memcached:latest
 
   mssql:

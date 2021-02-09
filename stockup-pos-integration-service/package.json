@@ -1,0 +1,18 @@
+{
+  "name": "clover",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "loopback": "2.37.1",
+    "loopback-connector-mongodb": "1.15.2",
+    "nodemon": "1.18.3",
+    "loopback-datasource-juggler": "2.46.0",
+    "bluebird": "2.9.14"
+  }
+}
