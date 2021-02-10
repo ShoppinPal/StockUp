@@ -188,7 +188,8 @@ function fetchPaginatedSales(sqlPool, orgModelId, pagesToFetch) {
                         eachSales.TRANSACTIONSTATUS === transactionConstants.TRANSACTION_STATUS.NONE ) &&
                         ( eachSales.TRANSACTIONTYPE === transactionConstants.TRANSACTION_TYPE.SALES )) {
                         batch.find({
-                            transactionNumber: eachSales.TRANSACTIONNUMBER
+                            transactionNumber: eachSales.TRANSACTIONNUMBER,
+                            orgModelId: ObjectId(orgModelId)
                         }).upsert().updateOne({
                             $set: {
                                 transactionNumber: eachSales.TRANSACTIONNUMBER,
