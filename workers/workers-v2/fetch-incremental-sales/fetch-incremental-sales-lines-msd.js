@@ -159,7 +159,7 @@ module.exports = {
 
 function fetchPaginatedSalesLines(sqlPool, orgModelId, pagesToFetch) {
     var incrementalSalesLines, rowIds;
-    if (pagesToFetch>0) {
+    if (pagesToFetch > 0) {
         return sqlPool.request()
             .input('sales_lines_per_page', sql.Int, SALES_LINES_PER_PAGE)
             .input('transfer_pending_state', sql.Int, 0)
@@ -228,14 +228,16 @@ function fetchPaginatedSalesLines(sqlPool, orgModelId, pagesToFetch) {
                 _.each(incrementalSalesLines, function (eachSalesLine, iteratee) {
                     var salesModelToAttach = _.findWhere(salesModelInstances, {transactionNumber: eachSalesLine.TRANSACTIONNUMBER});
                     var productModelToAttach = _.findWhere(productModelInstances, {api_id: eachSalesLine.ITEMID});
-                    if (salesModelToAttach && 
-                    ( eachSalesLine.TRANSACTIONSTATUS === transactionConstants.TRANSACTION_STATUS.POSTED || 
-                    eachSalesLine.TRANSACTIONSTATUS === transactionConstants.TRANSACTION_STATUS.NONE )) {
+                    if (salesModelToAttach &&
+                        ( eachSalesLine.TRANSACTIONSTATUS === transactionConstants.TRANSACTION_STATUS.POSTED ||
+                        eachSalesLine.TRANSACTIONSTATUS === transactionConstants.TRANSACTION_STATUS.NONE )) {
                         batch.find({
                             $and: [{
                                 transactionNumber: eachSalesLine.TRANSACTIONNUMBER
                             }, {
                                 lineNumber: eachSalesLine.LINENUMBER
+                            }, {
+                                orgModelId: ObjectId(orgModelId)
                             }]
                         }).upsert().updateOne({
                             $set: {
@@ -282,7 +284,7 @@ function fetchPaginatedSalesLines(sqlPool, orgModelId, pagesToFetch) {
                 return Promise.resolve('ERROR_BATCH');
             })
             .then(function (bulkInsertResponse) {
-                if(bulkInsertResponse === 'ERROR_BATCH') {
+                if (bulkInsertResponse === 'ERROR_BATCH') {
                     return Promise.resolve();
                 }
                 else {

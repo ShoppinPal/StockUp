@@ -180,7 +180,8 @@ function fetchPaginatedProducts(sqlPool, orgModelId, pagesToFetch) {
                 return db.collection('CategoryModel').find({
                     name: {
                         $in: productCategories
-                    }
+                    },
+                    orgModelId: ObjectId(orgModelId)
                 }).toArray();
             })
             .catch(function (error) {
@@ -206,7 +207,8 @@ function fetchPaginatedProducts(sqlPool, orgModelId, pagesToFetch) {
                     });
                     if (categoryModel) {
                         batch.find({
-                            api_id: eachProduct.PRODUCTNUMBER
+                            api_id: eachProduct.PRODUCTNUMBER,
+                            orgModelId: ObjectId(orgModelId)
                         }).upsert().updateOne({
                             $set: {
                                 categoryModelId: categoryModel ? categoryModel._id : null,
@@ -216,7 +218,8 @@ function fetchPaginatedProducts(sqlPool, orgModelId, pagesToFetch) {
                     }
                     else {
                         batch.find({
-                            api_id: eachProduct.PRODUCTNUMBER
+                            api_id: eachProduct.PRODUCTNUMBER,
+                            orgModelId: ObjectId(orgModelId)
                         }).upsert().updateOne({
                             $set: {
                                 categoryModel: eachProduct.RETAILPRODUCTCATEGORYNAME,
