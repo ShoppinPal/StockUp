@@ -172,7 +172,8 @@ function fetchPaginatedProducts(sqlPool, orgModelId, pagesToFetch) {
                         optionKey += eachProduct.ECORESCONFIGURATION || 'NA';
                     }
                     batch.find({
-                        api_id: eachProduct.ITEMID
+                        api_id: eachProduct.ITEMID,
+                        orgModelId: ObjectId(orgModelId)
                     }).upsert().updateOne({
                         $set: {
                             api_id: eachProduct.ITEMID,
