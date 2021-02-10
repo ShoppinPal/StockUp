@@ -12,12 +12,16 @@ app.loopback.modelBuilder.mixins.define('Timestamp', require('./common/mixins/ti
 function loadModelsInDir(dir) {
     const files = fs.readdirSync(dir);
     files.forEach(function (file) {
-        if (file.split('.').pop() === 'json') {
+        const fileExt = file.split('.').pop();
+        if (fileExt === 'json') {
             console.log(dir + file);
             //load the schema for the model
             const Schema = require(path.resolve(dir + file));
 
             const Model = app.registry.createModel(Schema);
+            // const fileNameWithoutExt = file.split('.')[0];
+            // console.log(path.resolve(dir + fileNameWithoutExt + '.js'));
+            // require(path.resolve(dir + fileNameWithoutExt + '.js'))(Model);
             app.model(Model, {dataSource: 'db'});
         }
     });
@@ -25,12 +29,5 @@ function loadModelsInDir(dir) {
 
 loadModelsInDir(__dirname + '/common/models/');
 loadModelsInDir(__dirname + '/node_modules/loopback/common/models/');
-//
-// app.models.UserModel.find({
-//     include: 'orgModel',
-//     limit: 1
-// }, (err, data) => {
-//     console.log(err, data);
-// });
 
 module.exports = app.models;
