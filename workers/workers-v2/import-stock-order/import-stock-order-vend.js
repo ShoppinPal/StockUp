@@ -186,8 +186,10 @@ let runMe = function (payload, config, taskId, messageId) {
                     )
 
                 };
-                var slackMessage = 'Import order Vend Worker failed' + messageId + '\n taskId' +
-                    ': ' + taskId + '\nMessageId: ' + messageId;
+                var slackMessage = 'Import order Vend Worker failed' +
+                    '\n taskId' + ': ' + taskId +
+                    '\n MessageId: ' + messageId +
+                    '\n Environment: '+ process.env.APP_HOST_NAME;
                 utils.sendSlackMessage('Worker failed', slackMessage, false);
                 return rp(options);
             })
@@ -198,7 +200,7 @@ let runMe = function (payload, config, taskId, messageId) {
                     commandName,
                     messageId
                 });
-                return Promise.reject('Could not send status to server')
+                return Promise.reject('Could not send status to server');
             })
             .then(function (res) {
                 logger.debug({

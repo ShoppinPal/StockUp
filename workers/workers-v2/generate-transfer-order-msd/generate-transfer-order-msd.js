@@ -21,7 +21,7 @@ var runMe = function (payload, config, taskId, messageId) {
     var orgModelId = payload.orgModelId;
     var reportModelId = payload.reportModelId;
     var createdTransferOrder, stockOrderLineItemModels;
-    var reportModelInstance;
+    var reportModelInstance, storeInstance;
     try {
         // Global variable for logging
 
@@ -117,6 +117,7 @@ var runMe = function (payload, config, taskId, messageId) {
                     return Promise.reject('Could not find store model instance');
                 })
                 .then(function (storeModelInstance) {
+                    storeInstance = storeModelInstance;
                     logger.debug({
                         message: 'Found store model instance',
                         storeModelInstance,
@@ -445,8 +446,12 @@ var runMe = function (payload, config, taskId, messageId) {
                         commandName,
                         messageId
                     });
-                    var slackMessage = 'Generate transfer order MSD Worker failed for reportModelId ' + reportModelId + '\n taskId' +
-                        ': ' + taskId + '\nMessageId: ' + messageId;
+                    var slackMessage = 'Generate transfer order MSD Worker failed for reportModelId ' + reportModelId +
+                        '\n taskId' + ': ' + taskId +
+                        '\n MessageId: ' + messageId +
+                        '\n orgModelId: ' + orgModelId +
+                        '\n Store: ' + storeInstance ? storeInstance.name: '' +
+                        '\n Environment: '+ process.env.APP_HOST_NAME;
                     utils.sendSlackMessage('Worker failed', slackMessage, false);
                     return rp(options);
                 })

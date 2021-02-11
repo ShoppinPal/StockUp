@@ -383,8 +383,13 @@ var runMe = function (payload, config, taskId, messageId) {
                         )
 
                     };
-                    var slackMessage = 'Generate purchase order Vend Worker failed for reportModelId ' + reportModelId + '\n taskId' +
-                        ': ' + taskId + '\nMessageId: ' + messageId;
+                    var slackMessage = 'Generate purchase order Vend Worker failed for reportModelId ' + reportModelId +
+                        '\n taskId' + ': ' + taskId +
+                        '\n MessageId: ' + messageId +
+                        '\n Store:' + storeModelInstance ? storeModelInstance.name : '' +
+                        '\n Supplier:' + supplierModelInstance ? supplierModelInstance.name : '' +
+                        '\n orgModelId:' + orgModelId +
+                        '\n Environment:' + process.env.APP_HOST_NAME ;
                     utils.sendSlackMessage('Worker failed', slackMessage, false);
                     return rp(options);
                 })
