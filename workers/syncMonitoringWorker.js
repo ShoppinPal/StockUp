@@ -3,6 +3,7 @@
 const logger = require('sp-json-logger')({fileName: 'workers:syncMonitoringWorker'});
 const sql = require('mssql');
 const bluebird = require('bluebird');
+const utils = require('./jobs/utils/utils');
 global.Promise = bluebird;
 
 
@@ -73,7 +74,7 @@ function checkMsdToMsSQL(sqlPool) {
         });
 
     return Promise
-        .all(promises, 1)
+        .all(promises)
         .then(function (results){
             const wasSuccessful = results.every(function (result) {
                 return result.recordset[0].result;
@@ -97,7 +98,7 @@ function checkMsSQLToMongoSync(sqlPool) {
                     SELECT
                         -- return true if success
                         CAST(
-                            CASE WHEN COUNT(SYNCSTARTDATETIME) = 0 THEN 1 ELSE 0 END AS BIT
+                            CASE WHEN COUNT(SYNCSTARTDATETIME) > 0 THEN 1 ELSE 0 END AS BIT
                         ) AS result
                     FROM
                         ${tableName}
@@ -108,8 +109,8 @@ function checkMsSQLToMongoSync(sqlPool) {
                             -24,
                             GETDATE()
                         )
-                        -- Stock Transfer 0 means not yet transfered
-                        AND STOCKUPTRANSFER = 0
+                        -- Stock Transfer 1 means transfered
+                        AND STOCKUPTRANSFER = 1
                     `);
         });
 
@@ -131,7 +132,7 @@ function checkMsSQLToMongoSync(sqlPool) {
  */
 function checkSync() {
     var sqlPool;
-
+    var checkStartTime = new Date();
     return Promise.resolve()
         .then(function () {
             logger.debug({
@@ -168,7 +169,10 @@ function checkSync() {
                 logger.info({
                     message: 'MSD - MSSQL Sync was not successful in last 24 Hours',
                 });
-              // TODO: Send Slack Alert
+                utils.sendSlackMessage('Sync was not successful',
+                        'MSD - MSSQL Sync was not successful in last 24 Hours' +
+                    '\n Check Time: ' + checkStartTime.toDateString()
+                );
             }
 
             return checkMsSQLToMongoSync(sqlPool);
@@ -191,7 +195,10 @@ function checkSync() {
                     message: 'MSSQL - Mongo Sync was not successful in last 24 Hours',
                     wasSyncSuccess
                 });
-                // TODO: Send Slack Alert
+                utils.sendSlackMessage('Sync was not successful',
+                    'MSSQL - Mongo Sync was not successful in last 24 Hours' +
+                    '\n Check Time: ' + checkStartTime.toDateString()
+                );
             }
             if (sqlPool) {
                 return sqlPool.close();
