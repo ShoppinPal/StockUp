@@ -7,6 +7,7 @@ var Joi = Promise.promisifyAll(require('joi'));
 var validate = Promise.promisify(require('joi').validate);
 const aws = require('aws-sdk');
 const nodemailer = require('nodemailer');
+const slackUtils = require('../utils/slack');
 const constants = require("../utils/constants");
 const ROLES = constants.ROLES;
 
@@ -137,6 +138,10 @@ module.exports = function (UserModel) {
 
             validate(data, validObjectSchema)
                 .then(function () {
+                    slackUtils.sendOrgSignupAlert({
+                        email: data.email,
+                        orgName: data.orgName
+                    });
                     logger.debug({
                         message: 'Validated data for sign up successfully',
                         functionName: 'signup'
