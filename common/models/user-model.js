@@ -509,7 +509,7 @@ module.exports = function (UserModel) {
             var email = require('../utils/email');
             var argsForEmail = email.argsForEmail;
             argsForEmail.to = info.email;
-            argsForEmail.from = 'kamal@shoppinpal.com';
+            argsForEmail.from = 'no-reply@shoppinpal.com';
             argsForEmail.subject = 'Password reset instructions';
             var userName = info.user.name.substr(0, 1).toUpperCase() + info.user.name.substr(1, info.user.name.length - 1).toLowerCase();
             var passwordResetLink = UserModel.app.get('site').baseUrl + '/#/invite-user?accessToken=' + info.accessToken.id + '&name=' + userName;
