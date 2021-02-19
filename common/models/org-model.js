@@ -1607,5 +1607,25 @@ module.exports = function (OrgModel) {
                 });
         };
 
+        OrgModel.remoteMethod('getReportAnchors', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'reportModelId', type: 'string', required: true},
+            ],
+            http: {path: '/:id/getReportAnchors', verb: 'GET'},
+            returns: {arg: 'categories', type: 'array', root: true}
+        });
+
+        OrgModel.getReportAnchors = function (id, reportId) {
+            return OrgModel.app.models.ReportModel.getReportAnchors(id, reportId)
+                .catch(function (error) {
+                    logger.error({
+                        error,
+                        functionName: 'getReportAnchors'
+                    });
+                    return Promise.reject(error);
+                });
+        };
+
     });
 };

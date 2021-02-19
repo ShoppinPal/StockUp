@@ -1385,8 +1385,7 @@ module.exports = function (ReportModel) {
                             pushToVend = true;
                             return presentLineItems[0].save();
                         }
-                    }
-                    else if (REPORT_STATES.RECEIVING_IN_PROCESS === reportModel.state) {
+                    } else if (REPORT_STATES.RECEIVING_IN_PROCESS === reportModel.state) {
                         if (presentLineItems[0].fulfilled) {
                             // do nothing
                             logger.debug({
@@ -1556,7 +1555,7 @@ module.exports = function (ReportModel) {
                     orderQuantity = undefined;
                     useRow = true;
                 }
-                var categoryName = product.categoryModel && product.categoryModel.length ? product.categoryModel[0].name : 'No Category';
+                var categoryName = product.categoryModel ? product.categoryModel.name : 'No Category';
                 row = {
                     productModelId: product.id,
                     productModelName: product.name, //need for sorting
@@ -2150,6 +2149,109 @@ module.exports = function (ReportModel) {
                     functionName: 'fulfillAllLineItems'
                 });
                return Promise.reject('Cannot fulfill all line items')
+            });
+    };
+
+
+    /**
+     * Returns category labels and their page numbers
+     * - Sort Line Items by category
+     * - Group line items by category
+     * - Get count for items in each category
+     * - get items limit from frontend
+     * - calculate page numbers for each category
+     * @param orgModelId
+     * @param reportModelId
+     * @param options
+     */
+    ReportModel.getReportAnchors = function (orgModelId, reportModelId) {
+
+        logger.info({
+            functionName: 'getReportAnchors',
+            message: 'Will return available category labels',
+            orgModelId,
+            reportModelId
+        });
+        const ObjectID = ReportModel.getDataSource().ObjectID;
+
+        const stockOrderLineItemsModelName = ReportModel.app.models.StockOrderLineitemModel.modelName;
+        const stockOrderLineItemCollection = ReportModel.getDataSource().connector.collection(stockOrderLineItemsModelName);
+
+        return ReportModel.findById(reportModelId)
+            .then(function (reportInstance) {
+                logger.info({
+                    functionName: 'getReportAnchors',
+                    message: 'Found reportModel Instance',
+                    orgModelId,
+                    reportModelId,
+                    reportInstance
+                });
+                const query = {};
+                const state = reportInstance.state;
+                if (state === REPORT_STATES.FULFILMENT_PENDING ||
+                    state === REPORT_STATES.FULFILMENT_IN_PROCESS ||
+                    state === REPORT_STATES.FULFILMENT_FAILURE
+                ) {
+                    query.approved = true;
+                }
+
+                if (state === REPORT_STATES.RECEIVING_PENDING ||
+                    state === REPORT_STATES.RECEIVING_IN_PROCESS ||
+                    state === REPORT_STATES.RECEIVING_FAILURE
+                ) {
+                    query.fulfilled = true;
+                }
+
+
+                if (state === REPORT_STATES.COMPLETE) {
+                    query.received = true;
+                }
+
+                logger.info({
+                    functionName: 'getReportAnchors',
+                    message: 'Computed Query for this report',
+                    orgModelId,
+                    reportModelId,
+                    query
+                });
+
+                const columnNameToUse = query.approved === true ?
+                    '$binLocation' :
+                    '$categoryModelName';
+
+                const aggregationQuery = [
+                    {
+                        $match: Object.assign(
+                            {},
+                            {
+                                // Match line items for this report
+                                reportModelId: ObjectID(reportModelId),
+                            },
+                            query
+                        )
+                    },
+                    {
+                        $project: {
+                            label: {
+                                $substr: [columnNameToUse, 0, 1]
+                            }
+                        }
+                    },
+                    {
+                        $group: {
+                            // $toUpper:  Treat 'A' and 'a' as 'A'
+                            _id: { $toUpper: '$label' },
+                        }
+                    },
+                    {
+                        $sort: {
+                            _id: 1
+                        }
+                    },
+                ];
+
+                return stockOrderLineItemCollection.aggregate(aggregationQuery)
+                    .toArray();
             });
     };
 };

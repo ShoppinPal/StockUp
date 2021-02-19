@@ -121,7 +121,7 @@
             </div>
             <div class="col-sm-3">
               <button type="button" class="btn btn-link float-right"
-                      (click)="searchSKUText='';getNotReceivedStockOrderLineItems();getReceivedStockOrderLineItems()">
+                      (click)="searchSKUText='';this.selectedCategoryLabelFilter=undefined;getNotReceivedStockOrderLineItems();getReceivedStockOrderLineItems()">
                 Clear All Searches
               </button>
             </div>
@@ -141,6 +141,12 @@
           </button>
         </div>
         <div class="card-body" [ngClass]="{'card-flex': isSmallDevice}">
+          <app-category-anchor
+            [reportModelId]="order.id"
+            [(label)]="selectedCategoryLabelFilter"
+            (labelChange)="refreshLineItems()"
+            [addProductClosed]="showAddProductModal"
+          ></app-category-anchor>
           <div class="row">
             <div class="col-sm-12">
               <tabset>

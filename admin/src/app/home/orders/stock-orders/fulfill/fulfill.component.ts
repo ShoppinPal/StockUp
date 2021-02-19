@@ -55,6 +55,7 @@ export class FulfillComponent implements OnInit {
   public isSmallDevice = this.sharedDataService.getIsSmallDevice();
   public backOrderLoaded = false;
   @ViewChild('backOrderTab') private backOrderTab;
+  selectedCategoryLabelFilter: string;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -115,9 +116,16 @@ export class FulfillComponent implements OnInit {
       }
     };
     if (productModelIds && productModelIds.length) {
+      // Remove filter in case of search
+      this.selectedCategoryLabelFilter = undefined;
       whereFilter['productModelId'] = {
         inq: productModelIds
       };
+    }
+    else if (this.selectedCategoryLabelFilter) {
+      whereFilter['binLocation'] = {
+        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
+      }
     }
     const filter: any = {
       where: whereFilter,
@@ -143,8 +151,13 @@ export class FulfillComponent implements OnInit {
         gt: 0
       }
     };
-    if (productModelIds && productModelIds.length)
+    if (productModelIds && productModelIds.length) {
       countFilter['productModelId'] = {inq: productModelIds};
+    } else if (this.selectedCategoryLabelFilter) {
+      countFilter['binLocation'] = {
+        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
+      }
+    }
     this.loading = true;
     let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
@@ -161,6 +174,11 @@ export class FulfillComponent implements OnInit {
       err => {
         this.loading = false;
         console.log('error', err);
+
+        // Clear selected filter if api call fails
+        if (this.selectedCategoryLabelFilter) {
+          this.selectedCategoryLabelFilter = undefined;
+        }
       });
   }
 
@@ -241,9 +259,16 @@ export class FulfillComponent implements OnInit {
       fulfilled: false
     };
     if (productModelIds && productModelIds.length) {
+      // Remove filter in case of search
+      this.selectedCategoryLabelFilter = undefined;
       whereFilter['productModelId'] = {
         inq: productModelIds
       };
+    }
+    else if (this.selectedCategoryLabelFilter) {
+      whereFilter['binLocation'] = {
+        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
+      }
     }
     let filter = {
       where: whereFilter,
@@ -269,8 +294,13 @@ export class FulfillComponent implements OnInit {
       approved: true,
       fulfilled: false
     };
-    if (productModelIds && productModelIds.length)
+    if (productModelIds && productModelIds.length) {
       countFilter['productModelId'] = {inq: productModelIds};
+    } else if (this.selectedCategoryLabelFilter) {
+      countFilter['binLocation'] = {
+        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
+      }
+    }
     this.loading = true;
     let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
@@ -291,6 +321,11 @@ export class FulfillComponent implements OnInit {
       err => {
         this.loading = false;
         console.log('error', err);
+
+        // Clear selected filter if api call fails
+        if (this.selectedCategoryLabelFilter) {
+          this.selectedCategoryLabelFilter = undefined;
+        }
       });
   }
 
@@ -555,5 +590,9 @@ export class FulfillComponent implements OnInit {
       }, error => {
         this.toastr.error('Cannot Fulfill All Items')
       })
+  }
+  refreshLineItems() {
+    this.getNotFulfilledStockOrderLineItems();
+    this.getFulfilledStockOrderLineItems();
   }
 }
