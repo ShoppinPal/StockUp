@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {OrgModelApi} from "../../../../shared/lb-sdk/services/custom/OrgModel";
 import {ActivatedRoute, Router} from '@angular/router';
 import {combineLatest, Subscription} from 'rxjs';
@@ -14,6 +14,7 @@ import Utils from '../../../../shared/constants/utils';
 import {BsModalRef, BsModalService} from "ngx-bootstrap/modal";
 import {DeleteOrderComponent} from "../../shared-components/delete-order/delete-order.component";
 import {SharedDataService} from '../../../../shared/services/shared-data.service';
+import {delay} from 'rxjs/operators';
 
 @Component({
   selector: 'app-generated',
@@ -94,6 +95,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
               private toastr: ToastrService,
               private _userProfileService: UserProfileService,
               private _eventSourceService: EventSourceService,
+              private changeDetector: ChangeDetectorRef,
               private auth: LoopBackAuth,
               private modalService: BsModalService,
               private sharedDataService: SharedDataService) {
@@ -106,6 +108,9 @@ export class GeneratedComponent implements OnInit, OnDestroy {
         this.emailModalData.to = this.order.supplierModel ? ( this.order.supplierModel.email ? this.order.supplierModel.email : '') : '';
         this.getNotApprovedStockOrderLineItems();
         this.getApprovedStockOrderLineItems();
+        if(this.userProfile.integrationType === 'vend') {
+          this.listenItemSyncChanges();
+        }
       },
       error => {
         console.log('error', error)
@@ -696,4 +701,30 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     console.log(e);
   }
 
+  decrementQuantity(lineItem: any) {
+    let newOrderQty = lineItem.orderQuantity - (lineItem.caseQuantity || 1);
+    if (newOrderQty < 0) {
+      newOrderQty = 0;
+    }
+    lineItem.orderQuantity = newOrderQty
+  }
+
+  listenItemSyncChanges() {
+    const EventSourceUrl = `/notification/${this.order.id}-line-items/waitForResponseAPI`;
+    const eventApi = this._eventSourceService.connectToStream(EventSourceUrl)
+        .subscribe(([event, es]) => {
+          console.log(event);
+          const { data } = event;
+          const searchArray = data.approved ? this.approvedLineItems: this.notApprovedLineItems;
+          for (let i = 0; i < searchArray.length; i++){
+            if (searchArray[i].id === data.stockOrderLineItemId) {
+              searchArray[i].asyncPushSuccess = data.success;
+              this.changeDetector.detectChanges();
+              break;
+            }
+          }
+
+        });
+    this.subscriptions.push(eventApi);
+  }
 }

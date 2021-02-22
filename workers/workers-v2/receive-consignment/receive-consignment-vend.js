@@ -78,12 +78,20 @@ var runMe = function (payload, config, taskId, messageId) {
                 .then(function (response) {
                     reportModelInstance = response;
                     logger.debug({
-                        message: 'Found report model instance, will look for store and supplier model',
+                        message: 'Found report model instance, will look for not pushed line items',
                         response,
                         messageId
                     });
                     return db.collection('StockOrderLineitemModel').find({
-                        reportModelId: ObjectId(payload.reportModelId)
+                        reportModelId: ObjectId(payload.reportModelId),
+                        $or:[
+                            // Failed to Async Push
+                            {asyncPushSuccess: false},
+                            // Not Async Pushed by worker
+                            {asyncPushSuccess: null},
+                            // Received Quantity is 0, need to delete these from vend
+                            {receivedQuantity: 0}
+                        ],
                     }).toArray();
                 })
                 .catch(function (error) {
