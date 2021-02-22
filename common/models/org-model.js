@@ -10,6 +10,8 @@ var validate = Promise.promisify(require('joi').validate);
 var vendSdk = require('vend-nodejs-sdk')({});
 const rp = require('request-promise');
 const sql = require('mssql');
+const workerUtils = require("../utils/workers")
+
 module.exports = function (OrgModel) {
 
 
@@ -847,7 +849,7 @@ module.exports = function (OrgModel) {
             returns: {arg: 'status', type: 'object', root: true}
         });
 
-        OrgModel.updateAllStockOrderLineItemModels = function (id, reportModelId, lineItemIds, data, options, cb) {
+        OrgModel.updateAllStockOrderLineItemModels = function (id, reportModelId, lineItemIds, data, options) {
             logger.debug({
                 message: 'Will update these line items for order',
                 data,
@@ -864,7 +866,15 @@ module.exports = function (OrgModel) {
                     inq: lineItemIds
                 };
             }
-            return OrgModel.app.models.StockOrderLineitemModel.updateAll(filter, data)
+
+            return OrgModel.app.models.StockOrderLineitemModel.updateAll(filter, {
+                    $set: data,
+                    // Worker will update it to true / false
+                    $unset: {
+                        asyncPushSuccess: false // false is irrelevant
+                    },
+                },
+                {allowExtendedOperators: true})
                 .catch(function (error) {
                     logger.error({
                         message: 'Could not update these line items',
@@ -874,6 +884,35 @@ module.exports = function (OrgModel) {
                         error
                     });
                     return Promise.reject('Could not update stock order line items');
+                })
+                .then(function (updateResult) {
+                    // If received is getting invoked
+                    if (data.hasOwnProperty('received') || data.hasOwnProperty('receivedQuantity')) {
+                        const payload = {
+                            stockOrderLineItemIds: lineItemIds,
+                            reportModelId: reportModelId,
+                            op: 'receiveLineItemVend',
+                            eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
+                            callId: options.accessToken.userId,
+                        };
+                        // Push the updates to vend
+                        return workerUtils.sendPayLoad(payload)
+                            .catch(function (error) {
+                                logger.error({
+                                    message: 'Could not send receiveLineItemVend to worker',
+                                    options,
+                                    error,
+                                    functionName: 'updateAllStockOrderLineItemModels'
+                                });
+                                // QUESTION: Should we fail it instead ?
+                                return Promise.resolve(daupdateResultta);
+                            })
+                            .then(function (){
+                                return Promise.resolve(updateResult);
+                            });
+                    } else {
+                        return Promise.resolve(updateResult);
+                    }
                 });
         };
 
