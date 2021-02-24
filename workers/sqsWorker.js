@@ -598,6 +598,38 @@ function routeToWorker(payload, config, taskId, messageId, receiptHandle) {
                     return Promise.reject('Internal Server Error');
                 });
         }
+        else if (payload.op === 'receiveLineItemVend') {
+            logger.tag('Routed').info({
+                messageId: messageId,
+                message: 'routed to receiveLineItemVend'
+            });
+            var receiveLineItem = require('./workers-v2/receive-consignment/receive-line-item-vend');
+            return receiveLineItem.run(payload, config, taskId, messageId)
+                .then(function () {
+                    logger.debug({messageId: messageId, message: 'received line item in Vend successfully'});
+                    return Promise.resolve(receiptHandle);
+                })
+                .catch(function (error) {
+                    logger.error({err: error, messageId: messageId});
+                    return Promise.reject('Internal Server Error');
+                });
+        }
+        else if (payload.op === 'approveLineItemVend') {
+            logger.tag('Routed').info({
+                messageId: messageId,
+                message: 'routed to approveLineItemVend'
+            });
+            var approveLineItem = require('./workers-v2/generate-purchase-order-vend/approve-line-item-vend');
+            return approveLineItem.run(payload, config, taskId, messageId)
+                .then(function () {
+                    logger.debug({messageId: messageId, message: 'approved line item in Vend successfully'});
+                    return Promise.resolve(receiptHandle);
+                })
+                .catch(function (error) {
+                    logger.error({err: error, messageId: messageId});
+                    return Promise.reject('Internal Server Error');
+                });
+        }
         else if (payload.op === 'importVendOrderFromFile') {
             logger.tag('Routed').info({
                 messageId: messageId,

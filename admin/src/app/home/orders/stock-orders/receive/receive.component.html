@@ -166,6 +166,7 @@
                       <th>Delivered Quantity</th>
                       <th>Received Quantity</th>
                       <th>Store Inventory</th>
+                      <th *ngIf="userProfile.integrationType === 'vend'">Sync</th>
                       <th *ngIf="editable">Receive</th>
                     </tr>
                     </thead>
@@ -173,7 +174,7 @@
                     <ng-container *ngFor="let lineItem of notReceivedLineItems; let i = index;">
                       <tr class="bg-light text-primary"
                           *ngIf="lineItem.categoryModelName !== notReceivedLineItems[i-1]?.categoryModelName">
-                        <td colspan="8"><strong>{{lineItem.categoryModelName || 'No Category'}}</strong></td>
+                        <td colspan="9"><strong>{{lineItem.categoryModelName || 'No Category'}}</strong></td>
                       </tr>
                       <tr>
                         <ng-container *ngIf="lineItem.productModel">
@@ -218,6 +219,13 @@
                             </div>
                           </td>
                           <td>{{lineItem.storeInventory}}</td>
+                          <td *ngIf="userProfile.integrationType === 'vend'">
+                            <i *ngIf="lineItem.asyncPushSuccess === true" class="fa fa-check-circle" style="color: green;"></i>
+                            <i *ngIf="lineItem.asyncPushSuccess === false" class="fa fa-ban" style="color: red;"></i>
+                            <div *ngIf="lineItem.asyncPushSuccess === null" class="spinner-border spinner-border-sm text-success" role="status">
+                              <span class="sr-only">Loading...</span>
+                            </div>
+                          </td>
                           <td *ngIf="editable">
                             <button *ngIf="!enableBarcode" class="btn btn-danger" type="submit"
                                     (click)="receiveItem(lineItem)">
@@ -276,6 +284,7 @@
                       <th>Ordered Quantity</th>
                       <th>Delivered Quantity</th>
                       <th>Received Quantity</th>
+                      <th *ngIf="userProfile.integrationType === 'vend'">Sync</th>
                       <th *ngIf="editable">Remove</th>
                     </tr>
                     </thead>
@@ -283,7 +292,7 @@
                     <ng-container *ngFor="let lineItem of receivedLineItems; let i = index;">
                       <tr class="bg-light text-primary"
                           *ngIf="lineItem.categoryModelName !== receivedLineItems[i-1]?.categoryModelName">
-                        <td colspan="8"><strong>{{lineItem.categoryModelName || 'No Category'}}</strong></td>
+                        <td colspan="9"><strong>{{lineItem.categoryModelName || 'No Category'}}</strong></td>
                       </tr>
                       <tr>
                         <ng-container *ngIf="lineItem.productModel">
@@ -308,6 +317,13 @@
                           </td>
                           <td>{{lineItem.fulfilledQuantity}}</td>
                           <td>{{lineItem.receivedQuantity}}</td>
+                          <td *ngIf="userProfile.integrationType === 'vend'">
+                            <i *ngIf="lineItem.asyncPushSuccess === true" class="fa fa-check-circle" style="color: green;"></i>
+                            <i *ngIf="lineItem.asyncPushSuccess === false" class="fa fa-ban" style="color: red;"></i>
+                            <div *ngIf="lineItem.asyncPushSuccess === null" class="spinner-border spinner-border-sm text-success" role="status">
+                              <span class="sr-only">Loading...</span>
+                            </div>
+                          </td>
                           <td *ngIf="editable">
                             <button *ngIf="!enableBarcode" class="btn btn-danger" type="submit"
                                     (click)="removeItem(lineItem)">
@@ -340,7 +356,7 @@
                               [maxSize]="maxPageDisplay"
                               [rotate]="false"
                               [boundaryLinks]="true"
-                              (pageChanged)="getReceivedLineItems(lineItemsLimitPerPage, ($event.page - 1) * lineItemsLimitPerPage)"
+                              (pageChanged)="getReceivedStockOrderLineItems(lineItemsLimitPerPage, ($event.page - 1) * lineItemsLimitPerPage)"
                               [itemsPerPage]="lineItemsLimitPerPage">
                   </pagination>
 

@@ -82,6 +82,9 @@
     "vendDeletedAt": {
       "type": "date",
       "required": false
+    },
+    "asyncPushSuccess": {
+      "type": "boolean"
     }
   },
   "validations": [],

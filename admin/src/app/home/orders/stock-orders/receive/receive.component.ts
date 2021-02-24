@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {OrgModelApi} from "../../../../shared/lb-sdk/services/custom/OrgModel";
 import {ActivatedRoute, Router} from '@angular/router';
 import {Observable, combineLatest, Subscription} from 'rxjs';
@@ -59,6 +59,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
               private _eventSourceService: EventSourceService,
               private auth: LoopBackAuth,
               private modalService: BsModalService,
+              private changeDetector: ChangeDetectorRef,
               private sharedDataService: SharedDataService) {
   }
 
@@ -68,6 +69,9 @@ export class ReceiveComponent implements OnInit, OnDestroy {
         this.order = data.stockOrderDetails[0];
         this.getNotReceivedStockOrderLineItems();
         this.getReceivedStockOrderLineItems();
+        if(this.userProfile.integrationType === 'vend') {
+          this.listenItemSyncChanges();
+        }
       },
       error => {
         console.log('error', error)
@@ -458,6 +462,29 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     if (event.keyCode == '13' && !this.enableBarcode && searchSKUText !== '') {
       this.searchProductBySku(searchSKUText)
     }
+  }
+
+  listenItemSyncChanges() {
+    const EventSourceUrl = `/notification/${this.order.id}-line-items/waitForResponseAPI`;
+    const eventApi = this._eventSourceService.connectToStream(EventSourceUrl)
+      .subscribe(([event, es]) => {
+        console.log(event);
+        const { data } = event;
+        for (let i = 0; i < this.receivedLineItems.length; i++){
+          if (this.receivedLineItems[i].id === data.stockOrderLineItemId) {
+            this.receivedLineItems[i].asyncPushSuccess = data.success;
+            break;
+          }
+        }
+        for (let i = 0; i < this.notReceivedLineItems.length; i++){
+          if (this.notReceivedLineItems[i].id === data.stockOrderLineItemId) {
+            this.notReceivedLineItems[i].asyncPushSuccess = data.success;
+            break;
+          }
+        }
+        this.changeDetector.detectChanges();
+      });
+    this.subscriptions.push(eventApi);
   }
 }
 

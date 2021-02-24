@@ -18,6 +18,14 @@ var runMe = function (payload, config, taskId, messageId) {
     var reportModelId = payload.reportModelId;
     var createdPurchaseOrder, stockOrderLineItemModels, supplierModelInstance, storeModelInstance;
     var reportModelInstance;
+
+
+    function isProductNotFromSameConsignment(eachLineItem) {
+        return eachLineItem.vendConsignmentProduct &&
+            eachLineItem.vendConsignmentProduct.consignment_id !==
+            reportModelInstance.vendConsignmentId;
+    }
+
     try {
         // Global variable for logging
 
@@ -107,12 +115,28 @@ var runMe = function (payload, config, taskId, messageId) {
                     storeModelInstance = response[0];
                     supplierModelInstance = response[1];
                     logger.debug({
-                        message: 'Found report, store and supplier instance, will create an empty purchase order in Vend',
+                        message: 'Found report, store and supplier instance',
                         response,
                         commandName,
                         messageId
                     });
-                    return utils.createStockOrderForVend(db, storeModelInstance, reportModelInstance, supplierModelInstance, messageId);
+                    if (!reportModelInstance.vendConsignmentId) {
+                        logger.debug({
+                            message: 'Will Create Stock Order, not already created',
+                            response,
+                            commandName,
+                            messageId
+                        });
+                        return utils.createStockOrderForVend(db, storeModelInstance, reportModelInstance, supplierModelInstance, messageId);
+                    } else {
+                        logger.debug({
+                            message: 'Skipping Stock Order generation , already generated',
+                            response,
+                            commandName,
+                            messageId
+                        });
+                        return Promise.resolve(reportModelInstance.vendConsignment);
+                    }
                 })
                 .catch(function (error) {
                     logger.error({
@@ -128,7 +152,7 @@ var runMe = function (payload, config, taskId, messageId) {
                     reportModelInstance.vendConsignmentId = result.id;
                     reportModelInstance.vendConsignment = result;
                     logger.debug({
-                        message: 'Created empty purchase order in Vend, will save details in db',
+                        message: 'Found purchase order details',
                         result,
                         commandName,
                         messageId
@@ -154,7 +178,8 @@ var runMe = function (payload, config, taskId, messageId) {
                 })
                 .then(function (response) {
                     logger.debug({
-                        message: 'Updated report model with vend consignment details, will look for line items',
+                        message: 'Updated report model with vend consignment details,' +
+                            ' will look for line items that havent been pushed yet',
                         response,
                         messageId
                     });
@@ -162,7 +187,21 @@ var runMe = function (payload, config, taskId, messageId) {
                         {
                             $match: {
                                 reportModelId: ObjectId(reportModelId),
-                                approved: true
+                                $or:[
+                                    // Case 1: Worker Failed to Async Push
+                                    {asyncPushSuccess: false},
+                                    // Case 2: Somehow worker failed to pick up the job
+                                    {
+                                        asyncPushSuccess: null,
+                                    },
+                                    // Case 3: We deleted vendConsignment from DB manually need to push all items
+                                    {
+                                        vendConsignmentProduct: {$exists: true},
+                                        "vendConsignmentProduct.consignment_id": {
+                                            $ne: reportModelInstance.vendConsignmentId
+                                        }
+                                    }
+                                ],
                             }
                         },
                         {
@@ -177,7 +216,12 @@ var runMe = function (payload, config, taskId, messageId) {
                             $project: {
                                 product_id: '$productModel.api_id',
                                 count: '$orderQuantity',
-                                supplyPrice: '$supplyPrice'
+                                orderQuantity: '$orderQuantity',
+                                approved: '$approved',
+                                orgModelId: '$orgModelId',
+                                supplyPrice: '$supplyPrice',
+                                vendConsignmentProductId: '$vendConsignmentProductId',
+                                vendConsignmentProduct: '$vendConsignmentProduct'
                             }
                         },
                         {
@@ -213,25 +257,104 @@ var runMe = function (payload, config, taskId, messageId) {
                 })
                 .then(function (connectionInfo) {
                     return Promise.map(stockOrderLineItemModels, function (eachLineItem) {
+                        logger.debug({
+                            message: 'Will work on line item',
+                            messageId,
+                            eachLineItem
+                        });
                         return Promise.delay(1000)
                             .then(function () {
-                                return utils.createStockOrderLineitemForVend(db, connectionInfo, storeModelInstance, reportModelInstance, eachLineItem, messageId);
+                                if (
+                                    // Approved but not yet pushed to vend
+                                    (!eachLineItem.vendConsignmentProductId && eachLineItem.approved === true) ||
+                                    // Order's id & product's order id doesnt match
+                                    // possibly because order id was regenerated
+                                    (
+                                        eachLineItem.approved === true &&
+                                        isProductNotFromSameConsignment(eachLineItem))
+                                ){
+                                    logger.debug({
+                                        message: 'Line item not already in vend, will push it',
+                                        messageId,
+                                        eachLineItem
+                                    });
+                                    return utils.createStockOrderLineitemForVend(db, connectionInfo, storeModelInstance, reportModelInstance, eachLineItem, messageId)
+                                        .then(function (vendConsignmentProduct) {
+                                            logger.debug({
+                                                message: 'Added product to vend consignment, will save details to db',
+                                                vendConsignmentProduct,
+                                                messageId
+                                            });
+                                            return db.collection('StockOrderLineitemModel').updateOne({
+                                                _id: eachLineItem._id
+                                            }, {
+                                                $set: {
+                                                    vendConsignmentProductId: vendConsignmentProduct.id,
+                                                    vendConsignmentProduct: vendConsignmentProduct
+                                                }
+                                            });
+                                        });
+                                } else if (
+                                    // Not Approved but pushed to vend
+                                    eachLineItem.approved === false &&
+                                    eachLineItem.vendConsignmentProductId &&
+                                    !isProductNotFromSameConsignment(eachLineItem)
+                                ) {
+                                    // Not Approved but pushed to vend need to delete from vend
+                                    logger.debug({
+                                        message: 'Line item is not approved but pushed to vend will delete it',
+                                        messageId,
+                                        eachLineItem
+                                    });
+                                    return utils.deleteStockOrderLineitemForVend(db, eachLineItem, messageId)
+                                        .then(function (response) {
+                                            logger.debug({
+                                                message: 'Deleted line item from Vend, will update vend deleted status in DB',
+                                                response,
+                                                messageId,
+                                                eachLineItem
+                                            });
+                                            return db.collection('StockOrderLineitemModel').updateOne({
+                                                _id: ObjectId(eachLineItem._id)
+                                            }, {
+                                                $set: {
+                                                    vendConsignmentProductId: null,
+                                                    vendConsignmentProduct: null,
+                                                }
+                                            });
+                                        });
+                                } else if(
+                                    // Approved & Pushed to vend orderQuantity might have changed
+                                    eachLineItem.vendConsignmentProductId &&
+                                    eachLineItem.approved === true &&
+                                    !isProductNotFromSameConsignment(eachLineItem)
+                                ) {
+                                    // Worker previously failed to update / will update now
+                                    logger.debug({
+                                        message: 'Worker previously failed to update / will update now',
+                                        messageId,
+                                        eachLineItem
+                                    });
+                                    return utils.updateStockOrderLineitemForVend(db, reportModelInstance, eachLineItem, messageId);
+                                } else {
+                                    logger.debug({
+                                        message: 'Unknown line item case',
+                                        messageId,
+                                        eachLineItem
+                                    });
+                                }
                             })
-                            .then(function (vendConsignmentProduct) {
-                                logger.debug({
-                                    message: 'Added product to vend consignment, will save details to db',
-                                    vendConsignmentProduct,
-                                    messageId
+                            .catch(function (error) {
+                                logger.error({
+                                    message: 'Could not update/push line items to purchase order in Vend',
+                                    error,
+                                    commandName,
+                                    messageId,
+                                    reportModelId,
+                                    eachLineItem
                                 });
-                                return db.collection('StockOrderLineitemModel').updateOne({
-                                    _id: eachLineItem._id
-                                }, {
-                                    $set: {
-                                        vendConsignmentProductId: vendConsignmentProduct.id,
-                                        vendConsignmentProduct: vendConsignmentProduct
-                                    }
-                                });
-                            })
+                                return Promise.reject(error);
+                            });
                     }, {concurrency: 1});
                 })
                 .catch(function (error) {

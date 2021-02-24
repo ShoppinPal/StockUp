@@ -638,15 +638,7 @@ module.exports = function (ReportModel) {
                     functionName: 'createPurchaseOrderVend'
                 });
                 report = reportModelInstance;
-                if (reportModelInstance.vendConsignmentId) {
-                    logger.debug({
-                        message: 'Purchase order is already created for this report',
-                        options,
-                        functionName: 'createPurchaseOrderVend'
-                    });
-                    return Promise.reject('Purchase Order already created for this report');
-                }
-                else if (reportModelInstance.state === REPORT_STATES.SENDING_TO_SUPPLIER) {
+                if (reportModelInstance.state === REPORT_STATES.SENDING_TO_SUPPLIER) {
                     logger.debug({
                         message: 'Purchase order creation in progress',
                         options,

@@ -5,7 +5,7 @@ var _ = require('underscore');
 var path = require('path');
 var fileName = path.basename(__filename, '.js'); // gives the filename without the .js extension
 const logger = require('sp-json-logger')({fileName: 'common:models:' + fileName});
-
+var workerUtils = require('../utils/workers');
 
 module.exports = function (StockOrderLineitemModel) {
 
@@ -175,6 +175,9 @@ module.exports = function (StockOrderLineitemModel) {
                     updateSetObject = {
                         $inc: {
                             receivedQuantity: 1
+                        },
+                        $set: {
+                            asyncPushSuccess: null
                         }
                     };
                 }else {
@@ -194,7 +197,7 @@ module.exports = function (StockOrderLineitemModel) {
                 if (scanType === 'fulfill' && orderLineItem.fulfilledQuantity + 1>=orderLineItem.orderQuantity) {
                     updateSetObject = Object.assign({}, updateSetObject, {$set: {fulfilled: true}});
                 }else if (scanType === 'receive' && orderLineItem.receivedQuantity + 1 === orderLineItem.fulfilledQuantity) {
-                    updateSetObject = Object.assign({}, updateSetObject, {$set: {received: true}});
+                    updateSetObject = Object.assign({}, updateSetObject, {$set: {received: true, asyncPushSuccess: null}});
                 }
                 logger.debug({
                     functionName: 'scanBarcodeStockOrder',
@@ -220,7 +223,6 @@ module.exports = function (StockOrderLineitemModel) {
                 });
                 return Promise.reject(error);
             })
-
             .then(function ([obj, stockOrderLineItemId]) {
                 logger.debug({
                     functionName: 'scanBarcodeStockOrder',
@@ -250,9 +252,35 @@ module.exports = function (StockOrderLineitemModel) {
                 });
                 return Promise.reject(error);
             })
-
             .then(function ([obj, stockLineItem]) {
-                return Promise.resolve(Object.assign({}, obj, stockLineItem.toJSON()));
+                var payload = {
+                    stockOrderLineItemIds: [stockLineItem.id],
+                    reportModelId: reportModelId,
+                    op: 'receiveLineItemVend',
+                    eventType: workerUtils.messageFor.MESSAGE_FOR_API,
+                    callId: reportModelId + '-line-items',
+                    loopbackAccessToken: options.accessToken,
+                };
+                return workerUtils.sendPayLoad(payload)
+                    .then(function (response) {
+                        logger.debug({
+                            message: 'Sent receiveLineItemVend operation to worker',
+                            options,
+                            response,
+                            functionName: 'scanBarcodeStockOrder'
+                        });
+                        return Promise.resolve(Object.assign({}, obj, stockLineItem.toJSON()));
+                    })
+                    .catch(function (error) {
+                        logger.error({
+                            message: 'Could not send receiveConsignmentAsyncVend to worker',
+                            options,
+                            error,
+                            functionName: 'scanBarcodeStockOrder'
+                        });
+                        // return Promise.reject('Error in creating stock order');
+                        return Promise.resolve(Object.assign({}, obj, stockLineItem.toJSON()));
+                    });
             });
     };
 };
