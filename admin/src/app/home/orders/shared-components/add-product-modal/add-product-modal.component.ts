@@ -60,7 +60,7 @@ export class AddProductModalComponent implements OnInit {
   }
 
   addProductToStockOrder(productModel: any) {
-    if (!productModel.quantity) {
+    if (!productModel.quantity || productModel.quantity <= 0) {
       this.toastr.error('Quantity should be greater than zero');
       return;
     }

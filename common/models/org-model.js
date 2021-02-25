@@ -878,6 +878,26 @@ module.exports = function (OrgModel) {
                     });
                     return Promise.reject('Could not update stock order line items');
                 })
+                .then(function (result) {
+                    // The Above query was to approve All line items
+                    if (!filter.id && data.approved) {
+                        // Set the negative order quantities to zero
+                        return OrgModel.app.models.StockOrderLineitemModel.updateAll(
+                            {
+                                orgModelId: id,
+                                reportModelId: reportModelId,
+                                orderQuantity: {
+                                    lt: 0
+                                }
+                            },
+                            {
+                            orderQuantity: 0
+                            }
+                        );
+                    }
+
+                    return Promise.resolve(result);
+                })
                 .then(function (updateResult) {
                     // If received is getting invoked
                     if (data.hasOwnProperty('received') || data.hasOwnProperty('receivedQuantity')) {
