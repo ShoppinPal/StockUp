@@ -64,15 +64,15 @@ export class LoginComponent implements OnInit {
       this.loading = true;
       this.userModelApi.login(this.user).subscribe((token: AccessToken) => {
         this.loading = false;
-        this._router.navigate(['/orders/stock-orders']);
         setTimeout(() => {
-          this.toastr.success('Successfully Logged In', '', {
-          onActivateTick: true
-        });          
-        },(1500));
+          this.toastr.success('Loading dashboard', 'Successfully Logged In', {
+            onActivateTick: true
+          });
+        });
+        this._router.navigate(['/orders/stock-orders']);
       }, err => {
         if(err.status == 401) {
-          this.toastr.error('Unauthorized');
+          this.toastr.error('Username or password is incorrect');
         } else {
           this.toastr.error('Something went wrong');
         }
