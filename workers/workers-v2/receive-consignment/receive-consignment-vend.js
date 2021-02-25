@@ -246,7 +246,8 @@ var runMe = function (payload, config, taskId, messageId) {
                             $set: {
                                 state: utils.REPORT_STATES.RECEIVING_FAILURE
                             }
-                        });
+                        })
+                        .then(function (){ return Promise.resolve(updatedOrder); });
                     }
                     else {
                         return db.collection('ReportModel').updateOne({
@@ -256,7 +257,8 @@ var runMe = function (payload, config, taskId, messageId) {
                                 state: utils.REPORT_STATES.COMPLETE,
                                 receivedByUserModelId: payload.loopbackAccessToken.userId
                             }
-                        });
+                        })
+                        .then(function (){ return Promise.resolve(updatedOrder); });
                     }
                 })
                 .catch(function (error) {
@@ -268,6 +270,40 @@ var runMe = function (payload, config, taskId, messageId) {
                         reportModelId
                     });
                     return Promise.reject('Could not report state to complete in DB');
+                })
+                .then(function (updatedOrder) {
+                    const success = updatedOrder !== 'ERROR_REPORT';
+                    var options = {
+                        method: 'POST',
+                        uri: utils.PUBLISH_URL,
+                        json: true,
+                        headers: {
+                            'Authorization': payload.loopbackAccessToken.id
+                        },
+                        body: new utils.Notification(
+                            utils.workerType.RECEIVE_CONSIGNMENT_VEND,
+                            payload.eventType,
+                            success ? utils.workerStatus.SUCCESS : utils.workerStatus.FAILED,
+                            {success, reportModelId: payload.reportModelId},
+                            payload.callId
+                        )
+
+                    };
+                    logger.debug({
+                        commandName: commandName,
+                        message: 'Marked order as RECEIVED in Vend, will send the status to worker',
+                        updatedOrder,
+                        messageId,
+                        options
+                    });
+                    return rp(options)
+                        .catch(function (error) {
+                            logger.error({
+                                message: 'Could not send notification',
+                                error,
+                                messageId,
+                            });
+                        });
                 })
                 .then(function (result) {
                     logger.debug({
@@ -285,42 +321,6 @@ var runMe = function (payload, config, taskId, messageId) {
                             receivedQuantity: 0
                         }
                     });
-                })
-                .catch(function (error) {
-                    logger.error({
-                        message: 'Could not update non-received line items quantity to 0, will continue anyway because they have received boolean set to false',
-                        error,
-                        commandName,
-                        messageId,
-                        reason: error
-                    });
-                    return Promise.resolve('Could not update non-received line items quantity to 0, will continue anyway because they have received boolean set to false');
-                })
-                .then(function (result) {
-                    var options = {
-                        method: 'POST',
-                        uri: utils.PUBLISH_URL,
-                        json: true,
-                        headers: {
-                            'Authorization': payload.loopbackAccessToken.id
-                        },
-                        body: new utils.Notification(
-                            utils.workerType.RECEIVE_CONSIGNMENT_VEND,
-                            payload.eventType,
-                            utils.workerStatus.SUCCESS,
-                            {success: true, reportModelId: payload.reportModelId},
-                            payload.callId
-                        )
-
-                    };
-                    logger.debug({
-                        commandName: commandName,
-                        message: 'Marked order as RECEIVED in Vend, will send the status to worker',
-                        result,
-                        messageId,
-                        options
-                    });
-                    return rp(options);
                 })
                 .catch(function (error) {
                     logger.error({

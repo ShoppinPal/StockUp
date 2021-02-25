@@ -361,14 +361,13 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     } else {
       this.loading = true;
       this.creatingPurchaseOrderVend = true;
+      this.waitForRecieveWorker(this.userProfile.userId);
       this.orgModelApi.receiveConsignment(
         this.userProfile.orgModelId,
         this.order.id
       ).subscribe(recieveRequest => {
         this.toastr.info('Receiving consignment...');
-        this._router.navigate(['/orders/stock-orders']);
         this.loading = false;
-        this.waitForRecieveWorker(recieveRequest.callId);
       }, error => {
         this.loading = false;
         this.toastr.error('Error in receiving order');
@@ -377,19 +376,20 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   }
 
   waitForRecieveWorker(callId) {
+    const self = this;
     const EventSourceUrl = `/notification/${callId}/waitForResponse`;
     this.subscriptions.push(
       this._eventSourceService.connectToStream(EventSourceUrl)
         .subscribe(([event, es]) => {
           console.log(event);
+          es.close();
           if (event.data.success === true) {
-            es.close();
-            this.creatingPurchaseOrderVend = false;
-            this._router.navigate(['/orders/stock-orders']);
-            this.toastr.success('Order received successfully');
+            self.creatingPurchaseOrderVend = false;
+            self._router.navigate(['/orders/stock-orders']);
+            self.toastr.success('Order received successfully');
           } else {
-            this.creatingPurchaseOrderVend = false;
-            this.toastr.error('Error in receiving order');
+            self.creatingPurchaseOrderVend = false;
+            self.toastr.error('Error in receiving order');
           }
         })
     );
