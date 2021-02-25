@@ -290,7 +290,8 @@ var runMe = function (payload, config, taskId, messageId) {
                                             }, {
                                                 $set: {
                                                     vendConsignmentProductId: vendConsignmentProduct.id,
-                                                    vendConsignmentProduct: vendConsignmentProduct
+                                                    vendConsignmentProduct: vendConsignmentProduct,
+                                                    asyncPushSuccess: true
                                                 }
                                             });
                                         });
@@ -320,6 +321,7 @@ var runMe = function (payload, config, taskId, messageId) {
                                                 $set: {
                                                     vendConsignmentProductId: null,
                                                     vendConsignmentProduct: null,
+                                                    asyncPushSuccess: true
                                                 }
                                             });
                                         });
@@ -335,7 +337,22 @@ var runMe = function (payload, config, taskId, messageId) {
                                         messageId,
                                         eachLineItem
                                     });
-                                    return utils.updateStockOrderLineitemForVend(db, reportModelInstance, eachLineItem, messageId);
+                                    return utils.updateStockOrderLineitemForVend(db, reportModelInstance, eachLineItem, messageId)
+                                        .then(function (response) {
+                                            logger.debug({
+                                                message: 'updated line item in Vend, will update status in DB',
+                                                response,
+                                                messageId,
+                                                eachLineItem
+                                            });
+                                            return db.collection('StockOrderLineitemModel').updateOne({
+                                                _id: ObjectId(eachLineItem._id)
+                                            }, {
+                                                $set: {
+                                                    asyncPushSuccess: true
+                                                }
+                                            });
+                                        });
                                 } else {
                                     logger.debug({
                                         message: 'Unknown line item case',
@@ -433,9 +450,30 @@ var runMe = function (payload, config, taskId, messageId) {
                         message: 'Updated status in report model to FULFILL',
                         result,
                         commandName,
-                        reportModelId
+                        reportModelId,
+                        messageId
                     });
                     return Promise.resolve('Updated status in report model to FULFILL');
+                })
+                .then(function () {
+                    logger.debug({
+                        message: 'Will Remove asyncPushSuccess flag from lineItems',
+                        messageId,
+                        reportModelId,
+                    });
+                    return db.collection('StockOrderLineitemModel').updateMany({
+                        reportModelId: ObjectId(reportModelId)
+                    }, {
+                        $unset: {
+                            asyncPushSuccess: true
+                        }
+                    }).catch(function(error) {
+                        logger.debug({
+                            error,
+                            messageId,
+                            message: 'Could not remove asyncPushSuccess flag from line items, will move on anyways',
+                        });
+                    });
                 })
                 .then(function (result) {
                     var options = {

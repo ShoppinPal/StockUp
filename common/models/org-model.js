@@ -866,7 +866,10 @@ module.exports = function (OrgModel) {
                     inq: lineItemIds
                 };
             }
-            data.asyncPushSuccess = null; // null specifies loading state
+            // Only for approving & receiving
+            if (!data.hasOwnProperty('fulfilled') || !data.hasOwnProperty('fulfilledQuantity')) {
+                data.asyncPushSuccess = null; // null specifies loading state
+            }
             return OrgModel.app.models.StockOrderLineitemModel.updateAll(filter, data)
                 .catch(function (error) {
                     logger.error({
