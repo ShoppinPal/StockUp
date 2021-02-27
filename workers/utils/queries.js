@@ -174,7 +174,7 @@ function findWarehouseInventory(warehouseModelId, productModelIds, db) {
             $group: {
                 _id: '$optionLevelKey',
                 inventory_level: {
-                    $sum: '$inventory_level'
+                    $sum: '$physical_inventory_level'
                 },
                 totalProducts: {
                     $sum: 1

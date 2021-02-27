@@ -1213,6 +1213,7 @@ module.exports = function (ReportModel) {
                     Body: fs.createReadStream(result.file.path)
                 };
                 let uploadAsync = Promise.promisify(s3.upload, s3);
+                //TODO: Update reportmodel with etag of uploaded file
                 return uploadAsync(params);
             })
             .catch(function (error) {
