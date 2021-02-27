@@ -38,7 +38,7 @@
     "loopback-datasource-juggler": "2.46.0",
     "matchdep": "~0.3.0",
     "moment": "~2.19.3",
-    "mongodb": "2.2.31",
+    "mongodb": "3.1.13",
     "mssql": "^4.2.3",
     "multiparty": "4.2.1",
     "nconf": "^0.7.1",
