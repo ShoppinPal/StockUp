@@ -30,7 +30,7 @@
     "jshint-stylish": "~0.1.5",
     "kerberos": "0.0.23",
     "lodash": "3.10.1",
-    "loopback": "2.37.1",
+    "loopback": "3.25.1",
     "loopback-boot": "2.18.1",
     "loopback-component-explorer": "2.4.0",
     "loopback-component-storage": "1.5.1",
