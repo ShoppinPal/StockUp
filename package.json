@@ -28,7 +28,7 @@
     "iron_worker": "0.1.4",
     "joi": "9.1.1",
     "jshint-stylish": "~0.1.5",
-    "kerberos": "0.0.23",
+    "kerberos": "1.0.0",
     "lodash": "3.10.1",
     "loopback": "2.37.1",
     "loopback-boot": "2.18.1",
