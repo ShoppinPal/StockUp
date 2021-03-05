@@ -634,7 +634,7 @@ function createOrders(db, orders, messageId) {
                         {},
                         _.omit(eachOrder, 'lineItems', 'groupBy'),
                         {
-                            state: REPORT_STATES.GENERATED
+                            state: ""
                         }
                     )
 
