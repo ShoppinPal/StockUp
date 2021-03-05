@@ -7,6 +7,7 @@ import {UserProfileService} from "../../../../shared/services/user-profile.servi
 import {LoopBackAuth} from "../../../../shared/lb-sdk/services/core/auth.service";
 import {constants} from "../../../../shared/constants/constants";
 import {DatePipe} from '@angular/common';
+import Utils from '../../../../shared/constants/utils';
 
 @Component({
   selector: 'app-complete',
@@ -14,6 +15,7 @@ import {DatePipe} from '@angular/common';
   styleUrls: ['complete.component.scss']
 })
 export class CompleteComponent implements OnInit {
+
 
   public userProfile: any;
   public order: any;
@@ -26,6 +28,15 @@ export class CompleteComponent implements OnInit {
   public sortColumn = 'productModelSku';
   public searchSKUText = '';
   public searchEntry = '';
+  public selectedFilter = 'All';
+  public availableFilters = {
+    ALL: 'All',
+    BACK_ORDERED: 'Back Ordered',
+    OVER_DELIVERED: 'Over Delivered',
+    UNDER_DELIVERED: 'Under Delivered',
+    DAMAGED: 'Damaged',
+  };
+  public getDiscrepancyReason = Utils.getDiscrepancyReason;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -97,6 +108,7 @@ export class CompleteComponent implements OnInit {
         this.lineItems = data[0];
         this.lineItems.forEach(x => {
           x.isCollapsed = true;
+          x.reason = Utils.getDiscrepancyReason(x);
         });
       },
       err => {
@@ -129,6 +141,61 @@ export class CompleteComponent implements OnInit {
     })
   }
 
+
+
+  getDiscrepancyOrStockOrderLineItems(limit?: number, skip?: number) {
+    if (!(limit && skip)) {
+      limit = this.lineItemsLimitPerPage || 100;
+      skip = 0;
+    }
+    let sortOrder = this.sortAscending ? 1 : 0;
+    let filter: any = {
+      limit: limit,
+      skip: skip,
+      order: {
+        'categoryModelName': sortOrder,
+        [this.sortColumn]: sortOrder
+      },
+      backorderedOnly: false
+    };
+    switch (this.selectedFilter) {
+      case this.availableFilters.ALL:
+        this.getStockOrderLineItems();
+        return;
+      case this.availableFilters.BACK_ORDERED:
+        filter.backorderedOnly = true;
+        break;
+      case this.availableFilters.OVER_DELIVERED:
+        filter.backorderedOnly = false;
+        filter.overDelivered = true;
+        break;
+      case this.availableFilters.UNDER_DELIVERED:
+        filter.backorderedOnly = false;
+        filter.underDelivered = true;
+        break;
+      case this.availableFilters.DAMAGED:
+        filter.backorderedOnly = false;
+        filter.damagedOnly = true;
+        break;
+    }
+    this.loading = true;
+    this.orgModelApi.getDiscrepancyOrBackOrderedLineItems(this.userProfile.orgModelId, this.order.id , filter)
+      .subscribe((data: any) => {
+        this.loading = false;
+        this.currentPage = (skip / this.lineItemsLimitPerPage) + 1;
+        this.totalLineItems = data.count;
+        for (var i = 0; i < data.data.length; i++) {
+          data.data[i].isCollapsed = true;
+        }
+        this.lineItems = data.data;
+      },
+      err => {
+        this.loading = false;
+        console.log('error', err);
+      });
+
+  }
+
   downloadOrderCSV() {
     this.loading = true;
     this.orgModelApi.downloadReportModelCSV(this.userProfile.orgModelId, this.order.id).subscribe((data) => {
@@ -157,4 +224,12 @@ export class CompleteComponent implements OnInit {
     }
   }
 
+  getFilterOptions() {
+    return Object.values(this.availableFilters);
+  }
+
+  changeFilter(filter: string) {
+    this.selectedFilter = filter;
+    this.getDiscrepancyOrStockOrderLineItems();
+  }
 }

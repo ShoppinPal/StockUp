@@ -51,19 +51,19 @@ export const navItems: NavData[] = [
   {
     title: true,
     name: 'Orders',
-    roles: ['orgAdmin', 'storeManager']
+    roles: ['orgAdmin', 'orderManager']
   },
   {
     name: 'Create Order',
     url: '/orders/create-order',
     icon: 'icon-plus',
-    roles: ['orgAdmin', 'storeManager']
+    roles: ['orgAdmin', 'orderManager']
   },
   {
     name: 'Stock Orders',
     url: '/orders/stock-orders',
     icon: 'icon-basket',
-    roles: ['orgAdmin', 'storeManager']
+    roles: ['orgAdmin', 'orderManager']
   },
   {
     title: true,
@@ -116,5 +116,16 @@ export const navItems: NavData[] = [
     url: '/schedules',
     icon: 'icon-loop',
     roles: ['orgAdmin']
-  }
+  },
+  {
+    title: true,
+    name: 'Reporting',
+    roles: ['orgAdmin', 'discrepancyManager']
+  },
+  {
+    name: 'Historical Orders',
+    url: '/reporting/historical-orders',
+    icon: 'icon-clock',
+    roles: ['orgAdmin', 'discrepancyManager']
+  },
 ];

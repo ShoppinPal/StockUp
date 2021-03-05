@@ -51,6 +51,10 @@
     "vendConsignment": {
       "type": "object",
       "required": false
+    },
+    "discrepancies": {
+      "type": "number",
+      "required": false
     }
   },
   "validations": [],

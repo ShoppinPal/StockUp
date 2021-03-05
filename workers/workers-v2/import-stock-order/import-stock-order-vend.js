@@ -112,61 +112,12 @@ let runMe = function (payload, config, taskId, messageId) {
                     ordersCount: result.length,
                     messageId
                 });
-                return createOrders(db, result, messageId);
-            })
-            .catch(function (error) {
-                logger.error({
-                    message: 'Could not save orders to database',
-                    error,
-                    messageId
-                });
-                return Promise.reject('Could not save orders to database');
-            })
-            .then(function (response) {
-                createdOrders = response;
-                logger.debug({
-                    message: 'Saved orders to db successfully',
-                    createdOrders,
-                    messageId
-                });
-                let notApprovedStates = [
-                    REPORT_STATES.APPROVAL_IN_PROCESS,
-                    REPORT_STATES.GENERATED,
-                    REPORT_STATES.PROCESSING
-                ];
-                if (!notApprovedStates.includes(orderConfigModel.orderStatus)) {
-                    logger.debug({
-                        message: `Orders should be in state ${orderConfigModel.orderStatus}, will push order to Vend`,
-                        messageId
-                    });
-                    return Promise.map(createdOrders, function (eachCreatedOrder) {
-                        let generatePurchaseOrderVend = require('../generate-purchase-order-vend/generate-purchase-order-vend');
-                        let purchaseOrderPayload = {
-                            loopbackAccessToken: payload.loopbackAccessToken,
-                            orgModelId: ObjectId(orderConfigModel.orgModelId),
-                            reportModelId: ObjectId(eachCreatedOrder._id) //get the reportModelId from lineItem saved
-                        };
-                        return generatePurchaseOrderVend.run(purchaseOrderPayload, config, taskId, messageId);
-                    }, {
-                        concurrency: 1 //don't want to refresh vend access token for all orders
-                    });
+                if (orderConfigModel.orderStatus === REPORT_STATES.FULFILMENT_PENDING) {
+                    var fulfillOrderFromFile = require('./fulfill-order-from-file-vend');
+                    return fulfillOrderFromFile.run(db, result, messageId);
+                } else {
+                    return createNewOrders(db, result, orderConfigModel, payload, config, taskId, messageId);
                 }
-                else {
-                    logger.debug({
-                        message: `Orders should be in state ${orderConfigModel.orderStatus}, need not push order to Vend`,
-                        messageId
-                    });
-                    return Promise.resolve('Need not push order to Vend');
-                }
-            })
-            .catch(function (error) {
-                logger.error({
-                    message: 'Could not push order to Vend',
-                    error,
-                    reason: error,
-                    messageId
-                });
-                return Promise.reject('Could not push order to Vend');
             })
             .then(function (response) {
                 logger.debug({
@@ -320,6 +271,69 @@ let runMe = function (payload, config, taskId, messageId) {
 module.exports = {
     run: runMe
 };
+
+function createNewOrders(db, result, orderConfigModel, payload, config, taskId, messageId) {
+    var createdOrders;
+    return createOrders(db, result, messageId)
+        .catch(function (error) {
+            logger.error({
+                message: 'Could not save orders to database',
+                error,
+                messageId
+            });
+            return Promise.reject('Could not save orders to database');
+        })
+        .then(function (response) {
+            createdOrders = response;
+            logger.debug({
+                message: 'Saved orders to db successfully',
+                createdOrders,
+                messageId
+            });
+            let notApprovedStates = [
+                REPORT_STATES.APPROVAL_IN_PROCESS,
+                REPORT_STATES.GENERATED,
+                REPORT_STATES.PROCESSING
+            ];
+            if (!notApprovedStates.includes(orderConfigModel.orderStatus)) {
+                logger.debug({
+                    message: `Orders should be in state ${orderConfigModel.orderStatus}, will push order to Vend`,
+                    messageId
+                });
+                return Promise.map(createdOrders, function (eachCreatedOrder) {
+                    let generatePurchaseOrderVend = require('../generate-purchase-order-vend/generate-purchase-order-vend');
+                    let purchaseOrderPayload = {
+                        loopbackAccessToken: payload.loopbackAccessToken,
+                        orgModelId: ObjectId(orderConfigModel.orgModelId),
+                        reportModelId: ObjectId(eachCreatedOrder._id) //get the reportModelId from lineItem saved
+                    };
+                    return generatePurchaseOrderVend.run(purchaseOrderPayload, config, taskId, messageId);
+                }, {
+                    concurrency: 1 //don't want to refresh vend access token for all orders
+                });
+            }
+            else {
+                logger.debug({
+                    message: `Orders should be in state ${orderConfigModel.orderStatus}, need not push order to Vend`,
+                    messageId
+                });
+                return Promise.resolve('Need not push order to Vend');
+            }
+        })
+        .catch(function (error) {
+            logger.error({
+                message: 'Could not push order to Vend',
+                error,
+                reason: error,
+                messageId
+            });
+            return Promise.reject('Could not push order to Vend');
+        })
+        .then(function () {
+            return Promise.resolve(createNewOrders);
+        });
+}
+
 
 
 function readSpreadSheetFromS3(s3Bucket, s3BucketKey, messageId) {
@@ -488,8 +502,8 @@ function mapSpreadSheetDataToOrders(db, orderConfigModel, spreadSheetRows, userM
                         });
                         eachSpreadSheetRow.storeModelId = correspondingSupplierStoreMapping ? correspondingSupplierStoreMapping.storeModelId : '';
                         let existingOrderIndex = _.findIndex(reportModelsToCreate, function (eachOrder) {
-                            return eachSpreadSheetRow.supplierModelId.equals(eachOrder.supplierModelId) &&
-                                eachSpreadSheetRow.storeModelId.equals(eachOrder.storeModelId) &&
+                            return eachSpreadSheetRow.supplierModelId.toString() === eachOrder.supplierModelId.toString() &&
+                                eachSpreadSheetRow.storeModelId.toString() === eachOrder.storeModelId.toString() &&
                                 eachSpreadSheetRow.groupBy === eachOrder.groupBy;
                         });
                         let approvedStates = [
@@ -507,8 +521,9 @@ function mapSpreadSheetDataToOrders(db, orderConfigModel, spreadSheetRows, userM
                         let receivedStates = [
                             REPORT_STATES.COMPLETE
                         ];
-                        let isApproved = approvedStates.includes(orderConfigModel.orderStatus);
-                        let isFulfilled = fulfilledStates.includes(orderConfigModel.orderStatus);
+
+                        let isApproved = approvedStates.includes(orderConfigModel.orderStatus) || null; // move to 'Needs Review'
+                        let isFulfilled = fulfilledStates.includes(orderConfigModel.orderStatus) || null;
                         let isReceived = receivedStates.includes(orderConfigModel.orderStatus);
                         let lineItem = {
                             productModelId: ObjectId(eachSpreadSheetRow.productModelId),

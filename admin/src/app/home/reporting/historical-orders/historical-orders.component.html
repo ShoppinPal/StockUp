@@ -1,0 +1,167 @@
+<ngx-loading [show]="loading"></ngx-loading>
+<div class="animated fadeIn">
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="card">
+        <div class="card-header">
+          <strong>Order Filters</strong>
+        </div>
+        <div class="card-body">
+          <div class="form-group row">
+            <div class="input-group">
+              <span class="col-sm-2">Date Range (Optional):</span>
+              <input type="date"
+                     [(ngModel)]="dateStart"
+                     class="form-control col-sm-3"
+                     placeholder="Start Date"/>
+              &nbsp;-&nbsp;
+              <input type="date"
+                     [(ngModel)]="dateEnd"
+                     class="form-control col-sm-3"
+                     placeholder="End Date"/>
+              <div class="col-md-2 col-sm-4">
+              <span class="input-group-btn">
+                <button class="btn btn-primary btn-block" type="button" (click)="dateStart=undefined;dateEnd=undefined;">
+                  Clear
+                </button>
+              </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <div class="input-group">
+              <span class="col-sm-2">Store (Optional):</span>
+              <select class="form-control col-sm-6" [(ngModel)]="selectedStore">
+                <option value="undefined">Select..</option>
+                <option *ngFor="let store of stores" [value]="store.objectId">{{store.name}}
+                </option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="input-group">
+              <span class="col-sm-2">Supplier (Optional):</span>
+              <select class="form-control col-sm-6" [(ngModel)]="selectedSupplier">
+                <option value="undefined">Select..</option>
+                <option *ngFor="let supplier of suppliers" [value]="supplier.id">{{supplier.name}}
+                </option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="input-group">
+              <span class="col-sm-2">Status :</span>
+              <select class="form-control col-sm-6" [(ngModel)]="selectedDiscrepancyType">
+                <option value="undefined">All</option>
+                <option value="true">Orders with discrepancies</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="row">
+            <div class="col-sm-3">
+              <span class="input-group-btn">
+                <button class="btn btn-success btn-block" type="button" (click)="getOrders()">
+                  <i class="fa fa-search"></i>
+                  Search
+                </button>
+              </span>
+            </div>
+            <div class="col-sm-3">
+              <span class="input-group-btn">
+                <button class="btn btn-primary btn-block" type="button"
+                        (click)="resetFilters()">
+                  <i class="fa fa-remove"></i>
+                  Clear All Filters
+                </button>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <strong>Completed Orders</strong>
+        </div>
+        <div class="card-body">
+          <table class="table table-responsive-md table-hover">
+            <thead>
+            <tr>
+              <th class="pointer"
+                  (click)="sortColumn = 'name';sortAscending = !sortAscending; getOrders()">
+                Name
+                <i [ngClass]="{'cui-sort-ascending': sortAscending === true && sortColumn === 'name',
+                         'cui-sort-descending': sortAscending === false && sortColumn === 'name'}">
+                </i></th>
+              <th>
+                Deliver To
+               </th>
+              <th>Deliver From</th>
+              <th
+                class="pointer"
+                (click)="sortColumn = 'totalRows';sortAscending = !sortAscending; getOrders()"
+              >Total Items
+                <i [ngClass]="{'cui-sort-ascending': sortAscending === true && sortColumn === 'totalRows',
+                         'cui-sort-descending': sortAscending === false && sortColumn === 'totalRows'}">
+                </i>
+              </th>
+              <th
+                class="pointer"
+                (click)="sortColumn = 'discrepancies';sortAscending = !sortAscending; getOrders()"
+              >Discrepancies
+                <i [ngClass]="{'cui-sort-ascending': sortAscending === true && sortColumn === 'discrepancies',
+                         'cui-sort-descending': sortAscending === false && sortColumn === 'discrepancies'}">
+                </i>
+              </th>
+              <th
+                class="pointer"
+                (click)="sortColumn = 'createdAt';sortAscending = !sortAscending; getOrders()"
+              >
+                Created At
+                <i [ngClass]="{'cui-sort-ascending': sortAscending === true && sortColumn === 'createdAt',
+                         'cui-sort-descending': sortAscending === false && sortColumn === 'createdAt'}">
+                </i>
+              </th>
+              <th>Created By</th>
+              <th>View</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let order of orders">
+              <td>{{order.name}}</td>
+              <td>
+                {{order.storeModel?.name}}
+              </td>
+              <td>
+                {{order.supplierModel?.name}}
+              </td>
+              <td>{{order.totalRows || 0}}</td>
+              <td>{{order.discrepancies || 0}}</td>
+              <td>{{order.createdAt | date: 'y-MM-dd HH:mm'}}</td>
+              <td>{{order.userModel?.name}}</td>
+              <td>
+                <button class="btn btn-danger" type="submit"
+                        (click)="goToStockOrderDetailsPage(order.id, 'complete')">
+                  <i class="fa fa-envelope-open"></i> View
+                </button>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+
+          <pagination [totalItems]="totalOrders"
+                      [(ngModel)]="currentPage"
+                      [maxSize]="maxPageDisplay"
+                      [rotate]="false"
+                      [boundaryLinks]="true"
+                      (pageChanged)="getOrders(($event.page - 1) * ordersPerPage)"
+                      [itemsPerPage]="ordersPerPage">
+          </pagination>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
