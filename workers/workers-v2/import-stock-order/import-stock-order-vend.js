@@ -119,43 +119,13 @@ let runMe = function (payload, config, taskId, messageId) {
                     return createNewOrders(db, result, orderConfigModel, payload, config, taskId, messageId);
                 }
             })
-            .then(function (response) {
-                logger.debug({
-                    message: 'Pushed order to Vend',
-                    response,
-                    messageId
-                });
-                let createdOrderIds = _.pluck(createdOrders, '_id');
-                logger.debug({
-                    message: 'Will update report state according to order config model for these orders',
-                    status: orderConfigModel.orderStatus,
-                    createdOrderIds,
-                    messageId
-                });
-                return db.collection('ReportModel').updateMany({
-                    _id: {
-                        $in: createdOrderIds
-                    }
-                }, {
-                    $set: {
-                        state: orderConfigModel.orderStatus
-                    }
-                });
-            })
             .catch(function (error) {
                 logger.error({
-                    message: 'Could not update report states',
+                    message: 'Could not import reports',
                     error,
                     messageId
                 });
-                return Promise.reject('Could not update report states');
-            })
-            .then(function (response) {
-                logger.debug({
-                    message: 'Updated report states',
-                    response,
-                    messageId
-                });
+                return Promise.reject('Could not import reports');
             })
             .then(function (result) {
                 var options = {
@@ -301,13 +271,39 @@ function createNewOrders(db, result, orderConfigModel, payload, config, taskId, 
                     messageId
                 });
                 return Promise.map(createdOrders, function (eachCreatedOrder) {
-                    let generatePurchaseOrderVend = require('../generate-purchase-order-vend/generate-purchase-order-vend');
-                    let purchaseOrderPayload = {
-                        loopbackAccessToken: payload.loopbackAccessToken,
-                        orgModelId: ObjectId(orderConfigModel.orgModelId),
-                        reportModelId: ObjectId(eachCreatedOrder._id) //get the reportModelId from lineItem saved
-                    };
-                    return generatePurchaseOrderVend.run(purchaseOrderPayload, config, taskId, messageId);
+                    return Promise.resolve()
+                        // Call generate worker
+                        .then(function (){
+                            let generatePurchaseOrderVend = require('../generate-purchase-order-vend/generate-purchase-order-vend');
+                            let purchaseOrderPayload = {
+                                loopbackAccessToken: payload.loopbackAccessToken,
+                                orgModelId: ObjectId(orderConfigModel.orgModelId),
+                                reportModelId: ObjectId(eachCreatedOrder._id) //get the reportModelId from lineItem saved
+                            };
+                            return generatePurchaseOrderVend.run(purchaseOrderPayload, config, taskId, messageId);
+                        })
+                        // get state of report after generate
+                        .then(function (){
+                            return db.collection('ReportModel')
+                                .findOne({
+                                    _id: ObjectId(eachCreatedOrder._id)
+                                });
+                        })
+                        // Update State to desired State
+                        .then(function (reportInstance){
+                            if (reportInstance.state !== REPORT_STATES.ERROR_SENDING_TO_SUPPLIER) {
+                                return db.collection('ReportModel').updateOne({
+                                    _id: ObjectId(eachCreatedOrder._id)
+                                }, {
+                                    $set: {
+                                        state: orderConfigModel.orderStatus
+                                    }
+                                });
+                            }
+
+                            return Promise.resolve();
+                        });
+
                 }, {
                     concurrency: 1 //don't want to refresh vend access token for all orders
                 });
@@ -633,7 +629,16 @@ function createOrders(db, orders, messageId) {
                     messageId
                 });
                 eachOrder.deliverFromStoreModelId = ObjectId(storeModelInstance._id);
-                return db.collection('ReportModel').insert(_.omit(eachOrder, 'lineItems', 'groupBy'))
+                return db.collection('ReportModel').insert(
+                    Object.assign(
+                        {},
+                        _.omit(eachOrder, 'lineItems', 'groupBy'),
+                        {
+                            state: REPORT_STATES.GENERATED
+                        }
+                    )
+
+                );
             })
             .catch(function (error) {
                 logger.error({
