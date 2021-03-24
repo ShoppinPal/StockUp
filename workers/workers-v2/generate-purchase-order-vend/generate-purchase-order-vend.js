@@ -312,8 +312,25 @@ var runMe = function (payload, config, taskId, messageId) {
                         commandName,
                         reportModelId
                     });
-                    return Promise.resolve('Updated status in report model to FULFILL');
+                    return db.collection('StockOrderLineitemModel').updateMany(
+                        {
+                            reportModelId: ObjectId(reportModelId),
+                            approved: false
+                        }, {
+                            orderQuantity: 0
+                        });
                 })
+                .catch(function (error) {
+                    logger.error({
+                        message: 'Could not update not approved line items quantity to 0',
+                        messageId,
+                        commandName,
+                        error,
+                        reportModelId
+                    });
+                    return Promise.reject('Could not update not approved line items quantity to 0');
+                })
+
                 .then(function (result) {
                     var options = {
                         method: 'POST',

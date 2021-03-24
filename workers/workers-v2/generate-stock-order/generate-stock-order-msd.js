@@ -711,10 +711,10 @@ function generateOrderQuantities(reportModel, storeModelId, orgModelId, optionLe
                                 categoryModelName: optionCategoryModel ? optionCategoryModel.name : '',  //need for sorting in UI, DO NOT REMOVE
                                 fulfilledQuantity: 0,
                                 receivedQuantity: 0,
-                                fulfilled: false,
+                                fulfilled: null,
                                 received: false,
                                 state: 'unboxed',
-                                approved: false,
+                                approved: null,
                                 createdAt: new Date(),
                                 updatedAt: new Date()
                             });

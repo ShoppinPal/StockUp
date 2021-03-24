@@ -59,12 +59,31 @@
     <div class="col-sm-12">
       <div class="card">
         <div class="card-header">
-          <strong>Select Stores</strong>
+          <strong>Select Stores to manage orders for</strong>
         </div>
         <div class="card-body">
           <div class="row">
             <div class="col-sm-12">
-              <div class="form-group" *ngFor="let store of stores">
+              <div class="form-group">
+                <div class="input-group">
+                  <input type="text"
+                         class="form-control"
+                         [(ngModel)]="data.management.searchText"
+                         (keyup)="searchStores(data.management)"
+                         placeholder="Search Store By Name">
+                  <span class="input-group-append">
+                    <button class="btn btn-primary" type="button"
+                            (click)="searchStores(data.management)"
+                    >
+                      <i class="fa fa-search"></i> Search
+                    </button>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div><!--/.row-->
+          <div class="row">
+              <div class="col-md-6 col-sm-12 form-group" *ngFor="let store of data.management.list | slice:data.management.skip:data.management.skip + data.management.limit;">
                 <div class="input-group">
                   <label class="switch switch-pill switch-outline-primary-alt">
                     <input type="checkbox" class="switch-input" [(ngModel)]="store.selected">
@@ -74,13 +93,80 @@
 
                 </div>
               </div>
-            </div>
           </div><!--/.row-->
+          <pagination [totalItems]="data.management.list.length"
+                      [(ngModel)]="data.management.currentPage"
+                      [maxSize]="5"
+                      [rotate]="false"
+                      [boundaryLinks]="true"
+                      (pageChanged)="changePage(data.management, $event)"
+                      [itemsPerPage]="data.management.limit">
+          </pagination>
         </div>
         <div class="card-footer">
           <div class="row">
             <div class="col-sm-6">
               <button type="button" class="btn btn-success" (click)="assignStoreModels()">
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!--/.col-->
+  </div><!--/.row-->
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="card">
+        <div class="card-header">
+          <strong>Select Stores to manage discrepancies for</strong>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-12">
+              <div class="form-group">
+                <div class="input-group">
+                  <input type="text"
+                         class="form-control"
+                         [(ngModel)]="data.discrepancy.searchText"
+                         (keyup)="searchStores(data.discrepancy)"
+                         placeholder="Search Store By Name">
+                  <span class="input-group-append">
+                    <button class="btn btn-primary" type="button"
+                            (click)="searchStores(data.discrepancy)"
+                    >
+                      <i class="fa fa-search"></i> Search
+                    </button>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div><!--/.row-->
+          <div class="row">
+              <div class="col-md-6 col-sm-12 form-group" *ngFor="let store of data.discrepancy.list | slice:data.discrepancy.skip:data.discrepancy.skip + data.discrepancy.limit;">
+                <div class="input-group">
+                  <label class="switch switch-pill switch-outline-primary-alt">
+                    <input type="checkbox" class="switch-input" [(ngModel)]="store.selectedForDiscrepancy">
+                    <span class="switch-slider"></span>
+                  </label>
+                  <span> &nbsp;&nbsp; {{store.name}}</span>
+
+                </div>
+              </div>
+          </div><!--/.row-->
+          <pagination [totalItems]="data.discrepancy.list.length"
+                      [(ngModel)]="data.discrepancy.currentPage"
+                      [maxSize]="5"
+                      [rotate]="false"
+                      [boundaryLinks]="true"
+                      (pageChanged)="changePage(data.discrepancy, $event)"
+                      [itemsPerPage]="data.discrepancy.limit">
+          </pagination>
+        </div>
+        <div class="card-footer">
+          <div class="row">
+            <div class="col-sm-6">
+              <button type="button" class="btn btn-success" (click)="assignStoreModelsForDiscrepancy()">
                 Save
               </button>
             </div>

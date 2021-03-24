@@ -94,7 +94,14 @@ const routes: Routes = [
           title: 'Settings'
         },
         loadChildren: './schedules/schedules.module#SchedulesModule'
-      }
+      },
+      {
+        path: 'reporting',
+        data: {
+          title: 'Reporting'
+        },
+        loadChildren: './reporting/reporting.module#ReportingModule'
+      },
     ]
   }
 ];

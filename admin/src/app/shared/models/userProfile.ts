@@ -13,6 +13,7 @@ export class UserProfile {
   private orgModelId: string;
   private integrationType: string;
   private storeModels: Array<any>;
+  private discrepancyManagerStoreModels: Array<any>;
 
   /**
    * Creates an instance of UserProfile.
@@ -28,6 +29,7 @@ export class UserProfile {
     this.orgModelId = profile.orgModelId || null;
     this.integrationType = profile.integrationType || null;
     this.storeModels = profile.storeModels || null;
+    this.discrepancyManagerStoreModels = profile.discrepancyManagerStoreModels || null;
   }
 
   public isUserAuthenticated(): boolean {
