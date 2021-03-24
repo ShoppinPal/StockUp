@@ -635,6 +635,10 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   refreshLineItems() {
     this.getNotReceivedStockOrderLineItems();
     this.getReceivedStockOrderLineItems();
+    if (this.isDiscrepancyLoaded) {
+      this.editingDamagedForItemId = undefined;
+      this.getDiscrepanciesForOrder();
+    }
   }
 }
 

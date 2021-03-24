@@ -591,8 +591,13 @@ export class FulfillComponent implements OnInit {
         this.toastr.error('Cannot Fulfill All Items')
       })
   }
+
   refreshLineItems() {
+    this.getNeedsReviewStockOrderLineItems();
     this.getNotFulfilledStockOrderLineItems();
     this.getFulfilledStockOrderLineItems();
+    if (this.backOrderLoaded) {
+      this.backOrderLoaded = false;
+    }
   }
 }

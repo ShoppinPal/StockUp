@@ -664,6 +664,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
   }
 
   refreshLineItems() {
+    this.getNeedsReviewStockOrderLineItems();
     this.getApprovedStockOrderLineItems();
     this.getNotApprovedStockOrderLineItems();
   }
