@@ -214,7 +214,7 @@
                           <td *ngIf="!editable">{{lineItem.orderQuantity}}</td>
                           <td class="quantity-input text-right">
                             {{lineItem.originalOrderQuantity}}
-                            <app-sales-graph [order]="order" [lineItem]="lineItem" ></app-sales-graph>
+                            <app-sales-graph *ngIf="!order.importedFromFile" [order]="order" [lineItem]="lineItem" ></app-sales-graph>
                           </td>
                           <td>{{lineItem.storeInventory}}</td>
                           <td>
@@ -372,7 +372,7 @@
                           <td *ngIf="!editable">{{lineItem.orderQuantity}}</td>
                           <td class="quantity-input text-right">
                             {{lineItem.originalOrderQuantity}}
-                            <app-sales-graph [order]="order" [lineItem]="lineItem" ></app-sales-graph>
+                            <app-sales-graph *ngIf="!order.importedFromFile" [order]="order" [lineItem]="lineItem"></app-sales-graph>
                           </td>
                           <td>{{lineItem.storeInventory}}</td>
                           <td>
@@ -515,7 +515,7 @@
                           </td>
                           <td>
                             {{lineItem.originalOrderQuantity}}
-                            <app-sales-graph [order]="order" [lineItem]="lineItem" ></app-sales-graph>
+                            <app-sales-graph *ngIf="!order.importedFromFile" [order]="order" [lineItem]="lineItem" ></app-sales-graph>
                           </td>
                           <td>{{lineItem.storeInventory}}</td>
                           <td>

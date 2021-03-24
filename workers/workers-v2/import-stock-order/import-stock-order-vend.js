@@ -629,6 +629,7 @@ function createOrders(db, orders, messageId) {
                     messageId
                 });
                 eachOrder.deliverFromStoreModelId = ObjectId(storeModelInstance._id);
+                eachOrder.importedFromFile = true;
                 return db.collection('ReportModel').insert(
                     Object.assign(
                         {},
