@@ -65,6 +65,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
   public bccInvalidEmailCounter: number = 0;
   public searchEntry = '';
   public isSmallDevice = this.sharedDataService.getIsSmallDevice();
+  selectedCategoryLabelFilter: string;
 
   @ViewChild(BaseChartDirective) chart: BaseChartDirective;
 
@@ -120,10 +121,18 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       approved: true
     };
     if (productModelIds && productModelIds.length) {
+      // Remove filter in case of search
+      this.selectedCategoryLabelFilter = undefined;
       whereFilter['productModelId'] = {
         inq: productModelIds
       };
     }
+    else if (this.selectedCategoryLabelFilter) {
+      whereFilter['categoryModelName'] = {
+        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
+      }
+    }
+
     let filter = {
       where: whereFilter,
       include: [
@@ -145,8 +154,13 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       reportModelId: this.order.id,
       approved: true
     };
-    if (productModelIds && productModelIds.length)
+    if (productModelIds && productModelIds.length) {
       countFilter['productModelId'] = {inq: productModelIds};
+    } else if (this.selectedCategoryLabelFilter) {
+      countFilter['categoryModelName'] = {
+        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
+      }
+    }
     this.loading = true;
     let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
@@ -163,6 +177,11 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       err => {
         this.loading = false;
         console.log('error', err);
+
+        // Clear selected filter if api call fails
+        if (this.selectedCategoryLabelFilter) {
+          this.selectedCategoryLabelFilter = undefined;
+        }
       });
   }
 
@@ -177,10 +196,18 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       approved: false
     };
     if (productModelIds && productModelIds.length) {
+      // Remove filter in case of search
+      this.selectedCategoryLabelFilter = undefined;
       whereFilter['productModelId'] = {
         inq: productModelIds
       };
     }
+    else if (this.selectedCategoryLabelFilter) {
+      whereFilter['categoryModelName'] = {
+        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
+      }
+    }
+
     let filter = {
       where: whereFilter,
       include: [
@@ -202,8 +229,13 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       reportModelId: this.order.id,
       approved: false
     };
-    if (productModelIds && productModelIds.length)
+    if (productModelIds && productModelIds.length) {
       countFilter['productModelId'] = {inq: productModelIds};
+    } else if (this.selectedCategoryLabelFilter) {
+      countFilter['categoryModelName'] = {
+        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
+      }
+    }
     this.loading = true;
     let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
@@ -220,6 +252,11 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       err => {
         this.loading = false;
         console.log('error', err);
+
+        // Clear selected filter if api call fails
+        if (this.selectedCategoryLabelFilter) {
+          this.selectedCategoryLabelFilter = undefined;
+        }
       });
   }
 
@@ -626,4 +663,9 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     this.getNeedsReviewStockOrderLineItems(this.lineItemsLimitPerPage, (this.currentPageNeedsReview - 1 ) * this.lineItemsLimitPerPage);
   }
 
+  refreshLineItems() {
+    this.getNeedsReviewStockOrderLineItems();
+    this.getApprovedStockOrderLineItems();
+    this.getNotApprovedStockOrderLineItems();
+  }
 }

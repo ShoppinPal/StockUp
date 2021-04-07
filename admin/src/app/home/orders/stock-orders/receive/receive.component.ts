@@ -64,6 +64,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
 
   @ViewChild('discrepancies') discrepanciesTab;
   sendDiscrepancyReport: any = 'true';
+  selectedCategoryLabelFilter: string;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -122,9 +123,16 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       }
     };
     if (productModelIds && productModelIds.length) {
+      // Remove filter in case of search
+      this.selectedCategoryLabelFilter = undefined;
       whereFilter['productModelId'] = {
         inq: productModelIds
       };
+    }
+    else if (this.selectedCategoryLabelFilter) {
+      whereFilter['categoryModelName'] = {
+        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
+      }
     }
     const filter: any = {
       where: whereFilter,
@@ -149,8 +157,13 @@ export class ReceiveComponent implements OnInit, OnDestroy {
         gt: 0
       }
     };
-    if (productModelIds && productModelIds.length)
+    if (productModelIds && productModelIds.length) {
       countFilter['productModelId'] = {inq: productModelIds};
+    } else if (this.selectedCategoryLabelFilter) {
+      countFilter['categoryModelName'] = {
+        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
+      }
+    }
     this.loading = true;
     let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
@@ -167,6 +180,11 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       err => {
         this.loading = false;
         console.log('error', err);
+
+        // Clear selected filter if api call fails
+        if (this.selectedCategoryLabelFilter) {
+          this.selectedCategoryLabelFilter = undefined;
+        }
       });
   }
 
@@ -185,10 +203,18 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       received: false
     };
     if (productModelIds && productModelIds.length) {
+      // Remove filter in case of search
+      this.selectedCategoryLabelFilter = undefined;
       whereFilter['productModelId'] = {
         inq: productModelIds
       };
     }
+    else if (this.selectedCategoryLabelFilter) {
+      whereFilter['categoryModelName'] = {
+        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
+      }
+    }
+
     let filter = {
       where: whereFilter,
       include: [
@@ -210,8 +236,13 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       fulfilled: true,
       received: false
     };
-    if (productModelIds && productModelIds.length)
+    if (productModelIds && productModelIds.length) {
       countFilter['productModelId'] = {inq: productModelIds};
+    } else if (this.selectedCategoryLabelFilter) {
+      countFilter['categoryModelName'] = {
+        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
+      }
+    }
     this.loading = true;
     let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
@@ -232,6 +263,11 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       err => {
         this.loading = false;
         console.log('error', err);
+
+        // Clear selected filter if api call fails
+        if (this.selectedCategoryLabelFilter) {
+          this.selectedCategoryLabelFilter = undefined;
+        }
       });
   }
 
@@ -316,6 +352,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     this.discrepancyModal.hide()
     this.loading = true;
     this.searchSKUFocused = false;
+    this.selectedCategoryLabelFilter = undefined;
     this.orgModelApi.scanBarcodeStockOrder(this.userProfile.orgModelId,
       'receive',
       sku,
@@ -593,6 +630,15 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       this.isDiscrepancyLoaded = true;
       this.discrepanciesTab.nativeElement.scrollIntoView({ behavior: 'smooth' });
     });
+  }
+
+  refreshLineItems() {
+    this.getNotReceivedStockOrderLineItems();
+    this.getReceivedStockOrderLineItems();
+    if (this.isDiscrepancyLoaded) {
+      this.editingDamagedForItemId = undefined;
+      this.getDiscrepanciesForOrder();
+    }
   }
 }
 
