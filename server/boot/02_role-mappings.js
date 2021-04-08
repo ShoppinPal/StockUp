@@ -8,12 +8,23 @@ module.exports = function (app) {
     var ObjectID = mongodb.connector.getDefaultIdType();
     var RoleMapping = app.models.RoleMapping;
     var UserModel = app.models.UserModel;
+    var StoreModel = app.models.StoreModel;
     var Role = app.models.Role;
 
     RoleMapping.defineProperty('principalId', {
         type: ObjectID
     });
-    RoleMapping.belongsTo(UserModel);
+    RoleMapping.belongsTo(UserModel, {
+        as: 'principal',
+        foreignKey: 'principalId'
+    });
+    RoleMapping.referencesMany(StoreModel, {
+        as: 'storeModels',
+        foreignKey: 'storeModelIds',
+        options: {
+            validate: true,
+            forceId: false
+        }});
     UserModel.hasMany(RoleMapping, {foreignKey: 'principalId'});
     UserModel.hasMany(Role, {as: 'roles', through: RoleMapping, foreignKey: 'principalId'});
     Role.hasMany(UserModel, {through: RoleMapping, foreignKey: 'roleId'});

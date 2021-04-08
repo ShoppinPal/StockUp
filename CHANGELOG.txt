@@ -1,3 +1,10 @@
+v1.6.21 - Feb 27, 2021
+- Fix warehouse inventory attribute for MSD
+
+v1.6.20 - Feb 10, 2021
+- Fix Org-specific synchronization for MSD
+- Add SQL boot scripts
+
 v1.6.19 - Nov 21, 2020
 - Change MSD replenishment algo to give weightage to Category min/max
 

@@ -402,8 +402,8 @@ var runMe = function (payload, config, taskId, messageId) {
 
                         if (useRow) {
                             var categoryName = eachProduct.categoryModel && eachProduct.categoryModel.length ? eachProduct.categoryModel[0].name : 'No Category';
-                            let isApproved = supplier.reportDefaultState ? approvedStates.includes(supplier.reportDefaultState) : false;
-                            let isFulfilled = supplier.reportDefaultState ? fulfilledStates.includes(supplier.reportDefaultState) : false;
+                            let isApproved = supplier.reportDefaultState ? approvedStates.includes(supplier.reportDefaultState) : null;
+                            let isFulfilled = supplier.reportDefaultState ? fulfilledStates.includes(supplier.reportDefaultState) : null;
                             let isReceived = supplier.reportDefaultState ? receivedStates.includes(supplier.reportDefaultState) : false;
                             var row = {
                                 productModelId: ObjectId(eachProduct._id),

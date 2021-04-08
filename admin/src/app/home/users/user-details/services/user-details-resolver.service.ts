@@ -32,14 +32,9 @@ export class UserDetailsResolverService {
   }
 
   fetchUser(userId) {
-    return this.orgModelApi.getUserModels(this.userProfile.orgModelId, {
-      where: {
-        id: userId
-      },
-      include: 'storeModels'
-    })
+    return this.orgModelApi.userProfile(this.userProfile.orgModelId, userId)
       .pipe(map((data: any) => {
-          return data[0];
+          return { ...data, id: data.userId };
         },
         err => {
           console.log('err', err);

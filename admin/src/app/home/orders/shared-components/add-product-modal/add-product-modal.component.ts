@@ -43,15 +43,30 @@ export class AddProductModalComponent implements OnInit {
         limit: 1,
         where: {
           sku: sku
-        }
+        },
+        // needed to add categoryModelName field to line item
+        include: 'categoryModel'
       }),
       this.orgModelApi.getProductModels(this.userProfile.orgModelId, {
         limit: 10,
         where: {
-          sku: {
-            "regexp": filterData
-          }
-        }
+          and: [
+            {
+              sku: {
+                "regexp": filterData
+              }
+            },
+            // Remove exact search item to fix duplicate issue
+            {
+              sku: {
+                neq: sku
+              }
+            }
+          ]
+
+        },
+        // needed to add categoryModelName field to line item
+        include: 'categoryModel'
       })
     ).subscribe((data: any) => {
       this.searchedProductsData = data[0].concat(data[1]);

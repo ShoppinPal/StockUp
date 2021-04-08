@@ -51,6 +51,13 @@
     "vendConsignment": {
       "type": "object",
       "required": false
+    },
+    "importedFromFile": {
+      "type": "boolean"
+    },
+    "discrepancies": {
+      "type": "number",
+      "required": false
     }
   },
   "validations": [],

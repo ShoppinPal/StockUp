@@ -16,6 +16,12 @@ module.exports = {
         SUBMITTING_RECEIVALS: "Submitting Receivals",
         RECEIVING_FAILURE: "Receiving failure",
         COMPLETE: "Complete"
+    },
+    ROLES: {
+        ORG_ADMIN: 'orgAdmin',
+        STORE_MANAGER: 'storeManager',
+        DISCREPANCY_MANAGER: 'discrepancyManager',
+        ORDER_MANAGER: 'orderManager',
     }
 };
 

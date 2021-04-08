@@ -24,13 +24,19 @@ export class FulfillComponent implements OnInit {
   public loading = false;
   public filter: any = {};
   public order: any = {};
+  public backOrderedLineItems: Array<any>;
+  public needsReviewLineItems: Array<any>;
   public fulfilledLineItems: Array<any>;
   public notFulfilledLineItems: Array<any>;
+  public totalBackOrderedLineItems: number;
+  public totalNeedsReviewLineItems: number;
   public totalFulfilledLineItems: number;
   public totalNotFulfilledLineItems: number;
   public maxPageDisplay: number = 7;
   public searchSKUText: string;
   public totalPages: number;
+  public currentPageBackOrdered: number = 1;
+  public currentPageNeedsReview: number = 1;
   public currentPageFulfilled: number = 1;
   public currentPageNotFulfilled: number = 1;
   public lineItemsLimitPerPage: number = 100;
@@ -47,6 +53,9 @@ export class FulfillComponent implements OnInit {
   showAddProductModal: boolean;
   public bsModalRef: BsModalRef;
   public isSmallDevice = this.sharedDataService.getIsSmallDevice();
+  public backOrderLoaded = false;
+  @ViewChild('backOrderTab') private backOrderTab;
+  selectedCategoryLabelFilter: string;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -66,6 +75,7 @@ export class FulfillComponent implements OnInit {
         this.order = data.stockOrderDetails[0];
         this.getNotFulfilledStockOrderLineItems();
         this.getFulfilledStockOrderLineItems();
+        this.getNeedsReviewStockOrderLineItems();
       },
       error => {
         console.log('error', error)
@@ -106,9 +116,16 @@ export class FulfillComponent implements OnInit {
       }
     };
     if (productModelIds && productModelIds.length) {
+      // Remove filter in case of search
+      this.selectedCategoryLabelFilter = undefined;
       whereFilter['productModelId'] = {
         inq: productModelIds
       };
+    }
+    else if (this.selectedCategoryLabelFilter) {
+      whereFilter['binLocation'] = {
+        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
+      }
     }
     const filter: any = {
       where: whereFilter,
@@ -134,8 +151,13 @@ export class FulfillComponent implements OnInit {
         gt: 0
       }
     };
-    if (productModelIds && productModelIds.length)
+    if (productModelIds && productModelIds.length) {
       countFilter['productModelId'] = {inq: productModelIds};
+    } else if (this.selectedCategoryLabelFilter) {
+      countFilter['binLocation'] = {
+        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
+      }
+    }
     this.loading = true;
     let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
@@ -146,6 +168,73 @@ export class FulfillComponent implements OnInit {
         this.totalFulfilledLineItems = data[1].count;
         this.fulfilledLineItems = data[0];
         this.fulfilledLineItems.forEach(x => {
+          x.isCollapsed = true;
+        });
+      },
+      err => {
+        this.loading = false;
+        console.log('error', err);
+
+        // Clear selected filter if api call fails
+        if (this.selectedCategoryLabelFilter) {
+          this.selectedCategoryLabelFilter = undefined;
+        }
+      });
+  }
+
+  getNeedsReviewStockOrderLineItems(limit?: number, skip?: number, productModelIds?: Array<string>) {
+    if (!(limit && skip)) {
+      limit = this.lineItemsLimitPerPage || 10;
+      skip = 0;
+    }
+    if ((productModelIds !== undefined && productModelIds !== null) && (!productModelIds && !productModelIds.length)) {
+      this.searchSKUText = ''
+    }
+    let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
+    let whereFilter = {
+      reportModelId: this.order.id,
+      approved: true,
+      fulfilled: null
+    };
+    if (productModelIds && productModelIds.length) {
+      whereFilter['productModelId'] = {
+        inq: productModelIds
+      };
+    }
+    const filter: any = {
+      where: whereFilter,
+      include: [
+        {
+          relation: 'productModel'
+        },
+        {
+          relation: 'commentModels',
+          scope: {
+            include: 'userModel'
+          }
+        }
+      ],
+      limit: limit,
+      skip: skip,
+      order: 'binLocation ' + sortOrder + ', ' + this.sortColumn + ' ' + sortOrder
+    };
+    let countFilter = {
+      reportModelId: this.order.id,
+      approved: true,
+      fulfilled: null
+    };
+    if (productModelIds && productModelIds.length)
+      countFilter['productModelId'] = {inq: productModelIds};
+    this.loading = true;
+    let fetchLineItems = combineLatest(
+      this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
+      this.orgModelApi.countStockOrderLineitemModels(this.userProfile.orgModelId, countFilter));
+    fetchLineItems.subscribe((data: any) => {
+        this.loading = false;
+        this.currentPageNeedsReview = (skip / this.lineItemsLimitPerPage) + 1;
+        this.totalNeedsReviewLineItems = data[1].count;
+        this.needsReviewLineItems = data[0];
+        this.needsReviewLineItems.forEach(x => {
           x.isCollapsed = true;
         });
       },
@@ -170,9 +259,16 @@ export class FulfillComponent implements OnInit {
       fulfilled: false
     };
     if (productModelIds && productModelIds.length) {
+      // Remove filter in case of search
+      this.selectedCategoryLabelFilter = undefined;
       whereFilter['productModelId'] = {
         inq: productModelIds
       };
+    }
+    else if (this.selectedCategoryLabelFilter) {
+      whereFilter['binLocation'] = {
+        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
+      }
     }
     let filter = {
       where: whereFilter,
@@ -198,8 +294,13 @@ export class FulfillComponent implements OnInit {
       approved: true,
       fulfilled: false
     };
-    if (productModelIds && productModelIds.length)
+    if (productModelIds && productModelIds.length) {
       countFilter['productModelId'] = {inq: productModelIds};
+    } else if (this.selectedCategoryLabelFilter) {
+      countFilter['binLocation'] = {
+        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
+      }
+    }
     this.loading = true;
     let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
@@ -220,7 +321,51 @@ export class FulfillComponent implements OnInit {
       err => {
         this.loading = false;
         console.log('error', err);
+
+        // Clear selected filter if api call fails
+        if (this.selectedCategoryLabelFilter) {
+          this.selectedCategoryLabelFilter = undefined;
+        }
       });
+  }
+
+
+
+  getBackOrderedStockOrderLineItems(limit?: number, skip?: number) {
+    if (!(limit && skip)) {
+      limit = this.lineItemsLimitPerPage || 100;
+      skip = 0;
+    }
+    let sortOrder = this.sortAscending ? 1 : 0;
+    let filter = {
+      limit: limit,
+      skip: skip,
+      order: {
+        'binLocation': sortOrder,
+        [this.sortColumn]: sortOrder
+      },
+      backorderedOnly: true
+    };
+    this.loading = true;
+
+
+    let fetchLineItems = this.orgModelApi.getDiscrepancyOrBackOrderedLineItems(this.userProfile.orgModelId, this.order.id , filter);
+    fetchLineItems.subscribe((data: any) => {
+        this.backOrderLoaded = true;
+        this.loading = false;
+        this.currentPageBackOrdered = (skip / this.lineItemsLimitPerPage) + 1;
+        this.totalBackOrderedLineItems = data.count;
+        for (var i = 0; i < data.data.length; i++) {
+          data.data[i].isCollapsed = true;
+        }
+        this.backOrderedLineItems = data.data;
+        setTimeout(() => this.backOrderTab.nativeElement.scrollIntoView({ behavior: 'smooth' }));
+      },
+      err => {
+        this.loading = false;
+        console.log('error', err);
+      });
+
   }
 
   searchAndIncrementProduct(sku?: string, force: boolean = false) {
@@ -243,17 +388,17 @@ export class FulfillComponent implements OnInit {
         this.fulfilledLineItems = [searchedOrderItem];
         this.totalFulfilledLineItems = this.fulfilledLineItems.length;
         if (!searchedOrderItem.fulfilled) {
-          this.notFulfilledLineItems = [searchedOrderItem];
+          this.needsReviewLineItems = [searchedOrderItem];
         } else {
-          this.notFulfilledLineItems = [];
+          this.needsReviewLineItems = [];
         }
-        this.totalNotFulfilledLineItems = this.notFulfilledLineItems.length;
+        this.totalNeedsReviewLineItems = this.needsReviewLineItems.length;
         this.loading = false;
       }, error => {
         this.loading = false;
         this.searchSKUFocused = true;
         this.toastr.error(error.message);
-        this.notFulfilledLineItems = [];
+        this.needsReviewLineItems = [];
         this.fulfilledLineItems = [];
         this.totalFulfilledLineItems = 0;
         this.totalNotFulfilledLineItems = 0;
@@ -276,6 +421,7 @@ export class FulfillComponent implements OnInit {
         });
         this.getFulfilledStockOrderLineItems(this.lineItemsLimitPerPage, 0, productModelIds);
         this.getNotFulfilledStockOrderLineItems(this.lineItemsLimitPerPage, 0, productModelIds);
+        this.getNeedsReviewStockOrderLineItems(this.lineItemsLimitPerPage, 0, productModelIds);
       }
       else {
         this.loading = false;
@@ -302,8 +448,7 @@ export class FulfillComponent implements OnInit {
     }
     this.orgModelApi.updateAllStockOrderLineItemModels(this.userProfile.orgModelId, this.order.id, lineItemsIDs, data)
       .subscribe((res: any) => {
-          this.getFulfilledStockOrderLineItems();
-          this.getNotFulfilledStockOrderLineItems();
+          this.refreshData()
           console.log('approved', res);
           this.toastr.success('Row Updated');
         },
@@ -326,8 +471,8 @@ export class FulfillComponent implements OnInit {
     }
   }
 
-  removeItem(lineItem) {
-    this.updateLineItems(lineItem, {fulfilled: false, fulfilledQuantity: 0});
+  removeItem(lineItem, fulfilled: boolean = false) {
+    this.updateLineItems(lineItem, {fulfilled, fulfilledQuantity: 0});
   }
 
   getOrderDetails() {
@@ -342,8 +487,7 @@ export class FulfillComponent implements OnInit {
       .subscribe((data: any) => {
           this.order = data[0];
           //fetch line items only if the report status changes from executing to generated
-          this.getNotFulfilledStockOrderLineItems();
-          this.getFulfilledStockOrderLineItems();
+          this.refreshData()
           this.loading = false;
         },
         err => {
@@ -355,6 +499,11 @@ export class FulfillComponent implements OnInit {
   sendDelivery() {
     if (this.totalFulfilledLineItems === 0) {
       this.toastr.error('Please fulfill at least one item');
+      return;
+    }
+    if (!this.backOrderLoaded) {
+      this.getBackOrderedStockOrderLineItems();
+      return;
     }
     this.loading = true;
     this.orgModelApi.sendConsignmentDelivery(this.userProfile.orgModelId, this.order.id)
@@ -388,8 +537,7 @@ export class FulfillComponent implements OnInit {
    * search bar
    */
   changeScanMode() {
-    this.getNotFulfilledStockOrderLineItems();
-    this.getFulfilledStockOrderLineItems();
+    this.refreshData();
     this.searchSKUText = '';
     if (this.enableBarcode) {
       this.searchSKUFocused = true;
@@ -428,4 +576,32 @@ export class FulfillComponent implements OnInit {
     }
   }
 
+  refreshData() {
+    this.getNeedsReviewStockOrderLineItems(this.lineItemsLimitPerPage, (this.currentPageNeedsReview - 1 ) * this.lineItemsLimitPerPage);
+    this.getFulfilledStockOrderLineItems(this.lineItemsLimitPerPage, (this.currentPageFulfilled - 1 ) * this.lineItemsLimitPerPage);
+    this.getNotFulfilledStockOrderLineItems(this.lineItemsLimitPerPage, (this.currentPageNotFulfilled - 1 ) * this.lineItemsLimitPerPage);
+    if (this.backOrderLoaded) {
+      this.backOrderLoaded = false;
+    }
+  }
+
+  fulfillAll() {
+    this.loading = true;
+    this.orgModelApi.fulfillAllLineItems(this.userProfile.orgModelId, this.order.id)
+      .subscribe(data => {
+        this.loading = false;
+        this.refreshData();
+      }, error => {
+        this.toastr.error('Cannot Fulfill All Items')
+      })
+  }
+
+  refreshLineItems() {
+    this.getNeedsReviewStockOrderLineItems();
+    this.getNotFulfilledStockOrderLineItems();
+    this.getFulfilledStockOrderLineItems();
+    if (this.backOrderLoaded) {
+      this.backOrderLoaded = false;
+    }
+  }
 }

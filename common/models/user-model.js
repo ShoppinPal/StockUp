@@ -7,6 +7,9 @@ var Joi = Promise.promisifyAll(require('joi'));
 var validate = Promise.promisify(require('joi').validate);
 const aws = require('aws-sdk');
 const nodemailer = require('nodemailer');
+const slackUtils = require('../utils/slack');
+const constants = require("../utils/constants");
+const ROLES = constants.ROLES;
 
 module.exports = function (UserModel) {
 
@@ -33,16 +36,21 @@ module.exports = function (UserModel) {
             returns: {arg: 'profileData', type: 'object'}
         });
 
-        UserModel.profile = function (id, options, cb) {
+        UserModel.profile = function (id, options) {
             logger.debug({
                 message: 'Profile method was called',
                 functionName: 'profile',
                 options
             });
-            UserModel.findById(id, {
+            return UserModel.findById(id, {
                 include: [
                     'roles',
-                    'storeModels',
+                    {
+                        relation: 'roleMapping',
+                        scope: {
+                            include: ['storeModels', 'role']
+                        }
+                    },
                     {
                         relation: 'orgModel',
                         scope: {
@@ -62,13 +70,23 @@ module.exports = function (UserModel) {
                     userModelInstance.roles().forEach(function (role) {
                         roles.push(role.name);
                     });
+                    let storeModels = [], discrepancyManagerStoreModels = [];
+                    userModelInstance.roleMapping().forEach(function (roleMapping) {
+                        if (roleMapping.role().name === ROLES.ORDER_MANAGER){
+                            storeModels = roleMapping.storeModels();
+                        } else if (roleMapping.role().name === ROLES.DISCREPANCY_MANAGER) {
+                            discrepancyManagerStoreModels = roleMapping.storeModels();
+                        }
+                    });
+
                     var profileDataAsResponse = {
                         username: userModelInstance.username,
                         email: userModelInstance.email,
                         roles: roles,
                         name: userModelInstance.name,
                         userId: userModelInstance.id,
-                        storeModels: userModelInstance.storeModels(),
+                        storeModels: storeModels,
+                        discrepancyManagerStoreModels: discrepancyManagerStoreModels,
                         integrationType: userModelInstance.orgModel().integrationModels().length ? userModelInstance.orgModel().integrationModels()[0].type : null,
                         orgModelId: userModelInstance.orgModelId
                     };
@@ -78,7 +96,7 @@ module.exports = function (UserModel) {
                         functionName: 'profile',
                         options
                     });
-                    cb(null, profileDataAsResponse);
+                    return Promise.resolve(profileDataAsResponse)
                 })
                 .catch(function (err) {
                     logger.error({
@@ -87,7 +105,7 @@ module.exports = function (UserModel) {
                         functionName: 'profile',
                         options
                     });
-                    cb('Unable to fetch profile', err);
+                    return Promise.reject('Unable to fetch profile');
                 });
         };
 
@@ -120,6 +138,10 @@ module.exports = function (UserModel) {
 
             validate(data, validObjectSchema)
                 .then(function () {
+                    slackUtils.sendOrgSignupAlert({
+                        email: data.email,
+                        orgName: data.orgName
+                    });
                     logger.debug({
                         message: 'Validated data for sign up successfully',
                         functionName: 'signup'
@@ -525,45 +547,70 @@ module.exports = function (UserModel) {
                 });
         });
 
-        UserModel.assignStoreModelsToUser = function (orgModelId, userModelId, storeIds, options) {
+        UserModel.assignStoreModelsToUser = function (orgModelId, userModelId, storeIds, role, options) {
+            let roleInstance;
             logger.debug({
-                message: 'Will delete previous store-user mappings',
+                message: 'Will replace previous store-user mappings if available',
                 functionName: 'assignStoreModelsToUser',
                 userModelId,
                 options
             });
-            return UserModel.app.models.UserStoreMapping.destroyAll({
-                userModelId: userModelId
-            })
-                .then(function (response) {
-                    logger.debug({
-                        message: 'Deleted previous store mappings of user, will assign new ones',
-                        response,
-                        options,
-                        storeIds,
-                        userModelId,
-                        functionName: 'assignStoreModelsToUser'
-                    });
-                    if (storeIds.length) {
-                        var mappingsToCreate = [];
-                        for (var i = 0; i<storeIds.length; i++) {
-                            mappingsToCreate.push({
-                                storeModelId: storeIds[i],
-                                userModelId: userModelId,
-                                orgModelId: orgModelId
-                            });
-                        }
-
-                        return UserModel.app.models.UserStoreMapping.create(mappingsToCreate);
-                    }
-                    else {
-                        return Promise.resolve('No store mappings to create');
+            return UserModel.app.models.Role.findOne({
+                    where: {
+                        name: role
                     }
                 })
-                .then(function (response) {
+                .then(function (role) {
+                    logger.debug({
+                        message: 'Found Role',
+                        functionName: 'assignStoreModelsToUser',
+                        role
+                    });
+                    if (!role) {
+                        return Promise.reject('No Role Found');
+                    }
+                    roleInstance = role;
+                    return UserModel.app.models.RoleMapping.findOne(
+                        {
+                            where: {
+                                roleId: role.id,
+                                principalId: userModelId,
+                            }
+                        });
+                })
+                .then(function (roleMapping) {
+                    logger.debug({
+                        message: 'Found Role Mapping',
+                        functionName: 'assignStoreModelsToUser',
+                        roleMapping
+                    });
+                    if (roleMapping) {
+                        if (storeIds.length === 0) {
+                            return UserModel.app.models.RoleMapping.destroyById(roleMapping.id);
+                        }
+                        // Update
+                        return UserModel.app.models.RoleMapping.updateAll(
+                            {
+                                id: roleMapping.id
+                            }
+                            , {
+                                storeModelIds: storeIds,
+                                updatedAt: new Date()
+                            });
+                    } else {
+                        return UserModel.app.models.RoleMapping.create(
+                            {
+                                roleId: roleInstance.id,
+                                principalId: userModelId,
+                                storeModelIds: storeIds,
+                                updatedAt: new Date()
+                            }
+                        );
+                    }
+                })
+                .then(function () {
                     logger.debug({
                         message: 'Assigned new store mappings to user',
-                        response,
                         functionName: 'assignStoreModelsToUser',
                         options
                     });
@@ -579,7 +626,6 @@ module.exports = function (UserModel) {
                     });
                     return Promise.reject('Could not assign stores to user');
                 });
-
         };
 
 

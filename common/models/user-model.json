@@ -48,12 +48,6 @@
       "model": "SupplierModel",
       "foreignKey": "userId"
     },
-    "storeModels": {
-      "type": "hasMany",
-      "model": "StoreModel",
-      "foreignKey": "userModelId",
-      "through": "UserStoreMapping"
-    },
     "reportModels": {
       "type": "hasMany",
       "model": "ReportModel",
@@ -69,6 +63,11 @@
       "model": "Role",
       "foreignKey": "principalId",
       "through": "RoleMapping"
+    },
+    "roleMapping": {
+      "type": "hasMany",
+      "model": "RoleMapping",
+      "foreignKey": "principalId"
     },
     "orgModel": {
       "type": "belongsTo",
@@ -91,7 +90,7 @@
     {
       "accessType": "EXECUTE",
       "principalType": "ROLE",
-      "principalId": "$authenticated",
+      "principalId": "$owner",
       "permission": "ALLOW",
       "property": "profile"
     },
