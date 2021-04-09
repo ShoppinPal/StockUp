@@ -497,6 +497,10 @@ export class FulfillComponent implements OnInit {
   };
 
   sendDelivery() {
+    if (this.totalFulfilledLineItems === 0) {
+      this.toastr.error('Please fulfill at least one item');
+      return;
+    }
     if (!this.backOrderLoaded) {
       this.getBackOrderedStockOrderLineItems();
       return;

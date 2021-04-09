@@ -121,23 +121,23 @@ export class SchedulePickerComponent implements OnInit {
 
   static validateSchedulerParameters(Type, Month, Week, Day, Hour): any {
     if (Type === '') {
-      return {validated: false, message: 'Frequency is Compulsory'};
+      return {validated: false, message: 'Frequency is required for scheduling'};
     } else {
       if (Type === this.SCHEDULING_TYPES.YEARLY) {
         if (Month === -1 || Day === -1 || Hour === -1) {
-          return {validated: false, message: 'Month, Hour And Day are Compulsory'};
+          return {validated: false, message: 'Month, Hour And Day are required for scheduling'};
         }
       } else if (Type === this.SCHEDULING_TYPES.MONTHLY) {
         if (Day === -1 || Hour === -1) {
-          return {validated: false, message: 'Hour And Day are Compulsory'};
+          return {validated: false, message: 'Hour And Day are required for scheduling'};
         }
       } else if (Type === this.SCHEDULING_TYPES.WEEKLY) {
         if (Week === [] || Hour === -1) {
-          return {validated: false, message: 'Hour And Week are Compulsory'};
+          return {validated: false, message: 'Hour And Week are required for scheduling'};
         }
       } else if (Type === this.SCHEDULING_TYPES.DAILY) {
         if (Hour === -1) {
-          return {validated: false, message: 'Hour is Compulsory'};
+          return {validated: false, message: 'Hour is required for scheduling'};
         }
       }
     }

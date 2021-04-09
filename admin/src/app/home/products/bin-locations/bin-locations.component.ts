@@ -177,7 +177,7 @@ export class BinLocationsComponent implements OnInit {
       var pattern = new RegExp('.*' + this.searchSKUText + '.*', "i");
       /* case-insensitive RegExp search */
       var filterData = pattern.toString();
-      var filter = {
+      var filter: any = {
         where: {
           sku: ''
         }
@@ -185,7 +185,9 @@ export class BinLocationsComponent implements OnInit {
       if (this.enableBarcode) {
         filter.where.sku = this.searchSKUText;
       } else {
-        filter.where.sku['regexp'] = filterData
+        filter.where.sku = {
+          regexp: filterData
+        };
       }
       this.orgModelApi.getProductModels(this.userProfile.orgModelId, filter)
         .subscribe((data: Array<any>) => {
@@ -223,6 +225,8 @@ export class BinLocationsComponent implements OnInit {
     }
 
     catch (error) {
+      this.loading = false;
+      console.error(error);
       this.toastr.error(error);
     }
   }
