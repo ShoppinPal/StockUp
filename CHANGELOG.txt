@@ -1,3 +1,11 @@
+v1.6.22 - Apr 9, 2021
+- Discrepancy reports
+- User roles management
+- Category Anchors in UI
+- Distinguish btw normal and imported orders
+- Slack alerts for new signups
+- Improve error messages
+
 v1.6.21 - Feb 27, 2021
 - Fix warehouse inventory attribute for MSD
 
