@@ -1,5 +1,5 @@
 FROM node:10.15.3 as adminbuilder
-ENV MONGOLAB_URI=mongodb://admin:c64e8e7b05a6d35@34.94.17.103:27017/warehouse-local
+ENV MONGOLAB_URI=mongodb://52.170.2.48:27017/warehouse-local
 RUN mkdir -p /apps/warehouse
 RUN mkdir -p /apps/warehouse/client
 RUN chown -R node:node /apps/warehouse
