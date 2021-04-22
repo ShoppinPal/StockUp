@@ -3,7 +3,7 @@ on:
     branches:
       - master
       - develop
-      - 'release/*'
+      - 'release/v[0-9].[0-9]+.[0-9]+'
 
 jobs:
   build_dev:
@@ -25,9 +25,10 @@ jobs:
     name: releases
     runs-on: ubuntu-latest
     if:
-      contains('
-        refs/heads/release/*
-        ', github.ref)
+      contains(
+        github.ref,
+        'refs/heads/release/v'
+        )
     steps:
     - uses: actions/checkout@v1
     - name: build docker images
