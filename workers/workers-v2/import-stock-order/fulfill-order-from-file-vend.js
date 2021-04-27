@@ -446,15 +446,19 @@ function mapExistingOrdersWithFoundOrders(db, orders, messageId) {
                         storeModelId,
                         messageId
                     });
-                    // Clean the failed report before aborting further import
-                    return db.collection('StockOrderLineitemModel').updateMany({
-                        reportModelId: matchedReportModel._id,
-                    }, {
-                        fulfilledQuantity: 0,
-                        fulfilled: null
-                    }).then(function (){
-                        return Promise.reject('Cannot fulfill this report');
-                    });
+                    if(matchedReportModel && matchedReportModel._id) {
+                        // Clean the failed report before aborting further import
+                        return db.collection('StockOrderLineitemModel').updateMany({
+                            reportModelId: matchedReportModel._id,
+                        }, {
+                            fulfilledQuantity: 0,
+                            fulfilled: null
+                        }).then(function () {
+                            return Promise.reject('Cannot fulfill this report');
+                        });
+                    } else {
+                        return Promise.resolve(NO_MATCH_FOUND);
+                    }
                 })
                 .then(function (response){
                     if (response !== NO_MATCH_FOUND) {

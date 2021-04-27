@@ -35,7 +35,7 @@
               <span class="input-group-btn" *ngIf="editable">
                 <button class="btn btn-success btn-block" type="button" (click)="sendDelivery()">
                   <i class="fa fa-truck"></i>
-                  {{ !backOrderLoaded ? 'Review &': '' }} Send to {{order.storeModel.name}}
+                  {{ !backOrderLoaded ? 'Review Order': 'Send to ' + order.storeModel.name }}
                 </button>
               </span>
             </div>

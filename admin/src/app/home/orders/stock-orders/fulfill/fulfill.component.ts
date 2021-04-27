@@ -601,7 +601,7 @@ export class FulfillComponent implements OnInit {
     this.getNotFulfilledStockOrderLineItems();
     this.getFulfilledStockOrderLineItems();
     if (this.backOrderLoaded) {
-      this.backOrderLoaded = false;
+      this.getBackOrderedStockOrderLineItems();
     }
   }
 }

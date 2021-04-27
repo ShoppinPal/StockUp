@@ -316,8 +316,11 @@ var runMe = function (payload, config, taskId, messageId) {
                         {
                             reportModelId: ObjectId(reportModelId),
                             approved: false
-                        }, {
-                            orderQuantity: 0
+                        },
+                        {
+                            $set: {
+                                orderQuantity: 0
+                            }
                         });
                 })
                 .catch(function (error) {

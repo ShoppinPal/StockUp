@@ -473,6 +473,14 @@ module.exports = function (ReportModel) {
 
         if (sendEmail) {
             return ReportModel.sendDiscrepanciesAsEmail(orgModelId, reportModelId, options)
+                .catch(function (e) {
+                    logger.error({
+                        message: 'Cannot send Email,Possible that no discrepancy user found',
+                        e,
+                        functionName: 'receiveConsignment',
+                    });
+                    return Promise.resolve();
+                })
                 .then(function (){
                     return sendConsignmentToWorker();
                 });
