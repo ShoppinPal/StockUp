@@ -35,6 +35,7 @@ function findClosestReportMatchBySku(db, eachOrder, matchingReportModels, messag
     return Promise.map(matchingReportModels, function (eachReportModel) {
            return db.collection('StockOrderLineitemModel').find({
                reportModelId: eachReportModel._id,
+               approved: true
 
            })
                .project({ productModelSku: 1})
