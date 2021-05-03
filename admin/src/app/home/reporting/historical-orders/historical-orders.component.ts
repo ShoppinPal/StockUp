@@ -72,6 +72,18 @@ export class HistoricalOrdersComponent implements OnInit {
       discrepancyStoreIds = discrepancyStoreIds.filter(id => id === selectedStoreFilter);
     }
 
+    // If only one filled is set remove both
+    if ((this.dateStart || this.dateEnd) && !(this.dateStart && this.dateEnd)) {
+      this.dateEnd = undefined;
+      this.dateStart = undefined;
+    } else {
+      const dateEnd = new Date(this.dateEnd);
+      dateEnd.setHours(23);
+      dateEnd.setMinutes(59);
+      dateEnd.setSeconds(59);
+      this.dateEnd = dateEnd.toDateString();
+    }
+
     const filter = {
       limit: limit,
       skip: skip,
@@ -117,11 +129,17 @@ export class HistoricalOrdersComponent implements OnInit {
           // Common filter that apply to both
           {
             state: constants.REPORT_STATES.COMPLETE,
-            created: this.dateStart || this.dateEnd ? {
-              gte: this.dateStart ? new Date(this.dateStart) : undefined,
-              lte: this.dateEnd ? new Date(this.dateEnd) : undefined
-            } : undefined,
             supplierModelId: this.returnIfNotUndef(this.selectedSupplier),
+          },
+          {
+            deletedAt: {
+              exists: false
+            }
+          },
+          {
+            created: this.dateStart && this.dateEnd ? {
+              between: [new Date(this.dateStart), new Date(this.dateEnd)]
+            } : undefined,
           }
         ]
       },
