@@ -71,17 +71,16 @@ export class HistoricalOrdersComponent implements OnInit {
       orderStoreIds = orderStoreIds.filter(id => id === selectedStoreFilter);
       discrepancyStoreIds = discrepancyStoreIds.filter(id => id === selectedStoreFilter);
     }
-
+    let dateEnd = new Date(this.dateEnd);
     // If only one filled is set remove both
     if ((this.dateStart || this.dateEnd) && !(this.dateStart && this.dateEnd)) {
       this.dateEnd = undefined;
       this.dateStart = undefined;
+      dateEnd = undefined;
     } else {
-      const dateEnd = new Date(this.dateEnd);
       dateEnd.setHours(23);
       dateEnd.setMinutes(59);
       dateEnd.setSeconds(59);
-      this.dateEnd = dateEnd.toDateString();
     }
 
     const filter = {
@@ -138,7 +137,7 @@ export class HistoricalOrdersComponent implements OnInit {
           },
           {
             created: this.dateStart && this.dateEnd ? {
-              between: [new Date(this.dateStart), new Date(this.dateEnd)]
+              between: [new Date(this.dateStart), dateEnd]
             } : undefined,
           }
         ]
