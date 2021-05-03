@@ -200,6 +200,10 @@ export class FulfillComponent implements OnInit {
       whereFilter['productModelId'] = {
         inq: productModelIds
       };
+    }else if (this.selectedCategoryLabelFilter) {
+      whereFilter['binLocation'] = {
+        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
+      }
     }
     const filter: any = {
       where: whereFilter,
@@ -344,7 +348,10 @@ export class FulfillComponent implements OnInit {
         'binLocation': sortOrder,
         [this.sortColumn]: sortOrder
       },
-      backorderedOnly: true
+      backorderedOnly: true,
+      where: {
+        binLocation: this.selectedCategoryLabelFilter ? `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*` : undefined,
+      }
     };
     this.loading = true;
 
@@ -537,8 +544,9 @@ export class FulfillComponent implements OnInit {
    * search bar
    */
   changeScanMode() {
-    this.refreshData();
+    this.refreshLineItems();
     this.searchSKUText = '';
+    this.selectedCategoryLabelFilter = undefined;
     if (this.enableBarcode) {
       this.searchSKUFocused = true;
     }
