@@ -121,7 +121,7 @@
             </div>
             <div class="col-sm-3">
               <button type="button" class="btn btn-link float-right"
-                      (click)="searchSKUText='';this.selectedCategoryLabelFilter=undefined;getNotReceivedStockOrderLineItems();getReceivedStockOrderLineItems()">
+                      (click)="searchSKUText='';this.selectedCategoryLabelFilter=undefined;refreshLineItems();">
                 Clear All Searches
               </button>
             </div>
@@ -588,51 +588,6 @@
         <button type="button" class="btn btn-warning" (click)="searchAndIncrementProduct(searchSKUText, true)">
           Continue
         </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div bsModal #sendDiscrepancyEmailModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-     aria-hidden="true">
-  <div class="modal-dialog modal-warning" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title">Discrepancies Detected</h4>
-        <button type="button" class="close" (click)="sendDiscrepancyEmailModal.hide()" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p>Do you want to send a Discrepancy Report ?</p>
-        <div class="form-group row">
-          <div class="col-md-9 col-form-label">
-            <div class="form-check form-check-inline mr-1" id="inline-radios">
-              <input class="form-check-input" id="inlineRadio1"
-                     name="inline-radios" type="radio"
-                     [(ngModel)]="sendDiscrepancyReport"
-                     value="true">
-              <label class="form-check-label" for="inlineRadio1">Yes</label></div>
-            <div class="form-check form-check-inline mr-1">
-              <input class="form-check-input" id="inlineRadio2" name="inline-radios"
-                     type="radio"
-                     [(ngModel)]="sendDiscrepancyReport"
-                     value="false"
-              ><label
-              class="form-check-label" for="inlineRadio2">No</label></div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer" style="justify-content: space-between;">
-        <button type="button" (click)="previewDiscrepancies()" class="btn btn-link">Preview Discrepancies</button>
-        <div>
-          <button [disabled]="creatingPurchaseOrderVend" type="button" class="btn btn-secondary" (click)="sendDiscrepancyEmailModal.hide()">Cancel</button>
-          <button [disabled]="creatingPurchaseOrderVend" type="button" class="btn btn-warning" (click)="receiveConsignment()">
-            Done
-            <div [ngClass]="{'d-none': !creatingPurchaseOrderVend}"
-                 class="spinner-border spinner-border-sm spinner-margins" role="status"></div>
-          </button>
-        </div>
       </div>
     </div>
   </div>

@@ -313,7 +313,18 @@ function createNewOrders(db, result, orderConfigModel, payload, config, taskId, 
                     message: `Orders should be in state ${orderConfigModel.orderStatus}, need not push order to Vend`,
                     messageId
                 });
-                return Promise.resolve('Need not push order to Vend');
+                return Promise.map(createdOrders, function (eachCreatedOrder) {
+                    return Promise.resolve()
+                        .then(function() {
+                            return db.collection('ReportModel').updateOne({
+                                _id: ObjectId(eachCreatedOrder._id)
+                            }, {
+                                $set: {
+                                    state: orderConfigModel.orderStatus
+                                }
+                            });
+                        });
+                });
             }
         })
         .catch(function (error) {

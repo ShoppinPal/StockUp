@@ -473,6 +473,14 @@ module.exports = function (ReportModel) {
 
         if (sendEmail) {
             return ReportModel.sendDiscrepanciesAsEmail(orgModelId, reportModelId, options)
+                .catch(function (e) {
+                    logger.error({
+                        message: 'Cannot send Email,Possible that no discrepancy user found',
+                        e,
+                        functionName: 'receiveConsignment',
+                    });
+                    return Promise.resolve();
+                })
                 .then(function (){
                     return sendConsignmentToWorker();
                 });
@@ -1713,6 +1721,8 @@ module.exports = function (ReportModel) {
     ReportModel.getDiscrepancyOrBackOrderedLineItems = function (id, reportId, filters) {
         var db = ReportModel.getDataSource();
         // Get the filters
+        const categoryModelNameFilter = filters.where? (filters.where.categoryModelName || false): false;
+        const binLocationFilter = filters.where? (filters.where.binLocation || false): false;
         const limit = filters.limit || 10;
         const skip = filters.skip || 0;
         const order = filters.order || {productModelSku: 1};
@@ -1725,10 +1735,12 @@ module.exports = function (ReportModel) {
             damagedOnly,
             underDelivered,
             overDelivered,
-            showBackOrderedOnly
+            showBackOrderedOnly,
+            categoryModelNameFilter,
+            binLocationFilter
         ].every(function (value) {
             return value === false;
-        })
+        });
 
         // Real data resides within "data"
         Object.keys(order).forEach(key => {
@@ -1775,10 +1787,19 @@ module.exports = function (ReportModel) {
         let aggregationQuery = [
             // Filter for this report id
             {
-                $match: {
-                    reportModelId: db.ObjectID(reportId),
-                    approved: true
-                }
+                $match: Object.assign(
+                    {},
+                    {
+                        reportModelId: db.ObjectID(reportId),
+                        approved: true,
+                    },
+                    categoryModelNameFilter ?
+                        { categoryModelName: { $regex: categoryModelNameFilter} }:
+                        {},
+                    binLocationFilter ?
+                        { binLocation: { $regex: binLocationFilter }}:
+                        {}
+                    )
             },
             // Add a field that is true if orderQyuantity & receivedQuantity not equal
             {
@@ -1920,7 +1941,7 @@ module.exports = function (ReportModel) {
                     });
                     supplierStoreCode = supplierStore ? supplierStore.storeCode : '';
                 }
-                emailSubject = 'Discrepancies: Order #' + supplierStoreCode + '-' + report.storeModel().name + ' from ' + report.orgModel().name;
+                emailSubject = 'Discrepancies: Order #'+ report.name + ' ' + supplierStoreCode + '-' + report.storeModel().name + ' from ' + report.orgModel().name;
                 logger.debug({
                     functionName: 'sendDiscrepanciesAsEmail',
                     message: 'Will look for discrepancy Manager roleId',

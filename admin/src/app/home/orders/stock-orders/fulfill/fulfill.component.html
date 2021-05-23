@@ -10,7 +10,7 @@
           <div class="row">
             <div class="form-group col-sm-6">
               <p>Name: <strong>{{order.name}}</strong></p>
-              <p>Total Items: <strong>{{totalFulfilledLineItems+totalNotFulfilledLineItems}}</strong></p>
+              <p>Total Items: <strong>{{totalFulfilledLineItems+totalNotFulfilledLineItems+totalNeedsReviewLineItems}}</strong></p>
               <p>Created At: <strong>{{order.created | date: 'y-MM-dd HH:mm'}}</strong></p>
               <p>Status: <strong>{{order.state}}</strong>
                 <!--<span *ngIf="order.state === reportStates.PUSHING_TO_MSD">({{order.percentagePushedToMSD || 0 | number : '1.2-2'}})%</span></strong>-->
@@ -35,11 +35,11 @@
               <span class="input-group-btn" *ngIf="editable">
                 <button class="btn btn-success btn-block" type="button" (click)="sendDelivery()">
                   <i class="fa fa-truck"></i>
-                  {{ !backOrderLoaded ? 'Review &': '' }} Send to {{order.storeModel.name}}
+                  {{ !backOrderLoaded ? 'Review Order': 'Send to ' + order.storeModel.name }}
                 </button>
               </span>
             </div>
-            <div class="col-sm-3" *ngIf="editable && !enableBarcode">
+            <div class="col-sm-3" *ngIf="editable">
               <span class="input-group-btn">
                 <button class="btn btn-primary btn-block" type="button" (click)="fulfillAll()">
                 <i class="fa fa-check-square-o"></i>
@@ -129,7 +129,7 @@
             </div>
             <div class="col-sm-3">
               <button type="button" class="btn btn-link float-right"
-                      (click)="searchSKUText='';getFulfilledStockOrderLineItems();getNotFulfilledStockOrderLineItems(); getNeedsReviewStockOrderLineItems();">
+                      (click)="searchSKUText='';refreshLineItems();">
                 Clear All Searches
               </button>
             </div>

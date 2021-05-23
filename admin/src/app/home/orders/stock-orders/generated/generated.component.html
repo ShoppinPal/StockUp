@@ -10,7 +10,7 @@
           <div class="row">
             <div class="form-group col-sm-6">
               <p>Name: <strong>{{order.name}}</strong></p>
-              <p>Total Items: <strong>{{totalApprovedLineItems+totalNotApprovedLineItems}}</strong></p>
+              <p>Total Items: <strong>{{totalApprovedLineItems+totalNotApprovedLineItems + totalNeedsReviewLineItems}}</strong></p>
               <p>Created At: <strong>{{order.createdAt | date: 'y-MM-dd, HH:mm'}}</strong></p>
               <p>Status: <strong>{{order.state}} <span *ngIf="order.state === reportStates.PUSHING_TO_MSD">({{order.percentagePushedToMSD || 0 | number : '1.2-2'}})%</span></strong>
                 <button type="button" class="btn btn-link" (click)="getOrderDetails()">
@@ -117,7 +117,7 @@
             </div>
             <div class="col-sm-6">
               <button type="button" class="btn btn-link float-right"
-                      (click)="searchSKUText='';this.selectedCategoryLabelFilter=undefined;getNotApprovedStockOrderLineItems(undefined, undefined, undefined, 'type');getApprovedStockOrderLineItems(undefined, undefined, undefined, 'type')">
+                      (click)="searchSKUText='';this.selectedCategoryLabelFilter=undefined;refreshLineItems()">
                 Clear All Searches
               </button>
             </div>
