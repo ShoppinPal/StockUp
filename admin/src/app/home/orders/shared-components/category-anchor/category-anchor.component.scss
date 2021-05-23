@@ -1,0 +1,29 @@
+.badge {
+  font-size: 1em;
+  padding: 0.6em 0.6em !important;
+  margin: 0 0.1em;
+  color: #585757;
+  border: 1px solid #fff;
+  cursor: pointer;
+}
+
+.badge.active, .badge:hover {
+  background: rgba(104, 192, 224, 0.20);
+  border: 1px solid rgba(104, 192, 224,1);
+}
+
+.badge-row {
+  align-items: center;
+  position: relative;
+  justify-content: center;
+  margin-bottom: 1em;
+}
+
+.clear-button {
+  position: absolute;
+  right: 20px;
+}
+
+.title {
+  padding: 0.6em 0.6em !important;
+}

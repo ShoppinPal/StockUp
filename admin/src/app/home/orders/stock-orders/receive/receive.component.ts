@@ -12,6 +12,7 @@ import {ModalDirective} from 'ngx-bootstrap';
 import {BsModalRef, BsModalService} from "ngx-bootstrap/modal";
 import {DeleteOrderComponent} from "../../shared-components/delete-order/delete-order.component";
 import {SharedDataService} from '../../../../shared/services/shared-data.service';
+import Utils from '../../../../shared/constants/utils';
 
 @Component({
   selector: 'app-receive',
@@ -26,13 +27,19 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   public loading = false;
   public filter: any = {};
   public order: any = {};
+  public discrepancyLineItems: Array<any>;
+  public backOrderedLineItems: Array<any>;
   public receivedLineItems: Array<any>;
   public notReceivedLineItems: Array<any>;
+  public totalBackOrderedLineItems: number;
+  public totalDiscrepanciesLineItems: number;
   public totalReceivedLineItems: number;
   public totalNotReceivedLineItems: number;
   public maxPageDisplay: number = 7;
   public searchSKUText: string = '';
   public totalPages: number;
+  public currentPageBackOrdered: number = 1;
+  public currentPageDiscrepancies: number = 1;
   public currentPageReceived: number = 1;
   public currentPageNotReceived: number = 1;
   public lineItemsLimitPerPage: number = 100;
@@ -50,6 +57,13 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   showAddProductModal: boolean;
   public bsModalRef: BsModalRef;
   public isSmallDevice = this.sharedDataService.getIsSmallDevice();
+  public isDiscrepancyLoaded = false;
+  public editingDamagedForItemId;
+  public damagedQuantity = 0;
+
+  @ViewChild('discrepancies') discrepanciesTab;
+  sendDiscrepancyReport: any = 'true';
+  selectedCategoryLabelFilter: string;
 
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
@@ -66,8 +80,8 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     this.userProfile = this._userProfileService.getProfileData();
     this._route.data.subscribe((data: any) => {
         this.order = data.stockOrderDetails[0];
-        this.getNotReceivedStockOrderLineItems();
-        this.getReceivedStockOrderLineItems();
+        this.refreshData();
+        this.getBackOrderedStockOrderLineItems();
       },
       error => {
         console.log('error', error)
@@ -93,7 +107,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
 
   getReceivedStockOrderLineItems(limit?: number, skip?: number, productModelIds?: Array<string>) {
     if (!(limit && skip)) {
-      limit = this.lineItemsLimitPerPage || 10;
+      limit = this.lineItemsLimitPerPage || 100;
       skip = 0;
     }
     if ((productModelIds !== undefined && productModelIds !== null) && (!productModelIds && !productModelIds.length)) {
@@ -108,9 +122,16 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       }
     };
     if (productModelIds && productModelIds.length) {
+      // Remove filter in case of search
+      this.selectedCategoryLabelFilter = undefined;
       whereFilter['productModelId'] = {
         inq: productModelIds
       };
+    }
+    else if (this.selectedCategoryLabelFilter) {
+      whereFilter['categoryModelName'] = {
+        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
+      }
     }
     const filter: any = {
       where: whereFilter,
@@ -135,8 +156,13 @@ export class ReceiveComponent implements OnInit, OnDestroy {
         gt: 0
       }
     };
-    if (productModelIds && productModelIds.length)
+    if (productModelIds && productModelIds.length) {
       countFilter['productModelId'] = {inq: productModelIds};
+    } else if (this.selectedCategoryLabelFilter) {
+      countFilter['categoryModelName'] = {
+        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
+      }
+    }
     this.loading = true;
     let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
@@ -153,12 +179,17 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       err => {
         this.loading = false;
         console.log('error', err);
+
+        // Clear selected filter if api call fails
+        if (this.selectedCategoryLabelFilter) {
+          this.selectedCategoryLabelFilter = undefined;
+        }
       });
   }
 
   getNotReceivedStockOrderLineItems(limit?: number, skip?: number, productModelIds?: Array<string>) {
     if (!(limit && skip)) {
-      limit = this.lineItemsLimitPerPage || 10;
+      limit = this.lineItemsLimitPerPage || 100;
       skip = 0;
     }
     if ((productModelIds !== undefined && productModelIds !== null) && (!productModelIds && !productModelIds.length)) {
@@ -171,10 +202,18 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       received: false
     };
     if (productModelIds && productModelIds.length) {
+      // Remove filter in case of search
+      this.selectedCategoryLabelFilter = undefined;
       whereFilter['productModelId'] = {
         inq: productModelIds
       };
     }
+    else if (this.selectedCategoryLabelFilter) {
+      whereFilter['categoryModelName'] = {
+        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
+      }
+    }
+
     let filter = {
       where: whereFilter,
       include: [
@@ -196,8 +235,13 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       fulfilled: true,
       received: false
     };
-    if (productModelIds && productModelIds.length)
+    if (productModelIds && productModelIds.length) {
       countFilter['productModelId'] = {inq: productModelIds};
+    } else if (this.selectedCategoryLabelFilter) {
+      countFilter['categoryModelName'] = {
+        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
+      }
+    }
     this.loading = true;
     let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
@@ -218,13 +262,102 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       err => {
         this.loading = false;
         console.log('error', err);
+
+        // Clear selected filter if api call fails
+        if (this.selectedCategoryLabelFilter) {
+          this.selectedCategoryLabelFilter = undefined;
+        }
       });
+  }
+
+
+  getBackOrderedStockOrderLineItems(limit?: number, skip?: number) {
+    if (!(limit && skip)) {
+      limit = this.lineItemsLimitPerPage || 100;
+      skip = 0;
+    }
+    let sortOrder = this.sortAscending ? 1 : 0;
+    let filter = {
+      limit: limit,
+      skip: skip,
+      order: {
+        'categoryModelName': sortOrder,
+        [this.sortColumn]: sortOrder
+      },
+      backorderedOnly: true,
+      where: {
+        categoryModelName: this.selectedCategoryLabelFilter ?`^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`: undefined,
+      }
+    };
+    this.loading = true;
+
+
+    let fetchLineItems = this.orgModelApi.getDiscrepancyOrBackOrderedLineItems(this.userProfile.orgModelId, this.order.id , filter);
+    fetchLineItems.subscribe((data: any) => {
+        this.loading = false;
+        this.currentPageBackOrdered = (skip / this.lineItemsLimitPerPage) + 1;
+        this.totalBackOrderedLineItems = data.count;
+        for (var i = 0; i < data.data.length; i++) {
+          data.data[i].isCollapsed = true;
+        }
+        this.backOrderedLineItems = data.data;
+      },
+      err => {
+        this.loading = false;
+        console.log('error', err);
+      });
+
+  }
+
+
+  getDiscrepanciesForOrder(limit?: number, skip?: number) {
+    if (!(limit && skip)) {
+      limit = this.lineItemsLimitPerPage || 100;
+      skip = 0;
+    }
+    let sortOrder = this.sortAscending ? 1 : 0;
+    let filter = {
+      limit: limit,
+      skip: skip,
+      order: {
+        'categoryModelName': sortOrder,
+        [this.sortColumn]: sortOrder
+      },
+      backorderedOnly: false,
+      where: {
+        categoryModelName: this.selectedCategoryLabelFilter ?`^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`: undefined,
+      }
+    };
+    this.loading = true;
+
+
+    let fetchLineItems = this.orgModelApi.getDiscrepancyOrBackOrderedLineItems(this.userProfile.orgModelId, this.order.id,
+      filter);
+    fetchLineItems.subscribe((data: any) => {
+        this.loading = false;
+        this.currentPageDiscrepancies = (skip / this.lineItemsLimitPerPage) + 1;
+        this.totalDiscrepanciesLineItems = data.count;
+        for (var i = 0; i < data.data.length; i++) {
+          data.data[i].isCollapsed = true;
+        }
+        this.discrepancyLineItems = data.data;
+        this.discrepancyLineItems.forEach(lineItem => lineItem.id = lineItem._id);
+        this.isDiscrepancyLoaded = true;
+        setTimeout(() => this.discrepanciesTab.nativeElement.scrollIntoView({ behavior: 'smooth' }));
+      },
+      err => {
+        this.loading = false;
+        console.log('error', err);
+      });
+
+
   }
 
   searchAndIncrementProduct(sku?: string, force: boolean = false) {
     this.discrepancyModal.hide()
     this.loading = true;
     this.searchSKUFocused = false;
+    this.selectedCategoryLabelFilter = undefined;
     this.orgModelApi.scanBarcodeStockOrder(this.userProfile.orgModelId,
       'receive',
       sku,
@@ -283,6 +416,9 @@ export class ReceiveComponent implements OnInit, OnDestroy {
         this.receivedLineItems = [];
         this.totalReceivedLineItems = 0;
         this.currentPageReceived = 1;
+        this.backOrderedLineItems = [];
+        this.totalBackOrderedLineItems = 0;
+        this.currentPageBackOrdered = 1;
       }
     })
   }
@@ -300,8 +436,12 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     }
     this.orgModelApi.updateAllStockOrderLineItemModels(this.userProfile.orgModelId, this.order.id, lineItemsIDs, data)
       .subscribe((res: any) => {
-          this.getReceivedStockOrderLineItems();
-          this.getNotReceivedStockOrderLineItems();
+        if (data.damagedQuantity) {
+          this.editingDamagedForItemId = undefined;
+          this.getDiscrepanciesForOrder(this.lineItemsLimitPerPage, (this.currentPageDiscrepancies - 1) * this.lineItemsLimitPerPage)
+        } else {
+          this.refreshData();
+        }
           console.log('approved', res);
           this.toastr.success('Row Updated');
         },
@@ -340,8 +480,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
           this.order = data[0];
           //fetch line items only if the report status changes from executing to generated
           if (this.order.state !== previousState) {
-            this.getNotReceivedStockOrderLineItems();
-            this.getReceivedStockOrderLineItems();
+            this.refreshData();
           }
           this.loading = false;
         },
@@ -359,7 +498,8 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       this.creatingPurchaseOrderVend = true;
       this.orgModelApi.receiveConsignment(
         this.userProfile.orgModelId,
-        this.order.id
+        this.order.id,
+        this.totalDiscrepanciesLineItems > 0 && this.sendDiscrepancyReport === 'true'
       ).subscribe(recieveRequest => {
         this.toastr.info('Receiving consignment...');
         this._router.navigate(['/orders/stock-orders']);
@@ -367,6 +507,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
         this.waitForRecieveWorker(recieveRequest.callId);
       }, error => {
         this.loading = false;
+        this.creatingPurchaseOrderVend = false;
         this.toastr.error('Error in receiving order');
       });
     }
@@ -419,9 +560,9 @@ export class ReceiveComponent implements OnInit, OnDestroy {
    * search bar
    */
   changeScanMode() {
-    this.getNotReceivedStockOrderLineItems();
-    this.getReceivedStockOrderLineItems();
+    this.refreshLineItems();
     this.searchSKUText = ''
+    this.selectedCategoryLabelFilter = undefined;
     if (this.enableBarcode) {
       this.searchSKUFocused = true;
     }
@@ -457,6 +598,46 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   keyUpEvent(event, searchSKUText) {
     if (event.keyCode == '13' && !this.enableBarcode && searchSKUText !== '') {
       this.searchProductBySku(searchSKUText)
+    }
+  }
+
+  refreshData() {
+    this.getReceivedStockOrderLineItems(this.lineItemsLimitPerPage, (this.currentPageReceived - 1 ) * this.lineItemsLimitPerPage);
+    this.getNotReceivedStockOrderLineItems(this.lineItemsLimitPerPage, (this.currentPageNotReceived - 1 ) * this.lineItemsLimitPerPage);
+    if (this.isDiscrepancyLoaded) {
+      this.isDiscrepancyLoaded = false;
+    }
+  }
+
+  saveDamaged(lineItem: any) {
+    this.updateLineItems(lineItem, {
+      damagedQuantity: this.damagedQuantity
+    })
+  }
+
+  decrementDamagedQty() {
+    let resultantQty = this.damagedQuantity - 1;
+    if (resultantQty < 0) {
+      resultantQty = 0;
+    }
+    this.damagedQuantity = resultantQty;
+  }
+
+  submitButton() {
+    if (!this.isDiscrepancyLoaded) {
+      this.getDiscrepanciesForOrder()
+    } else {
+      this.receiveConsignment();
+    }
+  }
+
+  refreshLineItems() {
+    this.getNotReceivedStockOrderLineItems();
+    this.getReceivedStockOrderLineItems();
+    this.getBackOrderedStockOrderLineItems();
+    if (this.isDiscrepancyLoaded) {
+      this.editingDamagedForItemId = undefined;
+      this.getDiscrepanciesForOrder();
     }
   }
 }

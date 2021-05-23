@@ -1,4 +1,5 @@
 'use strict';
+
 var aws = require('aws-sdk');
 var Promise = require('bluebird');
 var request = require('request-promise');
@@ -11,6 +12,7 @@ const papaparse = require('papaparse');
 const fs = Promise.promisifyAll(require('fs'));
 var workerUtils = require('../utils/workers');
 const REPORT_STATES = require('../utils/constants').REPORT_STATES;
+const ROLES = require('../utils/constants').ROLES;
 const multiparty = require("multiparty");
 const excel = require('excel-stream');
 const vendUtils = require('../utils/vend');
@@ -417,54 +419,74 @@ module.exports = function (ReportModel) {
             });
     };
 
-    ReportModel.receiveConsignment = function (orgModelId, reportModelId, res, options) {
+    ReportModel.receiveConsignment = function (orgModelId, reportModelId, sendEmail, res, options) {
         logger.debug({
             message: 'Will change stock order state to submitting receivals',
             reportModelId,
+            sendEmail,
             functionName: 'receiveConsignment',
             options,
         });
-        return ReportModel.updateAll({
-            id: reportModelId
-        }, {
-            state: REPORT_STATES.SUBMITTING_RECEIVALS
-        })
-            .then(function (response) {
-                logger.debug({
-                    message: 'Changed stock order state to submitting receivals, will initiate worker to receive order in Vend',
-                    response,
-                    reportModelId,
-                    functionName: 'receiveConsignment',
-                    options,
-                });
-                var payload = {
-                    orgModelId: orgModelId,
-                    reportModelId: reportModelId,
-                    loopbackAccessToken: options.accessToken,
-                    op: 'receiveConsignment',
-                    eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
-                    callId: options.accessToken.userId,
-                };
-                return workerUtils.sendPayLoad(payload);
+        function sendConsignmentToWorker() {
+            return ReportModel.updateAll({
+                id: reportModelId
+            }, {
+                state: REPORT_STATES.SUBMITTING_RECEIVALS
             })
-            .then(function (response) {
-                logger.debug({
-                    message: 'Sent receiveConsignment operation to worker',
-                    options,
-                    response,
-                    functionName: 'receiveConsignment'
+                .then(function (response) {
+                    logger.debug({
+                        message: 'Changed stock order state to submitting receivals, will initiate worker to receive order in Vend',
+                        response,
+                        reportModelId,
+                        functionName: 'receiveConsignment',
+                        options,
+                    });
+                    var payload = {
+                        orgModelId: orgModelId,
+                        reportModelId: reportModelId,
+                        loopbackAccessToken: options.accessToken,
+                        op: 'receiveConsignment',
+                        eventType: workerUtils.messageFor.MESSAGE_FOR_CLIENT,
+                        callId: options.accessToken.userId,
+                    };
+                    return workerUtils.sendPayLoad(payload);
+                })
+                .then(function (response) {
+                    logger.debug({
+                        message: 'Sent receiveConsignment operation to worker',
+                        options,
+                        response,
+                        functionName: 'receiveConsignment'
+                    });
+                    return Promise.resolve('Stock order generation initiated');
+                })
+                .catch(function (error) {
+                    logger.error({
+                        message: 'Could not send receiveConsignment to worker',
+                        options,
+                        error,
+                        functionName: 'receiveConsignment'
+                    });
+                    return Promise.reject('Error in creating stock order');
                 });
-                return Promise.resolve('Stock order generation initiated');
-            })
-            .catch(function (error) {
-                logger.error({
-                    message: 'Could not send receiveConsignment to worker',
-                    options,
-                    error,
-                    functionName: 'receiveConsignment'
+        }
+
+        if (sendEmail) {
+            return ReportModel.sendDiscrepanciesAsEmail(orgModelId, reportModelId, options)
+                .catch(function (e) {
+                    logger.error({
+                        message: 'Cannot send Email,Possible that no discrepancy user found',
+                        e,
+                        functionName: 'receiveConsignment',
+                    });
+                    return Promise.resolve();
+                })
+                .then(function (){
+                    return sendConsignmentToWorker();
                 });
-                return Promise.reject('Error in creating stock order');
-            });
+        } else {
+            return sendConsignmentToWorker();
+        }
     };
 
     ReportModel.generateStockOrderVend = function (orgModelId, storeModelId, supplierModelId, name, warehouseModelId, res, options) {
@@ -1371,8 +1393,7 @@ module.exports = function (ReportModel) {
                             pushToVend = true;
                             return presentLineItems[0].save();
                         }
-                    }
-                    else if (REPORT_STATES.RECEIVING_IN_PROCESS === reportModel.state) {
+                    } else if (REPORT_STATES.RECEIVING_IN_PROCESS === reportModel.state) {
                         if (presentLineItems[0].fulfilled) {
                             // do nothing
                             logger.debug({
@@ -1542,7 +1563,7 @@ module.exports = function (ReportModel) {
                     orderQuantity = undefined;
                     useRow = true;
                 }
-                var categoryName = product.categoryModel && product.categoryModel.length ? product.categoryModel[0].name : 'No Category';
+                var categoryName = product.categoryModel ? product.categoryModel.name : 'No Category';
                 row = {
                     productModelId: product.id,
                     productModelName: product.name, //need for sorting
@@ -1559,8 +1580,8 @@ module.exports = function (ReportModel) {
                     categoryModelId: product.categoryModelId,
                     binLocation: product.binLocation,
                     categoryModelName: categoryName,  //need for sorting
-                    approved: false,
-                    fulfilled: false,
+                    approved: null,
+                    fulfilled: null,
                     received: false,
                     reportModelId: reportModelId,
                     userModelId: options.accessToken.userId,
@@ -1647,6 +1668,611 @@ module.exports = function (ReportModel) {
                 });
                 return Promise.reject('Could not soft delete report from db');
             });
-    }
+    };
 
+    /**
+     * getDiscrepancyReason
+     *     F   R   Discrepancy   Damaged
+     * (1) 10  15  OD(5/15)       0
+     * (2) 10  8   Missing(2/10)  0
+     *
+     * (3) 10  15  OD(5/15)       2     - 5 Over Received and 2 more received but damaged
+     * (4) 10  8   Missing(1/10)  1/10  - Underdelivered with 1 missing & 1 Damaged
+     * (5) 10  8   -              3     - originally OverDelivered but damaged in shipping
+     * @param lineItem - List Item
+     */
+    ReportModel.getDiscrepancyReason = function (lineItem) {
+        // Damaged qty or 0
+        const damagedQuantity = (lineItem.damagedQuantity || 0);
+        const realDiffInQty = lineItem.fulfilledQuantity - lineItem.receivedQuantity;
+        const reason = [];
+
+        // No Discrepancy Case
+        if (lineItem.fulfilledQuantity === lineItem.receivedQuantity && damagedQuantity === 0) {
+            return [];
+        }
+
+        // Original Difference - Damaged Qty Reported - used to check for Case (5)
+        const discrepancyQty = Math.abs(realDiffInQty) - damagedQuantity;
+        // OverDelivered case (1) & (3)
+        if (lineItem.fulfilledQuantity < lineItem.receivedQuantity) {
+            reason.push(`Over Delivered(${Math.abs(realDiffInQty)}/${lineItem.receivedQuantity})`);
+            if (damagedQuantity) {
+                reason.push(`Damaged(${damagedQuantity})`);
+            }
+            // Underdelivered case (2) & (4)
+        } else if (lineItem.fulfilledQuantity > lineItem.receivedQuantity && discrepancyQty >= 0) {
+            // Dont show if Missing 0
+            if (discrepancyQty) {
+                reason.push(`Missing(${discrepancyQty}/${lineItem.fulfilledQuantity})`);
+            }
+            if (damagedQuantity) {
+                reason.push(`Damaged(${damagedQuantity}/${lineItem.fulfilledQuantity})`);
+            }
+            // Case(5)
+        } else {
+            if (damagedQuantity) {
+                reason.push(`Damaged(${damagedQuantity})`);
+            }
+        }
+        return reason;
+    };
+
+    ReportModel.getDiscrepancyOrBackOrderedLineItems = function (id, reportId, filters) {
+        var db = ReportModel.getDataSource();
+        // Get the filters
+        const categoryModelNameFilter = filters.where? (filters.where.categoryModelName || false): false;
+        const binLocationFilter = filters.where? (filters.where.binLocation || false): false;
+        const limit = filters.limit || 10;
+        const skip = filters.skip || 0;
+        const order = filters.order || {productModelSku: 1};
+        const damagedOnly = filters.damagedOnly || false;
+        const underDelivered = filters.underDelivered || false;
+        const overDelivered = filters.overDelivered || false;
+        const showBackOrderedOnly = filters.backorderedOnly || false;
+
+        const willFullDiscrepancyLoad = [
+            damagedOnly,
+            underDelivered,
+            overDelivered,
+            showBackOrderedOnly,
+            categoryModelNameFilter,
+            binLocationFilter
+        ].every(function (value) {
+            return value === false;
+        });
+
+        // Real data resides within "data"
+        Object.keys(order).forEach(key => {
+            // Rename the key
+            order['data.' + key] = order[key];
+            delete order[key];
+        });
+
+        let matches;
+        // For BackOrdered fulfilledQuantity < orderQuantity
+        if (showBackOrderedOnly) {
+            matches = {
+                $lt: ['$fulfilledQuantity', '$orderQuantity']
+            };
+        } else {
+            if (overDelivered) {
+                matches = {
+                    $lt: [
+                        '$fulfilledQuantity', '$receivedQuantity'
+                    ]
+                };
+            } else if (underDelivered) {
+                matches = {
+                    $lt: [
+                        '$receivedQuantity', '$fulfilledQuantity'
+                    ]
+                };
+            } else if (damagedOnly) {
+                matches = {
+                    $gt: [
+                        '$damagedQuantity', 0
+                    ]
+                };
+            } else {
+                matches = {
+                    $ne: [
+                        '$fulfilledQuantity',
+                        '$receivedQuantity'
+                    ]
+                };
+            }
+        }
+
+        let aggregationQuery = [
+            // Filter for this report id
+            {
+                $match: Object.assign(
+                    {},
+                    {
+                        reportModelId: db.ObjectID(reportId),
+                        approved: true,
+                    },
+                    categoryModelNameFilter ?
+                        { categoryModelName: { $regex: categoryModelNameFilter} }:
+                        {},
+                    binLocationFilter ?
+                        { binLocation: { $regex: binLocationFilter }}:
+                        {}
+                    )
+            },
+            // Add a field that is true if orderQyuantity & receivedQuantity not equal
+            {
+                $project: {
+                    matches: matches,
+                    data: '$$ROOT',
+                }
+            },
+            // Filter all the data where matches is true
+            {
+                $match: {matches: true}
+            },
+            // Count the number of rows
+            {
+                $group: {
+                    _id: null,
+                    data: {$push: '$data'},
+                    count: {$sum: 1}
+                },
+            },
+            {$unwind: '$data'},
+            // Sort & paginate data
+            {
+                $sort: order
+            }];
+
+        const paginationQuery = [{
+            $limit: limit + skip
+        },
+            {
+                $skip: skip
+            }];
+
+        if (limit > 0) {
+            aggregationQuery = aggregationQuery.concat(paginationQuery);
+        }
+        const foreignRelations = [
+            // Fetch Foreign Relations
+            {
+                $lookup: {
+                    'from': 'ProductModel',
+                    'localField': 'data.productModelId',
+                    'foreignField': '_id',
+                    'as': 'data.productModel'
+                }
+            },
+            {
+                $unwind: '$data.productModel'
+            },
+            {
+                $lookup: {
+                    'from': 'CommentModel',
+                    'localField': 'data._id',
+                    'foreignField': 'stockOrderLineitemModelId',
+                    'as': 'data.commentModels'
+                }
+            },
+        ];
+
+        return db.connector.collection('StockOrderLineitemModel').aggregate(aggregationQuery.concat(foreignRelations))
+            .toArray()
+            .then(function (records) {
+                const data = records.map(function (record) {
+                    const reason = ReportModel.getDiscrepancyReason(record.data);
+                    return Object.assign({}, record.data, {reason});
+                });
+                const count = records.length > 0 ? records[0].count : 0;
+
+                return Promise.resolve({data, count});
+            })
+            .then(function (discrepancies) {
+                if (willFullDiscrepancyLoad) {
+                    return ReportModel.updateAll({
+                        id: reportId,
+                        state: {
+                            neq: REPORT_STATES.COMPLETE
+                        }
+                    }, {
+                        discrepancies: discrepancies.count
+                    })
+                        .then(function () {
+                            return Promise.resolve(discrepancies);
+                        });
+                } else {
+                    return Promise.resolve(discrepancies);
+                }
+            });
+
+    };
+
+    ReportModel.sendDiscrepanciesAsEmail = function (id, reportModelId, options) {
+        logger.debug({
+            message: 'Parameters Received for sending Discrepancies report as mail',
+            functionName: 'sendDiscrepanciesAsEmail',
+            options
+        });
+        var nodemailer = require('nodemailer');
+        const papaparse = require('papaparse');
+
+        aws.config.region = 'us-west-2';
+        var transporter = nodemailer.createTransport({
+            SES: new aws.SES({
+                apiVersion: '2010-12-01'
+            })
+        });
+        var report, csvArray = [], supplier, emailSubject, htmlForPdf,
+            csvReport, totalOrdered = 0, totalFulfilled = 0, totalReceived = 0, toEmailArray = [];
+        return Promise.resolve()
+            .then(function () {
+                return ReportModel.findById(reportModelId, {
+                    include: ['userModel', 'storeModel', 'orgModel', {
+                        relation: 'supplierModel',
+                        scope: {
+                            include: {
+                                relation: 'supplierStoreMappings'
+                            }
+                        }
+                    }]
+                });
+            })
+            .then(function (reportModelInstance) {
+                report = reportModelInstance;
+                const supplierInstance = reportModelInstance.supplierModel();
+                supplier = supplierInstance;
+                var supplierStoreMappings = supplierInstance.supplierStoreMappings();
+                logger.debug({
+                    message: 'Found this supplier',
+                    supplier: supplierInstance,
+                    supplierStoreMappings,
+                    store: report.storeModel(),
+                    orgName: report.orgModel().name,
+                    functionName: 'sendDiscrepanciesAsEmail',
+                    options
+                });
+                var supplierStoreCode = '';
+                if (supplierStoreMappings.length) {
+                    var supplierStore = supplierStoreMappings.find(function (eachMapping) {
+                        return eachMapping.storeModelId.toString() === reportModelInstance.storeModelId.toString();
+                    });
+                    supplierStoreCode = supplierStore ? supplierStore.storeCode : '';
+                }
+                emailSubject = 'Discrepancies: Order #'+ report.name + ' ' + supplierStoreCode + '-' + report.storeModel().name + ' from ' + report.orgModel().name;
+                logger.debug({
+                    functionName: 'sendDiscrepanciesAsEmail',
+                    message: 'Will look for discrepancy Manager roleId',
+                    options
+                });
+
+                return ReportModel.app.models.Role.findOne({
+                    where: {
+                        name: ROLES.DISCREPANCY_MANAGER
+                    }
+                });
+            })
+            .then(function (role) {
+                logger.debug({
+                    functionName: 'sendDiscrepanciesAsEmail',
+                    message: 'Found Role Id, will find users associated with store',
+                    role,
+                    options
+                });
+                return ReportModel.app.models.RoleMapping.find({
+                    where: {
+                        roleId: role.id,
+                        storeModelIds: report.storeModelId
+                    },
+                    fields: ['principalId'],
+                    include: {
+                        relation: 'principal',
+                        scope: {
+                            fields: ['email']
+                        }
+                    }
+                });
+            })
+            .then(function (roleMappings) {
+                logger.debug({
+                    functionName: 'sendDiscrepanciesAsEmail',
+                    message: 'Found RoleMappings, will add email to array',
+                    roleMappings,
+                    options
+                });
+                roleMappings.forEach(function (roleMapping) {
+                    toEmailArray.push(roleMapping.principal().email);
+                });
+                if (toEmailArray.length === 0) {
+                    return Promise.resolve('No Discrepancy User added for this store');
+                }
+                return ReportModel.getDiscrepancyOrBackOrderedLineItems(id, reportModelId, {
+                    backorderedOnly: false,
+                    limit: 0
+                });
+            })
+            .then(function (discrepancies) {
+                return Promise.resolve(discrepancies.data);
+            })
+            .then(function (lineItems) {
+                logger.debug({
+                    functionName: 'sendDiscrepanciesAsEmail',
+                    message: 'Found Discrepancy items',
+                    lineItemsSample: lineItems[0],
+                    options
+                });
+                htmlForPdf = '<html>' +
+                    '<head>' +
+                    '<style>' +
+                    'table {' +
+                    '  font-family: arial, sans-serif;' +
+                    '  border-collapse: collapse;' +
+                    ' font-size: 8px;' +
+                    '}' +
+                    'td, th {' +
+                    '  border: 1px solid #dddddd;' +
+                    '  text-align: left;' +
+                    '  padding: 8px;' +
+                    '}' +
+                    '</style>' +
+                    '</head>' +
+                    '<body>';
+                htmlForPdf += '<table>' +
+                    '<tr>' +
+                    '<th>SKU</th>' +
+                    '<th>Product</th>' +
+                    '<th>Ordered</th>' +
+                    '<th>Fulfilled</th>' +
+                    '<th>Received</th>' +
+                    '<th>Supplier Code</th>' +
+                    '<th>Reason</th>' +
+                    '</tr>';
+                htmlForPdf += '<h5>' + emailSubject + '</h5>';
+                logger.debug({
+                    functionName: 'sendDiscrepancyAsEmail',
+                    lineItems,
+                    message: 'Found ' + lineItems.length + 'discrepancy line items for the report, will convert to csv',
+                    options
+                });
+
+                for (var i = 0; i<lineItems.length; i++) {
+                    if (lineItems[i].orderQuantity>0) {
+                        var supplierCode = lineItems[i].productModel.supplierCode;
+                        let comments = lineItems[i].commentModels ? _.pluck(lineItems[i].commentModels, 'comment').join('\n*') : '';
+                        if (comments) {
+                            comments = '*' + comments;
+                        }
+                        comments = comments || '';
+                        csvArray.push({
+                            'SKU': lineItems[i].productModel.sku,
+                            'Product': lineItems[i].productModel.name,
+                            'Ordered': lineItems[i].orderQuantity,
+                            'Fulfilled': lineItems[i].fulfilledQuantity,
+                            'Received': lineItems[i].receivedQuantity,
+                            'Supplier Code': supplierCode,
+                            'Reason': lineItems[i].reason.join(',\n'),
+                            'Comments': comments
+                        });
+                        htmlForPdf += '<tr>' +
+                            '<td>' + lineItems[i].productModel.sku + '</td>' +
+                            '<td>' + lineItems[i].productModel.name + '</td>' +
+                            '<td>' + lineItems[i].orderQuantity + '</td>' +
+                            '<td>' + lineItems[i].fulfilledQuantity + '</td>' +
+                            '<td>' + lineItems[i].receivedQuantity + '</td>' +
+                            '<td>' + supplierCode + '</td>' +
+                            '<td>' + lineItems[i].reason.join(',\n') + '</td>' +
+                            '<td>' + (comments) + '</td>' +
+                            '</tr>';
+
+                        totalOrdered+=lineItems[i].orderQuantity;
+                        totalFulfilled+=lineItems[i].fulfilledQuantity;
+                        totalReceived+=lineItems[i].receivedQuantity;
+                    }
+                }
+                htmlForPdf += '</table>';
+                htmlForPdf += '</body></html>';
+                csvReport = papaparse.unparse(csvArray);
+                return createPDFFromHTML(htmlForPdf);
+            })
+            .then(function (pdfAttachment) {
+                var emailOptions = {
+                    type: 'email',
+                    to: toEmailArray.toString(),
+                    subject: emailSubject,
+                    from: report.storeModel().name + '\<' + (ReportModel.app.get('sendReportsEmail') || process.env.SEND_REPORTS_EMAIL) + '>',
+                    mailer: transporter,
+                    text: 'Total Order Quantity: ' + totalOrdered + '\n Total Fulfilled: ' + totalFulfilled + '\n Total Received: ' + totalReceived,
+                    attachments: [
+                        {
+                            filename: report.name + '-discrepancies.csv',
+                            content: csvReport,
+                            contentType: 'text/comma-separated-values'
+                        },
+                        {
+                            filename: report.name + '-discrepancies.pdf',
+                            content: pdfAttachment,
+                            contentType: 'application/pdf'
+                        }
+                    ]
+                };
+                return transporter.sendMail(emailOptions);
+            })
+            .then(function (mailSentDetails) {
+                logger.debug({
+                    message: 'Sent email successfully',
+                    response: mailSentDetails.messageId,
+                    functionName: 'sendDiscrepancyAsEmail',
+                    options
+                });
+            })
+            .catch(function (error) {
+                logger.error({
+                    error: error,
+                    functionName: 'sendDiscrepancyAsEmail',
+                    message: 'Unable to send E-mail',
+                    options
+                });
+                return Promise.reject('Unable to send E-mail');
+            });
+    };
+
+    ReportModel.fulfillAllLineItems = function(id, reportModelId) {
+        var db = ReportModel.getDataSource();
+        const bulk = db.connector.collection('StockOrderLineitemModel').initializeUnorderedBulkOp();
+        return ReportModel.app.models.StockOrderLineitemModel.find({
+                where: {
+                    reportModelId: reportModelId,
+                    approved: true,
+                }
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Cannot find all line items in this report',
+                    error,
+                    functionName: 'fulfillAllLineItems'
+                });
+                return Promise.reject('Cannot find all line items')
+            })
+            .then(function (lineItems){
+                return Promise.map(lineItems, function (lineItem){
+                    bulk.find({
+                        _id: db.ObjectID(lineItem.id)
+                    })
+                        .update({
+                        $set: {
+                            fulfilledQuantity: lineItem.orderQuantity,
+                            fulfilled: true
+                        }
+                    });
+                });
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Cannot update each lineItem',
+                    error,
+                    functionName: 'fulfillAllLineItems'
+                });
+                return Promise.reject('Cannot update each lineItem')
+            })
+            .then(function (){
+                logger.debug({
+                    message: 'Executing bulk update operation',
+                    functionName: 'fulfillAllLineItems'
+                })
+                return bulk.execute();
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Error Fulfilling all line items',
+                    error,
+                    functionName: 'fulfillAllLineItems'
+                });
+               return Promise.reject('Cannot fulfill all line items')
+            });
+    };
+
+
+    /**
+     * Returns category labels and their page numbers
+     * - Sort Line Items by category
+     * - Group line items by category
+     * - Get count for items in each category
+     * - get items limit from frontend
+     * - calculate page numbers for each category
+     * @param orgModelId
+     * @param reportModelId
+     * @param options
+     */
+    ReportModel.getReportAnchors = function (orgModelId, reportModelId) {
+
+        logger.info({
+            functionName: 'getReportAnchors',
+            message: 'Will return available category labels',
+            orgModelId,
+            reportModelId
+        });
+        const ObjectID = ReportModel.getDataSource().ObjectID;
+
+        const stockOrderLineItemsModelName = ReportModel.app.models.StockOrderLineitemModel.modelName;
+        const stockOrderLineItemCollection = ReportModel.getDataSource().connector.collection(stockOrderLineItemsModelName);
+
+        return ReportModel.findById(reportModelId)
+            .then(function (reportInstance) {
+                logger.info({
+                    functionName: 'getReportAnchors',
+                    message: 'Found reportModel Instance',
+                    orgModelId,
+                    reportModelId,
+                    reportInstance
+                });
+                const query = {};
+                const state = reportInstance.state;
+                if (state === REPORT_STATES.FULFILMENT_PENDING ||
+                    state === REPORT_STATES.FULFILMENT_IN_PROCESS ||
+                    state === REPORT_STATES.FULFILMENT_FAILURE
+                ) {
+                    query.approved = true;
+                }
+
+                if (state === REPORT_STATES.RECEIVING_PENDING ||
+                    state === REPORT_STATES.RECEIVING_IN_PROCESS ||
+                    state === REPORT_STATES.RECEIVING_FAILURE
+                ) {
+                    query.fulfilled = true;
+                }
+
+
+                if (state === REPORT_STATES.COMPLETE) {
+                    query.received = true;
+                }
+
+                logger.info({
+                    functionName: 'getReportAnchors',
+                    message: 'Computed Query for this report',
+                    orgModelId,
+                    reportModelId,
+                    query
+                });
+
+                const columnNameToUse = query.approved === true ?
+                    '$binLocation' :
+                    '$categoryModelName';
+
+                const aggregationQuery = [
+                    {
+                        $match: Object.assign(
+                            {},
+                            {
+                                // Match line items for this report
+                                reportModelId: ObjectID(reportModelId),
+                            },
+                            query
+                        )
+                    },
+                    {
+                        $project: {
+                            label: {
+                                $substr: [columnNameToUse, 0, 1]
+                            }
+                        }
+                    },
+                    {
+                        $group: {
+                            // $toUpper:  Treat 'A' and 'a' as 'A'
+                            _id: { $toUpper: '$label' },
+                        }
+                    },
+                    {
+                        $sort: {
+                            _id: 1
+                        }
+                    },
+                ];
+
+                return stockOrderLineItemCollection.aggregate(aggregationQuery)
+                    .toArray();
+            });
+    };
 };

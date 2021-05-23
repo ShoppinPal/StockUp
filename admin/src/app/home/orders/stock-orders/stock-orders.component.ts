@@ -41,11 +41,6 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
   public totalFulfillOrdersPages: number;
   public currentPageFulfillOrders: number = 1;
 
-  public completedOrders: Array<any>;
-  public totalCompletedOrders: number;
-  public totalCompletedOrdersPages: number;
-  public currentPageCompletedOrders: number = 1;
-
   public orderName: string;
   public stores: Array<any> = [];
   public suppliers: Array<any> = [];
@@ -110,8 +105,6 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
         orderIds.push(this.fulfillOrders[i].id);
       if (this.receiveOrders && this.receiveOrders[i])
         orderIds.push(this.receiveOrders[i].id);
-      if (this.completedOrders && this.completedOrders[i])
-        orderIds.push(this.completedOrders[i].id);
     }
     if(orderIds.length > 0) {
       this.orgModelApi.fetchOrderRowCounts(this.userProfile.orgModelId, orderIds)
@@ -135,12 +128,6 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
               });
               this.receiveOrders[i].totalRows = orderRowCount ? orderRowCount.fulfilledRows : 0;
             }
-            if (this.completedOrders && this.completedOrders[i]) {
-              let orderRowCount = rowCounts.find(eachRowCount => {
-                return eachRowCount.reportModelId === this.completedOrders[i].id;
-              });
-              this.completedOrders[i].totalRows = orderRowCount ? orderRowCount.receivedRows : 0;
-            }
           }
           this.changeDetector.detectChanges();
         },
@@ -163,9 +150,6 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
     }
     else if (orderType === 'fulfill') {
       fetchOrder = this._stockOrdersResolverService.fetchFulfillStockOrders;
-    }
-    else if (orderType === 'complete') {
-      fetchOrder = this._stockOrdersResolverService.fetchCompletedStockOrders;
     }
     else if (orderType === 'all') {
       fetchOrder = this._stockOrdersResolverService.resolve;
@@ -209,12 +193,6 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
       this.pendingReceiveOrdersCount = stockOrders.pendingReceiveOrdersCount;
       this.totalReceiveOrders = stockOrders.receiveOrdersCount;
       this.totalReceiveOrdersPages = this.totalReceiveOrders / this.ordersLimitPerPage;
-    }
-
-    if (stockOrders.completedOrders) {
-      this.completedOrders = stockOrders.completedOrders;
-      this.totalCompletedOrders = stockOrders.completedOrdersCount;
-      this.totalCompletedOrdersPages = this.totalCompletedOrders / this.ordersLimitPerPage;
     }
 
     this.fetchOrderRowCounts();

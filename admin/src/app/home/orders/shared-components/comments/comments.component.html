@@ -1,7 +1,7 @@
 <div *ngFor="let comment of comments">
   <div class="message">
     <div>
-      <small class="font-weight-bold">{{comment.userModel.name}}</small>
+      <small class="font-weight-bold">{{comment.userModel ? comment.userModel.name: ''}}</small>
       <small class="text-muted float-right mt-1">{{comment.createdAt | date: 'y-MM-dd, HH:mm'}}</small>
     </div>
     <small class="text-muted">{{comment.comment}}

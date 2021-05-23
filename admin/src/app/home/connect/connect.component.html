@@ -24,7 +24,7 @@
           <button type="button" (click)="connect('msdynamics')" *ngIf="!integration.length" class="btn btn-primary">
             Connect
           </button>
-          <div *ngIf="!integration[0].isActive">
+          <div *ngIf="integration.length > 0 && !integration[0].isActive">
             <span class="text-danger"> Account Disconnected</span> <br/>
             <button type="button" (click)="connect('msdynamics')" class="btn btn-primary">
               Reconnect

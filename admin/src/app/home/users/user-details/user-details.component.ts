@@ -1,11 +1,22 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {OrgModelApi} from "../../../shared/lb-sdk/services/custom/OrgModel";
+import {OrgModelApi} from '../../../shared/lb-sdk';
 import {ToastrService} from 'ngx-toastr';
-import {Observable, combineLatest} from 'rxjs';
-import {flatMap} from 'rxjs/operators';
-import {UserProfileService} from "../../../shared/services/user-profile.service";
+import {UserProfileService} from '../../../shared/services/user-profile.service';
 import Utils from '../../../shared/constants/utils';
+
+interface UserDetailsData {
+  management: UserStoreTable;
+  discrepancy: UserStoreTable;
+}
+
+interface UserStoreTable {
+  list: Array<any>,
+  currentPage: number,
+  limit: number,
+  searchText: string,
+  skip: number
+}
 
 @Component({
   selector: 'app-user-details',
@@ -19,6 +30,23 @@ export class UserDetailsComponent implements OnInit {
   public user: any;
   public stores: Array<any>;
 
+  public data: UserDetailsData = {
+    management: {
+      list: [],
+      currentPage: 1,
+      limit: 20,
+      skip: 0,
+      searchText: ''
+    },
+    discrepancy: {
+      list: [],
+      currentPage: 1,
+      limit: 20,
+      skip: 0,
+      searchText: ''
+    }
+  }
+
   constructor(private orgModelApi: OrgModelApi,
               private _route: ActivatedRoute,
               private _router: Router,
@@ -31,10 +59,19 @@ export class UserDetailsComponent implements OnInit {
     this._route.data.subscribe((data: any) => {
         this.user = data.user.user;
         this.stores = data.user.stores;
-        for (var i = 0; i < this.user.storeModels.length; i++) {
-          let storeIndex = this.stores.findIndex(x => x.objectId === this.user.storeModels[i].objectId);
-          if (storeIndex !== -1)
+        this.data.management.list = this.stores;
+        this.data.discrepancy.list = this.stores;
+        for (let i = 0; i < this.user.storeModels.length; i++) {
+          const storeIndex = this.stores.findIndex(x => x.objectId === this.user.storeModels[i].objectId);
+          if (storeIndex !== -1) {
             this.stores[storeIndex].selected = true;
+          }
+        }
+        for (let i = 0; i < this.user.discrepancyManagerStoreModels.length; i++) {
+          const storeIndex = this.stores.findIndex(x => x.objectId === this.user.discrepancyManagerStoreModels[i].objectId);
+          if (storeIndex !== -1) {
+            this.stores[storeIndex].selectedForDiscrepancy = true;
+          }
         }
       },
       error => {
@@ -59,13 +96,13 @@ export class UserDetailsComponent implements OnInit {
 
   assignStoreModels() {
     this.loading = true;
-    let storeIds = [];
-    for (var i = 0; i < this.stores.length; i++) {
+    const storeIds = [];
+    for (let i = 0; i < this.stores.length; i++) {
       if (this.stores[i].selected) {
         storeIds.push(this.stores[i].objectId);
       }
     }
-    this.orgModelApi.assignStoreModelsToUser(this.userProfile.orgModelId, this.user.id, storeIds)
+    this.orgModelApi.assignStoreModelsToUser(this.userProfile.orgModelId, this.user.id, storeIds, "orderManager")
       .subscribe((data: any) => {
         this.loading = false;
         this.toastr.success('Saved store permissions for user');
@@ -96,4 +133,36 @@ export class UserDetailsComponent implements OnInit {
     });
   }
 
+  changePage(userStoreData: UserStoreTable, $event) {
+    userStoreData.currentPage = $event.page;
+    userStoreData.skip = ($event.page - 1) * userStoreData.limit;
+  }
+
+  searchStores(userStoreData: UserStoreTable) {
+    userStoreData.currentPage = 1;
+    userStoreData.list = this.getFilteredStores(userStoreData.searchText);
+  }
+
+  getFilteredStores(filterText) {
+    return this.stores.filter(store => store.name.toLowerCase().includes(filterText.toLowerCase()))
+  }
+
+  assignStoreModelsForDiscrepancy() {
+    this.loading = true;
+    const storeIds = [];
+    for (let i = 0; i < this.stores.length; i++) {
+      if (this.stores[i].selectedForDiscrepancy) {
+        storeIds.push(this.stores[i].objectId);
+      }
+    }
+    this.orgModelApi.assignStoreModelsToUser(this.userProfile.orgModelId, this.user.id, storeIds, 'discrepancyManager')
+      .subscribe((data: any) => {
+        this.loading = false;
+        this.toastr.success('Saved store permissions for user');
+      }, err => {
+        this.toastr.error('Error saving store permissions for user');
+        this.loading = false;
+        console.log('error', err);
+      });
+  }
 }

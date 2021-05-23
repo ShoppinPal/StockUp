@@ -5,6 +5,8 @@ import {UserProfileService} from '../../../../shared/services/user-profile.servi
 import {OrgModelApi} from "../../../../shared/lb-sdk/services/custom/OrgModel";
 import {constants} from '../../../../shared/constants/constants';
 import {FileImportsResolverService} from "../../../file-imports/services/file-imports-resolver.service";
+import {Router} from '@angular/router';
+import {ToastrService} from 'ngx-toastr';
 
 @Injectable()
 export class StockOrdersResolverService {
@@ -13,16 +15,20 @@ export class StockOrdersResolverService {
 
   constructor(private orgModelApi: OrgModelApi,
               private _userProfileService: UserProfileService,
+              private _router: Router,
               private _fileImportsResolverService: FileImportsResolverService) {
   }
 
   resolve = (): Observable<any> => {
     this.userProfile = this._userProfileService.getProfileData();
+    if (this.userProfile.storeModels.length === 0 ) {
+      this._router.navigate(['/reporting/historical-orders']);
+      return;
+    }
     return combineLatest(
       this.fetchGeneratedStockOrders(),
       this.fetchReceiveStockOrders(),
       this.fetchFulfillStockOrders(),
-      this.fetchCompletedStockOrders(),
       this.orgModelApi.getSupplierModels(this.userProfile.orgModelId),
       this.orgModelApi.getStoreModels(this.userProfile.orgModelId),
       this.orgModelApi.getOrderConfigModels(this.userProfile.orgModelId, {
@@ -41,11 +47,9 @@ export class StockOrdersResolverService {
             fulfillOrders: data[2].fulfillOrders,
             fulfillOrdersCount: data[2].fulfillOrdersCount,
             pendingFulfillOrdersCount: data[2].pendingFulfillOrdersCount,
-            completedOrders: data[3].completedOrders,
-            completedOrdersCount: data[3].completedOrdersCount,
-            suppliers: data[4],
-            stores: data[5],
-            orderConfigurations: data[6]
+            suppliers: data[3],
+            stores: data[4],
+            orderConfigurations: data[5]
           }
         },
         err => {
@@ -264,60 +268,6 @@ export class StockOrdersResolverService {
       },
       err => {
         console.log('Could not fetch fulfill stock orders', err);
-        return err;
-      }
-    ));
-
-  };
-
-  fetchCompletedStockOrders = (limit?: number, skip?: number): Observable<any> => {
-    limit = this.ordersMaxLimit || limit || 10;
-    skip = skip || 0;
-    let filter = {
-      limit: limit,
-      skip: skip,
-      order: 'createdAt DESC',
-      include: ['storeModel', 'userModel', 'supplierModel'],
-    };
-
-    let completeReportsCountFilter = {
-      or: [
-        {
-          storeModelId: {
-            inq: this.userProfile.storeModels.map(x => x.objectId)
-          }
-        },
-        {
-          deliverFromStoreModelId: {
-            inq: this.userProfile.storeModels.map(x => x.objectId)
-          }
-        }
-      ],
-      state: {
-        inq: [
-          constants.REPORT_STATES.COMPLETE
-        ]
-      }
-    };
-
-    let completeReportsFilter = {
-      ...filter, ...{
-        where: completeReportsCountFilter
-      }
-    };
-
-    let fetchOrders = combineLatest(
-      this.orgModelApi.getReportModels(this.userProfile.orgModelId, completeReportsFilter),
-      this.orgModelApi.countReportModels(this.userProfile.orgModelId, completeReportsCountFilter)
-    );
-    return fetchOrders.pipe(map((data: any) => {
-        return {
-          completedOrders: data[0],
-          completedOrdersCount: data[1].count
-        };
-      },
-      err => {
-        console.log('Could not fetch completed stock orders', err);
         return err;
       }
     ));

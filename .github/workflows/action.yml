@@ -1,0 +1,53 @@
+on:
+  push:
+    branches:
+      - master
+      - develop
+      - 'release/v[0-9].[0-9]+.[0-9]+'
+
+jobs:
+  build_dev:
+    name: dev
+    runs-on: ubuntu-latest
+    if:
+      contains('
+        refs/heads/develop
+        ', github.ref)
+    steps:
+    - uses: actions/checkout@v1
+    - name: build docker images
+      run: |
+        docker login -u ${{ secrets.USERNAME }} -p ${{ secrets.DOCKER_HUB_PASSWORD }} ${{ secrets.REPOSITORY_NAME }}
+        docker build -t shoppinpal.azurecr.io/stockup:dev-${GITHUB_SHA::8} .
+        docker push shoppinpal.azurecr.io/stockup:dev-${GITHUB_SHA::8}
+
+  build_release:
+    name: releases
+    runs-on: ubuntu-latest
+    if:
+      contains(
+        github.ref,
+        'refs/heads/release/v'
+        )
+    steps:
+    - uses: actions/checkout@v1
+    - name: build docker images
+      run: |
+        docker login -u ${{ secrets.USERNAME }} -p ${{ secrets.DOCKER_HUB_PASSWORD }} ${{ secrets.REPOSITORY_NAME }}
+        docker build -t shoppinpal.azurecr.io/stockup:staging-${GITHUB_SHA::8} .
+        docker push shoppinpal.azurecr.io/stockup:staging-${GITHUB_SHA::8}
+
+  build_prod:
+    name: production
+    runs-on: ubuntu-latest
+    if:
+      contains('
+      refs/heads/master
+      ',github.ref)
+    steps:
+    - uses: actions/checkout@v1
+    - name: build docker images
+      run: |
+        docker login -u ${{ secrets.USERNAME }} -p ${{ secrets.DOCKER_HUB_PASSWORD }} ${{ secrets.REPOSITORY_NAME }}
+        docker build -t shoppinpal.azurecr.io/stockup:production-${GITHUB_SHA::8} .
+        docker push shoppinpal.azurecr.io/stockup:production-${GITHUB_SHA::8}

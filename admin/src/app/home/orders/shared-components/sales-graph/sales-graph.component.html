@@ -1,0 +1,46 @@
+<ng-template #popTemplate>
+  <div *ngIf="order.stockUpReorderPoints" class="form-inline">
+    <div class="input-group">
+      <label for="graphNumberOfDays2">No. of Days: </label> &nbsp;
+      <input type="number" id="graphNumberOfDays2"
+             class="form-control-sm form-control text-left col-4"
+             (keyup)="changeGraphNumberOfDays($event, lineItem)"
+             [(ngModel)]="graphNumberOfDays"/>
+      <span class="input-group-append">
+                                  <button class="btn btn-info btn-sm text-white" type="submit"
+                                          (click)="fetchSalesHistory(lineItem)">
+                                    <i class="fa fa-search"></i>
+                                  </button>
+                                </span>
+    </div>
+  </div>
+  <div *ngIf="loadingGraph" class="graph-loading text-center">
+    <span>Loading Graph Data...</span></div>
+  <div class="chart-wrapper"
+       *ngIf="order.stockUpReorderPoints && !loadingGraph">
+    <canvas baseChart class="chart"
+            [datasets]="lineChartData"
+            [labels]="lineChartLabels"
+            [options]="lineChartOptions"
+            [colors]="lineChartColours"
+            [legend]="lineChartLegend"
+            [chartType]="lineChartType">
+    </canvas>
+  </div>
+  <div>
+    <code *ngIf="order.stockUpReorderPoints">Calculated Reorder Point :
+      {{lineItem.orderQuantity+lineItem.storeInventory}}</code>
+    <br/>
+    <small><code>Reorder Point - Store Inventory = Order Quantity</code></small>
+    <br/>
+    <code>({{lineItem.orderQuantity+lineItem.storeInventory}}) -
+      ({{lineItem.storeInventory}}) = {{lineItem.orderQuantity}}</code>
+  </div>
+</ng-template>
+<button type="button" class="btn btn-link no-padding"
+        [popover]="popTemplate"
+        popoverTitle="Why {{lineItem.originalOrderQuantity}} quantities?"
+        (onShown)="fetchSalesHistory(lineItem)"
+        [outsideClick]="true">
+  <i class="fa fa-info-circle" style="font-size: 15px"></i>
+</button>

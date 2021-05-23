@@ -1,0 +1,13 @@
+<div *ngIf="categoryLabels.length > 0" class="row badge-row">
+  <div class="title">Go to Category:</div>
+  <div
+    (click)="labelSelected(categoryLabel._id)"
+    *ngFor="let categoryLabel of categoryLabels"
+    [ngClass]="{'active': label === categoryLabel._id}"
+    class="badge"
+  >{{ categoryLabel._id }}</div>
+  <button (click)="labelSelected(undefined)" *ngIf="label !== undefined" class="btn btn-primary clear-button"
+          type="submit">
+    <i class="fa fa-close"></i> CLEAR
+  </button>
+</div>

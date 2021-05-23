@@ -753,6 +753,7 @@ module.exports = function (OrgModel) {
             accepts: [
                 {arg: 'id', type: 'string', required: true},
                 {arg: 'reportModelId', type: 'string', required: true},
+                {arg: 'sendEmail', type: 'boolean', required: true},
                 {arg: 'res', type: 'object', 'http': {source: 'res'}},
                 {arg: 'options', type: 'object', http: 'optionsFromRequest'}
             ],
@@ -760,8 +761,8 @@ module.exports = function (OrgModel) {
             returns: {arg: 'data', type: 'object', root: true}
         });
 
-        OrgModel.receiveConsignment = function (id, reportModelId, res, options) {
-            return OrgModel.app.models.ReportModel.receiveConsignment(id, reportModelId, res, options)
+        OrgModel.receiveConsignment = function (id, reportModelId, sendEmail, res, options) {
+            return OrgModel.app.models.ReportModel.receiveConsignment(id, reportModelId, sendEmail, res, options)
                 .catch(function (error) {
                     logger.error({
                         error,
@@ -1166,14 +1167,15 @@ module.exports = function (OrgModel) {
                 {arg: 'id', type: 'string', required: true},
                 {arg: 'userId', type: 'string', required: true},
                 {arg: 'storeIds', type: 'array', required: true},
+                {arg: 'role', type: 'string', required: true},
                 {arg: 'options', type: 'object', http: 'optionsFromRequest'}
             ],
             http: {path: '/:id/assignStoreModelsToUser', verb: 'POST'},
             returns: {arg: 'status', type: 'boolean', root: true}
         });
 
-        OrgModel.assignStoreModelsToUser = function (id, userId, storeIds, options) {
-            return OrgModel.app.models.UserModel.assignStoreModelsToUser(id, userId, storeIds, options)
+        OrgModel.assignStoreModelsToUser = function (id, userId, storeIds, role, options) {
+            return OrgModel.app.models.UserModel.assignStoreModelsToUser(id, userId, storeIds, role, options)
                 .catch(function (error) {
                     logger.error({
                         error,
@@ -1538,6 +1540,88 @@ module.exports = function (OrgModel) {
                         error,
                         options,
                         functionName: 'downloadMinMaxFile'
+                    });
+                    return Promise.reject(error);
+                });
+        };
+
+        OrgModel.remoteMethod('getDiscrepancyOrBackOrderedLineItems', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'reportId', type: 'string', required: true},
+                {arg: 'filters', type: 'object', required: true}
+            ],
+            http: {path: '/:id/getDiscrepancyOrBackOrderedLineItems', verb: 'GET'},
+            returns: {arg: 'result', type: 'array', root: true}
+        });
+
+        OrgModel.getDiscrepancyOrBackOrderedLineItems = function (id, reportId, filters) {
+            return OrgModel.app.models.ReportModel.getDiscrepancyOrBackOrderedLineItems(id, reportId, filters)
+                .catch(function (error) {
+                    logger.error({
+                        error,
+                        functionName: 'getDiscrepancyOrBackOrderedLineItems'
+                    });
+                    return Promise.reject(error);
+                });
+        };
+
+        OrgModel.remoteMethod('userProfile', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'userId', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/userProfile', verb: 'GET'},
+            returns: {arg: 'result', type: 'object', root: true}
+        });
+
+        OrgModel.userProfile = function (id, userId, options) {
+            return OrgModel.app.models.UserModel.profile(userId, options)
+                .catch(function (error) {
+                    logger.error({
+                        error,
+                        functionName: 'userProfile'
+                    });
+                    return Promise.reject(error);
+                });
+        };
+
+        OrgModel.remoteMethod('fulfillAllLineItems', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'reportModelId', type: 'string', required: true},
+            ],
+            http: {path: '/:id/fulfillAllLineItems', verb: 'POST'},
+            returns: {arg: 'result', type: 'object', root: true}
+        });
+
+        OrgModel.fulfillAllLineItems = function (id, reportModelId) {
+            return OrgModel.app.models.ReportModel.fulfillAllLineItems(id, reportModelId)
+                .catch(function (error) {
+                    logger.error({
+                        error,
+                        functionName: 'fulfillAllLineItems'
+                    });
+                    return Promise.reject(error);
+                });
+        };
+
+        OrgModel.remoteMethod('getReportAnchors', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'reportModelId', type: 'string', required: true},
+            ],
+            http: {path: '/:id/getReportAnchors', verb: 'GET'},
+            returns: {arg: 'categories', type: 'array', root: true}
+        });
+
+        OrgModel.getReportAnchors = function (id, reportId) {
+            return OrgModel.app.models.ReportModel.getReportAnchors(id, reportId)
+                .catch(function (error) {
+                    logger.error({
+                        error,
+                        functionName: 'getReportAnchors'
                     });
                     return Promise.reject(error);
                 });
