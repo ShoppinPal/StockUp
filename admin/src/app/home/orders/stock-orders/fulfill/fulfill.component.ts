@@ -122,10 +122,20 @@ export class FulfillComponent implements OnInit {
         inq: productModelIds
       };
     }
-    else if(this.selectedCategoryLabelFilter === 'NO BIN LOCATION') {
-      whereFilter['binLocation'] = {
-        exists: false
-      }
+    else if(this.selectedCategoryLabelFilter === 'NO$BIN$LOCATION') {
+      whereFilter['or'] = [
+        {
+          binLocation: {
+            exists: false
+          }
+        },
+        {
+          binLocation: null
+        },
+        {
+          binLocation: ''
+        },
+      ]
     }
     else if (this.selectedCategoryLabelFilter) {
       whereFilter['binLocation'] = this.selectedCategoryLabelFilter;
@@ -157,10 +167,20 @@ export class FulfillComponent implements OnInit {
     if (productModelIds && productModelIds.length) {
       countFilter['productModelId'] = {inq: productModelIds};
     }
-    else if (this.selectedCategoryLabelFilter  === 'NO BIN LOCATION') {
-      countFilter['binLocation'] = {
-        exists: false
-      }
+    else if (this.selectedCategoryLabelFilter  === 'NO$BIN$LOCATION') {
+      countFilter['or'] = [
+        {
+          binLocation: {
+            exists: false
+          }
+        },
+        {
+          binLocation: null
+        },
+        {
+          binLocation: ''
+        },
+      ]
     }
     else if (this.selectedCategoryLabelFilter) {
       countFilter['binLocation'] = this.selectedCategoryLabelFilter
@@ -208,10 +228,20 @@ export class FulfillComponent implements OnInit {
         inq: productModelIds
       };
     }
-    else if(this.selectedCategoryLabelFilter === 'NO BIN LOCATION') {
-      whereFilter['binLocation'] = {
-        exists: false
-      }
+    else if(this.selectedCategoryLabelFilter === 'NO$BIN$LOCATION') {
+      whereFilter['or'] = [
+        {
+          binLocation: {
+            exists: false
+          }
+        },
+        {
+          binLocation: null
+        },
+        {
+          binLocation: ''
+        },
+      ]
     }
     else if (this.selectedCategoryLabelFilter) {
       whereFilter['binLocation'] = this.selectedCategoryLabelFilter;
@@ -240,10 +270,20 @@ export class FulfillComponent implements OnInit {
     };
     if (productModelIds && productModelIds.length)
       countFilter['productModelId'] = {inq: productModelIds};
-    else if (this.selectedCategoryLabelFilter  === 'NO BIN LOCATION') {
-      countFilter['binLocation'] = {
-        exists: false
-      }
+    else if (this.selectedCategoryLabelFilter  === 'NO$BIN$LOCATION') {
+      countFilter['or'] = [
+        {
+          binLocation: {
+            exists: false
+          }
+        },
+        {
+          binLocation: null
+        },
+        {
+          binLocation: ''
+        },
+      ]
     }
     else if (this.selectedCategoryLabelFilter) {
       countFilter['binLocation'] = this.selectedCategoryLabelFilter
@@ -288,10 +328,20 @@ export class FulfillComponent implements OnInit {
         inq: productModelIds
       };
     }
-    else if(this.selectedCategoryLabelFilter === 'NO BIN LOCATION') {
-      whereFilter['binLocation'] = {
-        exists: false
-      }
+    else if(this.selectedCategoryLabelFilter === 'NO$BIN$LOCATION') {
+      whereFilter['or'] = [
+        {
+          binLocation: {
+            exists: false
+          }
+        },
+        {
+          binLocation: null
+        },
+        {
+          binLocation: ''
+        },
+      ]
     }
     else if (this.selectedCategoryLabelFilter) {
       whereFilter['binLocation'] = this.selectedCategoryLabelFilter;
@@ -323,10 +373,20 @@ export class FulfillComponent implements OnInit {
     if (productModelIds && productModelIds.length) {
       countFilter['productModelId'] = {inq: productModelIds};
     }
-    else if (this.selectedCategoryLabelFilter  === 'NO BIN LOCATION') {
-      countFilter['binLocation'] = {
-        exists: false
-      }
+    else if (this.selectedCategoryLabelFilter  === 'NO$BIN$LOCATION') {
+      countFilter['or'] = [
+        {
+          binLocation: {
+            exists: false
+          }
+        },
+        {
+          binLocation: null
+        },
+        {
+          binLocation: ''
+        },
+      ]
     }
     else if (this.selectedCategoryLabelFilter) {
       countFilter['binLocation'] = this.selectedCategoryLabelFilter
