@@ -2185,7 +2185,7 @@ module.exports = function (ReportModel) {
      * @param reportModelId
      * @param options
      */
-    ReportModel.getReportAnchors = function (orgModelId, reportModelId) {
+    ReportModel.getReportAnchors = function (orgModelId, reportModelId, query , showBinLocations) {
 
         logger.info({
             functionName: 'getReportAnchors',
@@ -2205,38 +2205,12 @@ module.exports = function (ReportModel) {
                     message: 'Found reportModel Instance',
                     orgModelId,
                     reportModelId,
-                    reportInstance
-                });
-                const query = {};
-                const state = reportInstance.state;
-                if (state === REPORT_STATES.FULFILMENT_PENDING ||
-                    state === REPORT_STATES.FULFILMENT_IN_PROCESS ||
-                    state === REPORT_STATES.FULFILMENT_FAILURE
-                ) {
-                    query.approved = true;
-                }
-
-                if (state === REPORT_STATES.RECEIVING_PENDING ||
-                    state === REPORT_STATES.RECEIVING_IN_PROCESS ||
-                    state === REPORT_STATES.RECEIVING_FAILURE
-                ) {
-                    query.fulfilled = true;
-                }
-
-
-                if (state === REPORT_STATES.COMPLETE) {
-                    query.received = true;
-                }
-
-                logger.info({
-                    functionName: 'getReportAnchors',
-                    message: 'Computed Query for this report',
-                    orgModelId,
-                    reportModelId,
-                    query
+                    reportInstance,
+                    query,
+                    showBinLocations
                 });
 
-                const columnNameToUse = query.approved === true ?
+                const columnNameToUse = showBinLocations ?
                     '$binLocation' :
                     '$categoryModelName';
 
@@ -2259,7 +2233,7 @@ module.exports = function (ReportModel) {
                     {
                         $group: {
                             // $toUpper:  Treat 'A' and 'a' as 'A'
-                            _id: { $toUpper: '$label' },
+                            _id: '$label',
                         }
                     },
                     {

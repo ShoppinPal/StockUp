@@ -1,9 +1,15 @@
 <div *ngIf="categoryLabels.length > 0" class="row badge-row">
-  <div class="title">Go to Category:</div>
+  <div class="title">Go to {{ showBin ? 'Bin Location': 'Category' }}</div>
   <div
     (click)="labelSelected(undefined)"
     class="badge"
   >ALL</div>
+  <div
+    *ngIf="showBin"
+    (click)="labelSelected('NO BIN LOCATION')"
+    [ngClass]="{'active': label === 'NO BIN LOCATION'}"
+    class="badge"
+  >No Bin Location</div>
   <div
     (click)="labelSelected(categoryLabel._id)"
     *ngFor="let categoryLabel of categoryLabels"

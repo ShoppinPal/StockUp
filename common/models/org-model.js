@@ -1613,13 +1613,15 @@ module.exports = function (OrgModel) {
             accepts: [
                 {arg: 'id', type: 'string', required: true},
                 {arg: 'reportModelId', type: 'string', required: true},
+                {arg: 'query', type: 'object', required: true},
+                {arg: 'showBinLocations', type: 'boolean', required: false},
             ],
             http: {path: '/:id/getReportAnchors', verb: 'GET'},
             returns: {arg: 'categories', type: 'array', root: true}
         });
 
-        OrgModel.getReportAnchors = function (id, reportId) {
-            return OrgModel.app.models.ReportModel.getReportAnchors(id, reportId)
+        OrgModel.getReportAnchors = function (id, reportId, query, showBinLocations) {
+            return OrgModel.app.models.ReportModel.getReportAnchors(id, reportId, query, showBinLocations)
                 .catch(function (error) {
                     logger.error({
                         error,

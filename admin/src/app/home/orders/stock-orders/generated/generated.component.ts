@@ -128,9 +128,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       };
     }
     else if (this.selectedCategoryLabelFilter) {
-      whereFilter['categoryModelName'] = {
-        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
-      }
+      whereFilter['categoryModelName'] = this.selectedCategoryLabelFilter;
     }
 
     let filter = {
@@ -157,9 +155,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     if (productModelIds && productModelIds.length) {
       countFilter['productModelId'] = {inq: productModelIds};
     } else if (this.selectedCategoryLabelFilter) {
-      countFilter['categoryModelName'] = {
-        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
-      }
+      countFilter['categoryModelName'] = this.selectedCategoryLabelFilter;
     }
     this.loading = true;
     let fetchLineItems = combineLatest(
@@ -203,9 +199,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       };
     }
     else if (this.selectedCategoryLabelFilter) {
-      whereFilter['categoryModelName'] = {
-        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
-      }
+      whereFilter['categoryModelName'] = this.selectedCategoryLabelFilter;
     }
 
     let filter = {
@@ -232,9 +226,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     if (productModelIds && productModelIds.length) {
       countFilter['productModelId'] = {inq: productModelIds};
     } else if (this.selectedCategoryLabelFilter) {
-      countFilter['categoryModelName'] = {
-        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
-      }
+      countFilter['categoryModelName'] = this.selectedCategoryLabelFilter
     }
     this.loading = true;
     let fetchLineItems = combineLatest(
@@ -274,6 +266,8 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       whereFilter['productModelId'] = {
         inq: productModelIds
       };
+    } else if (this.selectedCategoryLabelFilter) {
+      whereFilter['categoryModelName'] = this.selectedCategoryLabelFilter;
     }
     let filter = {
       where: whereFilter,
@@ -298,6 +292,9 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     };
     if (productModelIds && productModelIds.length)
       countFilter['productModelId'] = {inq: productModelIds};
+    else if (this.selectedCategoryLabelFilter) {
+      countFilter['categoryModelName'] = this.selectedCategoryLabelFilter
+    }
     this.loading = true;
     let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),

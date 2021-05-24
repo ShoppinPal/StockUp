@@ -122,10 +122,13 @@ export class FulfillComponent implements OnInit {
         inq: productModelIds
       };
     }
-    else if (this.selectedCategoryLabelFilter) {
+    else if(this.selectedCategoryLabelFilter === 'NO BIN LOCATION') {
       whereFilter['binLocation'] = {
-        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
+        exists: false
       }
+    }
+    else if (this.selectedCategoryLabelFilter) {
+      whereFilter['binLocation'] = this.selectedCategoryLabelFilter;
     }
     const filter: any = {
       where: whereFilter,
@@ -153,10 +156,14 @@ export class FulfillComponent implements OnInit {
     };
     if (productModelIds && productModelIds.length) {
       countFilter['productModelId'] = {inq: productModelIds};
-    } else if (this.selectedCategoryLabelFilter) {
+    }
+    else if (this.selectedCategoryLabelFilter  === 'NO BIN LOCATION') {
       countFilter['binLocation'] = {
-        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
+        exists: false
       }
+    }
+    else if (this.selectedCategoryLabelFilter) {
+      countFilter['binLocation'] = this.selectedCategoryLabelFilter
     }
     this.loading = true;
     let fetchLineItems = combineLatest(
@@ -200,10 +207,14 @@ export class FulfillComponent implements OnInit {
       whereFilter['productModelId'] = {
         inq: productModelIds
       };
-    }else if (this.selectedCategoryLabelFilter) {
+    }
+    else if(this.selectedCategoryLabelFilter === 'NO BIN LOCATION') {
       whereFilter['binLocation'] = {
-        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
+        exists: false
       }
+    }
+    else if (this.selectedCategoryLabelFilter) {
+      whereFilter['binLocation'] = this.selectedCategoryLabelFilter;
     }
     const filter: any = {
       where: whereFilter,
@@ -229,6 +240,14 @@ export class FulfillComponent implements OnInit {
     };
     if (productModelIds && productModelIds.length)
       countFilter['productModelId'] = {inq: productModelIds};
+    else if (this.selectedCategoryLabelFilter  === 'NO BIN LOCATION') {
+      countFilter['binLocation'] = {
+        exists: false
+      }
+    }
+    else if (this.selectedCategoryLabelFilter) {
+      countFilter['binLocation'] = this.selectedCategoryLabelFilter
+    }
     this.loading = true;
     let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
@@ -269,10 +288,13 @@ export class FulfillComponent implements OnInit {
         inq: productModelIds
       };
     }
-    else if (this.selectedCategoryLabelFilter) {
+    else if(this.selectedCategoryLabelFilter === 'NO BIN LOCATION') {
       whereFilter['binLocation'] = {
-        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
+        exists: false
       }
+    }
+    else if (this.selectedCategoryLabelFilter) {
+      whereFilter['binLocation'] = this.selectedCategoryLabelFilter;
     }
     let filter = {
       where: whereFilter,
@@ -300,10 +322,14 @@ export class FulfillComponent implements OnInit {
     };
     if (productModelIds && productModelIds.length) {
       countFilter['productModelId'] = {inq: productModelIds};
-    } else if (this.selectedCategoryLabelFilter) {
+    }
+    else if (this.selectedCategoryLabelFilter  === 'NO BIN LOCATION') {
       countFilter['binLocation'] = {
-        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
+        exists: false
       }
+    }
+    else if (this.selectedCategoryLabelFilter) {
+      countFilter['binLocation'] = this.selectedCategoryLabelFilter
     }
     this.loading = true;
     let fetchLineItems = combineLatest(
