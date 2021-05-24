@@ -303,6 +303,11 @@
                         </td>
                       </tr>
                     </ng-container>
+                    <tr *ngIf="totalNeedsReviewLineItems - needsReviewLineItems.length > 0" (click)="reloadData()">
+                      <td colspan="8"  style="text-align: center">
+                        {{ totalNeedsReviewLineItems - needsReviewLineItems.length }} items remaining (Tap to load more)
+                      </td>
+                    </tr>
                     </tbody>
                   </table>
 
@@ -457,6 +462,11 @@
                         </td>
                       </tr>
                     </ng-container>
+                    <tr *ngIf="totalNotApprovedLineItems - notApprovedLineItems.length > 0" (click)="reloadData()">
+                      <td colspan="8"  style="text-align: center">
+                        {{ totalNotApprovedLineItems - notApprovedLineItems.length }} items remaining (Tap to load more)
+                      </td>
+                    </tr>
                     </tbody>
                   </table>
 
@@ -549,6 +559,11 @@
                         </td>
                       </tr>
                     </ng-container>
+                    <tr *ngIf="totalApprovedLineItems - approvedLineItems.length > 0" (click)="reloadData()">
+                      <td colspan="8" style="text-align: center">
+                        {{ totalApprovedLineItems - approvedLineItems.length }} items remaining (Tap to load more)
+                      </td>
+                    </tr>
                     </tbody>
                   </table>
 
