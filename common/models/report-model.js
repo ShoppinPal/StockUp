@@ -2253,9 +2253,7 @@ module.exports = function (ReportModel) {
                     },
                     {
                         $project: {
-                            label: {
-                                $substr: [columnNameToUse, 0, 1]
-                            }
+                            label: columnNameToUse
                         }
                     },
                     {

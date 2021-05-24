@@ -842,24 +842,26 @@ module.exports = function (OrgModel) {
                 {arg: 'reportModelId', type: 'string', required: true},
                 {arg: 'lineItemIds', type: 'array', required: true},
                 {arg: 'data', type: 'object', required: true},
+                {arg: 'filters', type: 'object', required: false},
                 {arg: 'options', type: 'object', http: 'optionsFromRequest'}
             ],
             http: {path: '/:id/updateAllStockOrderLineItemModels', verb: 'POST'},
             returns: {arg: 'status', type: 'object', root: true}
         });
 
-        OrgModel.updateAllStockOrderLineItemModels = function (id, reportModelId, lineItemIds, data, options, cb) {
+        OrgModel.updateAllStockOrderLineItemModels = function (id, reportModelId, lineItemIds, data, filters, options, cb) {
             logger.debug({
                 message: 'Will update these line items for order',
                 data,
                 lineItemIds,
                 options,
+                filters,
                 functionName: 'updateAllStockOrderLineItemModels'
             });
-            var filter = {
+            var filter = Object.assign({} , filters ? filters: {}, {
                 orgModelId: id,
                 reportModelId: reportModelId
-            };
+            });
             if (lineItemIds.length) {
                 filter.id = {
                     inq: lineItemIds
