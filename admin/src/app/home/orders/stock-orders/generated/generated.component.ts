@@ -508,7 +508,6 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       }
       success();
     }
-    console.log(popedItem);
     return popedItem;
   }
 
@@ -580,7 +579,11 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     }
     this.orgModelApi.updateAllStockOrderLineItemModels(this.userProfile.orgModelId, this.order.id, lineItemsIDs, data)
       .subscribe((res: any) => {
-        if (lineItems) {
+        if (lineItems) { // if ids / object is passed
+          if (res.count === 0) {
+            this.toastr.error('Failed to update order item')
+            return;
+          }
           if (lineItems instanceof Array) {
             lineItems.forEach(item => {
               this.moveItemToAnotherList(item, data);
@@ -590,7 +593,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
             this.moveItemToAnotherList(lineItems, data);
             this.loading = false;
           }
-        } else {
+        } else { // bulk update happened
           this.refreshLineItems();
         }
       },
