@@ -436,7 +436,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     }
     this.orgModelApi.updateAllStockOrderLineItemModels(this.userProfile.orgModelId, this.order.id, lineItemsIDs, data)
       .subscribe((res: any) => {
-        if (data.damagedQuantity) {
+        if (data.hasOwnProperty('damagedQuantity')) {
           this.editingDamagedForItemId = undefined;
           this.getDiscrepanciesForOrder(this.lineItemsLimitPerPage, (this.currentPageDiscrepancies - 1) * this.lineItemsLimitPerPage)
         } else {

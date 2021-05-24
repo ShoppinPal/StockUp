@@ -315,6 +315,24 @@ var runMe = function (payload, config, taskId, messageId) {
                     return db.collection('StockOrderLineitemModel').updateMany(
                         {
                             reportModelId: ObjectId(reportModelId),
+                            approved: null
+                        },
+                        {
+                            $set: {
+                                approved: false
+                            }
+                        });
+                })
+                .then(function (result) {
+                    logger.debug({
+                        message: 'Updated needsReview items to false',
+                        result,
+                        commandName,
+                        reportModelId
+                    });
+                    return db.collection('StockOrderLineitemModel').updateMany(
+                        {
+                            reportModelId: ObjectId(reportModelId),
                             approved: false
                         },
                         {

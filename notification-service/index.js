@@ -43,7 +43,7 @@ app.get('/:userId/waitForResponse', (req, res) => {
     if (!sseUsers[userId]) {
         let sse = new SSE(0);
         sse.init(req, res);
-    
+
         sseUsers[userId] = {
             sse: sse,
             res: res,
@@ -62,7 +62,7 @@ app.get('/:userId/waitForResponse', (req, res) => {
         let sse = sseUsers[userId].sse;
         sse.send({data: 'connected', eventType: 'EVENT_INIT'});
     }
-    
+
 });
 
 app.get('/:callId/waitForResponseAPI', (req, res) => {
@@ -71,7 +71,7 @@ app.get('/:callId/waitForResponseAPI', (req, res) => {
     if (!sseAPI[callId]) {
         let sse = new SSE(0);
         sse.init(req, res);
-    
+
         sseAPI[callId] = {
             sse: sse,
             res: res,
@@ -147,7 +147,7 @@ app.listen(3001, function () {
 /**
  * Global error handler
  */
-app.use((err, req, res) => {
+app.use((err, req, res, next) => {
     let statusCode = err.statusCode || 500;
     let errorMessage = err.message || 'Something unexpected happened';
     res.status(statusCode).send(errorMessage);

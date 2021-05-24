@@ -459,10 +459,10 @@ export class GeneratedComponent implements OnInit, OnDestroy {
   }
 
   createPurchaseOrderVend() {
-    if (this.totalNeedsReviewLineItems > 0 ){
-      this.toastr.error('Please review remaining items');
-    }
-    else if (!this.totalApprovedLineItems) {
+    // if (this.totalNeedsReviewLineItems > 0 ){
+    //   this.toastr.error('Please review remaining items');
+    // }
+    if (!this.totalApprovedLineItems) {
       this.toastr.error('Please approve at least one item to send order to supplier');
     } else {
       if (this.emailModalData.sendEmail) {

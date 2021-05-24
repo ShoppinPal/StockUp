@@ -660,7 +660,9 @@ module.exports = function (ReportModel) {
                     functionName: 'createPurchaseOrderVend'
                 });
                 report = reportModelInstance;
-                if (reportModelInstance.vendConsignmentId) {
+                if (reportModelInstance.vendConsignmentId &&
+                    reportModelInstance.state !== REPORT_STATES.ERROR_SENDING_TO_SUPPLIER
+                ) {
                     logger.debug({
                         message: 'Purchase order is already created for this report',
                         options,
@@ -676,7 +678,9 @@ module.exports = function (ReportModel) {
                     });
                     return Promise.reject('Purchase order creation in progress');
                 }
-                else if (reportModelInstance.state === REPORT_STATES.APPROVAL_IN_PROCESS ||
+                else if (
+                    reportModelInstance.state === REPORT_STATES.GENERATED ||
+                    reportModelInstance.state === REPORT_STATES.APPROVAL_IN_PROCESS ||
                     reportModelInstance.state === REPORT_STATES.ERROR_SENDING_TO_SUPPLIER) {
                     logger.debug({
                         message: 'Will update order state and call createPurchaseOrderVend worker',
