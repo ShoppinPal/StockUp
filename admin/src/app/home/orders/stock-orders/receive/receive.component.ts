@@ -129,9 +129,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       };
     }
     else if (this.selectedCategoryLabelFilter) {
-      whereFilter['categoryModelName'] = {
-        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
-      }
+      whereFilter['categoryModelName'] = this.selectedCategoryLabelFilter;
     }
     const filter: any = {
       where: whereFilter,
@@ -159,9 +157,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     if (productModelIds && productModelIds.length) {
       countFilter['productModelId'] = {inq: productModelIds};
     } else if (this.selectedCategoryLabelFilter) {
-      countFilter['categoryModelName'] = {
-        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
-      }
+      countFilter['categoryModelName'] = this.selectedCategoryLabelFilter
     }
     this.loading = true;
     let fetchLineItems = combineLatest(
@@ -209,9 +205,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       };
     }
     else if (this.selectedCategoryLabelFilter) {
-      whereFilter['categoryModelName'] = {
-        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
-      }
+      whereFilter['categoryModelName'] = this.selectedCategoryLabelFilter;
     }
 
     let filter = {
@@ -238,9 +232,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     if (productModelIds && productModelIds.length) {
       countFilter['productModelId'] = {inq: productModelIds};
     } else if (this.selectedCategoryLabelFilter) {
-      countFilter['categoryModelName'] = {
-        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
-      }
+      countFilter['categoryModelName'] = this.selectedCategoryLabelFilter
     }
     this.loading = true;
     let fetchLineItems = combineLatest(
@@ -286,7 +278,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       },
       backorderedOnly: true,
       where: {
-        categoryModelName: this.selectedCategoryLabelFilter ?`^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`: undefined,
+        categoryModelName: this.selectedCategoryLabelFilter ? this.selectedCategoryLabelFilter: undefined,
       }
     };
     this.loading = true;
@@ -325,7 +317,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       },
       backorderedOnly: false,
       where: {
-        categoryModelName: this.selectedCategoryLabelFilter ?`^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`: undefined,
+        categoryModelName: this.selectedCategoryLabelFilter ?this.selectedCategoryLabelFilter : undefined,
       }
     };
     this.loading = true;
