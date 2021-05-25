@@ -11,6 +11,8 @@ export class CategoryAnchorComponent implements OnInit {
   @Input('reportModelId') reportModelId;
   @Input('label') label: string;
   @Output('labelChange') labelChange: EventEmitter<string> = new EventEmitter<string>();
+  @Input('showBin') showBin: boolean = false;
+  @Input('query') query = {};
   @Input('addProductClosed')
   set addProductClosed(value) {
     if (value === false) {
@@ -30,7 +32,7 @@ export class CategoryAnchorComponent implements OnInit {
 
   loadCategories() {
     this.userProfile = this._userProfileService.getProfileData();
-    this.orgModelApi.getReportAnchors(this.userProfile.orgModelId, this.reportModelId)
+    this.orgModelApi.getReportAnchors(this.userProfile.orgModelId, this.reportModelId, this.query, this.showBin)
       .subscribe(data => {
       this.categoryLabels = data.filter(anchor  => anchor._id !== '');
     }, error => {

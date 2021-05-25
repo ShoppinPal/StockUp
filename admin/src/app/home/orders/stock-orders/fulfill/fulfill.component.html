@@ -154,6 +154,8 @@
             [(label)]="selectedCategoryLabelFilter"
             (labelChange)="refreshLineItems()"
             [addProductClosed]="showAddProductModal"
+            [query]="{approved: true}"
+            [showBin]="true"
           ></app-category-anchor>
           <div class="row">
             <div class="col-sm-12">

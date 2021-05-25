@@ -31,10 +31,11 @@
           <div class="row">
             <div class="col-sm-3" *ngIf="editable">
               <span class="input-group-btn">
-                <button class="btn btn-primary btn-block" type="button" (click)="updateLineItems([], {approved: true})">
+                <button class="btn btn-primary btn-block" type="button" (click)="approveAll()">
                 <i class="fa fa-check-square-o"></i>
                   Approve all
                 </button>
+                <span style="font-size: 12px;">(Will Approve all in needs review tab)</span>
               </span>
             </div>
             <div class="col-sm-3">
@@ -302,6 +303,11 @@
                         </td>
                       </tr>
                     </ng-container>
+                    <tr *ngIf="needsReviewLineItems && (totalNeedsReviewLineItems - needsReviewLineItems.length > 0)" (click)="reloadData()">
+                      <td colspan="8"  style="text-align: center">
+                        {{ totalNeedsReviewLineItems - needsReviewLineItems.length }} items remaining (Tap to load more)
+                      </td>
+                    </tr>
                     </tbody>
                   </table>
 
@@ -456,6 +462,11 @@
                         </td>
                       </tr>
                     </ng-container>
+                    <tr *ngIf="notApprovedLineItems && (totalNotApprovedLineItems - notApprovedLineItems.length > 0)" (click)="reloadData()">
+                      <td colspan="8"  style="text-align: center">
+                        {{ totalNotApprovedLineItems - notApprovedLineItems.length }} items remaining (Tap to load more)
+                      </td>
+                    </tr>
                     </tbody>
                   </table>
 
@@ -548,6 +559,11 @@
                         </td>
                       </tr>
                     </ng-container>
+                    <tr *ngIf="approvedLineItems && (totalApprovedLineItems - approvedLineItems.length > 0)" (click)="reloadData()">
+                      <td colspan="8" style="text-align: center">
+                        {{ totalApprovedLineItems - approvedLineItems.length }} items remaining (Tap to load more)
+                      </td>
+                    </tr>
                     </tbody>
                   </table>
 
