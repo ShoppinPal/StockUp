@@ -85,6 +85,9 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     this._route.data.subscribe((data: any) => {
         this.order = data.stockOrderDetails[0];
         this.emailModalData.to = this.order.supplierModel ? ( this.order.supplierModel.email ? this.order.supplierModel.email : '') : '';
+        if (Array.isArray(this.emailModalData.to)) {
+          this.emailModalData.to = this.emailModalData.to.join(',')
+        }
         this.reloadData();
       },
       error => {

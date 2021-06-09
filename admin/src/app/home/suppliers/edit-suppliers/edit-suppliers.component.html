@@ -11,7 +11,15 @@
             <label class="col-md-2 col-form-label" for="hf-email">Primary Email</label>
             <div class="col-md-10">
               <input type="email" id="hf-email" name="hf-email" class="form-control" [(ngModel)]="supplier.email"
+                     (ngModelChange)="emailValidation()"
                      placeholder="Enter Email..">
+            </div>
+            <div>
+               <span class="text-success"
+                     *ngIf="validEmailCounter > 0">{{validEmailCounter}} valid email(s)</span>
+              <span *ngIf="validEmailCounter > 0 && validEmailCounter > 0"> | </span>
+              <span class="text-danger"
+                    *ngIf="invalidEmailCounter > 0">{{invalidEmailCounter}} invalid email(s)</span>
             </div>
           </div>
           <div class="form-group row">
