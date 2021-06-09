@@ -13,6 +13,7 @@ import {BsModalRef, BsModalService} from "ngx-bootstrap/modal";
 import {DeleteOrderComponent} from "../../shared-components/delete-order/delete-order.component";
 import {SharedDataService} from '../../../../shared/services/shared-data.service';
 import Utils from '../../../../shared/constants/utils';
+import {BarcodeReceiveService} from '../../../../shared/services/barcode-receive.service';
 
 @Component({
   selector: 'app-receive',
@@ -73,6 +74,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
               private _eventSourceService: EventSourceService,
               private auth: LoopBackAuth,
               private modalService: BsModalService,
+              private barcodeReceiveService: BarcodeReceiveService,
               private sharedDataService: SharedDataService) {
   }
 
@@ -347,40 +349,45 @@ export class ReceiveComponent implements OnInit, OnDestroy {
 
   searchAndIncrementProduct(sku?: string, force: boolean = false) {
     this.discrepancyModal.hide()
-    this.loading = true;
+    // this.loading = true;
     this.searchSKUFocused = false;
     this.selectedCategoryLabelFilter = undefined;
-    this.orgModelApi.scanBarcodeStockOrder(this.userProfile.orgModelId,
-      'receive',
-      sku,
+    this.barcodeReceiveService.addToQueue(
+      this.userProfile.orgModelId,
       this.order.id,
-      force)
-      .subscribe((searchedOrderItem) => {
-        if (searchedOrderItem.showDiscrepancyAlert) {
-          this.discrepancyOrderItem = searchedOrderItem;
-          this.discrepancyModal.show()
-        } else {
-          this.toastr.success('Row updated');
-        }
-        this.searchSKUFocused = true;
-        this.receivedLineItems = [searchedOrderItem];
-        this.totalReceivedLineItems = this.receivedLineItems.length;
-        if (!searchedOrderItem.received) {
-          this.notReceivedLineItems = [searchedOrderItem];
-        } else {
-          this.notReceivedLineItems = [];
-        }
-        this.totalNotReceivedLineItems = this.notReceivedLineItems.length;
-        this.loading = false;
-      }, error => {
-        this.loading = false;
-        this.toastr.error(error.message);
-        this.searchSKUFocused = true;
-        this.notReceivedLineItems = [];
-        this.receivedLineItems = [];
-        this.totalReceivedLineItems = 0;
-        this.totalNotReceivedLineItems = 0;
-      });
+      sku
+    )
+    // this.orgModelApi.scanBarcodeStockOrder(this.userProfile.orgModelId,
+    //   'receive',
+    //   sku,
+    //   this.order.id,
+    //   force)
+    //   .subscribe((searchedOrderItem) => {
+    //     if (searchedOrderItem.showDiscrepancyAlert) {
+    //       this.discrepancyOrderItem = searchedOrderItem;
+    //       this.discrepancyModal.show()
+    //     } else {
+    //       this.toastr.success('Row updated');
+    //     }
+    //     this.searchSKUFocused = true;
+    //     this.receivedLineItems = [searchedOrderItem];
+    //     this.totalReceivedLineItems = this.receivedLineItems.length;
+    //     if (!searchedOrderItem.received) {
+    //       this.notReceivedLineItems = [searchedOrderItem];
+    //     } else {
+    //       this.notReceivedLineItems = [];
+    //     }
+    //     this.totalNotReceivedLineItems = this.notReceivedLineItems.length;
+    //     this.loading = false;
+    //   }, error => {
+    //     this.loading = false;
+    //     this.toastr.error(error.message);
+    //     this.searchSKUFocused = true;
+    //     this.notReceivedLineItems = [];
+    //     this.receivedLineItems = [];
+    //     this.totalReceivedLineItems = 0;
+    //     this.totalNotReceivedLineItems = 0;
+    //   });
   }
 
   searchProductBySku(sku?: string) {

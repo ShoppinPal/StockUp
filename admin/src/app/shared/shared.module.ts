@@ -21,6 +21,8 @@ import {CommentsComponent} from "../home/orders/shared-components/comments/comme
 import {NgSelectModule} from '@ng-select/ng-select';
 import {DeleteOrderComponent} from "../home/orders/shared-components/delete-order/delete-order.component";
 import {SharedDataService} from "./services/shared-data.service";
+import {DexieService} from './services/dexie.service';
+import {BarcodeReceiveService} from './services/barcode-receive.service';
 
 @NgModule({
   imports: [
@@ -71,7 +73,7 @@ export class SharedModule {
   static forRoot(): ModuleWithProviders {
     return {
       ngModule: SharedModule,
-      providers: [UserProfileService, AccessService, UserResolverService, SharedDataService]
+      providers: [UserProfileService, AccessService, UserResolverService, SharedDataService, DexieService, BarcodeReceiveService]
     };
   }
 }
