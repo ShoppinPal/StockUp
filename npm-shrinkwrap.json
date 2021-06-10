@@ -1,6 +1,6 @@
 {
   "name": "stockup",
-  "version": "1.6.22",
+  "version": "1.6.23",
   "dependencies": {
     "@babel/runtime-corejs2": {
       "version": "7.10.2",
