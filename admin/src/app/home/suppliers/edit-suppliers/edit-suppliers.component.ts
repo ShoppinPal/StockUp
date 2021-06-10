@@ -66,7 +66,7 @@ export class EditSuppliersComponent implements OnInit {
       combineLatest(
         this.orgModelApi.updateByIdSupplierModels(this.userProfile.orgModelId, this.supplier.id, {
           ...this.supplier,
-          email: this.supplier.email.split(',').map(email => email.trim());
+          email: this.supplier.email.split(',').map(email => email.trim()),
         }),
         this.orgModelApi.assignStoreToSupplier(this.userProfile.orgModelId, this.storeLocationId, this.supplier.id)
       )
