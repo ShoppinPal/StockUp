@@ -12,6 +12,56 @@ const logger = require('sp-json-logger')({fileName: 'workers:jobs:utils:' + comm
 
 const Slack = require('slack-node');
 
+const RETRY_ERROR_CODES = [502, 503,504];
+
+function shouldRetryDefaultFn(error) {
+    return error && error.response && _.contains(RETRY_ERROR_CODES, error.response.statusCode);
+}
+/**
+ * retryIfErrorCode
+ * Retry the function with a delay until its successful
+ * limited by times
+ * @param fn - the function that returns promise
+ * @param times - int - Retry attempts
+ * @param delay - delay after each retry in ms
+ * @param shouldRetryFn - return true if the retry should happen
+ * @returns {any} - Original function result
+ */
+function retryIfErrorCode(fn,
+                          // try five times
+                          times = 5,
+                          // Delay 5 secs between retries
+                          delay = 5000,
+                          shouldRetryFn = shouldRetryDefaultFn) {
+    return new Promise(function(resolve, reject){
+        var error;
+        var attempt = function() {
+            if (times === 0) {
+                reject(error);
+            } else {
+                fn().then(resolve)
+                    .catch(function(err){
+                        if (shouldRetryFn(err)) {
+                            times--;
+                            error = err;
+                            logger.error({
+                                message: 'Api call failed, will retry',
+                                error
+                            });
+                            setTimeout(function () {
+                                attempt();
+                            }, delay);
+                        } else {
+                            reject(err);
+                        }
+                    });
+            }
+        };
+        attempt();
+    });
+}
+
+
 var savePayloadConfigToFiles = function (payload) {
     logger.tag('inside savePayloadConfigToFiles()').debug({message: 'inside savePayloadConfigToFiles()'});
 
@@ -206,7 +256,9 @@ var fetchVendToken = function (db, orgModelId, messageId) {
                         client_secret: process.env.VEND_CLIENT_SECRET
                     };
                     let tokenService = 'https://' + integrationModelInstance.domain_prefix + vendConfig.token_service;
-                    return vendSdk.refreshAccessToken(tokenService, vendConfig.client_id, vendConfig.client_secret, integrationModelInstance.refresh_token, integrationModelInstance.domain_prefix);
+                    return retryIfErrorCode(
+                        () => vendSdk.refreshAccessToken(tokenService, vendConfig.client_id, vendConfig.client_secret, integrationModelInstance.refresh_token, integrationModelInstance.domain_prefix)
+                    );
                 }
                 else {
                     logger.debug({
@@ -394,7 +446,7 @@ function createStockOrderForVend(db, storeModelInstance, reportModelInstance, su
                 connectionInfo: connectionInfo.domainPrefix,
                 functionName: 'createStockOrderForVend'
             });
-            return vendSdk.consignments.stockOrders.create(argsForStockOrder, connectionInfo);
+            return retryIfErrorCode(() => vendSdk.consignments.stockOrders.create(argsForStockOrder, connectionInfo));
         })
         .catch(function (error) {
             logger.error({
@@ -431,7 +483,7 @@ function markStockOrderAsSent(db, reportModelInstance, messageId) {
             var argsForStockOrder = vendSdk.args.consignments.stockOrders.markAsSent();
             argsForStockOrder.apiId.value = reportModelInstance.vendConsignmentId;
             argsForStockOrder.body.value = _.omit(reportModelInstance.vendConsignment, 'id');
-            return vendSdk.consignments.stockOrders.markAsSent(argsForStockOrder, connectionInfo);
+            return retryIfErrorCode(() => vendSdk.consignments.stockOrders.markAsSent(argsForStockOrder, connectionInfo));
         })
         .catch(function (error) {
             logger.error({
@@ -452,7 +504,7 @@ function createStockOrderLineitemForVend(db, connectionInfo, storeModelInstance,
         'count': stockOrderLineitemModelInstance.count,
         'cost': stockOrderLineitemModelInstance.supplyPrice
     };
-    return vendSdk.consignments.products.create({body: consignmentProduct}, connectionInfo)
+    return retryIfErrorCode(() => vendSdk.consignments.products.create({body: consignmentProduct}, connectionInfo))
         .catch(function (error) {
             logger.error({
                 message: 'Error creating consignment product in vend',
@@ -490,7 +542,7 @@ function updateStockOrderLineitemForVend(db, reportModelInstance, stockOrderLine
                     consignmentProduct: args.body.value
                 }
             });
-            return vendSdk.consignments.products.update(args, connectionInfo)
+            return retryIfErrorCode(() => vendSdk.consignments.products.update(args, connectionInfo))
                 .then(function (updatedLineitem) {
                     //log.debug('updatedLineitem', updatedLineitem);
                     logger.debug({log: {updatedLineitem: updatedLineitem}});
@@ -527,7 +579,7 @@ function markStockOrderAsReceived(db, reportModelInstance, messageId) {
             var argsForStockOrder = vendSdk.args.consignments.stockOrders.markAsSent();
             argsForStockOrder.apiId.value = reportModelInstance.vendConsignmentId;
             argsForStockOrder.body.value = _.omit(reportModelInstance.vendConsignment, 'id');
-            return vendSdk.consignments.stockOrders.markAsReceived(argsForStockOrder, connectionInfo);
+            return retryIfErrorCode(() => vendSdk.consignments.stockOrders.markAsReceived(argsForStockOrder, connectionInfo));
         })
         .catch(function (error) {
             if (error instanceof Error) {
@@ -558,7 +610,7 @@ function deleteStockOrderLineitemForVend(db, stockOrderLineitemModelInstance, me
         .then(function (connectionInfo) {
                 var args = vendSdk.args.consignments.products.remove();
                 args.apiId.value = stockOrderLineitemModelInstance.vendConsignmentProductId;
-                return vendSdk.consignments.products.remove(args, connectionInfo);
+                return retryIfErrorCode(() => vendSdk.consignments.products.remove(args, connectionInfo));
             },
             function (error) {
                 //log.error('deleteStockOrderLineitemForVend()', 'Error deleting a stock order lineitem in Vend:\n' + JSON.stringify(error));
