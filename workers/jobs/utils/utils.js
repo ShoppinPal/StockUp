@@ -13,6 +13,7 @@ const logger = require('sp-json-logger')({fileName: 'workers:jobs:utils:' + comm
 const Slack = require('slack-node');
 
 const RETRY_ERROR_CODES = [502, 503,504];
+const RETRY_TIME = 5;
 
 function shouldRetryDefaultFn(error) {
     return error && error.response && _.contains(RETRY_ERROR_CODES, error.response.statusCode);
@@ -446,7 +447,7 @@ function createStockOrderForVend(db, storeModelInstance, reportModelInstance, su
                 connectionInfo: connectionInfo.domainPrefix,
                 functionName: 'createStockOrderForVend'
             });
-            return retryIfErrorCode(() => vendSdk.consignments.stockOrders.create(argsForStockOrder, connectionInfo));
+            return retryIfErrorCode(() => vendSdk.consignments.stockOrders.create(argsForStockOrder, connectionInfo, RETRY_TIME));
         })
         .catch(function (error) {
             logger.error({
@@ -483,7 +484,7 @@ function markStockOrderAsSent(db, reportModelInstance, messageId) {
             var argsForStockOrder = vendSdk.args.consignments.stockOrders.markAsSent();
             argsForStockOrder.apiId.value = reportModelInstance.vendConsignmentId;
             argsForStockOrder.body.value = _.omit(reportModelInstance.vendConsignment, 'id');
-            return retryIfErrorCode(() => vendSdk.consignments.stockOrders.markAsSent(argsForStockOrder, connectionInfo));
+            return retryIfErrorCode(() => vendSdk.consignments.stockOrders.markAsSent(argsForStockOrder, connectionInfo, RETRY_TIME));
         })
         .catch(function (error) {
             logger.error({
@@ -504,7 +505,7 @@ function createStockOrderLineitemForVend(db, connectionInfo, storeModelInstance,
         'count': stockOrderLineitemModelInstance.count,
         'cost': stockOrderLineitemModelInstance.supplyPrice
     };
-    return retryIfErrorCode(() => vendSdk.consignments.products.create({body: consignmentProduct}, connectionInfo))
+    return retryIfErrorCode(() => vendSdk.consignments.products.create({body: consignmentProduct}, connectionInfo, RETRY_TIME))
         .catch(function (error) {
             logger.error({
                 message: 'Error creating consignment product in vend',
@@ -542,7 +543,7 @@ function updateStockOrderLineitemForVend(db, reportModelInstance, stockOrderLine
                     consignmentProduct: args.body.value
                 }
             });
-            return retryIfErrorCode(() => vendSdk.consignments.products.update(args, connectionInfo))
+            return retryIfErrorCode(() => vendSdk.consignments.products.update(args, connectionInfo, RETRY_TIME))
                 .then(function (updatedLineitem) {
                     //log.debug('updatedLineitem', updatedLineitem);
                     logger.debug({log: {updatedLineitem: updatedLineitem}});
@@ -579,7 +580,7 @@ function markStockOrderAsReceived(db, reportModelInstance, messageId) {
             var argsForStockOrder = vendSdk.args.consignments.stockOrders.markAsSent();
             argsForStockOrder.apiId.value = reportModelInstance.vendConsignmentId;
             argsForStockOrder.body.value = _.omit(reportModelInstance.vendConsignment, 'id');
-            return retryIfErrorCode(() => vendSdk.consignments.stockOrders.markAsReceived(argsForStockOrder, connectionInfo));
+            return retryIfErrorCode(() => vendSdk.consignments.stockOrders.markAsReceived(argsForStockOrder, connectionInfo, RETRY_TIME));
         })
         .catch(function (error) {
             if (error instanceof Error) {
@@ -610,7 +611,7 @@ function deleteStockOrderLineitemForVend(db, stockOrderLineitemModelInstance, me
         .then(function (connectionInfo) {
                 var args = vendSdk.args.consignments.products.remove();
                 args.apiId.value = stockOrderLineitemModelInstance.vendConsignmentProductId;
-                return retryIfErrorCode(() => vendSdk.consignments.products.remove(args, connectionInfo));
+                return retryIfErrorCode(() => vendSdk.consignments.products.remove(args, connectionInfo, RETRY_TIME));
             },
             function (error) {
                 //log.error('deleteStockOrderLineitemForVend()', 'Error deleting a stock order lineitem in Vend:\n' + JSON.stringify(error));
@@ -724,3 +725,5 @@ exports.Notification = function (eventType, messageFor, status, data, id) {
         this.callId = id;
     }
 };
+
+exports.retryIfErrorCode = retryIfErrorCode;
