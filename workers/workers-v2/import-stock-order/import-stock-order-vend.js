@@ -643,7 +643,14 @@ function createOrders(db, orderConfigModel ,orders, messageId) {
                 });
                 eachOrder.deliverFromStoreModelId = ObjectId(storeModelInstance._id);
                 eachOrder.importedFromFile = true;
-                eachOrder.desiredState = orderConfigModel.orderStatus;
+                let notApprovedStates = [
+                    REPORT_STATES.APPROVAL_IN_PROCESS,
+                    REPORT_STATES.GENERATED,
+                    REPORT_STATES.PROCESSING
+                ];
+                if (!notApprovedStates.includes(orderConfigModel.orderStatus)) {
+                    eachOrder.desiredState = orderConfigModel.orderStatus;
+                }
                 return db.collection('ReportModel').insert(
                     Object.assign(
                         {},
