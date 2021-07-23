@@ -246,7 +246,7 @@ module.exports = {
 
 function createNewOrders(db, result, orderConfigModel, payload, config, taskId, messageId) {
     var createdOrders;
-    return createOrders(db, result, messageId)
+    return createOrders(db, orderConfigModel, result, messageId)
         .catch(function (error) {
             logger.error({
                 message: 'Could not save orders to database',
@@ -280,7 +280,7 @@ function createNewOrders(db, result, orderConfigModel, payload, config, taskId, 
                             let purchaseOrderPayload = {
                                 loopbackAccessToken: payload.loopbackAccessToken,
                                 orgModelId: ObjectId(orderConfigModel.orgModelId),
-                                reportModelId: ObjectId(eachCreatedOrder._id) //get the reportModelId from lineItem saved
+                                reportModelId: ObjectId(eachCreatedOrder._id), //get the reportModelId from lineItem saved
                             };
                             return generatePurchaseOrderVend.run(purchaseOrderPayload, config, taskId, messageId);
                         })
@@ -608,7 +608,7 @@ function mapSpreadSheetDataToOrders(db, orderConfigModel, spreadSheetRows, userM
         });
 }
 
-function createOrders(db, orders, messageId) {
+function createOrders(db, orderConfigModel ,orders, messageId) {
     let createdOrders = [];
     return Promise.map(orders, function (eachOrder) {
         logger.debug({
@@ -643,6 +643,7 @@ function createOrders(db, orders, messageId) {
                 });
                 eachOrder.deliverFromStoreModelId = ObjectId(storeModelInstance._id);
                 eachOrder.importedFromFile = true;
+                eachOrder.desiredState = orderConfigModel.orderStatus;
                 return db.collection('ReportModel').insert(
                     Object.assign(
                         {},

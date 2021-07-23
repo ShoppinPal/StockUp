@@ -16,6 +16,7 @@ var runMe = function (payload, config, taskId, messageId) {
 
     var orgModelId = payload.orgModelId;
     var reportModelId = payload.reportModelId;
+    var desiredState = REPORT_STATES.FULFILMENT_PENDING;
     var createdPurchaseOrder, stockOrderLineItemModels, supplierModelInstance, storeModelInstance;
     var reportModelInstance;
     try {
@@ -79,6 +80,7 @@ var runMe = function (payload, config, taskId, messageId) {
                 })
                 .then(function (response) {
                     reportModelInstance = response;
+                    desiredState = reportModelInstance.desiredState || REPORT_STATES.FULFILMENT_PENDING;
                     logger.debug({
                         message: 'Found report model instance, will look for store and supplier model',
                         response,
@@ -289,7 +291,7 @@ var runMe = function (payload, config, taskId, messageId) {
                         _id: ObjectId(reportModelId)
                     }, {
                         $set: {
-                            state: REPORT_STATES.FULFILMENT_PENDING,
+                            state: desiredState,
                             vendConsignmentId: createdPurchaseOrder.id,
                             vendConsignment: createdPurchaseOrder
                         }

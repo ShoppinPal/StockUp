@@ -388,6 +388,9 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     this.toInvalidEmailCounter = 0;
     this.emailModalData.to = this.emailModalData.to + ' ';
     const toEmailArray = this.emailModalData.to.split(',');
+    if (toEmailArray.length === 1 && toEmailArray[0] === ' '){
+      return;
+    }
     if (toEmailArray.length) {
       toEmailArray.forEach(eachEmail => {
         if (Utils.validateEmail(eachEmail.trim())) {
@@ -413,6 +416,9 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     this.ccInvalidEmailCounter = 0;
     this.emailModalData.cc = this.emailModalData.cc + ' ';
     const toEmailArray = this.emailModalData.cc.split(',');
+    if (toEmailArray.length === 1 && toEmailArray[0] === ' '){
+      return;
+    }
     if (toEmailArray.length) {
       toEmailArray.forEach(eachEmail => {
         if (Utils.validateEmail(eachEmail.trim())) {
@@ -438,6 +444,9 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     this.bccInvalidEmailCounter = 0;
     this.emailModalData.bcc = this.emailModalData.bcc + ' ';
     const toEmailArray = this.emailModalData.bcc.split(',');
+    if (toEmailArray.length === 1 && toEmailArray[0] === ' '){
+      return;
+    }
     if (toEmailArray.length) {
       toEmailArray.forEach(eachEmail => {
         if (Utils.validateEmail(eachEmail.trim())) {

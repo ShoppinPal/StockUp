@@ -86,6 +86,9 @@ export class EditSuppliersComponent implements OnInit {
     this.validEmailCounter = 0;
     this.invalidEmailCounter = 0;
     const toEmailArray = this.supplier.email.split(',');
+    if (toEmailArray.length === 1 && toEmailArray[0] === ' '){
+      return;
+    }
     if (toEmailArray.length) {
       toEmailArray.forEach(eachEmail => {
         if (Utils.validateEmail(eachEmail.trim())) {
