@@ -85,6 +85,9 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     this._route.data.subscribe((data: any) => {
         this.order = data.stockOrderDetails[0];
         this.emailModalData.to = this.order.supplierModel ? ( this.order.supplierModel.email ? this.order.supplierModel.email : '') : '';
+        if (Array.isArray(this.emailModalData.to)) {
+          this.emailModalData.to = this.emailModalData.to.join(',')
+        }
         this.reloadData();
       },
       error => {
@@ -384,7 +387,10 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     this.toValidEmailCounter = 0;
     this.toInvalidEmailCounter = 0;
     this.emailModalData.to = this.emailModalData.to + ' ';
-    let toEmailArray = this.emailModalData.to.split(',');
+    const toEmailArray = this.emailModalData.to.split(',');
+    if (toEmailArray.length === 1 && toEmailArray[0] === ' '){
+      return;
+    }
     if (toEmailArray.length) {
       toEmailArray.forEach(eachEmail => {
         if (Utils.validateEmail(eachEmail.trim())) {
@@ -409,7 +415,10 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     this.ccValidEmailCounter = 0;
     this.ccInvalidEmailCounter = 0;
     this.emailModalData.cc = this.emailModalData.cc + ' ';
-    let toEmailArray = this.emailModalData.cc.split(',');
+    const toEmailArray = this.emailModalData.cc.split(',');
+    if (toEmailArray.length === 1 && toEmailArray[0] === ' '){
+      return;
+    }
     if (toEmailArray.length) {
       toEmailArray.forEach(eachEmail => {
         if (Utils.validateEmail(eachEmail.trim())) {
@@ -434,7 +443,10 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     this.bccValidEmailCounter = 0;
     this.bccInvalidEmailCounter = 0;
     this.emailModalData.bcc = this.emailModalData.bcc + ' ';
-    let toEmailArray = this.emailModalData.bcc.split(',');
+    const toEmailArray = this.emailModalData.bcc.split(',');
+    if (toEmailArray.length === 1 && toEmailArray[0] === ' '){
+      return;
+    }
     if (toEmailArray.length) {
       toEmailArray.forEach(eachEmail => {
         if (Utils.validateEmail(eachEmail.trim())) {

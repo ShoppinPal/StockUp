@@ -660,7 +660,8 @@ module.exports = function (ReportModel) {
                     functionName: 'createPurchaseOrderVend'
                 });
                 report = reportModelInstance;
-                if (reportModelInstance.vendConsignmentId) {
+                if (reportModelInstance.vendConsignmentId &&
+                    reportModelInstance.state !== REPORT_STATES.ERROR_SENDING_TO_SUPPLIER) {
                     logger.debug({
                         message: 'Purchase order is already created for this report',
                         options,

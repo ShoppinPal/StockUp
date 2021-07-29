@@ -14,7 +14,7 @@
       "type": "string"
     },
     "email": {
-      "type": "string",
+      "type": "any",
       "required": false
     },
     "storeIds": {

@@ -1,6 +1,6 @@
 {
   "name": "stockup",
-  "version": "1.6.22",
+  "version": "1.6.23",
   "dependencies": {
     "@mean-expert/loopback-component-realtime": "1.0.0-rc.9.6",
     "@mean-expert/loopback-sdk-builder": "2.3.1",
@@ -86,7 +86,10 @@
     "protractor": "~0.22.0",
     "requirejs": "^2.3.5",
     "wd": "^0.3.12",
-    "wd-bridge": "0.0.2"
+    "wd-bridge": "0.0.2",
+    "chai": "^4.3.4",
+    "mocha": "^8.4.0",
+    "nock": "^10.0.6"
   },
   "engines": {
     "node": "6.11.1"
@@ -94,7 +97,8 @@
   "scripts": {
     "postinstall": "echo -n $NODE_ENV | grep -v 'production' && ./node_modules/protractor/bin/webdriver-manager update || echo 'will NOT run webdriver install or update'",
     "angular2-sdk": "DEBUG=boot:*,common:models:*,server:* SKIP_SEEDING=true ./node_modules/.bin/lb-sdk server/server.js admin/src/app/shared/lb-sdk -i enabled -w enabled",
-    "generate-env": "node getenv.js"
+    "generate-env": "node getenv.js",
+    "test": "mocha --timeout=3000 --recursive tests/**/*.js --exit"
   },
   "main": "server/server.js"
 }

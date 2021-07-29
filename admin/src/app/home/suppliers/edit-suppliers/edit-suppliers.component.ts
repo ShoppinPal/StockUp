@@ -5,6 +5,7 @@ import {UserProfileService} from "../../../shared/services/user-profile.service"
 import {ToastrService} from 'ngx-toastr';
 import {constants} from '../../../shared/constants/constants';
 import {combineLatest} from "rxjs";
+import Utils from '../../../shared/constants/utils';
 
 @Component({
   selector: 'app-edit-suppliers',
@@ -20,6 +21,8 @@ export class EditSuppliersComponent implements OnInit {
   public mappings: any = {};
   public reportStates: any;
   public storeLocationId: any;
+  public validEmailCounter: number = 0;
+  public invalidEmailCounter: number = 0;
 
   constructor(private _route: ActivatedRoute,
               private toastr: ToastrService,
@@ -31,6 +34,9 @@ export class EditSuppliersComponent implements OnInit {
     this.userProfile = this._userProfileService.getProfileData();
     this._route.data.subscribe((data: any) => {
         this.supplier = data.supplier.supplier;
+        this.supplier.email = Array.isArray(data.supplier.supplier.email)
+          ? data.supplier.supplier.email.join(',')
+          : data.supplier.supplier.email;
         this.stores = data.supplier.stores;
         for (var i = 0; i < this.stores.length; i++) {
           let correspondingMapping = this.supplier.supplierStoreMappings.find(map => {
@@ -51,13 +57,17 @@ export class EditSuppliersComponent implements OnInit {
 
   updateSupplierDetails() {
     this.loading = true;
-    if (this.supplier.email && !this.validateEmail(this.supplier.email)) {
+    this.emailValidation();
+    if (this.supplier.email && this.invalidEmailCounter > 0) {
       this.loading = false;
-      this.toastr.error('Invalid supplier email');
+      this.toastr.error('Invalid supplier email(s)');
     }
     else {
       combineLatest(
-        this.orgModelApi.updateByIdSupplierModels(this.userProfile.orgModelId, this.supplier.id, this.supplier),
+        this.orgModelApi.updateByIdSupplierModels(this.userProfile.orgModelId, this.supplier.id, {
+          ...this.supplier,
+          email: this.supplier.email.split(',').map(email => email.trim()),
+        }),
         this.orgModelApi.assignStoreToSupplier(this.userProfile.orgModelId, this.storeLocationId, this.supplier.id)
       )
         .subscribe((data: any)=> {
@@ -69,6 +79,24 @@ export class EditSuppliersComponent implements OnInit {
             this.loading = false;
             console.log('Error in updating supplier info', error);
           });
+    }
+  }
+
+  emailValidation() {
+    this.validEmailCounter = 0;
+    this.invalidEmailCounter = 0;
+    const toEmailArray = this.supplier.email.split(',');
+    if (toEmailArray.length === 1 && toEmailArray[0] === ' '){
+      return;
+    }
+    if (toEmailArray.length) {
+      toEmailArray.forEach(eachEmail => {
+        if (Utils.validateEmail(eachEmail.trim())) {
+          this.validEmailCounter++;
+        } else {
+          this.invalidEmailCounter++;
+        }
+      })
     }
   }
 
@@ -93,11 +121,5 @@ export class EditSuppliersComponent implements OnInit {
           this.toastr.error('Could not update store codes');
           console.log('err', err);
         });
-  }
-
-
-  validateEmail(email) {
-    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(String(email).toLowerCase());
   }
 }

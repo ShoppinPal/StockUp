@@ -186,8 +186,10 @@ let runMe = function (payload, config, taskId, messageId) {
                     )
 
                 };
-                var slackMessage = 'Import order Vend Worker failed' + messageId + '\n taskId' +
-                    ': ' + taskId + '\nMessageId: ' + messageId;
+                var slackMessage = 'Import order Vend Worker failed' +
+                    '\n taskId' + ': ' + taskId +
+                    '\n MessageId: ' + messageId +
+                    '\n Environment: '+ process.env.APP_HOST_NAME;
                 utils.sendSlackMessage('Worker failed', slackMessage, false);
                 return rp(options);
             })
@@ -198,7 +200,7 @@ let runMe = function (payload, config, taskId, messageId) {
                     commandName,
                     messageId
                 });
-                return Promise.reject('Could not send status to server')
+                return Promise.reject('Could not send status to server');
             })
             .then(function (res) {
                 logger.debug({
@@ -244,7 +246,7 @@ module.exports = {
 
 function createNewOrders(db, result, orderConfigModel, payload, config, taskId, messageId) {
     var createdOrders;
-    return createOrders(db, result, messageId)
+    return createOrders(db, orderConfigModel, result, messageId)
         .catch(function (error) {
             logger.error({
                 message: 'Could not save orders to database',
@@ -278,7 +280,7 @@ function createNewOrders(db, result, orderConfigModel, payload, config, taskId, 
                             let purchaseOrderPayload = {
                                 loopbackAccessToken: payload.loopbackAccessToken,
                                 orgModelId: ObjectId(orderConfigModel.orgModelId),
-                                reportModelId: ObjectId(eachCreatedOrder._id) //get the reportModelId from lineItem saved
+                                reportModelId: ObjectId(eachCreatedOrder._id), //get the reportModelId from lineItem saved
                             };
                             return generatePurchaseOrderVend.run(purchaseOrderPayload, config, taskId, messageId);
                         })
@@ -606,7 +608,7 @@ function mapSpreadSheetDataToOrders(db, orderConfigModel, spreadSheetRows, userM
         });
 }
 
-function createOrders(db, orders, messageId) {
+function createOrders(db, orderConfigModel ,orders, messageId) {
     let createdOrders = [];
     return Promise.map(orders, function (eachOrder) {
         logger.debug({
@@ -641,6 +643,14 @@ function createOrders(db, orders, messageId) {
                 });
                 eachOrder.deliverFromStoreModelId = ObjectId(storeModelInstance._id);
                 eachOrder.importedFromFile = true;
+                let notApprovedStates = [
+                    REPORT_STATES.APPROVAL_IN_PROCESS,
+                    REPORT_STATES.GENERATED,
+                    REPORT_STATES.PROCESSING
+                ];
+                if (!notApprovedStates.includes(orderConfigModel.orderStatus)) {
+                    eachOrder.desiredState = orderConfigModel.orderStatus;
+                }
                 return db.collection('ReportModel').insert(
                     Object.assign(
                         {},
