@@ -1,3 +1,8 @@
+v1.6.23 - Jun 10, 2021
+- Multiple Supplier Email
+- Worker Error Messages
+- Vend Retry Api on Gateway Timeout 
+
 v1.6.22 - Apr 9, 2021
 - Discrepancy reports
 - User roles management

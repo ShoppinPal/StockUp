@@ -85,6 +85,9 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     this._route.data.subscribe((data: any) => {
         this.order = data.stockOrderDetails[0];
         this.emailModalData.to = this.order.supplierModel ? ( this.order.supplierModel.email ? this.order.supplierModel.email : '') : '';
+        if (Array.isArray(this.emailModalData.to)) {
+          this.emailModalData.to = this.emailModalData.to.join(',')
+        }
         this.reloadData();
       },
       error => {
@@ -128,9 +131,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       };
     }
     else if (this.selectedCategoryLabelFilter) {
-      whereFilter['categoryModelName'] = {
-        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
-      }
+      whereFilter['categoryModelName'] = this.selectedCategoryLabelFilter;
     }
 
     let filter = {
@@ -157,9 +158,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     if (productModelIds && productModelIds.length) {
       countFilter['productModelId'] = {inq: productModelIds};
     } else if (this.selectedCategoryLabelFilter) {
-      countFilter['categoryModelName'] = {
-        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
-      }
+      countFilter['categoryModelName'] = this.selectedCategoryLabelFilter;
     }
     this.loading = true;
     let fetchLineItems = combineLatest(
@@ -203,9 +202,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       };
     }
     else if (this.selectedCategoryLabelFilter) {
-      whereFilter['categoryModelName'] = {
-        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
-      }
+      whereFilter['categoryModelName'] = this.selectedCategoryLabelFilter;
     }
 
     let filter = {
@@ -232,9 +229,7 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     if (productModelIds && productModelIds.length) {
       countFilter['productModelId'] = {inq: productModelIds};
     } else if (this.selectedCategoryLabelFilter) {
-      countFilter['categoryModelName'] = {
-        like: `^(${this.selectedCategoryLabelFilter}|${this.selectedCategoryLabelFilter.toLowerCase()}).*`
-      }
+      countFilter['categoryModelName'] = this.selectedCategoryLabelFilter
     }
     this.loading = true;
     let fetchLineItems = combineLatest(
@@ -274,6 +269,8 @@ export class GeneratedComponent implements OnInit, OnDestroy {
       whereFilter['productModelId'] = {
         inq: productModelIds
       };
+    } else if (this.selectedCategoryLabelFilter) {
+      whereFilter['categoryModelName'] = this.selectedCategoryLabelFilter;
     }
     let filter = {
       where: whereFilter,
@@ -298,6 +295,9 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     };
     if (productModelIds && productModelIds.length)
       countFilter['productModelId'] = {inq: productModelIds};
+    else if (this.selectedCategoryLabelFilter) {
+      countFilter['categoryModelName'] = this.selectedCategoryLabelFilter
+    }
     this.loading = true;
     let fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
@@ -387,7 +387,10 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     this.toValidEmailCounter = 0;
     this.toInvalidEmailCounter = 0;
     this.emailModalData.to = this.emailModalData.to + ' ';
-    let toEmailArray = this.emailModalData.to.split(',');
+    const toEmailArray = this.emailModalData.to.split(',');
+    if (toEmailArray.length === 1 && toEmailArray[0] === ' '){
+      return;
+    }
     if (toEmailArray.length) {
       toEmailArray.forEach(eachEmail => {
         if (Utils.validateEmail(eachEmail.trim())) {
@@ -412,7 +415,10 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     this.ccValidEmailCounter = 0;
     this.ccInvalidEmailCounter = 0;
     this.emailModalData.cc = this.emailModalData.cc + ' ';
-    let toEmailArray = this.emailModalData.cc.split(',');
+    const toEmailArray = this.emailModalData.cc.split(',');
+    if (toEmailArray.length === 1 && toEmailArray[0] === ' '){
+      return;
+    }
     if (toEmailArray.length) {
       toEmailArray.forEach(eachEmail => {
         if (Utils.validateEmail(eachEmail.trim())) {
@@ -437,7 +443,10 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     this.bccValidEmailCounter = 0;
     this.bccInvalidEmailCounter = 0;
     this.emailModalData.bcc = this.emailModalData.bcc + ' ';
-    let toEmailArray = this.emailModalData.bcc.split(',');
+    const toEmailArray = this.emailModalData.bcc.split(',');
+    if (toEmailArray.length === 1 && toEmailArray[0] === ' '){
+      return;
+    }
     if (toEmailArray.length) {
       toEmailArray.forEach(eachEmail => {
         if (Utils.validateEmail(eachEmail.trim())) {
@@ -500,6 +509,70 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     }
   }
 
+  removeItemFromList(lineItems, list, count , success) {
+    let popedItem;
+    const index = list.findIndex((item) => item.id === lineItems.id);
+    if (index > -1) {
+      popedItem = list[index];
+      list.splice(index, 1)
+      if (list.length === 0 &&  count > 0){
+        this.reloadData();
+      }
+      success();
+    }
+    return popedItem;
+  }
+
+  addItemToList(lineItems, list, success) {
+    list.push(lineItems);
+    success();
+  }
+
+  moveItemToAnotherList(lineItems, data) {
+    let popedItem;
+    if (lineItems.approved === true) {
+      popedItem = this.removeItemFromList(
+        lineItems,
+        this.approvedLineItems,
+        this.totalApprovedLineItems,
+        () => this.totalApprovedLineItems-- );
+    } else if (lineItems.approved === false) {
+      popedItem = this.removeItemFromList(
+        lineItems,
+        this.notApprovedLineItems,
+        this.totalNotApprovedLineItems,
+        () => this.totalNotApprovedLineItems-- );
+    } else if (lineItems.approved === null) {
+      popedItem = this.removeItemFromList(
+        lineItems,
+        this.needsReviewLineItems,
+        this.totalNeedsReviewLineItems,
+        () => this.totalNeedsReviewLineItems-- );
+    }
+
+    popedItem.approved = data.approved;
+    if (data.orderQuantity) {
+      popedItem.orderQuantity = data.orderQuantity;
+    }
+
+    if (data.approved === true) {
+      this.addItemToList(
+        lineItems,
+        this.approvedLineItems,
+        () => this.totalApprovedLineItems++ );
+    } else if (data.approved === false) {
+      this.addItemToList(
+        lineItems,
+        this.notApprovedLineItems,
+        () => this.totalNotApprovedLineItems++ );
+    } else if (data.approved === null){
+      this.addItemToList(
+        lineItems,
+        this.needsReviewLineItems,
+        () => this.totalNeedsReviewLineItems++);
+    }
+  }
+
   updateLineItems(lineItems, data: any) {
     // Approve All Button Click when no items are present
     if (data.approved === true && this.totalNeedsReviewLineItems + this.totalNotApprovedLineItems + this.totalApprovedLineItems === 0) {
@@ -518,8 +591,24 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     }
     this.orgModelApi.updateAllStockOrderLineItemModels(this.userProfile.orgModelId, this.order.id, lineItemsIDs, data)
       .subscribe((res: any) => {
-          this.reloadData();
-        },
+        if (lineItems) { // if ids / object is passed
+          if (res.count === 0) {
+            this.toastr.error('Failed to update order item')
+            return;
+          }
+          if (lineItems instanceof Array) {
+            lineItems.forEach(item => {
+              this.moveItemToAnotherList(item, data);
+            });
+            this.loading = false;
+          } else {
+            this.moveItemToAnotherList(lineItems, data);
+            this.loading = false;
+          }
+        } else { // bulk update happened
+          this.refreshLineItems();
+        }
+      },
         err => {
           console.log('err', err);
           this.loading = false;
@@ -667,5 +756,21 @@ export class GeneratedComponent implements OnInit, OnDestroy {
     this.getNeedsReviewStockOrderLineItems();
     this.getApprovedStockOrderLineItems();
     this.getNotApprovedStockOrderLineItems();
+  }
+
+  approveAll() {
+    this.orgModelApi.updateAllStockOrderLineItemModels(
+      this.userProfile.orgModelId,
+      this.order.id,
+      [],
+      { approved: true },
+      {approved: null})
+      .subscribe((res: any) => {
+          this.reloadData();
+        },
+        err => {
+          console.log('err', err);
+          this.loading = false;
+        });
   }
 }

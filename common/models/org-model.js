@@ -842,24 +842,26 @@ module.exports = function (OrgModel) {
                 {arg: 'reportModelId', type: 'string', required: true},
                 {arg: 'lineItemIds', type: 'array', required: true},
                 {arg: 'data', type: 'object', required: true},
+                {arg: 'filters', type: 'object', required: false},
                 {arg: 'options', type: 'object', http: 'optionsFromRequest'}
             ],
             http: {path: '/:id/updateAllStockOrderLineItemModels', verb: 'POST'},
             returns: {arg: 'status', type: 'object', root: true}
         });
 
-        OrgModel.updateAllStockOrderLineItemModels = function (id, reportModelId, lineItemIds, data, options, cb) {
+        OrgModel.updateAllStockOrderLineItemModels = function (id, reportModelId, lineItemIds, data, filters, options, cb) {
             logger.debug({
                 message: 'Will update these line items for order',
                 data,
                 lineItemIds,
                 options,
+                filters,
                 functionName: 'updateAllStockOrderLineItemModels'
             });
-            var filter = {
+            var filter = Object.assign({} , filters ? filters: {}, {
                 orgModelId: id,
                 reportModelId: reportModelId
-            };
+            });
             if (lineItemIds.length) {
                 filter.id = {
                     inq: lineItemIds
@@ -1611,13 +1613,15 @@ module.exports = function (OrgModel) {
             accepts: [
                 {arg: 'id', type: 'string', required: true},
                 {arg: 'reportModelId', type: 'string', required: true},
+                {arg: 'query', type: 'object', required: true},
+                {arg: 'showBinLocations', type: 'boolean', required: false},
             ],
             http: {path: '/:id/getReportAnchors', verb: 'GET'},
             returns: {arg: 'categories', type: 'array', root: true}
         });
 
-        OrgModel.getReportAnchors = function (id, reportId) {
-            return OrgModel.app.models.ReportModel.getReportAnchors(id, reportId)
+        OrgModel.getReportAnchors = function (id, reportId, query, showBinLocations) {
+            return OrgModel.app.models.ReportModel.getReportAnchors(id, reportId, query, showBinLocations)
                 .catch(function (error) {
                     logger.error({
                         error,

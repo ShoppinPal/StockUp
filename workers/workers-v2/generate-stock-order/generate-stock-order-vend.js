@@ -77,7 +77,7 @@ var runMe = function (payload, config, taskId, messageId) {
         const REPORT_STATES = utils.REPORT_STATES;
         var db = null; //database connected
         const rp = require('request-promise');
-        var productInstances, inventoryInstances, reportModel, supplier;
+        var productInstances, inventoryInstances, reportModel, supplier, orgModel, storeModel;
         var toGenerateReorderPoints = false;
 
         logger.debug({
@@ -139,6 +139,8 @@ var runMe = function (payload, config, taskId, messageId) {
                 return Promise.reject('Could not find store and supplier details');
             })
             .spread(function (storeModelInstance, supplierModelInstance, orgModelInstance) {
+                storeModel = storeModelInstance;
+                orgModel = orgModelInstance;
                 supplier = supplierModelInstance;
                 if (!storeModelInstance) {
                     logger.error({
@@ -605,8 +607,14 @@ var runMe = function (payload, config, taskId, messageId) {
                     options,
                     messageId
                 });
-                var slackMessage = 'Generate stock order MSD Worker failed for storeModelId ' + payload.storeModelId + '\n taskId' +
-                    ': ' + taskId + '\nMessageId: ' + messageId;
+                var slackMessage = 'Generate stock order Vend Worker failed for storeModelId ' + payload.storeModelId +
+                    '\n taskId' + ': ' + taskId +
+                    '\n MessageId: ' + messageId +
+                    '\n Organisation: ' + orgModel ? orgModel.name : '' +
+                    '\n Store: ' + storeModel ? storeModel.name : '' +
+                    '\n Supplier: ' + supplier ? supplier.name : '' +
+                    '\n MessageId: ' + messageId +
+                    '\n Environment: '+ process.env.APP_HOST_NAME;
                 utils.sendSlackMessage('Worker failed', slackMessage, false);
                 return rp(options);
             })
