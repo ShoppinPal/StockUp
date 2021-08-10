@@ -12,10 +12,9 @@ const logger = require('sp-json-logger')({fileName: 'workers:jobs:utils:' + comm
 
 const Slack = require('slack-node');
 
-const RETRY_ERROR_CODES = [502, 503,504];
 
 function shouldRetryDefaultFn(error) {
-    return (error && error.response && _.contains(RETRY_ERROR_CODES, error.response.statusCode)) ||
+    return (error && error.response && error.response.statusCode > 400 && error.response.statusCode < 512) ||
         (error && error.error && error.error.code === 'ETIMEDOUT');
 }
 /**
