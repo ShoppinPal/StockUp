@@ -450,7 +450,7 @@ var runMe = function (payload, config, taskId, messageId) {
                         '\n taskId' + ': ' + taskId +
                         '\n MessageId: ' + messageId +
                         '\n orgModelId: ' + orgModelId +
-                        '\n Store: ' + storeInstance ? storeInstance.name: '' +
+                        '\n Store: ' + (storeInstance ? storeInstance.name: '') +
                         '\n Environment: '+ process.env.APP_HOST_NAME;
                     utils.sendSlackMessage('Worker failed', slackMessage, false);
                     return rp(options);

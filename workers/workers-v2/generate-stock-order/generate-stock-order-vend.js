@@ -610,9 +610,9 @@ var runMe = function (payload, config, taskId, messageId) {
                 var slackMessage = 'Generate stock order Vend Worker failed for storeModelId ' + payload.storeModelId +
                     '\n taskId' + ': ' + taskId +
                     '\n MessageId: ' + messageId +
-                    '\n Organisation: ' + orgModel ? orgModel.name : '' +
-                    '\n Store: ' + storeModel ? storeModel.name : '' +
-                    '\n Supplier: ' + supplier ? supplier.name : '' +
+                    '\n Organisation: ' + (orgModel ? orgModel.name : '') +
+                    '\n Store: ' + (storeModel ? storeModel.name : '') +
+                    '\n Supplier: ' + (supplier ? supplier.name : '') +
                     '\n MessageId: ' + messageId +
                     '\n Environment: '+ process.env.APP_HOST_NAME;
                 utils.sendSlackMessage('Worker failed', slackMessage, false);
