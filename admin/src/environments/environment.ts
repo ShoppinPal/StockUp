@@ -6,7 +6,7 @@
 export const environment = {
   production: false,
   API_URL: '/api',
-  BASE_URL: 'http://localhost:81',
+  BASE_URL: 'https://stockup-staging.shoppinpal.com',
   API_VERSION: 'api',
   APP_VERSION: require('../../../package.json').version
 };

@@ -1,27 +1,33 @@
-import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {OrgModelApi} from "../../../../shared/lb-sdk/services/custom/OrgModel";
-import {ActivatedRoute, Router} from '@angular/router';
-import {Observable, combineLatest, Subscription} from 'rxjs';
-import {ToastrService} from 'ngx-toastr';
-import {UserProfileService} from "../../../../shared/services/user-profile.service";
-import {LoopBackAuth} from "../../../../shared/lb-sdk/services/core/auth.service";
-import {constants} from "../../../../shared/constants/constants";
-import {DatePipe} from '@angular/common';
-import {EventSourceService} from '../../../../shared/services/event-source.service';
-import {ModalDirective} from 'ngx-bootstrap';
-import {BsModalRef, BsModalService} from "ngx-bootstrap/modal";
-import {DeleteOrderComponent} from "../../shared-components/delete-order/delete-order.component";
-import {SharedDataService} from '../../../../shared/services/shared-data.service';
-import Utils from '../../../../shared/constants/utils';
+import {
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from "@angular/core";
+import { OrgModelApi } from "../../../../shared/lb-sdk/services/custom/OrgModel";
+import { ActivatedRoute, Router } from "@angular/router";
+import { Observable, combineLatest, Subscription } from "rxjs";
+import { ToastrService } from "ngx-toastr";
+import { UserProfileService } from "../../../../shared/services/user-profile.service";
+import { LoopBackAuth } from "../../../../shared/lb-sdk/services/core/auth.service";
+import { constants } from "../../../../shared/constants/constants";
+import { DatePipe } from "@angular/common";
+import { EventSourceService } from "../../../../shared/services/event-source.service";
+import { ModalDirective } from "ngx-bootstrap";
+import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
+import { DeleteOrderComponent } from "../../shared-components/delete-order/delete-order.component";
+import { SharedDataService } from "../../../../shared/services/shared-data.service";
+import Utils from "../../../../shared/constants/utils";
 
 @Component({
-  selector: 'app-receive',
-  templateUrl: './receive.component.html',
-  styleUrls: ['./receive.component.scss']
+  selector: "app-receive",
+  templateUrl: "./receive.component.html",
+  styleUrls: ["./receive.component.scss"],
 })
 export class ReceiveComponent implements OnInit, OnDestroy {
-  @ViewChild('discrepancyModal') public discrepancyModal: ModalDirective;
-  @ViewChild('searchInput') public searchInputRef: ElementRef;
+  @ViewChild("discrepancyModal") public discrepancyModal: ModalDirective;
+  @ViewChild("searchInput") public searchInputRef: ElementRef;
 
   public userProfile: any;
   public loading = false;
@@ -36,7 +42,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   public totalReceivedLineItems: number;
   public totalNotReceivedLineItems: number;
   public maxPageDisplay: number = 7;
-  public searchSKUText: string = '';
+  public searchSKUText: string = "";
   public totalPages: number;
   public currentPageBackOrdered: number = 1;
   public currentPageDiscrepancies: number = 1;
@@ -53,7 +59,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   public discrepancyOrderItem: any;
   private subscriptions: Subscription[] = [];
   public sortAscending = true;
-  public sortColumn = 'productModelSku';
+  public sortColumn = "productModelSku";
   showAddProductModal: boolean;
   public bsModalRef: BsModalRef;
   public isSmallDevice = this.sharedDataService.getIsSmallDevice();
@@ -61,186 +67,239 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   public editingDamagedForItemId;
   public damagedQuantity = 0;
 
-  @ViewChild('discrepancies') discrepanciesTab;
-  sendDiscrepancyReport: any = 'true';
+  @ViewChild("discrepancies") discrepanciesTab;
+  sendDiscrepancyReport: any = "true";
   selectedCategoryLabelFilter: string;
 
-  constructor(private orgModelApi: OrgModelApi,
-              private _route: ActivatedRoute,
-              private _router: Router,
-              private toastr: ToastrService,
-              private _userProfileService: UserProfileService,
-              private _eventSourceService: EventSourceService,
-              private auth: LoopBackAuth,
-              private modalService: BsModalService,
-              private sharedDataService: SharedDataService) {
-  }
+  constructor(
+    private orgModelApi: OrgModelApi,
+    private _route: ActivatedRoute,
+    private _router: Router,
+    private toastr: ToastrService,
+    private _userProfileService: UserProfileService,
+    private _eventSourceService: EventSourceService,
+    private auth: LoopBackAuth,
+    private modalService: BsModalService,
+    private sharedDataService: SharedDataService
+  ) {}
 
   ngOnInit() {
     this.userProfile = this._userProfileService.getProfileData();
-    this._route.data.subscribe((data: any) => {
+    this._route.data.subscribe(
+      (data: any) => {
         this.order = data.stockOrderDetails[0];
         this.refreshData();
         this.getBackOrderedStockOrderLineItems();
       },
-      error => {
-        console.log('error', error)
-      });
+      (error) => {
+        console.log("error", error);
+      }
+    );
 
     //update order to state "Approval in Process" from "Generated"
     if (this.order.state === constants.REPORT_STATES.RECEIVING_PENDING) {
-      this.orgModelApi.updateByIdReportModels(this.userProfile.orgModelId, this.order.id, {
-        state: constants.REPORT_STATES.RECEIVING_IN_PROCESS
-      })
+      this.orgModelApi
+        .updateByIdReportModels(this.userProfile.orgModelId, this.order.id, {
+          state: constants.REPORT_STATES.RECEIVING_IN_PROCESS,
+        })
         .subscribe((data: any) => {
-          console.log('updated report state to receiving in process', data);
+          console.log("updated report state to receiving in process", data);
         });
     }
 
-    if (this.order.state === constants.REPORT_STATES.RECEIVING_PENDING ||
+    if (
+      this.order.state === constants.REPORT_STATES.RECEIVING_PENDING ||
       this.order.state === constants.REPORT_STATES.RECEIVING_IN_PROCESS ||
-      this.order.state === constants.REPORT_STATES.RECEIVING_FAILURE) {
+      this.order.state === constants.REPORT_STATES.RECEIVING_FAILURE
+    ) {
       this.editable = true;
     }
-
   }
 
-  getReceivedStockOrderLineItems(limit?: number, skip?: number, productModelIds?: Array<string>) {
+  getReceivedStockOrderLineItems(
+    limit?: number,
+    skip?: number,
+    productModelIds?: Array<string>
+  ) {
     if (!(limit && skip)) {
       limit = this.lineItemsLimitPerPage || 100;
       skip = 0;
     }
-    if ((productModelIds !== undefined && productModelIds !== null) && (!productModelIds && !productModelIds.length)) {
-      this.searchSKUText = ''
+    if (
+      productModelIds !== undefined &&
+      productModelIds !== null &&
+      !productModelIds &&
+      !productModelIds.length
+    ) {
+      this.searchSKUText = "";
     }
-    let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
+    let sortOrder = this.sortAscending ? "ASC" : "DESC";
     let whereFilter = {
       reportModelId: this.order.id,
       fulfilled: true,
       receivedQuantity: {
-        gt: 0
-      }
+        gt: 0,
+      },
     };
     if (productModelIds && productModelIds.length) {
       // Remove filter in case of search
       this.selectedCategoryLabelFilter = undefined;
-      whereFilter['productModelId'] = {
-        inq: productModelIds
+      whereFilter["productModelId"] = {
+        inq: productModelIds,
       };
-    }
-    else if (this.selectedCategoryLabelFilter) {
-      whereFilter['categoryModelName'] = this.selectedCategoryLabelFilter;
+    } else if (this.selectedCategoryLabelFilter) {
+      whereFilter["categoryModelName"] = this.selectedCategoryLabelFilter;
     }
     const filter: any = {
       where: whereFilter,
       include: [
         {
-          relation: 'productModel',
-        }, {
-          relation: 'commentModels',
+          relation: "productModel",
+        },
+        {
+          relation: "commentModels",
           scope: {
-            include: 'userModel'
-          }
-        }
+            include: "userModel",
+          },
+        },
       ],
       limit: limit,
       skip: skip,
-      order: 'categoryModelName ' + sortOrder + ', ' + this.sortColumn + ' ' + sortOrder
+      order:
+        "categoryModelName " +
+        sortOrder +
+        ", " +
+        this.sortColumn +
+        " " +
+        sortOrder,
     };
     let countFilter = {
       reportModelId: this.order.id,
       fulfilled: true,
       receivedQuantity: {
-        gt: 0
-      }
+        gt: 0,
+      },
     };
     if (productModelIds && productModelIds.length) {
-      countFilter['productModelId'] = {inq: productModelIds};
+      countFilter["productModelId"] = { inq: productModelIds };
     } else if (this.selectedCategoryLabelFilter) {
-      countFilter['categoryModelName'] = this.selectedCategoryLabelFilter
+      countFilter["categoryModelName"] = this.selectedCategoryLabelFilter;
     }
     this.loading = true;
     let fetchLineItems = combineLatest(
-      this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
-      this.orgModelApi.countStockOrderLineitemModels(this.userProfile.orgModelId, countFilter));
-    fetchLineItems.subscribe((data: any) => {
+      this.orgModelApi.getStockOrderLineitemModels(
+        this.userProfile.orgModelId,
+        filter
+      ),
+      this.orgModelApi.countStockOrderLineitemModels(
+        this.userProfile.orgModelId,
+        countFilter
+      )
+    );
+    fetchLineItems.subscribe(
+      (data: any) => {
+        // TODO: 1. Add Data to IndexDB here
         this.loading = false;
-        this.currentPageReceived = (skip / this.lineItemsLimitPerPage) + 1;
+        this.currentPageReceived = skip / this.lineItemsLimitPerPage + 1;
         this.totalReceivedLineItems = data[1].count;
         this.receivedLineItems = data[0];
-        this.receivedLineItems.forEach(x => {
+        this.receivedLineItems.forEach((x) => {
           x.isCollapsed = true;
         });
       },
-      err => {
+      (err) => {
         this.loading = false;
-        console.log('error', err);
+        console.log("error", err);
 
         // Clear selected filter if api call fails
         if (this.selectedCategoryLabelFilter) {
           this.selectedCategoryLabelFilter = undefined;
         }
-      });
+      }
+    );
   }
 
-  getNotReceivedStockOrderLineItems(limit?: number, skip?: number, productModelIds?: Array<string>) {
+  getNotReceivedStockOrderLineItems(
+    limit?: number,
+    skip?: number,
+    productModelIds?: Array<string>
+  ) {
     if (!(limit && skip)) {
       limit = this.lineItemsLimitPerPage || 100;
       skip = 0;
     }
-    if ((productModelIds !== undefined && productModelIds !== null) && (!productModelIds && !productModelIds.length)) {
-      this.searchSKUText = ''
+    if (
+      productModelIds !== undefined &&
+      productModelIds !== null &&
+      !productModelIds &&
+      !productModelIds.length
+    ) {
+      this.searchSKUText = "";
     }
-    let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
+    let sortOrder = this.sortAscending ? "ASC" : "DESC";
     let whereFilter = {
       reportModelId: this.order.id,
       fulfilled: true,
-      received: false
+      received: false,
     };
     if (productModelIds && productModelIds.length) {
       // Remove filter in case of search
       this.selectedCategoryLabelFilter = undefined;
-      whereFilter['productModelId'] = {
-        inq: productModelIds
+      whereFilter["productModelId"] = {
+        inq: productModelIds,
       };
-    }
-    else if (this.selectedCategoryLabelFilter) {
-      whereFilter['categoryModelName'] = this.selectedCategoryLabelFilter;
+    } else if (this.selectedCategoryLabelFilter) {
+      whereFilter["categoryModelName"] = this.selectedCategoryLabelFilter;
     }
 
     let filter = {
       where: whereFilter,
       include: [
         {
-          relation: 'productModel',
-        }, {
-          relation: 'commentModels',
+          relation: "productModel",
+        },
+        {
+          relation: "commentModels",
           scope: {
-            include: 'userModel'
-          }
-        }
+            include: "userModel",
+          },
+        },
       ],
       limit: limit,
       skip: skip,
-      order: 'categoryModelName ' + sortOrder + ', ' + this.sortColumn + ' ' + sortOrder
+      order:
+        "categoryModelName " +
+        sortOrder +
+        ", " +
+        this.sortColumn +
+        " " +
+        sortOrder,
     };
     let countFilter = {
       reportModelId: this.order.id,
       fulfilled: true,
-      received: false
+      received: false,
     };
     if (productModelIds && productModelIds.length) {
-      countFilter['productModelId'] = {inq: productModelIds};
+      countFilter["productModelId"] = { inq: productModelIds };
     } else if (this.selectedCategoryLabelFilter) {
-      countFilter['categoryModelName'] = this.selectedCategoryLabelFilter
+      countFilter["categoryModelName"] = this.selectedCategoryLabelFilter;
     }
     this.loading = true;
     let fetchLineItems = combineLatest(
-      this.orgModelApi.getStockOrderLineitemModels(this.userProfile.orgModelId, filter),
-      this.orgModelApi.countStockOrderLineitemModels(this.userProfile.orgModelId, countFilter));
-    fetchLineItems.subscribe((data: any) => {
+      this.orgModelApi.getStockOrderLineitemModels(
+        this.userProfile.orgModelId,
+        filter
+      ),
+      this.orgModelApi.countStockOrderLineitemModels(
+        this.userProfile.orgModelId,
+        countFilter
+      )
+    );
+    fetchLineItems.subscribe(
+      (data: any) => {
         this.loading = false;
-        this.currentPageNotReceived = (skip / this.lineItemsLimitPerPage) + 1;
+        this.currentPageNotReceived = skip / this.lineItemsLimitPerPage + 1;
         this.totalNotReceivedLineItems = data[1].count;
         for (var i = 0; i < data[0].length; i++) {
           // Prefill value if  Manual mode && Nothing has been recieved yet
@@ -251,17 +310,17 @@ export class ReceiveComponent implements OnInit, OnDestroy {
         }
         this.notReceivedLineItems = data[0];
       },
-      err => {
+      (err) => {
         this.loading = false;
-        console.log('error', err);
+        console.log("error", err);
 
         // Clear selected filter if api call fails
         if (this.selectedCategoryLabelFilter) {
           this.selectedCategoryLabelFilter = undefined;
         }
-      });
+      }
+    );
   }
-
 
   getBackOrderedStockOrderLineItems(limit?: number, skip?: number) {
     if (!(limit && skip)) {
@@ -273,34 +332,39 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       limit: limit,
       skip: skip,
       order: {
-        'categoryModelName': sortOrder,
-        [this.sortColumn]: sortOrder
+        categoryModelName: sortOrder,
+        [this.sortColumn]: sortOrder,
       },
       backorderedOnly: true,
       where: {
-        categoryModelName: this.selectedCategoryLabelFilter ? this.selectedCategoryLabelFilter: undefined,
-      }
+        categoryModelName: this.selectedCategoryLabelFilter
+          ? this.selectedCategoryLabelFilter
+          : undefined,
+      },
     };
     this.loading = true;
 
-
-    let fetchLineItems = this.orgModelApi.getDiscrepancyOrBackOrderedLineItems(this.userProfile.orgModelId, this.order.id , filter);
-    fetchLineItems.subscribe((data: any) => {
+    let fetchLineItems = this.orgModelApi.getDiscrepancyOrBackOrderedLineItems(
+      this.userProfile.orgModelId,
+      this.order.id,
+      filter
+    );
+    fetchLineItems.subscribe(
+      (data: any) => {
         this.loading = false;
-        this.currentPageBackOrdered = (skip / this.lineItemsLimitPerPage) + 1;
+        this.currentPageBackOrdered = skip / this.lineItemsLimitPerPage + 1;
         this.totalBackOrderedLineItems = data.count;
         for (var i = 0; i < data.data.length; i++) {
           data.data[i].isCollapsed = true;
         }
         this.backOrderedLineItems = data.data;
       },
-      err => {
+      (err) => {
         this.loading = false;
-        console.log('error', err);
-      });
-
+        console.log("error", err);
+      }
+    );
   }
-
 
   getDiscrepanciesForOrder(limit?: number, skip?: number) {
     if (!(limit && skip)) {
@@ -312,107 +376,142 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       limit: limit,
       skip: skip,
       order: {
-        'categoryModelName': sortOrder,
-        [this.sortColumn]: sortOrder
+        categoryModelName: sortOrder,
+        [this.sortColumn]: sortOrder,
       },
       backorderedOnly: false,
       where: {
-        categoryModelName: this.selectedCategoryLabelFilter ?this.selectedCategoryLabelFilter : undefined,
-      }
+        categoryModelName: this.selectedCategoryLabelFilter
+          ? this.selectedCategoryLabelFilter
+          : undefined,
+      },
     };
     this.loading = true;
 
-
-    let fetchLineItems = this.orgModelApi.getDiscrepancyOrBackOrderedLineItems(this.userProfile.orgModelId, this.order.id,
-      filter);
-    fetchLineItems.subscribe((data: any) => {
+    let fetchLineItems = this.orgModelApi.getDiscrepancyOrBackOrderedLineItems(
+      this.userProfile.orgModelId,
+      this.order.id,
+      filter
+    );
+    fetchLineItems.subscribe(
+      (data: any) => {
         this.loading = false;
-        this.currentPageDiscrepancies = (skip / this.lineItemsLimitPerPage) + 1;
+        this.currentPageDiscrepancies = skip / this.lineItemsLimitPerPage + 1;
         this.totalDiscrepanciesLineItems = data.count;
         for (var i = 0; i < data.data.length; i++) {
           data.data[i].isCollapsed = true;
         }
         this.discrepancyLineItems = data.data;
-        this.discrepancyLineItems.forEach(lineItem => lineItem.id = lineItem._id);
+        this.discrepancyLineItems.forEach(
+          (lineItem) => (lineItem.id = lineItem._id)
+        );
         this.isDiscrepancyLoaded = true;
-        setTimeout(() => this.discrepanciesTab.nativeElement.scrollIntoView({ behavior: 'smooth' }));
+        setTimeout(() =>
+          this.discrepanciesTab.nativeElement.scrollIntoView({
+            behavior: "smooth",
+          })
+        );
       },
-      err => {
+      (err) => {
         this.loading = false;
-        console.log('error', err);
-      });
-
-
+        console.log("error", err);
+      }
+    );
   }
 
   searchAndIncrementProduct(sku?: string, force: boolean = false) {
-    this.discrepancyModal.hide()
-    this.loading = true;
+    this.discrepancyModal.hide();
+    // this.loading = true;
     this.searchSKUFocused = false;
     this.selectedCategoryLabelFilter = undefined;
-    this.orgModelApi.scanBarcodeStockOrder(this.userProfile.orgModelId,
-      'receive',
-      sku,
-      this.order.id,
-      force)
-      .subscribe((searchedOrderItem) => {
-        if (searchedOrderItem.showDiscrepancyAlert) {
-          this.discrepancyOrderItem = searchedOrderItem;
-          this.discrepancyModal.show()
-        } else {
-          this.toastr.success('Row updated');
-        }
-        this.searchSKUFocused = true;
-        this.receivedLineItems = [searchedOrderItem];
-        this.totalReceivedLineItems = this.receivedLineItems.length;
-        if (!searchedOrderItem.received) {
-          this.notReceivedLineItems = [searchedOrderItem];
-        } else {
+    // TODO: 2. Add a check for the product already exists in indexDB => this.receivedLineItems.find((item) => item.id === this.order.id)
+
+    // TODO: 3. If product exists in indexDB, then just update the quantity & call API to update the quantity
+
+    // TODO: 4. If product does not exist in indexDB, then call API to fetch the product details and add to indexDB
+
+    this.orgModelApi
+      .scanBarcodeStockOrder(
+        this.userProfile.orgModelId,
+        "receive",
+        sku,
+        this.order.id,
+        force
+      )
+      .subscribe(
+        (searchedOrderItem) => {
+          console.log("searchedOrderItem", searchedOrderItem);
+
+          if (searchedOrderItem.showDiscrepancyAlert) {
+            this.discrepancyOrderItem = searchedOrderItem;
+            this.discrepancyModal.show();
+          } else {
+            this.toastr.success("Row updated");
+          }
+          this.searchSKUFocused = true;
+          this.receivedLineItems = [searchedOrderItem];
+          this.totalReceivedLineItems = this.receivedLineItems.length;
+          if (!searchedOrderItem.received) {
+            this.notReceivedLineItems = [searchedOrderItem];
+          } else {
+            this.notReceivedLineItems = [];
+          }
+          this.totalNotReceivedLineItems = this.notReceivedLineItems.length;
+          this.loading = false;
+        },
+        (error) => {
+          this.loading = false;
+          this.toastr.error(error.message);
+          this.searchSKUFocused = true;
           this.notReceivedLineItems = [];
+          this.receivedLineItems = [];
+          this.totalReceivedLineItems = 0;
+          this.totalNotReceivedLineItems = 0;
         }
-        this.totalNotReceivedLineItems = this.notReceivedLineItems.length;
-        this.loading = false;
-      }, error => {
-        this.loading = false;
-        this.toastr.error(error.message);
-        this.searchSKUFocused = true;
-        this.notReceivedLineItems = [];
-        this.receivedLineItems = [];
-        this.totalReceivedLineItems = 0;
-        this.totalNotReceivedLineItems = 0;
-      });
+      );
   }
 
   searchProductBySku(sku?: string) {
-    this.loading = true;
-    var pattern = new RegExp('.*' + sku + '.*', "i");
+    // this.loading = true;
+    var pattern = new RegExp(".*" + sku + ".*", "i");
     /* case-insensitive RegExp search */
     var filterData = pattern.toString();
-    this.orgModelApi.getProductModels(this.userProfile.orgModelId, {
-      where: {
-        sku: {"regexp": filterData}
-      }
-    }).subscribe((data: any) => {
-      if (data.length) {
-        var productModelIds = data.map(function filterProductIds(eachProduct) {
-          return eachProduct.id;
-        });
-        this.getReceivedStockOrderLineItems(this.lineItemsLimitPerPage, 0, productModelIds);
-        this.getNotReceivedStockOrderLineItems(this.lineItemsLimitPerPage, 0, productModelIds);
-      }
-      else {
-        this.loading = false;
-        this.currentPageNotReceived = 1;
-        this.totalNotReceivedLineItems = 0;
-        this.notReceivedLineItems = [];
-        this.receivedLineItems = [];
-        this.totalReceivedLineItems = 0;
-        this.currentPageReceived = 1;
-        this.backOrderedLineItems = [];
-        this.totalBackOrderedLineItems = 0;
-        this.currentPageBackOrdered = 1;
-      }
-    })
+    this.orgModelApi
+      .getProductModels(this.userProfile.orgModelId, {
+        where: {
+          sku: { regexp: filterData },
+        },
+      })
+      .subscribe((data: any) => {
+        if (data.length) {
+          var productModelIds = data.map(function filterProductIds(
+            eachProduct
+          ) {
+            return eachProduct.id;
+          });
+          this.getReceivedStockOrderLineItems(
+            this.lineItemsLimitPerPage,
+            0,
+            productModelIds
+          );
+          this.getNotReceivedStockOrderLineItems(
+            this.lineItemsLimitPerPage,
+            0,
+            productModelIds
+          );
+        } else {
+          this.loading = false;
+          this.currentPageNotReceived = 1;
+          this.totalNotReceivedLineItems = 0;
+          this.notReceivedLineItems = [];
+          this.receivedLineItems = [];
+          this.totalReceivedLineItems = 0;
+          this.currentPageReceived = 1;
+          this.backOrderedLineItems = [];
+          this.totalBackOrderedLineItems = 0;
+          this.currentPageBackOrdered = 1;
+        }
+      });
   }
 
   updateLineItems(lineItems, data: any) {
@@ -422,53 +521,64 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       for (var i = 0; i < lineItems.length; i++) {
         lineItemsIDs.push(lineItems[i].id);
       }
+    } else {
+      lineItemsIDs.push(lineItems.id);
     }
-    else {
-      lineItemsIDs.push(lineItems.id)
-    }
-    this.orgModelApi.updateAllStockOrderLineItemModels(this.userProfile.orgModelId, this.order.id, lineItemsIDs, data)
-      .subscribe((res: any) => {
-        if (data.damagedQuantity) {
-          this.editingDamagedForItemId = undefined;
-          this.getDiscrepanciesForOrder(this.lineItemsLimitPerPage, (this.currentPageDiscrepancies - 1) * this.lineItemsLimitPerPage)
-        } else {
-          this.refreshData();
-        }
-          console.log('approved', res);
-          this.toastr.success('Row Updated');
+    this.orgModelApi
+      .updateAllStockOrderLineItemModels(
+        this.userProfile.orgModelId,
+        this.order.id,
+        lineItemsIDs,
+        data
+      )
+      .subscribe(
+        (res: any) => {
+          if (data.damagedQuantity) {
+            this.editingDamagedForItemId = undefined;
+            this.getDiscrepanciesForOrder(
+              this.lineItemsLimitPerPage,
+              (this.currentPageDiscrepancies - 1) * this.lineItemsLimitPerPage
+            );
+          } else {
+            this.refreshData();
+          }
+          console.log("approved", res);
+          this.toastr.success("Row Updated");
         },
-        err => {
-          this.toastr.error('Error Updating Row');
-          console.log('err', err);
+        (err) => {
+          this.toastr.error("Error Updating Row");
+          console.log("err", err);
           this.loading = false;
-        });
+        }
+      );
   }
 
   receiveItem(lineItem) {
     if (lineItem.receivedQuantity > 0) {
       this.updateLineItems(lineItem, {
         received: true,
-        receivedQuantity: lineItem.receivedQuantity
+        receivedQuantity: lineItem.receivedQuantity,
       });
-    }
-    else {
-      this.toastr.error('Receiving quantity cannot be less than 1');
+    } else {
+      this.toastr.error("Receiving quantity cannot be less than 1");
     }
   }
 
   removeItem(lineItem) {
-    this.updateLineItems(lineItem, {received: false, receivedQuantity: 0});
+    this.updateLineItems(lineItem, { received: false, receivedQuantity: 0 });
   }
 
   getOrderDetails() {
     let previousState = this.order.state;
     this.loading = true;
-    this.orgModelApi.getReportModels(this.userProfile.orgModelId, {
-      where: {
-        id: this.order.id
-      }
-    })
-      .subscribe((data: any) => {
+    this.orgModelApi
+      .getReportModels(this.userProfile.orgModelId, {
+        where: {
+          id: this.order.id,
+        },
+      })
+      .subscribe(
+        (data: any) => {
           this.order = data[0];
           //fetch line items only if the report status changes from executing to generated
           if (this.order.state !== previousState) {
@@ -476,49 +586,59 @@ export class ReceiveComponent implements OnInit, OnDestroy {
           }
           this.loading = false;
         },
-        err => {
+        (err) => {
           this.loading = false;
-          this.toastr.error('Error updating order state, please refresh');
-        });
-  };
+          this.toastr.error("Error updating order state, please refresh");
+        }
+      );
+  }
 
   receiveConsignment() {
     if (!this.totalReceivedLineItems) {
-      this.toastr.error('Please receive at least one item to send order to supplier');
+      this.toastr.error(
+        "Please receive at least one item to send order to supplier"
+      );
     } else {
       this.loading = true;
       this.creatingPurchaseOrderVend = true;
-      this.orgModelApi.receiveConsignment(
-        this.userProfile.orgModelId,
-        this.order.id,
-        this.totalDiscrepanciesLineItems > 0 && this.sendDiscrepancyReport === 'true'
-      ).subscribe(recieveRequest => {
-        this.toastr.info('Receiving consignment...');
-        this._router.navigate(['/orders/stock-orders']);
-        this.loading = false;
-        this.waitForRecieveWorker(recieveRequest.callId);
-      }, error => {
-        this.loading = false;
-        this.creatingPurchaseOrderVend = false;
-        this.toastr.error('Error in receiving order');
-      });
+      this.orgModelApi
+        .receiveConsignment(
+          this.userProfile.orgModelId,
+          this.order.id,
+          this.totalDiscrepanciesLineItems > 0 &&
+            this.sendDiscrepancyReport === "true"
+        )
+        .subscribe(
+          (recieveRequest) => {
+            this.toastr.info("Receiving consignment...");
+            this._router.navigate(["/orders/stock-orders"]);
+            this.loading = false;
+            this.waitForRecieveWorker(recieveRequest.callId);
+          },
+          (error) => {
+            this.loading = false;
+            this.creatingPurchaseOrderVend = false;
+            this.toastr.error("Error in receiving order");
+          }
+        );
     }
   }
 
   waitForRecieveWorker(callId) {
     const EventSourceUrl = `/notification/${callId}/waitForResponse`;
     this.subscriptions.push(
-      this._eventSourceService.connectToStream(EventSourceUrl)
+      this._eventSourceService
+        .connectToStream(EventSourceUrl)
         .subscribe(([event, es]) => {
           console.log(event);
           if (event.data.success === true) {
             es.close();
             this.creatingPurchaseOrderVend = false;
-            this._router.navigate(['/orders/stock-orders']);
-            this.toastr.success('Order received successfully');
+            this._router.navigate(["/orders/stock-orders"]);
+            this.toastr.success("Order received successfully");
           } else {
             this.creatingPurchaseOrderVend = false;
-            this.toastr.error('Error in receiving order');
+            this.toastr.error("Error in receiving order");
           }
         })
     );
@@ -526,24 +646,29 @@ export class ReceiveComponent implements OnInit, OnDestroy {
 
   downloadOrderCSV() {
     this.loading = true;
-    this.orgModelApi.downloadReportModelCSV(this.userProfile.orgModelId, this.order.id).subscribe((data) => {
-      const link = document.createElement('a');
-      link.href = data;
-      link.download = this.order.name;
-      link.click();
-      this.loading = false;
-    }, err=> {
-      this.loading = false;
-      console.log(err);
-    })
+    this.orgModelApi
+      .downloadReportModelCSV(this.userProfile.orgModelId, this.order.id)
+      .subscribe(
+        (data) => {
+          const link = document.createElement("a");
+          link.href = data;
+          link.download = this.order.name;
+          link.click();
+          this.loading = false;
+        },
+        (err) => {
+          this.loading = false;
+          console.log(err);
+        }
+      );
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.forEach(subscription => {
+    this.subscriptions.forEach((subscription) => {
       if (subscription) {
-        subscription.unsubscribe()
+        subscription.unsubscribe();
       }
-    })
+    });
   }
 
   /**
@@ -553,12 +678,11 @@ export class ReceiveComponent implements OnInit, OnDestroy {
    */
   changeScanMode() {
     this.refreshLineItems();
-    this.searchSKUText = ''
+    this.searchSKUText = "";
     this.selectedCategoryLabelFilter = undefined;
     if (this.enableBarcode) {
       this.searchSKUFocused = true;
-    }
-    else {
+    } else {
       this.searchSKUFocused = false;
     }
   }
@@ -569,7 +693,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
    * @param searchText
    */
   barcodeSearchSKU($event) {
-    if (this.enableBarcode && this.searchSKUText !== '') {
+    if (this.enableBarcode && this.searchSKUText !== "") {
       this.searchAndIncrementProduct(this.searchSKUText);
       $event.target.select();
     }
@@ -584,18 +708,26 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   }
 
   openDeleteModal() {
-    this.bsModalRef = this.modalService.show(DeleteOrderComponent, {initialState: {orderId: this.order.id}});
+    this.bsModalRef = this.modalService.show(DeleteOrderComponent, {
+      initialState: { orderId: this.order.id },
+    });
   }
 
   keyUpEvent(event, searchSKUText) {
-    if (event.keyCode == '13' && !this.enableBarcode && searchSKUText !== '') {
-      this.searchProductBySku(searchSKUText)
+    if (event.keyCode == "13" && !this.enableBarcode && searchSKUText !== "") {
+      this.searchProductBySku(searchSKUText);
     }
   }
 
   refreshData() {
-    this.getReceivedStockOrderLineItems(this.lineItemsLimitPerPage, (this.currentPageReceived - 1 ) * this.lineItemsLimitPerPage);
-    this.getNotReceivedStockOrderLineItems(this.lineItemsLimitPerPage, (this.currentPageNotReceived - 1 ) * this.lineItemsLimitPerPage);
+    this.getReceivedStockOrderLineItems(
+      this.lineItemsLimitPerPage,
+      (this.currentPageReceived - 1) * this.lineItemsLimitPerPage
+    );
+    this.getNotReceivedStockOrderLineItems(
+      this.lineItemsLimitPerPage,
+      (this.currentPageNotReceived - 1) * this.lineItemsLimitPerPage
+    );
     if (this.isDiscrepancyLoaded) {
       this.isDiscrepancyLoaded = false;
     }
@@ -603,8 +735,8 @@ export class ReceiveComponent implements OnInit, OnDestroy {
 
   saveDamaged(lineItem: any) {
     this.updateLineItems(lineItem, {
-      damagedQuantity: this.damagedQuantity
-    })
+      damagedQuantity: this.damagedQuantity,
+    });
   }
 
   decrementDamagedQty() {
@@ -617,7 +749,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
 
   submitButton() {
     if (!this.isDiscrepancyLoaded) {
-      this.getDiscrepanciesForOrder()
+      this.getDiscrepanciesForOrder();
     } else {
       this.receiveConsignment();
     }
