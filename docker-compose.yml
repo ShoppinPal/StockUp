@@ -14,7 +14,7 @@ services:
   lb:
     image: nginx:stable
     ports:
-      - "80:80"
+      - "81:80"
     volumes:
       - type: bind
         source: ./nginx.warehouse.conf
@@ -91,7 +91,7 @@ services:
     image: memcached:latest
 
   mssql:
-    image: microsoft/mssql-server-linux
+    image: mcr.microsoft.com/mssql/server:2019-latest
     volumes:
       - type: bind
         source: ./docker/volumes/mssql
