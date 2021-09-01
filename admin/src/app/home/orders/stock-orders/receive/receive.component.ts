@@ -19,6 +19,8 @@ import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 import { DeleteOrderComponent } from "../../shared-components/delete-order/delete-order.component";
 import { SharedDataService } from "../../../../shared/services/shared-data.service";
 import Utils from "../../../../shared/constants/utils";
+import Dexie from "dexie";
+import { productDB } from "./services/indexdb";
 
 @Component({
   selector: "app-receive",
@@ -116,7 +118,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     }
   }
 
-  getReceivedStockOrderLineItems(
+  async getReceivedStockOrderLineItems(
     limit?: number,
     skip?: number,
     productModelIds?: Array<string>
@@ -196,16 +198,42 @@ export class ReceiveComponent implements OnInit, OnDestroy {
         countFilter
       )
     );
+
+    // 1. Get all products from index DB
+    const products = await productDB.products.toArray();
+
+    // 2. If products are already in index DB, then get the product from index DB & Don't call API
+    if (products.length > 0) {
+      this.loading = false;
+      this.currentPageReceived = skip / this.lineItemsLimitPerPage + 1;
+      this.totalReceivedLineItems = products.length;
+      this.receivedLineItems = products;
+      this.receivedLineItems.forEach((x) => {
+        x.isCollapsed = true;
+      });
+
+      return;
+    }
+
     fetchLineItems.subscribe(
       (data: any) => {
+        const products = data[0];
+
         // TODO: 1. Add Data to IndexDB here
-        this.loading = false;
-        this.currentPageReceived = skip / this.lineItemsLimitPerPage + 1;
-        this.totalReceivedLineItems = data[1].count;
-        this.receivedLineItems = data[0];
-        this.receivedLineItems.forEach((x) => {
-          x.isCollapsed = true;
-        });
+        productDB.products
+          .bulkAdd(products)
+          .then(() => {
+            this.loading = false;
+            this.currentPageReceived = skip / this.lineItemsLimitPerPage + 1;
+            this.totalReceivedLineItems = data[1].count;
+            this.receivedLineItems = data[0];
+            this.receivedLineItems.forEach((x) => {
+              x.isCollapsed = true;
+            });
+          })
+          .catch((err) => {
+            console.log("Error in bulk add", err);
+          });
       },
       (err) => {
         this.loading = false;
@@ -419,17 +447,53 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     );
   }
 
-  searchAndIncrementProduct(sku?: string, force: boolean = false) {
+  async searchAndIncrementProduct(sku?: string, force: boolean = false) {
     this.discrepancyModal.hide();
     // this.loading = true;
     this.searchSKUFocused = false;
     this.selectedCategoryLabelFilter = undefined;
-    // TODO: 2. Add a check for the product already exists in indexDB => this.receivedLineItems.find((item) => item.id === this.order.id)
+    console.log(sku);
+
+    const products = await productDB.products.toArray();
+
+    // TODO: 2. Add a check for the product already exists in indexDB => products.find((item) => item.id === this.order.id)
+    const productDataIfExists = products.find(
+      (products) => products.productModelSku === sku
+    );
 
     // TODO: 3. If product exists in indexDB, then just update the quantity & call API to update the quantity
+    if (productDataIfExists) {
+      // 3.1. Show in UI
+      this.updateReceivedQuantity({
+        ...productDataIfExists,
+        receivedQuantity: productDataIfExists.receivedQuantity + 1,
+      });
 
-    // TODO: 4. If product does not exist in indexDB, then call API to fetch the product details and add to indexDB
+      // 3.2. Update the quantity in indexDB
+      await productDB.products
+        .where({ productModelSku: sku })
+        .modify({ receivedQuantity: productDataIfExists.receivedQuantity + 1 });
 
+      // 3.2 Call the API
+      this.scanBarcodeAPI(sku).catch(async (error) => {
+        this.loading = false;
+        this.toastr.error(error.message);
+
+        // 3.3. If API fails, then update the quantity in indexDB
+        this.updateReceivedQuantity({
+          ...productDataIfExists,
+          receivedQuantity: productDataIfExists.receivedQuantity - 1,
+        });
+
+        // 3.2. Update the quantity in indexDB
+        productDB.products.where({ productModelSku: sku }).modify({
+          receivedQuantity: productDataIfExists.receivedQuantity - 1,
+        });
+      });
+    }
+  }
+
+  async scanBarcodeAPI(sku?: string, force: boolean = false) {
     this.orgModelApi
       .scanBarcodeStockOrder(
         this.userProfile.orgModelId,
@@ -440,24 +504,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       )
       .subscribe(
         (searchedOrderItem) => {
-          console.log("searchedOrderItem", searchedOrderItem);
-
-          if (searchedOrderItem.showDiscrepancyAlert) {
-            this.discrepancyOrderItem = searchedOrderItem;
-            this.discrepancyModal.show();
-          } else {
-            this.toastr.success("Row updated");
-          }
-          this.searchSKUFocused = true;
-          this.receivedLineItems = [searchedOrderItem];
-          this.totalReceivedLineItems = this.receivedLineItems.length;
-          if (!searchedOrderItem.received) {
-            this.notReceivedLineItems = [searchedOrderItem];
-          } else {
-            this.notReceivedLineItems = [];
-          }
-          this.totalNotReceivedLineItems = this.notReceivedLineItems.length;
-          this.loading = false;
+          return searchedOrderItem;
         },
         (error) => {
           this.loading = false;
@@ -471,48 +518,70 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       );
   }
 
-  searchProductBySku(sku?: string) {
-    // this.loading = true;
-    var pattern = new RegExp(".*" + sku + ".*", "i");
-    /* case-insensitive RegExp search */
-    var filterData = pattern.toString();
-    this.orgModelApi
-      .getProductModels(this.userProfile.orgModelId, {
-        where: {
-          sku: { regexp: filterData },
-        },
-      })
-      .subscribe((data: any) => {
-        if (data.length) {
-          var productModelIds = data.map(function filterProductIds(
-            eachProduct
-          ) {
-            return eachProduct.id;
-          });
-          this.getReceivedStockOrderLineItems(
-            this.lineItemsLimitPerPage,
-            0,
-            productModelIds
-          );
-          this.getNotReceivedStockOrderLineItems(
-            this.lineItemsLimitPerPage,
-            0,
-            productModelIds
-          );
-        } else {
-          this.loading = false;
-          this.currentPageNotReceived = 1;
-          this.totalNotReceivedLineItems = 0;
-          this.notReceivedLineItems = [];
-          this.receivedLineItems = [];
-          this.totalReceivedLineItems = 0;
-          this.currentPageReceived = 1;
-          this.backOrderedLineItems = [];
-          this.totalBackOrderedLineItems = 0;
-          this.currentPageBackOrdered = 1;
-        }
-      });
+  updateReceivedQuantity(productDataIfExists: any) {
+    console.log(productDataIfExists);
+    if (productDataIfExists.showDiscrepancyAlert) {
+      this.discrepancyOrderItem = productDataIfExists;
+      this.discrepancyModal.show();
+    } else {
+      this.toastr.success("Row updated");
+    }
+    this.searchSKUFocused = true;
+    this.receivedLineItems = [productDataIfExists];
+    this.totalReceivedLineItems = this.receivedLineItems.length;
+    if (!productDataIfExists.received) {
+      this.notReceivedLineItems = [productDataIfExists];
+    } else {
+      this.notReceivedLineItems = [];
+    }
+    this.totalNotReceivedLineItems = this.notReceivedLineItems.length;
+    this.loading = false;
   }
+
+  // searchProductBySku(sku?: string) {
+  //   // this.loading = true;
+  //   var pattern = new RegExp(".*" + sku + ".*", "i");
+  //   /* case-insensitive RegExp search */
+  //   var filterData = pattern.toString();
+
+  //   this.searchAndIncrementProduct(sku);
+  //   this.orgModelApi
+  //     .getProductModels(this.userProfile.orgModelId, {
+  //       where: {
+  //         sku: { regexp: filterData },
+  //       },
+  //     })
+  //     .subscribe((data: any) => {
+  //       if (data.length) {
+  //         var productModelIds = data.map(function filterProductIds(
+  //           eachProduct
+  //         ) {
+  //           return eachProduct.id;
+  //         });
+  //         this.getReceivedStockOrderLineItems(
+  //           this.lineItemsLimitPerPage,
+  //           0,
+  //           productModelIds
+  //         );
+  //         this.getNotReceivedStockOrderLineItems(
+  //           this.lineItemsLimitPerPage,
+  //           0,
+  //           productModelIds
+  //         );
+  //       } else {
+  //         this.loading = false;
+  //         this.currentPageNotReceived = 1;
+  //         this.totalNotReceivedLineItems = 0;
+  //         this.notReceivedLineItems = [];
+  //         this.receivedLineItems = [];
+  //         this.totalReceivedLineItems = 0;
+  //         this.currentPageReceived = 1;
+  //         this.backOrderedLineItems = [];
+  //         this.totalBackOrderedLineItems = 0;
+  //         this.currentPageBackOrdered = 1;
+  //       }
+  //     });
+  // }
 
   updateLineItems(lineItems, data: any) {
     this.loading = true;
@@ -715,7 +784,8 @@ export class ReceiveComponent implements OnInit, OnDestroy {
 
   keyUpEvent(event, searchSKUText) {
     if (event.keyCode == "13" && !this.enableBarcode && searchSKUText !== "") {
-      this.searchProductBySku(searchSKUText);
+      // this.searchProductBySku(searchSKUText);
+      this.searchAndIncrementProduct(searchSKUText);
     }
   }
 
