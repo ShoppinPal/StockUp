@@ -113,7 +113,7 @@ let runMe = function (payload, config, taskId, messageId) {
                     ordersCount: result.length,
                     messageId
                 });
-                if (orderConfigModel.orderStatus === REPORT_STATES.FULFILMENT_PENDING) {
+                if (orderConfigModel.isFulfillUsingFile === true) {
                     var fulfillOrderFromFile = require('./fulfill-order-from-file-vend');
                     return fulfillOrderFromFile.run(db, result, orderConfigModel, payload, config, taskId, messageId);
                 } else {

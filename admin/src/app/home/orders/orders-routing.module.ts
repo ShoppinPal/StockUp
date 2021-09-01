@@ -3,6 +3,7 @@ import {Routes, RouterModule} from '@angular/router';
 import {AccessService} from "../../shared/services/access.service";
 import {CreateOrderComponent} from "./create-order/create-order.component";
 import {CreateOrderResolverService} from "./create-order/services/create-order-resolver.service";
+import {ImportOrdersComponent} from './import-orders/import-orders.component';
 
 
 const routes: Routes = [
@@ -29,6 +30,16 @@ const routes: Routes = [
         component: CreateOrderComponent,
         data: {
           title: 'Create Order'
+        },
+        resolve: {
+          resolverData: CreateOrderResolverService
+        }
+      },
+      {
+        path: 'import-order',
+        component: ImportOrdersComponent,
+        data: {
+          title: 'Import Order'
         },
         resolve: {
           resolverData: CreateOrderResolverService
