@@ -45,13 +45,21 @@ function retryIfErrorCode(fn,
                             times--;
                             error = err;
                             logger.error({
+                                functionName: 'retryIfErrorCode',
                                 message: 'Api call failed, will retry',
-                                error
+                                error: err,
+                                response: err && err.response ? err.response: {},
+                                errorMessage: err && err.error ? err.error: {},
                             });
                             setTimeout(function () {
                                 attempt();
                             }, delay);
                         } else {
+                            logger.error({
+                                functionName: 'retryIfErrorCode',
+                                message: 'Api call failed, will forward error to function',
+                                error: err,
+                            });
                             reject(err);
                         }
                     });
