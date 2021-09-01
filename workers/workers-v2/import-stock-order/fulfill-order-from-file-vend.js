@@ -473,6 +473,7 @@ function mapExistingOrdersWithFoundOrders(db, orders, orderConfigModel, payload,
                 .then(function (response){
                     if (response !== NO_MATCH_FOUND) {
                         fulfilledReportCount++;
+
                         logger.debug({
                             message: 'Report Fulfilled Successfully',
                             eachOrder,
@@ -481,7 +482,25 @@ function mapExistingOrdersWithFoundOrders(db, orders, orderConfigModel, payload,
                             messageId,
                             matchedReportModel
                         });
+                        return db.collection('ReportModel').updateOne({
+                            _id: ObjectId(matchedReportModel._id)
+                        }, {
+                            $set: {
+                                state: orderConfigModel.orderStatus
+                            }
+                        });
                     }
+                })
+                .catch(function (error){
+                    logger.error({
+                        message: 'Cannot update report state',
+                        eachOrder,
+                        error,
+                        supplierModelId,
+                        storeModelId,
+                        messageId
+                    });
+                    return Promise.resolve();
                 })
                 ;
         }, {
