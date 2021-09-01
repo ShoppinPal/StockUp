@@ -444,6 +444,7 @@ function mapSpreadSheetDataToOrders(db, orderConfigModel, spreadSheetRows, userM
                             orderQuantity: eachSpreadSheetRow[orderQuantityFileHeader],
                             originalOrderQuantity: eachSpreadSheetRow[orderQuantityFileHeader],
                             fulfilledQuantity: eachSpreadSheetRow[fulfilledQuantityFileHeader],
+                            receivedQuantity: 0,
                             categoryModelId: ObjectId(eachSpreadSheetRow.categoryModelId),
                             categoryModelName: eachSpreadSheetRow.categoryModelName, //need for sorting
                             binLocation: eachSpreadSheetRow.binLocation,
