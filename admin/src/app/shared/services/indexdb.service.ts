@@ -1,4 +1,5 @@
 import Dexie from "dexie";
+import { Injectable } from "@angular/core";
 
 // Declare Database
 class ProductDatabase extends Dexie {
@@ -14,7 +15,7 @@ class ProductDatabase extends Dexie {
   }
 }
 
-class APIQueueDatabase extends Dexie {
+export class APIQueueDatabase extends Dexie {
   skus: Dexie.Table<any, number>;
 
   constructor() {
@@ -28,6 +29,4 @@ class APIQueueDatabase extends Dexie {
 
 const productDB = new ProductDatabase();
 
-const skusDB = new APIQueueDatabase();
-
-export { productDB, skusDB };
+export { productDB };

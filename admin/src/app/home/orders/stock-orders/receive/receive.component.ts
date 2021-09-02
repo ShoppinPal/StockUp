@@ -20,7 +20,8 @@ import { DeleteOrderComponent } from "../../shared-components/delete-order/delet
 import { SharedDataService } from "../../../../shared/services/shared-data.service";
 import Utils from "../../../../shared/constants/utils";
 import Dexie from "dexie";
-import { productDB } from "./services/indexdb";
+import { BarcodeReceiveService } from "app/shared/services/barcodescan.service";
+import { productDB } from "app/shared/services/indexdb.service";
 
 @Component({
   selector: "app-receive",
@@ -82,7 +83,8 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     private _eventSourceService: EventSourceService,
     private auth: LoopBackAuth,
     private modalService: BsModalService,
-    private sharedDataService: SharedDataService
+    private sharedDataService: SharedDataService,
+    private barcodeReceiveService: BarcodeReceiveService
   ) {}
 
   ngOnInit() {
@@ -449,6 +451,25 @@ export class ReceiveComponent implements OnInit, OnDestroy {
 
     // TODO: 3. If product exists in indexDB, then just update the quantity & call API to update the quantity
     if (productDataIfExists) {
+      // 1 Add API to Queue
+      this.barcodeReceiveService
+        .addToQueue(this.userProfile.orgModelId, this.order.id, sku)
+        .catch((error) => {
+          this.loading = false;
+          this.toastr.error(error.message);
+
+          // 3.3. If API fails, then update the quantity in indexDB
+          this.updateReceivedQuantity({
+            ...productDataIfExists,
+            receivedQuantity: productDataIfExists.receivedQuantity - 1,
+          });
+
+          // 3.2. Update the quantity in indexDB
+          productDB.products.where({ productModelSku: sku }).modify({
+            receivedQuantity: productDataIfExists.receivedQuantity - 1,
+          });
+        });
+
       // 3.1. Show in UI
       this.updateReceivedQuantity({
         ...productDataIfExists,
@@ -460,22 +481,21 @@ export class ReceiveComponent implements OnInit, OnDestroy {
         .where({ productModelSku: sku })
         .modify({ receivedQuantity: productDataIfExists.receivedQuantity + 1 });
 
-      // 3.2 Call the API
-      this.scanBarcodeAPI(sku).catch(async (error) => {
-        this.loading = false;
-        this.toastr.error(error.message);
+      // this.scanBarcodeAPI(sku).catch(async (error) => {
+      //   this.loading = false;
+      //   this.toastr.error(error.message);
 
-        // 3.3. If API fails, then update the quantity in indexDB
-        this.updateReceivedQuantity({
-          ...productDataIfExists,
-          receivedQuantity: productDataIfExists.receivedQuantity - 1,
-        });
+      //   // 3.3. If API fails, then update the quantity in indexDB
+      //   this.updateReceivedQuantity({
+      //     ...productDataIfExists,
+      //     receivedQuantity: productDataIfExists.receivedQuantity - 1,
+      //   });
 
-        // 3.2. Update the quantity in indexDB
-        productDB.products.where({ productModelSku: sku }).modify({
-          receivedQuantity: productDataIfExists.receivedQuantity - 1,
-        });
-      });
+      //   // 3.2. Update the quantity in indexDB
+      //   productDB.products.where({ productModelSku: sku }).modify({
+      //     receivedQuantity: productDataIfExists.receivedQuantity - 1,
+      //   });
+      // });
     }
   }
 
