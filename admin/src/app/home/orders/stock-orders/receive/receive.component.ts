@@ -50,7 +50,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   public currentPageDiscrepancies: number = 1;
   public currentPageReceived: number = 1;
   public currentPageNotReceived: number = 1;
-  public lineItemsLimitPerPage: number = 100;
+  public lineItemsLimitPerPage: number = 1;
   public creatingTransferOrder: boolean = false;
   public creatingPurchaseOrderVend: boolean = false;
   public reportStates: any = constants.REPORT_STATES;
@@ -199,21 +199,8 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       )
     );
 
-    // 1. Get all products from index DB
-    const products = await productDB.products.toArray();
-
-    // 2. If products are already in index DB, then get the product from index DB & Don't call API
-    if (products.length > 0) {
-      this.loading = false;
-      this.currentPageReceived = skip / this.lineItemsLimitPerPage + 1;
-      this.totalReceivedLineItems = products.length;
-      this.receivedLineItems = products;
-      this.receivedLineItems.forEach((x) => {
-        x.isCollapsed = true;
-      });
-
-      return;
-    }
+    // 1. Delete all line items
+    await productDB.products.clear();
 
     fetchLineItems.subscribe(
       (data: any) => {
@@ -452,7 +439,6 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     // this.loading = true;
     this.searchSKUFocused = false;
     this.selectedCategoryLabelFilter = undefined;
-    console.log(sku);
 
     const products = await productDB.products.toArray();
 
@@ -519,7 +505,6 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   }
 
   updateReceivedQuantity(productDataIfExists: any) {
-    console.log(productDataIfExists);
     if (productDataIfExists.showDiscrepancyAlert) {
       this.discrepancyOrderItem = productDataIfExists;
       this.discrepancyModal.show();
