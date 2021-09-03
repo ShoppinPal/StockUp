@@ -51,7 +51,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   public currentPageDiscrepancies: number = 1;
   public currentPageReceived: number = 1;
   public currentPageNotReceived: number = 1;
-  public lineItemsLimitPerPage: number = 1;
+  public lineItemsLimitPerPage: number = 100;
   public creatingTransferOrder: boolean = false;
   public creatingPurchaseOrderVend: boolean = false;
   public reportStates: any = constants.REPORT_STATES;
@@ -505,7 +505,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
             receivedQuantity: searchedOrderItem.receivedQuantity,
           });
 
-          // 1. Add product to index DB
+          // 2. Add product to index DB
           productDB.products.add(searchedOrderItem);
 
           // 2. Add API to Queue
