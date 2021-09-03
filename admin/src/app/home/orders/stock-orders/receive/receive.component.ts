@@ -507,13 +507,6 @@ export class ReceiveComponent implements OnInit, OnDestroy {
 
           // 2. Add product to index DB
           productDB.products.add(searchedOrderItem);
-
-          // 2. Add API to Queue
-          this.barcodeReceiveService.addToQueue(
-            this.userProfile.orgModelId,
-            this.order.id,
-            sku
-          );
         },
         (error) => {
           this.loading = false;

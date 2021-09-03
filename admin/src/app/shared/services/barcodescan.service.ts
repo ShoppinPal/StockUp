@@ -26,7 +26,7 @@ export class BarcodeReceiveService {
   }
 
   async addToQueue(orgModelId: string, orderId: string, sku: string) {
-    if (this.queueConsuming === false) {
+    if (!this.queueConsuming) {
       this.consumeQueue();
     }
     return this.receivingTable.add({
