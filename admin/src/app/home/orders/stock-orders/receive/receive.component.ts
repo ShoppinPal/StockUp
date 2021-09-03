@@ -481,22 +481,11 @@ export class ReceiveComponent implements OnInit, OnDestroy {
         .where({ productModelSku: sku })
         .modify({ receivedQuantity: productDataIfExists.receivedQuantity + 1 });
 
-      // this.scanBarcodeAPI(sku).catch(async (error) => {
-      //   this.loading = false;
-      //   this.toastr.error(error.message);
-
-      //   // 3.3. If API fails, then update the quantity in indexDB
-      //   this.updateReceivedQuantity({
-      //     ...productDataIfExists,
-      //     receivedQuantity: productDataIfExists.receivedQuantity - 1,
-      //   });
-
-      //   // 3.2. Update the quantity in indexDB
-      //   productDB.products.where({ productModelSku: sku }).modify({
-      //     receivedQuantity: productDataIfExists.receivedQuantity - 1,
-      //   });
-      // });
+      return;
     }
+
+    // 4. If item doesn't found in recieving queue, then call API to get the product details
+    this.scanBarcodeAPI(sku);
   }
 
   async scanBarcodeAPI(sku?: string, force: boolean = false) {
@@ -510,7 +499,21 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       )
       .subscribe(
         (searchedOrderItem) => {
-          return searchedOrderItem;
+          // 1. Update UI
+          this.updateReceivedQuantity({
+            ...searchedOrderItem,
+            receivedQuantity: searchedOrderItem.receivedQuantity,
+          });
+
+          // 1. Add product to index DB
+          productDB.products.add(searchedOrderItem);
+
+          // 2. Add API to Queue
+          this.barcodeReceiveService.addToQueue(
+            this.userProfile.orgModelId,
+            this.order.id,
+            sku
+          );
         },
         (error) => {
           this.loading = false;
