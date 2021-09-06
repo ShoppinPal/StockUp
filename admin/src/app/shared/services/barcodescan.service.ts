@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { APIQueueDatabase } from "./indexdb.service";
 import Dexie from "dexie";
 import { OrgModelApi } from "../lb-sdk";
+import { ToastrService } from "ngx-toastr";
 
 export interface BarcodeReceive {
   sku: string;
@@ -19,7 +20,8 @@ export class BarcodeReceiveService {
 
   constructor(
     private dexieService: APIQueueDatabase,
-    private orgModelApi: OrgModelApi
+    private orgModelApi: OrgModelApi,
+    private toastr: ToastrService
   ) {
     this.receivingTable = this.dexieService.table("skus");
     this.consumeQueue();
@@ -72,9 +74,11 @@ export class BarcodeReceiveService {
             .toPromise();
 
           // After calling out the successful request => Remove item from indexDB
-          this.receivingTable.where("sku").equals(receivableItem.sku).delete();
+          this.receivingTable.delete(receivableItem.id);
         } catch (e) {
           console.error(e);
+          this.toastr.error("Error Updating Row");
+          this.receivingTable.delete(receivableItem.id);
           await this.promiseSleep(5);
         }
       }

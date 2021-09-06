@@ -90,8 +90,12 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.userProfile = this._userProfileService.getProfileData();
     this._route.data.subscribe(
-      (data: any) => {
+      async (data: any) => {
         this.order = data.stockOrderDetails[0];
+
+        // 1. Delete all line items
+        await productDB.products.clear();
+
         this.refreshData();
         this.getBackOrderedStockOrderLineItems();
       },
@@ -201,28 +205,34 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       )
     );
 
-    // 1. Delete all line items
-    await productDB.products.clear();
-
     fetchLineItems.subscribe(
       (data: any) => {
         const products = data[0];
 
-        // TODO: 1. Add Data to IndexDB here
-        productDB.products
-          .bulkAdd(products)
-          .then(() => {
-            this.loading = false;
-            this.currentPageReceived = skip / this.lineItemsLimitPerPage + 1;
-            this.totalReceivedLineItems = data[1].count;
-            this.receivedLineItems = data[0];
-            this.receivedLineItems.forEach((x) => {
-              x.isCollapsed = true;
-            });
-          })
-          .catch((err) => {
-            console.log("Error in bulk add", err);
-          });
+        console.log(products);
+
+        // // TODO: 1. Add Data to IndexDB here
+        // productDB.products
+        //   .bulkAdd(products)
+        //   .then(() => {
+        //     this.loading = false;
+        //     this.currentPageReceived = skip / this.lineItemsLimitPerPage + 1;
+        //     this.totalReceivedLineItems = data[1].count;
+        //     this.receivedLineItems = data[0];
+        //     this.receivedLineItems.forEach((x) => {
+        //       x.isCollapsed = true;
+        //     });
+        //   })
+        //   .catch((err) => {
+        //     console.log("Error in bulk add", err);
+        //   });
+        this.loading = false;
+        this.currentPageReceived = skip / this.lineItemsLimitPerPage + 1;
+        this.totalReceivedLineItems = data[1].count;
+        this.receivedLineItems = data[0];
+        this.receivedLineItems.forEach((x) => {
+          x.isCollapsed = true;
+        });
       },
       (err) => {
         this.loading = false;
@@ -313,19 +323,31 @@ export class ReceiveComponent implements OnInit, OnDestroy {
         countFilter
       )
     );
+
     fetchLineItems.subscribe(
       (data: any) => {
-        this.loading = false;
-        this.currentPageNotReceived = skip / this.lineItemsLimitPerPage + 1;
-        this.totalNotReceivedLineItems = data[1].count;
-        for (var i = 0; i < data[0].length; i++) {
-          // Prefill value if  Manual mode && Nothing has been recieved yet
-          if (!this.enableBarcode && data[0][i].receivedQuantity === 0) {
-            data[0][i].receivedQuantity = data[0][i].fulfilledQuantity;
-          }
-          data[0][i].isCollapsed = true;
-        }
-        this.notReceivedLineItems = data[0];
+        const products = data[0];
+
+        // TODO: 1. Add Data to IndexDB here
+        productDB.products
+          .bulkAdd(products)
+          .then(() => {
+            this.loading = false;
+            this.currentPageNotReceived = skip / this.lineItemsLimitPerPage + 1;
+            this.totalNotReceivedLineItems = data[1].count;
+            this.notReceivedLineItems = data[0];
+            for (var i = 0; i < data[0].length; i++) {
+              // Prefill value if  Manual mode && Nothing has been recieved yet
+              if (!this.enableBarcode && data[0][i].receivedQuantity === 0) {
+                data[0][i].receivedQuantity = data[0][i].fulfilledQuantity;
+              }
+              data[0][i].isCollapsed = true;
+            }
+            this.notReceivedLineItems = data[0];
+          })
+          .catch((err) => {
+            console.log("Error in bulk add", err);
+          });
       },
       (err) => {
         this.loading = false;
