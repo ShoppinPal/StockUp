@@ -51,7 +51,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   public currentPageDiscrepancies: number = 1;
   public currentPageReceived: number = 1;
   public currentPageNotReceived: number = 1;
-  public lineItemsLimitPerPage: number = 100;
+  public lineItemsLimitPerPage: number = 1;
   public creatingTransferOrder: boolean = false;
   public creatingPurchaseOrderVend: boolean = false;
   public reportStates: any = constants.REPORT_STATES;
@@ -129,6 +129,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     skip?: number,
     productModelIds?: Array<string>
   ) {
+    console.log(limit);
     if (!(limit && skip)) {
       limit = this.lineItemsLimitPerPage || 100;
       skip = 0;
@@ -209,7 +210,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       (data: any) => {
         const products = data[0];
 
-        console.log(products);
+        // console.log(products);
 
         // // TODO: 1. Add Data to IndexDB here
         // productDB.products
