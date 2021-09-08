@@ -47,7 +47,7 @@ export class BarcodeReceiveService {
 
   async consumeQueue() {
     try {
-      console.log("Starting consumer");
+      // console.log("Starting consumer");
 
       this.queueConsuming = true;
 
@@ -85,7 +85,7 @@ export class BarcodeReceiveService {
     } catch (e) {
       console.error(e);
     }
-    console.log("End consumer");
+    // console.log("End consumer");
 
     this.queueConsuming = false;
   }

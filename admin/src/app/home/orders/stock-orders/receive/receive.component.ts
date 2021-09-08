@@ -129,7 +129,6 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     skip?: number,
     productModelIds?: Array<string>
   ) {
-    console.log(limit);
     if (!(limit && skip)) {
       limit = this.lineItemsLimitPerPage || 100;
       skip = 0;
@@ -208,25 +207,6 @@ export class ReceiveComponent implements OnInit, OnDestroy {
 
     fetchLineItems.subscribe(
       (data: any) => {
-        const products = data[0];
-
-        // console.log(products);
-
-        // // TODO: 1. Add Data to IndexDB here
-        // productDB.products
-        //   .bulkAdd(products)
-        //   .then(() => {
-        //     this.loading = false;
-        //     this.currentPageReceived = skip / this.lineItemsLimitPerPage + 1;
-        //     this.totalReceivedLineItems = data[1].count;
-        //     this.receivedLineItems = data[0];
-        //     this.receivedLineItems.forEach((x) => {
-        //       x.isCollapsed = true;
-        //     });
-        //   })
-        //   .catch((err) => {
-        //     console.log("Error in bulk add", err);
-        //   });
         this.loading = false;
         this.currentPageReceived = skip / this.lineItemsLimitPerPage + 1;
         this.totalReceivedLineItems = data[1].count;
@@ -329,26 +309,34 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       (data: any) => {
         const products = data[0];
 
-        // TODO: 1. Add Data to IndexDB here
-        productDB.products
-          .bulkAdd(products)
-          .then(() => {
-            this.loading = false;
-            this.currentPageNotReceived = skip / this.lineItemsLimitPerPage + 1;
-            this.totalNotReceivedLineItems = data[1].count;
-            this.notReceivedLineItems = data[0];
-            for (var i = 0; i < data[0].length; i++) {
-              // Prefill value if  Manual mode && Nothing has been recieved yet
-              if (!this.enableBarcode && data[0][i].receivedQuantity === 0) {
-                data[0][i].receivedQuantity = data[0][i].fulfilledQuantity;
-              }
-              data[0][i].isCollapsed = true;
+        products.forEach(async (product) => {
+          // Check if product is already in IndexDB
+          const isProductExists =
+            (await productDB.products
+              .where("productModelSku")
+              .equals(product.productModelSku)
+              .count()) === 1;
+
+          if (!isProductExists) {
+            // 1. Add Data to IndexDB here
+            productDB.products.add(product).catch((err) => {
+              console.log("Error in bulk add", err);
+            });
+          }
+
+          this.loading = false;
+          this.currentPageNotReceived = skip / this.lineItemsLimitPerPage + 1;
+          this.totalNotReceivedLineItems = data[1].count;
+          this.notReceivedLineItems = data[0];
+          for (var i = 0; i < data[0].length; i++) {
+            // Prefill value if  Manual mode && Nothing has been recieved yet
+            if (!this.enableBarcode && data[0][i].receivedQuantity === 0) {
+              data[0][i].receivedQuantity = data[0][i].fulfilledQuantity;
             }
-            this.notReceivedLineItems = data[0];
-          })
-          .catch((err) => {
-            console.log("Error in bulk add", err);
-          });
+            data[0][i].isCollapsed = true;
+          }
+          this.notReceivedLineItems = data[0];
+        });
       },
       (err) => {
         this.loading = false;
@@ -467,12 +455,12 @@ export class ReceiveComponent implements OnInit, OnDestroy {
 
     const products = await productDB.products.toArray();
 
-    // TODO: 2. Add a check for the product already exists in indexDB => products.find((item) => item.id === this.order.id)
+    // 2. Add a check for the product already exists in indexDB => products.find((item) => item.id === this.order.id)
     const productDataIfExists = products.find(
       (products) => products.productModelSku === sku
     );
 
-    // TODO: 3. If product exists in indexDB, then just update the quantity & call API to update the quantity
+    // 3. If product exists in indexDB, then just update the quantity & call API to update the quantity
     if (productDataIfExists) {
       // 1 Add API to Queue
       this.barcodeReceiveService
@@ -561,51 +549,6 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     this.totalNotReceivedLineItems = this.notReceivedLineItems.length;
     this.loading = false;
   }
-
-  // searchProductBySku(sku?: string) {
-  //   // this.loading = true;
-  //   var pattern = new RegExp(".*" + sku + ".*", "i");
-  //   /* case-insensitive RegExp search */
-  //   var filterData = pattern.toString();
-
-  //   this.searchAndIncrementProduct(sku);
-  //   this.orgModelApi
-  //     .getProductModels(this.userProfile.orgModelId, {
-  //       where: {
-  //         sku: { regexp: filterData },
-  //       },
-  //     })
-  //     .subscribe((data: any) => {
-  //       if (data.length) {
-  //         var productModelIds = data.map(function filterProductIds(
-  //           eachProduct
-  //         ) {
-  //           return eachProduct.id;
-  //         });
-  //         this.getReceivedStockOrderLineItems(
-  //           this.lineItemsLimitPerPage,
-  //           0,
-  //           productModelIds
-  //         );
-  //         this.getNotReceivedStockOrderLineItems(
-  //           this.lineItemsLimitPerPage,
-  //           0,
-  //           productModelIds
-  //         );
-  //       } else {
-  //         this.loading = false;
-  //         this.currentPageNotReceived = 1;
-  //         this.totalNotReceivedLineItems = 0;
-  //         this.notReceivedLineItems = [];
-  //         this.receivedLineItems = [];
-  //         this.totalReceivedLineItems = 0;
-  //         this.currentPageReceived = 1;
-  //         this.backOrderedLineItems = [];
-  //         this.totalBackOrderedLineItems = 0;
-  //         this.currentPageBackOrdered = 1;
-  //       }
-  //     });
-  // }
 
   updateLineItems(lineItems, data: any) {
     this.loading = true;
@@ -808,7 +751,6 @@ export class ReceiveComponent implements OnInit, OnDestroy {
 
   keyUpEvent(event, searchSKUText) {
     if (event.keyCode == "13" && !this.enableBarcode && searchSKUText !== "") {
-      // this.searchProductBySku(searchSKUText);
       this.searchAndIncrementProduct(searchSKUText);
     }
   }
