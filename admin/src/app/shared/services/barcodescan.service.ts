@@ -16,7 +16,7 @@ export interface BarcodeReceive {
 @Injectable()
 export class BarcodeReceiveService {
   queueConsuming = false;
-  receivingTable: Dexie.Table<BarcodeReceive, number | (number[])>;
+  receivingTable: any;
 
   constructor(
     private dexieService: APIQueueDatabase,
