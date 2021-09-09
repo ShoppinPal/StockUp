@@ -5,7 +5,6 @@ import { ToastrService } from 'ngx-toastr';
 
 export interface BarcodeReceive {
   sku: string;
-  done: boolean;
   name?: string;
   orderId: string;
   orgModelId: string;
