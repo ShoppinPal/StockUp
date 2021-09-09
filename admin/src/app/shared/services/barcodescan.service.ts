@@ -1,7 +1,7 @@
-import { Injectable } from "@angular/core";
-import { APIQueueDatabase } from "./indexdb.service";
-import { OrgModelApi } from "../lb-sdk";
-import { ToastrService } from "ngx-toastr";
+import { Injectable } from '@angular/core';
+import { APIQueueDatabase } from './indexdb.service';
+import { OrgModelApi } from '../lb-sdk';
+import { ToastrService } from 'ngx-toastr';
 
 export interface BarcodeReceive {
   sku: string;
@@ -22,7 +22,7 @@ export class BarcodeReceiveService {
     private orgModelApi: OrgModelApi,
     private toastr: ToastrService
   ) {
-    this.receivingTable = this.dexieService.table("skus");
+    this.receivingTable = this.dexieService.table('skus');
     this.consumeQueue();
   }
 
@@ -62,21 +62,13 @@ export class BarcodeReceiveService {
         }
 
         try {
-          await this.orgModelApi
-            .scanBarcodeStockOrder(
-              receivableItem.orgModelId,
-              "receive",
-              receivableItem.sku,
-              receivableItem.orderId,
-              true
-            )
-            .toPromise();
+          await this.addScannedProductToRecieved(receivableItem);
 
           // After calling out the successful request => Remove item from indexDB
           this.receivingTable.delete(receivableItem.id);
         } catch (e) {
           console.error(e);
-          this.toastr.error("Error Updating Row");
+          this.toastr.error('Error Updating Row');
           this.receivingTable.delete(receivableItem.id);
           await this.promiseSleep(5);
         }
@@ -87,5 +79,16 @@ export class BarcodeReceiveService {
     // console.log("End consumer");
 
     this.queueConsuming = false;
+  }
+
+  addScannedProductToRecieved = async (receivableItem: any): Promise<any> => {
+    return this.orgModelApi
+      .scanBarcodeStockOrder(
+        receivableItem.orgModelId,
+        'receive',
+        receivableItem.sku,
+        receivableItem.orderId,
+        true
+      )
   }
 }

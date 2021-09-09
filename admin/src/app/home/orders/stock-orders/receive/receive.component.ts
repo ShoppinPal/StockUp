@@ -497,15 +497,16 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   }
 
   async scanBarcodeAPI(sku?: string, force: boolean = false) {
-    this.orgModelApi
-      .scanBarcodeStockOrder(
-        this.userProfile.orgModelId,
-        'receive',
-        sku,
-        this.order.id,
-        force
-      )
-      .subscribe(
+    const receivableItem = {
+      orgModelId: this.userProfile.orgModelId,
+      sku,
+      orderId: this.order.id,
+      force
+    }
+
+    this.barcodeReceiveService
+      .addScannedProductToRecieved(receivableItem)
+      .then(
         (searchedOrderItem) => {
           // 1. Update UI
           this.updateReceivedQuantity({

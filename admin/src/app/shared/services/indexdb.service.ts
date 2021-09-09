@@ -1,15 +1,15 @@
-import Dexie from "dexie";
+import Dexie from 'dexie';
 
 // Declare Database
 class ProductDatabase extends Dexie {
   products: Dexie.Table<any, number>;
 
   constructor() {
-    super("ProductDatabase");
+    super('ProductDatabase');
 
     this.version(1).stores({
       products:
-        "id, productModelId, productModelName, productModelSku, orderQuantity, fulfilledQuantity, receivedQuantity",
+        'id, productModelId, productModelName, productModelSku, orderQuantity, fulfilledQuantity, receivedQuantity',
     });
   }
 }
@@ -18,10 +18,10 @@ export class APIQueueDatabase extends Dexie {
   skus: Dexie.Table<any, number>;
 
   constructor() {
-    super("APIQueueDatabase");
+    super('APIQueueDatabase');
 
     this.version(1).stores({
-      skus: "++id, sku",
+      skus: '++id, sku',
     });
   }
 }
