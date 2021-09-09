@@ -30,4 +30,4 @@ import { APIQueueDatabase } from "app/shared/services/indexdb.service";
     APIQueueDatabase,
   ],
 })
-export class StockOrdersModule {}
+export class StockOrdersModule { }

@@ -4,33 +4,30 @@ import {
   OnDestroy,
   OnInit,
   ViewChild,
-} from "@angular/core";
-import { OrgModelApi } from "../../../../shared/lb-sdk/services/custom/OrgModel";
-import { ActivatedRoute, Router } from "@angular/router";
-import { Observable, combineLatest, Subscription } from "rxjs";
-import { ToastrService } from "ngx-toastr";
-import { UserProfileService } from "../../../../shared/services/user-profile.service";
-import { LoopBackAuth } from "../../../../shared/lb-sdk/services/core/auth.service";
-import { constants } from "../../../../shared/constants/constants";
-import { DatePipe } from "@angular/common";
-import { EventSourceService } from "../../../../shared/services/event-source.service";
-import { ModalDirective } from "ngx-bootstrap";
-import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
-import { DeleteOrderComponent } from "../../shared-components/delete-order/delete-order.component";
-import { SharedDataService } from "../../../../shared/services/shared-data.service";
-import Utils from "../../../../shared/constants/utils";
-import Dexie from "dexie";
-import { BarcodeReceiveService } from "app/shared/services/barcodescan.service";
-import { productDB } from "app/shared/services/indexdb.service";
+} from '@angular/core';
+import { OrgModelApi } from '../../../../shared/lb-sdk/services/custom/OrgModel';
+import { ActivatedRoute, Router } from '@angular/router';
+import { combineLatest, Subscription } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
+import { UserProfileService } from '../../../../shared/services/user-profile.service';
+import { LoopBackAuth } from '../../../../shared/lb-sdk/services/core/auth.service';
+import { constants } from '../../../../shared/constants/constants';
+import { EventSourceService } from '../../../../shared/services/event-source.service';
+import { ModalDirective } from 'ngx-bootstrap';
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { DeleteOrderComponent } from '../../shared-components/delete-order/delete-order.component';
+import { SharedDataService } from '../../../../shared/services/shared-data.service';
+import { BarcodeReceiveService } from 'app/shared/services/barcodescan.service';
+import { productDB } from 'app/shared/services/indexdb.service';
 
 @Component({
-  selector: "app-receive",
-  templateUrl: "./receive.component.html",
-  styleUrls: ["./receive.component.scss"],
+  selector: 'app-receive',
+  templateUrl: './receive.component.html',
+  styleUrls: ['./receive.component.scss'],
 })
 export class ReceiveComponent implements OnInit, OnDestroy {
-  @ViewChild("discrepancyModal") public discrepancyModal: ModalDirective;
-  @ViewChild("searchInput") public searchInputRef: ElementRef;
+  @ViewChild('discrepancyModal') public discrepancyModal: ModalDirective;
+  @ViewChild('searchInput') public searchInputRef: ElementRef;
 
   public userProfile: any;
   public loading = false;
@@ -45,7 +42,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   public totalReceivedLineItems: number;
   public totalNotReceivedLineItems: number;
   public maxPageDisplay: number = 7;
-  public searchSKUText: string = "";
+  public searchSKUText: string = '';
   public totalPages: number;
   public currentPageBackOrdered: number = 1;
   public currentPageDiscrepancies: number = 1;
@@ -62,7 +59,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   public discrepancyOrderItem: any;
   private subscriptions: Subscription[] = [];
   public sortAscending = true;
-  public sortColumn = "productModelSku";
+  public sortColumn = 'productModelSku';
   showAddProductModal: boolean;
   public bsModalRef: BsModalRef;
   public isSmallDevice = this.sharedDataService.getIsSmallDevice();
@@ -70,8 +67,8 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   public editingDamagedForItemId;
   public damagedQuantity = 0;
 
-  @ViewChild("discrepancies") discrepanciesTab;
-  sendDiscrepancyReport: any = "true";
+  @ViewChild('discrepancies') discrepanciesTab;
+  sendDiscrepancyReport: any = 'true';
   selectedCategoryLabelFilter: string;
 
   constructor(
@@ -85,7 +82,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     private modalService: BsModalService,
     private sharedDataService: SharedDataService,
     private barcodeReceiveService: BarcodeReceiveService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.userProfile = this._userProfileService.getProfileData();
@@ -100,18 +97,18 @@ export class ReceiveComponent implements OnInit, OnDestroy {
         this.getBackOrderedStockOrderLineItems();
       },
       (error) => {
-        console.log("error", error);
+        console.log('error', error);
       }
     );
 
-    //update order to state "Approval in Process" from "Generated"
+    //update order to state 'Approval in Process' from 'Generated'
     if (this.order.state === constants.REPORT_STATES.RECEIVING_PENDING) {
       this.orgModelApi
         .updateByIdReportModels(this.userProfile.orgModelId, this.order.id, {
           state: constants.REPORT_STATES.RECEIVING_IN_PROCESS,
         })
         .subscribe((data: any) => {
-          console.log("updated report state to receiving in process", data);
+          console.log('updated report state to receiving in process', data);
         });
     }
 
@@ -139,9 +136,9 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       !productModelIds &&
       !productModelIds.length
     ) {
-      this.searchSKUText = "";
+      this.searchSKUText = '';
     }
-    let sortOrder = this.sortAscending ? "ASC" : "DESC";
+    let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
     let whereFilter = {
       reportModelId: this.order.id,
       fulfilled: true,
@@ -152,33 +149,33 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     if (productModelIds && productModelIds.length) {
       // Remove filter in case of search
       this.selectedCategoryLabelFilter = undefined;
-      whereFilter["productModelId"] = {
+      whereFilter['productModelId'] = {
         inq: productModelIds,
       };
     } else if (this.selectedCategoryLabelFilter) {
-      whereFilter["categoryModelName"] = this.selectedCategoryLabelFilter;
+      whereFilter['categoryModelName'] = this.selectedCategoryLabelFilter;
     }
     const filter: any = {
       where: whereFilter,
       include: [
         {
-          relation: "productModel",
+          relation: 'productModel',
         },
         {
-          relation: "commentModels",
+          relation: 'commentModels',
           scope: {
-            include: "userModel",
+            include: 'userModel',
           },
         },
       ],
       limit: limit,
       skip: skip,
       order:
-        "categoryModelName " +
+        'categoryModelName ' +
         sortOrder +
-        ", " +
+        ', ' +
         this.sortColumn +
-        " " +
+        ' ' +
         sortOrder,
     };
     let countFilter = {
@@ -189,9 +186,9 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       },
     };
     if (productModelIds && productModelIds.length) {
-      countFilter["productModelId"] = { inq: productModelIds };
+      countFilter['productModelId'] = { inq: productModelIds };
     } else if (this.selectedCategoryLabelFilter) {
-      countFilter["categoryModelName"] = this.selectedCategoryLabelFilter;
+      countFilter['categoryModelName'] = this.selectedCategoryLabelFilter;
     }
     this.loading = true;
     let fetchLineItems = combineLatest(
@@ -217,7 +214,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       },
       (err) => {
         this.loading = false;
-        console.log("error", err);
+        console.log('error', err);
 
         // Clear selected filter if api call fails
         if (this.selectedCategoryLabelFilter) {
@@ -242,9 +239,9 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       !productModelIds &&
       !productModelIds.length
     ) {
-      this.searchSKUText = "";
+      this.searchSKUText = '';
     }
-    let sortOrder = this.sortAscending ? "ASC" : "DESC";
+    let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
     let whereFilter = {
       reportModelId: this.order.id,
       fulfilled: true,
@@ -253,34 +250,34 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     if (productModelIds && productModelIds.length) {
       // Remove filter in case of search
       this.selectedCategoryLabelFilter = undefined;
-      whereFilter["productModelId"] = {
+      whereFilter['productModelId'] = {
         inq: productModelIds,
       };
     } else if (this.selectedCategoryLabelFilter) {
-      whereFilter["categoryModelName"] = this.selectedCategoryLabelFilter;
+      whereFilter['categoryModelName'] = this.selectedCategoryLabelFilter;
     }
 
     let filter = {
       where: whereFilter,
       include: [
         {
-          relation: "productModel",
+          relation: 'productModel',
         },
         {
-          relation: "commentModels",
+          relation: 'commentModels',
           scope: {
-            include: "userModel",
+            include: 'userModel',
           },
         },
       ],
       limit: limit,
       skip: skip,
       order:
-        "categoryModelName " +
+        'categoryModelName ' +
         sortOrder +
-        ", " +
+        ', ' +
         this.sortColumn +
-        " " +
+        ' ' +
         sortOrder,
     };
     let countFilter = {
@@ -289,9 +286,9 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       received: false,
     };
     if (productModelIds && productModelIds.length) {
-      countFilter["productModelId"] = { inq: productModelIds };
+      countFilter['productModelId'] = { inq: productModelIds };
     } else if (this.selectedCategoryLabelFilter) {
-      countFilter["categoryModelName"] = this.selectedCategoryLabelFilter;
+      countFilter['categoryModelName'] = this.selectedCategoryLabelFilter;
     }
     this.loading = true;
     let fetchLineItems = combineLatest(
@@ -313,14 +310,14 @@ export class ReceiveComponent implements OnInit, OnDestroy {
           // Check if product is already in IndexDB
           const isProductExists =
             (await productDB.products
-              .where("productModelSku")
+              .where('productModelSku')
               .equals(product.productModelSku)
               .count()) === 1;
 
           if (!isProductExists) {
             // 1. Add Data to IndexDB here
             productDB.products.add(product).catch((err) => {
-              console.log("Error in bulk add", err);
+              console.log('Error in bulk add', err);
             });
           }
 
@@ -340,7 +337,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       },
       (err) => {
         this.loading = false;
-        console.log("error", err);
+        console.log('error', err);
 
         // Clear selected filter if api call fails
         if (this.selectedCategoryLabelFilter) {
@@ -389,7 +386,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       },
       (err) => {
         this.loading = false;
-        console.log("error", err);
+        console.log('error', err);
       }
     );
   }
@@ -436,13 +433,13 @@ export class ReceiveComponent implements OnInit, OnDestroy {
         this.isDiscrepancyLoaded = true;
         setTimeout(() =>
           this.discrepanciesTab.nativeElement.scrollIntoView({
-            behavior: "smooth",
+            behavior: 'smooth',
           })
         );
       },
       (err) => {
         this.loading = false;
-        console.log("error", err);
+        console.log('error', err);
       }
     );
   }
@@ -503,7 +500,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     this.orgModelApi
       .scanBarcodeStockOrder(
         this.userProfile.orgModelId,
-        "receive",
+        'receive',
         sku,
         this.order.id,
         force
@@ -536,7 +533,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       this.discrepancyOrderItem = productDataIfExists;
       this.discrepancyModal.show();
     } else {
-      this.toastr.success("Row updated");
+      this.toastr.success('Row updated');
     }
     this.searchSKUFocused = true;
     this.receivedLineItems = [productDataIfExists];
@@ -578,12 +575,12 @@ export class ReceiveComponent implements OnInit, OnDestroy {
           } else {
             this.refreshData();
           }
-          console.log("approved", res);
-          this.toastr.success("Row Updated");
+          console.log('approved', res);
+          this.toastr.success('Row Updated');
         },
         (err) => {
-          this.toastr.error("Error Updating Row");
-          console.log("err", err);
+          this.toastr.error('Error Updating Row');
+          console.log('err', err);
           this.loading = false;
         }
       );
@@ -596,7 +593,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
         receivedQuantity: lineItem.receivedQuantity,
       });
     } else {
-      this.toastr.error("Receiving quantity cannot be less than 1");
+      this.toastr.error('Receiving quantity cannot be less than 1');
     }
   }
 
@@ -624,7 +621,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
         },
         (err) => {
           this.loading = false;
-          this.toastr.error("Error updating order state, please refresh");
+          this.toastr.error('Error updating order state, please refresh');
         }
       );
   }
@@ -632,7 +629,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   receiveConsignment() {
     if (!this.totalReceivedLineItems) {
       this.toastr.error(
-        "Please receive at least one item to send order to supplier"
+        'Please receive at least one item to send order to supplier'
       );
     } else {
       this.loading = true;
@@ -642,19 +639,19 @@ export class ReceiveComponent implements OnInit, OnDestroy {
           this.userProfile.orgModelId,
           this.order.id,
           this.totalDiscrepanciesLineItems > 0 &&
-            this.sendDiscrepancyReport === "true"
+          this.sendDiscrepancyReport === 'true'
         )
         .subscribe(
           (recieveRequest) => {
-            this.toastr.info("Receiving consignment...");
-            this._router.navigate(["/orders/stock-orders"]);
+            this.toastr.info('Receiving consignment...');
+            this._router.navigate(['/orders/stock-orders']);
             this.loading = false;
             this.waitForRecieveWorker(recieveRequest.callId);
           },
           (error) => {
             this.loading = false;
             this.creatingPurchaseOrderVend = false;
-            this.toastr.error("Error in receiving order");
+            this.toastr.error('Error in receiving order');
           }
         );
     }
@@ -670,11 +667,11 @@ export class ReceiveComponent implements OnInit, OnDestroy {
           if (event.data.success === true) {
             es.close();
             this.creatingPurchaseOrderVend = false;
-            this._router.navigate(["/orders/stock-orders"]);
-            this.toastr.success("Order received successfully");
+            this._router.navigate(['/orders/stock-orders']);
+            this.toastr.success('Order received successfully');
           } else {
             this.creatingPurchaseOrderVend = false;
-            this.toastr.error("Error in receiving order");
+            this.toastr.error('Error in receiving order');
           }
         })
     );
@@ -686,7 +683,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       .downloadReportModelCSV(this.userProfile.orgModelId, this.order.id)
       .subscribe(
         (data) => {
-          const link = document.createElement("a");
+          const link = document.createElement('a');
           link.href = data;
           link.download = this.order.name;
           link.click();
@@ -714,7 +711,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
    */
   changeScanMode() {
     this.refreshLineItems();
-    this.searchSKUText = "";
+    this.searchSKUText = '';
     this.selectedCategoryLabelFilter = undefined;
     if (this.enableBarcode) {
       this.searchSKUFocused = true;
@@ -729,7 +726,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
    * @param searchText
    */
   barcodeSearchSKU($event) {
-    if (this.enableBarcode && this.searchSKUText !== "") {
+    if (this.enableBarcode && this.searchSKUText !== '') {
       this.searchAndIncrementProduct(this.searchSKUText);
       $event.target.select();
     }
@@ -750,7 +747,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   }
 
   keyUpEvent(event, searchSKUText) {
-    if (event.keyCode == "13" && !this.enableBarcode && searchSKUText !== "") {
+    if (event.keyCode == '13' && !this.enableBarcode && searchSKUText !== '') {
       this.searchAndIncrementProduct(searchSKUText);
     }
   }

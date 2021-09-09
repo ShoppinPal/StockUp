@@ -1,6 +1,5 @@
 import { Injectable } from "@angular/core";
 import { APIQueueDatabase } from "./indexdb.service";
-import Dexie from "dexie";
 import { OrgModelApi } from "../lb-sdk";
 import { ToastrService } from "ngx-toastr";
 

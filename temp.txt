@@ -1,4 +1,0 @@
-sudo docker-compose logs -f admin
-
-systemctl stop apparmor && systemctl disable apparmor
-sudo aa-remove-unknown

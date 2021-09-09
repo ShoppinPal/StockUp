@@ -1,5 +1,4 @@
 import Dexie from "dexie";
-import { Injectable } from "@angular/core";
 
 // Declare Database
 class ProductDatabase extends Dexie {
