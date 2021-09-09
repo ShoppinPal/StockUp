@@ -41,21 +41,21 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   public totalDiscrepanciesLineItems: number;
   public totalReceivedLineItems: number;
   public totalNotReceivedLineItems: number;
-  public maxPageDisplay: number = 7;
-  public searchSKUText: string = '';
+  public maxPageDisplay = 7;
+  public searchSKUText = '';
   public totalPages: number;
-  public currentPageBackOrdered: number = 1;
-  public currentPageDiscrepancies: number = 1;
-  public currentPageReceived: number = 1;
-  public currentPageNotReceived: number = 1;
-  public lineItemsLimitPerPage: number = 1;
-  public creatingTransferOrder: boolean = false;
-  public creatingPurchaseOrderVend: boolean = false;
+  public currentPageBackOrdered = 1;
+  public currentPageDiscrepancies = 1;
+  public currentPageReceived = 1;
+  public currentPageNotReceived = 1;
+  public lineItemsLimitPerPage = 1;
+  public creatingTransferOrder = false;
+  public creatingPurchaseOrderVend = false;
   public reportStates: any = constants.REPORT_STATES;
-  public isWarehouser: boolean = false;
-  public editable: boolean = false;
-  public searchSKUFocused: boolean = true;
-  public enableBarcode: boolean = true;
+  public isWarehouser = false;
+  public editable = false;
+  public searchSKUFocused = true;
+  public enableBarcode = true;
   public discrepancyOrderItem: any;
   private subscriptions: Subscription[] = [];
   public sortAscending = true;
@@ -101,7 +101,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       }
     );
 
-    //update order to state 'Approval in Process' from 'Generated'
+    // update order to state 'Approval in Process' from 'Generated'
     if (this.order.state === constants.REPORT_STATES.RECEIVING_PENDING) {
       this.orgModelApi
         .updateByIdReportModels(this.userProfile.orgModelId, this.order.id, {
@@ -138,8 +138,8 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     ) {
       this.searchSKUText = '';
     }
-    let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
-    let whereFilter = {
+    const sortOrder = this.sortAscending ? 'ASC' : 'DESC';
+    const whereFilter = {
       reportModelId: this.order.id,
       fulfilled: true,
       receivedQuantity: {
@@ -178,7 +178,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
         ' ' +
         sortOrder,
     };
-    let countFilter = {
+    const countFilter = {
       reportModelId: this.order.id,
       fulfilled: true,
       receivedQuantity: {
@@ -191,7 +191,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       countFilter['categoryModelName'] = this.selectedCategoryLabelFilter;
     }
     this.loading = true;
-    let fetchLineItems = combineLatest(
+    const fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(
         this.userProfile.orgModelId,
         filter
@@ -241,8 +241,8 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     ) {
       this.searchSKUText = '';
     }
-    let sortOrder = this.sortAscending ? 'ASC' : 'DESC';
-    let whereFilter = {
+    const sortOrder = this.sortAscending ? 'ASC' : 'DESC';
+    const whereFilter = {
       reportModelId: this.order.id,
       fulfilled: true,
       received: false,
@@ -257,7 +257,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       whereFilter['categoryModelName'] = this.selectedCategoryLabelFilter;
     }
 
-    let filter = {
+    const filter = {
       where: whereFilter,
       include: [
         {
@@ -280,7 +280,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
         ' ' +
         sortOrder,
     };
-    let countFilter = {
+    const countFilter = {
       reportModelId: this.order.id,
       fulfilled: true,
       received: false,
@@ -291,7 +291,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       countFilter['categoryModelName'] = this.selectedCategoryLabelFilter;
     }
     this.loading = true;
-    let fetchLineItems = combineLatest(
+    const fetchLineItems = combineLatest(
       this.orgModelApi.getStockOrderLineitemModels(
         this.userProfile.orgModelId,
         filter
@@ -325,7 +325,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
           this.currentPageNotReceived = skip / this.lineItemsLimitPerPage + 1;
           this.totalNotReceivedLineItems = data[1].count;
           this.notReceivedLineItems = data[0];
-          for (var i = 0; i < data[0].length; i++) {
+          for (let i = 0; i < data[0].length; i++) {
             // Prefill value if  Manual mode && Nothing has been recieved yet
             if (!this.enableBarcode && data[0][i].receivedQuantity === 0) {
               data[0][i].receivedQuantity = data[0][i].fulfilledQuantity;
@@ -352,8 +352,8 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       limit = this.lineItemsLimitPerPage || 100;
       skip = 0;
     }
-    let sortOrder = this.sortAscending ? 1 : 0;
-    let filter = {
+    const sortOrder = this.sortAscending ? 1 : 0;
+    const filter = {
       limit: limit,
       skip: skip,
       order: {
@@ -369,7 +369,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     };
     this.loading = true;
 
-    let fetchLineItems = this.orgModelApi.getDiscrepancyOrBackOrderedLineItems(
+    const fetchLineItems = this.orgModelApi.getDiscrepancyOrBackOrderedLineItems(
       this.userProfile.orgModelId,
       this.order.id,
       filter
@@ -379,7 +379,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
         this.loading = false;
         this.currentPageBackOrdered = skip / this.lineItemsLimitPerPage + 1;
         this.totalBackOrderedLineItems = data.count;
-        for (var i = 0; i < data.data.length; i++) {
+        for (let i = 0; i < data.data.length; i++) {
           data.data[i].isCollapsed = true;
         }
         this.backOrderedLineItems = data.data;
@@ -396,8 +396,8 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       limit = this.lineItemsLimitPerPage || 100;
       skip = 0;
     }
-    let sortOrder = this.sortAscending ? 1 : 0;
-    let filter = {
+    const sortOrder = this.sortAscending ? 1 : 0;
+    const filter = {
       limit: limit,
       skip: skip,
       order: {
@@ -413,7 +413,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     };
     this.loading = true;
 
-    let fetchLineItems = this.orgModelApi.getDiscrepancyOrBackOrderedLineItems(
+    const fetchLineItems = this.orgModelApi.getDiscrepancyOrBackOrderedLineItems(
       this.userProfile.orgModelId,
       this.order.id,
       filter
@@ -423,7 +423,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
         this.loading = false;
         this.currentPageDiscrepancies = skip / this.lineItemsLimitPerPage + 1;
         this.totalDiscrepanciesLineItems = data.count;
-        for (var i = 0; i < data.data.length; i++) {
+        for (let i = 0; i < data.data.length; i++) {
           data.data[i].isCollapsed = true;
         }
         this.discrepancyLineItems = data.data;
@@ -549,9 +549,9 @@ export class ReceiveComponent implements OnInit, OnDestroy {
 
   updateLineItems(lineItems, data: any) {
     this.loading = true;
-    let lineItemsIDs: Array<string> = [];
+    const lineItemsIDs: Array<string> = [];
     if (lineItems instanceof Array) {
-      for (var i = 0; i < lineItems.length; i++) {
+      for (let i = 0; i < lineItems.length; i++) {
         lineItemsIDs.push(lineItems[i].id);
       }
     } else {
@@ -602,7 +602,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   }
 
   getOrderDetails() {
-    let previousState = this.order.state;
+    const previousState = this.order.state;
     this.loading = true;
     this.orgModelApi
       .getReportModels(this.userProfile.orgModelId, {
@@ -613,7 +613,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       .subscribe(
         (data: any) => {
           this.order = data[0];
-          //fetch line items only if the report status changes from executing to generated
+          // fetch line items only if the report status changes from executing to generated
           if (this.order.state !== previousState) {
             this.refreshData();
           }
