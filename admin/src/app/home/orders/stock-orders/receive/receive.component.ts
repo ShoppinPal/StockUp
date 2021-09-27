@@ -457,6 +457,8 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       (products) => products.productModelSku === sku
     );
 
+    console.log(productDataIfExists)
+
     // 3. If product exists in indexDB, then just update the quantity & call API to update the quantity
     if (productDataIfExists) {
       // 1 Add API to Queue
@@ -504,10 +506,17 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       force
     }
 
-    this.barcodeReceiveService
-      .addScannedProductToRecieved(receivableItem)
-      .then(
-        (searchedOrderItem) => {
+    // 1. Searched the product into the API
+    this.orgModelApi
+      .scanBarcodeStockOrder(
+        receivableItem.orgModelId,
+        'receive',
+        receivableItem.sku,
+        receivableItem.orderId,
+        true
+      ).subscribe(
+        (searchedOrderItem: any) => {
+          console.log(searchedOrderItem);
           // 1. Update UI
           this.updateReceivedQuantity({
             ...searchedOrderItem,
@@ -517,16 +526,56 @@ export class ReceiveComponent implements OnInit, OnDestroy {
           // 2. Add product to index DB
           productDB.products.add(searchedOrderItem);
         },
-        (error) => {
+        async (error) => {
+          console.log(error)
           this.loading = false;
           this.toastr.error(error.message);
+          // TODO: ONLY ADD TO QUEUE WHEN CODE IS 500 OR TIMEOUT ERROR
           this.searchSKUFocused = true;
           this.notReceivedLineItems = [];
           this.receivedLineItems = [];
           this.totalReceivedLineItems = 0;
           this.totalNotReceivedLineItems = 0;
+
         }
       );
+
+    // this.barcodeReceiveService
+    //   .addScannedProductToRecieved(receivableItem)
+    //   .then(
+    //     (searchedOrderItem) => {
+
+    //       console.log(searchedOrderItem)
+
+    // // 1. Update UI
+    // this.updateReceivedQuantity({
+    //   ...searchedOrderItem,
+    //   receivedQuantity: searchedOrderItem.receivedQuantity,
+    // });
+
+    // 2. Add product to index DB
+    // productDB.products.add(searchedOrderItem);
+    //     },
+    //     // (error) => {
+    //   console.log(error)
+    //   this.loading = false;
+    //   this.toastr.error(error.message);
+    //   this.searchSKUFocused = true;
+    //   this.notReceivedLineItems = [];
+    //   this.receivedLineItems = [];
+    //   this.totalReceivedLineItems = 0;
+    //   this.totalNotReceivedLineItems = 0;
+    //     // }
+    //   ).catch((error) => {
+    //     console.log(error)
+    //     this.loading = false;
+    //     this.toastr.error(error.message);
+    //     this.searchSKUFocused = true;
+    //     this.notReceivedLineItems = [];
+    //     this.receivedLineItems = [];
+    //     this.totalReceivedLineItems = 0;
+    //     this.totalNotReceivedLineItems = 0;
+    //   });
   }
 
   updateReceivedQuantity(productDataIfExists: any) {
