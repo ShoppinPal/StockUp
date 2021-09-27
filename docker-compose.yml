@@ -14,7 +14,7 @@ services:
     lb:
         image: nginx:stable
         ports:
-            - "81:80"
+            - "80:80"
         volumes:
             - type: bind
               source: ./nginx.warehouse.conf
@@ -121,3 +121,18 @@ services:
             - REDIS_EXTRA_FLAGS=--maxmemory 100mb
         ports:
             - 6379:6379
+
+    goaws:
+        image: pafortin/goaws
+        ports:
+        - 4100:4100
+        volumes:
+        - ./goaws:/conf
+        networks:
+            default:
+                aliases:
+                    - goaws.posxdata.localdomain
+                    - sqs.us-west-2.goaws
+                    - sqs.us-east-1.goaws
+                    - us-west-2.goaws
+                    - us-east-1.goaws

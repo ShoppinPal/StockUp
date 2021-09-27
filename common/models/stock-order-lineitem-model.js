@@ -118,7 +118,11 @@ module.exports = function (StockOrderLineitemModel) {
                         force,
                         options,
                     });
-                    return Promise.reject("No Product found matching the SKU");
+
+                    const error = new Error("No Product found matching the SKU");
+                    error.status = 404;
+
+                    return Promise.reject(error);
                 }
             })
             .then(function (orderLineItem) {
