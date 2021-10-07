@@ -149,7 +149,11 @@ module.exports = function (StockOrderLineitemModel) {
                         force,
                         options,
                     });
-                    return Promise.reject("No Such Stock Order Item Exists");
+
+                    const error = new Error("No Such Stock Order Item Exists");
+                    error.status = 404;
+
+                    return Promise.reject(error);
                 }
                 // If Ordered quantity is equal to fulfilled then show Alert on client side And do not check if forced
                 if (!force) {
@@ -211,7 +215,11 @@ module.exports = function (StockOrderLineitemModel) {
                         force,
                         options,
                     });
-                    return Promise.reject("ScanType not allowed");
+
+                    const error = new Error("ScanType not allowed");
+                    error.status = 405;
+
+                    return Promise.reject(error);
                 }
 
                 // Set fulfilled true when fulfilled quantity will be equal to ordered Quantity
@@ -252,12 +260,15 @@ module.exports = function (StockOrderLineitemModel) {
                     Promise.resolve(orderLineItem.id),
                 ]);
             })
-            .catch(function (error) {
+            .catch(function () {
                 logger.error({
                     functionName: "scanBarcodeStockOrder",
                     message: "Error While Incrementing",
-                    error,
                 });
+
+                const error = new Error("Error While Incrementing");
+                error.status = 400;
+
                 return Promise.reject(error);
             })
 
@@ -280,13 +291,16 @@ module.exports = function (StockOrderLineitemModel) {
                     }),
                 ]);
             })
-            .catch(function (error) {
+            .catch(function () {
                 logger.error({
                     functionName: "scanBarcodeStockOrder",
                     message: "Error While finding updated line item",
-                    error,
                     options,
                 });
+
+                const error = new Error("Error While finding updated line item");
+                error.status = 400;
+
                 return Promise.reject(error);
             })
 

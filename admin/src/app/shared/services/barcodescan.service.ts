@@ -43,10 +43,12 @@ export class BarcodeReceiveService {
     });
   }
 
+  async getNoOfItemsInQueue() {
+    return this.receivingTable.count();
+  }
+
   async consumeQueue() {
     try {
-      // console.log("Starting consumer");
-
       this.queueConsuming = true;
 
       // 1. Running until queue is empty
@@ -65,10 +67,14 @@ export class BarcodeReceiveService {
 
           // After calling out the successful request => Remove item from indexDB
           this.receivingTable.delete(receivableItem.id);
-        } catch (e) {
-          console.error(e);
+        } catch (error) {
+          console.error(error);
           this.toastr.error('Error Updating Row');
-          this.receivingTable.delete(receivableItem.id);
+
+          // Retry if server error else delete other than 500 status code
+          if (error.status !== 500) {
+            this.receivingTable.delete(receivableItem.id);
+          }
           await this.promiseSleep(5);
         }
       }

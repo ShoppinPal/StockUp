@@ -27,6 +27,7 @@ import { productDB } from 'app/shared/services/indexdb.service';
 })
 export class ReceiveComponent implements OnInit, OnDestroy {
   @ViewChild('discrepancyModal') public discrepancyModal: ModalDirective;
+  @ViewChild('deleteQueueModal') public deleteQueueModal: ModalDirective;
   @ViewChild('searchInput') public searchInputRef: ElementRef;
 
   public userProfile: any;
@@ -66,6 +67,8 @@ export class ReceiveComponent implements OnInit, OnDestroy {
   public isDiscrepancyLoaded = false;
   public editingDamagedForItemId;
   public damagedQuantity = 0;
+  public noOfItemsInBarcodeServiceQueue = 0;
+  public firstItemInProductsId: string;
 
   @ViewChild('discrepancies') discrepanciesTab;
   sendDiscrepancyReport: any = 'true';
@@ -90,11 +93,21 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       async (data: any) => {
         this.order = data.stockOrderDetails[0];
 
-        // 1. Delete all line items
+        // Check if any of the line items are products
+        const firstInProducts = await productDB.products.toArray();
+        this.firstItemInProductsId = firstInProducts[0].id;
+
+        // If products are there, open modal
+        if (firstInProducts.length > 0) {
+          this.deleteQueueModal.show();
+        }
+
+        // Delete all line items
         await productDB.products.clear();
 
         this.refreshData();
         this.getBackOrderedStockOrderLineItems();
+
       },
       (error) => {
         console.log('error', error);
@@ -457,7 +470,10 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       (products) => products.productModelSku === sku
     );
 
-    console.log(productDataIfExists)
+    this.barcodeReceiveService.getNoOfItemsInQueue().then((noOfItems) => {
+      this.noOfItemsInBarcodeServiceQueue = noOfItems;
+    })
+
 
     // 3. If product exists in indexDB, then just update the quantity & call API to update the quantity
     if (productDataIfExists) {
@@ -539,43 +555,11 @@ export class ReceiveComponent implements OnInit, OnDestroy {
 
         }
       );
+  }
 
-    // this.barcodeReceiveService
-    //   .addScannedProductToRecieved(receivableItem)
-    //   .then(
-    //     (searchedOrderItem) => {
-
-    //       console.log(searchedOrderItem)
-
-    // // 1. Update UI
-    // this.updateReceivedQuantity({
-    //   ...searchedOrderItem,
-    //   receivedQuantity: searchedOrderItem.receivedQuantity,
-    // });
-
-    // 2. Add product to index DB
-    // productDB.products.add(searchedOrderItem);
-    //     },
-    //     // (error) => {
-    //   console.log(error)
-    //   this.loading = false;
-    //   this.toastr.error(error.message);
-    //   this.searchSKUFocused = true;
-    //   this.notReceivedLineItems = [];
-    //   this.receivedLineItems = [];
-    //   this.totalReceivedLineItems = 0;
-    //   this.totalNotReceivedLineItems = 0;
-    //     // }
-    //   ).catch((error) => {
-    //     console.log(error)
-    //     this.loading = false;
-    //     this.toastr.error(error.message);
-    //     this.searchSKUFocused = true;
-    //     this.notReceivedLineItems = [];
-    //     this.receivedLineItems = [];
-    //     this.totalReceivedLineItems = 0;
-    //     this.totalNotReceivedLineItems = 0;
-    //   });
+  goToOrderPage() {
+    this.loading = true;
+    this._router.navigate(['recieve/' + this.firstItemInProductsId]);
   }
 
   updateReceivedQuantity(productDataIfExists: any) {
@@ -584,6 +568,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
       this.discrepancyModal.show();
     } else {
       this.toastr.success('Row updated');
+      this.discrepancyModal.show();
     }
     this.searchSKUFocused = true;
     this.receivedLineItems = [productDataIfExists];
