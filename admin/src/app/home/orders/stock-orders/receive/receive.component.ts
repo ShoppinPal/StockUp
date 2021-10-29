@@ -559,7 +559,7 @@ export class ReceiveComponent implements OnInit, OnDestroy {
 
   goToOrderPage() {
     this.loading = true;
-    this._router.navigate(['recieve/' + this.firstItemInProductsId]);
+    this._router.navigate(['recieve/' + this.order.id]);
   }
 
   updateReceivedQuantity(productDataIfExists: any) {
