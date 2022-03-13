@@ -401,25 +401,27 @@ function mapExistingOrdersWithFoundOrders(db, orders, orderConfigModel, payload,
                     if (matchingReportModels.length === 0) {
                         matchNotFound++;
                         logger.debug({
-                            message: 'No matching report found',
+                            message: "No matching report found",
                             eachOrder,
                             supplierModelId,
                             storeModelId,
-                            messageId
+                            messageId,
                         });
                         return Promise.resolve(NO_MATCH_FOUND);
-                    }else if (matchingReportModels.length > 1) {
+                    } else {
                         logger.debug({
-                            message: 'Found more than one matching reports, will look for line items match',
+                            message: "One or more matching reports found",
                             supplierModelId,
                             storeModelId,
                             matchingReportModels: matchingReportModels.length,
-                            messageId
+                            messageId,
                         });
-                        return findClosestReportMatchBySku(db, eachOrder, matchingReportModels, messageId);
-                    } else {
-                        // One one matching report
-                        return Promise.resolve(matchingReportModels[0]);
+                        return findClosestReportMatchBySku(
+                            db,
+                            eachOrder,
+                            matchingReportModels,
+                            messageId
+                        );
                     }
                 })
                 .catch(function (error){

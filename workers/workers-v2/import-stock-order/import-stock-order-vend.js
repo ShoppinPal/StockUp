@@ -436,25 +436,39 @@ function mapSpreadSheetDataToOrders(db, orderConfigModel, spreadSheetRows, userM
                         let isFulfilled = fulfilledStates.includes(orderConfigModel.orderStatus) || null;
                         let isReceived = receivedStates.includes(orderConfigModel.orderStatus);
                         let lineItem = {
-                            productModelId: ObjectId(eachSpreadSheetRow.productModelId),
-                            productModelName: eachSpreadSheetRow.productModelName, //need for sorting
+                            productModelId: ObjectId(
+                                eachSpreadSheetRow.productModelId
+                            ),
+                            productModelName:
+                                eachSpreadSheetRow.productModelName, //need for sorting
                             productModelSku: eachSpreadSheetRow.productModelSku, //need for sorting
-                            storeModelId: ObjectId(eachSpreadSheetRow.storeModelId),
+                            storeModelId: ObjectId(
+                                eachSpreadSheetRow.storeModelId
+                            ),
                             orgModelId: ObjectId(orderConfigModel.orgModelId),
-                            orderQuantity: eachSpreadSheetRow[orderQuantityFileHeader],
-                            originalOrderQuantity: eachSpreadSheetRow[orderQuantityFileHeader],
-                            fulfilledQuantity: eachSpreadSheetRow[fulfilledQuantityFileHeader],
+                            orderQuantity:
+                                eachSpreadSheetRow[orderQuantityFileHeader],
+                            originalOrderQuantity:
+                                eachSpreadSheetRow[orderQuantityFileHeader],
+                            fulfilledQuantity:
+                                eachSpreadSheetRow[fulfilledQuantityFileHeader],
                             receivedQuantity: 0,
-                            categoryModelId: ObjectId(eachSpreadSheetRow.categoryModelId),
-                            categoryModelName: eachSpreadSheetRow.categoryModelName, //need for sorting
+                            categoryModelId: ObjectId(
+                                eachSpreadSheetRow.categoryModelId
+                            ),
+                            categoryModelName:
+                                eachSpreadSheetRow.categoryModelName, //need for sorting
                             binLocation: eachSpreadSheetRow.binLocation,
                             supplyPrice: eachSpreadSheetRow.supplyPrice,
-                            approved: isApproved,
+                            approved:
+                                eachSpreadSheetRow[orderQuantityFileHeader] > 0
+                                    ? isApproved
+                                    : false,
                             fulfilled: isFulfilled,
                             received: isReceived,
                             userModelId: ObjectId(userModelId),
                             createdAt: new Date(),
-                            updatedAt: new Date()
+                            updatedAt: new Date(),
                         };
                         if (existingOrderIndex === -1) {
 
