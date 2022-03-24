@@ -102,22 +102,6 @@
                   </div>
                 </div>
               </tab>
-              <tab heading="Import from File">
-                <div class="form-group">
-                  <div class="form-group">
-                    <span>Select Import File Configuration: &nbsp;&nbsp;</span>
-                    <select class="form-control" [(ngModel)]="selectedOrderConfigurationId">
-                      <option *ngFor="let config of orderConfigurations"
-                              [value]="config.id">{{config.name}}
-                      </option>
-                    </select>
-                  </div>
-                  <div class="input-group">
-                    <span>Import from file: &nbsp;&nbsp;&nbsp;</span>
-                    <input type="file" accept=".xls, .xlsx, .csv" ng2FileSelect [uploader]="uploader"/>
-                  </div>
-                </div>
-              </tab>
             </tabset>
           </div>
         </div>

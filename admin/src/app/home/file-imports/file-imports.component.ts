@@ -24,6 +24,7 @@ export class FileImportsComponent implements OnInit {
   public fileHeaders: any = {};
   public importableHeaders: any;
   public mappingName: string;
+  public isFulfillUsingFile = false;
   public mappings: any = {};
   public reportStates: any;
   public orderStatus: string;
@@ -143,6 +144,7 @@ export class FileImportsComponent implements OnInit {
         groupBy: this.groupBy,
         orderStatus: this.orderStatus,
         orderName: this.orderName,
+        isFulfillUsingFile: this.isFulfillUsingFile,
         orderNameSuffixes: this.nameSuffixes
       })
         .subscribe((data: any) => {

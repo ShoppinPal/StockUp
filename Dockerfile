@@ -32,7 +32,7 @@ RUN chown -R node:node /apps/warehouse
 WORKDIR /apps/warehouse
 COPY package.json /apps/warehouse/package.json
 COPY npm-shrinkwrap.json /apps/warehouse/npm-shrinkwrap.json
-RUN npm install --production && npm install grunt-cli
+RUN npm install --no-optional --production && npm install grunt-cli
 #RUN npm install -g bower
 #RUN mv /apps/warehouse/node_modules /apps/node_modules
 COPY . /apps/warehouse

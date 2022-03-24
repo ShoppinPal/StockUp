@@ -97,6 +97,15 @@
           </div>
           <div class="form-group row">
             <div class="input-group">
+              <span class="col-sm-4">Fulfill Orders using file:  </span>
+              <label class="switch switch-3d switch-primary">
+                <input type="checkbox" class="switch-input" [(ngModel)]="isFulfillUsingFile">
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="input-group">
               <span class="col-sm-4">Enter a name for orders: &nbsp;&nbsp;</span>
               <input type="text"
                      class="form-control col-sm-6"

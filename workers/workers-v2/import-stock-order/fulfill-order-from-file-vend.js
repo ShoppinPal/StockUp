@@ -8,7 +8,7 @@ const aws = require('aws-sdk');
 const ObjectId = require('mongodb').ObjectID;
 const utils = require('../../jobs/utils/utils.js');
 const REPORT_STATES = utils.REPORT_STATES;
-
+const createNewOrders = require('./create-new-orders').createNewOrders;
 // Constants
 const SKU_MATCH_CONFIDENCE_RATIO = 0.8 // 80% Above match
 const NO_MATCH_FOUND = 'NO_MATCH_FOUND';
@@ -69,7 +69,7 @@ function findClosestReportMatchBySku(db, eachOrder, matchingReportModels, messag
         if (maxMatchRatio > SKU_MATCH_CONFIDENCE_RATIO) {
             return Promise.resolve(matchedReportModel);
         } else {
-            return Promise.reject("Match Not Found");
+            return Promise.resolve(NO_MATCH_FOUND);
         }
     });
 }
@@ -338,17 +338,21 @@ function fulfillLineItemsForReport(db, eachOrder, reportModel, messageId) {
  * - Step 2: if Multiple Store<>Supplier pairs, then find using 80% sku items match
  * @param db
  * @param orders
+ * @param orderConfigModel
+ * @param payload
+ * @param config
+ * @param taskId
  * @param messageId
  * @returns {Promise<any>}
  */
-function mapExistingOrdersWithFoundOrders(db, orders, messageId) {
+function mapExistingOrdersWithFoundOrders(db, orders, orderConfigModel, payload, config, taskId, messageId) {
     let fulfilledReportCount = 0,
         matchNotFound = 0,
         cannotFulfill = 0,
         matchedReports = [];
     return Promise.map(orders, function (eachOrder) {
             let supplierModelId, storeModelId, matchedReportModel;
-            return Promise.resolve()
+            return Promise.delay(1000)
                 .then(function (){
                     supplierModelId = eachOrder.supplierModelId;
                     storeModelId = eachOrder.storeModelId;
@@ -397,25 +401,27 @@ function mapExistingOrdersWithFoundOrders(db, orders, messageId) {
                     if (matchingReportModels.length === 0) {
                         matchNotFound++;
                         logger.debug({
-                            message: 'No matching report found',
+                            message: "No matching report found",
                             eachOrder,
                             supplierModelId,
                             storeModelId,
-                            messageId
+                            messageId,
                         });
                         return Promise.resolve(NO_MATCH_FOUND);
-                    }else if (matchingReportModels.length > 1) {
+                    } else {
                         logger.debug({
-                            message: 'Found more than one matching reports, will look for line items match',
+                            message: "One or more matching reports found",
                             supplierModelId,
                             storeModelId,
                             matchingReportModels: matchingReportModels.length,
-                            messageId
+                            messageId,
                         });
-                        return findClosestReportMatchBySku(db, eachOrder, matchingReportModels, messageId);
-                    } else {
-                        // One one matching report
-                        return Promise.resolve(matchingReportModels[0]);
+                        return findClosestReportMatchBySku(
+                            db,
+                            eachOrder,
+                            matchingReportModels,
+                            messageId
+                        );
                     }
                 })
                 .catch(function (error){
@@ -431,7 +437,12 @@ function mapExistingOrdersWithFoundOrders(db, orders, messageId) {
                 })
                 .then(function (reportModel){
                     if (reportModel === NO_MATCH_FOUND){
-                        return Promise.resolve(reportModel);
+                        return createNewOrders(db, [eachOrder], orderConfigModel, payload, config, taskId, messageId)
+                            .then(orders => {
+                                matchedReportModel = orders[0];
+                                matchedReports.push(orders[0]);
+                                return Promise.resolve(orders[0]);
+                            });
                     }
                     matchedReportModel = reportModel;
                     matchedReports.push(reportModel);
@@ -464,6 +475,7 @@ function mapExistingOrdersWithFoundOrders(db, orders, messageId) {
                 .then(function (response){
                     if (response !== NO_MATCH_FOUND) {
                         fulfilledReportCount++;
+
                         logger.debug({
                             message: 'Report Fulfilled Successfully',
                             eachOrder,
@@ -472,9 +484,29 @@ function mapExistingOrdersWithFoundOrders(db, orders, messageId) {
                             messageId,
                             matchedReportModel
                         });
+                        return db.collection('ReportModel').updateOne({
+                            _id: ObjectId(matchedReportModel._id)
+                        }, {
+                            $set: {
+                                state: orderConfigModel.orderStatus
+                            }
+                        });
                     }
                 })
+                .catch(function (error){
+                    logger.error({
+                        message: 'Cannot update report state',
+                        eachOrder,
+                        error,
+                        supplierModelId,
+                        storeModelId,
+                        messageId
+                    });
+                    return Promise.resolve();
+                })
                 ;
+        }, {
+            concurrency: 1
         })
         .then(function () {
             logger.debug({

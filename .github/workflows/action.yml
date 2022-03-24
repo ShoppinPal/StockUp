@@ -14,12 +14,27 @@ jobs:
         refs/heads/develop
         ', github.ref)
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
+      name: Check out code
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-west-2
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
     - name: build docker images
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: stockup
       run: |
-        docker login -u ${{ secrets.USERNAME }} -p ${{ secrets.DOCKER_HUB_PASSWORD }} ${{ secrets.REPOSITORY_NAME }}
-        docker build -t shoppinpal.azurecr.io/stockup:dev-${GITHUB_SHA::8} .
-        docker push shoppinpal.azurecr.io/stockup:dev-${GITHUB_SHA::8}
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:dev-${GITHUB_SHA::8} .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:dev-${GITHUB_SHA::8}
 
   build_release:
     name: releases
@@ -30,12 +45,27 @@ jobs:
         'refs/heads/release/v'
         )
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
+      name: Check out code
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-west-2
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
     - name: build docker images
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: stockup
       run: |
-        docker login -u ${{ secrets.USERNAME }} -p ${{ secrets.DOCKER_HUB_PASSWORD }} ${{ secrets.REPOSITORY_NAME }}
-        docker build -t shoppinpal.azurecr.io/stockup:staging-${GITHUB_SHA::8} .
-        docker push shoppinpal.azurecr.io/stockup:staging-${GITHUB_SHA::8}
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:staging-${GITHUB_SHA::8} .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:staging-${GITHUB_SHA::8}
 
   build_prod:
     name: production
@@ -45,9 +75,24 @@ jobs:
       refs/heads/master
       ',github.ref)
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
+      name: Check out code
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-west-2
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
     - name: build docker images
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: stockup
       run: |
-        docker login -u ${{ secrets.USERNAME }} -p ${{ secrets.DOCKER_HUB_PASSWORD }} ${{ secrets.REPOSITORY_NAME }}
-        docker build -t shoppinpal.azurecr.io/stockup:production-${GITHUB_SHA::8} .
-        docker push shoppinpal.azurecr.io/stockup:production-${GITHUB_SHA::8}
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:production-${GITHUB_SHA::8} .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:production-${GITHUB_SHA::8}
