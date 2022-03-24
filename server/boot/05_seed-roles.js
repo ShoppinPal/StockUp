@@ -62,6 +62,6 @@ module.exports = function (app, cb) {
                 message: 'Error in creating roles',
                 error
             });
-            return cb(error);
+            return cb();
         });
 };

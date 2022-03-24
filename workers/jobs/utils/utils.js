@@ -12,11 +12,10 @@ const logger = require('sp-json-logger')({fileName: 'workers:jobs:utils:' + comm
 
 const Slack = require('slack-node');
 
-const RETRY_ERROR_CODES = [502, 503,504];
-const RETRY_TIME = 5;
 
 function shouldRetryDefaultFn(error) {
-    return error && error.response && _.contains(RETRY_ERROR_CODES, error.response.statusCode);
+    return (error && error.response && error.response.statusCode > 400 && error.response.statusCode < 512) ||
+        (error && error.error && error.error.code === 'ETIMEDOUT');
 }
 /**
  * retryIfErrorCode
@@ -46,13 +45,21 @@ function retryIfErrorCode(fn,
                             times--;
                             error = err;
                             logger.error({
+                                functionName: 'retryIfErrorCode',
                                 message: 'Api call failed, will retry',
-                                error
+                                error: err,
+                                response: err && err.response ? err.response: {},
+                                errorMessage: err && err.error ? err.error: {},
                             });
                             setTimeout(function () {
                                 attempt();
                             }, delay);
                         } else {
+                            logger.error({
+                                functionName: 'retryIfErrorCode',
+                                message: 'Api call failed, will forward error to function',
+                                error: err,
+                            });
                             reject(err);
                         }
                     });
@@ -447,7 +454,7 @@ function createStockOrderForVend(db, storeModelInstance, reportModelInstance, su
                 connectionInfo: connectionInfo.domainPrefix,
                 functionName: 'createStockOrderForVend'
             });
-            return retryIfErrorCode(() => vendSdk.consignments.stockOrders.create(argsForStockOrder, connectionInfo, RETRY_TIME));
+            return retryIfErrorCode(() => vendSdk.consignments.stockOrders.create(argsForStockOrder, connectionInfo));
         })
         .catch(function (error) {
             logger.error({
@@ -484,7 +491,7 @@ function markStockOrderAsSent(db, reportModelInstance, messageId) {
             var argsForStockOrder = vendSdk.args.consignments.stockOrders.markAsSent();
             argsForStockOrder.apiId.value = reportModelInstance.vendConsignmentId;
             argsForStockOrder.body.value = _.omit(reportModelInstance.vendConsignment, 'id');
-            return retryIfErrorCode(() => vendSdk.consignments.stockOrders.markAsSent(argsForStockOrder, connectionInfo, RETRY_TIME));
+            return retryIfErrorCode(() => vendSdk.consignments.stockOrders.markAsSent(argsForStockOrder, connectionInfo));
         })
         .catch(function (error) {
             logger.error({
@@ -505,7 +512,7 @@ function createStockOrderLineitemForVend(db, connectionInfo, storeModelInstance,
         'count': stockOrderLineitemModelInstance.count,
         'cost': stockOrderLineitemModelInstance.supplyPrice
     };
-    return retryIfErrorCode(() => vendSdk.consignments.products.create({body: consignmentProduct}, connectionInfo, RETRY_TIME))
+    return retryIfErrorCode(() => vendSdk.consignments.products.create({body: consignmentProduct}, connectionInfo))
         .catch(function (error) {
             logger.error({
                 message: 'Error creating consignment product in vend',
@@ -543,7 +550,7 @@ function updateStockOrderLineitemForVend(db, reportModelInstance, stockOrderLine
                     consignmentProduct: args.body.value
                 }
             });
-            return retryIfErrorCode(() => vendSdk.consignments.products.update(args, connectionInfo, RETRY_TIME))
+            return retryIfErrorCode(() => vendSdk.consignments.products.update(args, connectionInfo))
                 .then(function (updatedLineitem) {
                     //log.debug('updatedLineitem', updatedLineitem);
                     logger.debug({log: {updatedLineitem: updatedLineitem}});
@@ -580,7 +587,7 @@ function markStockOrderAsReceived(db, reportModelInstance, messageId) {
             var argsForStockOrder = vendSdk.args.consignments.stockOrders.markAsSent();
             argsForStockOrder.apiId.value = reportModelInstance.vendConsignmentId;
             argsForStockOrder.body.value = _.omit(reportModelInstance.vendConsignment, 'id');
-            return retryIfErrorCode(() => vendSdk.consignments.stockOrders.markAsReceived(argsForStockOrder, connectionInfo, RETRY_TIME));
+            return retryIfErrorCode(() => vendSdk.consignments.stockOrders.markAsReceived(argsForStockOrder, connectionInfo));
         })
         .catch(function (error) {
             if (error instanceof Error) {
@@ -611,7 +618,7 @@ function deleteStockOrderLineitemForVend(db, stockOrderLineitemModelInstance, me
         .then(function (connectionInfo) {
                 var args = vendSdk.args.consignments.products.remove();
                 args.apiId.value = stockOrderLineitemModelInstance.vendConsignmentProductId;
-                return retryIfErrorCode(() => vendSdk.consignments.products.remove(args, connectionInfo, RETRY_TIME));
+                return retryIfErrorCode(() => vendSdk.consignments.products.remove(args, connectionInfo));
             },
             function (error) {
                 //log.error('deleteStockOrderLineitemForVend()', 'Error deleting a stock order lineitem in Vend:\n' + JSON.stringify(error));

@@ -1,0 +1,46 @@
+<ngx-loading [show]="loading"></ngx-loading>
+<div class="animated fadeIn">
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="card">
+        <div class="card-header">
+          <strong>Import order</strong>
+        </div>
+        <div class="card-body">
+          <div class="row">
+
+            <tabset class="col-sm-12">
+              <tab heading="Import from File">
+                <div class="form-group">
+                  <div class="form-group">
+                    <span>Select Import File Configuration: &nbsp;&nbsp;</span>
+                    <select class="form-control" [(ngModel)]="selectedOrderConfigurationId">
+                      <option *ngFor="let config of orderConfigurations"
+                              [value]="config.id">{{config.name}}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="input-group">
+                    <span>Import from file: &nbsp;&nbsp;&nbsp;</span>
+                    <input type="file" accept=".xls, .xlsx, .csv" ng2FileSelect [uploader]="uploader"/>
+                  </div>
+                </div>
+              </tab>
+            </tabset>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="row">
+            <div class="col-sm-12">
+              <span class="input-group-btn">
+                <button class="btn btn-primary" type="button" *ngIf="userProfile.integrationType === 'vend'"
+                        (click)="generateStockOrderVend()"><i
+                  class="fa fa-plus-circle"></i> Generate stock order</button>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!--/.col-->
+  </div><!--/.row-->
+</div>
