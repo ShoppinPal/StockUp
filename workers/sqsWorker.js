@@ -68,7 +68,7 @@ return receiveMessage({
                         message: 'Processing message failed',
                         messageId: data.Messages[0].MessageId
                     });
-                    logger.error({err: error});
+                    logger.error({ err: error });
                     process.exit(FAILURE);
                 });
         })
@@ -80,7 +80,7 @@ return receiveMessage({
                     break;
                 default:
                     //logger.error( "Unexpected Error:", error.message );
-                    logger.tag('Unexpected Error').error({err: error});
+                    logger.tag('Unexpected Error').error({ err: error });
                     break;
             }
         }
@@ -88,7 +88,7 @@ return receiveMessage({
 
 function workflowError(type, error) {
     error.type = type;
-    return ( error );
+    return (error);
 }
 
 function handlePayload(payload, messageId, receiptHandle, taskId) {
@@ -107,16 +107,16 @@ function handlePayload(payload, messageId, receiptHandle, taskId) {
                     return fetchConfig(payload.op) // TODO: should we remove the `return` from here?
                         .then(function parseConfig(rawConfig) {
                             //logger.debug('[MessageId : '+messageId+']'+'inside parseConfig');
-                            logger.tag('inside parseConfig').debug({messageId: messageId});
+                            logger.tag('inside parseConfig').debug({ messageId: messageId });
                             var config;
                             try {
                                 if (rawConfig) {
                                     config = JSON.parse(rawConfig.Body.toString());
-                                }else {
+                                } else {
                                     config = {};
                                 }
                                 //logger.debug('[MessageId : '+messageId+']'+'config:', config);
-                                logger.tag('Message Config').debug({messageId: messageId, config: config});
+                                logger.tag('Message Config').debug({ messageId: messageId, config: config });
                                 return routeToWorker(payload, config, taskId, messageId, receiptHandle)
                                     .then(function (response) {
                                         return (
@@ -147,17 +147,17 @@ function handlePayload(payload, messageId, receiptHandle, taskId) {
                                     .catch(function (error) {
                                         return Promise.reject("Worker processing failed.")
                                     });
-                            }catch (e) { // JSON parsing problems should stop the worker
+                            } catch (e) { // JSON parsing problems should stop the worker
                                 //logger.error('[MessageId : '+messageId+']'+e);
-                                logger.error({err: e, messageId: messageId});
+                                logger.error({ err: e, messageId: messageId });
                                 return Promise.reject('Internal Server Error');
 
                             }
                         });
                 }
-            }catch (e) {
+            } catch (e) {
                 //logger.error('[MessageId : '+messageId+']'+e);
-                logger.error({err: e, messageId: messageId});
+                logger.error({ err: e, messageId: messageId });
                 return Promise.reject('an unexpected error occured');
             }
         })
@@ -200,19 +200,19 @@ function updateStatus(status, payload) {
         })
             .catch(function (error) { // TODO: good infra and code will bring this down to zero overtime
                 //logger.error('could not update worker status', error);
-                logger.error({err: error});
+                logger.error({ err: error });
                 return Promise.resolve(); // forgive and forget
             });
     }
     else {
-        logger.debug({message: 'env is not configured for elasticsearch reporting'});
+        logger.debug({ message: 'env is not configured for elasticsearch reporting' });
         return Promise.resolve(); // forgive and forget
     }
 }
 
 function validatePayload(payload) {
     //logger.debug('inside validatePayload');
-    logger.debug({message: 'inside validatePayload'});
+    logger.debug({ message: 'inside validatePayload' });
     if (!payload.op) {
         return false;
     }
@@ -238,7 +238,7 @@ function validatePayload(payload) {
  * @param key
  */
 function fetchScheduledPayload(key) {
-    logger.debug({message: 'inside fetchScheduledPayload', key: key});
+    logger.debug({ message: 'inside fetchScheduledPayload', key: key });
     var s3 = new AWS.S3({
         region: process.env.AWS_SQS_REGION,
         accessKeyId: process.env.AWS_SQS_ACCESS_KEY_ID,
@@ -252,51 +252,53 @@ function fetchScheduledPayload(key) {
     })
         .catch(function (error) {
             //logger.error(error.stack);
-            logger.error({err: error});
+            logger.error({ err: error });
             /* ignore workers that have no data in s3 */
             return Promise.resolve();
         });
 }
 
 function fetchConfig(key) {
-    logger.tag('inside fetchConfig').debug({key: key});
-    var s3 = new AWS.S3({
-        region: process.env.AWS_SQS_REGION,
-        accessKeyId: process.env.AWS_SQS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SQS_SECRET_ACCESS_KEY,
+    logger.tag('inside fetchConfig').debug({ key: key });
+    // var s3 = new AWS.S3({
+    //     region: process.env.AWS_SQS_REGION,
+    //     accessKeyId: process.env.AWS_SQS_ACCESS_KEY_ID,
+    //     secretAccessKey: process.env.AWS_SQS_SECRET_ACCESS_KEY,
 
-    });
-    var getObjectAsync = Promise.promisify(s3.getObject, s3);
-    return getObjectAsync({
-        Bucket: 'jobs-config',
-        Key: key + '.json'
-    })
-        .catch(function (error) {
-            //logger.error(error.stack);
-            logger.error({err: error});
-            /* ignore workers that have no data in s3 */
-            return Promise.resolve();
-        });
+    // });
+    // var getObjectAsync = Promise.promisify(s3.getObject, s3);
+    // return getObjectAsync({
+    //     Bucket: 'jobs-config',
+    //     Key: key + '.json'
+    // })
+    //     .catch(function (error) {
+    //         //logger.error(error.stack);
+    //         logger.error({err: error});
+    //         /* ignore workers that have no data in s3 */
+    //         return Promise.resolve();
+    //     });
+
+    return Promise.resolve();
 }
 
 function routeToWorker(payload, config, taskId, messageId, receiptHandle) {
     //logger.debug('[MessageId : '+messageId+']'+'payload.op:', payload.op);
-    logger.tag('Worker Operation').debug({messageId: messageId, payloadOperation: payload.op});
+    logger.tag('Worker Operation').debug({ messageId: messageId, payloadOperation: payload.op });
     clearRequire.all();
     if (process.env.WORKERS_VERSION === 'v1') {
         if (payload.op === 'generateStockOrder') {
             //logger.info('[MessageId : '+messageId+']'+'routed to generateStockOrder');
-            logger.tag('Routed').info({messageId: messageId, message: 'routed to generateStockOrder'});
+            logger.tag('Routed').info({ messageId: messageId, message: 'routed to generateStockOrder' });
             var generateStockOrder = require('./workers/generate-stock-order/generate-stock-order');
             return generateStockOrder.run(payload, config, taskId, messageId)
                 .then(function () {
                     //logger.debug('[MessageId : '+messageId+']'+'generated stock order successfully');
-                    logger.debug({messageId: messageId, message: 'generated stock order successfully'});
+                    logger.debug({ messageId: messageId, message: 'generated stock order successfully' });
                     return Promise.resolve(receiptHandle);
                 })
                 .catch(function (error) {
                     //logger.error('[MessageId : '+messageId+']'+error);
-                    logger.error({err: error, messageId: messageId});
+                    logger.error({ err: error, messageId: messageId });
                     return Promise.reject('Internal Server Error');
 
                 });
@@ -310,12 +312,12 @@ function routeToWorker(payload, config, taskId, messageId, receiptHandle) {
             var generateStockOrderSeriallyWithPaging = require('./workers/generate-stock-order-serially-with-paging/generate-stock-order-serially-with-paging');
             return generateStockOrderSeriallyWithPaging.run(payload, config, taskId, messageId)
                 .then(function () {
-                    logger.debug({messageId: messageId, message: 'generated stock order successfully'});
+                    logger.debug({ messageId: messageId, message: 'generated stock order successfully' });
                     return Promise.resolve(receiptHandle);
                 })
                 .catch(function (error) {
                     //logger.error('[MessageId : '+messageId+']'+error);
-                    logger.error({err: error, messageId: messageId});
+                    logger.error({ err: error, messageId: messageId });
                     return Promise.reject('Internal Server Error');
 
                 });
@@ -324,26 +326,26 @@ function routeToWorker(payload, config, taskId, messageId, receiptHandle) {
             var generateWeeklyStockOrders = require('./workers/generate-weekly-stock-orders/generate-weekly-stock-orders');
             return generateWeeklyStockOrders.run(payload, config)
                 .then(function () {
-                    logger.debug({messageId: messageId, message: 'generated weekly stock orders successfully'});
+                    logger.debug({ messageId: messageId, message: 'generated weekly stock orders successfully' });
                     return Promise.resolve(receiptHandle);
                 })
                 .catch(function (error) {
-                    logger.error({err: error, messageId: messageId});
+                    logger.error({ err: error, messageId: messageId });
                     return Promise.reject('Internal Server Error');
 
                 });
         }
         else if (payload.op === 'importStockOrderUsingCache') {
-            logger.tag('Routed').info({messageId: messageId, message: 'routed to importStockOrderUsingCache'});
+            logger.tag('Routed').info({ messageId: messageId, message: 'routed to importStockOrderUsingCache' });
             var importStockOrderUsingCache = require('./workers/import-stock-order-using-cache/import-stock-order-using-cache');
             return importStockOrderUsingCache.run(payload, config, taskId, messageId)
                 .then(function () {
-                    logger.debug({messageId: messageId, message: 'imported stock order successfully'});
+                    logger.debug({ messageId: messageId, message: 'imported stock order successfully' });
                     return Promise.resolve(receiptHandle);
                 })
                 .catch(function (error) {
                     //logger.error('[MessageId : '+messageId+']'+error);
-                    logger.error({err: error, messageId: messageId})
+                    logger.error({ err: error, messageId: messageId })
                     return Promise.reject('Internal Server Error');
 
                 });
@@ -358,12 +360,12 @@ function routeToWorker(payload, config, taskId, messageId, receiptHandle) {
             return importStockOrderUsingCacheWithoutSupplier.run(payload, config, taskId, messageId)
                 .then(function () {
                     //logger.debug('[MessageId : '+messageId+']'+'imported stock order without supplier successfully') ;
-                    logger.debug({messageId: messageId, message: 'imported stock order without supplier successfully'});
+                    logger.debug({ messageId: messageId, message: 'imported stock order without supplier successfully' });
                     return Promise.resolve(receiptHandle);
                 })
                 .catch(function (error) {
                     //logger.error('[MessageId : '+messageId+']'+error);
-                    logger.error({err: error, messageId: messageId});
+                    logger.error({ err: error, messageId: messageId });
                     return Promise.reject('Internal Server Error');
 
                 });
@@ -383,7 +385,7 @@ function routeToWorker(payload, config, taskId, messageId, receiptHandle) {
                     return Promise.resolve(receiptHandle);
                 })
                 .catch(function (error) {
-                    logger.error({err: error, messageId: messageId});
+                    logger.error({ err: error, messageId: messageId });
                     return Promise.reject('Internal Server Error');
                 });
         }
@@ -402,21 +404,21 @@ function routeToWorker(payload, config, taskId, messageId, receiptHandle) {
                     return Promise.resolve(receiptHandle);
                 })
                 .catch(function (error) {
-                    logger.error({err: error, messageId: messageId});
+                    logger.error({ err: error, messageId: messageId });
                     return Promise.reject('Internal Server Error');
                 });
         }
         else if (payload.op === 'addProductsToVendConsignment') {
             //logger.info('[MessageId : '+messageId+']'+'routed to addProductsToVendConsignment');
-            logger.tag('Routed').info({messageId: messageId, message: 'routed to addProductsToVendConsignment'});
+            logger.tag('Routed').info({ messageId: messageId, message: 'routed to addProductsToVendConsignment' });
             var addProductsToVendConsignment = require('./workers/add-products-to-vend-consignment/add-products-to-vend-consignment');
             return addProductsToVendConsignment.run(payload, config, taskId, messageId)
                 .then(function () {
-                    logger.debug({messageId: messageId, message: 'added products to vend consignment successfully'});
+                    logger.debug({ messageId: messageId, message: 'added products to vend consignment successfully' });
                     return Promise.resolve(receiptHandle);
                 })
                 .catch(function (error) {
-                    logger.error({err: error, messageId: messageId});
+                    logger.error({ err: error, messageId: messageId });
                     return Promise.reject('Internal Server Error');
                 });
         }
@@ -426,46 +428,46 @@ function routeToWorker(payload, config, taskId, messageId, receiptHandle) {
     }
     else if (process.env.WORKERS_VERSION === 'v2') {
         if (payload.op === 'importStockOrderUsingCache') {
-            logger.info({messageId: messageId, message: 'routed to importStockOrderUsingCache'});
+            logger.info({ messageId: messageId, message: 'routed to importStockOrderUsingCache' });
             var importStockOrderUsingCache = require('./workers-v2/import-stock-order/import-stock-order');
             return importStockOrderUsingCache.run(payload, config, taskId, messageId)
                 .then(function () {
-                    logger.debug({messageId: messageId, message: 'imported stock order successfully'});
+                    logger.debug({ messageId: messageId, message: 'imported stock order successfully' });
                     return Promise.resolve(receiptHandle);
                 })
                 .catch(function (error) {
                     // logger.error('[MessageId : ' + messageId + ']' + error);
-                    logger.error({err: error, messageId: messageId});
+                    logger.error({ err: error, messageId: messageId });
                     return Promise.reject('Internal Server Error');
 
                 });
         }
         else if (payload.op === 'importStockOrderUsingCacheWithoutSupplier') {
-            logger.info({messageId: messageId, message: 'routed to importStockOrderUsingCacheWithoutSupplier'});
+            logger.info({ messageId: messageId, message: 'routed to importStockOrderUsingCacheWithoutSupplier' });
             var importStockOrderUsingCacheWithoutSupplier = require('./workers-v2/import-stock-order/import-stock-order');
             return importStockOrderUsingCacheWithoutSupplier.run(payload, config, taskId, messageId)
                 .then(function () {
-                    logger.debug({messageId: messageId, message: 'imported stock order without supplier successfully'});
+                    logger.debug({ messageId: messageId, message: 'imported stock order without supplier successfully' });
                     return Promise.resolve(receiptHandle);
                 })
                 .catch(function (error) {
                     // logger.error('[MessageId : ' + messageId + ']' + error);
-                    logger.error({err: error, messageId: messageId});
+                    logger.error({ err: error, messageId: messageId });
                     return Promise.reject('Internal Server Error');
 
                 });
         }
         else if (payload.op === 'generateSales') {
-            logger.info({messageId: messageId, message: 'routed to generateSales'});
+            logger.info({ messageId: messageId, message: 'routed to generateSales' });
             var generateSales = require('./workers-v2/generate-sales/generate-sales');
             return generateSales.run(payload, config, taskId, messageId)
                 .then(function () {
-                    logger.debug({messageId: messageId, message: 'generate sales for consignment successfully'});
+                    logger.debug({ messageId: messageId, message: 'generate sales for consignment successfully' });
                     return Promise.resolve(receiptHandle);
                 })
                 .catch(function (error) {
                     // logger.error('[MessageId : ' + messageId + ']' + error);
-                    logger.error({err: error, messageId: messageId});
+                    logger.error({ err: error, messageId: messageId });
                     return Promise.reject('Internal Server Error');
                 });
         }
@@ -488,15 +490,15 @@ function routeToWorker(payload, config, taskId, messageId, receiptHandle) {
         //         });
         // }
         else if (payload.op === 'generateStockOrderVend') {
-            logger.tag('Routed').info({messageId: messageId, message: 'routed to generateStockOrderVend'});
+            logger.tag('Routed').info({ messageId: messageId, message: 'routed to generateStockOrderVend' });
             var generateStockOrderVend = require('./workers-v2/generate-stock-order/generate-stock-order-vend');
             return generateStockOrderVend.run(payload, config, taskId, messageId)
                 .then(function () {
-                    logger.debug({messageId: messageId, message: 'generated stock order successfully'});
+                    logger.debug({ messageId: messageId, message: 'generated stock order successfully' });
                     return Promise.resolve(receiptHandle);
                 })
                 .catch(function (error) {
-                    logger.error({err: error, messageId: messageId});
+                    logger.error({ err: error, messageId: messageId });
                     return Promise.reject('Internal Server Error');
 
                 });
@@ -510,11 +512,11 @@ function routeToWorker(payload, config, taskId, messageId, receiptHandle) {
             var generateStockOrder = require('./workers-v2/generate-stock-order/generate-stock-order');
             return generateStockOrder.run(payload, config, taskId, messageId)
                 .then(function () {
-                    logger.debug({messageId: messageId, message: 'generated stock order successfully'});
+                    logger.debug({ messageId: messageId, message: 'generated stock order successfully' });
                     return Promise.resolve(receiptHandle);
                 })
                 .catch(function (error) {
-                    logger.error({err: error, messageId: messageId});
+                    logger.error({ err: error, messageId: messageId });
                     return Promise.reject('Internal Server Error');
                 });
         }
@@ -526,11 +528,11 @@ function routeToWorker(payload, config, taskId, messageId, receiptHandle) {
             var generateReorderPoints = require('./workers-v2/generate-reorder-points/generate-reorder-points');
             return generateReorderPoints.run(payload, config, taskId, messageId)
                 .then(function () {
-                    logger.debug({messageId: messageId, message: 'generated reorder points successfully'});
+                    logger.debug({ messageId: messageId, message: 'generated reorder points successfully' });
                     return Promise.resolve(receiptHandle);
                 })
                 .catch(function (error) {
-                    logger.error({err: error, messageId: messageId});
+                    logger.error({ err: error, messageId: messageId });
                     return Promise.reject('Internal Server Error');
                 });
         }
@@ -542,11 +544,11 @@ function routeToWorker(payload, config, taskId, messageId, receiptHandle) {
             var generateStockOrderMSD = require('./workers-v2/generate-stock-order/generate-stock-order-msd');
             return generateStockOrderMSD.run(payload, config, taskId, messageId)
                 .then(function () {
-                    logger.debug({messageId: messageId, message: 'generated stock order successfully'});
+                    logger.debug({ messageId: messageId, message: 'generated stock order successfully' });
                     return Promise.resolve(receiptHandle);
                 })
                 .catch(function (error) {
-                    logger.error({err: error, messageId: messageId});
+                    logger.error({ err: error, messageId: messageId });
                     return Promise.reject('Internal Server Error');
                 });
         }
@@ -558,11 +560,11 @@ function routeToWorker(payload, config, taskId, messageId, receiptHandle) {
             var createTransferOrderMSD = require('./workers-v2/generate-transfer-order-msd/generate-transfer-order-msd');
             return createTransferOrderMSD.run(payload, config, taskId, messageId)
                 .then(function () {
-                    logger.debug({messageId: messageId, message: 'created transfer order in MSD successfully'});
+                    logger.debug({ messageId: messageId, message: 'created transfer order in MSD successfully' });
                     return Promise.resolve(receiptHandle);
                 })
                 .catch(function (error) {
-                    logger.error({err: error, messageId: messageId});
+                    logger.error({ err: error, messageId: messageId });
                     return Promise.reject('Internal Server Error');
                 });
         }
@@ -574,11 +576,11 @@ function routeToWorker(payload, config, taskId, messageId, receiptHandle) {
             var createPurchaseOrderVend = require('./workers-v2/generate-purchase-order-vend/generate-purchase-order-vend');
             return createPurchaseOrderVend.run(payload, config, taskId, messageId)
                 .then(function () {
-                    logger.debug({messageId: messageId, message: 'created purchase order in Vend successfully'});
+                    logger.debug({ messageId: messageId, message: 'created purchase order in Vend successfully' });
                     return Promise.resolve(receiptHandle);
                 })
                 .catch(function (error) {
-                    logger.error({err: error, messageId: messageId});
+                    logger.error({ err: error, messageId: messageId });
                     return Promise.reject('Internal Server Error');
                 });
         }
@@ -590,11 +592,11 @@ function routeToWorker(payload, config, taskId, messageId, receiptHandle) {
             var receiveConsignment = require('./workers-v2/receive-consignment/receive-consignment-vend');
             return receiveConsignment.run(payload, config, taskId, messageId)
                 .then(function () {
-                    logger.debug({messageId: messageId, message: 'received purchase order in Vend successfully'});
+                    logger.debug({ messageId: messageId, message: 'received purchase order in Vend successfully' });
                     return Promise.resolve(receiptHandle);
                 })
                 .catch(function (error) {
-                    logger.error({err: error, messageId: messageId});
+                    logger.error({ err: error, messageId: messageId });
                     return Promise.reject('Internal Server Error');
                 });
         }
@@ -606,11 +608,11 @@ function routeToWorker(payload, config, taskId, messageId, receiptHandle) {
             var importVendOrderFromFile = require('./workers-v2/import-stock-order/import-stock-order-vend');
             return importVendOrderFromFile.run(payload, config, taskId, messageId)
                 .then(function () {
-                    logger.debug({messageId: messageId, message: 'imported stock order from file successfully'});
+                    logger.debug({ messageId: messageId, message: 'imported stock order from file successfully' });
                     return Promise.resolve(receiptHandle);
                 })
                 .catch(function (error) {
-                    logger.error({err: error, messageId: messageId});
+                    logger.error({ err: error, messageId: messageId });
                     return Promise.reject('Internal Server Error');
                 });
         }
@@ -622,11 +624,11 @@ function routeToWorker(payload, config, taskId, messageId, receiptHandle) {
             var checkVendInventory = require('./workers-v2/fetch-incremental-inventory/check-vend-inventory');
             return checkVendInventory.run(payload, config, taskId, messageId)
                 .then(function () {
-                    logger.debug({messageId: messageId, message: 'checked vend inventory successfully'});
+                    logger.debug({ messageId: messageId, message: 'checked vend inventory successfully' });
                     return Promise.resolve(receiptHandle);
                 })
                 .catch(function (error) {
-                    logger.error({err: error, messageId: messageId});
+                    logger.error({ err: error, messageId: messageId });
                     return Promise.reject('Internal Server Error');
                 });
         }
