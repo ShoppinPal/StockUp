@@ -123,5 +123,21 @@ services:
           - sqs.us-east-1.goaws
           - us-west-2.goaws
           - us-east-1.goaws
+  
+  minio:
+    image: minio/minio
+    ports:
+    - 9001:9001 
+    - 9000:9000
+    volumes:
+    - ./docker/volumes/minio/data:/export
+    command: server --console-address :9001 /export
+    environment:
+      MINIO_ROOT_USER: stockup
+      MINIO_ROOT_PASSWORD: stockup.123
+    networks:
+      default:
+        aliases:
+        - minio.stockup.localdomain
 
 
