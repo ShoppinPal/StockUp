@@ -1,3 +1,9 @@
+1.6.25 - 7 Apr 2022
+- Supply price from CSV 
+
+v1.6.24 - Mar 28, 2022
+- Fulfill Using CSV 
+
 v1.6.23 - Jun 10, 2021
 - Multiple Supplier Email
 - Worker Error Messages
