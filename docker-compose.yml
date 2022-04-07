@@ -140,4 +140,15 @@ services:
         aliases:
         - minio.stockup.localdomain
 
+  createbuckets:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set myminio http://minio.stockup.localdomain:9000 stockup stockup.123;
+      /usr/bin/mc mb myminio/stockup-csv-reports;
+      /usr/bin/mc mb myminio/stockup-reorder-points;
+      exit 0;"
+
 
