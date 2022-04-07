@@ -1227,11 +1227,10 @@ module.exports = function (ReportModel) {
                     region: ReportModel.app.get('awsS3Region'),
                     accessKeyId: ReportModel.app.get('awsAccessKeyId'),
                     secretAccessKey: ReportModel.app.get('awsSecretAccessKey'),
-                    endpoint: process.env.ENDPOINT,
+                    endpoint: process.env.S3_ENDPOINT,
                     s3ForcePathStyle: true, // needed with minio?
                     signatureVersion: 'v4'
                 });
-                //let s3Bucket = ReportModel.app.get('awsS3CSVImportsBucket');
                 let s3Bucket = process.env.AWS_S3_CSV_REPORTS_BUCKET;
                 let fileData = fs.readFileSync(result.file.path, 'utf8');
                 let params = {

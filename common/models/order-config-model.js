@@ -12,7 +12,7 @@ module.exports = function (OrderConfigModel) {
         OrderConfigModel.fetchFileImportHeaders = function (id, options) {
             var importableHeaders = {
                 Inventory: ['orderQuantity', 'fulfilledQuantity'],
-                Product: ['name', 'sku','supplyprice'],
+                Product: ['name', 'sku','supplyPrice'],
                 Store: ['name', 'storeNumber', 'supplierStoreId'],
                 Supplier: ['name']
             };

@@ -253,9 +253,9 @@ function readSpreadSheetFromS3(s3Bucket, s3BucketKey, messageId) {
         region: process.env.AWS_S3_REGION,
         accessKeyId: process.env.AWS_ACCESS_KEY_ID,
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-        endpoint: 'http://minio.stockup.localdomain:9000',
+        endpoint: process.env.S3_ENDPOINT,
         s3ForcePathStyle: true, // needed with minio?
-          signatureVersion: 'v4'
+        signatureVersion: 'v4'
     });
     let params = {
         Bucket: s3Bucket,
@@ -323,7 +323,7 @@ function mapSpreadSheetDataToOrders(db, orderConfigModel, spreadSheetRows, userM
     let supplierStoreCodeFileHeader = _.findWhere(orderConfigModel.mappings.Store, {stockupHeader: 'supplierStoreId'}).fileHeader;
     let supplierStoreCodes = _.uniq(_.pluck(spreadSheetRows, supplierStoreCodeFileHeader));
     let skuFileHeader = _.findWhere(orderConfigModel.mappings.Product, {stockupHeader: 'sku'}).fileHeader;
-    let supplyPriceFileHeader = _.findWhere(orderConfigModel.mappings.Product, {stockupHeader: 'supplyprice'}).fileHeader;
+    let supplyPriceFileHeader = _.findWhere(orderConfigModel.mappings.Product, {stockupHeader: 'supplyPrice'}).fileHeader;
     let orderQuantityFileHeader = _.findWhere(orderConfigModel.mappings.Inventory, {stockupHeader: 'orderQuantity'}).fileHeader;
     let fulfilledQuantityFileHeader = _.findWhere(orderConfigModel.mappings.Inventory, {stockupHeader: 'fulfilledQuantity'}).fileHeader;
     let skusToAdd = _.uniq(_.pluck(spreadSheetRows, skuFileHeader));
@@ -331,7 +331,7 @@ function mapSpreadSheetDataToOrders(db, orderConfigModel, spreadSheetRows, userM
     let skusToAddStringified = _.map(skusToAdd, function (eachSku) {
         return typeof eachSku === 'string' ? eachSku : JSON.stringify(eachSku);
     });
-    let supplypriceproductModelInstances, storeModelInstances;
+    let productModelInstances, storeModelInstances;
     //remove the rows that have 0 as order quantity
     spreadSheetRows = _.reject(spreadSheetRows, function (eachSpreadSheetRow) {
         return eachSpreadSheetRow[orderQuantityFileHeader] === 0;
@@ -403,7 +403,7 @@ function mapSpreadSheetDataToOrders(db, orderConfigModel, spreadSheetRows, userM
                         eachSpreadSheetRow.supplierModelId = productFound.supplierModelId;
                         eachSpreadSheetRow.categoryModelId = productFound.categoryModelId;
                         eachSpreadSheetRow.categoryModelName = productFound.categoryModel && productFound.categoryModel.length ? productFound.categoryModel[0].name : 'No Category';
-                        eachSpreadSheetRow.supplyPrice = eachSpreadSheetRow.supply_price;
+                        eachSpreadSheetRow.supplyPrice = productFound.supply_price;
                         eachSpreadSheetRow.binLocation = productFound.binLocation;
                         eachSpreadSheetRow.groupBy = eachSpreadSheetRow[orderConfigModel.groupBy];
                         let correspondingSupplierStoreMapping = _.find(supplierStoreMappings, function (eachMapping) {
