@@ -217,7 +217,7 @@ function saveSuppliers(dbInstance, vendConnectionInfo, orgModelId, suppliers) {
     });
     _.each(suppliersToDelete, function (eachSupplier) {
         batch.find({
-            orgModelId: orgModelId,
+            orgModelId: ObjectId(orgModelId),
             api_id: eachSupplier.id
         }).remove({
             api_id: eachSupplier.id
