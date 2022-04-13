@@ -797,7 +797,7 @@ function findAlreadyOrderedLineItemsToday(warehouseInventory, lineItemsToOrder, 
             $match: {
                 $and: [
                     {
-                        created: {
+                        createdAt: {
                             $gte: todaysDate
                         }
                     },
@@ -819,7 +819,7 @@ function findAlreadyOrderedLineItemsToday(warehouseInventory, lineItemsToOrder, 
         },
         {
             $sort: {
-                created: -1
+                createdAt: -1
             }
         },
         {
