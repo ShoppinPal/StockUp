@@ -198,7 +198,7 @@ export class ConnectComponent implements OnInit, OnDestroy {
         });
   }
 
-  private syncVendProductTypes() {
+  /*private syncVendProductTypes() {
     this.loading = true;
     this.orgModelApi.syncVendProductTypes(this.userProfile.orgModelId)
       .subscribe((data: any) => {
@@ -210,7 +210,7 @@ export class ConnectComponent implements OnInit, OnDestroy {
           console.log('err', err);
           this.toastr.error('Error in syncing Product Types');
         });
-  }
+  }*/
 
   private syncVendUsers() {
     this.loading = true;

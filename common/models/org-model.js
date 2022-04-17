@@ -934,7 +934,7 @@ module.exports = function (OrgModel) {
                 });
         };
 
-        OrgModel.remoteMethod('syncVendProductTypes', {
+       /* OrgModel.remoteMethod('syncVendProductTypes', {
             accepts: [
                 {arg: 'id', type: 'string', required: true},
                 {arg: 'options', type: 'object', http: 'optionsFromRequest'}
@@ -959,7 +959,7 @@ module.exports = function (OrgModel) {
                     });
                     return Promise.reject('Could not sync vend product types');
                 });
-        };
+        };*/
 
         OrgModel.remoteMethod('inviteUser', {
             accepts: [

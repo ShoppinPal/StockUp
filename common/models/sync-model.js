@@ -15,7 +15,7 @@ module.exports = function (SyncModel) {
             options,
             functionName: 'initiateVendSync'
         });
-        var syncModels = ['products', 'suppliers', 'inventory', 'sales'];
+        var syncModels = ['products', 'suppliers', 'inventory', 'sales','product_types'];
         return SyncModel.syncVendStores(id, options)
             .catch(function (error) {
                 logger.error({
@@ -43,24 +43,6 @@ module.exports = function (SyncModel) {
                     functionName: 'initiateVendSync'
                 });
                 return Promise.reject('Could not sync vend users');
-            })
-            .then(function (response) {
-                logger.debug({
-                    message: 'Synced vend users, will sync vend product types',
-                    response,
-                    options,
-                    functionName: 'initiateVendSync'
-                });
-                return SyncModel.syncVendProductTypes(id, options);
-            })
-            .catch(function (error) {
-                logger.error({
-                    message: 'Could not sync vend product types',
-                    options,
-                    error,
-                    functionName: 'initiateVendSync'
-                });
-                return Promise.reject('Could not sync vend product types');
             })
             .then(function (response) {
                 logger.debug({
@@ -672,14 +654,14 @@ module.exports = function (SyncModel) {
             });
     };
 
-    SyncModel.syncVendProductTypes = function (id, options) {
+  /*  SyncModel.syncVendProductTypes = function (id, options,versionsAfter = 0) {
         logger.debug({
             message: 'Will sync vend product types',
             functionName: 'syncVendProductTypes',
             options
         });
         var vendUtils = require('./../../common/utils/vend')({OrgModel: SyncModel.app.models.OrgModel});
-        return vendUtils.getVendProductTypes(id, options)
+        return vendUtils.getVendProductTypes(id, options,versionsAfter)
             .catch(function (error) {
                 logger.error({
                     message: 'Could not fetch vend product types',
@@ -739,5 +721,5 @@ module.exports = function (SyncModel) {
                 });
                 return Promise.resolve('Saved product types to db as categories');
             });
-    };
+    };*/
 };

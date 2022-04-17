@@ -152,7 +152,8 @@ var callFetchDataObjectsWorker = function (syncModels, orgModelId) {
             suppliers: dataObjectNames.indexOf('suppliers'),
             products: dataObjectNames.indexOf('products'),
             inventory: dataObjectNames.indexOf('inventory'),
-            sales: dataObjectNames.indexOf('sales')
+            sales: dataObjectNames.indexOf('sales'),
+            product_types : dataObjectNames.indexOf('product_types')
         };
         /**
          * Do not hamper the order here, it has been put in this way because:
@@ -171,6 +172,20 @@ var callFetchDataObjectsWorker = function (syncModels, orgModelId) {
                     return fetchIncrementalSuppliers.run(vendConnectionInfo, orgModelId, syncModels[dataObjectIndices.suppliers].version);
                 }
                 else {
+                    return Promise.resolve();
+                }
+            })
+            .then(function(){
+                if(dataObjectIndices.product_types !== -1){
+                    logger.debug({
+                        orgModelId,
+                        message: 'Calling fetch product category worker',
+                    })
+
+                    var fetchIncrementalCategory = require('./../fetch-incremental-category/fetch-incremental-category');
+                    return fetchIncrementalCategory.run(vendConnectionInfo,orgModelId, syncModels[dataObjectIndices.product_types].version);
+                }
+                else{
                     return Promise.resolve();
                 }
             })
