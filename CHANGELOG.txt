@@ -1,5 +1,8 @@
 1.6.25 - 7 Apr 2022
-- Supply price from CSV 
+- Supply price from CSV for Generated
+- Supply price import using CSV for FulFill
+- Read deleted supplier from Vend
+- Historical Sales filter issue 
 
 v1.6.24 - Mar 28, 2022
 - Fulfill Using CSV 

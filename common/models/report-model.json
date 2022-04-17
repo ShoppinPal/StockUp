@@ -15,7 +15,7 @@
       "type": "string",
       "required": false
     },
-    "created": {
+    "createdAt": {
       "type": "date",
       "required": true,
       "defaultFn": "now"

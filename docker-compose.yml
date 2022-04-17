@@ -30,7 +30,7 @@ services:
     working_dir: /apps/warehouse
     entrypoint: ./dev-entrypoint.sh
     ports:
-      - "3000"
+      - "3000:3000"
     environment:
       NODE_ENV: local
     env_file: .env
