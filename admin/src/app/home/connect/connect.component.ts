@@ -34,7 +34,8 @@ export class ConnectComponent implements OnInit, OnDestroy {
   public syncing = {
       products: false,
       inventory: false,
-      suppliers: false
+      suppliers: false,
+      product_types: false,
   };
   private subscriptions: Subscription[] = [];
 
@@ -195,20 +196,6 @@ export class ConnectComponent implements OnInit, OnDestroy {
           this.loading = false;
           console.log('err', err);
           this.toastr.error('Error in syncing stores');
-        });
-  }
-
-  private syncVendProductTypes() {
-    this.loading = true;
-    this.orgModelApi.syncVendProductTypes(this.userProfile.orgModelId)
-      .subscribe((data: any) => {
-          this.loading = false;
-          this.toastr.success('Synced Product Types successfully');
-        },
-        err => {
-          this.loading = false;
-          console.log('err', err);
-          this.toastr.error('Error in syncing Product Types');
         });
   }
 

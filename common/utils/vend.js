@@ -221,7 +221,7 @@ var getVendOutlets = function (orgModelId, options) {
         });
 };
 
-var getVendProductTypes = function (orgModelId, options) {
+var getVendProductTypes = function (orgModelId, options,versionsAfter) {
     logger.debug({
         message: 'Will fetch all product types',
         functionName: 'getVendProductTypes',
@@ -246,7 +246,7 @@ var getVendProductTypes = function (orgModelId, options) {
             });
             var argsForProductTypes = vendSdk.args.productTypes.fetch();
             //change args to fetch all product types at once
-            argsForProductTypes.after = 0;
+            argsForProductTypes.after = versionsAfter;
             argsForProductTypes.pageSize = 1000;
             return vendSdk.productTypes.fetch(argsForProductTypes, connectionInfo);
         })
