@@ -934,33 +934,6 @@ module.exports = function (OrgModel) {
                 });
         };
 
-       /* OrgModel.remoteMethod('syncVendProductTypes', {
-            accepts: [
-                {arg: 'id', type: 'string', required: true},
-                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
-            ],
-            http: {path: '/:id/syncVendProductTypes', verb: 'get'},
-            returns: {arg: 'result', type: 'string', root: true}
-        });
-
-        OrgModel.syncVendProductTypes = function (id, options, cb) {
-            logger.debug({
-                message: 'Will sync Vend product types',
-                options,
-                functionName: 'syncVendProductTypes'
-            });
-            return OrgModel.app.models.SyncModel.syncVendProductTypes(id, options)
-                .catch(function (error) {
-                    logger.error({
-                        message: 'Could not sync vend ProductTypes',
-                        error,
-                        functionName: 'syncVendProductTypes',
-                        options
-                    });
-                    return Promise.reject('Could not sync vend product types');
-                });
-        };*/
-
         OrgModel.remoteMethod('inviteUser', {
             accepts: [
                 {arg: 'id', type: 'string', required: true},

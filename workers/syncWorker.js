@@ -13,7 +13,7 @@ var db = null;
 const _ = require('underscore');
 const SUCCESS = 0;
 const FAILURE = 1;
-const syncInterval = 10;
+const syncInterval = 300;
 
 const Sentry = require('@sentry/node');
 var sentryDNS = process.env.STOCKUP_SENTRY_WORKER_V3_DNS;

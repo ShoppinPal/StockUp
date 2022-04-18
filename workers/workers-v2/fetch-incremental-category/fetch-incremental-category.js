@@ -34,7 +34,8 @@ var runMe = function(vendConnectionInfo, orgModelId, versionsAfter) {
         if(db){
             return db.close();
         }
-    }).catch(function(error){
+    })
+    .catch(function(error){
         logger.error({
             orgModelId,
             message:'Could not close db connection',
@@ -64,7 +65,8 @@ var fetchCategory = function (dbInstance, vendConnectionInfo,orgModelId, version
                     functionName: 'fetchCategory'
                 })
                 return Promise.reject('Could not fetch category from vend');
-            }).then(function(response){
+            })
+            .then(function(response){
                 if(response && response.data && response.data.length){
                     logger.debug({
                         message: 'Fetch category data from vend, will save to DB',
@@ -236,7 +238,7 @@ function executeBatch(batch, orgModelId){
         else {
             logger.debug({
                 orgModelId,
-                suppliersBatchNumber,
+                categoryBatchNumber,
                 message: `Skipping empty batch`,
                 functionName: 'executeBatch'
             });
