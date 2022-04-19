@@ -53,8 +53,8 @@ var fetchCategory = function (dbInstance, vendConnectionInfo,orgModelId, version
     var argsForProductTypes = vendSdk.args.productTypes.fetch();
             //change args to fetch all product types at once
             argsForProductTypes.deleted.value = 1; 
-            argsForProductTypes.after = versionsAfter;
-            argsForProductTypes.pageSize = 1000;
+            argsForProductTypes.after.value = versionsAfter;
+            argsForProductTypes.pageSize.value = 1000;
             return vendSdk.productTypes.fetch(argsForProductTypes, vendConnectionInfo)
             .catch(function(error){
                 logger.error({
@@ -116,8 +116,7 @@ var saveCategory = function (dbInstance, vendConnectionInfo, orgModelId, categor
         categoryBatchNumber,
         deletedCategories : categoriesToDelete.length,
         saveToCategory: categoriesToSave.length,
-        functionName :'saveCategory',
-        db: dbInstance.collection('CategoryModel')
+        functionName :'saveCategory'
     });
 
     var batch = dbInstance.collection('CategoryModel').initializeUnorderedBulkOp();
@@ -165,16 +164,20 @@ var saveCategory = function (dbInstance, vendConnectionInfo, orgModelId, categor
             });
 
             return dbInstance.collection('SyncModel').updateOne({
-                $and:[
-                        {'orgmModelId': ObjectId(orgModelId)},
-                        {'name':'product_types'}
-                     ],
-                    },
-                    {
-                        $set:{
-                            'version':categories.version.max
+                    $and: [
+                        {
+                            'orgModelId': ObjectId(orgModelId)
+                        },
+                        {
+                            'name': 'product_types'
                         }
-                    });
+                    ],
+                },
+                {
+                    $set: {
+                        'version': categories.version.max
+                    }
+                });
         })
         .catch(function(error){
             logger.error({
@@ -204,7 +207,6 @@ function executeBatch(batch, orgModelId){
             orgModelId,
             message: `Executing batch of Category`,
             categoryBatchNumber,
-            batch,
             functionName : 'excuteBatch'
         });
         if (batch.s && batch.s.currentBatch && batch.s.currentBatch.operations) {
