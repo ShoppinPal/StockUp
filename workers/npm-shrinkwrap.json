@@ -4124,7 +4124,7 @@
     "vend-nodejs-sdk": {
       "version": "1.1.1",
       "from": "git+https://github.com/ShoppinPal/vend-nodejs-sdk.git#fixes/ritik/addedDeleteFieldForProductType",
-      "resolved": "git+https://github.com/ShoppinPal/vend-nodejs-sdk.git#d3f90b36ed439f32bc3e566e69cd2a1881fb5bc5",
+      "resolved": "git+https://github.com/ShoppinPal/vend-nodejs-sdk.git#2a9b1a2c1269bee002b2b47f3d5bbbcaee8164a7",
       "dependencies": {
         "async": {
           "version": "0.9.2",
