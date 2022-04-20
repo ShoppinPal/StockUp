@@ -4,6 +4,7 @@
 - Read deleted supplier from Vend
 - Historical Sales filter issue 
 - Categories incremental sync
+- Fix Receiving Failure status
 
 v1.6.24 - Mar 28, 2022
 - Fulfill Using CSV 
