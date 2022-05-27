@@ -25,7 +25,10 @@ export class SuppliersResolverService {
   fetchSuppliers(limit?: number, skip?: number): Observable<any> {
     let filter = {
       limit: this.maxSuppliersPerPage || limit || 10,
-      skip: skip || 0
+      skip: skip || 0,
+      where: {
+       'isDeleted':{ neq: true}
+      }
     };
     let fetchSuppliers = combineLatest(
       this.orgModelApi.getSupplierModels(this.userProfile.orgModelId, filter),

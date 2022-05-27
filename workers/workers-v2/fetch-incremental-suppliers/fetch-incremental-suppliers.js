@@ -103,17 +103,20 @@ function assignVirtualStores(newSuppliers, suppliersToDelete, orgModelId, db) {
                         updatedAt: new Date(),
                         orgModelId: ObjectId(orgModelId),
                         storeNumber: 'Virtual Store',
-                        ownerSupplierModelId: ObjectId(eachSupplier._id)
+                        ownerSupplierModelId: ObjectId(eachSupplier._id),
+                        isDeleted: false,
                     }
                 });
             });
             _.each(deletedSuppliers, function (eachSupplier) {
                 batch.find({
-                    orgModelId: orgModelId,
+                    orgModelId: ObjectId(orgModelId),
                     ownerSupplierModelId: ObjectId(eachSupplier._id)
-                }).remove({
-                    ownerSupplierModelId: ObjectId(eachSupplier._id)
-                });
+                }).upsert().updateOne({
+                    $set:{
+                        isDeleted: true,
+                    }
+                })
             });
             //Execute the operations
             return executeBatch(batch, orgModelId);
@@ -211,7 +214,8 @@ function saveSuppliers(dbInstance, vendConnectionInfo, orgModelId, suppliers) {
                 name: eachSupplier.name,
                 api_id: eachSupplier.id,
                 orgModelId: ObjectId(orgModelId),
-                updatedAt: new Date()
+                updatedAt: new Date(),
+                isDeleted: false,
             }
         });
     });
@@ -219,9 +223,12 @@ function saveSuppliers(dbInstance, vendConnectionInfo, orgModelId, suppliers) {
         batch.find({
             orgModelId: ObjectId(orgModelId),
             api_id: eachSupplier.id
-        }).remove({
-            api_id: eachSupplier.id
-        })
+        }).upsert().updateOne({
+            $set: {
+                updatedAt: new Date(),
+                isDeleted: true,
+            }
+        });
     });
 
     //Execute the operations

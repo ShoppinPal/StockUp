@@ -64,7 +64,10 @@ export class SuppliersComponent implements OnInit {
     this.loading = true;
     let filter = {
       limit: this.suppliersLimitPerPage || limit || 10,
-      skip: skip || 0
+      skip: skip || 0,
+      where: {
+        'isDeleted':{ neq: true}
+      }
     };
     let fetchSuppliers = combineLatest(
       this.orgModelApi.getSupplierModels(this.userProfile.orgModelId, filter),
@@ -91,7 +94,7 @@ export class SuppliersComponent implements OnInit {
     var filterData = pattern.toString();
     let filter = {
       where: {
-        name: { "regexp": filterData }
+        and:[{ name: { "regexp": filterData }},{'isDeleted':{ neq: true}}]
       }
     };
     this.orgModelApi.getSupplierModels(this.userProfile.orgModelId, filter)
