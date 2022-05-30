@@ -5,6 +5,7 @@
 - Historical Sales filter issue 
 - Categories incremental sync
 - Fix Receiving Failure status
+- add fix for soft delete of supplier
 
 v1.6.24 - Mar 28, 2022
 - Fulfill Using CSV 

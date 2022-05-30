@@ -22,7 +22,6 @@ ENV MONGOLAB_URI=mongodb://admin:c64e8e7b05a6d35@35.200.175.36:27017/warehouse-l
 RUN sed -i '2d' /etc/apt/sources.list && apt-get -y update && apt-get -y dist-upgrade
 RUN chown -R node:node /usr/local
 RUN apt-get -y update && apt-get -y dist-upgrade && apt-get install -y python-pip python-dev && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
-RUN pip install awscli --upgrade
 ENV DEBIAN_FRONTEND=noninteractive
 ENV GOSU_VERSION 1.10
 RUN set -x \
