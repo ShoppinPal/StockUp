@@ -64,7 +64,8 @@
     },
     "isDeleted": {
       "type": "boolean",
-      "required": true
+      "required": true,
+      "default": false
     }
   },
   "validations": [],
