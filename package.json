@@ -1,6 +1,6 @@
 {
   "name": "stockup",
-  "version": "1.6.24",
+  "version": "1.6.25",
   "dependencies": {
     "@mean-expert/loopback-component-realtime": "1.0.0-rc.9.6",
     "@mean-expert/loopback-sdk-builder": "2.3.1",
@@ -55,7 +55,7 @@
     "supertest-as-promised": "2.0.1",
     "time-grunt": "~0.2.9",
     "underscore": "^1.7.0",
-    "vend-nodejs-sdk": "git+https://github.com/ShoppinPal/vend-nodejs-sdk.git#feature/kamal/users-v2-api",
+    "vend-nodejs-sdk": "git+https://github.com/ShoppinPal/vend-nodejs-sdk.git#fixes/ritik/addedDeleteFieldForProductType",
     "winston": "^0.8.3",
     "xlsx": "~0.8.0"
   },

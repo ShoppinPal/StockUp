@@ -15,7 +15,7 @@ module.exports = function (SyncModel) {
             options,
             functionName: 'initiateVendSync'
         });
-        var syncModels = ['products', 'suppliers', 'inventory', 'sales'];
+        var syncModels = ['products', 'suppliers', 'inventory', 'sales','product_types'];
         return SyncModel.syncVendStores(id, options)
             .catch(function (error) {
                 logger.error({
@@ -46,25 +46,7 @@ module.exports = function (SyncModel) {
             })
             .then(function (response) {
                 logger.debug({
-                    message: 'Synced vend users, will sync vend product types',
-                    response,
-                    options,
-                    functionName: 'initiateVendSync'
-                });
-                return SyncModel.syncVendProductTypes(id, options);
-            })
-            .catch(function (error) {
-                logger.error({
-                    message: 'Could not sync vend product types',
-                    options,
-                    error,
-                    functionName: 'initiateVendSync'
-                });
-                return Promise.reject('Could not sync vend product types');
-            })
-            .then(function (response) {
-                logger.debug({
-                    message: 'Synced vend product types',
+                      message: 'Synced vend product types',
                     response,
                     options,
                     functionName: 'initiateVendSync'
@@ -669,75 +651,6 @@ module.exports = function (SyncModel) {
                     options
                 });
                 return Promise.reject('Could not assign stores to user');
-            });
-    };
-
-    SyncModel.syncVendProductTypes = function (id, options) {
-        logger.debug({
-            message: 'Will sync vend product types',
-            functionName: 'syncVendProductTypes',
-            options
-        });
-        var vendUtils = require('./../../common/utils/vend')({OrgModel: SyncModel.app.models.OrgModel});
-        return vendUtils.getVendProductTypes(id, options)
-            .catch(function (error) {
-                logger.error({
-                    message: 'Could not fetch vend product types',
-                    error,
-                    functionName: 'syncVendProductTypes',
-                    options
-                });
-            })
-            .then(function (response) {
-                logger.debug({
-                    message: 'Fetched vend product types, will save to db',
-                    response,
-                    functionName: 'syncVendProductTypes',
-                    options
-                });
-                if (response && response.data && response.data.length) {
-                    return Promise.map(response.data, function (eachProductType) {
-                        if (eachProductType.name && eachProductType.deleted_at !== 'null') {
-                            return SyncModel.app.models.CategoryModel.findOrCreate({
-                                where: {
-                                    api_id: eachProductType.id,
-                                    orgModelId: id
-                                }
-                            }, {
-                                api_id: eachProductType.id,
-                                name: eachProductType.name,
-                                orgModelId: id
-                            });
-                        }
-                    });
-                }
-                else {
-                    logger.error({
-                        message: 'Could not fetch any product types from vend',
-                        options,
-                        functionName: 'syncVendProductTypes'
-                    });
-                    return Promise.reject('Could not fetch any stores from vend');
-                }
-            })
-            .catch(function (error) {
-                logger.error({
-                    message: 'Could not save product types to db',
-                    error,
-                    reason: error,
-                    options,
-                    functionName: 'syncVendProductTypes'
-                });
-                return Promise.reject('Could not save stores to db');
-            })
-            .then(function (response) {
-                logger.debug({
-                    message: 'Saved product types to db as categories',
-                    response,
-                    options,
-                    functionName: 'syncVendProductTypes'
-                });
-                return Promise.resolve('Saved product types to db as categories');
             });
     };
 };

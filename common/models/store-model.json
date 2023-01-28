@@ -61,6 +61,11 @@
     },
     "defaultPaymentType": {
       "type": "object"
+    },
+    "isDeleted": {
+      "type": "boolean",
+      "required": true,
+      "default": false
     }
   },
   "validations": [],

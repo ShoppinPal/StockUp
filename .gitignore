@@ -61,3 +61,6 @@ rsync/.exclude-files
 rsync/rsync.sh
 /admin/src/app/shared/lb-sdk
 rsync.sh
+
+start/
+storage/

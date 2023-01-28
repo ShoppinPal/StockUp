@@ -4123,8 +4123,8 @@
     },
     "vend-nodejs-sdk": {
       "version": "1.1.1",
-      "from": "git+https://github.com/ShoppinPal/vend-nodejs-sdk.git#feature/kamal/users-v2-api",
-      "resolved": "git+https://github.com/ShoppinPal/vend-nodejs-sdk.git#0b59053b9b4c0d7e8b615950be77518301c959a4",
+      "from": "git+https://github.com/ShoppinPal/vend-nodejs-sdk.git#fixes/ritik/addedDeleteFieldForProductType",
+      "resolved": "git+https://github.com/ShoppinPal/vend-nodejs-sdk.git#2a9b1a2c1269bee002b2b47f3d5bbbcaee8164a7",
       "dependencies": {
         "async": {
           "version": "0.9.2",
