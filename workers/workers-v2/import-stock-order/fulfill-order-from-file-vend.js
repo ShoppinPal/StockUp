@@ -255,6 +255,7 @@ function fulfillLineItemsForReport(db, eachOrder, reportModel, messageId) {
                                     orderQuantity: 0,
                                     fulfilledQuantity: generatedLineItem.fulfilledQuantity,
                                     fulfilled: generatedLineItem.fulfilledQuantity > 0,
+                                    supplyPrice: generatedLineItem.supplyPrice,
                                     approved: true,
                                     reportModelId: reportModel._id
                                 }
@@ -281,6 +282,7 @@ function fulfillLineItemsForReport(db, eachOrder, reportModel, messageId) {
                             approved: true,
                             fulfilledQuantity: generatedLineItem.fulfilledQuantity,
                             fulfilled: generatedLineItem.fulfilledQuantity > 0,
+                            supplyPrice: generatedLineItem.supplyPrice,
                             updatedAt: new Date()
                         }
                     });

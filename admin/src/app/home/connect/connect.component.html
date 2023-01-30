@@ -116,24 +116,6 @@
                 </button>
               </td>
             </tr>
-            <tr>
-              <td>
-                Product Categories
-              </td>
-              <td>
-                <button type="button"
-                        *ngIf="integration.length && integration[0].type === 'msdynamics'"
-                        [disabled]="!integration[0].dataAreaId"
-                        class="btn btn-primary"
-                        (click)="syncMSDCategories()">Sync Product Categories
-                </button>
-                <button type="button"
-                        *ngIf="integration.length && integration[0].type === 'vend'"
-                        class="btn btn-primary"
-                        (click)="syncVendProductTypes()">Sync Product Types
-                </button>
-              </td>
-            </tr>
             </tbody>
           </table>
         </div>
@@ -253,6 +235,24 @@
               </td>
               <td>
                 {{getSyncObject('sales')?.lastSyncedAt | date: 'medium'}}
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Product Categories
+              </td>
+              <td>
+                <label class="switch switch-3d switch-primary">
+                  <input type="checkbox" class="switch-input" [ngModel]="checkSync('product_types')" disabled>
+                  <span class="switch-slider"></span>
+                </label>
+                <div [ngClass]="{'d-none': !syncing.product_types}" class="spinner-border spinner-border-sm spinner-margins"
+                     role="status">
+                  <span class="sr-only">Loading...</span>
+                </div>
+              </td>
+              <td>
+                {{getSyncObject('product_types')?.lastSyncedAt | date: 'medium'}}
               </td>
             </tr>
             </tbody>

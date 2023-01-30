@@ -19,9 +19,14 @@ export class CreateOrderResolverService {
 
   resolve(): Observable<any> {
     this.userProfile = this._userProfileService.getProfileData();
+    let filter = {
+      where: {
+        'isDeleted':{ neq: true}
+       }
+    }
     return combineLatest(
-      this.orgModelApi.getSupplierModels(this.userProfile.orgModelId),
-      this.orgModelApi.getStoreModels(this.userProfile.orgModelId),
+      this.orgModelApi.getSupplierModels(this.userProfile.orgModelId, filter),
+      this.orgModelApi.getStoreModels(this.userProfile.orgModelId, filter),
       this.orgModelApi.getOrderConfigModels(this.userProfile.orgModelId, {
         order: 'createdAt desc',
         fields: ['id', 'name']

@@ -19,6 +19,7 @@ done
 _config_setup() {
   ENVIRONMENT=$1
   echo "Setting up config for environment: "${ENVIRONMENT}
+  rm server/config.local.js
   ./node_modules/grunt-cli/bin/grunt configsetup:${ENVIRONMENT}
 }
 

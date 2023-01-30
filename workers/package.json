@@ -17,10 +17,6 @@
     "express": "4.14.0",
     "kerberos": "0.0.23",
     "log-prefix": "0.0.0",
-    "loopback": "2.18.0",
-    "loopback-boot": "2.8.1",
-    "loopback-component-storage": "~1.5.1",
-    "loopback-datasource-juggler": "2.31.0",
     "memcached": "2.2.2",
     "moment": "2.19.3",
     "mongodb": "2.2.31",
@@ -36,7 +32,7 @@
     "supertest": "^3.0.0",
     "tracer": "0.8.7",
     "underscore": "1.8.3",
-    "vend-nodejs-sdk": "git+https://github.com/ShoppinPal/vend-nodejs-sdk.git#feature/kamal/users-v2-api"
+    "vend-nodejs-sdk": "git+https://github.com/ShoppinPal/vend-nodejs-sdk.git#fixes/ritik/addedDeleteFieldForProductType"
   },
   "devDependencies": {
     "nodemon": "1.18.3"

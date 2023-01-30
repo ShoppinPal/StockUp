@@ -30,7 +30,7 @@ services:
     working_dir: /apps/warehouse
     entrypoint: ./dev-entrypoint.sh
     ports:
-      - "3000"
+      - "3000:3000"
     environment:
       NODE_ENV: local
     env_file: .env
@@ -41,19 +41,6 @@ services:
         target: /apps/warehouse
     depends_on:
       - db
-
-  worker:
-    image: shoppinpal/node:6.10
-    working_dir: /apps/workers
-    command: node sqsWorker.js
-    volumes:
-      - type: bind
-        source: ./workers
-        target: /apps/workers
-    restart: always
-    env_file: worker.env
-    depends_on:
-      - memcache
 
   worker2:
     image: shoppinpal/node:6.10
@@ -80,7 +67,7 @@ services:
     env_file: syncWorker.env
 
   db:
-    image: mongo:3.2
+    image: mongo:4.2
     ports:
       - "27020:27017"
     volumes:
@@ -90,15 +77,15 @@ services:
   memcache:
     image: memcached:latest
 
-  mssql:
-    image: microsoft/mssql-server-linux
-    volumes:
-      - type: bind
-        source: ./docker/volumes/mssql
-        target: /var/opt/mssql
-    env_file: mssql.env
-    ports:
-     - "1433:1433"
+  # mssql:
+  #   image: microsoft/mssql-server-linux
+  #   volumes:
+  #     - type: bind
+  #       source: ./docker/volumes/mssql
+  #       target: /var/opt/mssql
+  #   env_file: mssql.env
+  #   ports:
+  #    - "1433:1433"
 
   notification:
     image: "node:8.16"
@@ -121,5 +108,47 @@ services:
       - REDIS_EXTRA_FLAGS=--maxmemory 100mb
     ports:
       - 6379:6379
+      
+  goaws:
+    image: pafortin/goaws
+    ports:
+    - 4100:4100
+    volumes:
+    - ./goaws:/conf
+    networks:
+      default:
+        aliases:
+          - goaws.stockup.localdomain
+          - sqs.us-west-2.goaws
+          - sqs.us-east-1.goaws
+          - us-west-2.goaws
+          - us-east-1.goaws
+  
+  minio:
+    image: minio/minio
+    ports:
+    - 9001:9001 
+    - 9000:9000
+    volumes:
+    - ./docker/volumes/minio/data:/export
+    command: server --console-address :9001 /export
+    environment:
+      MINIO_ROOT_USER: stockup
+      MINIO_ROOT_PASSWORD: stockup.123
+    networks:
+      default:
+        aliases:
+        - minio.stockup.localdomain
+
+  createbuckets:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set myminio http://minio.stockup.localdomain:9000 stockup stockup.123;
+      /usr/bin/mc mb myminio/stockup-csv-reports;
+      /usr/bin/mc mb myminio/stockup-reorder-points;
+      exit 0;"
 
 
