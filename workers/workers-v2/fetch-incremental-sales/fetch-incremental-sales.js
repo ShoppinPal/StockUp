@@ -269,10 +269,6 @@ function saveSales(dbInstance, vendConnectionInfo, orgModelId, sales) {
                 }).remove({
                     api_id: eachLineItem.id
                 });
-                _.each(eachSales.line_items, function (eachLineItem) {
-                    eachLineItem.sales_id = eachSales.id;
-                    salesLineItemsToDelete.push(eachLineItem);
-                });
             });
             logger.debug({
                 orgModelId,
