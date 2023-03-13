@@ -147,7 +147,7 @@ app.listen(3001, function () {
 /**
  * Global error handler
  */
-app.use((err, req, res) => {
+app.use((err, req, res, next) => {
     let statusCode = err.statusCode || 500;
     let errorMessage = err.message || 'Something unexpected happened';
     res.status(statusCode).send(errorMessage);
