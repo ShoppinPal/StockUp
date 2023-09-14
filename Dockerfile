@@ -19,7 +19,11 @@ RUN npm install
 
 FROM shoppinpal/node:6.10
 ENV MONGOLAB_URI=mongodb://admin:c64e8e7b05a6d35@35.200.175.36:27017/warehouse-local
-RUN sed -i '2d' /etc/apt/sources.list && apt-get -y update && apt-get -y dist-upgrade
+RUN echo '\n\
+deb http://archive.debian.org/debian/ jessie-backports main \n\
+deb-src http://archive.debian.org/debian/ jessie-backports main \n\
+deb http://archive.debian.org/debian/ jessie main contrib non-free \n\
+deb-src http://archive.debian.org/debian/ jessie main contrib non-free \n'\ > /etc/apt/sources.list
 RUN chown -R node:node /usr/local
 RUN apt-get -y update && apt-get -y --force-yes dist-upgrade && apt-get install -y --force-yes python-pip python-dev && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 ENV DEBIAN_FRONTEND=noninteractive
