@@ -539,6 +539,7 @@ function updateStockOrderLineitemForVend(db, reportModelInstance, stockOrderLine
             var args = vendSdk.args.consignments.products.update();
             args.apiId.value = stockOrderLineitemModelInstance.vendConsignmentProductId;
             // args.body.value = _.omit(stockOrderLineitemModelInstance.vendConsignmentProduct, 'id'); // omitting id is BAD in this case
+            args.body.vendConsignmentId = reportModelInstance.vendConsignment.id;
             args.body.value = stockOrderLineitemModelInstance.vendConsignmentProduct;
             args.body.value.count = stockOrderLineitemModelInstance.orderQuantity;
             args.body.value.cost = stockOrderLineitemModelInstance.supplyPrice;
