@@ -1,6 +1,6 @@
 {
   "name": "stockup",
-  "version": "1.6.25",
+  "version": "1.6.26",
   "dependencies": {
     "@mean-expert/loopback-component-realtime": "1.0.0-rc.9.6",
     "@mean-expert/loopback-sdk-builder": "2.3.1",
