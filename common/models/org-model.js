@@ -1000,6 +1000,27 @@ module.exports = function (OrgModel) {
                 });
         };
 
+        OrgModel.remoteMethod('regenerateOrder', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: { path: '/:id/regenerateOrder', verb: 'put'},
+            returns: { arg: 'regenerateOrderInstance', type: 'object', root: true}
+        });
+
+        OrgModel.regenerateOrder() = function (id, options) {
+            return OrgModel.app.models.ReportModel.regenerateOrder(id, options)
+                .catch(function(error){
+                    logger.error({
+                        error,
+                        options,
+                        functionName: 'regenerateOrder'
+                    });
+                    return Promise.reject(error);
+                });
+        }
+
         OrgModel.remoteMethod('setReportStatus', {
             accepts: [
                 {arg: 'id', type: 'string', required: true},

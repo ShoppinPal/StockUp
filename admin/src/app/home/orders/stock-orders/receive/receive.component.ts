@@ -538,6 +538,10 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     })
   }
 
+  regenerateOrder(){
+    console.log(" Order Id - ",this.order);
+  }
+
   ngOnDestroy(): void {
     this.subscriptions.forEach(subscription => {
       if (subscription) {
