@@ -540,6 +540,14 @@ export class ReceiveComponent implements OnInit, OnDestroy {
 
   regenerateOrder(){
     console.log(" Order Id - ",this.order);
+    this.loading = true;
+    this.orgModelApi.regenerateOrder(this.order.id).subscribe((data)=>{
+      this.loading = false;
+      console.log("Data ", data);
+    }, err=>{
+      this.loading = false;
+      console.log(err);
+    });
   }
 
   ngOnDestroy(): void {
