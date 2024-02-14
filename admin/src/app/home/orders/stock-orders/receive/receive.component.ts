@@ -538,6 +538,18 @@ export class ReceiveComponent implements OnInit, OnDestroy {
     })
   }
 
+  regenerateOrder(){
+    this.loading = true;
+    this.orgModelApi.regenerateOrder(this.userProfile.orgModelId, this.order.id).subscribe((data)=>{
+      this.loading = false;
+      this.toastr.info('Regenerating Order...');
+      this._router.navigate(['/orders/stock-orders']);
+    }, err=>{
+      this.loading = false;
+      console.log(err);
+    });
+  }
+
   ngOnDestroy(): void {
     this.subscriptions.forEach(subscription => {
       if (subscription) {

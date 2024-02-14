@@ -660,6 +660,20 @@
       "principalType": "ROLE",
       "principalId": "orgAdmin",
       "permission": "ALLOW",
+      "property": "regenerateOrder"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "storeManager",
+      "permission": "ALLOW",
+      "property": "regenerateOrder"
+    },
+    {
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "orgAdmin",
+      "permission": "ALLOW",
       "property": "syncVendUsers"
     },
     {
