@@ -150,7 +150,7 @@ var runMe = function (payload, config, taskId, messageId) {
                     });
                     return Promise.map(stockOrderLineItemModels, function (eachLineItem) {
                         return Promise.delay(1000).then(function(){
-                            if (eachLineItem.receivedQuantity) {
+                            if (eachLineItem.receivedQuantity && eachLineItem.vendConsignmentProduct) {
                                 return utils.updateStockOrderLineitemForVend(db, reportModelInstance, eachLineItem, messageId);
                             }
                             else {
