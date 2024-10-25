@@ -257,11 +257,11 @@ module.exports = function (UserModel) {
         //             transporter.send = transporter.sendMail;
         //             var verifyOptions = {
         //                 type: 'email',
-        //                 to: 'kamal@shoppinpal.com',
+        //                 to: 'kamal@linktoany.com',
         //                 // to: ctx.instance.email,
         //                 subject: 'Thank you for registering.',
         //                 from: UserModel.app.get('verificationEmail') || process.env.VERIFICATION_EMAIL,
-        //                 // from: 'kamal@shoppinpal.com',
+        //                 // from: 'kamal@linktoany.com',
         //                 redirect: '/',
         //                 user: ctx.instance,
         //                 mailer: transporter

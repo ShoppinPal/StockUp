@@ -41,6 +41,6 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
-  "author": "kamal@shoppinpal.com",
+  "author": "surajmandal@linktoany.com",
   "license": "GNU GENERAL PUBLIC LICENSE Version 2, June 1991"
 }

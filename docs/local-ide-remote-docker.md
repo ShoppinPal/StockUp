@@ -1,6 +1,6 @@
 # Deploy
 
-1. [Setup dropbox on remote machine](https://training.shoppinpal.com/setup-box-on-azure/setup-dropbox-on-azure.html)
+1. [Setup dropbox on remote machine](https://training.linktoany.com/setup-box-on-azure/setup-dropbox-on-azure.html)
 1. On your remote machine, execute the instructions from the [Deploy](https://github.com/ShoppinPal/warehouse#deploy) section above.
 1. On remote, setup the following env variables:
 

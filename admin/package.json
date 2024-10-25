@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Warehouse Admin",
   "author": "Kamal Khatwani",
-  "homepage": "http://shoppinpal.com",
+  "homepage": "http://linktoany.com",
   "license": "MIT",
   "scripts": {
     "ng": "./node_modules/@angular/cli/bin/ng",
