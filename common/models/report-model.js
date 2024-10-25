@@ -1473,7 +1473,7 @@ module.exports = function (ReportModel) {
                                     id: stockOrderInstance.id
                                 },
                                 {
-                                    vendConsignmentProductId: vendConsignmentProduct.id,
+                                    vendConsignmentProductId: vendConsignmentProduct.id ? vendConsignmentProduct.id : null,
                                     vendConsignmentProduct: vendConsignmentProduct
                                 }
                             );
@@ -1574,7 +1574,7 @@ module.exports = function (ReportModel) {
                     productModelSku: product.sku, //need for sorting
                     storeInventory: quantityOnHand,
                     desiredStockLevel: desiredStockLevel,
-                    orderQuantity: product.orderQuantity || 0,
+                    orderQuantity: product.orderQuantity ? product.orderQuantity : (product.quantity ? product.quantity : 0),
                     originalOrderQuantity: orderQuantity,
                     fulfilledQuantity: product.fulfilledQuantity || 0,
                     receivedQuantity: product.receivedQuantity || 0,
