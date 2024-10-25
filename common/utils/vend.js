@@ -388,13 +388,14 @@ var setDesiredStockLevelForVend = function (orgModelId, outletId, productId, des
                 id: productId //'3aab7379-15a2-11e3-a415-bc764e10976c'
             };
             var updateData = {
-                id: product.id,
-                inventory: [
-                    {
-                        'outlet_id': outletId, //'aea67e1a-b85c-11e2-a415-bc764e10976c',
-                        'reorder_point': desiredStockLevel
-                    }
-                ]
+                details: {
+                    inventory: [
+                        {
+                            'outlet_id': outletId, //'aea67e1a-b85c-11e2-a415-bc764e10976c',
+                            'reorder_point': desiredStockLevel
+                        }
+                    ]
+                }
             };
             return vendSdk.products.update({apiId: {value: product.id}, body: {value: updateData}}, connectionInfo);
         })
