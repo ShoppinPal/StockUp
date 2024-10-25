@@ -108,7 +108,7 @@ Standard measures for security like IP whitelisting will be used to allow access
 # Remote Dev Machine
 
 1. Setup dropbox on local machine
-1. [Setup dropbox on remote machine](https://training.shoppinpal.com/setup-a-machine-in-the-cloud/setup-box/shared-filesystem/dropbox.html)
+1. [Setup dropbox on remote machine](https://training.linktoany.com/setup-a-machine-in-the-cloud/setup-box/shared-filesystem/dropbox.html)
 1. Create a directory on your local machine to house any and all projects meant for remote development: `mkdir -p ~/Dropbox/rDev`
 1. Go to the directory where you cloned warehouse locally, for example: `cd ~/dev/warehouse`
 1. Then wire it up to your local Dropbox folder:

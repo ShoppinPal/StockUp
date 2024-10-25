@@ -22,7 +22,7 @@ describe('In Warehouse', function() {
     waitForSometime(1000);
 
     // fill in a username
-    login.username.sendKeys('merchant1@shoppinpal.com');
+    login.username.sendKeys('merchant1@linktoany.com');
     waitForSometime(1000);
 
     // fill in a password
