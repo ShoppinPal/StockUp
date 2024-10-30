@@ -1,3 +1,9 @@
+1.7.0 - 30 Oct 2024
+- Updated consignment api with upgraded version 2.0.
+- Updated vend nodejs SDK.
+- Fixed consgiment issues.
+- Fixed email issue.
+
 1.6.26 - 14 Sept 2023
 - update consignment api to version 2.0
 
