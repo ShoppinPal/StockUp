@@ -1473,7 +1473,7 @@ module.exports = function (ReportModel) {
                                     id: stockOrderInstance.id
                                 },
                                 {
-                                    vendConsignmentProductId: vendConsignmentProduct.id,
+                                    vendConsignmentProductId: vendConsignmentProduct.id ? vendConsignmentProduct.id : null,
                                     vendConsignmentProduct: vendConsignmentProduct
                                 }
                             );
@@ -1574,7 +1574,7 @@ module.exports = function (ReportModel) {
                     productModelSku: product.sku, //need for sorting
                     storeInventory: quantityOnHand,
                     desiredStockLevel: desiredStockLevel,
-                    orderQuantity: product.orderQuantity || 0,
+                    orderQuantity: product.orderQuantity ? product.orderQuantity : (product.quantity ? product.quantity : 0),
                     originalOrderQuantity: orderQuantity,
                     fulfilledQuantity: product.fulfilledQuantity || 0,
                     receivedQuantity: product.receivedQuantity || 0,
@@ -1615,6 +1615,34 @@ module.exports = function (ReportModel) {
             });
     }
 
+    ReportModel.regenerateOrder = function (orgModelId, reportModelId, options){
+        logger.debug({
+            message: "will change state to generated",
+            orgModelId,
+            reportModelId,
+            options,
+            functionName: 'regenerateOrder'
+        });
+        var reportModelInstance;
+        return ReportModel.findById(reportModelId)
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not find report model instance',
+                    reportModelId,
+                    options,
+                    error,
+                    functionName: 'regenerateOrder'
+                });
+                return Promise.reject('Could not find report model instance');
+            })
+            .then( function(response) {
+                reportModelInstance = response;
+                return reportModelInstance.updateAttributes({
+                    state: REPORT_STATES.GENERATED
+                });
+            })
+    }
+    
     ReportModel.deleteStockOrderVend = function (orgModelId, reportModelId, options) {
         logger.debug({
             message: 'Looking for stock order',

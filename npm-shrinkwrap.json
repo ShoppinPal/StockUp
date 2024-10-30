@@ -1,6 +1,6 @@
 {
   "name": "stockup",
-  "version": "1.6.26",
+  "version": "1.6.27",
   "dependencies": {
     "@babel/runtime-corejs2": {
       "version": "7.10.2",
@@ -6023,8 +6023,8 @@
     },
     "vend-nodejs-sdk": {
       "version": "1.1.1",
-      "from": "git+https://github.com/ShoppinPal/vend-nodejs-sdk.git#fixes/ritik/addedDeleteFieldForProductType",
-      "resolved": "git+https://github.com/ShoppinPal/vend-nodejs-sdk.git#2a9b1a2c1269bee002b2b47f3d5bbbcaee8164a7",
+      "from": "git+https://github.com/ShoppinPal/vend-nodejs-sdk.git#fix/ritik/depreciation/consignmentApi",
+      "resolved": "git+https://github.com/ShoppinPal/vend-nodejs-sdk.git#553d7375fb71e5158baae219131e709fe71973b5",
       "dependencies": {
         "async": {
           "version": "0.9.2",
