@@ -4,10 +4,47 @@
     <div class="col-lg-12">
       <div class="card">
         <div class="card-header">
-          <i class="fa fa-cubes"></i> Stock orders
-          <button type="button" class="btn btn-link float-right" (click)="fetchOrders('all')">
-            Refresh
-          </button>
+          <div>
+            <i class="fa fa-cubes"></i> Stock orders
+            <button type="button" class="btn btn-link float-right" (click)="fetchOrders('all', ordersLimitPerPage, ($event.page - 1) * ordersLimitPerPage, false)">
+              Refresh
+            </button>
+          </div>
+          <div class="filter-orders">
+            <div class="filter-order-select-tags">
+              Delivered To :
+            </div>
+            <div class="filter-order-select-div">
+              <select class="form-control ng-pristine ng-valid ng-touched" [(ngModel)]="selectedDeliveredToStoreId" id="storeName">
+                <option disabled="disabled" value="">Select..</option>
+                <!-- <option *ngFor="let store of userStores" [value]="store.objectId" *ngIf="!store.isDeleted">{{store.name}}</option> -->
+                <ng-container *ngFor="let store of userStores">
+                  <option *ngIf="!store.isDeleted" [value]="store.objectId">
+                    {{store.name}}
+                  </option>
+                </ng-container>
+              </select>
+            </div>
+            <div class="filter-order-select-tags">
+              Delivered From :
+            </div>
+            <div class="filter-order-select-div">
+              <select class="form-control ng-pristine ng-valid ng-touched" [(ngModel)]="selectedDeliveredFromStoreId" id="storeName">
+                <option disabled="disabled" value="">Select..</option>
+                <!-- <option *ngFor="let store of userStores" [value]="store.objectId" *ngIf="!store.isDeleted">{{store.name}}</option> -->
+                <ng-container *ngFor="let store of userStores">
+                  <option *ngIf="!store.isDeleted" [value]="store.objectId">
+                    {{store.name}}
+                  </option>
+                </ng-container>
+              </select>
+            </div>
+            <div>
+              <button type="button" class="btn btn-link float-right filter-order-button" (click)="fetchOrders('all', ordersLimitPerPage, ($event.page - 1) * ordersLimitPerPage, true)">
+                Filter
+              </button>
+            </div>
+          </div>
           <!--<button type="button" class="btn btn-link float-right">-->
           <!--<i class="fa fa-filter fa-2x"></i>-->
           <!--</button>-->
@@ -66,7 +103,7 @@
                           [maxSize]="maxPageDisplay"
                           [rotate]="false"
                           [boundaryLinks]="true"
-                          (pageChanged)="fetchOrders('generated', ordersLimitPerPage, ($event.page - 1) * ordersLimitPerPage)"
+                          (pageChanged)="fetchOrders('generated', ordersLimitPerPage, ($event.page - 1) * ordersLimitPerPage, filterOrder)"
                           [itemsPerPage]="ordersLimitPerPage">
               </pagination>
             </tab>
@@ -120,7 +157,7 @@
                           [maxSize]="maxPageDisplay"
                           [rotate]="false"
                           [boundaryLinks]="true"
-                          (pageChanged)="fetchOrders('receive', ordersLimitPerPage, ($event.page - 1) * ordersLimitPerPage)"
+                          (pageChanged)="fetchOrders('receive', ordersLimitPerPage, ($event.page - 1) * ordersLimitPerPage, filterOrder)"
                           [itemsPerPage]="ordersLimitPerPage">
               </pagination>
             </tab>
@@ -170,7 +207,7 @@
                           [maxSize]="maxPageDisplay"
                           [rotate]="false"
                           [boundaryLinks]="true"
-                          (pageChanged)="fetchOrders('fulfill', ordersLimitPerPage, ($event.page - 1) * ordersLimitPerPage)"
+                          (pageChanged)="fetchOrders('fulfill', ordersLimitPerPage, ($event.page - 1) * ordersLimitPerPage, filterOrder)"
                           [itemsPerPage]="ordersLimitPerPage">
               </pagination>
             </tab>

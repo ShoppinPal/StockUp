@@ -19,16 +19,16 @@ export class StockOrdersResolverService {
               private _fileImportsResolverService: FileImportsResolverService) {
   }
 
-  resolve = (): Observable<any> => {
+  resolve = (filterSelectedDeliveredToStoreId, filterSelectedDeliveredFromStoreId): Observable<any> => {
     this.userProfile = this._userProfileService.getProfileData();
     if (this.userProfile.storeModels.length === 0 ) {
       this._router.navigate(['/reporting/historical-orders']);
       return;
     }
     return combineLatest(
-      this.fetchGeneratedStockOrders(),
-      this.fetchReceiveStockOrders(),
-      this.fetchFulfillStockOrders(),
+      this.fetchGeneratedStockOrders(filterSelectedDeliveredToStoreId, filterSelectedDeliveredFromStoreId),
+      this.fetchReceiveStockOrders(filterSelectedDeliveredToStoreId, filterSelectedDeliveredFromStoreId),
+      this.fetchFulfillStockOrders(filterSelectedDeliveredToStoreId, filterSelectedDeliveredFromStoreId),
       this.orgModelApi.getSupplierModels(this.userProfile.orgModelId),
       this.orgModelApi.getStoreModels(this.userProfile.orgModelId),
       this.orgModelApi.getOrderConfigModels(this.userProfile.orgModelId, {
@@ -57,7 +57,7 @@ export class StockOrdersResolverService {
         }))
   };
 
-  fetchGeneratedStockOrders = (limit?: number, skip?: number, reportModelId ?: string): Observable<any> => {
+  fetchGeneratedStockOrders = (filterSelectedDeliveredToStoreId?: string, filterSelectedDeliveredFromStoreId?: string, limit?: number, skip?: number, reportModelId ?: string): Observable<any> => {
     limit = this.ordersMaxLimit || limit || 10;
     skip = skip || 0;
     let filter = {
@@ -107,6 +107,23 @@ export class StockOrdersResolverService {
       }
     };
 
+    if(typeof filterSelectedDeliveredToStoreId == 'string' && filterSelectedDeliveredToStoreId != '') {
+      generatedReportsCountFilter.storeModelId.inq = [filterSelectedDeliveredToStoreId];
+      pendingGeneratedReportsCountFilter.storeModelId.inq = [filterSelectedDeliveredToStoreId]
+    }
+
+    if(typeof filterSelectedDeliveredFromStoreId == 'string' && filterSelectedDeliveredFromStoreId != '') {
+      generatedReportsCountFilter['deliverFromStoreModelId'] = {
+        inq: [filterSelectedDeliveredFromStoreId]
+      };
+      pendingGeneratedReportsCountFilter['deliverFromStoreModelId'] = {
+        inq: [filterSelectedDeliveredFromStoreId]
+      };
+    }
+
+    console.log('generatedReportsCountFilter', generatedReportsCountFilter);
+    console.log('pendingGeneratedReportsCountFilter', pendingGeneratedReportsCountFilter);
+
     let generatedReportsFilter = {
       ...filter, ...{
         where: generatedReportsCountFilter
@@ -136,7 +153,7 @@ export class StockOrdersResolverService {
 
   };
 
-  fetchReceiveStockOrders = (limit?: number, skip?: number): Observable<any> => {
+  fetchReceiveStockOrders = (filterSelectedDeliveredToStoreId?: string, filterSelectedDeliveredFromStoreId?: string, limit?: number, skip?: number): Observable<any> => {
     limit = this.ordersMaxLimit || limit || 10;
     skip = skip || 0;
     let filter = {
@@ -178,6 +195,23 @@ export class StockOrdersResolverService {
       }
     };
 
+    if(typeof filterSelectedDeliveredToStoreId == 'string' && filterSelectedDeliveredToStoreId != '') {
+      receiveReportsCountFilter.storeModelId.inq = [filterSelectedDeliveredToStoreId];
+      pendingReceiveReportsCountFilter.storeModelId.inq = [filterSelectedDeliveredToStoreId]
+    }
+
+    if(typeof filterSelectedDeliveredFromStoreId == 'string' && filterSelectedDeliveredFromStoreId != '') {
+      receiveReportsCountFilter['deliverFromStoreModelId'] = {
+        inq: [filterSelectedDeliveredFromStoreId]
+      };
+      pendingReceiveReportsCountFilter['deliverFromStoreModelId'] = {
+        inq: [filterSelectedDeliveredFromStoreId]
+      };
+    }
+
+    console.log('receiveReportsCountFilter', receiveReportsCountFilter);
+    console.log('pendingReceiveReportsCountFilter', pendingReceiveReportsCountFilter);
+
     let receiveReportsFilter = {
       ...filter, ...{
         where: receiveReportsCountFilter
@@ -204,7 +238,7 @@ export class StockOrdersResolverService {
 
   };
 
-  fetchFulfillStockOrders = (limit?: number, skip?: number): Observable<any> => {
+  fetchFulfillStockOrders = (filterSelectedDeliveredToStoreId?: string, filterSelectedDeliveredFromStoreId?: string, limit?: number, skip?: number): Observable<any> => {
     limit = this.ordersMaxLimit || limit || 10;
     skip = skip || 0;
     let filter = {
@@ -247,6 +281,23 @@ export class StockOrdersResolverService {
         exists: false
       }
     };
+
+    if(typeof filterSelectedDeliveredToStoreId == 'string' && filterSelectedDeliveredToStoreId != '') {
+      fulfillReportsCountFilter['storeModelId'] = {
+        inq: [filterSelectedDeliveredFromStoreId]
+      };
+      pendingFulfillReportsCountFilter['storeModelId'] = {
+        inq: [filterSelectedDeliveredFromStoreId]
+      };
+    }
+
+    if(typeof filterSelectedDeliveredFromStoreId == 'string' && filterSelectedDeliveredFromStoreId != '') {
+      fulfillReportsCountFilter.deliverFromStoreModelId.inq = [filterSelectedDeliveredFromStoreId];
+      pendingFulfillReportsCountFilter.deliverFromStoreModelId.inq = [filterSelectedDeliveredFromStoreId]
+    }
+
+    console.log('receiveReportsCountFilter', fulfillReportsCountFilter);
+    console.log('pendingReceiveReportsCountFilter', pendingFulfillReportsCountFilter);
 
     let fulfillReportsFilter = {
       ...filter, ...{

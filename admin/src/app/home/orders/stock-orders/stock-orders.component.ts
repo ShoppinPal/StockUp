@@ -50,6 +50,10 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
   public uploader: FileUploader;
   public createSales: boolean = true;
   public userStores;
+  public orgStores;
+  public selectedDeliveredToStoreId: string = "";
+  public selectedDeliveredFromStoreId: string = "";
+  public filterOrder: boolean = false;
   public orderConfigurations: any;
   public selectedOrderConfigurationId;
   private subscriptions: Subscription[] = [];
@@ -70,9 +74,11 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.userProfile = this._userProfileService.getProfileData();
     this.userStores = this.userProfile.storeModels;
+    this.orgStores = this.userProfile.storeModels;
     this._route.data.subscribe((data: any) => {
         this.populateOrders(data.stockOrders);
         this.stores = data.stockOrders.stores;
+        this.orgStores = this.stores.filter(item => !item.ownerSupplierModelId);
         this.suppliers = data.stockOrders.suppliers;
         this.orderConfigurations = data.stockOrders.orderConfigurations;
         if (this.orderConfigurations && this.orderConfigurations.length > 0) {
@@ -137,7 +143,18 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
     }
   }
 
-  fetchOrders = (orderType: string, limit?: number, skip?: number) => {
+  fetchOrders = (orderType: string, limit?: number, skip?: number, filterOrders?: false) => {
+    let filterSelectedDeliveredToStoreId = '';
+    let filterSelectedDeliveredFromStoreId = '';
+    if (filterOrders) {
+      filterSelectedDeliveredToStoreId = this.selectedDeliveredToStoreId;
+      filterSelectedDeliveredFromStoreId = this.selectedDeliveredFromStoreId;
+      this.filterOrder = filterOrders;
+    } else {
+      this.selectedDeliveredToStoreId = '';
+      this.selectedDeliveredFromStoreId = '';
+      this.filterOrder = filterOrders;
+    }
     this.loading = true;
     limit = this.ordersLimitPerPage || limit || 10;
     skip = skip || 0;
@@ -155,7 +172,7 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
       fetchOrder = this._stockOrdersResolverService.resolve;
     }
 
-    fetchOrder(limit, skip)
+    fetchOrder(filterSelectedDeliveredToStoreId, filterSelectedDeliveredFromStoreId, limit, skip)
       .subscribe((data: any) => {
           console.log('search', data);
           this.populateOrders(data);
