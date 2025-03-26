@@ -957,6 +957,29 @@ module.exports = function (OrgModel) {
                 });
         };
 
+        OrgModel.remoteMethod('deleteUser', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'userId', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/deleteUser', verb: 'post'},
+            returns: {arg: 'status', type: 'boolean', root: true}
+        });
+
+        OrgModel.deleteUser = function (id, userId, options) {
+            return OrgModel.app.models.UserModel.deleteUser(id, userId, options)
+                .catch(function (error) {
+                    logger.error({
+                        message: 'Could not delete user from StockUp',
+                        error,
+                        functionName: 'deleteUser',
+                        options
+                    });
+                    return Promise.reject('Could not delete user from StockUp');
+                });
+        };
+
         OrgModel.remoteMethod('fetchOrderRowCounts', {
             accepts: [
                 {arg: 'id', type: 'string', required: true},

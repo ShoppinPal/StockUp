@@ -445,6 +445,29 @@ module.exports = function (UserModel) {
 
         };
 
+        UserModel.deleteUser = function (id, userId, options) {
+            logger.debug({
+                message: 'Will delete this user from platform',
+                userId,
+                options,
+                functionName: 'deleteUser'
+            });
+            return UserModel.deleteById(userId)
+                .then(function () {
+                    return Promise.resolve(true);
+                })
+                .catch(function (error) {
+                    logger.error({
+                        error,
+                        reason: error,
+                        options,
+                        functionName: 'deleteUser'
+                    });
+                    return Promise.reject(error);
+                });
+
+        };
+
         UserModel.remoteMethod('setPassword', {
             accepts: [
                 {arg: 'password', type: 'string', required: true},

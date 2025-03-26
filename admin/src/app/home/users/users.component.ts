@@ -5,8 +5,10 @@ import {ToastrService} from 'ngx-toastr';
 import {Observable, combineLatest} from 'rxjs';
 import {mergeMap} from 'rxjs/operators';
 import {UserProfileService} from "../../shared/services/user-profile.service";
+import {DeleteUserComponent} from "./shared-components/delete-user/delete-user.component";
 import {UserModel} from '../../shared/lb-sdk/models';
 import Utils from '../../shared/constants/utils'
+import {BsModalRef, BsModalService} from "ngx-bootstrap/modal";
 
 @Component({
   selector: 'app-users',
@@ -19,6 +21,7 @@ export class UsersComponent implements OnInit {
               private _route: ActivatedRoute,
               private _router: Router,
               private toastr: ToastrService,
+              private modalService: BsModalService,
               private _userProfileService: UserProfileService) {
   }
 
@@ -33,6 +36,7 @@ export class UsersComponent implements OnInit {
   public foundUser: boolean = false;
   public searchedUser: Array<any>;
   public maxPageDisplay: number = 7;
+  public bsModalRef: BsModalRef;
   public newUser: any = {
     name: '',
     email: ''
@@ -130,6 +134,10 @@ export class UsersComponent implements OnInit {
           console.log('err', err);
           this.loading = false;
         })
+  }
+
+  openDeleteModal(userId: string) {
+    this.bsModalRef = this.modalService.show(DeleteUserComponent, {initialState: {userId: userId}});
   }
 
   keyUpEvent(event, searchUserText) {
