@@ -127,7 +127,7 @@
                 </button>
               </td>
               <td>
-                <span _ngcontent-kbx-c8="" class="input-group-btn">
+                <span _ngcontent-kbx-c8="" class="input-group-btn" *ngIf="user.id != userProfile.userId">
                   <button _ngcontent-kbx-c8="" class="btn btn-danger" type="button" (click)="openDeleteModal(user.id)">
                   <i _ngcontent-kbx-c8="" class="fa fa-trash"></i>
                     Delete
