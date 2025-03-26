@@ -35,7 +35,8 @@ export class DeleteUserComponent implements OnInit {
           this.toastr.success('Deleted user successfully');
           this.loading = false;
           this.bsModalRef.hide();
-          // this._router.navigate(['/orders/stock-orders']);
+          // this._router.navigate(['/users']);
+          window.location.reload();
         },
         err=> {
           this.toastr.error('Could not delete user');
