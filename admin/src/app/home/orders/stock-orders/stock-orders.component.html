@@ -51,7 +51,7 @@
         </div>
         <div class="card-body">
           <tabset>
-            <tab>
+            <tab (select)="onTabSelect('tab1')" [active]="activeTab == 'tab1'">
               <ng-template tabHeading>Generated <span class='badge badge-pill badge-success'>{{pendingGeneratedOrdersCount || 0}}</span></ng-template>
               <table class="table table-striped table-hover table-responsive-md">
                 <thead>
@@ -107,7 +107,7 @@
                           [itemsPerPage]="ordersLimitPerPage">
               </pagination>
             </tab>
-            <tab>
+            <tab (select)="onTabSelect('tab2')" [active]="activeTab == 'tab2'">
               <ng-template tabHeading>Receive <span class='badge badge-pill badge-primary'>{{pendingReceiveOrdersCount || 0}}</span></ng-template>
               <table class="table table-striped table-hover table-responsive-md">
                 <thead>
@@ -161,7 +161,7 @@
                           [itemsPerPage]="ordersLimitPerPage">
               </pagination>
             </tab>
-            <tab>
+            <tab (select)="onTabSelect('tab3')" [active]="activeTab == 'tab3'">
               <ng-template tabHeading>Fulfill <span class='badge badge-pill badge-warning'>{{pendingFulfillOrdersCount || 0}}</span></ng-template>
               <table class="table table-striped table-hover table-responsive-md">
                 <thead>
