@@ -1,4 +1,5 @@
 import {Component, OnDestroy, OnInit, ChangeDetectorRef} from '@angular/core';
+import { TabDirective } from 'ngx-bootstrap/tabs';
 import {OrgModelApi} from "../../../shared/lb-sdk/services/custom/OrgModel";
 import {ActivatedRoute, Router} from '@angular/router';
 import {Observable, Subscription} from 'rxjs';
@@ -50,6 +51,11 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
   public uploader: FileUploader;
   public createSales: boolean = true;
   public userStores;
+  public orgStores;
+  public selectedDeliveredToStoreId: string = "";
+  public selectedDeliveredFromStoreId: string = "";
+  public activeTab: string = "tab1";
+  public filterOrder: boolean = false;
   public orderConfigurations: any;
   public selectedOrderConfigurationId;
   private subscriptions: Subscription[] = [];
@@ -66,13 +72,26 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
               private _stockOrdersResolverService: StockOrdersResolverService) {
   }
 
+  onTabSelect(tab: any) {
+    console.log('Selected Tab:', tab);
+    localStorage.setItem('activeTab', tab);
+    // Perform actions based on the selected tab
+  }
+
   ngOnInit() {
     this.loading = true;
     this.userProfile = this._userProfileService.getProfileData();
     this.userStores = this.userProfile.storeModels;
+    this.orgStores = this.userProfile.storeModels;
+    const savedTab = localStorage.getItem('activeTab');
+    if (savedTab !== null) {
+      this.activeTab = savedTab; // Convert string to number
+    }
+    console.log(this.activeTab);
     this._route.data.subscribe((data: any) => {
         this.populateOrders(data.stockOrders);
         this.stores = data.stockOrders.stores;
+        this.orgStores = this.stores.filter(item => !item.ownerSupplierModelId);
         this.suppliers = data.stockOrders.suppliers;
         this.orderConfigurations = data.stockOrders.orderConfigurations;
         if (this.orderConfigurations && this.orderConfigurations.length > 0) {
@@ -137,7 +156,18 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
     }
   }
 
-  fetchOrders = (orderType: string, limit?: number, skip?: number) => {
+  fetchOrders = (orderType: string, limit?: number, skip?: number, filterOrders?: false) => {
+    let filterSelectedDeliveredToStoreId = '';
+    let filterSelectedDeliveredFromStoreId = '';
+    if (filterOrders) {
+      filterSelectedDeliveredToStoreId = this.selectedDeliveredToStoreId;
+      filterSelectedDeliveredFromStoreId = this.selectedDeliveredFromStoreId;
+      this.filterOrder = filterOrders;
+    } else {
+      this.selectedDeliveredToStoreId = '';
+      this.selectedDeliveredFromStoreId = '';
+      this.filterOrder = filterOrders;
+    }
     this.loading = true;
     limit = this.ordersLimitPerPage || limit || 10;
     skip = skip || 0;
@@ -155,7 +185,7 @@ export class StockOrdersComponent implements OnInit, OnDestroy {
       fetchOrder = this._stockOrdersResolverService.resolve;
     }
 
-    fetchOrder(limit, skip)
+    fetchOrder(filterSelectedDeliveredToStoreId, filterSelectedDeliveredFromStoreId, limit, skip)
       .subscribe((data: any) => {
           console.log('search', data);
           this.populateOrders(data);
