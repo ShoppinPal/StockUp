@@ -284,10 +284,10 @@ export class StockOrdersResolverService {
 
     if(typeof filterSelectedDeliveredToStoreId == 'string' && filterSelectedDeliveredToStoreId != '') {
       fulfillReportsCountFilter['storeModelId'] = {
-        inq: [filterSelectedDeliveredFromStoreId]
+        inq: [filterSelectedDeliveredToStoreId]
       };
       pendingFulfillReportsCountFilter['storeModelId'] = {
-        inq: [filterSelectedDeliveredFromStoreId]
+        inq: [filterSelectedDeliveredToStoreId]
       };
     }
 
