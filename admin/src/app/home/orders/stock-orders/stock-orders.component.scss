@@ -23,3 +23,26 @@ $animation-duration: 10s;
   max-width: 100%;
   overflow-x: auto;
 }
+
+.filter-orders {
+  padding: 15px 0px 15px 0px;
+  display: flex;
+  gap: 10px;
+}
+
+.custom-fa-class-filter {
+  font-size: 1.5em;
+}
+
+.filter-order-select-tags {
+  display: flex;
+  align-items: center;
+}
+
+.filter-order-select-div {
+  width: 250px;
+}
+
+.filter-order-button {
+  border: 1px solid;
+}

@@ -1642,7 +1642,7 @@ module.exports = function (ReportModel) {
                 });
             })
     }
-    
+
     ReportModel.deleteStockOrderVend = function (orgModelId, reportModelId, options) {
         logger.debug({
             message: 'Looking for stock order',
@@ -1693,12 +1693,16 @@ module.exports = function (ReportModel) {
             })
             .catch(function (error) {
                 logger.error({
-                    message: 'Could not softs delete report model from db',
+                    message: 'Could not delete from vend. Softs deleting report model from db',
                     error,
                     functionName: 'deleteStockOrderVend',
                     options
                 });
-                return Promise.reject('Could not soft delete report from db');
+                return reportModelInstance.updateAttributes({
+                    deletedAt: new Date(),
+                    deletedByUserModelId: options.accessToken.userId
+                });
+                // return Promise.reject('Could not soft delete report from db');
             });
     };
 

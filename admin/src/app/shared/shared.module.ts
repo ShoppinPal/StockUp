@@ -20,6 +20,7 @@ import { DebounceKeyUpDirective } from './directives/debounce-key-up/debounce-ke
 import {CommentsComponent} from "../home/orders/shared-components/comments/comments.component";
 import {NgSelectModule} from '@ng-select/ng-select';
 import {DeleteOrderComponent} from "../home/orders/shared-components/delete-order/delete-order.component";
+import {DeleteUserComponent} from "../home/users/shared-components/delete-user/delete-user.component";
 import {SharedDataService} from "./services/shared-data.service";
 
 @NgModule({
@@ -41,8 +42,8 @@ import {SharedDataService} from "./services/shared-data.service";
     ModalModule.forRoot(),
     NgSelectModule
   ],
-  declarations: [AutoFocusDirective, DebounceKeyUpDirective, CommentsComponent, DeleteOrderComponent],
-  entryComponents: [DeleteOrderComponent],
+  declarations: [AutoFocusDirective, DebounceKeyUpDirective, CommentsComponent, DeleteOrderComponent, DeleteUserComponent],
+  entryComponents: [DeleteOrderComponent, DeleteUserComponent],
   exports: [
     FormsModule,
     BsDropdownModule,
@@ -51,6 +52,7 @@ import {SharedDataService} from "./services/shared-data.service";
     LoadingModule,
     CommentsComponent,
     DeleteOrderComponent,
+    DeleteUserComponent,
     AppAsideModule,
     CollapseModule,
     CommonModule,

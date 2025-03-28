@@ -102,6 +102,7 @@
               <th>Name</th>
               <th>Invite</th>
               <th>Manage</th>
+              <th>Action</th>
             </tr>
             </thead>
             <tbody>
@@ -124,6 +125,14 @@
                 <button class="btn btn-primary" type="submit" (click)="goToUserDetailsPage(user.id)">
                 <i class="fa fa-save"></i> Manage
                 </button>
+              </td>
+              <td>
+                <span _ngcontent-kbx-c8="" class="input-group-btn" *ngIf="user.id != userProfile.userId">
+                  <button _ngcontent-kbx-c8="" class="btn btn-danger" type="button" (click)="openDeleteModal(user.id)">
+                  <i _ngcontent-kbx-c8="" class="fa fa-trash"></i>
+                    Delete
+                  </button>
+                </span>
               </td>
             </tr>
             </tbody>
