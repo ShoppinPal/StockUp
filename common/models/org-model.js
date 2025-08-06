@@ -367,6 +367,31 @@ module.exports = function (OrgModel) {
                 });
         };
 
+        OrgModel.remoteMethod('forceVendSync', {
+            accepts: [
+                {arg: 'id', type: 'string', required: true},
+                {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+            ],
+            http: {path: '/:id/forceVendSync', verb: 'get'},
+            returns: {arg: 'syncStatus', type: 'boolean'}
+        });
+
+        OrgModel.forceVendSync = function (id, options, cb) {
+            logger.debug({
+                message: 'Will force sync for vend',
+                options,
+                functionName: 'forceVendSync'
+            });
+            return OrgModel.app.models.SyncModel.forceVendSync(id, options)
+                .catch(function (error) {
+                    logger.error({
+                        message: 'Could not force vend sync',
+                        error
+                    });
+                    return Promise.reject('Could not force vend sync');
+                });
+        };
+
         OrgModel.remoteMethod('initiateMSDSync', {
             accepts: [
                 {arg: 'id', type: 'string', required: true},

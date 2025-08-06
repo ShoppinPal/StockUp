@@ -62,6 +62,11 @@
                   (click)="initiateVendSync()">
             Stop Sync
           </button>
+          <button type="button" *ngIf="integration.length && integration[0].type === 'vend' && syncModels"
+                  class="btn btn-secondary"
+                  (click)="forceVendSync()">
+            Force Sync
+          </button>
         </div>
       </div>
     </div>

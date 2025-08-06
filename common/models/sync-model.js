@@ -653,4 +653,38 @@ module.exports = function (SyncModel) {
                 return Promise.reject('Could not assign stores to user');
             });
     };
+
+    SyncModel.forceVendSync = function (id, options) {
+        logger.debug({
+            message: 'Will force vend sync by setting syncInProcess to false for all sync models',
+            orgModelId: id,
+            options,
+            functionName: 'forceVendSync'
+        });
+        return SyncModel.updateAll({
+            orgModelId: id
+        }, {
+            syncInProcess: false
+        })
+            .then(function (response) {
+                logger.debug({
+                    message: 'Updated all sync models syncInProcess to false',
+                    orgModelId: id,
+                    response,
+                    options,
+                    functionName: 'forceVendSync'
+                });
+                return Promise.resolve(response);
+            })
+            .catch(function (error) {
+                logger.error({
+                    message: 'Could not update sync models',
+                    error,
+                    orgModelId: id,
+                    options,
+                    functionName: 'forceVendSync'
+                });
+                return Promise.reject(error);
+            });
+    };
 };
