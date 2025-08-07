@@ -104,6 +104,21 @@ export class ConnectComponent implements OnInit, OnDestroy {
         });
   }
 
+  private forceVendSync() {
+    this.loading = true;
+    this.orgModelApi.forceVendSync(this.userProfile.orgModelId)
+      .subscribe((data: any) => {
+          console.log('vend sync', data);
+          this.syncModels = data.syncStatus;
+          this.loading = false;
+          this.getSyncModels()
+        },
+        err => {
+          this.loading = false;
+          console.log('err', err);
+        });
+  }
+
   private initiateMSDSync() {
     if (!this.integration[0].dataAreaId) {
       this.toastr.error('Please select a company first');
