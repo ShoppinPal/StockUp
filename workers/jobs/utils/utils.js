@@ -588,6 +588,13 @@ function markStockOrderAsReceived(db, reportModelInstance, messageId) {
             var argsForStockOrder = vendSdk.args.consignments.stockOrders.markAsSent();
             argsForStockOrder.apiId.value = reportModelInstance.vendConsignmentId;
             argsForStockOrder.body.value = _.omit(reportModelInstance.vendConsignment, 'id');
+            logger.debug({
+                message: 'Marking stock order as received in vend',
+                argsForStockOrder,
+                connectionInfo: connectionInfo.domainPrefix,
+                messageId,
+                functionName: 'markStockOrderAsReceived'
+            });
             return retryIfErrorCode(() => vendSdk.consignments.stockOrders.markAsReceived(argsForStockOrder, connectionInfo));
         })
         .catch(function (error) {
