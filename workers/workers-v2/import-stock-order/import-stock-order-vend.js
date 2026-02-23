@@ -420,6 +420,7 @@ function mapSpreadSheetDataToOrders(db, orderConfigModel, spreadSheetRows, userM
                                 eachSpreadSheetRow.groupBy === eachOrder.groupBy;
                         });
                         let approvedStates = [
+                            REPORT_STATES.SENDING_TO_SUPPLIER,
                             REPORT_STATES.FULFILMENT_PENDING,
                             REPORT_STATES.FULFILMENT_IN_PROCESS,
                             REPORT_STATES.RECEIVING_PENDING,
@@ -470,7 +471,7 @@ function mapSpreadSheetDataToOrders(db, orderConfigModel, spreadSheetRows, userM
                             userModelId: ObjectId(userModelId),
                             createdAt: new Date(),
                             updatedAt: new Date(),
-                        };                    
+                        };
                         if (existingOrderIndex === -1) {
 
                             let name = orderConfigModel.orderName;
