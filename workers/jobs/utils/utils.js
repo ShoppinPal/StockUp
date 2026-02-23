@@ -730,13 +730,25 @@ exports.workerStatus = {
 };
 
 exports.Notification = function (eventType, messageFor, status, data, id) {
+    // Validate messageFor
+    if (messageFor !== exports.messageFor.MESSAGE_FOR_CLIENT &&
+        messageFor !== exports.messageFor.MESSAGE_FOR_API) {
+        logger.warn({
+            message: 'Invalid messageFor value - defaulting to MESSAGE_FOR_CLIENT',
+            messageFor: messageFor,
+            eventType: eventType
+        });
+        messageFor = exports.messageFor.MESSAGE_FOR_CLIENT;
+    }
+
     this.eventType = eventType;
     this.messageFor = messageFor;
     this.status = status;
     this.data = data;
+
     if (messageFor === exports.messageFor.MESSAGE_FOR_CLIENT) {
         this.userId = id;
-    }else if (messageFor === exports.messageFor.MESSAGE_FOR_API) {
+    } else if (messageFor === exports.messageFor.MESSAGE_FOR_API) {
         this.callId = id;
     }
 };

@@ -43,7 +43,7 @@ app.get('/:userId/waitForResponse', (req, res) => {
     if (!sseUsers[userId]) {
         let sse = new SSE(0);
         sse.init(req, res);
-    
+
         sseUsers[userId] = {
             sse: sse,
             res: res,
@@ -62,7 +62,7 @@ app.get('/:userId/waitForResponse', (req, res) => {
         let sse = sseUsers[userId].sse;
         sse.send({data: 'connected', eventType: 'EVENT_INIT'});
     }
-    
+
 });
 
 app.get('/:callId/waitForResponseAPI', (req, res) => {
@@ -71,7 +71,7 @@ app.get('/:callId/waitForResponseAPI', (req, res) => {
     if (!sseAPI[callId]) {
         let sse = new SSE(0);
         sse.init(req, res);
-    
+
         sseAPI[callId] = {
             sse: sse,
             res: res,
@@ -106,30 +106,63 @@ app.on('redis-subscriber-connected', () => {
             let payload = JSON.parse(message);
             let { eventType, data, messageFor, status } = payload;
 
-            switch(messageFor) {
-                case utils.constants.MESSAGE_FOR_CLIENT:
-                let { userId } = payload;
-                    utils.sendSSEOutput(sseUsers, userId, eventType, status, data, utils.constants.MESSAGE_FOR_CLIENT);
-                break;
+            // Validate messageFor field
+            if (!messageFor) {
+                logger.warn({
+                    message: 'Notification missing messageFor field - IGNORING',
+                    payload: payload,
+                    eventType: eventType
+                });
+                return; // Ignore but don't crash
+            }
 
-                case utils.constants.MESSAGE_FOR_API:
+            switch(messageFor) {
+                case utils.constants.MESSAGE_FOR_CLIENT: {
+                    let { userId } = payload;
+                    if (!userId) {
+                        logger.warn({
+                            message: 'MESSAGE_FOR_CLIENT missing userId - IGNORING',
+                            payload: payload
+                        });
+                        return;
+                    }
+                    utils.sendSSEOutput(sseUsers, userId, eventType, status, data, utils.constants.MESSAGE_FOR_CLIENT);
+                    break;
+                }
+
+                case utils.constants.MESSAGE_FOR_API: {
                     let { callId } = payload;
+                    if (!callId) {
+                        logger.warn({
+                            message: 'MESSAGE_FOR_API missing callId - IGNORING',
+                            payload: payload
+                        });
+                        return;
+                    }
                     utils.sendSSEOutput(sseAPI, callId, eventType, status, data, utils.constants.MESSAGE_FOR_API);
-                break;
+                    break;
+                }
 
                 default:
-                    logger.error({
-                        error: new Error(`Unknown payload encountered`),
-                        payload
+                    // Unknown messageFor - LOG but DON'T crash
+                    logger.warn({
+                        message: 'Unknown messageFor value - IGNORING',
+                        messageFor: messageFor,
+                        eventType: eventType,
+                        payload: payload
                     });
-                break;
+                    // Don't throw error - just ignore
+                    break;
             }
         }
         catch(error) {
+            // JSON parse error or other error - LOG but DON'T crash
             logger.error({
                 error,
-                message: 'Error while receiving redis subscription message'
+                message: 'Error while receiving redis subscription message - IGNORING',
+                rawMessage: message
             });
+            // Don't throw - just log and continue
         }
     });
 });
