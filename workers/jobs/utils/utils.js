@@ -297,6 +297,14 @@ var fetchVendToken = function (db, orgModelId, messageId) {
         })
         .then(function (res) {
             if (res !== 'tokenNotExpired') {
+                if (!res || !res.access_token) {
+                    logger.error({
+                        message: 'Token refresh returned invalid response (refresh token may be expired/revoked)',
+                        functionName: 'fetchVendToken',
+                        messageId
+                    });
+                    return Promise.reject('Token refresh failed - refresh token may be expired or revoked');
+                }
                 token = res.access_token;
                 logger.debug({
                     message: 'Will save the new access token to db',

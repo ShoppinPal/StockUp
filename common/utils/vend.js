@@ -221,13 +221,12 @@ var getVendOutlets = function (orgModelId, options) {
         });
 };
 
-var getVendProductTypes = function (orgModelId, options,versionsAfter) {
+var getVendProductTypes = function (orgModelId, options) {
     logger.debug({
-        message: 'Will fetch all product types',
+        message: 'Will fetch all product categories',
         functionName: 'getVendProductTypes',
         options,
     });
-    var token = null;
     return getVendConnectionInfo(orgModelId, options)
         .catch(function (error) {
             logger.error({
@@ -240,24 +239,22 @@ var getVendProductTypes = function (orgModelId, options,versionsAfter) {
         })
         .then(function (connectionInfo) {
             logger.debug({
-                message: 'Found connection info, will fetch vend product types',
+                message: 'Found connection info, will fetch vend product categories',
                 functionName: 'getVendProductTypes',
                 options
             });
-            var argsForProductTypes = vendSdk.args.productTypes.fetch();
-            //change args to fetch all product types at once
-            argsForProductTypes.after = versionsAfter;
-            argsForProductTypes.pageSize = 1000;
-            return vendSdk.productTypes.fetch(argsForProductTypes, connectionInfo);
+            var argsForProductCategories = vendSdk.args.productCategories.fetch();
+            argsForProductCategories.pageSize.value = 1000;
+            return vendSdk.productCategories.fetch(argsForProductCategories, connectionInfo);
         })
         .catch(function (error) {
             logger.error({
-                message: 'Could not fetch vend product types',
+                message: 'Could not fetch vend product categories',
                 errMessage: error,
                 functionName: 'getVendProductTypes',
                 options
             });
-            return Promise.reject('Could not fetch vend outlets');
+            return Promise.reject('Could not fetch vend product categories');
         });
 };
 

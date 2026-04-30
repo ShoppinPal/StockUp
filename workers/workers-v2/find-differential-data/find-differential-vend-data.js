@@ -183,7 +183,7 @@ var callFetchDataObjectsWorker = function (syncModels, orgModelId) {
                     })
 
                     var fetchIncrementalCategory = require('./../fetch-incremental-category/fetch-incremental-category');
-                    return fetchIncrementalCategory.run(vendConnectionInfo,orgModelId, syncModels[dataObjectIndices.product_types].version);
+                    return fetchIncrementalCategory.run(vendConnectionInfo, orgModelId, syncModels[dataObjectIndices.product_types].version);
                 }
                 else{
                     return Promise.resolve();

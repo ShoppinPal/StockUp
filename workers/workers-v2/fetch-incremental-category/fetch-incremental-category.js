@@ -2,6 +2,7 @@ const path = require('path'),
     commandName = path.basename(__filename,'.js'),
     logger = require('sp-json-logger')({fileName: 'workers: workers-v2:'+ commandName});
 var dbUrl = process.env.DB_URL,
+    useNewCategoryApi = process.env.USE_NEW_CATEGORY_API === 'true',
     MongoClient = require('mongodb').MongoClient,
     ObjectId = require('mongodb').ObjectID,
     _ = require('underscore'),
@@ -14,7 +15,8 @@ var runMe = function(vendConnectionInfo, orgModelId, versionsAfter) {
 
     logger.debug({
         orgModelId,
-        message: 'This worker will fetch and save incremental Product Category from vend to StockUp'
+        useNewCategoryApi,
+        message: 'This worker will fetch and save Product Category from vend to StockUp'
     });
 
     return MongoClient.connect(dbUrl, {promiseLibrary: Promise})
@@ -24,7 +26,7 @@ var runMe = function(vendConnectionInfo, orgModelId, versionsAfter) {
                 message: 'Connected with Mongodb Database'
             });
             categoryBatchNumber = 0;
-           return fetchCategory(dbInstance, vendConnectionInfo,orgModelId, versionsAfter); 
+           return fetchCategory(dbInstance, vendConnectionInfo, orgModelId, useNewCategoryApi ? null : versionsAfter);
     })
     .finally(function(){
         logger.debug({
@@ -48,14 +50,31 @@ var runMe = function(vendConnectionInfo, orgModelId, versionsAfter) {
 }
 
 
-var fetchCategory = function (dbInstance, vendConnectionInfo,orgModelId, versionsAfter){
+var fetchCategory = function (dbInstance, vendConnectionInfo, orgModelId, afterCursor){
     categoryBatchNumber+=1;
-    var argsForProductTypes = vendSdk.args.productTypes.fetch();
-            //change args to fetch all product types at once
-            argsForProductTypes.deleted.value = 1; 
-            argsForProductTypes.after.value = versionsAfter;
-            argsForProductTypes.pageSize.value = 1000;
-            return vendSdk.productTypes.fetch(argsForProductTypes, vendConnectionInfo)
+
+    var fetchPromise;
+    if (useNewCategoryApi) {
+        var argsForProductCategories = vendSdk.args.productCategories.fetch();
+        argsForProductCategories.after.value = afterCursor;
+        argsForProductCategories.pageSize.value = 1000;
+        fetchPromise = vendSdk.productCategories.fetch(argsForProductCategories, vendConnectionInfo)
+            .then(function(response) {
+                var categories = response && response.data && response.data.categories;
+                return { categories: categories || [], pageInfo: response && response.page_info };
+            });
+    } else {
+        var argsForProductTypes = vendSdk.args.productTypes.fetch();
+        argsForProductTypes.deleted.value = 1;
+        argsForProductTypes.after.value = afterCursor;
+        argsForProductTypes.pageSize.value = 1000;
+        fetchPromise = vendSdk.productTypes.fetch(argsForProductTypes, vendConnectionInfo)
+            .then(function(response) {
+                return { categories: (response && response.data) || [], version: response && response.version, pageInfo: null };
+            });
+    }
+
+    return fetchPromise
             .catch(function(error){
                 logger.error({
                     message:'Could not fetch category from vend',
@@ -66,33 +85,32 @@ var fetchCategory = function (dbInstance, vendConnectionInfo,orgModelId, version
                 })
                 return Promise.reject('Could not fetch category from vend');
             })
-            .then(function(response){
-                if(response && response.data && response.data.length){
+            .then(function(result){
+                if(result.categories && result.categories.length){
                     logger.debug({
-                        message: 'Fetch category data from vend, will save to DB',
-                        categoryCount: response.data.length,
+                        message: 'Fetched category data from vend, will save to DB',
+                        categoryCount: result.categories.length,
                         orgModelId,
                         categoryBatchNumber,
                         functionName: 'fetchCategory'
                     });
-                    return saveCategory(dbInstance,vendConnectionInfo,orgModelId,response);
+                    return saveCategory(dbInstance, vendConnectionInfo, orgModelId, result.categories, result.pageInfo, result.version);
                 }
-                else if(response && response.data && !response.data.length){
+                else if(result.categories && !result.categories.length){
                     logger.debug({
-                        message : 'No more new category available to fetch',
+                        message : 'No more categories available to fetch',
                         orgModelId,
                         categoryBatchNumber,
                         functionName: 'fetchCategory'
                     });
 
-                    return Promise.resolve('No Incremental Category');
+                    return Promise.resolve('No Categories');
                 }
                 else{
                     logger.debug({
                         message:'Vend API returning null response',
-                        response,
-                        categoryBatchNumber,
                         orgModelId,
+                        categoryBatchNumber,
                         functionName: 'fetchCategory'
                     });
 
@@ -102,25 +120,18 @@ var fetchCategory = function (dbInstance, vendConnectionInfo,orgModelId, version
 }
 
 
-var saveCategory = function (dbInstance, vendConnectionInfo, orgModelId, categories){
-    
-    var categoriesToDelete = _.filter(categories.data, function(eachCategory){
-        return eachCategory.deleted_at !== undefined && eachCategory.deleted_at !==null;
-    })
-
-    var categoriesToSave = _.difference(categories.data, categoriesToDelete);
+var saveCategory = function (dbInstance, vendConnectionInfo, orgModelId, categories, pageInfo, version){
 
     logger.debug({
-        message : 'Found deleted & incremental categories',
+        message : 'Saving categories to DB',
         orgModelId,
         categoryBatchNumber,
-        deletedCategories : categoriesToDelete.length,
-        saveToCategory: categoriesToSave.length,
+        categoryCount: categories.length,
         functionName :'saveCategory'
     });
 
     var batch = dbInstance.collection('CategoryModel').initializeUnorderedBulkOp();
-    _.each(categoriesToSave,function(eachCategory){
+    _.each(categories, function(eachCategory){
         batch.find({
             orgModelId: ObjectId(orgModelId),
             api_id: eachCategory.id
@@ -129,24 +140,19 @@ var saveCategory = function (dbInstance, vendConnectionInfo, orgModelId, categor
                 name: eachCategory.name,
                 api_id: eachCategory.id,
                 orgModelId : ObjectId(orgModelId),
+                parent_category_id: eachCategory.parent_category_id,
+                root_category_id: eachCategory.root_category_id,
+                leaf_category: eachCategory.leaf_category,
+                category_path: eachCategory.category_path,
                 updatedAt: new Date()
             }
         });
     });
 
-    _.each(categoriesToDelete,function(eachCategory){
-        batch.find({
-            orgModelId: ObjectId(orgModelId),
-            api_id: eachCategory.id
-        }).remove({
-            api_id: eachCategory.id
-        });
-    });
-
-    return executeBatch(batch,orgModelId)
+    return executeBatch(batch, orgModelId)
         .catch(function(err){
             logger.error({
-                message:'Could not executing batch',
+                message:'Could not execute batch',
                 err,
                 categoryBatchNumber,
                 functionName:'saveCategory',
@@ -157,47 +163,45 @@ var saveCategory = function (dbInstance, vendConnectionInfo, orgModelId, categor
         })
         .then(function(){
             logger.debug({
-                message:' Successfully executed the batch',
+                message:'Successfully executed the batch',
                 orgModelId,
                 categoryBatchNumber,
                 functionName: 'saveCategory'
             });
 
-            return dbInstance.collection('SyncModel').updateOne({
-                    $and: [
-                        {
-                            'orgModelId': ObjectId(orgModelId)
-                        },
-                        {
-                            'name': 'product_types'
-                        }
-                    ],
-                },
-                {
-                    $set: {
-                        'version': categories.version.max
-                    }
-                });
+            if (useNewCategoryApi) {
+                if (pageInfo && pageInfo.has_next) {
+                    return fetchCategory(dbInstance, vendConnectionInfo, orgModelId, pageInfo.last_seen);
+                }
+                return dbInstance.collection('SyncModel').updateOne({
+                        $and: [
+                            { 'orgModelId': ObjectId(orgModelId) },
+                            { 'name': 'product_types' }
+                        ]
+                    },
+                    { $set: { 'syncedAt': new Date() } });
+            } else {
+                return dbInstance.collection('SyncModel').updateOne({
+                        $and: [
+                            { 'orgModelId': ObjectId(orgModelId) },
+                            { 'name': 'product_types' }
+                        ]
+                    },
+                    { $set: { 'version': version.max } })
+                    .then(function() {
+                        return fetchCategory(dbInstance, vendConnectionInfo, orgModelId, version.max);
+                    });
+            }
         })
         .catch(function(error){
             logger.error({
-                message:'Could not update the version number in DB, will stop sync',
+                message:'Could not complete category sync',
                 error,
                 orgModelId,
                 categoryBatchNumber,
                 functionName:'saveCategory'
             });
-            return Promise.reject('Could not update the version number in DB, will stop sync');
-        })
-        .then(function(){
-            logger.debug({
-                message:'Updated the version number in DB, Will fetch another batch',
-                categoryBatchNumber,
-                functionName:'saveCategory',
-                orgModelId
-            });
-            return fetchCategory(dbInstance,vendConnectionInfo,orgModelId, categories.version.max);
-
+            return Promise.reject('Could not complete category sync');
         });
 }
 
