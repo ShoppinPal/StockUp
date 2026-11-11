@@ -12,6 +12,7 @@ var dbUrl = process.env.DB_URL;
 var vendConnectionInfo;
 
 var runMe = function (orgModelId, syncModels) {
+    var syncError = null;
 
     try {
 
@@ -101,6 +102,7 @@ var runMe = function (orgModelId, syncModels) {
                     return Promise.resolve();
                 })
                 .catch(function (error) {
+                    syncError = error;
                     logger.error({
                         orgModelId,
                         message: 'Could not fetch data',
@@ -129,6 +131,10 @@ var runMe = function (orgModelId, syncModels) {
                     });
                     return Promise.resolve();
                     //TODO: set a timeout, after which close all listeners
+                })
+                .then(function () {
+                    // errors above are swallowed, so report the outcome to the sync worker
+                    return syncError ? {status: 'failed', error: syncError} : {status: 'success'};
                 });
         }
         catch (e) {

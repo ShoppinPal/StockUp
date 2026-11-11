@@ -279,6 +279,33 @@ function runSyncJobs() {
     }
 }
 
+/**
+ * One log line per org per sync run, for tracking sync health in OpenSearch.
+ * Search on log.syncEvent: SYNC_STARTED, SYNC_COMPLETED or SYNC_FAILED.
+ */
+function logSyncEvent(syncEvent, orgModelId, syncType, orgSyncModels, syncStartedAt, error) {
+    var logEntry = {
+        message: 'Sync ' + syncEvent.replace('SYNC_', '').toLowerCase() + ' for org ' + orgModelId,
+        syncEvent: syncEvent,
+        orgModelId: String(orgModelId),
+        syncType: syncType,
+        syncModels: _.pluck(orgSyncModels, 'name'),
+        functionName: 'routeToWorker'
+    };
+    if (syncStartedAt) {
+        logEntry.durationMs = Date.now() - syncStartedAt;
+    }
+    if (error) {
+        logEntry.error = error instanceof Error ? error.message : error;
+    }
+    if (syncEvent === 'SYNC_FAILED') {
+        logger.error(logEntry);
+    }
+    else {
+        logger.info(logEntry);
+    }
+}
+
 function routeToWorker(syncModels) {
     var orgSyncModels = _.groupBy(syncModels, function (eachSyncModel) {
         return eachSyncModel.orgModelId;
@@ -289,6 +316,9 @@ function routeToWorker(syncModels) {
         orgSyncModels
     });
     return Promise.map(Object.keys(orgSyncModels), function (eachOrg) {
+        var syncStartedAt = Date.now();
+        var syncType = orgSyncModels[eachOrg][0].syncType;
+        logSyncEvent('SYNC_STARTED', eachOrg, syncType, orgSyncModels[eachOrg]);
         logger.debug({
             message: 'Will update syncInProcess to true for this org',
             eachOrg,
@@ -335,6 +365,7 @@ function routeToWorker(syncModels) {
                 }
             })
             .catch(function (error) {
+                logSyncEvent('SYNC_FAILED', eachOrg, syncType, orgSyncModels[eachOrg], syncStartedAt, error);
                 logger.error({
                     message: 'Could not initiate sync for org, will reset syncInProcess to false',
                     error,
@@ -377,6 +408,12 @@ function routeToWorker(syncModels) {
                         eachOrg
                     });
                     return Promise.resolve(response);
+                }
+                if (response && response.status === 'failed') {
+                    logSyncEvent('SYNC_FAILED', eachOrg, syncType, orgSyncModels[eachOrg], syncStartedAt, response.error);
+                }
+                else {
+                    logSyncEvent('SYNC_COMPLETED', eachOrg, syncType, orgSyncModels[eachOrg], syncStartedAt);
                 }
                 logger.debug({
                     message: 'Successfully synced data for org, will update syncInProcess to false',
