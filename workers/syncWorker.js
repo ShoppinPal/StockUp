@@ -281,9 +281,9 @@ function runSyncJobs() {
 
 /**
  * One log line per org per sync run, for tracking sync health in OpenSearch.
- * Search on log.syncEvent: SYNC_STARTED, SYNC_COMPLETED or SYNC_FAILED.
+ * Search on log.syncEvent: SYNC_STARTED, SYNC_COMPLETED, SYNC_FAILED or SYNC_SKIPPED.
  */
-function logSyncEvent(syncEvent, orgModelId, syncType, orgSyncModels, syncStartedAt, error) {
+function logSyncEvent(syncEvent, orgModelId, syncType, orgSyncModels, syncStartedAt, error, reason) {
     var logEntry = {
         message: 'Sync ' + syncEvent.replace('SYNC_', '').toLowerCase() + ' for org ' + orgModelId,
         syncEvent: syncEvent,
@@ -297,6 +297,9 @@ function logSyncEvent(syncEvent, orgModelId, syncType, orgSyncModels, syncStarte
     }
     if (error) {
         logEntry.error = error instanceof Error ? error.message : error;
+    }
+    if (reason) {
+        logEntry.reason = reason;
     }
     if (syncEvent === 'SYNC_FAILED') {
         logger.error(logEntry);
@@ -316,129 +319,165 @@ function routeToWorker(syncModels) {
         orgSyncModels
     });
     return Promise.map(Object.keys(orgSyncModels), function (eachOrg) {
-        var syncStartedAt = Date.now();
         var syncType = orgSyncModels[eachOrg][0].syncType;
-        logSyncEvent('SYNC_STARTED', eachOrg, syncType, orgSyncModels[eachOrg]);
-        logger.debug({
-            message: 'Will update syncInProcess to true for this org',
-            eachOrg,
-            functionName: 'routeToWorker'
-        });
-        return db.collection('SyncModel').updateMany({
-            orgModelId: ObjectId(eachOrg)
-        }, {
-            $set: {
-                syncInProcess: true
-            }
-        })
-            .catch(function (error) {
-                logger.error({
-                    message: 'Could not update sync status',
-                    error,
-                    functionName: 'routeToWorker',
-                    eachOrg
-                });
-            })
-            .then(function (response) {
-                logger.debug({
-                    message: 'Updated sync models to inProcess',
-                    response,
-                    organisation: eachOrg
-                });
-                if (orgSyncModels[eachOrg][0].syncType === 'msd') {
-                    logger.debug({
-                        message: 'Will find differential MSD data for this org',
-                        eachOrg,
-                        functionName: 'routeToWorker'
-                    });
-                    var findDifferentialMSDData = require('./workers-v2/find-differential-data/find-differential-msd-data');
-                    return findDifferentialMSDData.run(eachOrg, orgSyncModels[eachOrg]);
+        return isVendIntegrationInactive(eachOrg, syncType)
+            .then(function (inactive) {
+                if (inactive) {
+                    // fetching would fail anyway until the merchant reconnects, so don't mark it in process
+                    logSyncEvent('SYNC_SKIPPED', eachOrg, syncType, orgSyncModels[eachOrg], null, null,
+                        'Vend integration is inactive, merchant must reconnect Vend');
+                    return Promise.resolve('Sync skipped, Vend integration inactive');
                 }
-                else if (orgSyncModels[eachOrg][0].syncType === 'vend') {
-                    logger.debug({
-                        message: 'Will find differential Vend data for this org',
-                        organisation: eachOrg,
-                        functionName: 'routeToWorker'
-                    });
-                    var findDifferentialVendData = require('./workers-v2/find-differential-data/find-differential-vend-data');
-                    return findDifferentialVendData.run(eachOrg, orgSyncModels[eachOrg]);
-                }
-            })
-            .catch(function (error) {
-                logSyncEvent('SYNC_FAILED', eachOrg, syncType, orgSyncModels[eachOrg], syncStartedAt, error);
-                logger.error({
-                    message: 'Could not initiate sync for org, will reset syncInProcess to false',
-                    error,
-                    eachOrg,
-                    functionName: 'routeToWorker'
-                });
-                // IMPORTANT: Reset syncInProcess to false on error so the sync can be retried
-                return db.collection('SyncModel').updateMany({
-                    orgModelId: ObjectId(eachOrg)
-                }, {
-                    $set: {
-                        syncInProcess: false
-                        // Don't update lastSyncedAt on error - let it retry sooner
-                    }
-                })
-                    .then(function() {
-                        logger.debug({
-                            message: 'Reset syncInProcess to false after error',
-                            eachOrg,
-                            functionName: 'routeToWorker'
-                        });
-                        return Promise.resolve('Sync failed but reset flag');
-                    })
-                    .catch(function(resetError) {
-                        logger.error({
-                            message: 'Could not reset syncInProcess after error',
-                            resetError,
-                            eachOrg,
-                            functionName: 'routeToWorker'
-                        });
-                        return Promise.resolve('Sync failed and could not reset flag');
-                    });
-            })
-            .then(function (response) {
-                // Skip if this is a recovery from error (response is a string message)
-                if (typeof response === 'string' && response.includes('Sync failed')) {
-                    logger.debug({
-                        message: 'Skipping success update - this was an error recovery',
-                        response,
-                        eachOrg
-                    });
-                    return Promise.resolve(response);
-                }
-                if (response && response.status === 'failed') {
-                    logSyncEvent('SYNC_FAILED', eachOrg, syncType, orgSyncModels[eachOrg], syncStartedAt, response.error);
-                }
-                else {
-                    logSyncEvent('SYNC_COMPLETED', eachOrg, syncType, orgSyncModels[eachOrg], syncStartedAt);
-                }
-                logger.debug({
-                    message: 'Successfully synced data for org, will update syncInProcess to false',
-                    response,
-                    eachOrg
-                });
-                return db.collection('SyncModel').updateMany({
-                    orgModelId: ObjectId(eachOrg)
-                }, {
-                    $set: {
-                        syncInProcess: false,
-                        lastSyncedAt: new Date()
-                    }
-                });
-            })
-            .catch(function (error) {
-                logger.error({
-                    message: 'Could not update sync status, will move on',
-                    error,
-                    functionName: 'routeToWorker',
-                    eachOrg
-                });
-                return Promise.resolve('Could not update sync status, will move on');
+                return syncOrg(eachOrg, syncType, orgSyncModels);
             });
     }, {
         concurrency: 1
     });
+}
+
+/**
+ * True only for Vend orgs whose integration was marked inactive (e.g. refresh token revoked).
+ * Lookup errors return false so the sync behaves as before.
+ */
+function isVendIntegrationInactive(orgModelId, syncType) {
+    if (syncType !== 'vend') {
+        return Promise.resolve(false);
+    }
+    return Promise.resolve(utils.findVendIntegration(db, orgModelId))
+        .then(function (integrationModelInstance) {
+            return !!(integrationModelInstance && integrationModelInstance.isActive === false);
+        })
+        .catch(function (error) {
+            logger.error({
+                message: 'Could not check Vend integration status, will sync as usual',
+                error,
+                orgModelId,
+                functionName: 'isVendIntegrationInactive'
+            });
+            return false;
+        });
+}
+
+function syncOrg(eachOrg, syncType, orgSyncModels) {
+    var syncStartedAt = Date.now();
+    logSyncEvent('SYNC_STARTED', eachOrg, syncType, orgSyncModels[eachOrg]);
+    logger.debug({
+        message: 'Will update syncInProcess to true for this org',
+        eachOrg,
+        functionName: 'routeToWorker'
+    });
+    return db.collection('SyncModel').updateMany({
+        orgModelId: ObjectId(eachOrg)
+    }, {
+        $set: {
+            syncInProcess: true
+        }
+    })
+        .catch(function (error) {
+            logger.error({
+                message: 'Could not update sync status',
+                error,
+                functionName: 'routeToWorker',
+                eachOrg
+            });
+        })
+        .then(function (response) {
+            logger.debug({
+                message: 'Updated sync models to inProcess',
+                response,
+                organisation: eachOrg
+            });
+            if (orgSyncModels[eachOrg][0].syncType === 'msd') {
+                logger.debug({
+                    message: 'Will find differential MSD data for this org',
+                    eachOrg,
+                    functionName: 'routeToWorker'
+                });
+                var findDifferentialMSDData = require('./workers-v2/find-differential-data/find-differential-msd-data');
+                return findDifferentialMSDData.run(eachOrg, orgSyncModels[eachOrg]);
+            }
+            else if (orgSyncModels[eachOrg][0].syncType === 'vend') {
+                logger.debug({
+                    message: 'Will find differential Vend data for this org',
+                    organisation: eachOrg,
+                    functionName: 'routeToWorker'
+                });
+                var findDifferentialVendData = require('./workers-v2/find-differential-data/find-differential-vend-data');
+                return findDifferentialVendData.run(eachOrg, orgSyncModels[eachOrg]);
+            }
+        })
+        .catch(function (error) {
+            logSyncEvent('SYNC_FAILED', eachOrg, syncType, orgSyncModels[eachOrg], syncStartedAt, error);
+            logger.error({
+                message: 'Could not initiate sync for org, will reset syncInProcess to false',
+                error,
+                eachOrg,
+                functionName: 'routeToWorker'
+            });
+            // IMPORTANT: Reset syncInProcess to false on error so the sync can be retried
+            return db.collection('SyncModel').updateMany({
+                orgModelId: ObjectId(eachOrg)
+            }, {
+                $set: {
+                    syncInProcess: false
+                    // Don't update lastSyncedAt on error - let it retry sooner
+                }
+            })
+                .then(function() {
+                    logger.debug({
+                        message: 'Reset syncInProcess to false after error',
+                        eachOrg,
+                        functionName: 'routeToWorker'
+                    });
+                    return Promise.resolve('Sync failed but reset flag');
+                })
+                .catch(function(resetError) {
+                    logger.error({
+                        message: 'Could not reset syncInProcess after error',
+                        resetError,
+                        eachOrg,
+                        functionName: 'routeToWorker'
+                    });
+                    return Promise.resolve('Sync failed and could not reset flag');
+                });
+        })
+        .then(function (response) {
+            // Skip if this is a recovery from error (response is a string message)
+            if (typeof response === 'string' && response.includes('Sync failed')) {
+                logger.debug({
+                    message: 'Skipping success update - this was an error recovery',
+                    response,
+                    eachOrg
+                });
+                return Promise.resolve(response);
+            }
+            if (response && response.status === 'failed') {
+                logSyncEvent('SYNC_FAILED', eachOrg, syncType, orgSyncModels[eachOrg], syncStartedAt, response.error);
+            }
+            else {
+                logSyncEvent('SYNC_COMPLETED', eachOrg, syncType, orgSyncModels[eachOrg], syncStartedAt);
+            }
+            logger.debug({
+                message: 'Successfully synced data for org, will update syncInProcess to false',
+                response,
+                eachOrg
+            });
+            return db.collection('SyncModel').updateMany({
+                orgModelId: ObjectId(eachOrg)
+            }, {
+                $set: {
+                    syncInProcess: false,
+                    lastSyncedAt: new Date()
+                }
+            });
+        })
+        .catch(function (error) {
+            logger.error({
+                message: 'Could not update sync status, will move on',
+                error,
+                functionName: 'routeToWorker',
+                eachOrg
+            });
+            return Promise.resolve('Could not update sync status, will move on');
+        });
 }

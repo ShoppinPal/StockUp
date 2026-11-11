@@ -248,31 +248,54 @@ var isInvalidGrantError = function (error) {
     return !!(error && error.errorCode === INVALID_GRANT);
 };
 
+// wait before re-checking the DB on invalid_grant, so a parallel refresh that won the race can save its new token
+var INVALID_GRANT_RECHECK_DELAY_MS = parseInt(process.env.VEND_INVALID_GRANT_RECHECK_DELAY_MS || '3000', 10);
+
 /**
- * Called when Lightspeed rejects the refresh token. The token can never recover,
- * so mark the integration inactive (stops further refresh attempts) and alert once.
+ * Called when Lightspeed rejects a refresh token. Only deactivates the integration if the
+ * rejected token is still the one in the DB: if another worker already rotated it, this job
+ * just held a stale token and the integration is healthy.
  */
-var deactivateVendIntegration = function (db, integrationModelInstance, messageId) {
-    return db.collection('IntegrationModel').updateOne({
-        _id: integrationModelInstance._id,
-        isActive: {$ne: false}
-    }, {
-        $set: {
-            isActive: false,
-            deactivatedAt: new Date(),
-            deactivationReason: INVALID_GRANT
-        }
-    })
-        .then(function (result) {
-            logger.error({
-                message: 'Lightspeed rejected the refresh token (invalid_grant), marked Vend integration inactive',
-                orgModelId: integrationModelInstance.orgModelId,
-                domainPrefix: integrationModelInstance.domain_prefix,
-                integrationModelId: integrationModelInstance._id,
-                functionName: 'deactivateVendIntegration',
-                messageId
+var deactivateVendIntegration = function (db, integrationModelInstance, usedRefreshToken, messageId) {
+    return Promise.delay(INVALID_GRANT_RECHECK_DELAY_MS)
+        .then(function () {
+            return db.collection('IntegrationModel').findOne({_id: integrationModelInstance._id});
+        })
+        .then(function (latestIntegration) {
+            if (!latestIntegration || latestIntegration.isActive === false) {
+                return null;
+            }
+            if (latestIntegration.refresh_token !== usedRefreshToken) {
+                logger.debug({
+                    message: 'Refresh token was rotated by another worker, not deactivating Vend integration',
+                    orgModelId: integrationModelInstance.orgModelId,
+                    functionName: 'deactivateVendIntegration',
+                    messageId
+                });
+                return null;
+            }
+            return db.collection('IntegrationModel').updateOne({
+                _id: integrationModelInstance._id,
+                isActive: {$ne: false},
+                refresh_token: usedRefreshToken
+            }, {
+                $set: {
+                    isActive: false,
+                    deactivatedAt: new Date(),
+                    deactivationReason: INVALID_GRANT
+                }
             });
+        })
+        .then(function (result) {
             if (result && result.modifiedCount === 1) {
+                logger.error({
+                    message: 'Lightspeed rejected the refresh token (invalid_grant), marked Vend integration inactive',
+                    orgModelId: integrationModelInstance.orgModelId,
+                    domainPrefix: integrationModelInstance.domain_prefix,
+                    integrationModelId: integrationModelInstance._id,
+                    functionName: 'deactivateVendIntegration',
+                    messageId
+                });
                 sendSlackMessage(
                     'Vend integration disconnected',
                     'Org ' + integrationModelInstance.orgModelId + ' (' + integrationModelInstance.domain_prefix + '.vendhq.com): ' +
@@ -363,7 +386,7 @@ var fetchVendTokenFromDb = function (db, orgModelId, messageId) {
                     )
                         .catch(function (error) {
                             if (isInvalidGrantError(error)) {
-                                return deactivateVendIntegration(db, integrationModelInstance, messageId)
+                                return deactivateVendIntegration(db, integrationModelInstance, integrationModelInstance.refresh_token, messageId)
                                     .then(function () {
                                         return Promise.reject(error);
                                     });
@@ -577,7 +600,8 @@ function getVendConnectionInfo(db, orgModelId, messageId) {
                 // called by vend-nodejs-sdk when that refresh fails
                 onRefreshFailure: function (failedConnectionInfo, error) {
                     if (isInvalidGrantError(error)) {
-                        return deactivateVendIntegration(db, integrationModelInstance, messageId);
+                        // the SDK only replaces refreshToken after a successful refresh, so this is the rejected one
+                        return deactivateVendIntegration(db, integrationModelInstance, failedConnectionInfo.refreshToken, messageId);
                     }
                 }
             };

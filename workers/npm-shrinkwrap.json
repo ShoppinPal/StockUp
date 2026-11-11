@@ -4123,8 +4123,8 @@
     },
     "vend-nodejs-sdk": {
       "version": "1.1.1",
-      "from": "git+https://github.com/ShoppinPal/vend-nodejs-sdk.git#9b0adcc1a084307b33e65a1adfc19f02439cea2b",
-      "resolved": "git+https://github.com/ShoppinPal/vend-nodejs-sdk.git#9b0adcc1a084307b33e65a1adfc19f02439cea2b",
+      "from": "git+https://github.com/ShoppinPal/vend-nodejs-sdk.git#d83f9bdb385ea5ef9bdef9b91831ea483e478b54",
+      "resolved": "git+https://github.com/ShoppinPal/vend-nodejs-sdk.git#d83f9bdb385ea5ef9bdef9b91831ea483e478b54",
       "dependencies": {
         "async": {
           "version": "0.9.2",
