@@ -59,9 +59,7 @@ var runMe = function (orgModelId, syncModels) {
                         message: 'Fetched new vend token, will look for organisation\'s integration model',
                         orgModelId
                     });
-                    return db.collection('IntegrationModel').findOne({
-                        orgModelId: ObjectId(orgModelId)
-                    });
+                    return utils.findVendIntegration(db, orgModelId);
                 })
                 .catch(function (error) {
                     logger.error({
