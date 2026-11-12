@@ -223,16 +223,120 @@ var notifyClient = function (taskPayload, taskConfig, notificationPayload) {
     }
 };
 
+var INVALID_GRANT = 'invalid_grant';
+
+/**
+ * Finds the integration record an org should use: the newest one that is not inactive,
+ * falling back to any record so callers can report an inactive integration.
+ */
+var findVendIntegration = function (db, orgModelId) {
+    return db.collection('IntegrationModel').findOne({
+        orgModelId: ObjectId(orgModelId),
+        isActive: {$ne: false}
+    }, {sort: {_id: -1}})
+        .then(function (activeIntegration) {
+            if (activeIntegration) {
+                return activeIntegration;
+            }
+            return db.collection('IntegrationModel').findOne({
+                orgModelId: ObjectId(orgModelId)
+            }, {sort: {_id: -1}});
+        });
+};
+
+var isInvalidGrantError = function (error) {
+    return !!(error && error.errorCode === INVALID_GRANT);
+};
+
+// wait before re-checking the DB on invalid_grant, so a parallel refresh that won the race can save its new token
+var INVALID_GRANT_RECHECK_DELAY_MS = parseInt(process.env.VEND_INVALID_GRANT_RECHECK_DELAY_MS || '3000', 10);
+
+/**
+ * Called when Lightspeed rejects a refresh token. Only deactivates the integration if the
+ * rejected token is still the one in the DB: if another worker already rotated it, this job
+ * just held a stale token and the integration is healthy.
+ */
+var deactivateVendIntegration = function (db, integrationModelInstance, usedRefreshToken, messageId) {
+    return Promise.delay(INVALID_GRANT_RECHECK_DELAY_MS)
+        .then(function () {
+            return db.collection('IntegrationModel').findOne({_id: integrationModelInstance._id});
+        })
+        .then(function (latestIntegration) {
+            if (!latestIntegration || latestIntegration.isActive === false) {
+                return null;
+            }
+            if (latestIntegration.refresh_token !== usedRefreshToken) {
+                logger.debug({
+                    message: 'Refresh token was rotated by another worker, not deactivating Vend integration',
+                    orgModelId: integrationModelInstance.orgModelId,
+                    functionName: 'deactivateVendIntegration',
+                    messageId
+                });
+                return null;
+            }
+            return db.collection('IntegrationModel').updateOne({
+                _id: integrationModelInstance._id,
+                isActive: {$ne: false},
+                refresh_token: usedRefreshToken
+            }, {
+                $set: {
+                    isActive: false,
+                    deactivatedAt: new Date(),
+                    deactivationReason: INVALID_GRANT
+                }
+            });
+        })
+        .then(function (result) {
+            if (result && result.modifiedCount === 1) {
+                logger.error({
+                    message: 'Lightspeed rejected the refresh token (invalid_grant), marked Vend integration inactive',
+                    orgModelId: integrationModelInstance.orgModelId,
+                    domainPrefix: integrationModelInstance.domain_prefix,
+                    integrationModelId: integrationModelInstance._id,
+                    functionName: 'deactivateVendIntegration',
+                    messageId
+                });
+                sendSlackMessage(
+                    'Vend integration disconnected',
+                    'Org ' + integrationModelInstance.orgModelId + ' (' + integrationModelInstance.domain_prefix + '.vendhq.com): ' +
+                    'Lightspeed rejected the refresh token (invalid_grant). Sync and orders to Lightspeed are stopped until the merchant reconnects Vend.',
+                    false
+                );
+            }
+        })
+        .catch(function (error) {
+            logger.error({
+                message: 'Could not mark Vend integration inactive',
+                error,
+                orgModelId: integrationModelInstance.orgModelId,
+                functionName: 'deactivateVendIntegration',
+                messageId
+            });
+        });
+};
+
+// refreshes in progress, by orgModelId, so parallel calls in one process share a single refresh
+var vendTokenRequestsInFlight = {};
+
 var fetchVendToken = function (db, orgModelId, messageId) {
+    var key = String(orgModelId);
+    if (!vendTokenRequestsInFlight[key]) {
+        vendTokenRequestsInFlight[key] = fetchVendTokenFromDb(db, orgModelId, messageId)
+            .finally(function () {
+                delete vendTokenRequestsInFlight[key];
+            });
+    }
+    return vendTokenRequestsInFlight[key];
+};
+
+var fetchVendTokenFromDb = function (db, orgModelId, messageId) {
     logger.debug({
         message: 'Will refresh Vend token',
         functionName: 'fetchVendToken',
         messageId
     });
     var integrationModelInstance = null, token = null;
-    return db.collection('IntegrationModel').findOne({
-        orgModelId: ObjectId(orgModelId)
-    })
+    return Promise.resolve(findVendIntegration(db, orgModelId))
         .catch(function (error) {
             logger.error({
                 message: 'Could not find integrationModel for org',
@@ -247,9 +351,22 @@ var fetchVendToken = function (db, orgModelId, messageId) {
             integrationModelInstance = response;
             logger.debug({
                 message: 'Found this integrationModel',
-                integrationModelInstance,
+                integrationModelId: integrationModelInstance && integrationModelInstance._id,
+                domainPrefix: integrationModelInstance && integrationModelInstance.domain_prefix,
+                isActive: integrationModelInstance && integrationModelInstance.isActive,
+                expires: integrationModelInstance && integrationModelInstance.expires,
                 functionName: 'fetchVendToken'
             });
+            if (integrationModelInstance && integrationModelInstance.isActive === false) {
+                logger.error({
+                    message: 'Vend integration is inactive, merchant must reconnect Vend',
+                    orgModelId,
+                    deactivationReason: integrationModelInstance.deactivationReason,
+                    functionName: 'fetchVendToken',
+                    messageId
+                });
+                return Promise.reject('Vend integration is inactive, merchant must reconnect Vend');
+            }
             if (integrationModelInstance) {
                 if (integrationModelInstance.expires<(Date.now() / 1000)) {
                     logger.debug({
@@ -266,7 +383,16 @@ var fetchVendToken = function (db, orgModelId, messageId) {
                     let tokenService = 'https://' + integrationModelInstance.domain_prefix + vendConfig.token_service;
                     return retryIfErrorCode(
                         () => vendSdk.refreshAccessToken(tokenService, vendConfig.client_id, vendConfig.client_secret, integrationModelInstance.refresh_token, integrationModelInstance.domain_prefix)
-                    );
+                    )
+                        .catch(function (error) {
+                            if (isInvalidGrantError(error)) {
+                                return deactivateVendIntegration(db, integrationModelInstance, integrationModelInstance.refresh_token, messageId)
+                                    .then(function () {
+                                        return Promise.reject(error);
+                                    });
+                            }
+                            return Promise.reject(error);
+                        });
                 }
                 else {
                     logger.debug({
@@ -313,7 +439,7 @@ var fetchVendToken = function (db, orgModelId, messageId) {
                     updateResponse.refresh_token = res.refresh_token;
                 }
                 return db.collection('IntegrationModel').updateOne({
-                    orgModelId: ObjectId(orgModelId)
+                    _id: integrationModelInstance._id
                 }, {
                     $set: updateResponse
                 });
@@ -389,10 +515,50 @@ function sendSlackMessage(title, message, success) {
     });
 }
 
-function getVendConnectionInfo(db, orgModelId) {
-    return db.collection('IntegrationModel').findOne({
-        orgModelId: ObjectId(orgModelId)
+/**
+ * Saves tokens that the vend-nodejs-sdk refreshed by itself after a 401.
+ * Lightspeed spends the old refresh token on every refresh, so not saving these
+ * leaves a dead refresh token in the DB and the org can never refresh again.
+ */
+function saveRefreshedVendTokens(db, integrationModelInstance, oauthInfo) {
+    var updateResponse = {
+        access_token: oauthInfo.access_token,
+        updatedAt: new Date()
+    };
+    if (oauthInfo.refresh_token) {
+        updateResponse.refresh_token = oauthInfo.refresh_token;
+    }
+    if (oauthInfo.expires) {
+        updateResponse.expires = oauthInfo.expires;
+    }
+    if (oauthInfo.expires_in) {
+        updateResponse.expires_in = oauthInfo.expires_in;
+    }
+    return db.collection('IntegrationModel').updateOne({
+        _id: integrationModelInstance._id
+    }, {
+        $set: updateResponse
     })
+        .then(function () {
+            logger.debug({
+                message: 'Saved tokens refreshed by vend sdk after 401',
+                orgModelId: integrationModelInstance.orgModelId,
+                functionName: 'saveRefreshedVendTokens'
+            });
+        })
+        .catch(function (error) {
+            // do not fail the job, the in-memory token still works for this request
+            logger.error({
+                message: 'Could not save tokens refreshed by vend sdk, org may need to reconnect Vend',
+                error,
+                orgModelId: integrationModelInstance.orgModelId,
+                functionName: 'saveRefreshedVendTokens'
+            });
+        });
+}
+
+function getVendConnectionInfo(db, orgModelId, messageId) {
+    return Promise.resolve(findVendIntegration(db, orgModelId))
         .catch(function (error) {
             logger.error({
                 message: 'Could not find integrations for this org',
@@ -408,6 +574,12 @@ function getVendConnectionInfo(db, orgModelId) {
                 functionName: 'getVendConnectionInfo',
                 orgModelId
             });
+            if (!integrationModelInstance) {
+                return Promise.reject('Could not find integration for this org');
+            }
+            if (integrationModelInstance.isActive === false) {
+                return Promise.reject('Vend integration is inactive, merchant must reconnect Vend');
+            }
             let tokenService = 'https://' + integrationModelInstance.domain_prefix + process.env.VEND_TOKEN_SERVICE;
             var connectionInfo = {
                 domainPrefix: integrationModelInstance.domain_prefix,
@@ -417,7 +589,21 @@ function getVendConnectionInfo(db, orgModelId) {
                 refreshToken: integrationModelInstance.refresh_token,
                 vendTokenService: tokenService,
                 vendClientId: process.env.VEND_CLIENT_ID,
-                vendClientSecret: process.env.VEND_CLIENT_SECRET
+                vendClientSecret: process.env.VEND_CLIENT_SECRET,
+                // called by vend-nodejs-sdk when it refreshes the token after a 401
+                updateAccessToken: function (updatedConnectionInfo, oauthInfo) {
+                    return saveRefreshedVendTokens(db, integrationModelInstance, oauthInfo || {
+                        access_token: updatedConnectionInfo.accessToken,
+                        refresh_token: updatedConnectionInfo.refreshToken
+                    });
+                },
+                // called by vend-nodejs-sdk when that refresh fails
+                onRefreshFailure: function (failedConnectionInfo, error) {
+                    if (isInvalidGrantError(error)) {
+                        // the SDK only replaces refreshToken after a successful refresh, so this is the rejected one
+                        return deactivateVendIntegration(db, integrationModelInstance, failedConnectionInfo.refreshToken, messageId);
+                    }
+                }
             };
             return Promise.resolve(connectionInfo);
         });
@@ -643,6 +829,7 @@ exports.getAbsoluteFilename = getAbsoluteFilename;
 exports.loadOauthTokens = loadOauthTokens;
 exports.updateOauthTokens = updateOauthTokens;
 exports.fetchVendToken = fetchVendToken;
+exports.findVendIntegration = findVendIntegration;
 exports.exportToJsonFileFormat = exportToJsonFileFormat;
 exports.notifyClient = notifyClient;
 exports.sendSlackMessage = sendSlackMessage;
